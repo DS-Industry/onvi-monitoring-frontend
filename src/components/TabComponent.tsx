@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Indicators from "./Indicators";
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -23,9 +24,9 @@ const TabComponent: React.FC = () => {
         ))}
       </div>
       <div className="mt-4">
-      {activeTab === 0 && <div>tab1</div>}
-      {activeTab === 1 && <div>tab2</div>}
-      {activeTab === 2 && <div>tab3</div>}
+        {activeTab === 0 && <div>tab1</div>}
+        {activeTab === 1 && <Indicators />}
+        {activeTab === 2 && <div>tab3</div>}
       </div>
     </div>
   );
