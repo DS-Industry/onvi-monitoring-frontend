@@ -23,6 +23,10 @@ export default {
       boxShadow: {
         card: "0 2px 13px -2px rgba(27, 33, 44, 0.12)",
       },
+      backgroundImage: {
+        'Factory-Letter-S': "url('./src/assets/Factory Letter S.svg')",
+
+      }
     },
   },
   plugins: [],

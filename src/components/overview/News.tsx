@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Toast from "../ui/Toast";
 import Notification from "../ui/Notification";
+import FactoryLetterS from "../../assets/Factory Letter S.svg?react";
+import ArrowRight from "../../assets/icons/keyboard_arrow_right.svg?react";
 
 interface NewsItem {
   id: number;
@@ -25,7 +27,7 @@ const News: React.FC = () => {
   };
 
   return (
-    <div>
+    <>
       {notificationVisible && (
         <Notification
           title="Ваши новости"
@@ -33,22 +35,35 @@ const News: React.FC = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
-      <div>
-        
+      <div className="grid grid-cols-2 gap-6">
+        <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
+          <p className="text-sm text-text02 font-semibold">Осталось 264 дня</p>
+          <p className="font-semibold text-2xl">
+            Вы используете тариф «Максимальный»
+          </p>
+          <div className="relative">
+            <FactoryLetterS className="ml-auto" />
+          </div>
+          <button className="text-primary02 flex items-center gap-2 py-2.5 font-semibold text-sm">
+            К тарифу <ArrowRight />
+          </button>
+        </div>
+        {news.map((item) => (
+          <Toast
+            key={item.id}
+            id={item.id}
+            textColor="black"
+            bgColor="background05"
+            onClose={handleClose}
+          >
+            <div>{item.title}</div>
+            <div>{item.text}</div>
+          </Toast>
+        ))}
       </div>
-      {news.map((item) => (
-        <Toast
-          key={item.id}
-          id={item.id}
-          textColor="black"
-          bgColor="background05"
-          onClose={handleClose}
-        >
-          <div>{item.title}</div>
-          <div>{item.text}</div>
-        </Toast>
-      ))}
-    </div>
+
+      
+    </>
   );
 };
 
