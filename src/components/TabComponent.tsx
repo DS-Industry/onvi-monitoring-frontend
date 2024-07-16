@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Indicators from "./Indicators";
+import Indicators from "./overview/Indicators";
+import News from "./overview/News";
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -23,8 +24,8 @@ const TabComponent: React.FC = () => {
           </button>
         ))}
       </div>
-      <div className="mt-4">
-        {activeTab === 0 && <div>tab1</div>}
+      <div className="mt-8">
+        {activeTab === 0 && <News/>}
         {activeTab === 1 && <Indicators />}
         {activeTab === 2 && <div>tab3</div>}
       </div>
