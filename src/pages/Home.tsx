@@ -1,5 +1,7 @@
+import TabComponent from "../components/TabComponent";
+
 const Home = () => {
-  return <div>Home</div>;
+  return <TabComponent />;
 };
 
 export default Home;

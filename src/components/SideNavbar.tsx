@@ -4,10 +4,11 @@ import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import { navItem } from "../utils/NavLinks";
 import QuestionmarkIcon from "../assets/icons/qustion-mark.svg?react";
-import DoubleArrowLeft from "../assets/icons/keyboard_double_arrow_left.svg?react"
-import DoubleArrowRight from "../assets/icons/keyboard_double_arrow_right.svg?react"
-import ArrowRight from "../assets/icons/keyboard_arrow_right.svg?react"
-import NotificationYes from "../assets/icons/Notification_Yes.svg?react"
+import DoubleArrowLeft from "../assets/icons/keyboard_double_arrow_left.svg?react";
+import DoubleArrowRight from "../assets/icons/keyboard_double_arrow_right.svg?react";
+import ArrowRight from "../assets/icons/keyboard_arrow_right.svg?react";
+import NotificationYes from "../assets/icons/Notification_Yes.svg?react";
+import EZ from "../assets/icons/EZ.svg?react";
 
 type Props = {
   children: React.ReactNode;
@@ -110,9 +111,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {isOpen && <span>Notification</span>}
             </div>
             <div className="mt-5 py-3  border-t-2 border-text02 flex gap-2 px-4">
-              <div className="h-12 w-12 rounded-full bg-primary01 flex justify-center items-center">
-                ЕЖ
-              </div>
+              <EZ />
               {isOpen && (
                 <div className="text-text02">
                   <p>Евгения Жальская</p>
