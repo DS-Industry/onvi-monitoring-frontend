@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Indicators from "./overview/Indicators";
 import News from "./overview/News";
+import RatingOfCarWases from "./overview/RatingOfCarWases";
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -25,9 +26,9 @@ const TabComponent: React.FC = () => {
         ))}
       </div>
       <div className="mt-8">
-        {activeTab === 0 && <News/>}
+        {activeTab === 0 && <News />}
         {activeTab === 1 && <Indicators />}
-        {activeTab === 2 && <div>tab3</div>}
+        {activeTab === 2 && <RatingOfCarWases />}
       </div>
     </div>
   );
