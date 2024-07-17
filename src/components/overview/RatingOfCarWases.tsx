@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "chart.js";
 import Notification from "../ui/Notification";
+import Calendar from "../ui/Calendar"
 
 ChartJS.register(
   CategoryScale,
@@ -52,9 +53,9 @@ const data = {
     {
       label: "Expenses",
       data: [600, 300, 500, 180],
-      borderColor: ["#5E5FCD", "#CD5E5E", "#A95ECD", "#6ECD5E"],
       backgroundColor: ["#5E5FCD", "#CD5E5E", "#A95ECD", "#6ECD5E"],
       borderRadius: 4,
+      barThickness: 100
     },
   ],
 };
@@ -70,11 +71,11 @@ const RatingOfCarWases = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
-       <div className="mt-4 bg-white shadow-card rounded-lg">
-          <p className="p-8 text-background01 font-semibold text-2xl mb-8">
+       <div className="mt-4 grid gap-8 p-8 bg-white shadow-card rounded-lg">
+          <p className="text-background01 font-semibold text-2xl">
             График по выручке
           </p>
-          <div className="flex p-8 justify-between mb-8">
+          <div className="flex justify-between">
             <select
               id="countries"
               className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block w-64 p-2.5 outline-none"
@@ -87,16 +88,17 @@ const RatingOfCarWases = () => {
               ))}
             </select>
 
-            <div className="flex">
+            <div className="flex gap-2">
               {durations.map((duration) => (
                 <button
                   key={duration.label}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2"
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1"
                 >
                   {duration.label}
                 </button>
               ))}
-              <select
+              <Calendar/>
+              {/* <select
                 id="countries"
                 className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2 outline-none"
               >
@@ -106,10 +108,10 @@ const RatingOfCarWases = () => {
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
           </div>
-          <Bar className="p-8" options={options} data={data} />
+          <Bar options={options} data={data} />
         </div>
     </>
   );

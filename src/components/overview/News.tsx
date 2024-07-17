@@ -35,6 +35,7 @@ const News: React.FC = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
+
       <div className="grid grid-cols-2 gap-6">
         <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
           <p className="text-sm text-text02 font-semibold">Осталось 264 дня</p>
@@ -60,9 +61,7 @@ const News: React.FC = () => {
             <div>{item.text}</div>
           </Toast>
         ))}
-      </div>
-
-      
+      </div>  
     </>
   );
 };
