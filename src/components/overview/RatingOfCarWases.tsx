@@ -1,8 +1,66 @@
 import { useState } from "react";
+import { Bar } from "react-chartjs-2";
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  BarElement,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
 import Notification from "../ui/Notification";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+const selectOptions: {
+  value: string;
+  label: string;
+}[] = [
+  { value: "last_7_days", label: "Последние 7 дней" },
+  { value: "last_30_days", label: "Последние 30 дней" },
+  { value: "last_90_days", label: "Последние 90 дней" },
+  { value: "last_month", label: "Последний месяц" },
+  { value: "last_year", label: "Последний год" },
+];
+
+const durations: { label: string }[] = [
+  { label: "Today" },
+  { label: "For a week" },
+  { label: "For a month" },
+];
+
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+};
+
+const data = {
+  labels: ["Rent", "Groceries", "Utilities", "Entertainment"],
+  datasets: [
+    {
+      label: "Expenses",
+      data: [600, 300, 500, 180],
+      borderColor: ["#5E5FCD", "#CD5E5E", "#A95ECD", "#6ECD5E"],
+      backgroundColor: ["#5E5FCD", "#CD5E5E", "#A95ECD", "#6ECD5E"],
+      borderRadius: 4,
+    },
+  ],
+};
 const RatingOfCarWases = () => {
-    const [notificationVisible, setNotificationVisible] = useState(true);
+  const [notificationVisible, setNotificationVisible] = useState(true);
+
   return (
     <>
       {notificationVisible && (
@@ -12,6 +70,47 @@ const RatingOfCarWases = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
+       <div className="mt-4 bg-white shadow-card rounded-lg">
+          <p className="p-8 text-background01 font-semibold text-2xl mb-8">
+            График по выручке
+          </p>
+          <div className="flex p-8 justify-between mb-8">
+            <select
+              id="countries"
+              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block w-64 p-2.5 outline-none"
+            >
+              <option selected>Choose a country</option>
+              {selectOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex">
+              {durations.map((duration) => (
+                <button
+                  key={duration.label}
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2"
+                >
+                  {duration.label}
+                </button>
+              ))}
+              <select
+                id="countries"
+                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2 outline-none"
+              >
+                <option selected>Choose a country</option>
+                {selectOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <Bar className="p-8" options={options} data={data} />
+        </div>
     </>
   );
 };

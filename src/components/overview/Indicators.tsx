@@ -90,7 +90,6 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const options = {
     responsive: true,
-    // maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
@@ -102,11 +101,11 @@ const Indicators: React.FC = () => {
     labels: revenueData.map((data) => data.label),
     datasets: [
       {
+        fill: true,
         label: "Revenue",
         data: revenueData.map((data) => data.revenue),
         borderColor: "#0B68E1",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        fill: true,
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },
     ],
   };
