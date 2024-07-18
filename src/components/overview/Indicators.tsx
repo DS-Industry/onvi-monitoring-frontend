@@ -1,35 +1,11 @@
 import React, { useState } from "react";
-import { Line } from "react-chartjs-2";
-import {
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-} from "chart.js";
-import revenueData from "../../data/revenueData.json";
 import TotalVisitorsIcon from "../../assets/icons/total-visitors.svg?react";
 import ProfitIcon from "../../assets/icons/profit.svg?react";
 import TotalDownTimeIcon from "../../assets/icons/total-downtime.svg?react";
 import TrendingUpIcon from "../../assets/icons/trending-up.svg?react";
 import TrendingDownIcon from "../../assets/icons/trending-down.svg?react";
 import Notification from "../ui/Notification";
-
-
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
+import LineChart from "../ui/LineChart";
 
 const cards = [
   {
@@ -91,27 +67,6 @@ const tableHeader: string[] = [
 
 const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-  };
-
-  const data = {
-    labels: revenueData.map((data) => data.label),
-    datasets: [
-      {
-        fill: true,
-        label: "Revenue",
-        data: revenueData.map((data) => data.revenue),
-        borderColor: "#0B68E1",
-        backgroundColor: '#9BD0F5',
-      },
-    ],
-  };
 
   return (
     <>
@@ -192,7 +147,7 @@ const Indicators: React.FC = () => {
               </select>
             </div>
           </div>
-          <Line options={options} data={data} />
+          <LineChart />
         </div>
         <div className="mt-4 p-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl mb-8">
