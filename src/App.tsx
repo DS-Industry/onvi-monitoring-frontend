@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       {
-        path: "Администрирование",
+        path: "administration",
         element: <About />,
       },
       { path: "Администрирование/sub1", element: <Home /> },
@@ -23,13 +23,13 @@ const router = createBrowserRouter([
       { path: "Администрирование/sub3", element: <Contact /> },
       { path: "Администрирование/sub4", element: <Home /> },
       { path: "Администрирование/sub5", element: <Services /> },
-      { path: "Станция", element: <Services /> },
+      { path: "station", element: <Services /> },
       { path: "Hr", element: <Contact /> },
-      { path: "Финансы", element: <Home /> },
-      { path: "Анализ", element: <About /> },
-      { path: "Лояльность", element: <Services /> },
-      { path: "Оборудование", element: <Contact /> },
-      { path: "Склад", element: <Contact /> },
+      { path: "finance", element: <Home /> },
+      { path: "analysis", element: <About /> },
+      { path: "Loyalty", element: <Services /> },
+      { path: "Equipment", element: <Contact /> },
+      { path: "Store", element: <Contact /> },
     ],
   },
 ]);

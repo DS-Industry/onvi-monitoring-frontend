@@ -17,7 +17,7 @@ export const navItem = [
   },
   {
     name: "Администрирование",
-    link: "/Администрирование",
+    link: "/administration",
     subMenu: true,
     icon: AdministrationIcon,
     subNavHeading: "Справочники",
@@ -31,7 +31,7 @@ export const navItem = [
   },
   {
     name: "Станция",
-    link: "/Станция",
+    link: "/station",
     subMenu: false,
     icon: CarWashIcon,
   },
@@ -43,13 +43,13 @@ export const navItem = [
   },
   {
     name: "Финансы",
-    link: "/Финансы",
+    link: "/finance",
     subMenu: false,
     icon: FinancesIcon,
   },
   {
     name: "Анализ",
-    link: "/Анализ",
+    link: "/analysis",
     subMenu: true,
     icon: MonitoringIcon,
     subNav: [
@@ -60,19 +60,19 @@ export const navItem = [
   },
   {
     name: "Лояльность",
-    link: "/Лояльность",
+    link: "/loyalty",
     subMenu: false,
     icon: LoyaltyIcon,
   },
   {
     name: "Оборудование",
-    link: "/Оборудование",
+    link: "/equipment",
     subMenu: false,
     icon: EquipmentIcon,
   },
   {
     name: "Склад",
-    link: "/Склад",
+    link: "/store",
     subMenu: false,
     icon: WarehouseIcon,
   },

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import { navItem } from "../utils/NavLinks";
@@ -17,6 +17,28 @@ type Props = {
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
+
+  const location = useLocation();
+
+  const getActivePageName = () => {
+    for (const item of navItem) {
+      if (location.pathname == item.link) {
+        return item.name;
+      }
+      // if (item.subNav) {
+      //   for (const subItem of item.subNav) {
+      //     if (location.pathname === subItem.path) {
+      //       return subItem.name;
+      //     }
+      //   }
+      // }
+    }
+    // return "Home"; // Default page name if no match is found
+  };
+
+  console.log(location)
+
+  const activePageName = getActivePageName();
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
@@ -140,7 +162,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
             </button>
             <div className="ms-12 flex items-center">
-              <span className="text-3xl">Hello</span>{" "}
+              <span className="text-3xl">{activePageName}</span>{" "}
               <QuestionmarkIcon className="text-2xl ms-2" />
             </div>
           </div>
