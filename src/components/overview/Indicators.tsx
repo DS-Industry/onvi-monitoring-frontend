@@ -6,6 +6,7 @@ import TrendingUpIcon from "../../assets/icons/trending-up.svg?react";
 import TrendingDownIcon from "../../assets/icons/trending-down.svg?react";
 import Notification from "../ui/Notification";
 import LineChart from "../ui/LineChart";
+import DatePickerComponent from "../ui/DatePickerComponent";
 
 const cards = [
   {
@@ -134,17 +135,7 @@ const Indicators: React.FC = () => {
                   {duration.label}
                 </button>
               ))}
-              <select
-                id="countries"
-                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2 outline-none"
-              >
-                <option selected>Choose a country</option>
-                {selectOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+             <DatePickerComponent />
             </div>
           </div>
           <LineChart />
@@ -172,17 +163,7 @@ const Indicators: React.FC = () => {
                   {duration.label}
                 </button>
               ))}
-              <select
-                id="countries"
-                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2 outline-none"
-              >
-                <option selected>Choose a country</option>
-                {selectOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <DatePickerComponent />
             </div>
           </div>
           <table className="w-full text-sm border-b">

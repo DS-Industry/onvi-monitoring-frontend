@@ -36,8 +36,6 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     // return "Home"; // Default page name if no match is found
   };
 
-  console.log(location)
-
   const activePageName = getActivePageName();
 
   const toggleNavbar = () => {

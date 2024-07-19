@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Notification from "../ui/Notification";
-import Calendar from "../ui/Calendar";
+import DatePickerComponent from "../ui/DatePickerComponent";
 import BarChart from "../ui/BarChart";
 
 const selectOptions: {
@@ -58,7 +58,7 @@ const RatingOfCarWases = () => {
                 {duration.label}
               </button>
             ))}
-            <Calendar />
+            <DatePickerComponent />
           </div>
         </div>
         <BarChart />

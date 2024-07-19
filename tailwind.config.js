@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
+  ],
   theme: {
     extend: {
       colors: {
@@ -13,7 +17,7 @@ export default {
         text04: "#FFFFFF",
         textError: "#FF3B30",
         successFill: "#00A355",
-        errorFill:"#EB5757",
+        errorFill: "#EB5757",
         background01: "#1F1F1F",
         background02: "#FFFFFF",
         background05: "#F8F8FA",
@@ -24,9 +28,8 @@ export default {
         card: "0 2px 13px -2px rgba(27, 33, 44, 0.12)",
       },
       backgroundImage: {
-        'Factory-Letter-S': "url('./src/assets/Factory Letter S.svg')",
-
-      }
+        "Factory-Letter-S": "url('./src/assets/Factory Letter S.svg')",
+      },
     },
   },
   plugins: [],
