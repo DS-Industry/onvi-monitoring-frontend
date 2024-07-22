@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Filter from "../components/ui/Filter";
 import ArrowDown from "../assets/icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "../assets/icons/keyboard_arrow_up.svg?react";
@@ -7,6 +7,20 @@ import OverflowTable from "../components/ui/OverflowTable";
 
 const About = () => {
   const [filterOpen, setFilterOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    if (filterOpen) {
+      if (contentRef.current) {
+        contentRef.current.style.maxHeight = `${contentRef.current.scrollHeight}px`;
+      }
+    } else {
+      if (contentRef.current) {
+        contentRef.current.style.maxHeight = '0';
+      }
+    }
+  }, [filterOpen]);
 
   return (
     <>
@@ -16,7 +30,12 @@ const About = () => {
       >
         Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
       </button>
-      {filterOpen && <Filter />}
+      <div
+     ref={contentRef}
+     className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
+      >
+        {filterOpen && <Filter />}
+      </div>
       <div className="container mt-8">
         <OverflowTable />
       </div>
