@@ -20,7 +20,7 @@ const About = () => {
       <div className="container mt-8">
         <OverflowTable />
       </div>
-      <button className="text-primary02 text-sm font-semibold flex gap-2 py-2">
+      <button className="text-primary02 text-sm font-semibold flex gap-2 mt-1.5 py-2">
         Настройки таблицы <Edit />
       </button>
     </>
