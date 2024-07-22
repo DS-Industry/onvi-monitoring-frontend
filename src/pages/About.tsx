@@ -2,6 +2,7 @@ import { useState } from "react";
 import Filter from "../components/ui/Filter";
 import ArrowDown from "../assets/icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "../assets/icons/keyboard_arrow_up.svg?react";
+import Edit from "../assets/icons/edit.svg?react";
 import OverflowTable from "../components/ui/OverflowTable";
 
 const About = () => {
@@ -19,6 +20,9 @@ const About = () => {
       <div className="container mt-8">
         <OverflowTable />
       </div>
+      <button className="text-primary02 text-sm font-semibold flex gap-2 py-2">
+        Настройки таблицы <Edit />
+      </button>
     </>
   );
 };
