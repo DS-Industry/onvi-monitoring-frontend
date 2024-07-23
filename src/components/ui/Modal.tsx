@@ -16,14 +16,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         className="fixed inset-0 bg-black opacity-60"
         onClick={onClose}
       ></div>
-      <div className="bg-white p-6 rounded-2xl shadow-lg z-10 max-w-96">
+      <div className="bg-white p-5 rounded-2xl shadow-lg z-10 w-[1070px]">
         {children}
-        <button
-          onClick={onClose}
-          className="mb-4 p-2 bg-red-500 text-white rounded"
-        >
-          Close
-        </button>
+        <div className="flex justify-end gap-3 mt-12">
+          <button
+            className="px-8 py-2.5 font-semibold text-primary02"
+            onClick={onClose}
+          >
+            Сбросить
+          </button>
+          <button
+            className="px-8 py-2.5 bg-primary02 font-semibold text-text04 rounded-md"
+            onClick={onClose}
+          >
+            Сохранить
+          </button>
+        </div>
       </div>
     </div>,
     document.body
