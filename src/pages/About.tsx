@@ -9,8 +9,67 @@ import TableSettings from "../components/ui/TableSettings";
 import NoDataUI from "../components/ui/NoDataUI";
 import SalyIamge from "../assets/Saly-45.svg?react";
 
+
+const tableData = [
+  {
+    id: 1,
+    firstName: "Emily",
+    lastName: "Johnson",
+    maidenName: "Smith",
+    age: 28,
+    gender: "female",
+    email: "emily.johnson@x.dummyjson.com",
+    phone: "+81 965-431-3024",
+    // username: "emilys",
+    // password: "emilyspass",
+    // birthDate: "1996-5-30",
+    // image: "...",
+    // bloodGroup: "O-",
+    // height: 193.24,
+    // weight: 63.16,
+    // eyeColor: "Green",
+  },
+  {
+    id: 2,
+    firstName: "Emily",
+    lastName: "Johnson",
+    maidenName: "Smith",
+    age: 28,
+    gender: "female",
+    email: "emily.johnson@x.dummyjson.com",
+    phone: "+81 965-431-3024",
+    // username: "emilys",
+    // password: "emilyspass",
+    // birthDate: "1996-5-30",
+    // image: "...",
+    // bloodGroup: "O-",
+    // height: 193.24,
+    // weight: 63.16,
+    // eyeColor: "Green",
+  },
+];
+
+const columns = [
+  "id",
+  "firstName",
+  "lastName",
+  "maidenName",
+  "age",
+  "gender",
+  "email",
+  "phone",
+  // "username",
+  // "password",
+  // "birthDate",
+  // "image",
+  // "bloodGroup",
+  // "height",
+  // "weight",
+  // "eyeColor",
+];
+
 const About = () => {
-  const [isData, setIsData] = useState(false);
+  const [isData, setIsData] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +111,7 @@ const About = () => {
       {isData ? (
         <>
           <div className="container mt-8">
-            <OverflowTable />
+            <OverflowTable tableData={tableData} columns={columns} />
           </div>
           <button
             onClick={openModal}
