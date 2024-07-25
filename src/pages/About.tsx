@@ -9,63 +9,110 @@ import TableSettings from "../components/ui/TableSettings";
 import NoDataUI from "../components/ui/NoDataUI";
 import SalyIamge from "../assets/Saly-45.svg?react";
 
-
 const tableData = [
   {
     id: 1,
     firstName: "Emily",
     lastName: "Johnson",
-    maidenName: "Smith",
+    middleName: "Smith",
     age: 28,
     gender: "female",
     email: "emily.johnson@x.dummyjson.com",
     phone: "+81 965-431-3024",
-    // username: "emilys",
-    // password: "emilyspass",
-    // birthDate: "1996-5-30",
-    // image: "...",
-    // bloodGroup: "O-",
-    // height: 193.24,
-    // weight: 63.16,
-    // eyeColor: "Green",
+    username: "emilys",
+    password: "emilyspass",
+    birthDate: "1996-5-30",
+    image: "...",
+    bloodGroup: "O-",
+    height: 193.24,
+    weight: 63.16,
+    eyeColor: "Green",
   },
   {
     id: 2,
     firstName: "Emily",
     lastName: "Johnson",
-    maidenName: "Smith",
+    middleName: "Smith",
     age: 28,
     gender: "female",
     email: "emily.johnson@x.dummyjson.com",
     phone: "+81 965-431-3024",
-    // username: "emilys",
-    // password: "emilyspass",
-    // birthDate: "1996-5-30",
-    // image: "...",
-    // bloodGroup: "O-",
-    // height: 193.24,
-    // weight: 63.16,
-    // eyeColor: "Green",
+    username: "emilys",
+    password: "emilyspass",
+    birthDate: "1996-5-30",
+    image: "...",
+    bloodGroup: "O-",
+    height: 193.24,
+    weight: 63.16,
+    eyeColor: "Green",
   },
 ];
 
 const columns = [
-  "id",
-  "firstName",
-  "lastName",
-  "maidenName",
-  "age",
-  "gender",
-  "email",
-  "phone",
-  // "username",
-  // "password",
-  // "birthDate",
-  // "image",
-  // "bloodGroup",
-  // "height",
-  // "weight",
-  // "eyeColor",
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "firstName",
+    key: "firstName",
+  },
+  {
+    label: "lastName",
+    key: "lastName",
+  },
+  {
+    label: "middleName",
+    key: "middleName",
+  },
+  {
+    label: "age",
+    key: "age",
+  },
+  {
+    label: "gender",
+    key: "gender",
+  },
+  {
+    label: "email",
+    key: "email",
+  },
+  {
+    label: "phone",
+    key: "phone",
+  },
+  {
+    label: "username",
+    key: "username",
+  },
+  {
+    label: "password",
+    key: "password",
+  },
+  {
+    label: "birthDate",
+    key: "birthDate",
+  },
+  {
+    label: "image",
+    key: "image",
+  },
+  {
+    label: "bloodGroup",
+    key: "bloodGroup",
+  },
+  {
+    label: "height",
+    key: "height",
+  },
+  {
+    label: "weight",
+    key: "weight",
+  },
+  {
+    label: "eyeColor",
+    key: "eyeColor",
+  },
 ];
 
 const About = () => {
@@ -73,6 +120,15 @@ const About = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(
+    columns.map((col) => col.key)
+  );
+
+  const handleColumnToggle = (key: string) => {
+    setSelectedColumns((prev) =>
+      prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
+    );
+  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -107,11 +163,15 @@ const About = () => {
       >
         {filterOpen && <Filter />}
       </div>
-   
+
       {isData ? (
         <>
           <div className="container mt-8">
-            <OverflowTable tableData={tableData} columns={columns} />
+            <OverflowTable
+              tableData={tableData}
+              columns={columns}
+              selectedColumns={selectedColumns}
+            />
           </div>
           <button
             onClick={openModal}
@@ -121,7 +181,11 @@ const About = () => {
           </button>
 
           <Modal isOpen={isModalOpen} onClose={closeModal}>
-            <TableSettings />
+            <TableSettings
+              columns={columns}
+              selectedColumns={selectedColumns}
+              onColumnToggle={handleColumnToggle}
+            />
           </Modal>
         </>
       ) : (
@@ -129,7 +193,7 @@ const About = () => {
           title="В этом разделе представлена статистика уборки постов"
           description="Данные вводятся автоматически "
         >
-          <SalyIamge  className="mx-auto"/>
+          <SalyIamge className="mx-auto" />
         </NoDataUI>
       )}
     </>
