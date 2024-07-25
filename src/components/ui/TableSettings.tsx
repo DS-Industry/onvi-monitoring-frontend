@@ -11,11 +11,13 @@ type Props = {
   columns: TableColumn[];
   selectedColumns: string[];
   onColumnToggle: (key: string) => void;
+  onIsModalOpen: () => void;
 };
 const TableSettings: React.FC<Props> = ({
   columns,
   selectedColumns,
   onColumnToggle,
+  onIsModalOpen,
 }: Props) => {
   return (
     <>
@@ -32,7 +34,7 @@ const TableSettings: React.FC<Props> = ({
               <Search className="text-opacity01" />
             </div>
           </div>
-          <Close />
+          <Close onClick={onIsModalOpen} className="cursor-pointer" />
         </div>
       </div>
 

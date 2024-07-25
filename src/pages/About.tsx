@@ -185,6 +185,7 @@ const About = () => {
               columns={columns}
               selectedColumns={selectedColumns}
               onColumnToggle={handleColumnToggle}
+              onIsModalOpen={closeModal}
             />
           </Modal>
         </>
