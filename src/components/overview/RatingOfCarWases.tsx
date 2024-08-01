@@ -36,10 +36,10 @@ const RatingOfCarWases = () => {
         <p className="text-background01 font-semibold text-2xl">
           График по выручке
         </p>
-        <div className="flex justify-between">
+        <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 justify-between">
           <select
             id="countries"
-            className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block w-64 p-2.5 outline-none"
+            className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
           >
             <option selected>Choose a country</option>
             {selectOptions.map((option) => (
@@ -49,7 +49,7 @@ const RatingOfCarWases = () => {
             ))}
           </select>
 
-          <div className="flex gap-2">
+          <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3 gap-2">
             {durations.map((duration) => (
               <button
                 key={duration.label}

@@ -134,7 +134,7 @@ const Indicators: React.FC = () => {
           <div className="lg:flex justify-between">
             <select
               id="countries"
-              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block w-64 p-2.5 outline-none"
+              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
             >
               <option selected>Choose a country</option>
               {selectOptions.map((option) => (
@@ -144,7 +144,7 @@ const Indicators: React.FC = () => {
               ))}
             </select>
 
-            <div className="flex">
+            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
               {durations.map((duration) => (
                 <button
                   key={duration.label}
@@ -168,7 +168,7 @@ const Indicators: React.FC = () => {
           <div className="lg:flex justify-between mb-8 px-8">
             <select
               id="countries"
-              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block w-64 p-2.5 outline-none"
+              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
             >
               <option selected>Choose a country</option>
               {selectOptions.map((option) => (
@@ -178,7 +178,7 @@ const Indicators: React.FC = () => {
               ))}
             </select>
 
-            <div className="flex">
+            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
               {durations.map((duration) => (
                 <button className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2">
                   {duration.label}
@@ -218,7 +218,7 @@ const Indicators: React.FC = () => {
           </button> */}
 
 
-          <div className="container mt-8 px-8">
+          <div className="mt-8 px-8">
             <OverflowTable
               tableData={tableData}
               columns={columns}

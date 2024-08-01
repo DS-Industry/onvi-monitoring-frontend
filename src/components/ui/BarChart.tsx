@@ -73,7 +73,7 @@ const BarChart = () => {
   };
 
   return (
-    <div className="w-full h-96">
+    <div className="w-80 md:w-full h-96">
       <Bar data={data} options={options} />
     </div>
   );
