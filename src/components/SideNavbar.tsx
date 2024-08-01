@@ -159,7 +159,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             >
               {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
             </button>
-            <div className="ms-12 flex items-center">
+            <div className="ms-3 lg:ms-12 flex items-center">
               <span className=" text-xl md:text-3xl">{activePageName}</span>{" "}
               <QuestionmarkIcon className="text-2xl ms-2" />
             </div>
