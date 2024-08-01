@@ -21,7 +21,7 @@ const TableSettings: React.FC<Props> = ({
 }: Props) => {
   return (
     <>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col lg:flex-row space-y-3 lg:space-y-0 items-center justify-between mb-8">
         <h2 className="text-3xl">Колонки в таблице</h2>
         <div className="flex items-center gap-12">
           <div className="relative">
