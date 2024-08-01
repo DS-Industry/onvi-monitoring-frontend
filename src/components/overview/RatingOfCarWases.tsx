@@ -32,7 +32,7 @@ const RatingOfCarWases = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
-      <div className="mt-4 grid gap-8 p-8 bg-white shadow-card rounded-lg">
+      <div className="mt-4 grid gap-8 p-3 lg:p-8 bg-white shadow-card rounded-lg">
         <p className="text-background01 font-semibold text-2xl">
           График по выручке
         </p>
@@ -61,7 +61,9 @@ const RatingOfCarWases = () => {
             <DatePickerComponent />
           </div>
         </div>
-        <BarChart />
+        <div className="w-64 md:container">
+          <BarChart />
+        </div>
       </div>
     </>
   );

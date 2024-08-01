@@ -37,7 +37,7 @@ const OverflowTable: React.FC<Props> = ({
 }: Props) => {
   console.log(selectedColumns.includes("eyeColor"));
   return (
-    <div className="w-80 md:container">
+    <div className="w-64 md:container">
       <div className="overflow-x-auto">
         <table className="max-w-full">
           <thead>

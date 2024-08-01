@@ -105,14 +105,16 @@ const Indicators: React.FC = () => {
             >
               <div className="flex justify-between lg:justify-normal lg:space-x-4 mb-5">
                 <div>
-                  <p className="font-semibold">{item.title}</p>
-                  <p className="text-3xl font-bold text-[#202224]">
+                  <p className="text-sm lg:text-base font-semibold">
+                    {item.title}
+                  </p>
+                  <p className="text-xl lg:text-3xl font-bold text-[#202224]">
                     {item.number} {item.unit}
                   </p>
                 </div>
                 <item.icon />
               </div>
-              <p className="text-text03 flex">
+              <p className="text-sm lg:text-base text-text03 flex">
                 {item.isPositive ? <TrendingUpIcon /> : <TrendingDownIcon />}
                 <span
                   className={`mx-2 ${
@@ -127,7 +129,7 @@ const Indicators: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-4 p-8 grid gap-8 bg-white shadow-card rounded-lg">
+        <div className="mt-4 p-3 lg:p-8 grid gap-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl">
             График по выручке
           </p>
@@ -153,19 +155,18 @@ const Indicators: React.FC = () => {
                   {duration.label}
                 </button>
               ))}
-             <DatePickerComponent />
+              <DatePickerComponent />
             </div>
           </div>
-          <div className="container">
+          <div className="w-64 md:container">
             <LineChart />
           </div>
-        
         </div>
         <div className="mt-4 py-8 bg-white shadow-card rounded-lg">
-          <p className="text-background01 font-semibold text-2xl mb-8 px-8">
+          <p className="text-background01 font-semibold text-2xl mb-8 px-3 lg:px-8">
             Отчет по выручке
           </p>
-          <div className="lg:flex justify-between mb-8 px-8">
+          <div className="lg:flex justify-between mb-8 px-3 lg:px-8">
             <select
               id="countries"
               className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
@@ -217,8 +218,7 @@ const Indicators: React.FC = () => {
             Настройки таблицы
           </button> */}
 
-
-          <div className="mt-8 px-8">
+          <div className="mt-8 px-3 lg:px-8">
             <OverflowTable
               tableData={tableData}
               columns={columns}
@@ -240,7 +240,6 @@ const Indicators: React.FC = () => {
               onIsModalOpen={closeModal}
             />
           </Modal>
-        
         </div>
       </div>
     </>

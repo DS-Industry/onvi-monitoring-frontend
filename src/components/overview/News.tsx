@@ -36,7 +36,7 @@ const News: React.FC = () => {
         />
       )}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-6">
         <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
           <p className="text-sm text-text02 font-semibold">Осталось 264 дня</p>
           <p className="font-semibold text-2xl">
