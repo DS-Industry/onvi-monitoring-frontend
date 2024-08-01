@@ -103,7 +103,7 @@ const Indicators: React.FC = () => {
               className="p-4 bg-white shadow-card rounded-[18px] "
               key={item.title}
             >
-              <div className="flex space-x-4 mb-5">
+              <div className="flex justify-between lg:justify-normal lg:space-x-4 mb-5">
                 <div>
                   <p className="font-semibold">{item.title}</p>
                   <p className="text-3xl font-bold text-[#202224]">
