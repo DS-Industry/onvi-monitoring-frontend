@@ -100,7 +100,7 @@ const Indicators: React.FC = () => {
         <div className="lg:flex space-y-6 lg:space-y-0 lg:space-x-6">
           {cards.map((item) => (
             <div
-              className="p-4 bg-white shadow-card rounded-[18px] "
+              className="p-2 lg:p-4 bg-white shadow-card rounded-[18px] "
               key={item.title}
             >
               <div className="flex justify-between lg:justify-normal lg:space-x-4 mb-5">
