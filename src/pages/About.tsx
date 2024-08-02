@@ -61,7 +61,7 @@ const About = () => {
 
       {isData ? (
         <>
-          <div className="container mt-8">
+          <div className="mt-8">
             <OverflowTable
               tableData={tableData}
               columns={columns}

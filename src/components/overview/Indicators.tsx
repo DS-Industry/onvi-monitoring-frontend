@@ -129,11 +129,11 @@ const Indicators: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-4 p-3 lg:p-8 grid gap-8 bg-white shadow-card rounded-lg">
-          <p className="text-background01 font-semibold text-2xl">
+        <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
+          <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             График по выручке
           </p>
-          <div className="lg:flex justify-between">
+          <div className="lg:flex justify-between px-3 lg:px-8">
             <select
               id="countries"
               className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
@@ -158,7 +158,7 @@ const Indicators: React.FC = () => {
               <DatePickerComponent />
             </div>
           </div>
-          <div className="w-64 md:container">
+          <div className="w-64 md:container px-3 lg:px-8">
             <LineChart />
           </div>
         </div>
@@ -218,7 +218,7 @@ const Indicators: React.FC = () => {
             Настройки таблицы
           </button> */}
 
-          <div className="mt-8 px-3 lg:px-8">
+          <div className="mt-8">
             <OverflowTable
               tableData={tableData}
               columns={columns}
