@@ -9,6 +9,7 @@ import TableSettings from "../components/ui/TableSettings";
 import NoDataUI from "../components/ui/NoDataUI";
 import SalyIamge from "../assets/Saly-45.svg?react";
 import { columns, tableData } from "../utils/OverFlowTableData";
+import TestComponent from "../components/TestComponent";
 
 const About = () => {
   const [isData, setIsData] = useState(true);
@@ -92,6 +93,7 @@ const About = () => {
           <SalyIamge className="mx-auto" />
         </NoDataUI>
       )}
+      <TestComponent />
     </>
   );
 };
