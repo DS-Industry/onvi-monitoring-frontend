@@ -7,6 +7,8 @@ import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 import Root from "./Root";
 import ErrorPage from "./pages/Error";
+import SignUp from './pages/SignUp';
+import LogIn from './pages/LogIn'
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,9 @@ const router = createBrowserRouter([
       { path: "Loyalty", element: <Services /> },
       { path: "Equipment", element: <Contact /> },
       { path: "Store", element: <Contact /> },
+      { path: "signup", element: <SignUp /> },
+      { path: "login", element: <LogIn /> },
+
     ],
   },
 ]);
