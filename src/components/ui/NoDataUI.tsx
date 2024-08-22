@@ -11,7 +11,7 @@ const NoDataUI: React.FC<Props> = ({ title, description, children }: Props) => {
     <div className=" flex justify-center items-center h-full">
       <div className="text-center">
         {children}
-        <h3 className="font-semibold text-2xl w-[552px]">{title}</h3>
+        <h3 className="font-bold text-2xl w-[552px]">{title}</h3>
         <p>{description}</p>
       </div>
     </div>

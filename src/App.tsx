@@ -4,9 +4,11 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
+import Organization from "./pages/Organization";
 import Contact from "./pages/Contact";
 import Root from "./Root";
 import ErrorPage from "./pages/Error";
+import Pos from "./pages/Pos.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,11 +21,11 @@ const router = createBrowserRouter([
         path: "administration",
         element: <About />,
       },
-      { path: "Администрирование/sub1", element: <Home /> },
-      { path: "Администрирование/sub2", element: <Services /> },
-      { path: "Администрирование/sub3", element: <Contact /> },
-      { path: "Администрирование/sub4", element: <Home /> },
-      { path: "Администрирование/sub5", element: <Services /> },
+      { path: "administration/sub1", element: <Pos /> },
+      { path: "administration/sub2", element: <Services /> },
+      { path: "administration/sub3", element: <Contact /> },
+      { path: "administration/sub4", element: <Home /> },
+      { path: "administration/sub5", element: <Organization /> },
       { path: "station", element: <Services /> },
       { path: "Hr", element: <Contact /> },
       { path: "finance", element: <Home /> },

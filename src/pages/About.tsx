@@ -10,10 +10,11 @@ import NoDataUI from "../components/ui/NoDataUI";
 import SalyIamge from "../assets/Saly-45.svg?react";
 import { columns, tableData } from "../utils/OverFlowTableData";
 import TestComponent from "../components/TestComponent";
+import {useFilterOpen} from "../components/context/useContext.tsx";
 
 const About = () => {
   const [isData, setIsData] = useState(true);
-  const [filterOpen, setFilterOpen] = useState(false);
+  const { filterOpen, setFilterOpen} = useFilterOpen();
   const contentRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -43,16 +44,6 @@ const About = () => {
 
   return (
     <>
-      <button
-        disabled={!isData}
-        onClick={() => setFilterOpen(!filterOpen)}
-        className={`flex font-semibold text-primary02 ${
-          isData ? "opacity-100" : "opacity-50"
-        }`}
-      >
-        Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
-      </button>
-
       <div
         ref={contentRef}
         className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
@@ -93,7 +84,6 @@ const About = () => {
           <SalyIamge className="mx-auto" />
         </NoDataUI>
       )}
-      <TestComponent />
     </>
   );
 };
