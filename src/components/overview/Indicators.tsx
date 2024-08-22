@@ -8,10 +8,10 @@ import Edit from "../../assets/icons/edit.svg?react";
 import Notification from "../ui/Notification";
 import LineChart from "../ui/LineChart";
 import DatePickerComponent from "../ui/DatePickerComponent";
-import OverflowTable from "../ui/OverflowTable";
+import OverflowTable from "../ui/Table/OverflowTable.tsx";
 import Modal from "../ui/Modal";
-import TableSettings from "../ui/TableSettings";
-import { columns, tableData } from "../../utils/OverFlowTableData";
+import TableSettings from "../ui/Table/TableSettings.tsx";
+import { columnsUser, tableUserData } from "../../utils/OverFlowTableData";
 
 const cards = [
   {
@@ -75,7 +75,7 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    columns.map((col) => col.key)
+      columnsUser.map((col) => col.key)
   );
 
   const handleColumnToggle = (key: string) => {
@@ -220,8 +220,8 @@ const Indicators: React.FC = () => {
 
           <div className="mt-8">
             <OverflowTable
-              tableData={tableData}
-              columns={columns}
+              tableData={tableUserData}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
             />
           </div>
@@ -234,7 +234,7 @@ const Indicators: React.FC = () => {
 
           <Modal isOpen={isModalOpen} onClose={closeModal}>
             <TableSettings
-              columns={columns}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
               onColumnToggle={handleColumnToggle}
               onIsModalOpen={closeModal}

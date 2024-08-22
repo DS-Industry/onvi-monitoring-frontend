@@ -1,52 +1,25 @@
 import React from "react";
+import InputLineText from "./InputLine/InputLineText.tsx";
+import InputLineOption from "./InputLine/InputLineOption.tsx";
 
 const Filter: React.FC = () => {
   return (
     <>
       <div className="grid grid-cols-2 gap-6">
-        <div>
-          <label className="text-text04">Hello</label>
-          <input
-            type="text"
-            placeholder="Поиск"
-            className="border py-2 px-3 rounded-md w-full border-opacity01"
-          />
-        </div>
+        <InputLineText
+          title = {"Поиск"}
+          placeholder ={"Поиск"}/>
         <div className="grid grid-cols-2 gap-6">
-          <div className="flex flex-col">
-            <label htmlFor="cars" className="text-sm text-text02">
-              Город
-            </label>
-
-            <select
-              id="cars"
-              className="border border-opacity01/30 py-2 px-3 rounded-md w-full bg-[#F7F9FC]"
-            >
-              <option label="Volvo">Volvo (Latin for "I roll")</option>
-              <option label="Saab">Saab (Swedish Aeroplane AB)</option>
-              <option label="Mercedes">Mercedes (Mercedes-Benz)</option>
-              <option label="Audi">
-                Audi (Auto Union Deutschland Ingolstadt)
-              </option>
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="cars" className="text-sm text-text02">
-              Автомойка/ Филиал
-            </label>
-
-            <select
-              id="cars"
-              className="border border-opacity01/30 py-2 px-3 rounded-md w-full bg-[#F7F9FC]"
-            >
-              <option label="Volvo">Volvo (Latin for "I roll")</option>
-              <option label="Saab">Saab (Swedish Aeroplane AB)</option>
-              <option label="Mercedes">Mercedes (Mercedes-Benz)</option>
-              <option label="Audi">
-                Audi (Auto Union Deutschland Ingolstadt)
-              </option>
-            </select>
-          </div>
+          <InputLineOption
+            title = {"Тип"}
+            type ={"typeCar"}
+            optionals ={["Volvo", "Audi"]}
+            />
+          <InputLineOption
+              title = {"Автомойка/ Филиал"}
+              type ={"typePos"}
+              optionals ={["Volvo", "Audi"]}
+          />
         </div>
       </div>
       <div className="my-5">

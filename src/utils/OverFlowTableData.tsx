@@ -1,4 +1,4 @@
-export const tableData = [
+export const tableUserData = [
   {
     id: 1,
     firstName: "Emily",
@@ -37,7 +37,7 @@ export const tableData = [
   },
 ];
 
-export const columns = [
+export const columnsUser = [
   {
     label: "id",
     key: "id",
@@ -103,3 +103,73 @@ export const columns = [
     key: "eyeColor",
   },
 ];
+
+export const tablePosData = [
+  {
+    id: 1,
+    name: "АМС-01",
+    address: "Брусилова 4е",
+    type: "Мойка самообслуживания",
+    status: "Активно",
+    rating: 5,
+    dateCreate: "01.01.2024"
+  }
+
+];
+export const columnsPos = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "name",
+    key: "name",
+  },
+  {
+    label: "address",
+    key: "address",
+  },
+  {
+    label: "type",
+    key: "type",
+  },
+  {
+    label: "status",
+    key: "status",
+  },
+  {
+    label: "rating",
+    key: "rating",
+  },
+  {
+    label: "dateCreate",
+    key: "dateCreate",
+  },
+]
+export const tableOrgData = [
+  {
+    id: 1,
+    name: "ООО МойКа",
+    type: "Юредическое лицо",
+    address: "г. Воронеж, ул.Брусилова 4е",
+  }
+
+];
+export const columnsOrg = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "name",
+    key: "name",
+  },
+  {
+    label: "type",
+    key: "type",
+  },
+  {
+    label: "address",
+    key: "address",
+  },
+]

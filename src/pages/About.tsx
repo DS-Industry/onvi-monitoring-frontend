@@ -3,12 +3,12 @@ import Filter from "../components/ui/Filter";
 import ArrowDown from "../assets/icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "../assets/icons/keyboard_arrow_up.svg?react";
 import Edit from "../assets/icons/edit.svg?react";
-import OverflowTable from "../components/ui/OverflowTable";
+import OverflowTable from "../components/ui/Table/OverflowTable.tsx";
 import Modal from "../components/ui/Modal";
-import TableSettings from "../components/ui/TableSettings";
+import TableSettings from "../components/ui/Table/TableSettings.tsx";
 import NoDataUI from "../components/ui/NoDataUI";
 import SalyIamge from "../assets/Saly-45.svg?react";
-import { columns, tableData } from "../utils/OverFlowTableData";
+import { columnsUser, tableUserData } from "../utils/OverFlowTableData";
 import TestComponent from "../components/TestComponent";
 import {useFilterOpen} from "../components/context/useContext.tsx";
 
@@ -18,7 +18,7 @@ const About = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    columns.map((col) => col.key)
+      columnsUser.map((col) => col.key)
   );
 
   const handleColumnToggle = (key: string) => {
@@ -55,8 +55,8 @@ const About = () => {
         <>
           <div className="mt-8">
             <OverflowTable
-              tableData={tableData}
-              columns={columns}
+              tableData={tableUserData}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
             />
           </div>
@@ -69,7 +69,7 @@ const About = () => {
 
           <Modal isOpen={isModalOpen} onClose={closeModal}>
             <TableSettings
-              columns={columns}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
               onColumnToggle={handleColumnToggle}
               onIsModalOpen={closeModal}

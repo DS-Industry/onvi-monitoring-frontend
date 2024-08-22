@@ -12,7 +12,7 @@ import EZ from "../assets/icons/EZ.svg?react";
 import ArrowDown from "../assets/icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "../assets/icons/keyboard_arrow_up.svg?react";
 import {useButtonCreate, useFilterOpen} from "./context/useContext.tsx";
-import ButtonCreate from "./ui/Button/ButtonCreate.tsx";
+import Button from "./ui/Button/Button.tsx";
 
 type Props = {
   children: React.ReactNode;
@@ -196,7 +196,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             </div>
             {activePage.addButton && (
                 <div>
-                  <ButtonCreate
+                  <Button
                     title ='+ Добавить'
                     handleClick ={handleClickButtonCreate}
                   />

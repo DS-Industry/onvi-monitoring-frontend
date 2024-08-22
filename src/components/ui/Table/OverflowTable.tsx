@@ -4,7 +4,7 @@ interface TableColumn {
   label: string;
   key: string;
 }
-
+/*
 interface TableData {
   id?: number;
   firstName?: string;
@@ -23,9 +23,9 @@ interface TableData {
   weight?: number;
   eyeColor?: string;
 }
-
+*/
 type Props = {
-  tableData: TableData[];
+  tableData: any /*TableData[]*/;
   columns: TableColumn[];
   selectedColumns: string[];
 };
@@ -42,7 +42,7 @@ const OverflowTable: React.FC<Props> = ({
   return (
     <div className="w-64 md:container">
       <div className="overflow-x-auto">
-        <table className="max-w-full">
+        <table className="w-full">
           <thead>
             <tr>
               {columns.map(
@@ -62,9 +62,9 @@ const OverflowTable: React.FC<Props> = ({
             {tableData.map((row) => (
               <tr key={row.id}>
                 {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-[#E4E5E7] py-6 px-3 whitespace-nowrap text-sm font-semibold text-primary02 overflow-hidden overflow-x-visible">
+                    <td key={column.key} className="border-b border-[#E4E5E7] py-6 px-3 whitespace-nowrap text-sm font-semibold text-gray-500 overflow-hidden overflow-x-visible">
                       <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                        {row[column.key]} {/* Обращаемся к свойству row по ключу column.key */}
+                        {row[column.key]}
                       </div>
                     </td>
                 ))}
