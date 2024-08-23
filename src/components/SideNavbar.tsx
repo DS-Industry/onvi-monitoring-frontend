@@ -197,7 +197,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             {activePage.addButton && (
                 <div>
                   <Button
-                    title ='+ Добавить'
+                    title ='Добавить'
+                    icon
                     handleClick ={handleClickButtonCreate}
                   />
                 </div>
