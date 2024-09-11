@@ -117,7 +117,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                         {item.subNavHeading}
                       </div>
                       {item.subNav.map((subItem) => (
-                        <NavLink
+                          subItem.isVisible && <NavLink
                           key={subItem.name}
                           to={subItem.path}
                           className={({ isActive }) =>
@@ -163,7 +163,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       >
         <div className=" px-6 relative min-h-screen z-10">
           {(hoveredNavItem === "Администрирование" ||
-            hoveredNavItem === "Анализ") && (
+            hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
           <div className="flex items-center justify-between">

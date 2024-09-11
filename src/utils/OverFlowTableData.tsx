@@ -104,72 +104,283 @@ export const columnsUser = [
   },
 ];
 
-export const tablePosData = [
-  {
-    id: 1,
-    name: "АМС-01",
-    address: "Брусилова 4е",
-    type: "Мойка самообслуживания",
-    status: "Активно",
-    rating: 5,
-    dateCreate: "01.01.2024"
-  }
-
-];
 export const columnsPos = [
   {
     label: "id",
     key: "id",
   },
   {
-    label: "name",
+    label: "Название",
     key: "name",
   },
   {
-    label: "address",
+    label: "Обозначение",
+    key: "slug",
+  },
+  {
+    label: "Адресс",
     key: "address",
   },
   {
-    label: "type",
-    key: "type",
+    label: "Месячный план",
+    key: "monthlyPlan",
   },
   {
-    label: "status",
-    key: "status",
+    label: "Название организации",
+    key: "organizationName",
   },
   {
-    label: "rating",
-    key: "rating",
+    label: "Временная зона",
+    key: "timeZone",
   },
   {
-    label: "dateCreate",
-    key: "dateCreate",
+    label: "Статус",
+    key: "posStatus",
+  },
+  {
+    label: "Дата создания",
+    key: "createdAt",
+    type: "date",
+  },
+  {
+    label: "Дата обновления",
+    key: "updatedAt",
+    type: "date",
+  },
+  {
+    label: "Создал",
+    key: "createdBy",
+  },
+  {
+    label: "Обновил",
+    key: "updatedBy",
   },
 ]
-export const tableOrgData = [
-  {
-    id: 1,
-    name: "ООО МойКа",
-    type: "Юредическое лицо",
-    address: "г. Воронеж, ул.Брусилова 4е",
-  }
-
-];
 export const columnsOrg = [
   {
     label: "id",
     key: "id",
   },
   {
-    label: "name",
+    label: "Название",
     key: "name",
   },
   {
-    label: "type",
-    key: "type",
+    label: "Обозначение",
+    key: "slug",
   },
   {
-    label: "address",
+    label: "Адресс",
     key: "address",
   },
+  {
+    label: "Статус",
+    key: "organizationStatus",
+  },
+  {
+    label: "Тип",
+    key: "organizationType",
+  },
+  {
+    label: "Дата создания",
+    key: "createdAt",
+    type: "date",
+  },
+  {
+    label: "Дата обновления",
+    key: "updatedAt",
+    type: "date",
+  },
+  {
+    label: "Хозяин",
+    key: "owner",
+  },
 ]
+export const columnsDevice = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "Название",
+    key: "name",
+  },
+  {
+    label: "Статус",
+    key: "status",
+  },
+  {
+    label: "ip Адресс",
+    key: "ipAddress",
+  },
+  {
+    label: "Тип",
+    key: "carWashDeviceType",
+  },
+  {
+    label: "Принадлежит",
+    key: "carWashPosName",
+  },
+]
+export const columnsMonitoringPos = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "Название",
+    key: "name",
+  },
+  {
+    label: "Город",
+    key: "city",
+  },
+  {
+    label: "Кол-во опреаций",
+    key: "counter",
+  },
+  {
+    label: "Наличные",
+    key: "cashSum",
+  },
+  {
+    label: "Безналичные",
+    key: "virtualSum",
+  },
+  {
+    label: "Яндекс Заправки",
+    key: "yandexSum",
+  },
+  {
+    label: "Последняя операция",
+    key: "lastOper",
+    type: "date",
+  },
+]
+
+export const columnsMonitoringFullDevices = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "Название",
+    key: "name",
+  },
+  {
+    label: "Кол-во опреаций",
+    key: "counter",
+  },
+  {
+    label: "Наличные",
+    key: "cashSum",
+  },
+  {
+    label: "Безналичные",
+    key: "virtualSum",
+  },
+  {
+    label: "Яндекс Заправки",
+    key: "yandexSum",
+  },
+  {
+    label: "Последняя операция",
+    key: "lastOper",
+    type: "date",
+  },
+]
+
+export const columnsMonitoringDevice = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "Сумма операции",
+    key: "sumOper",
+  },
+  {
+    label: "Дата операции",
+    key: "dateOper",
+    type: "date",
+  },
+  {
+    label: "Дата загрузки",
+    key: "dateLoad",
+    type: "date",
+  },
+  {
+    label: "Счетчик",
+    key: "counter",
+  },
+  {
+    label: "Локальный id",
+    key: "localId",
+  },
+  {
+    label: "Валюта",
+    key: "currencyType",
+  }
+]
+
+export const columnsProgramsPos = [
+  {
+    label: "Программа",
+    key: "programName",
+  },
+  {
+    label: "Кол-во программ",
+    key: "counter",
+  },
+  {
+    label: "Общее время мин.",
+    key: "totalTime",
+  },
+  {
+    label: "Среднее время мин.",
+    key: "averageTime",
+  },
+  {
+    label: "Последняя программа",
+    key: "lastOper",
+    type: "date",
+  },
+]
+
+export const columnsProgramDevice = [
+  {
+    label: "id",
+    key: "id",
+  },
+  {
+    label: "Название",
+    key: "name",
+  },
+  {
+    label: "Начало программы",
+    key: "dateBegin",
+    type: "date",
+  },
+  {
+    label: "Конец программы",
+    key: "dateEnd",
+    type: "date",
+  },
+  {
+    label: "Время выполнения",
+    key: "time",
+  },
+  {
+    label: "Локальный id",
+    key: "localId",
+  },
+  {
+    label: "Оплата",
+    key: "payType",
+  },
+  {
+    label: "Машина",
+    key: "isCar"
+  }
+]
+

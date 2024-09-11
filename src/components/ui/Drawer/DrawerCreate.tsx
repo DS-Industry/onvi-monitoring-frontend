@@ -9,7 +9,7 @@ const DrawerCreate: React.FC<DrawerCreateProps> = ({ children }: DrawerCreatePro
     const { buttonOn, setButtonOn } = useButtonCreate();
 
     return(
-        <div className="drawer drawer-end">
+        <div className="drawer drawer-end w-full">
             <input
                 id="my-drawer-4"
                 type="checkbox"

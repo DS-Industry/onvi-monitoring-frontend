@@ -4,12 +4,13 @@ import AddBlue from "../../../assets/icons/add-blue.svg?react";
 
 type ButtonCreateProps = {
     title: string;
-    type: 'outline' | 'basic' | 'filled'
-    icon: boolean;
+    form?: boolean;
+    type?: 'outline' | 'basic' | 'filled'
+    icon?: boolean;
     handleClick: () => void;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', icon = false, handleClick}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', icon = false, form = false, handleClick}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: 'bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center',
@@ -19,9 +20,11 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
     const className = ` ${typeButton[type]} font-semibold rounded-md text-base px-5 py-2.5 mb-2`
 
     const IconComponent = type === "basic" ? AddWhite : AddBlue;
+    const typeForm = form ? 'submit' : 'button';
 
     return(
         <button
+            type={typeForm}
             className={className}
             onClick={() => handleClick()}>
             { icon && <IconComponent className="mr-2" />}
