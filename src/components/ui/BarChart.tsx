@@ -1,4 +1,3 @@
-
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,21 +10,24 @@ import {
 } from 'chart.js';
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
 );
 
-const BarChart = () => {
+const BarChart = ({ data: orgRatingData }) => {
+  // Преобразуем массив объектов в данные для графика
+  const labels = orgRatingData.map(item => item.posName);
+  const datasetData = orgRatingData.map(item => item.sum);
+
   const data = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    labels,
     datasets: [
       {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
+        data: datasetData,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -44,8 +46,8 @@ const BarChart = () => {
         ],
         borderWidth: 1,
         borderRadius: 4,
-        barThickness: 50, 
-        maxBarThickness: 100, 
+        barThickness: 50,
+        maxBarThickness: 100,
       }
     ]
   };
@@ -57,10 +59,6 @@ const BarChart = () => {
       legend: {
         position: 'top' as const,
       },
-      title: {
-        display: true,
-        text: 'Responsive Bar Chart'
-      }
     },
     scales: {
       x: {
@@ -73,10 +71,11 @@ const BarChart = () => {
   };
 
   return (
-    <div className="w-80 md:w-full h-96">
-      <Bar data={data} options={options} />
-    </div>
+      <div className="w-80 md:w-full h-96">
+        <Bar data={data} options={options} />
+      </div>
   );
 };
 
 export default BarChart;
+

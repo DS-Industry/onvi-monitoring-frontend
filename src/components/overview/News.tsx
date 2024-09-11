@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Toast from "../ui/Toast";
 import Notification from "../ui/Notification";
 import FactoryLetterS from "../../assets/Factory Letter S.svg?react";
+import Attention from "../../assets/attention.svg?react";
+import Close from "../../assets/icons/close.svg?react";
 import ArrowRight from "../../assets/icons/keyboard_arrow_right.svg?react";
 
 interface NewsItem {
@@ -11,11 +13,9 @@ interface NewsItem {
 }
 
 const initialNews: NewsItem[] = [
-  { id: 1, title: "News 1", text: "This is news item 1" },
-  { id: 2, title: "News 2", text: "This is news item 2" },
-  { id: 3, title: "News 3", text: "This is news item 3" },
-  { id: 4, title: "News 4", text: "This is news item 4" },
-  { id: 5, title: "News 5", text: "This is news item 5" },
+  { id: 1, title: "Акция", text: "Успейте приобрести новый шампунь по низкой цене" },
+  { id: 2, title: "Новое оборудование", text: "Разработана новая PRO версия робота для мойки автомобилей" },
+  { id: 3, title: "Лояльность", text: "Добавлен новый раздел ONVIBusiness - лояльность. Успей попробовать" },
 ];
 
 const News: React.FC = () => {
@@ -42,12 +42,27 @@ const News: React.FC = () => {
           <p className="font-semibold text-2xl">
             Вы используете тариф «Максимальный»
           </p>
-          <div className="relative">
+          <div className="relative flex">
+            <p className="mt-2">Здесь храниться актуальная информация про ваш тариф</p>
             <FactoryLetterS className="ml-auto" />
           </div>
-          <button className="text-primary02 flex items-center gap-2 py-2.5 font-semibold text-sm">
-            К тарифу <ArrowRight />
-          </button>
+
+          {/*
+            <button className="text-primary02 flex items-center gap-2 py-2.5 font-semibold text-sm">
+              К тарифу <ArrowRight/>
+            </button>
+            */}
+        </div>
+
+        <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
+          <p className="text-sm text-text02 font-semibold">Критический остаток</p>
+          <p className="font-semibold text-2xl">
+            Химия
+          </p>
+          <div className="relative flex">
+            <p className="mt-2">Пополните запасы химии на объекте!</p>
+            <Attention className="ml-auto" />
+          </div>
         </div>
         {news.map((item) => (
           <Toast
@@ -57,7 +72,7 @@ const News: React.FC = () => {
             bgColor="background05"
             onClose={handleClose}
           >
-            <div>{item.title}</div>
+            <div className="font-semibold">{item.title}</div>
             <div>{item.text}</div>
           </Toast>
         ))}

@@ -2,46 +2,15 @@ import React, { useState } from "react";
 import TotalVisitorsIcon from "../../assets/icons/total-visitors.svg?react";
 import ProfitIcon from "../../assets/icons/profit.svg?react";
 import TotalDownTimeIcon from "../../assets/icons/total-downtime.svg?react";
-import TrendingUpIcon from "../../assets/icons/trending-up.svg?react";
-import TrendingDownIcon from "../../assets/icons/trending-down.svg?react";
-import Edit from "../../assets/icons/edit.svg?react";
 import Notification from "../ui/Notification";
 import LineChart from "../ui/LineChart";
 import DatePickerComponent from "../ui/DatePickerComponent";
-import OverflowTable from "../ui/OverflowTable";
-import Modal from "../ui/Modal";
-import TableSettings from "../ui/TableSettings";
-import { columns, tableData } from "../../utils/OverFlowTableData";
-
-const cards = [
-  {
-    title: "Всего посетителей",
-    number: "12,00",
-    unit: "",
-    icon: TotalVisitorsIcon,
-    isPositive: true,
-    percentage: "12",
-    day: "К предыдущему дню",
-  },
-  {
-    title: "Новые посетители",
-    number: "1,500",
-    unit: "₽",
-    icon: ProfitIcon,
-    isPositive: true,
-    percentage: "15",
-    day: "К предыдущему дню",
-  },
-  {
-    title: "Выручка",
-    number: "12,500",
-    unit: "мин",
-    icon: TotalDownTimeIcon,
-    isPositive: false,
-    percentage: "12",
-    day: "К предыдущему дню",
-  },
-];
+import {columnsMonitoringPos, columnsUser, tableUserData} from "../../utils/OverFlowTableData";
+import useSWR from "swr";
+import {getOrganization, getRating, getStatistic} from "../../services/api/organization";
+import {getPos} from "../../services/api/pos";
+import {getDeposit} from "../../services/api/monitoring";
+import OverflowTable from "../ui/Table/OverflowTable.tsx";
 
 const selectOptions: {
   value: string;
@@ -72,20 +41,55 @@ const durations: { label: string }[] = [
 // ];
 
 const Indicators: React.FC = () => {
+  const today = new Date();
+  const formattedDate = today.toISOString().slice(0, 10);
+
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    columns.map((col) => col.key)
-  );
 
-  const handleColumnToggle = (key: string) => {
-    setSelectedColumns((prev) =>
-      prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
-    );
-  };
+  const {data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
+      12, {dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`}
+  ))
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit({
+    dateStart: `01.01.2024 00:00`,
+    dateEnd: `${formattedDate} 23:59`
+  }));
+
+  const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
+    return item;
+  }).sort((a, b) => a.id - b.id) || [];
+
+  const statisticData: Statistic = data;
+
+  const cards = [
+    {
+      title: "Всего посетителей",
+      number: statisticData ? statisticData.cars:0,
+      unit: "",
+      icon: TotalVisitorsIcon,
+      isPositive: true,
+      percentage: "12",
+      day: "К предыдущему дню",
+    },
+    {
+      title: "Прибыль",
+      number: statisticData ? statisticData.sum:0,
+      unit: "₽",
+      icon: ProfitIcon,
+      isPositive: true,
+      percentage: "15",
+      day: "К предыдущему дню",
+    },
+    {
+      title: "Общее время простоя",
+      number: 7,
+      unit: "мин",
+      icon: TotalDownTimeIcon,
+      isPositive: true,
+      percentage: "15",
+      day: "К предыдущему дню",
+    },
+  ];
 
   return (
     <>
@@ -114,6 +118,7 @@ const Indicators: React.FC = () => {
                 </div>
                 <item.icon />
               </div>
+              {/*
               <p className="text-sm lg:text-base text-text03 flex">
                 {item.isPositive ? <TrendingUpIcon /> : <TrendingDownIcon />}
                 <span
@@ -125,6 +130,7 @@ const Indicators: React.FC = () => {
                 </span>
                 {item.day}
               </p>
+              */}
             </div>
           ))}
         </div>
@@ -162,6 +168,7 @@ const Indicators: React.FC = () => {
             <LineChart />
           </div>
         </div>
+        {/*
         <div className="mt-4 py-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl mb-8 px-3 lg:px-8">
             Отчет по выручке
@@ -188,7 +195,7 @@ const Indicators: React.FC = () => {
               <DatePickerComponent />
             </div>
           </div>
-          {/* <table className="w-full text-sm border-b">
+           <table className="w-full text-sm border-b">
             <thead>
               <tr className="">
                 {tableHeader.map((header) => (
@@ -216,12 +223,12 @@ const Indicators: React.FC = () => {
           </table>
           <button className="text-primary02 py-2.5 font-semibold text-sm">
             Настройки таблицы
-          </button> */}
+          </button>
 
           <div className="mt-8">
             <OverflowTable
-              tableData={tableData}
-              columns={columns}
+              tableData={tableUserData}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
             />
           </div>
@@ -234,12 +241,19 @@ const Indicators: React.FC = () => {
 
           <Modal isOpen={isModalOpen} onClose={closeModal}>
             <TableSettings
-              columns={columns}
+              columns={columnsUser}
               selectedColumns={selectedColumns}
               onColumnToggle={handleColumnToggle}
               onIsModalOpen={closeModal}
             />
           </Modal>
+        </div>
+        */}
+        <div className="mt-8">
+          <OverflowTable
+              tableData={posMonitoring}
+              columns={columnsMonitoringPos}
+          />
         </div>
       </div>
     </>

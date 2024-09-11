@@ -1,68 +1,27 @@
-import { useState } from "react";
-import Notification from "../ui/Notification";
-import DatePickerComponent from "../ui/DatePickerComponent";
 import BarChart from "../ui/BarChart";
-
-const selectOptions: {
-  value: string;
-  label: string;
-}[] = [
-  { value: "last_7_days", label: "Последние 7 дней" },
-  { value: "last_30_days", label: "Последние 30 дней" },
-  { value: "last_90_days", label: "Последние 90 дней" },
-  { value: "last_month", label: "Последний месяц" },
-  { value: "last_year", label: "Последний год" },
-];
-
-const durations: { label: string }[] = [
-  { label: "Today" },
-  { label: "For a week" },
-  { label: "For a month" },
-];
+import useSWR from "swr";
+import {getRating} from "../../services/api/organization";
 
 const RatingOfCarWases = () => {
-  const [notificationVisible, setNotificationVisible] = useState(true);
+  const today = new Date();
+  const formattedDate = today.toISOString().slice(0, 10);
+
+  const {data, error, } = useSWR(['get-rating-org-12'], () => getRating(
+      12, {dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`}
+  ))
+
+  const ratingData: Rating[] = data?.map((item: Rating) => {
+    return item;
+  }) || [];
 
   return (
     <>
-      {notificationVisible && (
-        <Notification
-          title="Ваши новости"
-          message="В данном разделе будут отображаться главные новости и события вашей автомойки"
-          onClose={() => setNotificationVisible(false)}
-        />
-      )}
       <div className="mt-4 grid gap-8 p-3 lg:p-8 bg-white shadow-card rounded-lg">
         <p className="text-background01 font-semibold text-2xl">
           График по выручке
         </p>
-        <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 justify-between">
-          <select
-            id="countries"
-            className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
-          >
-            <option selected>Choose a country</option>
-            {selectOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3 gap-2">
-            {durations.map((duration) => (
-              <button
-                key={duration.label}
-                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1"
-              >
-                {duration.label}
-              </button>
-            ))}
-            <DatePickerComponent />
-          </div>
-        </div>
         <div className="w-64 md:container">
-          <BarChart />
+          <BarChart data={ratingData}/>
         </div>
       </div>
     </>

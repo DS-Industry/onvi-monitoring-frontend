@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useRef, useState, createContext, useContext} from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
@@ -9,6 +9,10 @@ import DoubleArrowRight from "../assets/icons/keyboard_double_arrow_right.svg?re
 import ArrowRight from "../assets/icons/keyboard_arrow_right.svg?react";
 import NotificationYes from "../assets/icons/Notification_Yes.svg?react";
 import EZ from "../assets/icons/EZ.svg?react";
+import ArrowDown from "../assets/icons/keyboard_arrow_down.svg?react";
+import ArrowUp from "../assets/icons/keyboard_arrow_up.svg?react";
+import {useButtonCreate, useFilterOpen} from "./context/useContext.tsx";
+import Button from "./ui/Button/Button.tsx";
 
 type Props = {
   children: React.ReactNode;
@@ -17,26 +21,36 @@ type Props = {
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
+  const [notificationVisible, setNotificationVisible] = useState(true);
+  const [isData, setIsData] = useState(true);
+  const { buttonOn, setButtonOn } = useButtonCreate();
+  const { filterOpen, setFilterOpen} = useFilterOpen();
 
   const location = useLocation();
 
-  const getActivePageName = () => {
+  const getActivePage = () => {
     for (const item of navItem) {
       if (location.pathname == item.link) {
-        return item.name;
+        return item;
+      } else if (item.subMenu) {
+        for (const subItem of item.subNav) {
+          if (location.pathname === subItem.path) {
+            return subItem;
+          }
+        }
       }
-      // if (item.subNav) {
-      //   for (const subItem of item.subNav) {
-      //     if (location.pathname === subItem.path) {
-      //       return subItem.name;
-      //     }
-      //   }
-      // }
     }
     // return "Home"; // Default page name if no match is found
   };
 
-  const activePageName = getActivePageName();
+  const activePage = getActivePage();
+
+  const activePageName = activePage.name;
+
+
+  const handleClickButtonCreate = () => {
+    setButtonOn(!buttonOn);
+  };
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
@@ -103,7 +117,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                         {item.subNavHeading}
                       </div>
                       {item.subNav.map((subItem) => (
-                        <NavLink
+                          subItem.isVisible && <NavLink
                           key={subItem.name}
                           to={subItem.path}
                           className={({ isActive }) =>
@@ -149,20 +163,46 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       >
         <div className=" px-6 relative min-h-screen z-10">
           {(hoveredNavItem === "Администрирование" ||
-            hoveredNavItem === "Анализ") && (
+            hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
-          <div className="py-5 flex items-center">
-            <button
-              onClick={toggleNavbar}
-              className="p-2 bg-white border border-primary02 text-primary02 rounded"
-            >
-              {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-            </button>
-            <div className="ms-3 lg:ms-12 flex items-center">
-              <span className=" text-xl md:text-3xl">{activePageName}</span>{" "}
-              <QuestionmarkIcon className="text-2xl ms-2" />
+          <div className="flex items-center justify-between">
+            <div className="py-5 flex items-center">
+              <button
+                onClick={toggleNavbar}
+                className="p-2 bg-white border border-primary02 text-primary02 rounded"
+              >
+                {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
+              </button>
+              <div className="ms-3 lg:ms-12 flex flex-col items-start">
+                <div className="flex items-center mb-3">
+                  <span className=" text-xl md:text-3xl">{activePageName}</span>{" "}
+                  <QuestionmarkIcon className="text-2xl ms-2" />
+                </div>
+                {activePage.filter && (
+                    <>
+                      <button
+                          disabled={!isData}
+                          onClick={() => setFilterOpen(!filterOpen)}
+                          className={`flex font-semibold text-primary02 ${
+                              isData ? "opacity-100" : "opacity-50"
+                          }`}
+                      >
+                        Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                      </button>
+                    </>
+                )}
+              </div>
             </div>
+            {activePage.addButton && (
+                <div>
+                  <Button
+                    title ='Добавить'
+                    icon
+                    handleClick ={handleClickButtonCreate}
+                  />
+                </div>
+            )}
           </div>
           {children}
         </div>
