@@ -1,5 +1,5 @@
 import {AxiosResponse} from "axios";
-import {api} from "../../../utils/axiosConfig.ts";
+import api from "../../../utils/axiosConfig";
 
 enum POS {
     GET_POSES = 'pos/filter',

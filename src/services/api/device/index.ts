@@ -1,6 +1,5 @@
 import {AxiosResponse} from "axios";
-import {api} from "../../../utils/axiosConfig.ts";
-
+import api from "../../../utils/axiosConfig";
 enum DEVICE {
     GET_DEVICE = 'device/filter',
     GET_DEVICE_BY_POS = 'device/filter/pos',

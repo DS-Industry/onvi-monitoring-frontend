@@ -1,5 +1,5 @@
 import {AxiosResponse} from "axios";
-import {api} from "../../../utils/axiosConfig.ts";
+import api from "../../../utils/axiosConfig";
 import {data} from "autoprefixer";
 
 enum ORGANIZATION {

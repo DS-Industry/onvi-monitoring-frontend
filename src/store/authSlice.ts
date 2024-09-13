@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 
 interface AuthState {
   jwtToken: string | null;
@@ -7,7 +7,7 @@ interface AuthState {
   clearJwtToken: () => void;
 }
 
-const useAuthStore = create<AuthState>()(
+const useAuthStore = create<AuthState>()(devtools(
   persist(
     (set) => ({
       jwtToken: null,
@@ -17,7 +17,13 @@ const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
     }
-  )
+  ),
+  { name: 'AuthStore'}
+)
 );
+
+useAuthStore.subscribe((state: unknown) => {
+  console.log('State changed:', state);
+});
 
 export default useAuthStore;
