@@ -1,6 +1,6 @@
 import React from "react";
-import AddWhite from "../../../assets/icons/add-white.svg?react";
-import AddBlue from "../../../assets/icons/add-blue.svg?react";
+import AddWhite from "@icons/add-white.svg?react";
+import AddBlue from "@icons/add-blue.svg?react";
 import { Spinner } from "@material-tailwind/react";
 
 type ButtonCreateProps = {

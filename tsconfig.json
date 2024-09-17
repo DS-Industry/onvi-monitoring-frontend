@@ -9,8 +9,14 @@
     }
   ],
   "compilerOptions": {
+    "baseUrl": "./src",
     "types": [
-      "process.env"
-    ]
+      "process.env",
+      "node"
+    ],
+    "paths": {
+      "@ui/*": ["components/ui/*"],
+      "@icons/*": ["assets/icons/*"]
+    }
   }
 }

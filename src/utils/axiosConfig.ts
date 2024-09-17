@@ -8,7 +8,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const jwtToken = useAuthStore.getState().jwtToken;
+        const jwtToken = useAuthStore.getState().tokens?.accessToken;
 
         if(jwtToken !== null) {
             config.headers.Authorization = `Bearer ${jwtToken}`;

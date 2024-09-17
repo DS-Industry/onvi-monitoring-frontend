@@ -1,25 +1,34 @@
-import { create } from 'zustand';
+import { create, StateCreator } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 
+export interface Tokens {
+  accessToken: string;
+  accessTokenExp: string;
+  refreshToken: string;
+  refreshTokenExp: string;
+}
 interface AuthState {
-  jwtToken: string | null;
-  setJwtToken: (token: string) => void;
-  clearJwtToken: () => void;
+  tokens: Tokens | null;
+  setTokens: (tokens: { tokens: Tokens }) => void;
+  clearTokens: () => void;
 }
 
-const useAuthStore = create<AuthState>()(devtools(
-  persist(
-    (set) => ({
-      jwtToken: null,
-      setJwtToken: (token: string) => set({ jwtToken: token }),
-      clearJwtToken: () => set({ jwtToken: null }),
-    }),
-    {
-      name: 'auth-storage',
-    }
-  ),
-  { name: 'AuthStore'}
-)
+const createAuthStore: StateCreator<AuthState> = (set) => ({
+  tokens: null,
+  setTokens: (tokens) =>
+      set(() => ({
+          tokens: tokens.tokens,
+      })),
+  clearTokens: () => set(() => ({ tokens: null })),
+});
+
+const useAuthStore = create<AuthState>()(
+  devtools(
+      persist(createAuthStore, {
+          name: 'auth-storage', 
+      }),
+      { name: 'AuthStore' }
+  )
 );
 
 useAuthStore.subscribe((state: unknown) => {

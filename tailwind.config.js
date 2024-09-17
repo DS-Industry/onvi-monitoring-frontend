@@ -23,6 +23,7 @@ export default {
         background05: "#F8F8FA",
         background06: "#E4F0FF",
         opacity01: "#D8D9DD",
+        disabledFill: "#F7F9FC"
       },
       boxShadow: {
         card: "0 2px 13px -2px rgba(27, 33, 44, 0.12)",

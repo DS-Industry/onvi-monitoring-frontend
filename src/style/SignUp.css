@@ -29,21 +29,8 @@
   }
   
   /* Label styling */
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: black;
-  }
   
   /* Input fields and select dropdown styling */
-  .form-group input,
-  .form-group select {
-    border-radius: 6px;
-    font-size: 14px;
-    background-color: white;
-    color: black;
-  }
   
   /* Submit button styling */
   .signup-form-submit {

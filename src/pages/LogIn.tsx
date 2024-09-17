@@ -5,9 +5,9 @@ import { loginPlatformUser } from '../services/api/platform';
 import useSWR from 'swr';
 import { useSetUser,useClearUserData } from '../hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import { useSetJwtToken } from '../hooks/useAuthStore';
-import Button from '../components/ui/Button/Button';
-import Input from '../components/ui/Input/Input';
+import { useSetTokens } from '../hooks/useAuthStore';
+import Button from '@ui/Button/Button';
+import Input from '@ui/Input/Input';
 
 
 const LogIn: React.FC = () => {
@@ -23,7 +23,7 @@ const LogIn: React.FC = () => {
 
   const setUser = useSetUser();
   const clearData = useClearUserData();
-  const setJwtToken = useSetJwtToken();
+  const setTokens = useSetTokens();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,8 +39,8 @@ const LogIn: React.FC = () => {
       console.log(result)
 
       const { admin, tokens } = result;
-      setUser({user: admin?.props, tokens});
-      setJwtToken(tokens?.accessToken);
+      setUser({user: admin?.props});
+      setTokens({tokens});
       navigate("/");
     }
     else {
@@ -66,6 +66,9 @@ const LogIn: React.FC = () => {
             value={email}
             changeValue={(e) => setEmail(e.target.value)}
             error={emailError}
+            label="Enter your email"
+            helperText={emailError ? "Please enter correct email" : ""}
+            inputType="primary"
           />
         </div>
 
@@ -76,6 +79,9 @@ const LogIn: React.FC = () => {
             value={password}
             changeValue={(e) => setPassword(e.target.value)}
             error={passwordError}
+            label="Enter your password"
+            helperText={passwordError ? "Please enter correct password" : ""}
+            inputType="primary"
           />
         </div>
 
