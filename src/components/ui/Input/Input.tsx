@@ -24,7 +24,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
         setShowPassword(!showPassword);
         }
     }
-    const className = `w-full px-3 ${inputType == 'primary' ? "py-2" : (inputType == 'secondary') ? "py-1" : "py-0"} ${ disabled ? "bg-disabledFill" : "bg-background02" } rounded-md caret-primary02 text-black border ${ disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "outline-none border-primary02" : "border-primary02 border-opacity-30")} ${ disabled ? "hover:outline-none" : "hover:border-primary02"}`
+    const className = `w-full px-3 ${inputType == 'primary' ? "py-2" : (inputType == 'secondary') ? "py-1" : "py-0"} ${ disabled ? "bg-disabledFill" : "bg-background02" } rounded-md caret-primary02 text-black border outline-none  ${ disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${ disabled ? "hover:outline-none" : "hover:border-primary02"}`
     const DefaultIcon = User;
 
     return (
