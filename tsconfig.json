@@ -9,11 +9,11 @@
     }
   ],
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "src",
     "types": [
-      "process.env",
-      "node"
+      "process.env"
     ],
+    "moduleResolution": "node",
     "paths": {
       "@ui/*": ["components/ui/*"],
       "@icons/*": ["assets/icons/*"]
