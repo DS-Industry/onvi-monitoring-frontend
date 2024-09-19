@@ -6,10 +6,10 @@ import useAuthStore from "./store/authSlice.ts";
 import LogIn from "./pages/LogIn.tsx";
 
 const Root: React.FC = () => {
-  const { jwtToken } = useAuthStore();
+  const { tokens } = useAuthStore();
   return (
     <ContextProvider>
-      {jwtToken == null ? <LogIn /> : (
+      {tokens?.accessToken == null ? <LogIn /> : (
         <SideNavbar>
           <main>
             <Outlet />

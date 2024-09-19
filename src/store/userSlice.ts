@@ -21,31 +21,20 @@ export interface User {
     createdAt: string;
     updatedAt: string;
 }
-
-export interface Tokens {
-    accessToken: string;
-    accessTokenExp: string;
-    refreshToken: string;
-    refreshTokenExp: string;
-}
-
 interface UserState {
     user: User | null;
-    tokens: Tokens | null;
-    setUser: (user: { user: User; tokens: Tokens }) => void;
+    setUser: (user: { user: User }) => void;
     clearUserData: () => void;
 }
 
 // Define a state creator that applies both devtools and persist middleware
 const createUserStore: StateCreator<UserState> = (set) => ({
     user: null,
-    tokens: null,
     setUser: (user) =>
         set(() => ({
             user: user.user,
-            tokens: user.tokens,
         })),
-    clearUserData: () => set(() => ({ user: null, tokens: null })),
+    clearUserData: () => set(() => ({ user: null })),
 });
 
 // Create the store with both middlewares

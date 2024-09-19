@@ -1,13 +1,14 @@
 import useAuthStore from '../store/authSlice';
+import { Tokens } from '../store/authSlice';
 
-export const useJwtToken = () => {
-  return useAuthStore((state) => state.jwtToken);
+export const useTokens = () => {
+  return useAuthStore((state) => state.tokens as Tokens);
 };
 
-export const useSetJwtToken = () => {
-  return useAuthStore((state) => state.setJwtToken);
+export const useSetTokens = () => {
+  return useAuthStore((state) => state.setTokens);
 };
 
 export const useClearJwtToken = () => {
-  return useAuthStore((state) => state.clearJwtToken);
+  return useAuthStore((state) => state.clearTokens);
 };

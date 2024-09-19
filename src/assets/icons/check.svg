@@ -1,0 +1,31 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" fill="#F5F5F5"/>
+<g clip-path="url(#clip0_492_14706)">
+<path d="M-3204 -894C-3204 -927.137 -3177.14 -954 -3144 -954H1627C1660.14 -954 1687 -927.137 1687 -894V344C1687 352.837 1679.84 360 1671 360H-3188C-3196.84 360 -3204 352.837 -3204 344V-894Z" fill="white"/>
+<rect x="-907.5" y="-75.5" width="2132" height="361" rx="4.5" stroke="#9747FF" stroke-dasharray="10 5"/>
+<g filter="url(#filter0_dd_492_14706)">
+<rect x="-240" y="-58" width="280" height="262" rx="8" fill="white"/>
+<path d="M9.00016 16.1698L4.83016 11.9998L3.41016 13.4098L9.00016 18.9998L21.0002 6.99984L19.5902 5.58984L9.00016 16.1698Z" fill="black"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_dd_492_14706" x="-248" y="-64" width="296" height="278" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feMorphology radius="2" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_492_14706"/>
+<feOffset dy="2"/>
+<feGaussianBlur stdDeviation="3"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_492_14706"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1"/>
+<feGaussianBlur stdDeviation="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0"/>
+<feBlend mode="normal" in2="effect1_dropShadow_492_14706" result="effect2_dropShadow_492_14706"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_492_14706" result="shape"/>
+</filter>
+<clipPath id="clip0_492_14706">
+<path d="M-3204 -894C-3204 -927.137 -3177.14 -954 -3144 -954H1627C1660.14 -954 1687 -927.137 1687 -894V344C1687 352.837 1679.84 360 1671 360H-3188C-3196.84 360 -3204 352.837 -3204 344V-894Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

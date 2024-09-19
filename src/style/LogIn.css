@@ -29,17 +29,6 @@
     margin-bottom: 15px;
   }
   
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .form-group input {
-    padding: 10px;
-    border-radius: 4px;
-  }
-  
   .login-form-submit {
     width: 320px;
     padding: 10px 32px;
