@@ -1,5 +1,5 @@
 import {AxiosResponse} from "axios";
-import api from "../../../utils/axiosConfig";
+import api from "@/config/axiosConfig";
 
 enum LOGIN {
     CREATE_LOGIN = 'user/auth/login'

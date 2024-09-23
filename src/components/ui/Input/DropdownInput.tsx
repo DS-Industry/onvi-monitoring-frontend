@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import DropdownIcon from '../../../assets/icons/dropdown.svg?react';
-import CheckIcon from '../../../assets/icons/check.svg?react';
+import DropdownIcon from '@/assets/icons/dropdown.svg?react';
+import CheckIcon from '@icons/check.svg?react';
 import Spinner from '@material-tailwind/react';
 import { Check } from 'feather-icons-react';
 

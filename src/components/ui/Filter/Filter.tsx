@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import InputLineText from "../InputLine/InputLineText.tsx";
 import InputLineOption from "../InputLine/InputLineOption.tsx";
-import {useFilterOpen} from "../../context/useContext.tsx";
+import {useFilterOpen} from "@/components/context/useContext.tsx";
 
 type Props = {
   children: React.ReactNode;

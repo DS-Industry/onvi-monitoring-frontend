@@ -1,4 +1,4 @@
-import useAppStore from '../store/appSlice';
+import useAppStore from '../config/store/appSlice';
 
 export const useAppState = () => {
   return useAppStore((state) => state.someAppState);
