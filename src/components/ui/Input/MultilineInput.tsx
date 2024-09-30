@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 type MultilineInputProps = {
-    value: string;
+    value?: string;
     changeValue: (e: any) => void;
     error?: boolean;
     label?: string;
@@ -27,7 +27,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
     return (
         <div className="relative w-full min-w-80 max-w-sm mb-4">
             <div className="relative">
-                <label
+                { value === '' && <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
                         ${ disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isFocused) ? "text-base invisible" : "text-text03 visible")} 
@@ -35,7 +35,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
                         ${error ? "text-errorFill" : ""}`}
                 >
                     {label}
-                </label>
+                </label> }
                 <textarea
                     value={value}
                     onChange={changeValue}

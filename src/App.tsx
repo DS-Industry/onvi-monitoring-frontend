@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css"
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home";
@@ -17,6 +17,7 @@ import DepositDevice from "./pages/monitoring/DepositDevice.tsx";
 import Programs from "./pages/monitoring/Programs.tsx";
 import ProgramDevices from "./pages/monitoring/ProgramDevices.tsx";
 import ProgramDevice from "./pages/monitoring/ProgramDevice.tsx";
+import ProfileForm from "./pages/Profile/Profile.tsx";
 
 
 const router = createBrowserRouter([
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
       { path: "Store", element: <Contact /> },
       { path: "signup", element: <SignUp /> },
       { path: "login", element: <SignUp /> },
-
+      { path: "profile", element: <ProfileForm /> }
     ],
   },
 ]);

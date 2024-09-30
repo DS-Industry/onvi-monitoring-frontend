@@ -9,7 +9,7 @@ type Option = { label: string, value: string };
 
 type DropdownInputProps = {
     value: string;
-    onChange: (value: string) => void;
+    onChange?: (value: string) => void;
     options: Option[];
     isDisabled?: boolean;
     label?: string;
