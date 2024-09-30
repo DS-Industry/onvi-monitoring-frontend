@@ -1,5 +1,5 @@
 import React from "react";
-import Close from "../../assets/icons/close.svg?react";
+import Close from "@/assets/icons/close.svg?react";
 
 interface ToastProps {
   id: number;

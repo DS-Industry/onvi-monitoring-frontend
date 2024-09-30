@@ -103,7 +103,7 @@ export const navItem = [
   },
   {
     name: "Sign Up",
-    link: "/signup",
+    link: "/dashboard",
     subMenu: false,
     icon: PersonnelIcon,
   },
