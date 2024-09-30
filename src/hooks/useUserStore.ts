@@ -1,5 +1,5 @@
-import useUserStore from "../store/userSlice";
-import { User } from "../store/userSlice";
+import useUserStore from "../config/store/userSlice";
+import { User } from "../config/store/userSlice";
 
 export const useUser = () => {
     return useUserStore((state) => state.user as User);

@@ -100,5 +100,21 @@ export const navItem = [
     filter: false,
     addButton: false,
     icon: WarehouseIcon,
+<<<<<<< HEAD
   }
+=======
+  },
+  {
+    name: "Sign Up",
+    link: "/dashboard",
+    subMenu: false,
+    icon: PersonnelIcon,
+  },
+  {
+    name: "Login Up",
+    link: "/profile",
+    subMenu: false,
+    icon: PersonnelIcon,
+  },
+>>>>>>> 64b56564dc1480d1ca9762b6a031b1c8504d04da
 ];

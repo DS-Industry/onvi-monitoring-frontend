@@ -39,7 +39,7 @@ const LogIn: React.FC = () => {
     setSearchValue('');
   };
 
-  const { error: userError, mutate, isLoading } = useSWR([`user/auth/login`], () => loginPlatformUser({ email, password }))
+  const { error: userError, mutate, isLoading } = useSWR( email && password.length >= 8 ? [`user/auth/login`] : null, () => loginPlatformUser({ email, password }))
 
   const setUser = useSetUser();
   const clearData = useClearUserData();

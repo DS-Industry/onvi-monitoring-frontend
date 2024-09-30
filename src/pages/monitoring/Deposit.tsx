@@ -1,12 +1,12 @@
 import React, {useEffect, useRef, useState} from "react";
-import OverflowTable from "../../components/ui/Table/OverflowTable.tsx";
-import {columnsDevice, columnsMonitoringPos} from "../../utils/OverFlowTableData.tsx";
-import NoDataUI from "../../components/ui/NoDataUI.tsx";
-import SalyIamge from "../../assets/Saly-46.svg?react";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import {columnsDevice, columnsMonitoringPos} from "@/utils/OverFlowTableData.tsx";
+import NoDataUI from "@ui/NoDataUI.tsx";
+import SalyIamge from "@/assets/Saly-46.svg?react";
 import useSWR, {useSWRConfig} from "swr";
-import {getDeposit} from "../../services/api/monitoring";
-import FilterMonitoring from "../../components/ui/Filter/FilterMonitoring.tsx";
-import {getPos} from "../../services/api/pos";
+import {getDeposit} from "@/services/api/monitoring";
+import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
+import {getPos} from "@/services/api/pos";
 
 const Deposit: React.FC = () => {
     const today = new Date();

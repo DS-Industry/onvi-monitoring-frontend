@@ -1,13 +1,21 @@
 import {AxiosResponse} from "axios";
-import api from "../../../utils/axiosConfig";
+import api from "@/config/axiosConfig";
 
 enum LOGIN {
-    CREATE_LOGIN = 'user/auth/login'
+    CREATE_LOGIN = 'user/auth/login',
+    USER_AVATAR = 'user/avatar'
 }
 
 export async function loginPlatformUser(body: any): Promise<any> {
     console.log(body);
     const response: AxiosResponse<any> = await api.post(LOGIN.CREATE_LOGIN, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function uploadUserAvatar(body: any): Promise<any> {
+    console.log(body);
+    const response: AxiosResponse<any> = await api.post(LOGIN.USER_AVATAR, body);
     console.log(response.data);
     return response.data;
 }

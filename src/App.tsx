@@ -1,60 +1,91 @@
-import React from "react";
-import "./App.css"
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Organization from "./pages/Organization";
-import Contact from "./pages/Contact";
-import Root from "./Root";
-import ErrorPage from "./pages/Error";
-import Pos from "./pages/Pos.tsx";
-import Device from "./pages/Device.tsx";
-import Deposit from "./pages/monitoring/Deposit.tsx";
-import DepositDevices from "./pages/monitoring/DepositDevices.tsx";
-import DepositDevice from "./pages/monitoring/DepositDevice.tsx";
-import Programs from "./pages/monitoring/Programs.tsx";
-import ProgramDevices from "./pages/monitoring/ProgramDevices.tsx";
-import ProgramDevice from "./pages/monitoring/ProgramDevice.tsx";
 
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-    errorElement: <ErrorPage />,
-    children: [
-      { path: "", element: <Home /> },
-      {
-        path: "administration",
-        element: <About />,
-      },
-      { path: "administration/sub1", element: <Pos /> },
-      { path: "administration/device", element: <Device />},
-      { path: "administration/sub2", element: <Services /> },
-      { path: "administration/sub3", element: <Contact /> },
-      { path: "administration/sub4", element: <Home /> },
-      { path: "administration/sub5", element: <Organization /> },
-      { path: "station", element: <Contact /> },
-      { path: "Hr", element: <Contact /> },
-      { path: "finance", element: <Contact /> },
-      { path: "monitoring", element: <About /> },
-      { path: "monitoring/deposits", element: <Deposit /> },
-      { path: "monitoring/deposits/pos", element: <DepositDevices /> },
-      { path: "monitoring/deposits/pos/device", element: <DepositDevice /> },
-      { path: "monitoring/programs", element: <Programs /> },
-      { path: "monitoring/programs/pos", element: <ProgramDevices /> },
-      { path: "monitoring/programs/pos/device", element: <ProgramDevice /> },
-      { path: "Loyalty", element: <Contact /> },
-      { path: "Equipment", element: <Contact /> },
-      { path: "Store", element: <Contact /> },
-
-    ],
-  },
-]);
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import routes from "@/routes";
+import PrivateRoute from "@/routes/PrivateRoute";
+import PublicRoute from "@/routes/PublicRoute";
+import DashboardLayout from "@/layout/DashboardLayout";
+import LogIn from "@/pages/LogIn";
+import SignUp from "@/pages/SignUp";
+import { Can } from "@/permissions/Can";
 
 const App: React.FC = () => {
-  return <RouterProvider router={router} />;
+  const [userPermissions, setUserPermissions] = useState<
+    { object: string; action: string }[]
+  >([]);
+
+  useEffect(() => {
+    // Fetch or update user permissions (this could be from an API or auth context)
+    const fetchedPermissions = [
+      { object: "Pos", action: "create" },
+      { object: "Pos", action: "update" },
+      { object: "Finance", action: "view" },
+    ];
+    setUserPermissions(fetchedPermissions);
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<PublicRoute element={<LogIn />} />} />
+        <Route path="/signup" element={<PublicRoute element={<SignUp />} />} />
+
+        {/* Private Routes */}
+        <Route element={<PrivateRoute element={<DashboardLayout />} />}>
+          {routes.map((route) => (
+            <Route
+              key={route.link}
+              path={route.link}
+              element={
+                <Can
+                  requiredPermissions={route.permissions || []}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) =>
+                    allowed ? (
+                      <route.component />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                </Can>
+              }
+            />
+          ))}
+
+          {/* Sub Navigation Routes */}
+          {routes.map(
+            (route) =>
+              route.subNav &&
+              route.subNav.map((subRoute) => (
+                <Route
+                  key={subRoute.path}
+                  path={subRoute.path}
+                  element={
+                    <Can
+                      requiredPermissions={subRoute.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <subRoute.component />
+                        ) : (
+                          <Navigate to="/login" replace />
+                        )
+                      }
+                    </Can>
+                  }
+                />
+              ))
+          )}
+        </Route>
+
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 };
 
 export default App;

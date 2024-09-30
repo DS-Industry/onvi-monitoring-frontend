@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
 import useSWR from "swr";
-import {getDeposit, getDepositDevice, getDepositPos, getProgramDevice} from "../../services/api/monitoring";
+import {getDeposit, getDepositDevice, getDepositPos, getProgramDevice} from "@/services/api/monitoring";
 import {
     columnsMonitoringDevice, columnsProgramDevice,
-} from "../../utils/OverFlowTableData.tsx";
-import OverflowTable from "../../components/ui/Table/OverflowTable.tsx";
-import NoDataUI from "../../components/ui/NoDataUI.tsx";
+} from "@/utils/OverFlowTableData.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import NoDataUI from "@ui/NoDataUI.tsx";
 import {useLocation} from "react-router-dom";
-import SalyIamge from "../../assets/Saly-45.svg?react";
-import {getDeviceByPosId} from "../../services/api/device";
-import FilterMonitoring from "../../components/ui/Filter/FilterMonitoring.tsx";
+import SalyIamge from "@/assets/Saly-45.svg?react";
+import {getDeviceByPosId} from "@/services/api/device";
+import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 
 const ProgramDevice: React.FC = () => {
     const today = new Date();

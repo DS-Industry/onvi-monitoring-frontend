@@ -1,6 +1,6 @@
 import React from "react";
-import Close from "../../../assets/icons/close.svg?react";
-import Search from "../../../assets/icons/search.svg?react";
+import Close from "@icons/close.svg?react";
+import Search from "@icons/search.svg?react";
 
 interface TableColumn {
   label: string;
