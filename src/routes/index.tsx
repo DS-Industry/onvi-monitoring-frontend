@@ -31,6 +31,7 @@ import Warehouse from "@/pages/Warehouse/Warehouse";
 import ErrorPage from "@/pages/Error";
 import SignUp from "@/pages/SignUp";
 import LogIn from "@/pages/LogIn";
+import ProfileForm from "@/pages/Profile/Profile";
 
 const routes = [
     {
@@ -170,6 +171,15 @@ const routes = [
         isSidebar: false,
         permissions: []
       },
+      {
+        name: "Profile Page",
+        link: "/profile",
+        subMenu: false,
+        icon: PersonnelIcon,
+        component: ProfileForm,
+        isSidebar: true,
+        permissions: [{ object: "Finance", action: "view" }]
+      }
   ];
   
   export default routes;
