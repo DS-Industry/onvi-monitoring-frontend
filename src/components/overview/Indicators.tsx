@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import TotalVisitorsIcon from "../../assets/icons/total-visitors.svg?react";
-import ProfitIcon from "../../assets/icons/profit.svg?react";
-import TotalDownTimeIcon from "../../assets/icons/total-downtime.svg?react";
-import Notification from "../ui/Notification";
-import LineChart from "../ui/LineChart";
-import DatePickerComponent from "../ui/DatePickerComponent";
-import {columnsMonitoringPos, columnsUser, tableUserData} from "../../utils/OverFlowTableData";
+import TotalVisitorsIcon from "@icons/total-visitors.svg?react";
+import ProfitIcon from "@icons/profit.svg?react";
+import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
+import Notification from "@ui/Notification";
+import LineChart from "@ui/LineChart";
+import DatePickerComponent from "@ui/DatePickerComponent";
+import {columnsMonitoringPos, columnsUser, tableUserData} from "@/utils/OverFlowTableData";
 import useSWR from "swr";
-import {getOrganization, getRating, getStatistic} from "../../services/api/organization";
-import {getPos} from "../../services/api/pos";
-import {getDeposit} from "../../services/api/monitoring";
-import OverflowTable from "../ui/Table/OverflowTable.tsx";
+import {getOrganization, getRating, getStatistic} from "@/services/api/organization";
+import {getPos} from "@/services/api/pos";
+import {getDeposit} from "@/services/api/monitoring";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
 
 const selectOptions: {
   value: string;

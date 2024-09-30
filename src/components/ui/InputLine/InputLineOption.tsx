@@ -42,7 +42,7 @@ const InputLineOption: React.FC<InputLineProps> = ({title, type, name, register,
                     <option disabled selected>{placeholder}</option>
                 )}
                 {optionals.map((optional) => (
-                    <option label={optional.name} value={optional.value}>{optional.name}</option>
+                    <option label={optional.name} key={optional.name} value={optional.value}>{optional.name}</option>
                 ))}
             </select>
         </div>

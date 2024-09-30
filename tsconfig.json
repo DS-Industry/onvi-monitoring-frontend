@@ -15,8 +15,10 @@
     ],
     "moduleResolution": "node",
     "paths": {
+      "@/*": ["*"],
       "@ui/*": ["components/ui/*"],
-      "@icons/*": ["assets/icons/*"]
+      "@icons/*": ["assets/icons/*"],
+      "@routes/*": ["routes/*"]
     }
   }
 }

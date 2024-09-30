@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import useSWR from "swr";
-import {getDeposit, getPrograms} from "../../services/api/monitoring";
-import {columnsMonitoringPos, columnsProgramsPos} from "../../utils/OverFlowTableData.tsx";
-import OverflowTable from "../../components/ui/Table/OverflowTable.tsx";
-import NoDataUI from "../../components/ui/NoDataUI.tsx";
-import FilterMonitoring from "../../components/ui/Filter/FilterMonitoring.tsx";
-import {getPos} from "../../services/api/pos";
-import SalyIamge from "../../assets/Saly-45.svg?react";
+import {getDeposit, getPrograms} from "@/services/api/monitoring";
+import {columnsMonitoringPos, columnsProgramsPos} from "@/utils/OverFlowTableData.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import NoDataUI from "@ui/NoDataUI.tsx";
+import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
+import {getPos} from "@/services/api/pos";
+import SalyIamge from "@/assets/Saly-45.svg?react";
 
 const Programs: React.FC = () => {
     const today = new Date();

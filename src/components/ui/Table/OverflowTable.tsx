@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import Edit from "../../../assets/icons/edit.svg?react";
+import Edit from "@icons/edit.svg?react";
 import moment from 'moment';
-import UpdateIcon from "../../../assets/icons/update-icon.svg?react";
+import UpdateIcon from "@icons/update-icon.svg?react";
 import {useNavigate} from "react-router-dom";
 import Modal from "../Modal.tsx";
 import TableSettings from "./TableSettings.tsx";

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Toast from "../ui/Toast";
-import Notification from "../ui/Notification";
-import FactoryLetterS from "../../assets/Factory Letter S.svg?react";
-import Attention from "../../assets/attention.svg?react";
-import Close from "../../assets/icons/close.svg?react";
-import ArrowRight from "../../assets/icons/keyboard_arrow_right.svg?react";
+import Toast from "@ui/Toast";
+import Notification from "@ui/Notification";
+import FactoryLetterS from "@/assets/Factory Letter S.svg?react";
+import Attention from "@/assets/attention.svg?react";
+import Close from "@icons/close.svg?react";
+import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
 
 interface NewsItem {
   id: number;

@@ -1,6 +1,6 @@
-import BarChart from "../ui/BarChart";
+import BarChart from "@ui/BarChart";
 import useSWR from "swr";
-import {getRating} from "../../services/api/organization";
+import {getRating} from "@/services/api/organization";
 
 const RatingOfCarWases = () => {
   const today = new Date();

@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import useSWR from "swr";
-import {getDeposit, getDepositPos} from "../../services/api/monitoring";
-import {columnsMonitoringFullDevices, columnsMonitoringPos} from "../../utils/OverFlowTableData.tsx";
-import OverflowTable from "../../components/ui/Table/OverflowTable.tsx";
-import NoDataUI from "../../components/ui/NoDataUI.tsx";
+import {getDeposit, getDepositPos} from "@/services/api/monitoring";
+import {columnsMonitoringFullDevices, columnsMonitoringPos} from "@/utils/OverFlowTableData.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import NoDataUI from "@ui/NoDataUI.tsx";
 import {useLocation} from "react-router-dom";
-import {getPos} from "../../services/api/pos";
-import FilterMonitoring from "../../components/ui/Filter/FilterMonitoring.tsx";
+import {getPos} from "@/services/api/pos";
+import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 
 const DepositDevices: React.FC = () => {
     const today = new Date();
