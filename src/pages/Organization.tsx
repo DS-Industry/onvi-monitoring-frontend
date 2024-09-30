@@ -19,7 +19,7 @@ const Organization: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { t } = useTranslation();
     const [orgData, setIsOrgData] = useState<OrgData>();
-    const { data, error, isLoading } = useSWR([`get-org-7`], () => getOrganization(7));
+    const { data, error, isLoading } = useSWR([`get-org-2`], () => getOrganization(2));
     const { data: org, error: orgError, mutate} = useSWR([`post-org`], () => postCreateOrganization(orgData, {headers: {Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJ5Y2hlbmtvLXdvcmtAbWFpbC5ydSIsImlkIjo3LCJpYXQiOjE3MjU0MzMyMTEsImV4cCI6MTcyODAyNTIxMX0.u694wJmO2SEDtX0QprKyeM0neBV5EHQokr5O8OvmNHY`}}),
         { revalidateOnMount: false, revalidateIfStale: false, })
     const [organizationPost, setOrganizationPost] = useState<OrganizationPost>();

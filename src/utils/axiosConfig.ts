@@ -2,7 +2,8 @@ import axios from "axios";
 import useAuthStore from "../store/authSlice";
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000',
+    //baseURL: 'http://localhost:5000',
+    baseURL: 'https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net',
     withCredentials: true
 })
 

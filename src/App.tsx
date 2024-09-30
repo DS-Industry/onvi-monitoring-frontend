@@ -8,7 +8,6 @@ import Organization from "./pages/Organization";
 import Contact from "./pages/Contact";
 import Root from "./Root";
 import ErrorPage from "./pages/Error";
-import SignUp from './pages/SignUp';
 import Pos from "./pages/Pos.tsx";
 import Device from "./pages/Device.tsx";
 import Deposit from "./pages/monitoring/Deposit.tsx";
@@ -49,8 +48,6 @@ const router = createBrowserRouter([
       { path: "Loyalty", element: <Contact /> },
       { path: "Equipment", element: <Contact /> },
       { path: "Store", element: <Contact /> },
-      { path: "signup", element: <SignUp /> },
-      { path: "login", element: <SignUp /> },
 
     ],
   },
