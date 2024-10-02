@@ -16,9 +16,9 @@ const DepositDevices: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const location = useLocation();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state.ownerId});
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
 
-    const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state.ownerId}`], () => getDepositPos(
+    const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos(
         dataFilter.posId ? dataFilter.posId : location.state.ownerId, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
