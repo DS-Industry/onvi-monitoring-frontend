@@ -14,6 +14,9 @@ import { useButtonCreate, useFilterOpen } from "@/components/context/useContext"
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
+import useAuthStore from '@/config/store/authSlice';
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUserStore";
 
 type Props = {
   children: React.ReactNode;
@@ -28,13 +31,11 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const { filterOpen, setFilterOpen } = useFilterOpen();
 
   const location = useLocation();
+  const navigate = useNavigate();
+  const user = useUser();
 
   // Update user permissions as an array of objects
-  const userPermissions = [
-    { object: "Pos", action: "create" },
-    { object: "Pos", action: "update" },
-    { object: "Finance", action: "view" },
-  ];
+  const userPermissions = useAuthStore((state) => state.permissions);
 
   const getActivePage = () => {
     for (const item of routes) {
@@ -48,6 +49,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         }
       }
     }
+  };
+
+  const handleProfileNavigate = () => {
+    navigate('/profile');
   };
 
   const activePage = getActivePage();
@@ -163,12 +168,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
               {isOpen && <span>Notification</span>}
             </div>
-            <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4">
+            <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               <EZ />
               {isOpen && (
                 <div className="text-text02">
-                  <p>Евгения Жальская</p>
-                  <p>mail@gmail.com</p>
+                  <p>{user.name}</p>
+                  <p>{user.email}</p>
                 </div>
               )}
             </div>
@@ -214,7 +219,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               <div>
                 <Button
                   title="Добавить"
-                  icon
+                  iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />
               </div>

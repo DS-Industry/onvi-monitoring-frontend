@@ -7,21 +7,19 @@ import DashboardLayout from "@/layout/DashboardLayout";
 import LogIn from "@/pages/LogIn";
 import SignUp from "@/pages/SignUp";
 import { Can } from "@/permissions/Can";
+import useAuthStore from '@/config/store/authSlice';
 
 const App: React.FC = () => {
   const [userPermissions, setUserPermissions] = useState<
     { object: string; action: string }[]
   >([]);
 
+  const fetchedPermissions = useAuthStore((state) => state.permissions);
+
   useEffect(() => {
     // Fetch or update user permissions (this could be from an API or auth context)
-    const fetchedPermissions = [
-      { object: "Pos", action: "create" },
-      { object: "Pos", action: "update" },
-      { object: "Finance", action: "view" },
-    ];
     setUserPermissions(fetchedPermissions);
-  }, []);
+  },[fetchedPermissions]);
 
   return (
     <BrowserRouter>
@@ -45,7 +43,7 @@ const App: React.FC = () => {
                     allowed ? (
                       <route.component />
                     ) : (
-                      <Navigate to="/login" replace />
+                      <Navigate to="/" replace />
                     )
                   }
                 </Can>
@@ -70,7 +68,7 @@ const App: React.FC = () => {
                         allowed ? (
                           <subRoute.component />
                         ) : (
-                          <Navigate to="/login" replace />
+                          <Navigate to="/" replace />
                         )
                       }
                     </Can>

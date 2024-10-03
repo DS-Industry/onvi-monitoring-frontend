@@ -35,7 +35,6 @@ const ProfileForm: React.FC = () => {
       </div>
 
       {/* Main Information Section */}
-      <h1 className="text-2xl font-semibold mb-6">Основная информация</h1>
 
       {/* Profile Form Container */}
       <div className="flex space-x-10">

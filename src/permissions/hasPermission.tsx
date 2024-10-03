@@ -6,13 +6,19 @@ import _ from "lodash";
  *
  * @param requiredPermissions - Array of object-action pairs required for access.
  * @param userPermissions - Array of object-action pairs the user has.
- * @returns {boolean} - True if the user has at least one of the required permissions, otherwise false.
+ * @returns {boolean} - True if the user has at least one of the required permissions or if no required permissions are specified.
  */
 const hasPermission = _.memoize(
   (
     requiredPermissions: { object: string; action: string }[],
     userPermissions: { object: string; action: string }[]
   ): boolean => {
+    // If no permissions are required, return true
+    // if (requiredPermissions.length === 0) {
+    //   return true;
+    // }
+
+    // Check if user has at least one required permission
     return requiredPermissions.some((required) =>
       userPermissions.some(
         (userPermission) =>

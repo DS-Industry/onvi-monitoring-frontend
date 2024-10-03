@@ -11,9 +11,10 @@ type ButtonCreateProps = {
     handleClick?: () => void;
     isLoading?: boolean; 
     disabled?: boolean;
+    classname?: string;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: `bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center`,
@@ -27,7 +28,7 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
     return(
         <button
             type={typeForm}
-            className={`${className} ${ disabled ? 'opacity-20 cursor-default' : ''}`}
+            className={`${className} ${classname} ${ disabled ? 'opacity-20 cursor-default' : ''}`}
             onClick={() => handleClick()}
             disabled={disabled}
         >

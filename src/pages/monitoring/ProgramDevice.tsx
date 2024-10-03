@@ -16,11 +16,11 @@ const ProgramDevice: React.FC = () => {
     const formattedDate = today.toISOString().slice(0, 10);
 
     const location = useLocation();
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state.ownerId});
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
 
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state.ownerId}`], () => getProgramDevice(
-        dataFilter.deviceId ? dataFilter.deviceId : location.state.ownerId, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getProgramDevice(
+        dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId, {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
     }));
