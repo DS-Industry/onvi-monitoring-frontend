@@ -7,19 +7,28 @@ export interface Tokens {
   refreshToken: string;
   refreshTokenExp: string;
 }
+
+type Permission = {
+  object: string;
+  action: string;
+};
 interface AuthState {
   tokens: Tokens | null;
+  permissions: Permission[];
   setTokens: (tokens: { tokens: Tokens }) => void;
   clearTokens: () => void;
+  setPermissions: (permissions: Permission[]) => void;
 }
 
 const createAuthStore: StateCreator<AuthState> = (set) => ({
   tokens: null,
+  permissions: [],
   setTokens: (tokens) =>
       set(() => ({
           tokens: tokens.tokens,
       })),
   clearTokens: () => set(() => ({ tokens: null })),
+  setPermissions: (permissions) => set({ permissions }),
 });
 
 const useAuthStore = create<AuthState>()(

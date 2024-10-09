@@ -3,10 +3,11 @@ import Input from '@ui/Input/Input';
 import MultilineInput from '@ui/Input/MultilineInput';
 import DropdownInput from '@ui/Input/DropdownInput';
 import Button from '@ui/Button/Button';
-import useFormHook from '../../hooks/useFormHook';
-import { useUser } from '../../hooks/useUserStore';
-import useSWR from 'swr';
-import { uploadUserAvatar } from '../../services/api/platform';
+import useFormHook from '@/hooks/useFormHook';
+import { useUser } from '@/hooks/useUserStore';
+import { uploadUserAvatar } from '@/services/api/platform';
+import useSWRMutation from 'swr/mutation';
+
 
 const InfoTab: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -23,7 +24,7 @@ const InfoTab: React.FC = () => {
       bio: 'Описание сотрудника',
       position: 'Мойщик',
     }),
-    []
+    [user]
   );
 
   // Destructure form methods from useFormHook
@@ -38,8 +39,8 @@ const InfoTab: React.FC = () => {
     { label: 'Другая должность', value: 'Другая должность', name: 'Другая должность' }
   ];
 
-  const { mutate } = useSWR(
-    selectedFile ? [`user/avatar`] : null,
+  const { trigger, isMutating } = useSWRMutation(
+    `user/avatar`,
     async () => {
       // Create FormData only when a file is selected
       if (selectedFile) {
@@ -49,12 +50,7 @@ const InfoTab: React.FC = () => {
         // Call the upload API with FormData
         return await uploadUserAvatar( formData );
       }
-    },
-    { 
-      revalidateOnFocus: false,
-      shouldRetryOnError: false
-    }
-  );
+    });
   
 
 
@@ -99,8 +95,8 @@ const InfoTab: React.FC = () => {
   // Form submission handler
   const onSubmit = async (data: any) => {
     console.log('Form Data:', data);
-    const result = await mutate();
-    if (selectedFile && result) {
+    const result = await trigger();
+    if (result) {
       const avatarUrl = result; // Assuming result contains the URL
       setImagePreview(avatarUrl);
       localStorage.setItem('avatarUrl', avatarUrl); // Save the URL in local storage
@@ -109,12 +105,11 @@ const InfoTab: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      <h1 className="text-2xl font-semibold mb-6">Основная информация</h1>
-
+    <div className="max-w-6xl mr-auto">
+      <h1 className="text-2xl font-semibold mb-6 text-black">Основная информация</h1>
       {/* Main form container */}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex space-x-10 items-start">
+        <div className="flex items-start">
           {/* Form fields */}
           <div className="space-y-6 w-2/3">
             {/* Name */}
@@ -128,6 +123,7 @@ const InfoTab: React.FC = () => {
                 {...register('name', { required: 'ФИО is required' })}
                 disabled={false}
                 inputType="primary"
+                classname='w-96'
               />
               {errors.name && <span className="text-red-600">{errors.name.message}</span>}
             </div>
@@ -161,6 +157,7 @@ const InfoTab: React.FC = () => {
                 {...register('phone', { required: 'Телефон is required' })}
                 disabled={false}
                 inputType="primary"
+                classname='w-96'
               />
               {errors.phone && <span className="text-red-600">{errors.phone.message}</span>}
             </div>
@@ -176,6 +173,7 @@ const InfoTab: React.FC = () => {
                 {...register('email', { required: 'E-mail is required' })}
                 disabled={false}
                 inputType="primary"
+                classname='w-96'
               />
               {errors.email && <span className="text-red-600">{errors.email.message}</span>}
             </div>
@@ -194,9 +192,9 @@ const InfoTab: React.FC = () => {
           </div>
 
           {/* Avatar Section */}
-          <div className="flex flex-col w-1/3">
+          <div className="flex flex-col w-1/3 ml-64">
             <div>Фото</div>
-            <div className="relative w-36 h-36 rounded-full bg-lime-300 flex items-center justify-center">
+            <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
               {imagePreview ? (
                 <img
                   src={imagePreview}
@@ -223,8 +221,8 @@ const InfoTab: React.FC = () => {
         </div>
 
         {/* Save Button */}
-        <div className="flex justify-end mt-6">
-          <Button form={true} title="Сохранить" />
+        <div className="flex justify-end">
+          <Button form={true} title="Сохранить" classname='-mr-24 mt-10' isLoading={isMutating} />
         </div>
       </form>
     </div>

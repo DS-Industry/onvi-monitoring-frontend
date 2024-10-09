@@ -1,6 +1,8 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface FormValues {
+  loginEmail: string;
+  loginPassword: string;
   name: string;
   email: string;
   phone: string;

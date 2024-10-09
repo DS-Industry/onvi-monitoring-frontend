@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import DropdownIcon from '@/assets/icons/dropdown.svg?react';
-import CheckIcon from '@icons/check.svg?react';
 import Spinner from '@material-tailwind/react';
 import { Check } from 'feather-icons-react';
 
@@ -52,13 +51,15 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                 ? selectedValues.filter(val => val !== optionValue)
                 : [...selectedValues, optionValue];
             setSelectedValues(updatedValues);
-            onChange(updatedValues.join(', '));
+            if(onChange)
+                onChange(updatedValues.join(', '));
         } else {
-            onChange(optionValue);
+            if(onChange)
+                onChange(optionValue);
             setIsOpen(false);
         }
     };
-    const className = `w-full px-3 ${inputType == 'primary' ? "pt-3 pb-2" : (inputType == 'secondary') ? "py-1" : "py-0"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : (isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
+    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-2" : (inputType == 'secondary') ? "py-1" : "py-0"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : (isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -101,7 +102,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                 {isLoading ? (
                     <Spinner className="w-5 h-5 animate-spin text-primary02" />
                 ) : (
-                    <DropdownIcon className={`w-5 h-5 text-gray-400 ${isOpen ? 'rotate-180' : 'rotate-0'} transition-transform`} />
+                    <button
+                        type="button"
+                        onClick={handleToggleDropdown} // Make the icon clickable
+                        className="focus:outline-none"
+                    >
+                        <DropdownIcon className={`w-5 h-5 text-gray-400 ${isOpen ? 'rotate-180' : 'rotate-0'} transition-transform`} />
+                    </button>
                 )}
             </div>
 
@@ -121,15 +128,15 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                                 >
                                     {isMultiSelect ? (
                                         <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedValues.includes(option.value)}
-                                            style={{ accentColor: 'blue' }}
-                                            className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
-                                            readOnly
-                                        />
-                                        {option.label}
-                                    </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedValues.includes(option.value)}
+                                                style={{ accentColor: 'blue' }}
+                                                className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
+                                                readOnly
+                                            />
+                                            {option.label}
+                                        </div>
                                     ) : (
                                         option.label
                                     )}

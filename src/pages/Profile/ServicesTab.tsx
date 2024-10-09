@@ -3,8 +3,8 @@ import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import MultilineInput from '@ui/Input/MultilineInput';
 import Button from '@ui/Button/Button';
-import useFormHook from '../../hooks/useFormHook'; // Import the custom hook
-import { useUser } from '../../hooks/useUserStore';
+import useFormHook from '@/hooks/useFormHook'; // Import the custom hook
+import { useUser } from '@/hooks/useUserStore';
 
 export const ServicesTab: React.FC = () => {
 
@@ -60,6 +60,7 @@ export const ServicesTab: React.FC = () => {
 
   return (
     <form className="space-y-6 w-2/3" onSubmit={handleSubmit(onSubmit)}>
+      <h1 className="text-2xl font-semibold mb-6 text-black">Дополнительная информация</h1>
       {/* Last Name Field */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Фамилия</label>
@@ -70,7 +71,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('lastName', e.target.value)}
           {...register('lastName', { required: 'Фамилия is required' })}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
         {errors.lastName && <span className="text-red-600">{errors.lastName.message}</span>}
       </div>
@@ -85,7 +86,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('firstName', e.target.value)}
           {...register('firstName', { required: 'Имя is required' })}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
         {errors.firstName && <span className="text-red-600">{errors.firstName.message}</span>}
       </div>
@@ -100,7 +101,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('middleName', e.target.value)}
           {...register('middleName')}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
       </div>
 
@@ -113,7 +114,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('employmentDate', e.target.value)}
           {...register('employmentDate', { required: 'Дата приема на работу is required' })}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
         {errors.employmentDate && <span className="text-red-600">{errors.employmentDate.message}</span>}
       </div>
@@ -128,7 +129,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('phone', e.target.value)}
           {...register('phone', { required: 'Телефон is required' })}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
         {errors.phone && <span className="text-red-600">{errors.phone.message}</span>}
       </div>
@@ -143,7 +144,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('email', e.target.value)}
           {...register('email', { required: 'E-mail is required' })}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
         {errors.email && <span className="text-red-600">{errors.email.message}</span>}
       </div>
@@ -158,7 +159,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('citizenship', e.target.value)}
           {...register('citizenship')}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
       </div>
 
@@ -201,7 +202,7 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('inn', e.target.value)}
           {...register('inn')}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
       </div>
 
@@ -215,13 +216,13 @@ export const ServicesTab: React.FC = () => {
           changeValue={(e) => handleInputChange('insuranceNumber', e.target.value)}
           {...register('insuranceNumber')}
           disabled={false}
-          inputType={'primary'}
+          inputType={'secondary'}
         />
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end mt-6">
-        <Button form={true} title="Сохранить" />
+      <div className="flex justify-end">
+        <Button form={true} title="Сохранить" classname='-mr-36 mt-10' />
       </div>
     </form>
   );

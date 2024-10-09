@@ -1,5 +1,3 @@
-import React from "react";
-import Dashboard from "../pages/Dashboard/Dashboard";
 import Hr from "../pages/Hr/Hr";
 import Administration from "../pages/Administration/Administration";
 import Analysis from "../pages/Analysis/Analysis";
@@ -157,7 +155,6 @@ const routes = [
         name: "Sign Up",
         link: "/signup",
         subMenu: false,
-        icon: PersonnelIcon,
         component: SignUp,
         isSidebar: false,
         permissions: []
@@ -166,7 +163,6 @@ const routes = [
         name: "Login",
         link: "/login",
         subMenu: false,
-        icon: PersonnelIcon,
         component: LogIn,
         isSidebar: false,
         permissions: []
@@ -175,9 +171,8 @@ const routes = [
         name: "Profile Page",
         link: "/profile",
         subMenu: false,
-        icon: PersonnelIcon,
         component: ProfileForm,
-        isSidebar: true,
+        isSidebar: false,
         permissions: [{ object: "Finance", action: "view" }]
       }
   ];
