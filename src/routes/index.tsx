@@ -96,7 +96,7 @@ const routes = [
         icon: CarWashIcon,
         component: Administration,
         isSidebar: true,
-        permissions: []
+        permissions: [{ object: "Pos", action: "create"}]
       },
       {
         name: "Hr",
@@ -107,7 +107,7 @@ const routes = [
         icon: PersonnelIcon,
         component: Hr,
         isSidebar: true,
-        permissions: []
+        permissions: [{ object: "Pos", action: "create"}]
       },
       {
         name: "Финансы",
@@ -118,7 +118,7 @@ const routes = [
         icon: FinancesIcon,
         component: Finance,
         isSidebar: true,
-        permissions: [{ object: "Finance", action: "view" }]
+        permissions: [{ object: "Pos", action: "create"}]
       },
       {
         name: "Лояльность",
