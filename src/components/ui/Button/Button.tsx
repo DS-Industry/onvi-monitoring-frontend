@@ -29,12 +29,12 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
         <button
             type={typeForm}
             className={`${className} ${classname} ${ disabled ? 'opacity-20 cursor-default' : ''}`}
-            onClick={() => handleClick()}
+            onClick={handleClick}
             disabled={disabled}
         >
-            {iconPlus && <Plus size={20} className="mr-2 text-black" /> }
+            {iconPlus && <Plus size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
             {isLoading ? <Spinner className={`animate-spin ${ type == 'basic' ? "text-white" : "text-primary02"}`}/> : title}
-            {iconRight && <ChevronRight size={20} className="ml-2 text-black" /> }
+            {iconRight && <ChevronRight size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
         </button>
     );
 };

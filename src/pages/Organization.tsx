@@ -1,100 +1,342 @@
 import { Trans, useTranslation } from "react-i18next";
 import SalyIamge from "../assets/Saly-11.svg?react";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import NoDataUI from "../components/ui/NoDataUI.tsx";
 import DrawerCreate from "../components/ui/Drawer/DrawerCreate.tsx";
-import {useButtonCreate} from "../components/context/useContext.tsx";
-import {columnsOrg} from "../utils/OverFlowTableData.tsx";
+import { useButtonCreate } from "../components/context/useContext.tsx";
+import { columnsOrg } from "../utils/OverFlowTableData.tsx";
 import OverflowTable from "../components/ui/Table/OverflowTable.tsx";
 import InputLineText from "../components/ui/InputLine/InputLineText.tsx";
 import InputLineOption from "../components/ui/InputLine/InputLineOption.tsx";
 import Button from "../components/ui/Button/Button.tsx";
-import {fetcher, useFetchData} from "../api";
-import {SubmitErrorHandler, SubmitHandler, useForm} from "react-hook-form";
+import { fetcher, useFetchData } from "../api";
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import useSWR from "swr";
-import {getOrganization, postCreateOrganization} from "../services/api/organization";
+import { getOrganization, postCreateOrganization, postUpdateOrganization } from "../services/api/organization";
+import DropdownInput from "@ui/Input/DropdownInput.tsx";
+import Input from "@ui/Input/Input.tsx";
+import MultilineInput from "@ui/Input/MultilineInput.tsx";
+import useFormHook from "@/hooks/useFormHook.ts";
+import useSWRMutation from "swr/mutation";
+import { createUserOrganization } from "@/services/api/platform/index.ts";
+import { useUser } from "@/hooks/useUserStore.ts";
 
 const Organization: React.FC = () => {
     const [isData, setIsData] = useState(true);
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { t } = useTranslation();
-    const [orgData, setIsOrgData] = useState<OrgData>();
-    const { data, error, isLoading } = useSWR([`get-org-7`], () => getOrganization(7));
-    const { data: org, error: orgError, mutate} = useSWR([`post-org`], () => postCreateOrganization(orgData, {headers: {Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJ5Y2hlbmtvLXdvcmtAbWFpbC5ydSIsImlkIjo3LCJpYXQiOjE3MjU0MzMyMTEsImV4cCI6MTcyODAyNTIxMX0.u694wJmO2SEDtX0QprKyeM0neBV5EHQokr5O8OvmNHY`}}),
-        { revalidateOnMount: false, revalidateIfStale: false, })
-    const [organizationPost, setOrganizationPost] = useState<OrganizationPost>();
-    const organizations: Organization[] = data?.map((item: any) => {
-        return item;
+    const user = useUser();
+    const { data, error, isLoading } = useSWR([`get-org-7`], () => getOrganization(user.id));
+    // const { data: org, error: orgError, mutate } = useSWR([`post-org`], () => postCreateOrganization(orgData, { headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJ5Y2hlbmtvLXdvcmtAbWFpbC5ydSIsImlkIjo3LCJpYXQiOjE3MjU0MzMyMTEsImV4cCI6MTcyODAyNTIxMX0.u694wJmO2SEDtX0QprKyeM0neBV5EHQokr5O8OvmNHY` } }),
+    //     { revalidateOnMount: false, revalidateIfStale: false, })
+    const organizations: any[] = data?.map((item: any) => {
+        return item
     }).sort((a, b) => a.id - b.id) || [];
-    const {register, handleSubmit} = useForm<OrganizationPost>();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editOrgId, setEditOrgId] = useState<number | null>(null);
 
-    const submit: SubmitHandler<OrganizationPost> = organizationPost => {
-        const organizationData = {
-            name: organizationPost.name,
-            organizationType: organizationPost.organizationType,
-            address: {
-                city: organizationPost.city,
-                location: organizationPost.location,
-            }
+    const defaultValues = {
+        fullName: '',
+        organizationType: '',
+        rateVat: '',
+        inn: '',
+        okpo: '',
+        kpp: '',
+        addressRegistration: '',
+        ogrn: '',
+        bik: '',
+        correspondentAccount: '',
+        bank: '',
+        settlementAccount: '',
+        addressBank: '',
+        certificateNumber: '',
+        dateCertificate: ''
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
+
+    const { trigger: createOrganization, isMutating } = useSWRMutation('user/organization', async () => createUserOrganization({
+        fullName: formData.fullName,
+        organizationType: formData.organizationType,
+        rateVat: formData.rateVat,
+        inn: formData.inn,
+        okpo: formData.okpo,
+        kpp: formData.kpp,
+        addressRegistration: formData.addressRegistration,
+        ogrn: formData.ogrn,
+        bik: formData.bik,
+        correspondentAccount: formData.correspondentAccount,
+        bank: formData.bank,
+        settlementAccount: formData.settlementAccount,
+        addressBank: formData.addressBank,
+    }));
+
+    const { trigger: updateOrganization } = useSWRMutation('user/organization', async () => postUpdateOrganization({
+        organizationId: editOrgId,
+        fullName: formData.fullName,
+        organizationType: formData.organizationType,
+        rateVat: formData.rateVat,
+        inn: formData.inn,
+        okpo: formData.okpo,
+        kpp: formData.kpp,
+        addressRegistration: formData.addressRegistration,
+        ogrn: formData.ogrn,
+        bik: formData.bik,
+        correspondentAccount: formData.correspondentAccount,
+        bank: formData.bank,
+        settlementAccount: formData.settlementAccount,
+        addressBank: formData.addressBank,
+    }))
+
+    const handleInputChange = (field: any, value: string) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setValue(field, value); // Update react-hook-form's internal value
+    };
+
+    const handleUpdate = (id: number) => {
+        setEditOrgId(id); // Set the ID of the organization to be updated
+        setIsEditMode(true); // Enable edit mode
+        setButtonOn(true); // Open the drawer
+        console.log(id);
+        console.log(isEditMode);
+        // Find the organization by ID and set it to formData
+        const orgToEdit = organizations.find((org) => org.id === id);
+        console.log(orgToEdit);
+        if (orgToEdit) {
+            setFormData({
+                fullName: orgToEdit.name,
+                organizationType: orgToEdit.organizationType,
+                rateVat: orgToEdit.rateVat,
+                inn: orgToEdit.inn,
+                okpo: orgToEdit.okpo,
+                kpp: orgToEdit.kpp,
+                addressRegistration: orgToEdit.address,
+                ogrn: orgToEdit.ogrn,
+                bik: orgToEdit.bik,
+                correspondentAccount: orgToEdit.correspondentAccount,
+                bank: orgToEdit.bank,
+                settlementAccount: orgToEdit.settlementAccount,
+                addressBank: orgToEdit.addressBank,
+                certificateNumber: orgToEdit.certificateNumber,
+                dateCertificate: orgToEdit.dateCertificate,
+            });
         }
-        setIsOrgData(organizationData)
-        mutate()
+    };
+    
 
-    }
+    const resetForm = () => {
+        setFormData(defaultValues);
+        setIsEditMode(false);
+        reset();
+        setEditOrgId(null);
+        setButtonOn(false); // Close the Drawer
+    };
 
-    const errorData: SubmitErrorHandler<OrganizationPost> = data => {
-        console.log('err');
-    }
+    const onSubmit = async (data: any) => {
+        console.log('Form data:', data);
+        // Handle form submission logic here
+        try {
+            if (editOrgId) {
+                const result = await updateOrganization();
+                console.log(result);
+                if (result) {
+                    console.log(result);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
+            } else {
+                const result = await createOrganization();
+                if (result) {
+                    console.log(result);
+                } else {
+                    throw new Error('Invalid org data. Please try again.');
+                }
+            }
+        } catch (error) {
+            console.log("Password change error: ", error);
+        }
+    };
+
+
+    // const submit: SubmitHandler<OrganizationPost> = organizationPost => {
+    //     const organizationData = {
+    //         name: organizationPost.name,
+    //         organizationType: organizationPost.organizationType,
+    //         address: {
+    //             city: organizationPost.city,
+    //             location: organizationPost.location,
+    //         }
+    //     }
+    //     setIsOrgData(organizationData)
+    //     mutate()
+
+    // }
+
+    // const errorData: SubmitErrorHandler<OrganizationPost> = data => {
+    //     console.log('err');
+    // }
 
     return (
         <>
             <DrawerCreate>
-                <form onSubmit={handleSubmit(submit, errorData)}>
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5">Новое юридическое лицо</span>
-                    <InputLineOption
-                        title = {"Тип Юр. лица"}
-                        type ={"typeOrg"}
-                        optionals ={[
-                                { name: "Юридическое лицо", value: "LegalEntity"},
-                                { name:"ИП", value: "IndividualEntrepreneur"}
+                    <DropdownInput
+                        title="Тип Юр. лица"
+                        options={[
+                            { name: "Юридическое лицо", value: "LegalEntity" },
+                            { name: "ИП", value: "IndividualEntrepreneur" }
                         ]}
-                        name={'organizationType'}
-                        register={register}
+                        inputType="secondary"
+                        classname="w-64"
+                        {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}
+                        value={formData.organizationType}
+                        onChange={(value) => handleInputChange('organizationType', value)}
+                        error={!!errors.organizationType}
+                        helperText={errors.organizationType?.message}
                     />
-                    <InputLineText
-                        title = {"Полное наименование"}
+                    <DropdownInput
+                        title="Ставка НДС"
+                        label="Выберите ставку"
+                        type={"typeOrg"}
+                        options={[
+                            { name: "Без НДС", value: "WithoutVAT" },
+                            { name: "10%", value: "Vat10" },
+                            { name: "18%", value: "Vat18" },
+                            { name: "20%", value: "Vat20" }
+                        ]}
+                        inputType="primary"
+                        classname="w-64"
+                        {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
+                        value={formData.rateVat}
+                        onChange={(value) => handleInputChange('rateVat', value)}
+                        error={!!errors.rateVat}
+                        helperText={errors.rateVat?.message}
+                    />
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">Юридические реквизиты</div>
+                    <Input
+                        title="ИНН"
+                        type="text"
+                        classname="w-96"
+                        {...register('inn', { required: !isEditMode && 'Inn is required' })}
+                        value={formData.inn}
+                        changeValue={(e) => handleInputChange('inn', e.target.value)}
+                        error={!!errors.inn}
+                        helperText={errors.inn?.message}
+                    />
+                    <Input
+                        title={"Полное наименование"}
                         type={'text'}
-                        name={'name'}
-                        register={register}
-                        required={true}
+                        classname="w-96"
+                        {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
+                        value={formData.fullName}
+                        changeValue={(e) => handleInputChange('fullName', e.target.value)}
+                        error={!!errors.fullName}
+                        helperText={errors.fullName?.message}
                     />
-                    <InputLineText
-                        title = {"Город"}
-                        type={'text'}
-                        name={'city'}
-                        register={register}
-                        required={true}
+                    <Input
+                        title="ОКПО"
+                        type="text"
+                        classname="w-96"
+                        {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
+                        value={formData.okpo}
+                        changeValue={(e) => handleInputChange('okpo', e.target.value)}
+                        error={!!errors.okpo}
+                        helperText={errors.okpo?.message}
                     />
-                    <InputLineText
-                        title = {"Адрес"}
-                        type={'text'}
-                        name={'location'}
-                        register={register}
-                        required={true}
+                    <Input
+                        title="КПП"
+                        type="text"
+                        classname="w-96"
+                        {...register('kpp')}
+                        value={formData.kpp}
+                        changeValue={(e) => handleInputChange('kpp', e.target.value)}
                     />
-                    <div className="flex justify-end space-x-4">
-                        <Button
-                            title ='Отменить'
-                            type ='outline'
-                            handleClick ={() =>
-                                setButtonOn(!buttonOn)}
-                        />
-                        <Button
-                            title ='Сохранить'
-                            form={true}
-                            handleClick ={() => {}}
-                        />
-                    </div>
+                    <MultilineInput
+                        title="Адрес регистрации"
+                        classname="w-96"
+                        {...register('addressRegistration', { required: !isEditMode && 'Registration Address is required' })}
+                        value={formData.addressRegistration}
+                        changeValue={(e) => handleInputChange('addressRegistration', e.target.value)}
+                        error={!!errors.addressRegistration}
+                        helperText={errors.addressRegistration?.message}
+                    />
+                    <Input
+                        title="ОГРН"
+                        type="text"
+                        classname="w-96"
+                        {...register('ogrn', { required: !isEditMode && 'OGRN is required' })}
+                        value={formData.ogrn}
+                        changeValue={(e) => handleInputChange('ogrn', e.target.value)}
+                        error={!!errors.ogrn}
+                        helperText={errors.ogrn?.message}
+                    />
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">Банковские реквизиты</div>
+                    <Input
+                        title="БИК"
+                        type="text"
+                        classname="w-96"
+                        {...register('bik', { required: !isEditMode && 'BIK is required' })}
+                        value={formData.bik}
+                        changeValue={(e) => handleInputChange('bik', e.target.value)}
+                        error={!!errors.bik}
+                        helperText={errors.bik?.message}
+                    />
+                    <Input
+                        title="Корр. счёт"
+                        type="text"
+                        classname="w-96"
+                        {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
+                        value={formData.correspondentAccount}
+                        changeValue={(e) => handleInputChange('correspondentAccount', e.target.value)}
+                        error={!!errors.correspondentAccount}
+                        helperText={errors.correspondentAccount?.message}
+                    />
+                    <>
+                        <Input
+                            title="Банк"
+                            type="text"
+                            classname="w-96"
+                            {...register('bank', { required: !isEditMode && 'Bank is required' })}
+                            value={formData.bank}
+                            changeValue={(e) => handleInputChange('bank', e.target.value)}
+                            error={!!errors.bank}
+                            helperText={errors.bank?.message}
+                            />
+                        <Input
+                            title="Расчётный счёт"
+                            type="text"
+                            classname="w-96"
+                            {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
+                            value={formData.settlementAccount}
+                            changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
+                            error={!!errors.settlementAccount}
+                            helperText={errors.settlementAccount?.message}
+                             />
+                        <MultilineInput
+                            title="Адрес"
+                            classname="w-96"
+                            {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
+                            value={formData.addressBank}
+                            changeValue={(e) => handleInputChange('addressBank', e.target.value)}
+                            error={!!errors.addressBank}
+                            helperText={errors.addressBank?.message}
+                             />
+
+                        <div className="flex justify-end space-x-4">
+                            <Button
+                                title='Отменить'
+                                type='outline'
+                                handleClick={() => {setButtonOn(!buttonOn); resetForm();}} />
+                            <Button
+                                title='Сохранить'
+                                form={true}
+                                isLoading={isMutating}
+                                handleClick={() => { }} />
+                        </div>
+                    </>
                 </form>
             </DrawerCreate>
 
@@ -106,10 +348,11 @@ const Organization: React.FC = () => {
                             columns={columnsOrg}
                             isDisplayEdit={true}
                             isUpdate={true}
+                            onUpdate={handleUpdate}
                         />
                     </div>
                 </>
-            ):(
+            ) : (
                 <NoDataUI
                     title="Не создано никаких юридических лиц"
                     description="Добавить юридическое лицо"

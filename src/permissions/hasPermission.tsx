@@ -14,9 +14,9 @@ const hasPermission = _.memoize(
     userPermissions: { object: string; action: string }[]
   ): boolean => {
     // If no permissions are required, return true
-    // if (requiredPermissions.length === 0) {
-    //   return true;
-    // }
+    if (requiredPermissions.length === 0) {
+      return true;
+    }
 
     // Check if user has at least one required permission
     return requiredPermissions.some((required) =>

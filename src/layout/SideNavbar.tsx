@@ -60,6 +60,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   const handleClickButtonCreate = () => {
     setButtonOn(!buttonOn);
+    console.log("Button on", buttonOn);
   };
 
   const toggleNavbar = () => {
@@ -77,11 +78,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   return (
     <div className="flex">
       <div
-        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${
-          isOpen ? "translate-x-0" : "translate-x-0 w-20"
-        } transition-width duration-300 ease-in-out ${
-          isOpen ? "w-64" : "w-20"
-        }`}
+        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${isOpen ? "translate-x-0" : "translate-x-0 w-20"
+          } transition-width duration-300 ease-in-out ${isOpen ? "w-64" : "w-20"
+          }`}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
@@ -107,12 +106,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                             to={item.link}
                             className={({ isActive }) =>
                               isActive
-                                ? `flex items-center ${
-                                    !isOpen && "justify-center"
-                                  } py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-primary01`
-                                : `flex items-center ${
-                                    !isOpen && "justify-center"
-                                  } py-1.5 px-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02`
+                                ? `flex items-center ${!isOpen && "justify-center"
+                                } py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-primary01`
+                                : `flex items-center ${!isOpen && "justify-center"
+                                } py-1.5 px-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02`
                             }
                           >
                             <item.icon className={`${isOpen && "mr-2"}`} />
@@ -161,9 +158,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           </div>
           <div>
             <div
-              className={`flex items-center ${
-                !isOpen && "justify-center"
-              } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+              className={`flex items-center ${!isOpen && "justify-center"
+                } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
               {isOpen && <span>Notification</span>}
@@ -181,11 +177,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         </div>
       </div>
       <div
-        className={`flex-grow transition-all duration-300 ease-in-out ${
-          isOpen ? "ml-64" : "ml-20"
-        }`}
+        className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
+          }`}
       >
-        <div className="px-6 relative min-h-screen z-10">
+        <div className="px-6 relative min-h-screen bg-background02 z-10">
           {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
@@ -206,9 +201,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   <button
                     disabled={!isData}
                     onClick={() => setFilterOpen(!filterOpen)}
-                    className={`flex font-semibold text-primary02 ${
-                      isData ? "opacity-100" : "opacity-50"
-                    }`}
+                    className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
+                      }`}
                   >
                     Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
                   </button>
@@ -218,7 +212,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             {activePage?.addButton && (
               <div>
                 <Button
-                  title="Добавить"
+                  title={"Добавить"}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />

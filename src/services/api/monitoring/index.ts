@@ -3,7 +3,7 @@ import api from "@/config/axiosConfig";
 
 
 enum MONITORING {
-    GET_DEPOSIT = '/pos/monitoring',
+    GET_DEPOSIT = '/user/pos/monitoring',
     GET_PROGRAMS = '/pos/program'
 }
 

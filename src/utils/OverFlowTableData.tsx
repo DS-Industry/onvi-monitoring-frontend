@@ -127,15 +127,15 @@ export const columnsPos = [
   },
   {
     label: "Название организации",
-    key: "organizationName",
+    key: "posType",
   },
   {
     label: "Временная зона",
-    key: "timeZone",
+    key: "timezone",
   },
   {
     label: "Статус",
-    key: "posStatus",
+    key: "status",
   },
   {
     label: "Дата создания",
@@ -149,11 +149,11 @@ export const columnsPos = [
   },
   {
     label: "Создал",
-    key: "createdBy",
+    key: "createdById",
   },
   {
     label: "Обновил",
-    key: "updatedBy",
+    key: "updatedById",
   },
 ]
 export const columnsOrg = [
@@ -193,7 +193,7 @@ export const columnsOrg = [
   },
   {
     label: "Хозяин",
-    key: "owner",
+    key: "ownerId",
   },
 ]
 export const columnsDevice = [
