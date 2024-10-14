@@ -2,7 +2,7 @@ import {AxiosResponse} from "axios";
 import api from "@/config/axiosConfig";
 
 enum POS {
-    GET_POSES = 'pos/filter',
+    GET_POSES = 'user/organization/pos',
     CREATE_POS = 'pos'
 }
 
@@ -14,8 +14,8 @@ export async function getPos(userId: number): Promise<Pos[]> {
     return response.data;
 }
 
-export async function postCreatePos(body: any, options: any): Promise<any> {
-    const response: AxiosResponse<any> = await api.post(POS.CREATE_POS, body, options);
+export async function postCreatePos(body: any): Promise<any> {
+    const response: AxiosResponse<any> = await api.post(POS.CREATE_POS, body);
 
     return response.data;
 }

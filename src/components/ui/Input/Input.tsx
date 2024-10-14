@@ -3,38 +3,42 @@ import { Eye, EyeOff, User, Calendar } from 'feather-icons-react';
 
 type InputProps = {
     type: string;
-    value?: string;
+    value?: any;
     changeValue: (e: any) => void;
     error?: boolean;
     label?: string;
     helperText?: string;
     disabled?: boolean;
-    inputType: 'primary' | 'secondary' | 'tertiary';
+    inputType?: 'primary' | 'secondary' | 'tertiary';
     showIcon?: boolean;
     IconComponent?: React.ReactNode;
     classname?: string;
+    defaultValue?: string;
+    title?: string;
+    id?: string;
 }
 
-const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'primary', showIcon = false, IconComponent, classname }: InputProps) => {
+const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'primary', showIcon = false, IconComponent, classname, title, id }: InputProps, defaultValue) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const isLabelFloating = isFocused || value.length > 0;
+    const isLabelFloating = isFocused || value?.length > 0;
     const handlePasswordToggle = () => {
-        if(!disabled) {
-        setShowPassword(!showPassword);
+        if (!disabled) {
+            setShowPassword(!showPassword);
         }
     }
-    const className = `w-full px-3 ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : "py-0"} ${ disabled ? "bg-disabledFill" : "bg-background06" } rounded-md caret-primary02 text-black border outline-none  ${ disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${ disabled ? "hover:outline-none" : "hover:border-primary02"}`
+    const className = `w-full px-3 ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : "py-0"} ${disabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${disabled ? "hover:outline-none" : "hover:border-primary02"}`
     const DefaultIcon = User;
 
     return (
-        <div className="relative w-full min-w-80 max-w-sm mb-4">
+        <div className={`relative min-w-40 ${classname}`}>
+            <label className="text-sm text-text02">{title}</label>
             <div className="relative">
-            <label
+                <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${ disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
+                        ${disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
                         ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >
@@ -44,10 +48,12 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                     type={type === "password" && showPassword ? "text" : type}
                     value={value}
                     onChange={changeValue}
-                    className={`${className} ${classname}`}
+                    className={`${className}`}
                     disabled={disabled}
+                    defaultValue={defaultValue}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
+                    id={id}
                 />
                 {type === "password" && (
                     <div
@@ -55,9 +61,9 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         onClick={handlePasswordToggle}
                     >
                         {!showPassword ? (
-                            <EyeOff size={20} className={`${ disabled ? "text-text03 cursor-default" : (isFocused ? "text-text03": "text-text02")}`} /> 
+                            <EyeOff size={20} className={`${disabled ? "text-text03 cursor-default" : (isFocused ? "text-text03" : "text-text02")}`} />
                         ) : (
-                            <Eye size={20} className={`${ disabled ? "text-text03 cursor-default" : "text-text02"}`} /> 
+                            <Eye size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />
                         )}
                     </div>
                 )}
@@ -68,11 +74,11 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         <Calendar size={20} className={`${disabled ? "text-text03" : "text-text02"}`} />
                     </div>
                 )} */}
-                { (showIcon && type !== "date" && type !== "password") && (
+                {(showIcon && type !== "date" && type !== "password") && (
                     <div
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                >
-                    { IconComponent || <DefaultIcon size={20} className={`${ disabled ? "text-text03 cursor-default" : "text-text02"}`} />}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                    >
+                        {IconComponent || <DefaultIcon size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />}
                     </div>
                 )
 

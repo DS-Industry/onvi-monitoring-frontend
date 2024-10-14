@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ServicesTab } from './ServicesTab';
-import { AdditionalInfoTab } from './AdditionalInfoTab';
 import InfoTab from './InfoTab';
 // Import other tab components as needed
 
@@ -10,23 +9,18 @@ const ProfileForm: React.FC = () => {
 
   // Array of tabs with names and corresponding components
   const tabs = [
-    { id: 'info', name: 'Информация', content: <InfoTab /> },
-    { id: 'additional', name: 'Услуги', content: <AdditionalInfoTab /> },
-    { id: 'services', name: 'Доп. информация', content: <ServicesTab /> },
-    { id: 'additional1', name: 'Настройки', content: <AdditionalInfoTab /> },
-    { id: 'additional2', name: 'Расписание', content: <AdditionalInfoTab /> },
-    { id: 'additional3', name: 'Расчет ЗП', content: <AdditionalInfoTab /> },
-    // Add other tabs here
+    { id: 'info', name: 'Основные данные', content: <InfoTab /> },
+    { id: 'services', name: 'Сменить пароль', content: <ServicesTab /> },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-white">
+    <div className="max-w-5xl mx-auto bg-white">
       {/* Navigation Tabs */}
-      <div className="flex space-x-6 mb-6">
+      <div className="flex space-x-4 border-b mb-6 w-72">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`pb-2 ${activeTab === tab.id ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
+            className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.name}

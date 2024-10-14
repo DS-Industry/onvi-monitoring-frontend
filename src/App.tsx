@@ -4,8 +4,6 @@ import routes from "@/routes";
 import PrivateRoute from "@/routes/PrivateRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
-import LogIn from "@/pages/LogIn";
-import SignUp from "@/pages/SignUp";
 import { Can } from "@/permissions/Can";
 import useAuthStore from '@/config/store/authSlice';
 
@@ -25,9 +23,15 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={<PublicRoute element={<LogIn />} />} />
-        <Route path="/signup" element={<PublicRoute element={<SignUp />} />} />
-
+        {routes.map((route) => 
+          route.isPublicRoute && (
+            <Route
+              key={route.link}
+              path={route.link}
+              element={<PublicRoute element={<route.component />} />}
+            />
+          )
+        )}
         {/* Private Routes */}
         <Route element={<PrivateRoute element={<DashboardLayout />} />}>
           {routes.map((route) => (

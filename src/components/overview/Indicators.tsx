@@ -11,16 +11,17 @@ import {getOrganization, getRating, getStatistic} from "@/services/api/organizat
 import {getPos} from "@/services/api/pos";
 import {getDeposit} from "@/services/api/monitoring";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import DropdownInput from "@ui/Input/DropdownInput";
 
 const selectOptions: {
   value: string;
-  label: string;
+  name: string;
 }[] = [
-  { value: "last_7_days", label: "Последние 7 дней" },
-  { value: "last_30_days", label: "Последние 30 дней" },
-  { value: "last_90_days", label: "Последние 90 дней" },
-  { value: "last_month", label: "Последний месяц" },
-  { value: "last_year", label: "Последний год" },
+  { value: "last_7_days", name: "Последние 7 дней" },
+  { value: "last_30_days", name: "Последние 30 дней" },
+  { value: "last_90_days", name: "Последние 90 дней" },
+  { value: "last_month", name: "Последний месяц" },
+  { value: "last_year", name: "Последний год" },
 ];
 
 const durations: { label: string }[] = [
@@ -45,6 +46,7 @@ const Indicators: React.FC = () => {
   const formattedDate = today.toISOString().slice(0, 10);
 
   const [notificationVisible, setNotificationVisible] = useState(true);
+  const [selectedValue, setSelectedValue] = useState('');
 
   const {data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
       12, {dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`}
@@ -140,18 +142,26 @@ const Indicators: React.FC = () => {
             График по выручке
           </p>
           <div className="lg:flex justify-between px-3 lg:px-8">
-            <select
+            {/* <select
               id="countries"
               className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
             >
               <option selected>Choose a country</option>
               {selectOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {option.name}
                 </option>
               ))}
-            </select>
-
+            </select> */}
+            <DropdownInput
+              inputType="primary"
+              label="Choose a country"
+              options={selectOptions}
+              value={selectedValue}
+              onChange={setSelectedValue}
+              isSelectable={true}
+              classname="mb-0"
+             />
             <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
               {durations.map((duration) => (
                 <button

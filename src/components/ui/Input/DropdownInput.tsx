@@ -4,11 +4,11 @@ import Spinner from '@material-tailwind/react';
 import { Check } from 'feather-icons-react';
 
 
-type Option = { label: string, value: string };
+type Option = { name: any, value: any };
 
 type DropdownInputProps = {
-    value: string;
-    onChange?: (value: string) => void;
+    value: any;
+    onChange?: (value: any) => void;
     options: Option[];
     isDisabled?: boolean;
     label?: string;
@@ -18,6 +18,11 @@ type DropdownInputProps = {
     showMoreButton?: boolean;
     isSelectable?: boolean;
     inputType?: 'primary' | 'secondary' | 'tertiary';
+    title?: string;
+    type?: string;
+    classname?: string;
+    error?: boolean;
+    helperText?: string;
 };
 
 const DropdownInput: React.FC<DropdownInputProps> = ({
@@ -31,35 +36,42 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     isEmptyState = false,
     showMoreButton = false,
     isSelectable = false,
-    inputType = 'primary'
+    inputType = 'primary',
+    title,
+    type,
+    classname,
+    error = false,
+    helperText
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
+    const [selectedOption, setSelectedOption] = useState<Option | null>(null);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-    const isLabelFloating = isFocused || value.length > 0;
+    const isLabelFloating = isFocused || value !== undefined;
     const handleToggleDropdown = () => {
         if (!isDisabled && !isLoading) {
             setIsOpen((prevState) => !prevState);
         }
     };
 
-    const handleSelectOption = (optionValue: string) => {
+    const handleSelectOption = (option: any) => {
+        setSelectedOption(option);
         if (isMultiSelect) {
-            const updatedValues = selectedValues.includes(optionValue)
-                ? selectedValues.filter(val => val !== optionValue)
-                : [...selectedValues, optionValue];
+            const updatedValues = selectedValues.includes(option.value)
+                ? selectedValues.filter(val => val !== option.value)
+                : [...selectedValues, option.value];
             setSelectedValues(updatedValues);
-            if(onChange)
+            if (onChange)
                 onChange(updatedValues.join(', '));
         } else {
-            if(onChange)
-                onChange(optionValue);
+            if (onChange)
+                onChange(option.value);
             setIsOpen(false);
         }
     };
-    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-2" : (inputType == 'secondary') ? "py-1" : "py-0"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : (isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
+    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : "py-0"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : ( error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -76,42 +88,45 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     }, []);
 
     return (
-        <div ref={dropdownRef} className="relative w-full min-w-80 max-w-sm mb-10">
-            <label
-                className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
+        <div ref={dropdownRef} className={`relative min-w-40 mb-5 ${classname}`}>
+            <label className="text-sm text-text02">{title}</label>
+            <div className='relative'>
+                <label
+                    className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isFocused) ? "text-base invisible" : "text-text03 visible")} 
+                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
                         ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
-                        `}
-            >
-                {label}
-            </label>
-            <input
-                value={value}
-                onClick={handleToggleDropdown} // Toggle dropdown when clicking the input
-                disabled={isDisabled}
-                className={className}
-                readOnly
-                style={{ paddingRight: '2.5rem' }}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-            />
+                        ${error ? "text-errorFill" : ""}`}
+                >
+                    {label}
+                </label>
+                <input
+                    value={selectedOption ? selectedOption.name : ''}
+                    onClick={handleToggleDropdown} // Toggle dropdown when clicking the input
+                    disabled={isDisabled}
+                    className={`${className}`}
+                    readOnly
+                    style={{ paddingRight: '2.5rem' }}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    type={type}
+                />
 
-            {/* Right dropdown icon */}
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                {isLoading ? (
-                    <Spinner className="w-5 h-5 animate-spin text-primary02" />
-                ) : (
-                    <button
-                        type="button"
-                        onClick={handleToggleDropdown} // Make the icon clickable
-                        className="focus:outline-none"
-                    >
-                        <DropdownIcon className={`w-5 h-5 text-gray-400 ${isOpen ? 'rotate-180' : 'rotate-0'} transition-transform`} />
-                    </button>
-                )}
+                {/* Right dropdown icon */}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    {isLoading ? (
+                        <Spinner className="w-5 h-5 animate-spin text-primary02" />
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleToggleDropdown} // Make the icon clickable
+                            className="focus:outline-none"
+                        >
+                            <DropdownIcon className={`w-5 h-5 text-gray-400 ${isOpen ? 'rotate-180' : 'rotate-0'} transition-transform`} />
+                        </button>
+                    )}
+                </div>
             </div>
-
             {isOpen && !isLoading && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-10">
                     {isEmptyState ? (
@@ -123,8 +138,8 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                             {options.map(option => (
                                 <li
                                     key={option.value}
-                                    className={`px-4 py-2 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between items-center`}
-                                    onClick={() => handleSelectOption(option.value)}
+                                    className={`px-4 py-2 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between`}
+                                    onClick={() => handleSelectOption(option)}
                                 >
                                     {isMultiSelect ? (
                                         <div className="flex items-center">
@@ -135,17 +150,20 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                                                 className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
                                                 readOnly
                                             />
-                                            {option.label}
+                                            {option.name}
                                         </div>
                                     ) : (
-                                        option.label
+                                        option.name
                                     )}
 
                                     {isSelectable && !isMultiSelect && (
-                                        selectedValues.includes(option.value) || value === option.value ? (
-                                            <Check className="w-5 h-5 text-primary02 ml-auto" />
+                                        value === option.value ? (
+                                            <div>
+                                                <Check className="w-5 h-5 text-primary02" />
+                                            </div>
                                         ) : null
                                     )}
+
                                 </li>
                             ))}
                         </ul>
@@ -155,6 +173,11 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                             Show More
                         </button>
                     )}
+                </div>
+            )}
+            {helperText && (
+                <div className={`text-[11px] font-normal ${error ? 'text-errorFill' : 'text-text02'}`}>
+                    {helperText}
                 </div>
             )}
         </div>

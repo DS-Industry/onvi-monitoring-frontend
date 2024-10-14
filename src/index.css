@@ -10,3 +10,7 @@
     background-color: white; 
     color: black; 
   } */
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+}

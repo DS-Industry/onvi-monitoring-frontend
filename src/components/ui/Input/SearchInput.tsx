@@ -38,7 +38,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     };
 
     return (
-        <div className="w-full min-w-80 max-w-sm mb-10">
+        <div className="w-full min-w-40 mb-10">
             <div className="relative flex items-center w-full">
                 <input
                     placeholder={placeholder}
