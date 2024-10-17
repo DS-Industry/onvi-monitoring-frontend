@@ -24,6 +24,7 @@ ChartJS.register(
 const LineChart = () => {
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,

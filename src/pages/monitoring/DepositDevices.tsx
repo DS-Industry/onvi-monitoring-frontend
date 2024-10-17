@@ -7,6 +7,8 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import {useLocation} from "react-router-dom";
 import {getPos} from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
+import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
+
 
 const DepositDevices: React.FC = () => {
     const today = new Date();
@@ -16,14 +18,14 @@ const DepositDevices: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const location = useLocation();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `2024-10-01 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
 
-    const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos(
-        dataFilter.posId ? dataFilter.posId : location.state.ownerId, {
+    const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-    }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+        posId: dataFilter.posId ? dataFilter.posId : location.state.ownerId
+    }),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
@@ -57,20 +59,20 @@ const DepositDevices: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            {isData ? (
+            {devicesMonitoring.length !== 0 ? (
                 <div className="mt-8">
                     <OverflowTable
                         tableData={devicesMonitoring}
-                        columns={columnsMonitoringFullDevices}
+                        columns={columnsMonitoringPos}
                         isDisplayEdit={true}
-                        nameUrl={'device'}
+                        nameUrl={"/station/enrollments/devices"}
                     />
                 </div>
             ):(
                 <>
                     <NoDataUI
-                        title="В этом разделе представленны операции"
-                        description="У вас пока нету операций"
+                        title="В этом разделе представлены операции, которые фиксируются купюроприемником"
+                        description="У вас пока нет операций с купюроприемником"
                     >
                         <SalyIamge className="mx-auto" />
                     </NoDataUI>

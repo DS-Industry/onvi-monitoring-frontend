@@ -30,83 +30,8 @@ const Register: React.FC = () => {
     navigate('/login');
   }
 
-  // const [searchValue, setSearchValue] = useState<string>('');
-  // const [selectedValue, setSelectedValue] = useState('');
-  // const [textValue, setTextValue] = useState<string>('');
-  //   const defaultValues = {
-  //     loginEmail: '',
-  //     loginPassword: ''
-  //   };
+  const [registerObj, setRegisterObj] = useState({ email: '' });
 
-  //   const [formData, setFormData] = useState(defaultValues);
-
-  // const options = [
-  //   { name: 'Option 1', value: 'option1' },
-  //   { name: 'Option 2', value: 'option2' },
-  //   { name: 'Option 3', value: 'option3' },
-  //   { name: 'Option 4', value: 'option4' },
-  // ];
-
-  //   const userPermissions = [
-  //     { object: "Pos", action: "create" },
-  //     { object: "Pos", action: "update" },
-  //     { object: "Finance", action: "view" },
-  //   ];
-
-  // const handleSearchChange = (value: string) => {
-  //   setSearchValue(value);
-  // };
-
-  // const handleClearSearch = () => {
-  //   setSearchValue('');
-  // };
-
-  //   const { trigger, isMutating } = useSWRMutation(
-  //     'user/auth/login',
-  //     async () => loginPlatformUser({ email: formData.loginEmail, password: formData.loginPassword }) // Fetcher function
-  //   );
-
-  //   const setUser = useSetUser();
-  //   const clearData = useClearUserData();
-  //   const setTokens = useSetTokens();
-
-  //   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
-
-  //   type FieldName = 'loginEmail' | 'loginPassword';
-
-  //   // Handle input change
-  //   const handleInputChange = (field: FieldName, value: string) => {
-  //     setFormData((prev) => ({ ...prev, [field]: value }));
-  //     setValue(field, value); // Update react-hook-form's internal value
-  //   };
-
-  //   const onSubmit = async (data: any) => {
-
-  //     // Simple validation
-  //     if (!data.loginEmail) setEmailError(true);
-  //     if (!data.loginPassword) setPasswordError(true);
-  //     try {
-  //       // Manually trigger the mutation function to call the API
-  //       const result = await trigger();
-
-  //       if (result && result.admin && result.tokens) {
-  //         const { admin, tokens } = result;
-  //         setUser({ user: admin?.props });
-  //         setTokens({ tokens });
-  //         useAuthStore.getState().setPermissions(userPermissions);
-  //         navigate('/');
-  //       } else {
-  //         throw new Error(t('Invalid email or password. Please try again.'));
-  //       }
-  //     } catch (error) {
-  //       console.error('Login error:', error);
-  //       setEmailError(true);
-  //       setPasswordError(true);
-  //       setErrorEmailMessage(t('Please enter correct Email Id.'));
-  //       setErrorPasswordMessage(t('Please enter correct Password.'));
-  //       clearData();
-  //     }
-  //   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-background02 p-4">
       <div className="grid lg:grid-cols-2 gap-4 w-full lg:w-[80%] p-8 lg:p-0 rounded-lg">
@@ -121,8 +46,8 @@ const Register: React.FC = () => {
             <img src={OnviBlue} className='h-7 w-14' />
             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">БИЗНЕС</div>
           </div>
-          {count === 0 && <RegisterForm />}
-          {count === 1 && <OTPForm />}
+          {count === 0 && <RegisterForm count={count} setCount={setCount} registerObj={registerObj} setRegisterObj={setRegisterObj} />}
+          {count === 1 && <OTPForm registerObj={registerObj} />}
           {count === 2 && <PostRegisterForm />}
           <p className="mt-6 text-center text-sm text-opacity01">
             {t('Нажимая кнопку “Зарегестрироваться”, вы принимаете условия')}{' '}
@@ -134,7 +59,7 @@ const Register: React.FC = () => {
             {t('У вас есть учетной записи?')}{' '}
             <span
               className="text-primary02 hover:text-primary02_Hover font-medium cursor-pointer"
-              onClick={(event) => handleLoginNavigate(event)}
+              onClick={handleLoginNavigate}
             >
               {t('Войти!')}
             </span>
@@ -145,9 +70,9 @@ const Register: React.FC = () => {
         {/* Image Section */}
         <div className="p-8 hidden lg:flex fixed right-0 top-0 h-screen w-[50%] justify-center items-center">
           <div className="p-8">
-            {count === 0 && <img src={RegisterImage} alt="Rocket illustration" className="object-contain max-w-full max-h-full" />}
-            {count === 1 && <img src={OTPImage} alt="Rocket illustration" className="object-contain max-w-full max-h-full" />}
-            {count === 2 && <img src={PostRegisterImage} alt="Rocket illustration" className="object-contain max-w-full max-h-full" />}
+            {count === 0 && <img src={RegisterImage} alt="Rocket illustration" key={"register-image-1"} className="object-contain max-w-full max-h-full" />}
+            {count === 1 && <img src={OTPImage} alt="Rocket illustration" key={"register-image-2"} className="object-contain max-w-full max-h-full" />}
+            {count === 2 && <img src={PostRegisterImage} alt="Rocket illustration" key={"register-image-3"} className="object-contain max-w-full max-h-full" />}
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import SalyIamge from "@/assets/Saly-1.svg?react";
+import PosEmpty from "@/assets/EmptyPos.svg?react";
 import React, { useRef, useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
@@ -8,25 +8,31 @@ import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getPos, postCreatePos } from "@/services/api/pos/index.ts";
 import { getOrganization, postCreateOrganization, postPosData } from "@/services/api/organization/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from "@/hooks/useFormHook";
+import Filter from "@ui/Filter/Filter";
+import SearchInput from "@/components/ui/Input/SearchInput";
 
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const [isData, setIsData] = useState(true);
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1))
-    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7));
+    const { data, error, isLoading } = useSWR([`get-pos-7`], async () => {
+        const response = await getPos(1);
+        mutate(`get-pos-7`, response, false); // Store data in cache without revalidation
+        return response;
+    }, { revalidateOnFocus: false })
+    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
     // const { data: pos, error: posError, mutate: posMutate } = useSWR([`post-pos`], () => postCreatePos(postData))
     const { buttonOn, setButtonOn } = useButtonCreate();
     const contentRef = useRef<HTMLDivElement>(null);
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
     const defaultValues = {
         name: '',
@@ -99,33 +105,53 @@ const Pos: React.FC = () => {
         }
     };
 
-    const poses: Pos[] = data?.map((item: any) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    const poses: Pos[] = data
+        ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
+        .map((item: any) => item)
+        .sort((a, b) => a.id - b.id) || [];
+
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+    };
 
     const orgData = org?.map((organization) => ({
         value: organization.id,
         name: organization.name
     })) || [];
+
     return (
         <>
-            {isData ? (
+            {poses.length !== 0 ? (
                 <>
+                    <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                        {/* Pass any filter inputs you need here */}
+                        <div className="flex">
+                            <SearchInput
+                                placeholder="Filter by name..."
+                                classname="w-64 mr-5 mb-1"
+                                searchType="outlined"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </div>
+                    </Filter>
                     <div className="mt-8">
                         <OverflowTable
                             tableData={poses}
                             columns={columnsPos}
                             isDisplayEdit={true}
                             isUpdate={false}
-                            nameUrl={'/administration/device'}
+                            nameUrl={'/station/enrollments'}
                         />
                     </div>
                 </>
             ) : (<>
                 {notificationVisible && (
                     <Notification
-                        title="Юридическаое лицо"
+                        title="Наименование компании"
                         message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
+                        link="Перейти в раздел Юридические лица >"
+                        linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
                 )}
@@ -133,7 +159,7 @@ const Pos: React.FC = () => {
                     title="Пока не создан ни один объект"
                     description="Добавьте автомойку"
                 >
-                    <SalyIamge className="mx-auto" />
+                    <PosEmpty className="mx-auto" />
                 </NoDataUI>
             </>
             )}
@@ -144,6 +170,8 @@ const Pos: React.FC = () => {
                     <Notification
                         title="Юридическаое лицо"
                         message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
+                        link="Перейти в раздел Юридические лица >"
+                        linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
                 )}
