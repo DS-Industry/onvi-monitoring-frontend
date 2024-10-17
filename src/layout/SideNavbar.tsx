@@ -124,6 +124,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 {item.subNavHeading}
                               </div>
                               {item.subNav.map((subItem) => (
+                                subItem.isSidebar &&
                                 <Can
                                   key={subItem.name}
                                   requiredPermissions={subItem.permissions} // Check sub-menu permissions
@@ -194,7 +195,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </button>
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 <div className="flex items-center mb-3">
-                  <span className="text-xl md:text-3xl">{activePageName}</span>
+                  <span className="text-3xl font-normal text-text01">{activePageName}</span>
                   <QuestionmarkIcon className="text-2xl ms-2" />
                 </div>
                 {activePage?.filter && (

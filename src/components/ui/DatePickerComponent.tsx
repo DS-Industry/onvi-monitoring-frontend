@@ -22,7 +22,7 @@ const DatePickerComponent: React.FC = () => {
       onChange={handleValueChange}
       placeholder={"Период"}
       separator={"-"}
-      inputClassName="bg-background05 focus:bg-primary02 px-3 py-2 rounded-full font-semibold text-text02"
+      inputClassName="bg-background05 focus:bg-primary02 px-3 py-3 rounded-full font-semibold text-text02"
     />
   );
 };

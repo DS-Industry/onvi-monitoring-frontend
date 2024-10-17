@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import InputLineOption from "../InputLine/InputLineOption.tsx";
-import {useButtonCreate, useFilterOpen} from "@/components/context/useContext.tsx";
+import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 
@@ -14,21 +14,21 @@ type Props = {
     organizationsSelect?: Optional[];
     posesSelect?: Optional[];
     devicesSelect?: Optional[];
-    handleDataFilter;
+    handleDataFilter: any;
 };
 const FilterMonitoring: React.FC<Props> = ({
-                                     count,
-                                     organizationsSelect,
-                                     posesSelect,
-                                     devicesSelect,
-                                     handleDataFilter
-                                 }:Props) => {
+    count,
+    organizationsSelect,
+    posesSelect,
+    devicesSelect,
+    handleDataFilter
+}: Props) => {
 
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { filterOpen, setFilterOpen} = useFilterOpen();
+    const { filterOpen, setFilterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
     const [startDate, setStartDate] = useState(`${formattedDate} 00:00`);
     const [endDate, setEndDate] = useState(`${formattedDate} 23:59`);
@@ -76,14 +76,14 @@ const FilterMonitoring: React.FC<Props> = ({
             className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
         >
             <div className="grid grid-cols-2 gap-6">
-                {organizationsSelect &&(<InputLineOption
+                {organizationsSelect && (<InputLineOption
                     title={"Организация"}
                     type={"string"}
                     name={'org'}
                     placeholder={'Выберите организацию'}
                     optionals={organizationsSelect}
                 />)}
-                {posesSelect &&(<InputLineOption
+                {posesSelect && (<InputLineOption
                     title={"Объект"}
                     type={"string"}
                     name={'pos'}
@@ -93,7 +93,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         setPosId(selectedOption.value);
                     }}
                 />)}
-                {devicesSelect &&(<InputLineOption
+                {devicesSelect && (<InputLineOption
                     title={"Устройство"}
                     type={"string"}
                     name={'device'}
@@ -114,18 +114,18 @@ const FilterMonitoring: React.FC<Props> = ({
 
             <div className="flex items-center gap-6">
                 <Button
-                    title ='Сбросить'
-                    type ='outline'
-                    handleClick ={() => {
+                    title='Сбросить'
+                    type='outline'
+                    handleClick={() => {
                         setStartDate(`${formattedDate} 00:00`);
                         setEndDate(`${formattedDate} 23:59`);
                         setPosId(null);
                     }}
                 />
                 <Button
-                    title ='Применить'
+                    title='Применить'
                     form={true}
-                    handleClick ={() => setButtonOn(!buttonOn)}
+                    handleClick={() => setButtonOn(!buttonOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
             </div>

@@ -17,7 +17,7 @@ type DropdownInputProps = {
     isEmptyState?: boolean;
     showMoreButton?: boolean;
     isSelectable?: boolean;
-    inputType?: 'primary' | 'secondary' | 'tertiary';
+    inputType?: 'primary' | 'secondary' | 'tertiary' | 'forth';
     title?: string;
     type?: string;
     classname?: string;
@@ -36,7 +36,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     isEmptyState = false,
     showMoreButton = false,
     isSelectable = false,
-    inputType = 'primary',
+    inputType = 'forth',
     title,
     type,
     classname,
@@ -71,7 +71,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
             setIsOpen(false);
         }
     };
-    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : "py-0"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : ( error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
+    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" :(inputType == 'tertiary') ? "py-0" : "py-2"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : ( error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -88,13 +88,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     }, []);
 
     return (
-        <div ref={dropdownRef} className={`relative min-w-40 mb-5 ${classname}`}>
+        <div ref={dropdownRef} className={`relative min-w-40 ${classname}`}>
             <label className="text-sm text-text02">{title}</label>
             <div className='relative'>
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
+                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
                         ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >

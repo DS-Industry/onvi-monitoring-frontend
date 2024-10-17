@@ -15,15 +15,14 @@ const App: React.FC = () => {
   const fetchedPermissions = useAuthStore((state) => state.permissions);
 
   useEffect(() => {
-    // Fetch or update user permissions (this could be from an API or auth context)
     setUserPermissions(fetchedPermissions);
-  },[fetchedPermissions]);
+  }, [fetchedPermissions]);
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        {routes.map((route) => 
+        {routes.map((route) =>
           route.isPublicRoute && (
             <Route
               key={route.link}
@@ -34,26 +33,57 @@ const App: React.FC = () => {
         )}
         {/* Private Routes */}
         <Route element={<PrivateRoute element={<DashboardLayout />} />}>
-          {routes.map((route) => (
-            <Route
-              key={route.link}
-              path={route.link}
-              element={
-                <Can
-                  requiredPermissions={route.permissions || []}
-                  userPermissions={userPermissions}
-                >
-                  {(allowed) =>
-                    allowed ? (
-                      <route.component />
-                    ) : (
-                      <Navigate to="/" replace />
-                    )
-                  }
-                </Can>
-              }
-            />
-          ))}
+          {routes.map((route) => {
+            const hasSubNav = route.subNav && route.subNav.length > 0;
+
+            return (
+              <Route
+                key={route.link}
+                path={route.link}
+                element={
+                  hasSubNav ? (
+                    <Can
+                      requiredPermissions={route.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          // Check permissions for the first subNav item
+                          <Can
+                            requiredPermissions={route.subNav[0].permissions || []}
+                            userPermissions={userPermissions}
+                          >
+                            {(subNavAllowed) =>
+                              subNavAllowed ? (
+                                <Navigate to={route.subNav[0].path} replace />
+                              ) : (
+                                <Navigate to="/" replace />
+                              )
+                            }
+                          </Can>
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  ) : (
+                    <Can
+                      requiredPermissions={route.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <route.component />
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  )
+                }
+              />
+            );
+          })}
 
           {/* Sub Navigation Routes */}
           {routes.map(

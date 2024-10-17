@@ -4,9 +4,9 @@ import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook'; 
 import useSWRMutation from 'swr/mutation';
 import { updateUserPassword } from '@/services/api/platform';
+import { useNavigate } from 'react-router-dom';
 
 export const ServicesTab: React.FC = () => {
-
 
   const defaultValues = {
       password: "",
@@ -14,11 +14,15 @@ export const ServicesTab: React.FC = () => {
       confirmPassword: ""
     };
 
+  const navigate = useNavigate();
+
   // Use custom form hook
   const { register, handleSubmit, errors, setValue } = useFormHook(defaultValues);
 
 
   const [formData, setFormData] = useState(defaultValues);
+  const [passwordError, setPasswordError] = useState(false);
+  const [errorPasswordMessage, setErrorPasswordMessage] = useState('');
 
   // Handle input change for controlled inputs
   const handleInputChange = (field: any, value: string) => {
@@ -40,11 +44,16 @@ export const ServicesTab: React.FC = () => {
       const result = await passwordUpdate();
       if(result) {
         console.log(result);
+        setPasswordError(false);
+        setErrorPasswordMessage('');
+        navigate('/');
       } else {
         throw new Error('Invalid password. Please try again.');
       }
     } catch(error) {
       console.log("Password change error: ", error);
+      setPasswordError(true);
+      setErrorPasswordMessage('Enter the correct password.');
     }
   };
 
@@ -61,8 +70,8 @@ export const ServicesTab: React.FC = () => {
           disabled={false}
           inputType={'primary'}
           classname='w-80'
-          error={!!errors.password}
-          helperText={errors.password?.message}
+          error={!!errors.password || !!passwordError}
+          helperText={errors.password?.message || errorPasswordMessage || ''}
         />
       </div>
 

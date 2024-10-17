@@ -1,18 +1,57 @@
 import Button from "@/components/ui/Button/Button";
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import useFormHook from "@/hooks/useFormHook";
+import useSWRMutation from "swr/mutation";
+import { registerActivationUser } from "@/services/api/platform";
+import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
+import { useNavigate } from 'react-router-dom';
+import { useSetTokens } from '@/hooks/useAuthStore';
 
-const OTPForm: React.FC = () => {
+type Props = {
+    registerObj: { email: string };
+}
+
+const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
     const { t } = useTranslation();
     const [otp, setOtp] = useState(Array(6).fill(""));
+    const [otpString, setOtpString] = useState("");
     const [isError, setIsError] = useState(false);
+    const navigate = useNavigate();
+    const setUser = useSetUser();
+    const clearData = useClearUserData();
+    const setTokens = useSetTokens();
+
+    const defaultValues = {
+        confirmString: ''
+    }
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { handleSubmit, setValue } = useFormHook(formData);
+
+    const { trigger, isMutating } = useSWRMutation(
+        'user/auth/activation',
+        async () => registerActivationUser({
+            email: registerObj.email,
+            confirmString: `${otpString.substring(0, 3)}-${otpString.substring(3)}`
+        })
+    );
 
     const handleChange = (value: string, index: number) => {
         if (/^[0-9]?$/.test(value)) {
             const newOtp = [...otp];
             newOtp[index] = value;
             setOtp(newOtp);
-            
+            console.log(newOtp);
+            console.log(registerObj.email);
+            if (index == 5) {
+                const newOtpString = newOtp.join("");
+                console.log(newOtpString);
+                setOtpString(newOtpString);
+                setValue("confirmString", newOtpString);
+                setFormData((prev) => ({ ...prev, ["confirmString"]: value }));
+            }
             if (value && index < 5) {
                 document.getElementById(`otp-${index + 1}`)?.focus();
             }
@@ -25,15 +64,23 @@ const OTPForm: React.FC = () => {
         }
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        // Replace this with your validation logic
-        const isOtpValid = otp.join('') === '123456'; // Example of correct OTP
-        if (!isOtpValid) {
+    const onSubmit = async (data: any) => {
+        console.log(data);
+        try {
+            const result = await trigger();
+            if (result && result.user && result.tokens) {
+                console.log(result);
+                const { user, tokens } = result;
+                setUser({ user: user?.props });
+                setTokens({ tokens });
+                navigate('/');
+            } else {
+                setIsError(true);
+            }
+        } catch (error) {
             setIsError(true);
-        } else {
-            setIsError(false);
-            // Proceed with submission or navigation
+            console.log("Register error:", error);
+            clearData();
         }
     };
 
@@ -41,28 +88,31 @@ const OTPForm: React.FC = () => {
         <div>
             <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1 mt-16">{t('Введите код')}</p>
             <p className="font-normal text-text01 text-base">Мы отправили его на E-mail</p>
-            <p className="font-normal text-text01 text-base">mail@gmail.com</p>
-            
-            <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="flex space-x-2 justify-center mt-10">
+            <p className="font-normal text-text01 text-base">{registerObj.email}</p>
+
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex justify-center space-x-4 mt-10">
                     {otp.map((value, index) => (
-                        <input
-                            key={index}
-                            id={`otp-${index}`}
-                            type="text"
-                            maxLength={1}
-                            value={value}
-                            onChange={(e) => handleChange(e.target.value, index)}
-                            onKeyDown={(e) => e.key === 'Backspace' && handleBackspace(index)}
-                            className={`w-10 h-10 text-center border ${isError ? 'border-red-500' : 'border-gray-300'} rounded-md text-lg`}
-                        />
+                        <React.Fragment key={index}>
+                            <input
+                                id={`otp-${index}`}
+                                type="text"
+                                maxLength={1}
+                                value={value}
+                                onChange={(e) => handleChange(e.target.value, index)}
+                                onKeyDown={(e) => e.key === 'Backspace' && handleBackspace(index)}
+                                className={`w-8 h-12 text-center bg-background02 text-text01 border ${isError ? 'border-errorFill' : 'border-[#E4E5E7]'} rounded-lg text-2xl focus:outline-none`}
+                            />
+                            {/* Render the dash after the third input */}
+                            {index === 2 && <span className="text-2xl text-[#e4e5e7] font-semibold self-center">-</span>}
+                        </React.Fragment>
                     ))}
                 </div>
                 {isError && (
                     <p className="text-errorFill text-center mt-2">Вы ввели неверный код</p>
                 )}
-                
-                <Button type="basic" title={t('Зарегистрироваться')} form={true} classname='w-full' />
+
+                <Button type="basic" title={t('Зарегистрироваться')} form={true} classname='w-full' isLoading={isMutating} />
             </form>
         </div>
     );

@@ -7,15 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { useSetTokens } from '@/hooks/useAuthStore';
 import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
-// import SearchInput from '@ui/Input/SearchInput';
-// import DropdownInput from '@ui/Input/DropdownInput';
-// import MultilineInput from '@ui/Input/MultilineInput';
 import useAuthStore from '@/config/store/authSlice';
 import useFormHook from '@/hooks/useFormHook';
 import LoginImage from '@/assets/LoginImage.svg';
 import { ArrowLeft } from 'feather-icons-react';
 import OnviBlue from '@/assets/onvi_blue.png';
-
 
 const LogIn: React.FC = () => {
   const { t } = useTranslation();
@@ -36,9 +32,6 @@ const LogIn: React.FC = () => {
     navigate('/forgotPassword');
   }
 
-  // const [searchValue, setSearchValue] = useState<string>('');
-  // const [selectedValue, setSelectedValue] = useState('');
-  // const [textValue, setTextValue] = useState<string>('');
   const defaultValues = {
     loginEmail: '',
     loginPassword: ''
@@ -46,26 +39,11 @@ const LogIn: React.FC = () => {
 
   const [formData, setFormData] = useState(defaultValues);
 
-  // const options = [
-  //   { name: 'Option 1', value: 'option1' },
-  //   { name: 'Option 2', value: 'option2' },
-  //   { name: 'Option 3', value: 'option3' },
-  //   { name: 'Option 4', value: 'option4' },
-  // ];
-
   const userPermissions = [
     { object: "Pos", action: "create" },
     { object: "Pos", action: "update" },
     { object: "Finance", action: "view" },
   ];
-
-  // const handleSearchChange = (value: string) => {
-  //   setSearchValue(value);
-  // };
-
-  // const handleClearSearch = () => {
-  //   setSearchValue('');
-  // };
 
   const { trigger, isMutating } = useSWRMutation(
     'user/auth/login',
@@ -113,6 +91,7 @@ const LogIn: React.FC = () => {
       clearData();
     }
   };
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
@@ -171,7 +150,7 @@ const LogIn: React.FC = () => {
               </label>
               <span
                 className="text-sm text-primary02 cursor-pointer hover:text-primary02_Hover"
-                onClick={(event) => handleForgotrNavigate(event)}
+                onClick={handleForgotrNavigate}
               >
                 {t('Забыли пароль?')}
               </span>
@@ -180,11 +159,11 @@ const LogIn: React.FC = () => {
             <Button type="basic" title={t('Войти')} form={true} isLoading={isMutating} classname='w-full' />
           </form>
 
-          <p className="mt-6 text-center text-sm text-opacity01">
+          <p className="mt-6 text-center text-sm text-text02">
             {t('У вас нет учетной записи?')}{' '}
             <span
               className="text-primary02 hover:text-primary02_Hover font-medium cursor-pointer"
-              onClick={(event) => handleRegisterNavigate(event)}
+              onClick={handleRegisterNavigate}
             >
               {t('Зарегистрируйтесь!')}
             </span>
@@ -193,7 +172,7 @@ const LogIn: React.FC = () => {
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg items-center justify-center lg:ml-20">
           <div className="p-8">
-            <img src={LoginImage} alt="Rocket illustration" className="object-cover w-11/12 h-11/12" />
+            <img src={LoginImage} alt="Rocket illustration" key={"login-image"} className="object-cover w-11/12 h-11/12" />
           </div>
         </div>
       </div>

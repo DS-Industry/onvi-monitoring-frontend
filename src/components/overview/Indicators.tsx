@@ -5,11 +5,11 @@ import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
 import Notification from "@ui/Notification";
 import LineChart from "@ui/LineChart";
 import DatePickerComponent from "@ui/DatePickerComponent";
-import {columnsMonitoringPos, columnsUser, tableUserData} from "@/utils/OverFlowTableData";
+import { columnsMonitoringPos, columnsUser, tableUserData } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
-import {getOrganization, getRating, getStatistic} from "@/services/api/organization";
-import {getPos} from "@/services/api/pos";
-import {getDeposit} from "@/services/api/monitoring";
+import { getOrganization, getRating, getStatistic } from "@/services/api/organization";
+import { getPos } from "@/services/api/pos";
+import { getDeposit } from "@/services/api/monitoring";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
 
@@ -17,12 +17,12 @@ const selectOptions: {
   value: string;
   name: string;
 }[] = [
-  { value: "last_7_days", name: "Последние 7 дней" },
-  { value: "last_30_days", name: "Последние 30 дней" },
-  { value: "last_90_days", name: "Последние 90 дней" },
-  { value: "last_month", name: "Последний месяц" },
-  { value: "last_year", name: "Последний год" },
-];
+    { value: "last_7_days", name: "Последние 7 дней" },
+    { value: "last_30_days", name: "Последние 30 дней" },
+    { value: "last_90_days", name: "Последние 90 дней" },
+    { value: "last_month", name: "Последний месяц" },
+    { value: "last_year", name: "Последний год" },
+  ];
 
 const durations: { label: string }[] = [
   { label: "Today" },
@@ -48,8 +48,8 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState('');
 
-  const {data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
-      12, {dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`}
+  const { data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
+    12, { dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59` }
   ))
 
   const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit({
@@ -66,7 +66,7 @@ const Indicators: React.FC = () => {
   const cards = [
     {
       title: "Всего посетителей",
-      number: statisticData ? statisticData.cars:0,
+      number: statisticData ? statisticData.cars : 0,
       unit: "",
       icon: TotalVisitorsIcon,
       isPositive: true,
@@ -75,7 +75,7 @@ const Indicators: React.FC = () => {
     },
     {
       title: "Прибыль",
-      number: statisticData ? statisticData.sum:0,
+      number: statisticData ? statisticData.sum : 0,
       unit: "₽",
       icon: ProfitIcon,
       isPositive: true,
@@ -160,13 +160,13 @@ const Indicators: React.FC = () => {
               value={selectedValue}
               onChange={setSelectedValue}
               isSelectable={true}
-              classname="mb-0"
-             />
+              classname="mt-3"
+            />
             <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
               {durations.map((duration) => (
                 <button
                   key={duration.label}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2"
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
                 >
                   {duration.label}
                 </button>
@@ -174,9 +174,10 @@ const Indicators: React.FC = () => {
               <DatePickerComponent />
             </div>
           </div>
-          <div className="w-64 md:container px-3 lg:px-8">
+          <div className="w-full h-64 lg:h-96 overflow-x-hidden overflow-y-hidden px-3 lg:px-8">
             <LineChart />
           </div>
+
         </div>
         {/*
         <div className="mt-4 py-8 bg-white shadow-card rounded-lg">
@@ -261,8 +262,8 @@ const Indicators: React.FC = () => {
         */}
         <div className="mt-8">
           <OverflowTable
-              tableData={posMonitoring}
-              columns={columnsMonitoringPos}
+            tableData={posMonitoring}
+            columns={columnsMonitoringPos}
           />
         </div>
       </div>

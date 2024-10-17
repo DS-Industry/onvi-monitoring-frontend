@@ -51,7 +51,7 @@ const OverflowTable: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-64 md:container mb-16">
+      <div className="w-full h-64 lg:h-96 overflow-x-auto overflow-auto mb-16">
         <div className="overflow-x-auto">
 
           {title && (
@@ -94,7 +94,7 @@ const OverflowTable: React.FC<Props> = ({
                           className="cursor-pointer"
                           onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
                         >
-                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-blue-500">
+                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
                           </div>
                         </span>
