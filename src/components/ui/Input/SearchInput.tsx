@@ -11,6 +11,7 @@ type SearchInputProps = {
     searchType?: 'outlined' | 'underline'; // SearchType prop
     error?: boolean;
     errorText?: string;
+    classname?: string;
 };
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -22,6 +23,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     searchType = 'underline', // Default to 'underline'
     error = false,
     errorText = '',
+    classname
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
@@ -38,7 +40,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     };
 
     return (
-        <div className="w-full min-w-80 max-w-sm mb-10">
+        <div className={`min-w-40 ${classname}`}>
             <div className="relative flex items-center w-full">
                 <input
                     placeholder={placeholder}

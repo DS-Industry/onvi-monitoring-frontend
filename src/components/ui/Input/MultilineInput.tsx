@@ -8,6 +8,9 @@ type MultilineInputProps = {
     disabled?: boolean;
     rows?: number; 
     inputType?: 'primary' | 'secondary' | 'tertiary';
+    title?: string;
+    classname?: string;
+    helperText?: string;
 }
 
 const MultilineInput: React.FC<MultilineInputProps> = ({
@@ -18,6 +21,10 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
     disabled = false,
     rows = 4,
     inputType = 'primary',
+    title,
+    classname,
+    helperText
+
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const isLabelFloating = isFocused || value.length > 0;
@@ -25,7 +32,8 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
     const className = `w-full px-3 resize-none ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : "py-0"} ${ disabled ? "bg-disabledFill" : "bg-background02" } rounded-md caret-primary02 text-black border outline-none ${ disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${ disabled ? "hover:outline-none" : "hover:border-primary02"}`;
 
     return (
-        <div className="relative w-full min-w-80 max-w-sm mb-4">
+        <div className={`relative min-w-40 mb-4 ${classname}`}>
+            <label className="text-sm text-text02">{title}</label>
             <div className="relative">
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
@@ -46,6 +54,11 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
                     onBlur={() => setIsFocused(false)}
                 />
             </div>
+            {helperText && (
+                <div className={`text-[11px] font-normal ${error ? 'text-errorFill' : 'text-text02'}`}>
+                    {helperText}
+                </div>
+            )}
         </div>
     );
 };

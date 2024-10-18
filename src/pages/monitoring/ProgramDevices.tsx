@@ -19,11 +19,12 @@ const ProgramDevices: React.FC = () => {
 
 
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-programs-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getProgramPos(
-        dataFilter.posId ? dataFilter.posId : location.state.ownerId,{
+        {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
-    }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+            posId: dataFilter?.posId
+    }),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
@@ -62,7 +63,7 @@ const ProgramDevices: React.FC = () => {
                         <OverflowTable
                             title={deviceProgram.name}
                             urlTitleId={deviceProgram.id}
-                            nameUrlTitle={'device'}
+                            nameUrlTitle={"/station/programs/devices"}
                             tableData={deviceProgram.programsInfo}
                             columns={columnsProgramsPos}
                         />

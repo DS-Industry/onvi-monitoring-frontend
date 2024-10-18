@@ -1,90 +1,167 @@
-import { Trans, useTranslation } from "react-i18next";
-import SalyIamge from "@/assets/Saly-1.svg?react";
-import React, {useRef, useState} from "react";
-import NoDataUI from "@/components/ui/NoDataUI.tsx";
-import Notification from "@/components/ui/Notification.tsx";
-import {useButtonCreate, useFilterOpen} from "@/components/context/useContext.tsx";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate.tsx";
-import OverflowTable from "@/components/ui/Table/OverflowTable.tsx";
-import {columnsPos} from "@/utils/OverFlowTableData.tsx";
-import InputLineOption from "@/components/ui/InputLine/InputLineOption.tsx";
-import InputLineText from "@/components/ui/InputLine/InputLineText.tsx";
-import Button from "@/components/ui/Button/Button.tsx";
-import {fetcher, useFetchData} from "@/api/index.ts";
-import {SubmitErrorHandler, SubmitHandler, useForm} from "react-hook-form";
-import useSWR from "swr";
-import {getPos, postCreatePos} from "@/services/api/pos/index.ts";
-import {getOrganization, postCreateOrganization} from "@/services/api/organization/index.ts";
+import { useTranslation } from "react-i18next";
+import PosEmpty from "@/assets/EmptyPos.svg?react";
+import React, { useRef, useState } from "react";
+import NoDataUI from "@ui/NoDataUI.tsx";
+import Notification from "@ui/Notification.tsx";
+import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
+import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import { columnsPos } from "@/utils/OverFlowTableData.tsx";
+import Button from "@ui/Button/Button.tsx";
+import useSWR, { mutate } from "swr";
+import { getPos, postCreatePos } from "@/services/api/pos/index.ts";
+import { getOrganization, postCreateOrganization, postPosData } from "@/services/api/organization/index.ts";
+import useSWRMutation from 'swr/mutation';
+import Input from '@ui/Input/Input';
+import DropdownInput from '@ui/Input/DropdownInput';
+import useFormHook from "@/hooks/useFormHook";
+import Filter from "@ui/Filter/Filter";
+import SearchInput from "@/components/ui/Input/SearchInput";
+
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const [isData, setIsData] = useState(true);
-    const [postData, setIsPostData] = useState<PosData>();
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
-    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7));
-    const { data: pos, error: posError, mutate: posMutate} = useSWR([`post-pos`], () => postCreatePos(postData, {headers: {Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJ5Y2hlbmtvLXdvcmtAbWFpbC5ydSIsImlkIjo3LCJpYXQiOjE3MjU0MzMyMTEsImV4cCI6MTcyODAyNTIxMX0.u694wJmO2SEDtX0QprKyeM0neBV5EHQokr5O8OvmNHY`}}),
-        { revalidateOnMount: false, revalidateIfStale: false, })
+    const { data, error, isLoading } = useSWR([`get-pos-7`], async () => {
+        const response = await getPos(1);
+        mutate(`get-pos-7`, response, false); // Store data in cache without revalidation
+        return response;
+    }, { revalidateOnFocus: false })
+    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    // const { data: pos, error: posError, mutate: posMutate } = useSWR([`post-pos`], () => postCreatePos(postData))
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const {register, handleSubmit} = useForm<PosPost>();
     const contentRef = useRef<HTMLDivElement>(null);
+    const [startHour, setStartHour] = useState<number | null>(null);
+    const [endHour, setEndHour] = useState<number | null>(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
-    const submit: SubmitHandler<PosPost> = posPost => {
-        const posData = {
-            name: posPost.name,
-            monthlyPlan: posPost.monthlyPlan,
-            timezone: '36',
-            status: 'VALIDATE',
-            organizationId: posPost.organizationId,
-            address: {
-                city: posPost.city,
-                location: posPost.location,
+    const defaultValues = {
+        name: '',
+        monthlyPlan: null,
+        timeWork: '',
+        posMetaData: '',
+        city: '',
+        location: '',
+        lat: null,
+        lon: null,
+        organizationId: null,
+        carWashPosType: '',
+        minSumOrder: null,
+        maxSumOrder: null,
+        stepSumOrder: null
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue } = useFormHook(formData);
+
+    const { trigger: createPos, isMutating } = useSWRMutation('user/pos', async () => postPosData({
+        name: formData.name,
+        monthlyPlan: formData.monthlyPlan,
+        timeWork: formData.timeWork,
+        address: {
+            city: formData.city,
+            location: "Брусилова",
+            lat: 10,
+            lon: 10
+        },
+        organizationId: 1,
+        carWashPosType: formData.carWashPosType,
+        minSumOrder: formData.minSumOrder,
+        maxSumOrder: formData.maxSumOrder,
+        stepSumOrder: formData.stepSumOrder
+    }));
+
+    const handleInputChange = (field: any, value: any) => {
+        const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder'];
+        const updatedValue = numericFields.includes(field) ? Number(value) : value;
+        setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+        setValue(field, value); // Update react-hook-form's internal value
+    };
+
+    const handleTimeWorkChange = (field: string, value: number) => {
+        if (field === 'startHour') {
+            setStartHour(value);
+            setFormData((prev) => ({ ...prev, timeWork: `${value}${endHour ?? ''}` }));
+            setValue('timeWork', `${value}${endHour ?? ''}`);
+        } else {
+            setEndHour(value);
+            setFormData((prev) => ({ ...prev, timeWork: `${startHour ?? ''}${value}` }));
+            setValue('timeWork', `${startHour ?? ''}${value}`);
+        }
+    };
+
+    const onSubmit = async (data: any) => {
+        console.log("Errors: ", errors);
+        console.log('Form data:', data); // Check if form data is being logged
+        try {
+            const result = await createPos(); // Ensure createPos() is called
+            if (result) {
+                console.log('API Response:', result);
+            } else {
+                throw new Error('Invalid response from API');
             }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
         }
-        setIsPostData(posData)
-        posMutate()
-        }
+    };
 
-    const errorData: SubmitErrorHandler<PosPost> = data => {
-        console.log('err');
-    }
+    const poses: Pos[] = data
+        ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
+        .map((item: any) => item)
+        .sort((a, b) => a.id - b.id) || [];
 
-    const poses: Pos[] = data?.map((item: any) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+    };
 
     const orgData = org?.map((organization) => ({
         value: organization.id,
         name: organization.name
     })) || [];
+
     return (
         <>
-            {isData ? (
+            {poses.length !== 0 ? (
                 <>
+                    <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                        {/* Pass any filter inputs you need here */}
+                        <div className="flex">
+                            <SearchInput
+                                placeholder="Filter by name..."
+                                classname="w-64 mr-5 mb-1"
+                                searchType="outlined"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </div>
+                    </Filter>
                     <div className="mt-8">
                         <OverflowTable
                             tableData={poses}
                             columns={columnsPos}
                             isDisplayEdit={true}
-                            isUpdate={true}
-                            nameUrl={'/administration/device'}
+                            isUpdate={false}
+                            nameUrl={'/station/enrollments'}
                         />
                     </div>
                 </>
-            ):(<>
-                    {notificationVisible && (
+            ) : (<>
+                {notificationVisible && (
                     <Notification
-                        title="Юридическаое лицо"
+                        title="Наименование компании"
                         message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
+                        link="Перейти в раздел Юридические лица >"
+                        linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
-                    )}
-                    <NoDataUI
-                        title="Пока не создан ни один объект"
-                        description="Добавьте автомойку"
-                    >
-                        <SalyIamge className="mx-auto" />
-                    </NoDataUI>
-                </>
+                )}
+                <NoDataUI
+                    title="Пока не создан ни один объект"
+                    description="Добавьте автомойку"
+                >
+                    <PosEmpty className="mx-auto" />
+                </NoDataUI>
+            </>
             )}
 
 
@@ -93,63 +170,169 @@ const Pos: React.FC = () => {
                     <Notification
                         title="Юридическаое лицо"
                         message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
+                        link="Перейти в раздел Юридические лица >"
+                        linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
                 )}
 
-                <form onSubmit={handleSubmit(submit, errorData)}>
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5">Создание объекта</span>
-                    <InputLineText
-                        title = {"Наименование объекта"}
+                    <Input
+                        title={"Наименование объекта"}
                         type={'text'}
-                        placeholder ={"Например, автомойка"}
-                        name={'name'}
-                        register={register}
-                        required={true}
+                        label={"Например, автомойка"}
+                        classname="w-96"
+                        {...register('name', { required: 'Name is required' })}
+                        value={formData.name}
+                        changeValue={(e) => handleInputChange('name', e.target.value)}
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
                     />
-                    <InputLineText
-                        title = {"Город"}
+                    {/* <Input
+                        title={"Город"}
                         type={'text'}
                         name={'city'}
-                        placeholder ={"Город автомойки"}
-                        register={register}
-                        required={true}
-                    />
-                    <InputLineText
-                        title = {"Адрес"}
+                        label={"Город автомойки"}
+                    /> */}
+                    <Input
+                        title={"Адрес"}
                         type={'text'}
-                        name={'location'}
-                        placeholder ={"Адрес автомойки"}
-                        register={register}
-                        required={true}
+                        label={"Адрес автомойки"}
+                        classname="w-96"
+                        {...register('city', { required: 'Address is required' })}
+                        value={formData.city}
+                        changeValue={(e) => handleInputChange('city', e.target.value)}
+                        error={!!errors.city}
+                        helperText={errors.city?.message}
                     />
-                    <InputLineText
-                        title = {"Месячный план"}
+                    <div>
+                        <label className="text-sm text-text02">Часы работы</label>
+                        <div className="flex space-x-2">
+                            <Input
+                                type="number"
+                                classname="w-40"
+                                value={startHour !== null ? startHour : ''}
+                                changeValue={(e) => handleTimeWorkChange('startHour', e.target.value)}
+                                {...register('timeWork', { required: 'Time Work is required' })}
+                                error={!!errors.timeWork}
+                                helperText={errors.timeWork?.message}
+                            />
+                            <div className="flex justify-center items-center text-text02"> : </div>
+                            <Input
+                                type="number"
+                                classname="w-40"
+                                value={endHour !== null ? endHour : ''}
+                                changeValue={(e) => handleTimeWorkChange('endHour', e.target.value)}
+                                {...register('timeWork', { required: 'Time Work is required' })}
+                                error={!!errors.timeWork}
+                                helperText={errors.timeWork?.message}
+                            />
+                        </div>
+                        <div className="flex mt-2">
+                            <input type="checkbox" />
+                            <div className="text-text02 ml-2">Круглосуточно</div>
+                        </div>
+                    </div>
+                    <Input
+                        title={"Месячный план"}
                         type={'number'}
-                        name={'monthlyPlan'}
                         defaultValue={'0'}
-                        register={register}
-                        required={true}
+                        classname="w-48"
+                        {...register('monthlyPlan', { required: 'Monthly Plan is required' })}
+                        value={formData.monthlyPlan}
+                        changeValue={(e) => handleInputChange('monthlyPlan', e.target.value)}
+                        error={!!errors.monthlyPlan}
+                        helperText={errors.monthlyPlan?.message}
                     />
-                    <InputLineOption
-                        title = {"Название организации"}
-                        placeholder={"Выберите организацию"}
-                        type ={"number"}
-                        name={'organizationId'}
-                        register={register}
-                        optionals ={orgData}
+                    <DropdownInput
+                        title={"Компания"}
+                        label={"Наименование компании"}
+                        options={[
+                            { name: "LLC ONVI", value: 1 },
+                            // { name: `ООО “Мой-Ка”`, value: 2 },
+                            // { name: "Добавить Компанию", value: 3 }
+                        ]}
+                        classname="w-96"
+                        {...register('organizationId', { required: 'Organization ID is required' })}
+                        value={formData.organizationId}
+                        onChange={(value) => handleInputChange('organizationId', value)}
+                        error={!!errors.organizationId}
+                        helperText={errors.organizationId?.message}
                     />
+                    <DropdownInput
+                        title={"Тип автомойки"}
+                        label={"Мойка самообслуживания"}
+                        options={[
+                            { name: "МСО", value: "SelfService" },
+                            { name: "Робот  мойка", value: "Portal" },
+                            { name: "МСО + Робот  мойка", value: "SelfServiceAndPortal" }
+                        ]}
+                        classname="w-96"
+                        {...register('carWashPosType', { required: 'Pos Type is required' })}
+                        value={formData.carWashPosType}
+                        onChange={(value) => handleInputChange('carWashPosType', value)}
+                        error={!!errors.carWashPosType}
+                        helperText={errors.carWashPosType?.message}
+                    />
+                    <div>
+                        <label className="text-sm text-text02">Минимальный  шаг суммы заказа</label>
+                        <Input
+                            type="number"
+                            classname="w-48"
+                            {...register('stepSumOrder', { required: 'Step Sum Order is required' })}
+                            value={formData.stepSumOrder}
+                            changeValue={(e) => handleInputChange('stepSumOrder', e.target.value)}
+                            error={!!errors.stepSumOrder}
+                            helperText={errors.stepSumOrder?.message}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm text-text02">Минимальная сумма заказа</label>
+                        <Input
+                            type="number"
+                            classname="w-48"
+                            {...register('minSumOrder', { required: 'Min Sum Order is required' })}
+                            value={formData.minSumOrder}
+                            changeValue={(e) => handleInputChange('minSumOrder', e.target.value)}
+                            error={!!errors.minSumOrder}
+                            helperText={errors.minSumOrder?.message}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm text-text02">Максимальная сумма заказа</label>
+                        <Input
+                            type="number"
+                            classname="w-48"
+                            {...register('maxSumOrder', { required: 'Max Sum Order is required' })}
+                            value={formData.maxSumOrder}
+                            changeValue={(e) => handleInputChange('maxSumOrder', e.target.value)}
+                            error={!!errors.maxSumOrder}
+                            helperText={errors.maxSumOrder?.message}
+                        />
+                    </div>
+                    <div>
+                        <div>Фотографии</div>
+                        <div>Максимальный количество фотографий: 6</div>
+                        <Button
+                            form={false}
+                            iconPlus={true}
+                            type="outline"
+                            title="Скачать"
+                        />
+                    </div>
                     <div className="flex justify-end space-x-4">
                         <Button
-                            title ='Отменить'
-                            type ='outline'
-                            handleClick ={() =>
+                            title='Отменить'
+                            type='outline'
+                            handleClick={() =>
                                 setButtonOn(!buttonOn)}
                         />
                         <Button
-                            title ='Сохранить'
+                            title='Сохранить'
                             form={true}
-                            handleClick ={() => {}}
+                            handleClick={() => { }}
+                            isLoading={isMutating}
                         />
                     </div>
                 </form>
