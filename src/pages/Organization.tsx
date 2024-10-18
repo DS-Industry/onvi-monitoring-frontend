@@ -20,19 +20,20 @@ import useFormHook from "@/hooks/useFormHook.ts";
 import useSWRMutation from "swr/mutation";
 import { createUserOrganization } from "@/services/api/platform/index.ts";
 import { useUser } from "@/hooks/useUserStore.ts";
+import Filter from "@/components/ui/Filter/Filter.tsx";
+import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 
 const Organization: React.FC = () => {
-    const [isData, setIsData] = useState(true);
     const { buttonOn, setButtonOn } = useButtonCreate();
     const user = useUser();
     const { data, error, isLoading } = useSWR([`get-org-7`], () => getOrganization(user.id));
-    // const { data: org, error: orgError, mutate } = useSWR([`post-org`], () => postCreateOrganization(orgData, { headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJ5Y2hlbmtvLXdvcmtAbWFpbC5ydSIsImlkIjo3LCJpYXQiOjE3MjU0MzMyMTEsImV4cCI6MTcyODAyNTIxMX0.u694wJmO2SEDtX0QprKyeM0neBV5EHQokr5O8OvmNHY` } }),
-    //     { revalidateOnMount: false, revalidateIfStale: false, })
-    const organizations: any[] = data?.map((item: any) => {
-        return item
-    }).sort((a, b) => a.id - b.id) || [];
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number | null>(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State for search input
+    const organizations: any[] = data
+        ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
+        .map((item: any) => item)
+        .sort((a, b) => a.id - b.id) || [];
 
     const defaultValues = {
         fullName: '',
@@ -123,7 +124,7 @@ const Organization: React.FC = () => {
             });
         }
     };
-    
+
 
     const resetForm = () => {
         setFormData(defaultValues);
@@ -159,24 +160,9 @@ const Organization: React.FC = () => {
         }
     };
 
-
-    // const submit: SubmitHandler<OrganizationPost> = organizationPost => {
-    //     const organizationData = {
-    //         name: organizationPost.name,
-    //         organizationType: organizationPost.organizationType,
-    //         address: {
-    //             city: organizationPost.city,
-    //             location: organizationPost.location,
-    //         }
-    //     }
-    //     setIsOrgData(organizationData)
-    //     mutate()
-
-    // }
-
-    // const errorData: SubmitErrorHandler<OrganizationPost> = data => {
-    //     console.log('err');
-    // }
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+    };
 
     return (
         <>
@@ -294,54 +280,64 @@ const Organization: React.FC = () => {
                         error={!!errors.correspondentAccount}
                         helperText={errors.correspondentAccount?.message}
                     />
-                    <>
-                        <Input
-                            title="Банк"
-                            type="text"
-                            classname="w-96"
-                            {...register('bank', { required: !isEditMode && 'Bank is required' })}
-                            value={formData.bank}
-                            changeValue={(e) => handleInputChange('bank', e.target.value)}
-                            error={!!errors.bank}
-                            helperText={errors.bank?.message}
-                            />
-                        <Input
-                            title="Расчётный счёт"
-                            type="text"
-                            classname="w-96"
-                            {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
-                            value={formData.settlementAccount}
-                            changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
-                            error={!!errors.settlementAccount}
-                            helperText={errors.settlementAccount?.message}
-                             />
-                        <MultilineInput
-                            title="Адрес"
-                            classname="w-96"
-                            {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
-                            value={formData.addressBank}
-                            changeValue={(e) => handleInputChange('addressBank', e.target.value)}
-                            error={!!errors.addressBank}
-                            helperText={errors.addressBank?.message}
-                             />
+                    <Input
+                        title="Банк"
+                        type="text"
+                        classname="w-96"
+                        {...register('bank', { required: !isEditMode && 'Bank is required' })}
+                        value={formData.bank}
+                        changeValue={(e) => handleInputChange('bank', e.target.value)}
+                        error={!!errors.bank}
+                        helperText={errors.bank?.message}
+                    />
+                    <Input
+                        title="Расчётный счёт"
+                        type="text"
+                        classname="w-96"
+                        {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
+                        value={formData.settlementAccount}
+                        changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
+                        error={!!errors.settlementAccount}
+                        helperText={errors.settlementAccount?.message}
+                    />
+                    <MultilineInput
+                        title="Адрес"
+                        classname="w-96"
+                        {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
+                        value={formData.addressBank}
+                        changeValue={(e) => handleInputChange('addressBank', e.target.value)}
+                        error={!!errors.addressBank}
+                        helperText={errors.addressBank?.message}
+                    />
 
-                        <div className="flex justify-end space-x-4">
-                            <Button
-                                title='Отменить'
-                                type='outline'
-                                handleClick={() => {setButtonOn(!buttonOn); resetForm();}} />
-                            <Button
-                                title='Сохранить'
-                                form={true}
-                                isLoading={isMutating}
-                                handleClick={() => { }} />
-                        </div>
-                    </>
+                    <div className="flex justify-end space-x-4">
+                        <Button
+                            title='Отменить'
+                            type='outline'
+                            handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
+                        <Button
+                            title='Сохранить'
+                            form={true}
+                            isLoading={isMutating}
+                            handleClick={() => { }} />
+                    </div>
                 </form>
             </DrawerCreate>
 
-            {isData ? (
+            {organizations.length !== 0 ? (
                 <>
+                    <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                        {/* Pass any filter inputs you need here */}
+                        <div className="flex">
+                            <SearchInput
+                                placeholder="Filter by name..."
+                                classname="w-64 mr-5"
+                                searchType="outlined"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </div>
+                    </Filter>
                     <div className="mt-8">
                         <OverflowTable
                             tableData={organizations}

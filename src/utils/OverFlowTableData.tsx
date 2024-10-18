@@ -228,7 +228,7 @@ export const columnsMonitoringPos = [
     key: "id",
   },
   {
-    label: "Название",
+    label: "Наименование",
     key: "name",
   },
   {
@@ -236,8 +236,21 @@ export const columnsMonitoringPos = [
     key: "city",
   },
   {
-    label: "Кол-во опреаций",
-    key: "counter",
+    label: "Адрес",
+    key: "address",
+  },
+  {
+    label: "Кол-во операций",
+    key: "quantity",
+  },
+  {
+    label: "Последняя операция",
+    key: "lastOper",
+    type: "date",
+  },
+  {
+    label: "Последняя Списание по картам",
+    key: "lastLabelWriteOff"
   },
   {
     label: "Наличные",
@@ -248,13 +261,24 @@ export const columnsMonitoringPos = [
     key: "virtualSum",
   },
   {
-    label: "Яндекс Заправки",
-    key: "yandexSum",
+    label: "Списание по приложению",
+    key: "Writeoffapplication"
   },
   {
-    label: "Последняя операция",
-    key: "lastOper",
-    type: "date",
+    label: "Сashback по картам",
+    key: "cashbackSumCard"
+  },
+  {
+    label: "Сумма скидки",
+    key: "discountSum"
+  },
+  {
+    label: "Кол-во опреаций",
+    key: "counter",
+  },  
+  {
+    label: "Яндекс Сумма",
+    key: "yandexSum",
   },
 ]
 
