@@ -71,6 +71,21 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
             setIsOpen(false);
         }
     };
+
+    const handleClearSelection = () => {
+        setSelectedOption(null);
+        if (onChange) {
+            onChange('');  
+        }
+        setSelectedValues([]); 
+    };
+
+    useEffect(() => {
+        if (value === '') {
+            handleClearSelection();  
+        }
+    }, [value]);
+
     const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" :(inputType == 'tertiary') ? "py-0" : "py-2"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : ( error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
 
     useEffect(() => {
@@ -134,7 +149,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                             Не найдено
                         </div>
                     ) : (
-                        <ul className="py-1">
+                        <ul className="py-1 max-h-32 overflow-y-auto">
                             {options.map(option => (
                                 <li
                                     key={option.value}

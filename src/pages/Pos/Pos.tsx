@@ -141,7 +141,7 @@ const Pos: React.FC = () => {
                             columns={columnsPos}
                             isDisplayEdit={true}
                             isUpdate={false}
-                            nameUrl={'/station/enrollments'}
+                            nameUrl={'/station/enrollments/device'}
                         />
                     </div>
                 </>
