@@ -51,7 +51,7 @@ const OverflowTable: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-full h-64 lg:h-96 overflow-x-auto overflow-auto mb-16">
+      <div className="w-full h-64 lg:h-96 overflow-x-auto overflow-y-auto mb-16">
         <div className="overflow-x-auto">
 
           {title && (

@@ -24,7 +24,7 @@ const ProgramDevices: React.FC = () => {
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId
     }),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {

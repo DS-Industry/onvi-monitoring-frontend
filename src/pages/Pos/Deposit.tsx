@@ -27,7 +27,7 @@ const Deposit: React.FC = () => {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1))
 
     useEffect(() => {
         console.log(JSON.stringify(error, null, 2));

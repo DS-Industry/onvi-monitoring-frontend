@@ -2,7 +2,7 @@ import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { Calendar } from 'feather-icons-react';
+// import { Calendar } from 'feather-icons-react';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from "swr/mutation";
 import { registerPlatformUser } from "@/services/api/platform";
@@ -51,14 +51,14 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         setIsToggled(!isToggled);
     };
 
-    const handleIconClick = () => {
-        const dateInput = document.getElementById("date-input");
-        if (dateInput) {
-            dateInput.focus();
-            // Workaround to trigger date picker on focus
-            (dateInput as HTMLInputElement).showPicker?.();
-        }
-    };
+    // const handleIconClick = () => {
+    //     const dateInput = document.getElementById("date-input");
+    //     if (dateInput) {
+    //         dateInput.focus();
+    //         // Workaround to trigger date picker on focus
+    //         (dateInput as HTMLInputElement).showPicker?.();
+    //     }
+    // };
 
     const onSubmit = async (data: any) => {
         console.log("Form data:", data);
@@ -139,9 +139,9 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                                 })}
                                 helperText={errors.birthday?.message || ''}
                             />
-                            <div onClick={handleIconClick} className="mt-9 text-primary02 ml-1 cursor-pointer">
+                            {/* <div onClick={handleIconClick} className="mt-9 text-primary02 ml-1 cursor-pointer">
                                 <Calendar className="pointer-events-none" />
-                            </div>
+                            </div> */}
                         </div>
                         <Input
                             type="text"
