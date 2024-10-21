@@ -23,9 +23,9 @@ const DepositDevices: React.FC = () => {
     const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: dataFilter.posId ? dataFilter.posId : location.state.ownerId
+        posId: dataFilter?.posId
     }),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {

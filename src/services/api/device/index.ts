@@ -1,8 +1,8 @@
 import {AxiosResponse} from "axios";
 import api from "@/config/axiosConfig";
 enum DEVICE {
-    GET_DEVICE = 'device/filter',
-    GET_DEVICE_BY_POS = 'device/filter/pos',
+    GET_DEVICE = 'user/device/filter',
+    GET_DEVICE_BY_POS = 'user/device/filter/pos',
 }
 
 export async function getDevice(userId: number): Promise<Pos[]> {

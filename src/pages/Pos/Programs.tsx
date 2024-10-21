@@ -24,7 +24,7 @@ const Programs: React.FC = () => {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd,
     }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1))
 
 
     useEffect(() => {
