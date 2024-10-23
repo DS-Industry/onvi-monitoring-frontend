@@ -8,6 +8,7 @@ import {useLocation} from "react-router-dom";
 import {getPos} from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
+import CustomSkeleton from "@/utils/CustomSkeleton";
 
 
 const ProgramDevices: React.FC = () => {
@@ -15,6 +16,7 @@ const ProgramDevices: React.FC = () => {
     const formattedDate = today.toISOString().slice(0, 10);
 
     const location = useLocation();
+    const [isTableLoading, setIsTableLoading] = useState(false);
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
 
 
@@ -29,13 +31,14 @@ const ProgramDevices: React.FC = () => {
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
     };
 
     useEffect(() => {
         console.log(JSON.stringify(filterErtot, null, 2));
     }, [filterErtot]);
     useEffect(() => {
-        filterMutate();
+        filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter]);
 
     const devicePrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
@@ -57,7 +60,10 @@ const ProgramDevices: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            {devicePrograms.length > 0 ? (
+            {
+            isTableLoading || filterLoading ? (<CustomSkeleton type="table" rowCount={5} columnCount={columnsProgramsPos.length} />)
+                    :
+            devicePrograms.length > 0 ? (
                 <div className="mt-8">
                     { devicePrograms.map((deviceProgram) =>
                         <OverflowTable
@@ -66,6 +72,7 @@ const ProgramDevices: React.FC = () => {
                             nameUrlTitle={"/station/programs/devices"}
                             tableData={deviceProgram.programsInfo}
                             columns={columnsProgramsPos}
+                            isLoading={filterLoading}
                         />
                     )
                     }

@@ -17,11 +17,12 @@ import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import SearchInput from "@/components/ui/Input/SearchInput";
+import CustomSkeleton from "@/utils/CustomSkeleton";
 
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const { data, error, isLoading } = useSWR([`get-pos-7`], async () => {
+    const { data, error, isLoading: posLoading } = useSWR([`get-pos-7`], async () => {
         const response = await getPos(1);
         mutate(`get-pos-7`, response, false); // Store data in cache without revalidation
         return response;
@@ -121,48 +122,53 @@ const Pos: React.FC = () => {
 
     return (
         <>
-            {poses.length !== 0 ? (
-                <>
-                    <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
-                        {/* Pass any filter inputs you need here */}
-                        <div className="flex">
-                            <SearchInput
-                                placeholder="Filter by name..."
-                                classname="w-64 mr-5 mb-1"
-                                searchType="outlined"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
+            {
+                !posLoading ? (
+                        <CustomSkeleton type="table" columnCount={columnsPos.length} />
+                )
+                    :
+                    poses.length > 0 ? (
+                        <>
+                            <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                                {/* Pass any filter inputs you need here */}
+                                <div className="flex">
+                                    <SearchInput
+                                        placeholder="Filter by name..."
+                                        classname="w-64 mr-5 mb-1"
+                                        searchType="outlined"
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                    />
+                                </div>
+                            </Filter>
+                            <div className="mt-8">
+                                <OverflowTable
+                                    tableData={poses}
+                                    columns={columnsPos}
+                                    isDisplayEdit={true}
+                                    isUpdate={false}
+                                    nameUrl={'/station/enrollments/device'}
+                                />
+                            </div>
+                        </>
+                    ) : (<>
+                        {notificationVisible && (
+                            <Notification
+                                title="Наименование компании"
+                                message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
+                                link="Перейти в раздел Юридические лица >"
+                                linkUrl="/administration/legalRights"
+                                onClose={() => setNotificationVisible(false)}
                             />
-                        </div>
-                    </Filter>
-                    <div className="mt-8">
-                        <OverflowTable
-                            tableData={poses}
-                            columns={columnsPos}
-                            isDisplayEdit={true}
-                            isUpdate={false}
-                            nameUrl={'/station/enrollments/device'}
-                        />
-                    </div>
-                </>
-            ) : (<>
-                {notificationVisible && (
-                    <Notification
-                        title="Наименование компании"
-                        message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
-                        link="Перейти в раздел Юридические лица >"
-                        linkUrl="/administration/legalRights"
-                        onClose={() => setNotificationVisible(false)}
-                    />
-                )}
-                <NoDataUI
-                    title="Пока не создан ни один объект"
-                    description="Добавьте автомойку"
-                >
-                    <PosEmpty className="mx-auto" />
-                </NoDataUI>
-            </>
-            )}
+                        )}
+                        <NoDataUI
+                            title="Пока не создан ни один объект"
+                            description="Добавьте автомойку"
+                        >
+                            <PosEmpty className="mx-auto" />
+                        </NoDataUI>
+                    </>
+                    )}
 
 
             <DrawerCreate>

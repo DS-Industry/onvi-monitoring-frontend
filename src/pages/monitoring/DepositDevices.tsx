@@ -1,13 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import {getDeposit, getDepositPos} from "@/services/api/monitoring";
-import {columnsMonitoringFullDevices, columnsMonitoringPos} from "@/utils/OverFlowTableData.tsx";
+import { getDeposit, getDepositPos } from "@/services/api/monitoring";
+import { columnsMonitoringFullDevices, columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
-import {useLocation} from "react-router-dom";
-import {getPos} from "@/services/api/pos";
+import { useLocation } from "react-router-dom";
+import { getPos } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
+import CustomSkeleton from "@/utils/CustomSkeleton";
 
 
 const DepositDevices: React.FC = () => {
@@ -18,18 +19,20 @@ const DepositDevices: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const location = useLocation();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `2024-10-01 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId});
+    const [isTableLoading, setIsTableLoading] = useState(false);
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({ dateStart: `2024-10-01 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId });
 
-    const {  data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate  } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos({
+    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-deposits-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getDepositPos({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         posId: dataFilter?.posId
-    }),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1),{ revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
     };
 
     useEffect(() => {
@@ -37,7 +40,7 @@ const DepositDevices: React.FC = () => {
     }, [error]);
 
     useEffect(() => {
-        filterMutate();
+        filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter]);
 
     const devicesMonitoring: DevicesMonitoring[] = filter?.map((item: DevicesMonitoring) => {
@@ -59,25 +62,27 @@ const DepositDevices: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            {devicesMonitoring.length !== 0 ? (
-                <div className="mt-8">
-                    <OverflowTable
-                        tableData={devicesMonitoring}
-                        columns={columnsMonitoringPos}
-                        isDisplayEdit={true}
-                        nameUrl={"/station/enrollments/devices"}
-                    />
-                </div>
-            ):(
-                <>
-                    <NoDataUI
-                        title="В этом разделе представлены операции, которые фиксируются купюроприемником"
-                        description="У вас пока нет операций с купюроприемником"
-                    >
-                        <SalyIamge className="mx-auto" />
-                    </NoDataUI>
-                </>
-            )}
+            {
+                isTableLoading || filterLoading ? (<CustomSkeleton type="table" columnCount={columnsMonitoringPos.length} />)
+                    : devicesMonitoring.length > 0 ? (
+                        <div className="mt-8">
+                            <OverflowTable
+                                tableData={devicesMonitoring}
+                                columns={columnsMonitoringPos}
+                                isDisplayEdit={true}
+                                nameUrl={"/station/enrollments/devices"}
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <NoDataUI
+                                title="В этом разделе представлены операции, которые фиксируются купюроприемником"
+                                description="У вас пока нет операций с купюроприемником"
+                            >
+                                <SalyIamge className="mx-auto" />
+                            </NoDataUI>
+                        </>
+                    )}
         </>
     )
 }

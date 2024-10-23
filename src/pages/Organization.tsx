@@ -22,11 +22,12 @@ import { createUserOrganization } from "@/services/api/platform/index.ts";
 import { useUser } from "@/hooks/useUserStore.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
 import SearchInput from "@/components/ui/Input/SearchInput.tsx";
+import CustomSkeleton from "@/utils/CustomSkeleton.tsx";
 
 const Organization: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const user = useUser();
-    const { data, error, isLoading } = useSWR([`get-org-7`], () => getOrganization(user.id));
+    const { data, error, isLoading: loadingOrg } = useSWR([`get-org-7`], () => getOrganization(user.id));
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState(''); // State for search input
@@ -324,38 +325,42 @@ const Organization: React.FC = () => {
                 </form>
             </DrawerCreate>
 
-            {organizations.length !== 0 ? (
-                <>
-                    <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
-                        {/* Pass any filter inputs you need here */}
-                        <div className="flex">
-                            <SearchInput
-                                placeholder="Filter by name..."
-                                classname="w-64 mr-5"
-                                searchType="outlined"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                            />
-                        </div>
-                    </Filter>
-                    <div className="mt-8">
-                        <OverflowTable
-                            tableData={organizations}
-                            columns={columnsOrg}
-                            isDisplayEdit={true}
-                            isUpdate={true}
-                            onUpdate={handleUpdate}
-                        />
-                    </div>
-                </>
-            ) : (
-                <NoDataUI
-                    title="Не создано никаких юридических лиц"
-                    description="Добавить юридическое лицо"
-                >
-                    <SalyIamge className="mx-auto" />
-                </NoDataUI>
-            )}
+            {
+                loadingOrg ? (<CustomSkeleton type="table" columnCount={columnsOrg.length} />)
+                    :
+                    organizations.length > 0 ? (
+                        <>
+                            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                                {/* Pass any filter inputs you need here */}
+                                <div className="flex">
+                                    <SearchInput
+                                        placeholder="Filter by name..."
+                                        classname="w-64 mr-5"
+                                        searchType="outlined"
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                    />
+                                </div>
+                            </Filter>
+                            <div className="mt-8">
+                                <OverflowTable
+                                    tableData={organizations}
+                                    columns={columnsOrg}
+                                    isDisplayEdit={true}
+                                    isUpdate={true}
+                                    onUpdate={handleUpdate}
+                                    isLoading={loadingOrg}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <NoDataUI
+                            title="Не создано никаких юридических лиц"
+                            description="Добавить юридическое лицо"
+                        >
+                            <SalyIamge className="mx-auto" />
+                        </NoDataUI>
+                    )}
         </>
     );
 };
