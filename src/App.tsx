@@ -6,6 +6,7 @@ import PublicRoute from "@/routes/PublicRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
 import { Can } from "@/permissions/Can";
 import useAuthStore from '@/config/store/authSlice';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const App: React.FC = () => {
   const [userPermissions, setUserPermissions] = useState<

@@ -33,7 +33,7 @@ const OverflowTable: React.FC<Props> = ({
   title,
   nameUrlTitle,
   urlTitleId,
-  onUpdate
+  onUpdate,
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -55,7 +55,6 @@ const OverflowTable: React.FC<Props> = ({
         <div className="overflow-x-auto">
 
           {title && (
-
             <span
               className="cursor-pointer"
               onClick={() => navigate(`${nameUrlTitle}`, { state: { ownerId: urlTitleId } })}
@@ -64,66 +63,62 @@ const OverflowTable: React.FC<Props> = ({
                 {title}
               </div>
             </span>
-          )
-          }
-
-          <table className="w-full">
-            <thead>
-              <tr>
-                {columns.map(
-                  (column) =>
-                    selectedColumns.includes(column.key) && (
-                      <th
-                        key={column.key}
-                        className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
-                      >
-                        {column.label}
-                      </th>
-                    )
-                )}
-                {isUpdate && <th className="border border-background02 bg-background06"></th>}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((row) => (
-                <tr key={row.id}>
-                  {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
-                      {column.key === 'name' && nameUrl ? (
-                        <span
-                          className="cursor-pointer"
-                          onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
+          )}
+            <table className="w-full">
+              <thead>
+                <tr>
+                  {columns.map(
+                    (column) =>
+                      selectedColumns.includes(column.key) && (
+                        <th
+                          key={column.key}
+                          className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
                         >
-                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
-                            {row[column.key]}
-                          </div>
-                        </span>
-                      ) : (
-                        <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                          {column.type === 'date' ? (
-                            row[column.key] ? moment(row[column.key]).format('DD-MM-YYYY HH:mm:ss') : '-'
-                          ) : typeof row[column.key] === 'object' ? (
-                            // Customize this line to display specific fields of the address
-                            `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                          ) : (
-                            row[column.key]
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  ))}
-                  {isUpdate && (
-                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-center">
-                      <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                        <UpdateIcon />
-                      </button>
-                    </td>
+                          {column.label}
+                        </th>
+                      )
                   )}
+                  {isUpdate && <th className="border border-background02 bg-background06"></th>}
                 </tr>
-              ))}
-            </tbody>
-
-          </table>
+              </thead>
+              <tbody>
+                {tableData.map((row) => (
+                  <tr key={row.id}>
+                    {displayedColumns.map((column) => (
+                      <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
+                        {column.key === 'name' && nameUrl ? (
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
+                          >
+                            <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
+                              {row[column.key]}
+                            </div>
+                          </span>
+                        ) : (
+                          <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                            {column.type === 'date' ? (
+                              row[column.key] ? moment(row[column.key]).format('DD-MM-YYYY HH:mm:ss') : '-'
+                            ) : typeof row[column.key] === 'object' ? (
+                              `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
+                            ) : (
+                              row[column.key]
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    ))}
+                    {isUpdate && (
+                      <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-center">
+                        <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
+                          <UpdateIcon />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
         </div>
       </div>
       {isDisplayEdit && <>

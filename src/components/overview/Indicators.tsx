@@ -12,6 +12,7 @@ import { getPos } from "@/services/api/pos";
 import { getDeposit } from "@/services/api/monitoring";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
+import CustomSkeleton from "@/utils/CustomSkeleton";
 
 const selectOptions: {
   value: string;
@@ -261,10 +262,12 @@ const Indicators: React.FC = () => {
         </div>
         */}
         <div className="mt-8">
-          <OverflowTable
-            tableData={posMonitoring}
-            columns={columnsMonitoringPos}
-          />
+          {filterLoading ? (<CustomSkeleton type="table" columnCount={columnsMonitoringPos.length} />)
+            :
+            <OverflowTable
+              tableData={posMonitoring}
+              columns={columnsMonitoringPos}
+            />}
         </div>
       </div>
     </>
