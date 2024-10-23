@@ -5,14 +5,26 @@ import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
 import Notification from "@ui/Notification";
 import LineChart from "@ui/LineChart";
 import DatePickerComponent from "@ui/DatePickerComponent";
-import { columnsMonitoringPos, columnsUser, tableUserData } from "@/utils/OverFlowTableData";
+import { columnsMonitoringPos } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
-import { getOrganization, getRating, getStatistic } from "@/services/api/organization";
-import { getPos } from "@/services/api/pos";
+import { getStatistic } from "@/services/api/organization";
 import { getDeposit } from "@/services/api/monitoring";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
-import CustomSkeleton from "@/utils/CustomSkeleton";
+import TableSkeleton from "../ui/Table/TableSkeleton";
+
+interface PosMonitoring {
+  id: number;
+  name: string;
+  address: string;
+  status: string;
+}
+
+interface Statistic {
+  cars: number;
+  sum: number;
+  downtime: number;
+}
 
 const selectOptions: {
   value: string;
@@ -49,18 +61,18 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState('');
 
-  const { data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
+  const { data } = useSWR(['get-statistic-org'], () => getStatistic(
     12, { dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59` }
   ))
 
-  const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit({
+  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits'], () => getDeposit({
     dateStart: `01.01.2024 00:00`,
     dateEnd: `${formattedDate} 23:59`
   }));
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;
-  }).sort((a, b) => a.id - b.id) || [];
+  }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
   const statisticData: Statistic = data;
 
@@ -101,6 +113,8 @@ const Indicators: React.FC = () => {
           title="Показатели"
           message="В  данном разделе будут отображаться основные показатели по автомойкам за день"
           onClose={() => setNotificationVisible(false)}
+          link={""}
+          linkUrl={""}
         />
       )}
       <div className="grid gap-4">
@@ -262,7 +276,7 @@ const Indicators: React.FC = () => {
         </div>
         */}
         <div className="mt-8">
-          {filterLoading ? (<CustomSkeleton type="table" columnCount={columnsMonitoringPos.length} />)
+          {filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
             :
             <OverflowTable
               tableData={posMonitoring}

@@ -10,7 +10,7 @@ import {useLocation, useParams} from "react-router-dom";
 import useSWR from "swr";
 import {getOrganization} from "../services/api/organization";
 import {getDevice, getDeviceByPosId} from "../services/api/device";
-import CustomSkeleton from "@/utils/CustomSkeleton.tsx";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton.tsx";
 
 const Device: React.FC = () => {
     const { t } = useTranslation();
@@ -28,7 +28,7 @@ const Device: React.FC = () => {
     return (
         <>
             {
-                isLoading ? (<CustomSkeleton type="table" columnCount={columnsDevice.length} />)
+                isLoading ? (<TableSkeleton columnCount={columnsDevice.length} />)
                 : devices.length > 0 ? (
                 <div className="mt-8">
                     <OverflowTable

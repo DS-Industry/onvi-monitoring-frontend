@@ -1,6 +1,6 @@
-import Hr from "../pages/Hr/Hr";
-import Administration from "../pages/Administration/Administration";
-import Analysis from "../pages/Analysis/Analysis";
+// import Hr from "../pages/Hr/Hr";
+// import Administration from "../pages/Administration/Administration";
+// import Analysis from "../pages/Analysis/Analysis";
 import ReviewIcon from "@icons/review-icon.svg?react";
 import AdministrationIcon from "@icons/administration-icon.svg?react"
 import CarWashIcon from "@icons/car_wash-icon.svg?react"
@@ -10,20 +10,14 @@ import MonitoringIcon from "@icons/monitoring-icon.svg?react"
 import LoyaltyIcon from "@icons/loyalty-icon.svg?react"
 import EquipmentIcon from "@icons/equipment-icon.svg?react"
 import WarehouseIcon from "@icons/warehouse-icon.svg?react"
-import Home from "@/pages/Home";
-import About from "@/pages/About";
 import Pos from "@/pages/Pos/Pos";
-import Device from "@/pages/Device";
-import Services from "@/pages/Services";
-import Organization from "@/pages/Organization";
-import DepositDevice from "@/pages/monitoring/DepositDevice";
-import ProgramDevices from "@/pages/monitoring/ProgramDevices";
-import ProgramDevice from "@/pages/monitoring/ProgramDevice";
-import Finance from "@/pages/Finance/Finance";
-import Equipment from "@/pages/Equipment/Equipment";
-import Warehouse from "@/pages/Warehouse/Warehouse";
-import ErrorPage from "@/pages/Error";
-import SignUp from "@/pages/SignUp";
+import Organization from "@/pages/Organization/Organization";
+import DepositDevice from "@/pages/Pos/DepositDevice";
+import ProgramDevices from "@/pages/Pos/ProgramDevices";
+import ProgramDevice from "@/pages/Pos/ProgramDevice";
+// import Finance from "@/pages/Finance/Finance";
+// import Equipment from "@/pages/Equipment/Equipment";
+// import Warehouse from "@/pages/Warehouse/Warehouse";
 import LogIn from "@/pages/Onboarding/LogIn";
 import ProfileForm from "@/pages/Profile/Profile";
 import Default from "@/pages/Default/Default";
@@ -31,7 +25,8 @@ import Register from "@/pages/Onboarding/Register";
 import ForgotPassword from "@/pages/Onboarding/ForgotPassword";
 import Deposit from "@/pages/Pos/Deposit";
 import Programs from "@/pages/Pos/Programs";
-import DepositDevices from "@/pages/monitoring/DepositDevices";
+import DepositDevices from "@/pages/Pos/DepositDevices";
+import Dashboard from "@/pages/Dashboard/Dashboard";
 
 const routes = [
     {
@@ -41,7 +36,7 @@ const routes = [
         filter: false,
         addButton: false,
         icon: ReviewIcon,
-        component: Home,
+        component: Dashboard,
         isSidebar: true,
         permissions: []
       },
@@ -58,9 +53,6 @@ const routes = [
         subNav: [
           { name: "Подписки", filter: false, addButton: false, isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [], isSidebar: true },
           { name: "Права доступа", filter: false, addButton: false, isVisible: true, path: "/administration/accessRights", component: Default, permissions: [], isSidebar: true },
-          // { name: "Услуги", filter: false, addButton: false, isVisible: false, path: "/administration/sub2", component: Services, permissions: []},
-          // { name: "Подписки", filter: false, addButton: false, isVisible: false, path: "/administration/sub3", component: Contact, permissions: [] },
-          // { name: "Права доступа", filter: false, addButton: false, isVisible: false, path: "/administration/sub4", component: Home, permissions: [] },
           { name: "Юридические лица", filter: true, addButton: true, isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [], isSidebar: true },
         ],
         isSidebar: true
@@ -76,7 +68,7 @@ const routes = [
         permissions: [],
         subNav: [
           { name: "Управление объектами", filter: true, addButton: true, isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [], isSidebar: true },
-          { name: "Услуги", filter: true, addButton: false, isVisible: false, path: "/station/services", component: About, permissions: [], isSidebar: true },
+          { name: "Услуги", filter: true, addButton: false, isVisible: false, path: "/station/services", component: Default, permissions: [], isSidebar: true },
           { name: "Зачисления", filter: true, addButton: false, isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [], isSidebar: true },
           { name: "Депозитные устройства", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [], isSidebar: false },
           { name: "Депозитное устройство", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [], isSidebar: false },
@@ -86,8 +78,6 @@ const routes = [
           { name: "План/Факт", filter: true, addButton: false, isVisible: true, path: "/station/plan/act", component: Default, permissions: [], isSidebar: true },
           { name: "Уборка", filter: true, addButton: false, isVisible: false, path: "/station/cleaning", component: Default, permissions: [], isSidebar: true },
           { name: "Простой боксов", filter: true, addButton: false, isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [], isSidebar: true },
-          // { name: "Sub 2", path: "/monitoring/about/sub2", component: ErrorPage, permissions: [] },
-          // { name: "Sub 3", path: "/monitoring/about/sub3", component: ErrorPage, permissions: [] },
         ],
         component: Default,
         isSidebar: true

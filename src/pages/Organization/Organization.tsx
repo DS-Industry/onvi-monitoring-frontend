@@ -1,18 +1,13 @@
-import { Trans, useTranslation } from "react-i18next";
-import SalyIamge from "../assets/Saly-11.svg?react";
-import React, { useEffect, useState } from "react";
-import NoDataUI from "../components/ui/NoDataUI.tsx";
-import DrawerCreate from "../components/ui/Drawer/DrawerCreate.tsx";
-import { useButtonCreate } from "../components/context/useContext.tsx";
-import { columnsOrg } from "../utils/OverFlowTableData.tsx";
-import OverflowTable from "../components/ui/Table/OverflowTable.tsx";
-import InputLineText from "../components/ui/InputLine/InputLineText.tsx";
-import InputLineOption from "../components/ui/InputLine/InputLineOption.tsx";
-import Button from "../components/ui/Button/Button.tsx";
-import { fetcher, useFetchData } from "../api";
-import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
+import SalyIamge from "@/assets/Saly-11.svg?react";
+import React, { useState } from "react";
+import NoDataUI from "@ui/NoDataUI.tsx";
+import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
+import { useButtonCreate } from "@/components/context/useContext.tsx";
+import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import Button from "@ui/Button/Button.tsx";
 import useSWR from "swr";
-import { getOrganization, postCreateOrganization, postUpdateOrganization } from "../services/api/organization";
+import { getOrganization, postUpdateOrganization } from "@/services/api/organization/index.ts";
 import DropdownInput from "@ui/Input/DropdownInput.tsx";
 import Input from "@ui/Input/Input.tsx";
 import MultilineInput from "@ui/Input/MultilineInput.tsx";
@@ -22,16 +17,40 @@ import { createUserOrganization } from "@/services/api/platform/index.ts";
 import { useUser } from "@/hooks/useUserStore.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
 import SearchInput from "@/components/ui/Input/SearchInput.tsx";
-import CustomSkeleton from "@/utils/CustomSkeleton.tsx";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+
+interface Organization {
+    rateVat: string;
+    inn: string;
+    okpo: string;
+    kpp: string;
+    ogrn: string;
+    bik: string;
+    correspondentAccount: string;
+    bank: string;
+    settlementAccount: string;
+    addressBank: string;
+    certificateNumber: string;
+    dateCertificate: string;
+    id: number;
+    name: string;
+    slug: string;
+    address: string;
+    organizationStatus: string;
+    organizationType: string;
+    createdAt: string;
+    updatedAt: string;
+    ownerId: number;
+}
 
 const Organization: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const user = useUser();
-    const { data, error, isLoading: loadingOrg } = useSWR([`get-org-7`], () => getOrganization(user.id));
+    const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization(user.id));
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState(''); // State for search input
-    const organizations: any[] = data
+    const organizations: Organization[] = data
         ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
         .map((item: any) => item)
         .sort((a, b) => a.id - b.id) || [];
@@ -326,7 +345,7 @@ const Organization: React.FC = () => {
             </DrawerCreate>
 
             {
-                loadingOrg ? (<CustomSkeleton type="table" columnCount={columnsOrg.length} />)
+                loadingOrg ? (<TableSkeleton columnCount={columnsOrg.length} />)
                     :
                     organizations.length > 0 ? (
                         <>

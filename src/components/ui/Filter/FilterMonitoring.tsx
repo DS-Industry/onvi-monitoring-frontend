@@ -3,6 +3,7 @@ import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore.ts";
 
 type Optional = {
     name: string;
@@ -27,15 +28,21 @@ const FilterMonitoring: React.FC<Props> = ({
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
+    const posType = usePosType();
+    const storeStartDate = useStartDate();
+    const storeEndDate = useEndDate();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { filterOpen, setFilterOpen } = useFilterOpen();
+    const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
-    const [startDate, setStartDate] = useState(`${formattedDate} 00:00`);
-    const [endDate, setEndDate] = useState(`${formattedDate} 23:59`);
+    const [startDate, setStartDate] = useState(storeStartDate);
+    const [endDate, setEndDate] = useState(storeEndDate);
     const [organizationId, setOrganizationId] = useState('');
-    const [posId, setPosId] = useState('');
+    const [posId, setPosId] = useState(posType);
     const [deviceId, setDeviceId] = useState('');
 
+    const setPosType = useSetPosType();
+    const setStartDateInStore = useSetStartDate();
+    const setEndDateInStore = useSetEndDate();
 
     const handleStartDateChange = (combinedDateTime: string) => {
         setStartDate(combinedDateTime);
@@ -123,6 +130,9 @@ const FilterMonitoring: React.FC<Props> = ({
                         setPosId('');
                         setOrganizationId('');
                         setDeviceId('');
+                        setPosType(''); 
+                        setStartDateInStore(`${formattedDate} 00:00`); 
+                        setEndDateInStore(`${formattedDate} 23:59`);
                         setButtonOn(!buttonOn);
                     }}
                 />

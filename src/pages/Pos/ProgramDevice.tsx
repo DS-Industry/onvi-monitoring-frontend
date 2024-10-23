@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getDeposit, getDepositDevice, getDepositPos, getProgramDevice } from "@/services/api/monitoring";
+import { getProgramDevice } from "@/services/api/monitoring";
 import {
-    columnsMonitoringDevice, columnsProgramDevice,
+    columnsProgramDevice,
 } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
@@ -10,15 +10,50 @@ import { useLocation } from "react-router-dom";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import CustomSkeleton from "@/utils/CustomSkeleton";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+
+interface FilterDepositDevice {
+    dateStart: string;
+    dateEnd: string;
+    deviceId: string;
+}
+
+interface DeviceProgram {
+    id: number;
+    dateBegin: string;
+    dateEnd: string;
+    deviceId: string;
+    programName: string;
+    status: string;
+}
+
+interface DeviceMonitoring {
+    props: {
+        id: number;
+        name: string;
+        status: string;
+    };
+}
 
 const ProgramDevice: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
+    const posType = usePosType();
+    const startDate = useStartDate();
+    const endDate = useEndDate();
+    const setPosType = useSetPosType();
+    const setStartDate = useSetStartDate();
+    const setEndDate = useSetEndDate();
 
     const location = useLocation();
     const [isTableLoading, setIsTableLoading] = useState(false);
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>({ dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`, posId: location.state?.ownerId });
+    const initialFilter = {
+        dateStart: startDate || `${formattedDate} 00:00`,
+        dateEnd: endDate || `${formattedDate} 23:59`,
+        deviceId: posType || location.state?.ownerId,
+    };
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
 
     const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getProgramDevice(
@@ -26,11 +61,15 @@ const ProgramDevice: React.FC = () => {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
     }));
-    const { data, error, isLoading } = useSWR([`get-device-pos-66`], () => getDeviceByPosId(66))
+    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(66))
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
+
+        if (newFilterData.deviceId) setPosType(newFilterData.deviceId);
+        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
+        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
@@ -43,7 +82,7 @@ const ProgramDevice: React.FC = () => {
         return item;
     }).sort((a, b) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || [];
 
-    const deviceData: DeviceMonitoring[] = data?.map((item: PosMonitoring) => {
+    const deviceData: DeviceMonitoring[] = data?.map((item: DeviceMonitoring) => {
         return item;
     }).sort((a, b) => a.props.id - b.props.id) || [];
 
@@ -59,7 +98,7 @@ const ProgramDevice: React.FC = () => {
                 handleDataFilter={handleDataFilter}
             />
             {
-                isTableLoading || filterIsLoading ? (<CustomSkeleton type="table" columnCount={columnsProgramDevice.length} />)
+                isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
                     :
                     deviceProgram.length > 0 ? (
                         <div className="mt-8">

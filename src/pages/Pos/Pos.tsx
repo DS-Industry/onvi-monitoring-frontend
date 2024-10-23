@@ -1,36 +1,67 @@
 import { useTranslation } from "react-i18next";
 import PosEmpty from "@/assets/EmptyPos.svg?react";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
+import { useButtonCreate } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
-import useSWR, { mutate } from "swr";
-import { getPos, postCreatePos } from "@/services/api/pos/index.ts";
-import { getOrganization, postCreateOrganization, postPosData } from "@/services/api/organization/index.ts";
+import useSWR from "swr";
+import { getPos } from "@/services/api/pos/index.ts";
+import { postPosData } from "@/services/api/organization/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import SearchInput from "@/components/ui/Input/SearchInput";
-import CustomSkeleton from "@/utils/CustomSkeleton";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+
+interface Address {
+    id: number;
+    city: string;
+    location: string;
+    lat: number;
+    lon: number;
+}
+
+interface PosType {
+    id: number;
+    name: string;
+    slug: string;
+    carWashPosType: string;
+    minSumOrder: number;
+    maxSumOrder: number;
+    stepSumOrder: number;
+}
+
+interface Pos {
+    id: number;
+    name: string;
+    slug: string;
+    monthlyPlan: number;
+    timeWork: string;
+    organizationId: number;
+    posMetaData: any | null;
+    timezone: number;
+    image: string | null;
+    rating: number | null;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    createdById: number;
+    updatedById: number;
+    address: Address;
+    posType: PosType;
+}
 
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const { data, error, isLoading: posLoading } = useSWR([`get-pos-7`], async () => {
-        const response = await getPos(1);
-        mutate(`get-pos-7`, response, false); // Store data in cache without revalidation
-        return response;
-    }, { revalidateOnFocus: false })
-    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    // const { data: pos, error: posError, mutate: posMutate } = useSWR([`post-pos`], () => postCreatePos(postData))
+    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const contentRef = useRef<HTMLDivElement>(null);
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState(''); // State for search input
@@ -115,16 +146,11 @@ const Pos: React.FC = () => {
         setSearchTerm(value);
     };
 
-    const orgData = org?.map((organization) => ({
-        value: organization.id,
-        name: organization.name
-    })) || [];
-
     return (
         <>
             {
-                !posLoading ? (
-                        <CustomSkeleton type="table" columnCount={columnsPos.length} />
+                posLoading ? (
+                    <TableSkeleton columnCount={columnsPos.length} />
                 )
                     :
                     poses.length > 0 ? (
