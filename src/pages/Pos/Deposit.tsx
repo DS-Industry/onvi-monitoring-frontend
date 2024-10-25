@@ -4,7 +4,7 @@ import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import useSWR from "swr";
-import { getDeposit } from "@/services/api/monitoring";
+import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import { getPos } from "@/services/api/pos";
 import { useLocation } from "react-router-dom";
@@ -12,16 +12,61 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
 
 interface FilterDepositPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: string;
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
 }
 
 interface PosMonitoring {
     id: number;
     name: string;
-    address: string;
+    slug: string;
+    monthlyPlan: number;
+    timeWork: string;
+    organizationId: number;
+    posMetaData: string;
+    timezone: number;
+    image: string;
+    rating: number;
     status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById: number;
+    updatedById: number;
+    address:
+    {
+        id: number;
+        city: string;
+        location: string;
+        lat: number;
+        lon: number;
+    };
+    posType:
+    {
+        id: number;
+        name: string;
+        slug: string;
+        carWashPosType: string;
+        minSumOrder: number;
+        maxSumOrder: number;
+        stepSumOrder: number;
+    };
+}
+
+interface DepositMonitoring {
+    id: number;
+    name: string;
+    city: string;
+    counter: number;
+    cashSum: number;
+    virtualSum: number;
+    yandexSum: number;
+    mobileSum: number;
+    cardSum: number;
+    lastOper: Date;
+    discountSum: number;
+    cashbackSumCard: number;
+    cashbackSumMub: number;
 }
 
 const Deposit: React.FC = () => {
@@ -66,11 +111,11 @@ const Deposit: React.FC = () => {
 
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
-    const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
+    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;
@@ -97,7 +142,6 @@ const Deposit: React.FC = () => {
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
                             nameUrl={"/station/enrollments/device"}
-                            isLoading={filterLoading}
                         />
                     </div>
                 ) : (

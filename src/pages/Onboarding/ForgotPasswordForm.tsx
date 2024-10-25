@@ -26,7 +26,9 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-    const handleInputChange = (field: any, value: string) => {
+    type FieldType = "password" | "confirmPassword";
+
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
@@ -40,7 +42,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
         })
     );
     
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log(data);
         try {
             const result = await trigger();

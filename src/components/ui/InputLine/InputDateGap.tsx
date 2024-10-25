@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 type InputDateGapProps = {
-    defaultDateStart: string;
-    defaultDateEnd: string;
-    onStartDateChange: (value: string) => void;
-    onEndDateChange: (value: string) => void;
+    defaultDateStart: Date | string;
+    defaultDateEnd: Date | string;
+    onStartDateChange: (value: Date) => void;
+    onEndDateChange: (value: Date) => void;
 };
 
 const InputDateGap: React.FC<InputDateGapProps> = ({
@@ -13,46 +13,48 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     onStartDateChange,
     onEndDateChange
 }) => {
-    const [dateStart, setDateStart] = useState(defaultDateStart.split(' ')[0]);
-    const [timeStart, setTimeStart] = useState(defaultDateStart.split(' ')[1]);
-    const [dateEnd, setDateEnd] = useState(defaultDateEnd.split(' ')[0]);
-    const [timeEnd, setTimeEnd] = useState(defaultDateEnd.split(' ')[1]);
+    const startDate = typeof defaultDateStart === "string" ? new Date(defaultDateStart) : defaultDateStart;
+    const endDate = typeof defaultDateEnd === "string" ? new Date(defaultDateEnd) : defaultDateEnd;
 
-    // Handle date change for start
+    const [dateStart, setDateStart] = useState(startDate.toISOString().split('T')[0]);
+    const [timeStart, setTimeStart] = useState(startDate.toTimeString().slice(0, 5));
+    const [dateEnd, setDateEnd] = useState(endDate.toISOString().split('T')[0]);
+    const [timeEnd, setTimeEnd] = useState(endDate.toTimeString().slice(0, 5));
+
+    // Handle date and time changes for start
     const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDateStart(event.target.value);
-        const combinedDateTime = `${event.target.value} ${timeStart}`;
-        onStartDateChange(combinedDateTime); // Pass combined value back to parent
+        const updatedDateTime = new Date(`${event.target.value}T${timeStart}`);
+        onStartDateChange(updatedDateTime);
     };
 
-    // Handle time change for start
     const handleStartTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTimeStart(event.target.value);
-        const combinedDateTime = `${dateStart} ${event.target.value}`;
-        onStartDateChange(combinedDateTime); // Pass combined value back to parent
+        const updatedDateTime = new Date(`${dateStart}T${event.target.value}`);
+        onStartDateChange(updatedDateTime);
     };
 
-    // Handle date change for end
     const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDateEnd(event.target.value);
-        const combinedDateTime = `${event.target.value} ${timeEnd}`;
-        onEndDateChange(combinedDateTime); // Pass combined value back to parent
+        const updatedDateTime = new Date(`${event.target.value}T${timeEnd}`);
+        onEndDateChange(updatedDateTime);
     };
 
-    // Handle time change for end
     const handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTimeEnd(event.target.value);
-        const combinedDateTime = `${dateEnd} ${event.target.value}`;
-        onEndDateChange(combinedDateTime); // Pass combined value back to parent
+        const updatedDateTime = new Date(`${dateEnd}T${event.target.value}`);
+        onEndDateChange(updatedDateTime);
     };
 
     useEffect(() => {
-        setDateStart(defaultDateStart.split(' ')[0]);
-        setTimeStart(defaultDateStart.split(' ')[1])
-        setDateEnd(defaultDateEnd.split(' ')[0])
-        setTimeEnd(defaultDateEnd.split(' ')[1]);
+        const updatedStartDate = typeof defaultDateStart === "string" ? new Date(defaultDateStart) : defaultDateStart;
+        const updatedEndDate = typeof defaultDateEnd === "string" ? new Date(defaultDateEnd) : defaultDateEnd;
+        
+        setDateStart(updatedStartDate.toISOString().split('T')[0]);
+        setTimeStart(updatedStartDate.toTimeString().slice(0, 5));
+        setDateEnd(updatedEndDate.toISOString().split('T')[0]);
+        setTimeEnd(updatedEndDate.toTimeString().slice(0, 5));
     }, [defaultDateStart, defaultDateEnd]);
-
 
     return (
         <div className="my-5">

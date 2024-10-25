@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getProgramPos } from "@/services/api/monitoring";
+import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
@@ -12,21 +12,22 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
 
 interface FilterDepositPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: string;
-}
-
-interface ProgramInfo {
-    id: number;
-    name: string;
-    status: string;
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
 }
 
 interface PosPrograms {
     id: number;
     name: string;
-    programsInfo: ProgramInfo[];  
+    programsInfo:
+    {
+        programName: string;
+        counter: number;
+        totalTime: number;
+        averageTime: string;
+        lastOper: Date;
+    }[]
 }
 
 interface PosMonitoring {
@@ -80,11 +81,11 @@ const ProgramDevices: React.FC = () => {
     }, [filterErtot]);
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
     const devicePrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;
@@ -113,7 +114,6 @@ const ProgramDevices: React.FC = () => {
                                     nameUrlTitle={"/station/programs/devices"}
                                     tableData={deviceProgram.programsInfo}
                                     columns={columnsProgramsPos}
-                                    isLoading={filterLoading}
                                 />
                             )
                             }

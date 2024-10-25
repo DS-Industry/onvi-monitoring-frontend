@@ -35,14 +35,16 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         'user/auth/register',
         async () => registerPlatformUser({
             name: formData.name,
-            birthday: `${formData.birthday}T13:24:45.742+03:00`,
+            birthday: new Date(`${formData.birthday}T13:24:45.742+03:00`),
             phone: formData.phone,
             email: formData.email,
             password: formData.password
         }) 
       );
 
-    const handleInputChange = (field: any, value: string) => {
+    type FieldType = "name" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
+
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
@@ -60,7 +62,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
     //     }
     // };
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log("Form data:", data);
         try {
             const result = await trigger();

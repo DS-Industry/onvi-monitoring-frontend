@@ -64,7 +64,7 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
         }
     };
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log(data);
         try {
             const result = await trigger();

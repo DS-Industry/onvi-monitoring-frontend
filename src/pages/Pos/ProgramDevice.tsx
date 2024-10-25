@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getProgramDevice } from "@/services/api/monitoring";
+import { getProgramDevice } from "@/services/api/pos";
 import {
     columnsProgramDevice,
 } from "@/utils/OverFlowTableData.tsx";
@@ -11,21 +11,23 @@ import SalyIamge from "@/assets/Saly-45.svg?react";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId } from '@/hooks/useAuthStore'; 
 
 interface FilterDepositDevice {
-    dateStart: string;
-    dateEnd: string;
-    deviceId: string;
+    dateStart: Date;
+    dateEnd: Date;
+    deviceId?: number;
 }
 
 interface DeviceProgram {
     id: number;
-    dateBegin: string;
-    dateEnd: string;
-    deviceId: string;
-    programName: string;
-    status: string;
+    name: string;
+    dateBegin: Date;
+    dateEnd: Date;
+    time: string;
+    localId: number;
+    payType: string;
+    isCar: number;
 }
 
 interface DeviceMonitoring {
@@ -39,19 +41,19 @@ interface DeviceMonitoring {
 const ProgramDevice: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
-    const posType = usePosType();
+    const deviceId = useDeviceId();
     const startDate = useStartDate();
     const endDate = useEndDate();
-    const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const setDeviceId = useSetDeviceId();
 
     const location = useLocation();
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
-        deviceId: posType || location.state?.ownerId,
+        deviceId: deviceId || location.state?.ownerId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
@@ -67,20 +69,20 @@ const ProgramDevice: React.FC = () => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
 
-        if (newFilterData.deviceId) setPosType(newFilterData.deviceId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
+        if(newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
     }, [filterError]);
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
     const deviceProgram: DeviceProgram[] = filter?.map((item: DeviceProgram) => {
         return item;
-    }).sort((a, b) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || [];
+    }).sort((a: { dateBegin: string | number | Date; }, b: { dateBegin: string | number | Date; }) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || [];
 
     const deviceData: DeviceMonitoring[] = data?.map((item: DeviceMonitoring) => {
         return item;
@@ -101,7 +103,7 @@ const ProgramDevice: React.FC = () => {
                 isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
                     :
                     deviceProgram.length > 0 ? (
-                        <div className="mt-8">
+                        <div className="mt-8 overflow-hidden">
                             <OverflowTable
                                 tableData={deviceProgram}
                                 columns={columnsProgramDevice}

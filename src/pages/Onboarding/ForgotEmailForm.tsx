@@ -36,7 +36,7 @@ const ForgotEmailForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgo
         }) 
       );
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log("Form data:", data);
         try {
             const result = await trigger();

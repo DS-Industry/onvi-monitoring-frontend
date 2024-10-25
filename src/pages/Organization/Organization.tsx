@@ -6,53 +6,39 @@ import { useButtonCreate } from "@/components/context/useContext.tsx";
 import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import Button from "@ui/Button/Button.tsx";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getOrganization, postUpdateOrganization } from "@/services/api/organization/index.ts";
 import DropdownInput from "@ui/Input/DropdownInput.tsx";
 import Input from "@ui/Input/Input.tsx";
 import MultilineInput from "@ui/Input/MultilineInput.tsx";
 import useFormHook from "@/hooks/useFormHook.ts";
 import useSWRMutation from "swr/mutation";
-import { createUserOrganization } from "@/services/api/platform/index.ts";
-import { useUser } from "@/hooks/useUserStore.ts";
+import { createUserOrganization } from "@/services/api/organization/index.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
 import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 
-interface Organization {
-    rateVat: string;
-    inn: string;
-    okpo: string;
-    kpp: string;
-    ogrn: string;
-    bik: string;
-    correspondentAccount: string;
-    bank: string;
-    settlementAccount: string;
-    addressBank: string;
-    certificateNumber: string;
-    dateCertificate: string;
+type OrganizationResponse = {
     id: number;
     name: string;
     slug: string;
     address: string;
     organizationStatus: string;
     organizationType: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
     ownerId: number;
 }
 
 const Organization: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const user = useUser();
-    const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization(user.id));
+    const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization());
     const [isEditMode, setIsEditMode] = useState(false);
-    const [editOrgId, setEditOrgId] = useState<number | null>(null);
-    const [searchTerm, setSearchTerm] = useState(''); // State for search input
-    const organizations: Organization[] = data
-        ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
-        .map((item: any) => item)
+    const [editOrgId, setEditOrgId] = useState<number>(0);
+    const [searchTerm, setSearchTerm] = useState(''); 
+    const organizations: OrganizationResponse[] = data
+        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+        .map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
 
     const defaultValues = {
@@ -96,7 +82,6 @@ const Organization: React.FC = () => {
     const { trigger: updateOrganization } = useSWRMutation('user/organization', async () => postUpdateOrganization({
         organizationId: editOrgId,
         fullName: formData.fullName,
-        organizationType: formData.organizationType,
         rateVat: formData.rateVat,
         inn: formData.inn,
         okpo: formData.okpo,
@@ -110,37 +95,38 @@ const Organization: React.FC = () => {
         addressBank: formData.addressBank,
     }))
 
-    const handleInputChange = (field: any, value: string) => {
+    type FieldType = "fullName" | "organizationType" | "rateVat" | "inn" | "okpo" | "kpp" | "addressRegistration" | "ogrn" | "bik" | "correspondentAccount" | "bank" | "settlementAccount" | "addressBank" | "certificateNumber" | "dateCertificate";
+
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setValue(field, value); // Update react-hook-form's internal value
+        setValue(field, value); 
     };
 
     const handleUpdate = (id: number) => {
-        setEditOrgId(id); // Set the ID of the organization to be updated
-        setIsEditMode(true); // Enable edit mode
-        setButtonOn(true); // Open the drawer
+        setEditOrgId(id); 
+        setIsEditMode(true);
+        setButtonOn(true); 
         console.log(id);
         console.log(isEditMode);
-        // Find the organization by ID and set it to formData
         const orgToEdit = organizations.find((org) => org.id === id);
         console.log(orgToEdit);
         if (orgToEdit) {
             setFormData({
                 fullName: orgToEdit.name,
                 organizationType: orgToEdit.organizationType,
-                rateVat: orgToEdit.rateVat,
-                inn: orgToEdit.inn,
-                okpo: orgToEdit.okpo,
-                kpp: orgToEdit.kpp,
+                rateVat: formData.rateVat,
+                inn: formData.inn,
+                okpo: formData.okpo,
+                kpp: formData.kpp,
                 addressRegistration: orgToEdit.address,
-                ogrn: orgToEdit.ogrn,
-                bik: orgToEdit.bik,
-                correspondentAccount: orgToEdit.correspondentAccount,
-                bank: orgToEdit.bank,
-                settlementAccount: orgToEdit.settlementAccount,
-                addressBank: orgToEdit.addressBank,
-                certificateNumber: orgToEdit.certificateNumber,
-                dateCertificate: orgToEdit.dateCertificate,
+                ogrn: formData.ogrn,
+                bik: formData.bik,
+                correspondentAccount: formData.correspondentAccount,
+                bank: formData.bank,
+                settlementAccount: formData.settlementAccount,
+                addressBank: formData.addressBank,
+                certificateNumber: formData.certificateNumber,
+                dateCertificate: formData.dateCertificate,
             });
         }
     };
@@ -150,11 +136,11 @@ const Organization: React.FC = () => {
         setFormData(defaultValues);
         setIsEditMode(false);
         reset();
-        setEditOrgId(null);
-        setButtonOn(false); // Close the Drawer
+        setEditOrgId(0);
+        setButtonOn(false); 
     };
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log('Form data:', data);
         // Handle form submission logic here
         try {
@@ -163,6 +149,7 @@ const Organization: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
+                    mutate([`get-org`]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -171,6 +158,7 @@ const Organization: React.FC = () => {
                 const result = await createOrganization();
                 if (result) {
                     console.log(result);
+                    mutate([`get-org`]);
                 } else {
                     throw new Error('Invalid org data. Please try again.');
                 }
@@ -368,7 +356,6 @@ const Organization: React.FC = () => {
                                     isDisplayEdit={true}
                                     isUpdate={true}
                                     onUpdate={handleUpdate}
-                                    isLoading={loadingOrg}
                                 />
                             </div>
                         </>

@@ -17,6 +17,7 @@ import { Can } from "@/permissions/Can";
 import useAuthStore from '@/config/store/authSlice';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   children: React.ReactNode;
@@ -29,7 +30,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
-
+  const {t} = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const user = useUser();
@@ -113,7 +114,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                             }
                           >
                             {item.icon && <item.icon className={`${isOpen && "mr-2"}`} /> }
-                            {isOpen && <span>{item.name}</span>}
+                            {isOpen && <span>{t(`routes.${item.name}`)}</span>}
                             {item.subMenu && isOpen && (
                               <ArrowRight className="ml-auto" />
                             )}
@@ -141,7 +142,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                             : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02`
                                         }
                                       >
-                                        {subItem.name}
+                                        {t(`routes.${subItem.name}`)}
                                       </NavLink>
                                     )
                                   }
@@ -195,7 +196,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </button>
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{activePageName}</span>
+                  <span className="text-3xl font-normal text-text01">{t(`routes.${activePageName}`)}</span>
                   <QuestionmarkIcon className="text-2xl ms-2" />
                 </div>
                 {activePage?.filter && (

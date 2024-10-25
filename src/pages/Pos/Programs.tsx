@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getPrograms } from "@/services/api/monitoring";
+import { getPrograms } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
@@ -9,24 +9,26 @@ import { getPos } from "@/services/api/pos";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
 
 interface FilterDepositPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: string;
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
 }
 
 interface ProgramInfo {
-    id: number;
-    name: string;
-    status: string;
+    programName: string;
+    counter: number;
+    totalTime: number;
+    averageTime: string;
+    lastOper: Date;
 }
 
 interface PosPrograms {
     id: number;
     name: string;
-    programsInfo: ProgramInfo[];  
+    programsInfo: ProgramInfo[];
 }
 
 interface PosMonitoring {
@@ -75,11 +77,11 @@ const Programs: React.FC = () => {
 
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
     const posPrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;

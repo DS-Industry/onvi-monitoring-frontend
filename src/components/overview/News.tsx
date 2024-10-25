@@ -3,8 +3,7 @@ import Toast from "@ui/Toast";
 import Notification from "@ui/Notification";
 import FactoryLetterS from "@/assets/Factory Letter S.svg?react";
 import Attention from "@/assets/attention.svg?react";
-import Close from "@icons/close.svg?react";
-import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
+import { useTranslation } from "react-i18next";
 
 interface NewsItem {
   id: number;
@@ -13,14 +12,16 @@ interface NewsItem {
 }
 
 const initialNews: NewsItem[] = [
-  { id: 1, title: "Акция", text: "Успейте приобрести новый шампунь по низкой цене" },
-  { id: 2, title: "Новое оборудование", text: "Разработана новая PRO версия робота для мойки автомобилей" },
-  { id: 3, title: "Лояльность", text: "Добавлен новый раздел ONVIBusiness - лояльность. Успей попробовать" },
+  { id: 1, title: "promotion", text: "promotionText" },
+  { id: 2, title: "newEquipment", text: "newEquipmentText" },
+  { id: 3, title: "loyalty", text: "loyaltyText" },
 ];
 
 const News: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [news, setNews] = useState<NewsItem[]>(initialNews);
+
+  const { t } = useTranslation();
 
   const handleClose = (id: number) => {
     setNews(news.filter((item) => item.id !== id));
@@ -30,20 +31,20 @@ const News: React.FC = () => {
     <>
       {notificationVisible && (
         <Notification
-          title="Ваши новости"
-          message="В данном разделе будут отображаться главные новости и события вашей автомойки"
+          title={t("news.notification")}
+          message={t("news.notificationText")}
           onClose={() => setNotificationVisible(false)}
         />
       )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
-          <p className="text-sm text-text02 font-semibold">Осталось 264 дня</p>
+          <p className="text-sm text-text02 font-semibold">{t("news.daysLeft")}</p>
           <p className="font-semibold text-2xl">
-            Вы используете тариф «Максимальный»
+            {t("news.maximumTariff")}
           </p>
           <div className="relative flex">
-            <p className="mt-2">Здесь храниться актуальная информация про ваш тариф</p>
+            <p className="mt-2">{t("news.upToDate")}</p>
             <FactoryLetterS className="ml-auto" />
           </div>
 
@@ -55,12 +56,12 @@ const News: React.FC = () => {
         </div>
 
         <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
-          <p className="text-sm text-text02 font-semibold">Критический остаток</p>
+          <p className="text-sm text-text02 font-semibold">{t("news.critical")}</p>
           <p className="font-semibold text-2xl">
-            Химия
+            {t("news.chemistry")}
           </p>
           <div className="relative flex">
-            <p className="mt-2">Пополните запасы химии на объекте!</p>
+            <p className="mt-2">{t("news.chemistryText")}</p>
             <Attention className="ml-auto" />
           </div>
         </div>
@@ -72,11 +73,11 @@ const News: React.FC = () => {
             bgColor="background05"
             onClose={handleClose}
           >
-            <div className="font-semibold">{item.title}</div>
-            <div>{item.text}</div>
+            <div className="font-semibold">{t(`news.${item.title}`)}</div>
+            <div>{t(`news.${item.text}`)}</div>
           </Toast>
         ))}
-      </div>  
+      </div>
     </>
   );
 };

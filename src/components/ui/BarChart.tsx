@@ -8,25 +8,37 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { useTranslation } from 'react-i18next';
 
 ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
-const BarChart = ({ data: orgRatingData }) => {
+type OrgRatingDataItem = {
+  posName: string;
+  sum: number | 0;
+};
+
+interface BarChartProps {
+  data: OrgRatingDataItem[];
+}
+
+const BarChart = ({ data: orgRatingData }: BarChartProps) => {
   // Преобразуем массив объектов в данные для графика
-  const labels = orgRatingData.map(item => item.posName);
-  const datasetData = orgRatingData.map(item => item.sum);
+  const { t } = useTranslation();
+  const labels = orgRatingData.map((item: { posName: string; }) => item.posName);
+  const datasetData = orgRatingData.map((item: { sum: number; }) => item.sum);
 
   const data = {
     labels,
     datasets: [
       {
+        label: t("indicators.rev"),
         data: datasetData,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
@@ -71,9 +83,9 @@ const BarChart = ({ data: orgRatingData }) => {
   };
 
   return (
-      <div className="w-80 md:w-full h-96">
-        <Bar data={data} options={options} />
-      </div>
+    <div className="w-80 md:w-full h-96">
+      <Bar data={data} options={options} />
+    </div>
   );
 };
 

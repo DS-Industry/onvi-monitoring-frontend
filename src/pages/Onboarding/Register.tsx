@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-// import { loginPlatformUser } from '../../services/api/platform';
-// import useSWRMutation from 'swr/mutation';
-// import { useSetUser, useClearUserData } from '../../hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
-// import SearchInput from '@ui/Input/SearchInput';
-// import DropdownInput from '@ui/Input/DropdownInput';
-// import MultilineInput from '@ui/Input/MultilineInput';
-// import useAuthStore from '@/config/store/authSlice';
-// import useFormHook from '@/hooks/useFormHook';
-import { ArrowLeft } from 'feather-icons-react';
-import ToggleSwitch from '@/assets/Toggle.png';
+import ArrowLeft  from 'feather-icons-react';
 import RegisterImage from '@/assets/RegisterImage.svg';
 import PostRegisterImage from '@/assets/PostRegisterImage.svg';
 import OTPImage from '@/assets/OTPImage.svg';
@@ -36,10 +27,9 @@ const Register: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background02 p-4">
       <div className="grid lg:grid-cols-2 gap-4 w-full lg:w-[80%] p-8 lg:p-0 rounded-lg">
 
-        {/* Form Section */}
         <div className="p-8 lg:w-full">
           <div className='flex text-primary02 mb-5'>
-            <ArrowLeft />
+            <ArrowLeft icon={'arrow-left'} />
             <p>Назад</p>
           </div>
           <div className='flex mb-5'>
@@ -67,7 +57,6 @@ const Register: React.FC = () => {
 
         </div>
 
-        {/* Image Section */}
         <div className="p-8 hidden lg:flex fixed right-0 top-0 h-screen w-[50%] justify-center items-center">
           <div className="p-8">
             {count === 0 && <img src={RegisterImage} alt="Rocket illustration" key={"register-image-1"} className="object-contain max-w-full max-h-full" />}

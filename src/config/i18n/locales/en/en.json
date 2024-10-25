@@ -1,7 +1,58 @@
 {
-  "greeting": "Hello world",
-  "home": {
-    "title": "<2>Welcome to <1>{{company}}</1>.</2>",
-    "description": "<1>{{company}}</1> is a software tool that helps you monitor and optimize your operations in the loyalty program."
+  "routes": {
+    "dashboard": "Dashboard",
+    "administration": "Administration",
+    "subscriptions": "Subscriptions",
+    "accessRights": "Access Rights",
+    "legalEntities": "Legal Entitites",
+    "station": "Station",
+    "objectManagement": "Object Management",
+    "services": "Services",
+    "deposits": "Deposits",
+    "depositDevices": "Deposit Devices",
+    "depositDevice": "Deposit Device",
+    "programs": "Programs",
+    "programDevices": "Program Devices",
+    "programDevice": "Program Device",
+    "planAct": "Plan/Act",
+    "cleaning": "Cleaning",
+    "simpleBoxes": "Simple Boxes",
+    "hr": "Hr",
+    "finance": "Finance",
+    "analysis": "Analysis",
+    "marketing": "Marketing",
+    "equipment": "Equipment",
+    "store": "Store",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "news": "News",
+    "indicators": "Indicators",
+    "rating": "Rating of Car Washes"
+  },
+  "news": {
+    "promotion": "Promotion",
+    "promotionText": "Hurry up to buy new shampoo at a low price",
+    "newEquipment": "New Equipment",
+    "newEquipmentText": "A new PRO version of the robot for car washing has been developed",
+    "loyalty": "Loyalty",
+    "loyaltyText": "Added a new section ONVIBusiness - loyalty. Have time to try",
+    "notification": "Your News",
+    "notificationText": "This section will display the main news and events of your car wash",
+    "daysLeft": "264 Days Left",
+    "maximumTariff": "You are using the «Maximum tariff»",
+    "upToDate": "Up-to-date information about your tariff is stored here.",
+    "critical": "Critical remainder",
+    "chemistry": "Chemistry",
+    "chemistryText": "Replenish chemical supplies at the site!"
+  },
+  "indicators": {
+    "visitors": "Total visitors",
+    "profit": "Profit",
+    "downtime": "Total downtime",
+    "notification": "Indicators",
+    "notificationText": "This section will display the main indicators of car washes per day",
+    "revenue": "Revenue Chart",
+    "rev": "Revenue"
   }
 }

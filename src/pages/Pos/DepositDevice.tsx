@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getDepositDevice } from "@/services/api/monitoring";
+import { getDepositDevice } from "@/services/api/pos";
 import {
     columnsMonitoringDevice,
 } from "@/utils/OverFlowTableData.tsx";
@@ -11,31 +11,45 @@ import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
 
-interface DeviceMonitoring {
-    props: any;
-    id: number;
-    dateOper: string;  
-    deviceName: string;
-    status: string;
+type DeviceMonitoring = {
+    props: {
+        id: number;
+        name: string;
+        carWashDeviceMetadata: string;
+        status: string;
+        ipAddress: string;
+        carWashDeviceTypeId: string;
+        carWashPosId: number;
+        deviceRoleId: number;
+    }
 }
 
-interface FilterDepositDevice {
-    dateStart: string;   
-    dateEnd: string;     
-    posId: string;       
-    deviceId?: number;   
+type FilterDepositDevice = {
+    dateStart: Date;
+    dateEnd: Date;
+    deviceId?: number;
+}
+
+type DepositDeviceResponse = {
+    id: number;
+    sumOper: number;
+    dateOper: Date;
+    dateLoad: Date;
+    counter: number;
+    localId: number;
+    currencyType: string;
 }
 
 const DepositDevice: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
-    const posType = usePosType();
+    const deviceId = useDeviceId();
     const startDate = useStartDate();
     const endDate = useEndDate();
-    const setPosType = useSetPosType();
+    const setDeviceId = useSetDeviceId();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
 
@@ -44,7 +58,7 @@ const DepositDevice: React.FC = () => {
     const initialFilter = {
         dateStart: startDate || `2024-10-01 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId,
+        deviceId: deviceId || location.state?.ownerId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
@@ -61,9 +75,9 @@ const DepositDevice: React.FC = () => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
 
-        if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
+        if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
@@ -71,11 +85,11 @@ const DepositDevice: React.FC = () => {
 
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
-    const deviceMonitoring: DeviceMonitoring[] = filter?.map((item: DeviceMonitoring) => {
+    const deviceMonitoring: DepositDeviceResponse[] = filter?.map((item: DepositDeviceResponse) => {
         return item;
-    }).sort((a, b) => new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()) || [];
+    }).sort((a: { dateOper: Date; }, b: { dateOper: Date; }) => new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()) || [];
 
     const deviceData: DeviceMonitoring[] = data?.map((item: DeviceMonitoring) => {
         return item;

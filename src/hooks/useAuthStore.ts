@@ -25,6 +25,10 @@ export const useEndDate = () => {
   return useAuthStore((state) => state.endDate);
 }
 
+export const useDeviceId = () => {
+  return useAuthStore((state) => state.deviceId);
+}
+
 export const useSetPosType = () => {
   return useAuthStore((state) => state.setPosType);
 }
@@ -32,6 +36,11 @@ export const useSetPosType = () => {
 export const useSetStartDate = () => {
   return useAuthStore((state) => state.setStartDate);
 }
+
 export const useSetEndDate = () => {
   return useAuthStore((state) => state.setEndDate);
+}
+
+export const useSetDeviceId = () => {
+  return useAuthStore((state) => state.setDeviceId);
 }

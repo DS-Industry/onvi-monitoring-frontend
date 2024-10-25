@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { getDepositPos } from "@/services/api/monitoring";
+import { getDepositPos } from "@/services/api/pos";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
@@ -12,24 +12,61 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
 
 interface FilterDepositPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: string;
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
 }
 
 interface DevicesMonitoring {
     id: number;
     name: string;
-    status: string;
-    date: string;
-    amount: number;
+    city: string;
+    counter: number;
+    cashSum: number;
+    virtualSum: number;
+    yandexSum: number;
+    mobileSum: number;
+    cardSum: number;
+    lastOper: Date;
+    discountSum: number;
+    cashbackSumCard: number;
+    cashbackSumMub: number;
 }
 
 interface PosMonitoring {
     id: number;
     name: string;
-    address: string;
+    slug: string;
+    monthlyPlan: number;
+    timeWork: string;
+    organizationId: number;
+    posMetaData: string;
+    timezone: number;
+    image: string;
+    rating: number;
     status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById: number;
+    updatedById: number;
+    address:
+    {
+        id: number;
+        city: string;
+        location: string;
+        lat: number;
+        lon: number;
+    };
+    posType:
+    {
+        id: number;
+        name: string;
+        slug: string;
+        carWashPosType: string;
+        minSumOrder: number;
+        maxSumOrder: number;
+        stepSumOrder: number;
+    };
 }
 
 const DepositDevices: React.FC = () => {
@@ -86,11 +123,11 @@ const DepositDevices: React.FC = () => {
 
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter]);
+    }, [dataFilter, filterMutate]);
 
     const devicesMonitoring: DevicesMonitoring[] = filter?.map((item: DevicesMonitoring) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;

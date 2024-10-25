@@ -44,11 +44,11 @@ const FilterMonitoring: React.FC<Props> = ({
     const setStartDateInStore = useSetStartDate();
     const setEndDateInStore = useSetEndDate();
 
-    const handleStartDateChange = (combinedDateTime: string) => {
+    const handleStartDateChange = (combinedDateTime: Date) => {
         setStartDate(combinedDateTime);
     };
 
-    const handleEndDateChange = (combinedDateTime: string) => {
+    const handleEndDateChange = (combinedDateTime: Date) => {
         setEndDate(combinedDateTime);
     };
 
@@ -125,14 +125,14 @@ const FilterMonitoring: React.FC<Props> = ({
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
-                        setStartDate(`${formattedDate} 00:00`);
-                        setEndDate(`${formattedDate} 23:59`);
-                        setPosId('');
+                        setStartDate(new Date(`${formattedDate} 00:00`));
+                        setEndDate(new Date(`${formattedDate} 23:59`));
+                        setPosId(0);
                         setOrganizationId('');
                         setDeviceId('');
-                        setPosType(''); 
-                        setStartDateInStore(`${formattedDate} 00:00`); 
-                        setEndDateInStore(`${formattedDate} 23:59`);
+                        setPosType(0); 
+                        setStartDateInStore(new Date(`${formattedDate} 00:00`)); 
+                        setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setButtonOn(!buttonOn);
                     }}
                 />

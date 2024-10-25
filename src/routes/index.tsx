@@ -30,7 +30,7 @@ import Dashboard from "@/pages/Dashboard/Dashboard";
 
 const routes = [
     {
-        name: "Обзор",
+        name: "dashboard",
         link: "/",
         subMenu: false,
         filter: false,
@@ -41,7 +41,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Администрирование",
+        name: "administration",
         link: "/administration",
         subMenu: true,
         filter: false,
@@ -51,14 +51,14 @@ const routes = [
         component: Default,
         permissions: [],
         subNav: [
-          { name: "Подписки", filter: false, addButton: false, isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [], isSidebar: true },
-          { name: "Права доступа", filter: false, addButton: false, isVisible: true, path: "/administration/accessRights", component: Default, permissions: [], isSidebar: true },
-          { name: "Юридические лица", filter: true, addButton: true, isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [], isSidebar: true },
+          { name: "subscriptions", filter: false, addButton: false, isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [], isSidebar: true },
+          { name: "accessRights", filter: false, addButton: false, isVisible: true, path: "/administration/accessRights", component: Default, permissions: [], isSidebar: true },
+          { name: "legalEntities", filter: true, addButton: true, isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [], isSidebar: true },
         ],
         isSidebar: true
       },
       {
-        name: "Станция",
+        name: "station",
         link: "/station",
         subMenu: true,
         filter: true,
@@ -67,23 +67,23 @@ const routes = [
         subNavHeading: "Справочники",
         permissions: [],
         subNav: [
-          { name: "Управление объектами", filter: true, addButton: true, isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [], isSidebar: true },
-          { name: "Услуги", filter: true, addButton: false, isVisible: false, path: "/station/services", component: Default, permissions: [], isSidebar: true },
-          { name: "Зачисления", filter: true, addButton: false, isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [], isSidebar: true },
-          { name: "Депозитные устройства", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [], isSidebar: false },
-          { name: "Депозитное устройство", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [], isSidebar: false },
-          { name: "Программы", filter: true, addButton: false, isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [], isSidebar: true },
-          { name: "Программные устройства", filter: true, addButton: false, isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [], isSidebar: false },
-          { name: "Программы устройство", filter: true, addButton: false, isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [], isSidebar: false },
-          { name: "План/Факт", filter: true, addButton: false, isVisible: true, path: "/station/plan/act", component: Default, permissions: [], isSidebar: true },
-          { name: "Уборка", filter: true, addButton: false, isVisible: false, path: "/station/cleaning", component: Default, permissions: [], isSidebar: true },
-          { name: "Простой боксов", filter: true, addButton: false, isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [], isSidebar: true },
+          { name: "objectManagement", filter: true, addButton: true, isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [], isSidebar: true },
+          { name: "services", filter: true, addButton: false, isVisible: false, path: "/station/services", component: Default, permissions: [], isSidebar: true },
+          { name: "deposits", filter: true, addButton: false, isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [], isSidebar: true },
+          { name: "depositDevices", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [], isSidebar: false },
+          { name: "depositDevice", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [], isSidebar: false },
+          { name: "programs", filter: true, addButton: false, isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [], isSidebar: true },
+          { name: "programDevices", filter: true, addButton: false, isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [], isSidebar: false },
+          { name: "programDevice", filter: true, addButton: false, isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [], isSidebar: false },
+          { name: "planAct", filter: true, addButton: false, isVisible: true, path: "/station/plan/act", component: Default, permissions: [], isSidebar: true },
+          { name: "cleaning", filter: true, addButton: false, isVisible: false, path: "/station/cleaning", component: Default, permissions: [], isSidebar: true },
+          { name: "simpleBoxes", filter: true, addButton: false, isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [], isSidebar: true },
         ],
         component: Default,
         isSidebar: true
       },
       {
-        name: "Hr",
+        name: "hr",
         link: "/Hr",
         subMenu: false,
         filter: false,
@@ -94,7 +94,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Финансы",
+        name: "finance",
         link: "/finance",
         subMenu: false,
         filter: false,
@@ -105,7 +105,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Анализ",
+        name: "analysis",
         link: "/analysis",
         subMenu: false,
         filter: false,
@@ -116,7 +116,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Маркетинг",
+        name: "marketing",
         link: "/marketing",
         subMenu: false,
         filter: false,
@@ -127,7 +127,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Оборудование",
+        name: "equipment",
         link: "/equipment",
         subMenu: false,
         filter: false,
@@ -138,7 +138,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Склад",
+        name: "store",
         link: "/store",
         subMenu: false,
         filter: false,
@@ -176,7 +176,7 @@ const routes = [
         permissions: []
       },
       {
-        name: "Профиль",
+        name: "profile",
         link: "/profile",
         subMenu: false,
         component: ProfileForm,

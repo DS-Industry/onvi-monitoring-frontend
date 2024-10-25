@@ -61,7 +61,7 @@ const ForgotOTPForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgotO
         })
     );
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log(data);
         try {
             const result = await trigger();
