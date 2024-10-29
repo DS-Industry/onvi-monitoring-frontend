@@ -5,6 +5,7 @@ import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { updateUserPassword } from '@/services/api/platform';
 import { useNavigate } from 'react-router-dom';
+import { useSetUser } from '@/hooks/useUserStore';
 
 export const ServicesTab: React.FC = () => {
 
@@ -16,18 +17,19 @@ export const ServicesTab: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // Use custom form hook
   const { register, handleSubmit, errors, setValue } = useFormHook(defaultValues);
 
 
   const [formData, setFormData] = useState(defaultValues);
   const [passwordError, setPasswordError] = useState(false);
   const [errorPasswordMessage, setErrorPasswordMessage] = useState('');
+  const setUser = useSetUser(); 
 
-  // Handle input change for controlled inputs
-  const handleInputChange = (field: any, value: string) => {
+  type FieldType = "password" | "newPassword" | "confirmPassword";
+
+  const handleInputChange = (field: FieldType, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value); // Update the internal state of react-hook-form
+    setValue(field, value); 
   };
 
 
@@ -36,14 +38,13 @@ export const ServicesTab: React.FC = () => {
     newPassword: formData.confirmPassword
   }))
 
-  // Handle form submission
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     console.log('Form data:', data);
-    // Handle form submission logic here
     try {
       const result = await passwordUpdate();
       if(result) {
         console.log(result);
+        setUser({ user: result?.props })
         setPasswordError(false);
         setErrorPasswordMessage('');
         navigate('/');

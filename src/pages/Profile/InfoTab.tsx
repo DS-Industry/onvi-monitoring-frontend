@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Input from '@ui/Input/Input';
-import MultilineInput from '@ui/Input/MultilineInput';
-import DropdownInput from '@ui/Input/DropdownInput';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useUser } from '@/hooks/useUserStore';
-import { updateUserProfile, uploadUserAvatar } from '@/services/api/platform';
+import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 
 
 const InfoTab: React.FC = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const initials = 'CE'; // Replace this with dynamic initials logic
   const user = useUser();
   const setUser = useSetUser();
 
-  // Memoize default values to avoid unnecessary recalculations
   const defaultValues = useMemo(
     () => ({
       name: user.name || '',
@@ -29,31 +26,20 @@ const InfoTab: React.FC = () => {
     [user]
   );
 
-  // Initialize controlled values for each input
   const [formData, setFormData] = useState(defaultValues);
 
+  const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-  // Destructure form methods from useFormHook
-  const { register, handleSubmit, errors, reset, setValue } = useFormHook(formData);
-
-  // Options for DropdownInput
-  const options = [
-    { value: 'Мойщик', name: 'Мойщик' },
-    { value: 'Другая должность', name: 'Другая должность' }
-  ];
-
-  const { trigger } = useSWRMutation(
-    `user/avatar`,
-    async () => {
-      // Create FormData only when a file is selected
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        formData.append('id', user.id.toString())
-        // Call the upload API with FormData
-        return await uploadUserAvatar(formData);
-      }
-    });
+  // const { trigger } = useSWRMutation(
+  //   `user/avatar`,
+  //   async () => {
+  //     if (selectedFile) {
+  //       const formData = new FormData();
+  //       formData.append('file', selectedFile);
+  //       formData.append('id', user.id.toString())
+  //       return await uploadUserAvatar(formData);
+  //     }
+  //   });
 
   const { trigger: updateUser, isMutating } = useSWRMutation('user', async () => updateUserProfile({
     name: formData.name,
@@ -64,18 +50,16 @@ const InfoTab: React.FC = () => {
   }));
 
 
-  // Set the initial form values and avatar preview
   useEffect(() => {
-    const storedAvatarUrl = localStorage.getItem('avatarUrl'); // Get the URL from local storage
+    const storedAvatarUrl = localStorage.getItem('avatarUrl'); 
     if (storedAvatarUrl) {
-      setImagePreview(storedAvatarUrl); // Set as image preview if available
+      setImagePreview(storedAvatarUrl); 
     }
   }, []);
 
-  // Handle file input change for profile image
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    setSelectedFile(file);
+    // setSelectedFile(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -88,33 +72,25 @@ const InfoTab: React.FC = () => {
   };
   type FieldName = 'name' | 'email' | 'phone' | 'middlename' | 'surname';
 
-  // Handle input change
   const handleInputChange = (field: FieldName, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value); // Update react-hook-form's internal value
+    setValue(field, value); 
   };
 
-  // const handleDropdownChange = (value: string) => {
-  //   handleInputChange('position', value); // Update local state
-  //   setValue('position', value); // Update react-hook-form's internal value
-  // };
-
-
-  // Form submission handler
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     console.log('Form Data:', data);
     try {
-      const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
+      // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
 
-      const [avatarResult, updatedData] = await Promise.all([uploadAvatar, updateUserData]);
+      const [updatedData] = await Promise.all([updateUserData]);
 
-      if (avatarResult) {
-        const avatarUrl = avatarResult; // Assuming result contains the URL
-        setImagePreview(avatarUrl);
-        localStorage.setItem('avatarUrl', avatarUrl); // Save the URL in local storage
-        console.log('Uploaded file:', selectedFile);
-      }
+      // if (avatarResult) {
+      //   const avatarUrl = avatarResult; 
+      //   setImagePreview(avatarUrl);
+      //   localStorage.setItem('avatarUrl', avatarUrl);
+      //   console.log('Uploaded file:', selectedFile);
+      // }
 
       if (updatedData) {
         console.log('User profile updated:', updatedData);
@@ -130,12 +106,9 @@ const InfoTab: React.FC = () => {
 
   return (
     <div className="max-w-6xl mr-auto">
-      {/* Main form container */}
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
-          {/* Form fields */}
           <div className="space-y-6">
-            {/* Name */}
             <div>
               <Input
                 type="text"
@@ -181,25 +154,6 @@ const InfoTab: React.FC = () => {
                 helperText={errors.surname?.message}
               />
             </div>
-            {/* Position */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700">Должность</label>
-              <DropdownInput
-                label="Select an option..."
-                value={formData.position}
-                onChange={handleDropdownChange}
-                options={options}
-                isDisabled={false}
-                isLoading={false}
-                isMultiSelect={false}
-                isEmptyState={false}
-                showMoreButton={false}
-                isSelectable={true}
-              />
-              {errors.position && <span className="text-red-600">{errors.position.message}</span>}
-            </div> */}
-
-            {/* Phone */}
             <div>
               <Input
                 type="text"
@@ -215,8 +169,6 @@ const InfoTab: React.FC = () => {
                 helperText={errors.phone?.message}
               />
             </div>
-
-            {/* Email */}
             <div className='flex'>
               <div>
                 <Input
@@ -246,8 +198,6 @@ const InfoTab: React.FC = () => {
               <div className='ml-2 text-text02 text-base'>Согласен на получение уведомлений по e-mail</div>
             </div>
           </div>
-
-          {/* Avatar Section */}
           <div className="flex flex-col mt-10">
             <div>Фото</div>
             <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
@@ -276,7 +226,6 @@ const InfoTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Save Button */}
         <div className="flex">
           <Button form={true} title="Сохранить изменнния" classname='mt-10' isLoading={isMutating} />
         </div>

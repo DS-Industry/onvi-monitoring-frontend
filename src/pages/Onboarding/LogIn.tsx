@@ -10,7 +10,7 @@ import Input from '@ui/Input/Input';
 import useAuthStore from '@/config/store/authSlice';
 import useFormHook from '@/hooks/useFormHook';
 import LoginImage from '@/assets/LoginImage.svg';
-import { ArrowLeft } from 'feather-icons-react';
+import ArrowLeft from 'feather-icons-react';
 import OnviBlue from '@/assets/onvi_blue.png';
 
 const LogIn: React.FC = () => {
@@ -64,7 +64,7 @@ const LogIn: React.FC = () => {
     setValue(field, value); // Update react-hook-form's internal value
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: { loginEmail: string, loginPassword: string }) => {
 
     // Simple validation
     if (!data.loginEmail) setEmailError(true);
@@ -91,13 +91,13 @@ const LogIn: React.FC = () => {
       clearData();
     }
   };
-  
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8 lg:ml-40">
           <div className='flex text-primary02 mb-5'>
-            <ArrowLeft />
+            <ArrowLeft icon={'arrow-left'} />
             <p>Назад</p>
           </div>
           <div className='flex mb-5'>

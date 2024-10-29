@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import Indicators from "./overview/Indicators";
 import News from "./overview/News";
 import RatingOfCarWases from "./overview/RatingOfCarWases";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "./LanguageSelector";
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
+  const {t} = useTranslation();
 
-  const tabs = ["Новости", "Статистика", "Рейтинг АМС"];
+  const tabs = [t("dashboard.news"), t("dashboard.indicators"), t("dashboard.rating")];
 
   return (
     <div className="py-5">
@@ -30,6 +33,7 @@ const TabComponent: React.FC = () => {
         {activeTab === 1 && <Indicators />}
         {activeTab === 2 && <RatingOfCarWases />}
       </div>
+      <LanguageSelector />
     </div>
   );
 };

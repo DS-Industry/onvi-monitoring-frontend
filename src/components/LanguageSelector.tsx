@@ -1,36 +1,35 @@
 import { useTranslation } from "react-i18next";
+import DropdownInput from "./ui/Input/DropdownInput";
+import { useState } from "react";
 
-const lenguages: { code: string; lang: string }[] = [
+const languages: { value: string; name: string }[] = [
   {
-    code: "en",
-    lang: "English",
+    value: "en",
+    name: "English",
   },
   {
-    code: "ru",
-    lang: "Russian",
+    value: "ru",
+    name: "Russian",
   },
-  // Add more languages here...
 ];
 
 const LanguageSelector: React.FC = () => {
   const { i18n } = useTranslation();
-  
-  const handleLanguageChange = (code: string) => {
-    i18n.changeLanguage(code);
+  const [lang, setLang] = useState("en");
+
+  const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
+    setLang(value);
   };
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {lenguages.map(({ code, lang }) => (
-        <button
-          className={`bg-blue-500 hover:bg-blue-700 ${
-            code === i18n.language && "bg-blue-950"
-          } text-white font-bold py-2 px-4 rounded-full`}
-          key={code}
-          onClick={() => handleLanguageChange(code)}
-        >
-          {lang}
-        </button>
-      ))}
+    <div>
+      <DropdownInput
+        value={lang}
+        options={languages}
+        onChange={handleLanguageChange}
+        classname="w-40 mb-20 mt-5"
+        isSelectable={true}
+      />
     </div>
   );
 };

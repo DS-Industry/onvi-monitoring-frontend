@@ -31,7 +31,7 @@ const PostRegisterForm: React.FC = () => {
                 <Input
                     type="text"
                     title='Наименование Юридического лица'
-                    classname="mb-5"
+                    classname="mb-5" changeValue={() => { }}
                 // value={formData.loginEmail}
                 // changeValue={(e) => handleInputChange('loginEmail', e.target.value)}
                 // error={!!errors.loginEmail || !!emailError}
@@ -47,7 +47,7 @@ const PostRegisterForm: React.FC = () => {
                 <Input
                     type="text"
                     title='Наименование Бренда'
-                    classname="mb-5"
+                    classname="mb-5" changeValue={() => { }}
                 // value={formData.loginPassword}
                 // changeValue={(e) => handleInputChange('loginPassword', e.target.value)}
                 // error={!!errors.loginPassword || !!passwordError}
@@ -60,7 +60,7 @@ const PostRegisterForm: React.FC = () => {
                 <Input
                     type="text"
                     title='Адрес мойки'
-                    classname="mb-12"
+                    classname="mb-12" changeValue={() => { }}
                 // value={formData.loginPassword}
                 // changeValue={(e) => handleInputChange('loginPassword', e.target.value)}
                 // error={!!errors.loginPassword || !!passwordError}

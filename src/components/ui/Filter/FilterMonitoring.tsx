@@ -3,6 +3,7 @@ import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore.ts";
 
 type Optional = {
     name: string;
@@ -27,21 +28,27 @@ const FilterMonitoring: React.FC<Props> = ({
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
+    const posType = usePosType();
+    const storeStartDate = useStartDate();
+    const storeEndDate = useEndDate();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { filterOpen, setFilterOpen } = useFilterOpen();
+    const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
-    const [startDate, setStartDate] = useState(`${formattedDate} 00:00`);
-    const [endDate, setEndDate] = useState(`${formattedDate} 23:59`);
+    const [startDate, setStartDate] = useState(storeStartDate);
+    const [endDate, setEndDate] = useState(storeEndDate);
     const [organizationId, setOrganizationId] = useState('');
-    const [posId, setPosId] = useState('');
+    const [posId, setPosId] = useState(posType);
     const [deviceId, setDeviceId] = useState('');
 
+    const setPosType = useSetPosType();
+    const setStartDateInStore = useSetStartDate();
+    const setEndDateInStore = useSetEndDate();
 
-    const handleStartDateChange = (combinedDateTime: string) => {
+    const handleStartDateChange = (combinedDateTime: Date) => {
         setStartDate(combinedDateTime);
     };
 
-    const handleEndDateChange = (combinedDateTime: string) => {
+    const handleEndDateChange = (combinedDateTime: Date) => {
         setEndDate(combinedDateTime);
     };
 
@@ -118,11 +125,14 @@ const FilterMonitoring: React.FC<Props> = ({
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
-                        setStartDate(`${formattedDate} 00:00`);
-                        setEndDate(`${formattedDate} 23:59`);
-                        setPosId('');
+                        setStartDate(new Date(`${formattedDate} 00:00`));
+                        setEndDate(new Date(`${formattedDate} 23:59`));
+                        setPosId(0);
                         setOrganizationId('');
                         setDeviceId('');
+                        setPosType(0); 
+                        setStartDateInStore(new Date(`${formattedDate} 00:00`)); 
+                        setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setButtonOn(!buttonOn);
                     }}
                 />

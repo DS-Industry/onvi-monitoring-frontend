@@ -9,7 +9,7 @@ import TableSettings from "./TableSettings.tsx";
 interface TableColumn {
   label: string;
   key: string;
-  type?: "date" | "string" | "number"
+  type?: "date" | "string" | "number" | string;
 }
 
 type Props = {

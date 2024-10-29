@@ -1,20 +1,36 @@
 import React, { useEffect, useState } from "react";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
-import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/Saly-45.svg?react";
 import useSWR from "swr";
-import { getDeposit } from "@/services/api/pos";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import { getPos } from "@/services/api/pos";
+import { getDepositPos } from "@/services/api/pos";
+import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
+import OverflowTable from "@ui/Table/OverflowTable.tsx";
+import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
+import { getPos } from "@/services/api/pos";
+import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
+import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
 
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
     posId: number;
+}
+
+interface DevicesMonitoring {
+    id: number;
+    name: string;
+    city: string;
+    counter: number;
+    cashSum: number;
+    virtualSum: number;
+    yandexSum: number;
+    mobileSum: number;
+    cardSum: number;
+    lastOper: Date;
+    discountSum: number;
+    cashbackSumCard: number;
+    cashbackSumMub: number;
 }
 
 interface PosMonitoring {
@@ -53,25 +69,10 @@ interface PosMonitoring {
     };
 }
 
-interface DepositMonitoring {
-    id: number;
-    name: string;
-    city: string;
-    counter: number;
-    cashSum: number;
-    virtualSum: number;
-    yandexSum: number;
-    mobileSum: number;
-    cardSum: number;
-    lastOper: Date;
-    discountSum: number;
-    cashbackSumCard: number;
-    cashbackSumMub: number;
-}
-
-const Deposit: React.FC = () => {
+const DepositDevices: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
+
     const location = useLocation();
 
     const posType = usePosType();
@@ -82,28 +83,39 @@ const Deposit: React.FC = () => {
     const setEndDate = useSetEndDate();
 
     const [isTableLoading, setIsTableLoading] = useState(false);
+    
     const initialFilter = {
-        dateStart: startDate || `2024-10-01 00:00`,
+        dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
+    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
+        [`get-pos-deposits-pos-${dataFilter.posId}`], 
+        () => getDepositPos({
+            dateStart: dataFilter.dateStart,
+            dateEnd: dataFilter.dateEnd,
+            posId: dataFilter?.posId,
+        }), 
+        { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+    );
+
+    const { data, error } = useSWR(
+        [`get-pos`], 
+        () => getPos(1), 
+        { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+    );
+
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
 
-        if(newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
-
-    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit(dataFilter.posId ? dataFilter.posId : location.state.ownerId, {
-        dateStart: dataFilter?.dateStart,
-        dateEnd: dataFilter?.dateEnd
-    }));
-    const { data, error } = useSWR([`get-pos`], () => getPos(1))
 
     useEffect(() => {
         console.log(JSON.stringify(error, null, 2));
@@ -113,7 +125,7 @@ const Deposit: React.FC = () => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
 
-    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {
+    const devicesMonitoring: DevicesMonitoring[] = filter?.map((item: DevicesMonitoring) => {
         return item;
     }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
@@ -121,41 +133,41 @@ const Deposit: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = [
-        { name: 'Все объекты', value: '0' },
-        ...posData.map((item) => ({ name: item.name, value: item.id.toString() }))
-    ];
+    const posOptional: { name: string; value: string }[] = posData.map(
+        (item) => ({ name: item.name, value: item.id.toString() })
+    );
 
     return (
         <>
             <FilterMonitoring
-                count={posMonitoring.length}
+                count={devicesMonitoring.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            { isTableLoading || filterLoading ? (<TableSkeleton rowCount={5} columnCount={columnsMonitoringPos.length} />)
-                :
-                posMonitoring.length > 0 ? (
+            {
+                isTableLoading || filterLoading ? (
+                    <TableSkeleton columnCount={columnsMonitoringPos.length} />
+                ) : devicesMonitoring.length > 0 ? (
                     <div className="mt-8">
                         <OverflowTable
-                            tableData={posMonitoring}
+                            tableData={devicesMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
-                            nameUrl={"/station/enrollments/device"}
+                            nameUrl={"/station/enrollments/devices"}
                         />
                     </div>
                 ) : (
                     <>
                         <NoDataUI
-                            title="В этом разделе представленны операции"
-                            description="У вас пока нету операций"
+                            title="В этом разделе представлены операции, которые фиксируются купюроприемником"
+                            description="У вас пока нет операций с купюроприемником"
                         >
                             <SalyIamge className="mx-auto" />
                         </NoDataUI>
                     </>
                 )}
         </>
-    )
+    );
 }
 
-export default Deposit;
+export default DepositDevices;
