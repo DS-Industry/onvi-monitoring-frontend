@@ -10,8 +10,8 @@ import _ from "lodash";
  */
 const hasPermission = _.memoize(
   (
-    requiredPermissions: { object: string; action: string }[],
-    userPermissions: { object: string; action: string }[]
+    requiredPermissions: { subject: string; action: string }[],
+    userPermissions: { subject: string; action: string }[]
   ): boolean => {
     // If no permissions are required, return true
     if (requiredPermissions.length === 0) {
@@ -22,7 +22,7 @@ const hasPermission = _.memoize(
     return requiredPermissions.some((required) =>
       userPermissions.some(
         (userPermission) =>
-          userPermission.object === required.object &&
+          userPermission.subject === required.subject &&
           userPermission.action === required.action
       )
     );

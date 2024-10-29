@@ -6,8 +6,10 @@ import ForgotEmailForm from './ForgotEmailForm';
 import ForgotOTPForm from './ForgotOTPForm';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const ForgotPassword: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const [count, setCount] = useState(0);
@@ -26,11 +28,11 @@ const ForgotPassword: React.FC = () => {
                 <div className="lg:w-5/12 p-8 lg:ml-40">
                     <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleLoginNavigate}>
                         <ArrowLeft icon={'arrow-left'} />
-                        <p>Назад</p>
+                        <p>{t("login.back")}</p>
                     </div>
                     <div className='flex mb-5'>
                         <img src={OnviBlue} className='h-7 w-14' />
-                        <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">БИЗНЕС</div>
+                        <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
                     </div>
                     { count === 0 && <ForgotEmailForm count={count} setCount={setCount} forgotObj={forgotObj} setForgotObj={setForgotObj} /> }
                     { count === 1 && <ForgotOTPForm count={count} setCount={setCount} forgotObj={forgotObj} setForgotObj={setForgotObj} /> }

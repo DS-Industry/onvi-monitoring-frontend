@@ -44,3 +44,11 @@ export const useSetEndDate = () => {
 export const useSetDeviceId = () => {
   return useAuthStore((state) => state.setDeviceId);
 }
+
+export const usePermissions = () => {
+  return useAuthStore((state) => state.permissions);
+}
+
+export const useSetPermissions = () => {
+  return useAuthStore((state) => state.setPermissions);
+}

@@ -15,11 +15,13 @@ const languages: { value: string; name: string }[] = [
 
 const LanguageSelector: React.FC = () => {
   const { i18n } = useTranslation();
-  const [lang, setLang] = useState("en");
+  const langs = localStorage.getItem("language") ? localStorage.getItem("language") : "ru";
+  const [lang, setLang] = useState(langs);
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
     setLang(value);
+    localStorage.setItem("language", value);
   };
   return (
     <div>

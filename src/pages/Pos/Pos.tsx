@@ -17,6 +17,7 @@ import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import SearchInput from "@/components/ui/Input/SearchInput";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useTranslation } from "react-i18next";
 
 interface Pos {
     id: number;
@@ -55,6 +56,7 @@ interface Pos {
 }
 
 const Pos: React.FC = () => {
+    const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
     const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -179,16 +181,16 @@ const Pos: React.FC = () => {
                     ) : (<>
                         {notificationVisible && (
                             <Notification
-                                title="Наименование компании"
-                                message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
-                                link="Перейти в раздел Юридические лица >"
+                                title={t("pos.companyName")}
+                                message={t("pos.createObject")}
+                                link={t("pos.goto")}
                                 linkUrl="/administration/legalRights"
                                 onClose={() => setNotificationVisible(false)}
                             />
                         )}
                         <NoDataUI
-                            title="Пока не создан ни один объект"
-                            description="Добавьте автомойку"
+                            title={t("pos.noObject")}
+                            description={t("pos.addCar")}
                         >
                             <PosEmpty className="mx-auto" />
                         </NoDataUI>
@@ -199,20 +201,20 @@ const Pos: React.FC = () => {
             <DrawerCreate>
                 {notificationVisible && (
                     <Notification
-                        title="Юридическаое лицо"
-                        message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
-                        link="Перейти в раздел Юридические лица >"
+                        title={t("organizations.legalEntity")}
+                        message={t("pos.createObject")}
+                        link={t("pos.goto")}
                         linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
                 )}
 
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5">Создание объекта</span>
+                    <span className="font-semibold text-xl md:text-3xl mb-5">{t("pos.creating")}</span>
                     <Input
-                        title={"Наименование объекта"}
+                        title={t("pos.name")}
                         type={'text'}
-                        label={"Например, автомойка"}
+                        label={t("pos.example")}
                         classname="w-96"
                         {...register('name', { required: 'Name is required' })}
                         value={formData.name}
@@ -221,9 +223,9 @@ const Pos: React.FC = () => {
                         helperText={errors.name?.message}
                     />
                     <Input
-                        title={"Город"}
+                        title={t("pos.city")}
                         type={'text'}
-                        label={"Адрес автомойки"}
+                        label={t("pos.address")}
                         classname="w-96"
                         {...register('city', { required: 'City is required' })}
                         value={formData.city}
@@ -232,9 +234,9 @@ const Pos: React.FC = () => {
                         helperText={errors.city?.message}
                     />
                     <Input
-                        title={"Расположение"}
+                        title={t("pos.location")}
                         type={'text'}
-                        label={"Расположение"}
+                        label={t("pos.location")}
                         classname="w-96"
                         {...register('location', { required: 'Location is required' })}
                         value={formData.location}
@@ -243,7 +245,7 @@ const Pos: React.FC = () => {
                         helperText={errors.location?.message}
                     />
                     <Input
-                        title="Широта"
+                        title={t("pos.lat")}
                         type="number"
                         classname="w-48"
                         {...register('lat')}
@@ -251,7 +253,7 @@ const Pos: React.FC = () => {
                         changeValue={(e) => handleInputChange('lat', e.target.value)}
                     />
                     <Input
-                        title="Долгота"
+                        title={t("pos.lon")}
                         type="number"
                         classname="w-48"
                         {...register('lon')}
@@ -259,7 +261,7 @@ const Pos: React.FC = () => {
                         changeValue={(e) => handleInputChange('lon', e.target.value)}
                     />
                     <div>
-                        <label className="text-sm text-text02">Часы работы</label>
+                        <label className="text-sm text-text02">{t("pos.opening")}</label>
                         <div className="flex space-x-2">
                             <Input
                                 type="number"
@@ -283,11 +285,11 @@ const Pos: React.FC = () => {
                         </div>
                         <div className="flex mt-2">
                             <input type="checkbox" />
-                            <div className="text-text02 ml-2">Круглосуточно</div>
+                            <div className="text-text02 ml-2">{t("pos.clock")}</div>
                         </div>
                     </div>
                     <Input
-                        title={"Месячный план"}
+                        title={t("pos.monthly")}
                         type={'number'}
                         defaultValue={'0'}
                         classname="w-48"
@@ -298,8 +300,8 @@ const Pos: React.FC = () => {
                         helperText={errors.monthlyPlan?.message}
                     />
                     <DropdownInput
-                        title={"Компания"}
-                        label={"Наименование компании"}
+                        title={t("pos.company")}
+                        label={t("pos.companyName")}
                         options={[
                             { name: "LLC ONVI", value: 1 },
                             // { name: `ООО “Мой-Ка”`, value: 2 },
@@ -313,12 +315,12 @@ const Pos: React.FC = () => {
                         helperText={errors.organizationId?.message}
                     />
                     <DropdownInput
-                        title={"Тип автомойки"}
-                        label={"Мойка самообслуживания"}
+                        title={t("pos.type")}
+                        label={t("pos.self")}
                         options={[
                             { name: "МСО", value: "SelfService" },
-                            { name: "Робот  мойка", value: "Portal" },
-                            { name: "МСО + Робот  мойка", value: "SelfServiceAndPortal" }
+                            { name: t("pos.robot"), value: "Portal" },
+                            { name: `МСО + ${t("pos.robot")}`, value: "SelfServiceAndPortal" }
                         ]}
                         classname="w-96"
                         {...register('carWashPosType', { required: 'Pos Type is required' })}
@@ -328,7 +330,7 @@ const Pos: React.FC = () => {
                         helperText={errors.carWashPosType?.message}
                     />
                     <div>
-                        <label className="text-sm text-text02">Минимальный  шаг суммы заказа</label>
+                        <label className="text-sm text-text02">{t("pos.min")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -340,7 +342,7 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label className="text-sm text-text02">Минимальная сумма заказа</label>
+                        <label className="text-sm text-text02">{t("pos.minAmount")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -352,7 +354,7 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label className="text-sm text-text02">Максимальная сумма заказа</label>
+                        <label className="text-sm text-text02">{t("pos.maxAmount")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -364,24 +366,24 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <div>Фотографии</div>
-                        <div>Максимальный количество фотографий: 6</div>
+                        <div>{t("pos.photos")}</div>
+                        <div>{t("pos.maxNumber")}</div>
                         <Button
                             form={false}
                             iconPlus={true}
                             type="outline"
-                            title="Скачать"
+                            title={t("pos.download")}
                         />
                     </div>
                     <div className="flex justify-end space-x-4">
                         <Button
-                            title='Отменить'
+                            title={t("organizations.cancel")}
                             type='outline'
                             handleClick={() =>
                                 setButtonOn(!buttonOn)}
                         />
                         <Button
-                            title='Сохранить'
+                            title={t("organizations.save")}
                             form={true}
                             handleClick={() => { }}
                             isLoading={isMutating}

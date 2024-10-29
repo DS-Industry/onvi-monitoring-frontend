@@ -17,6 +17,7 @@ import { createUserOrganization } from "@/services/api/organization/index.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
 import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useTranslation } from "react-i18next";
 
 type OrganizationResponse = {
     id: number;
@@ -31,6 +32,7 @@ type OrganizationResponse = {
 }
 
 const Organization: React.FC = () => {
+    const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization());
     const [isEditMode, setIsEditMode] = useState(false);
@@ -178,10 +180,10 @@ const Organization: React.FC = () => {
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5">Новое юридическое лицо</span>
                     <DropdownInput
-                        title="Тип Юр. лица"
+                        title={t("organizations.typeLegal")}
                         options={[
-                            { name: "Юридическое лицо", value: "LegalEntity" },
-                            { name: "ИП", value: "IndividualEntrepreneur" }
+                            { name: t("organizations.legalEntity"), value: "LegalEntity" },
+                            { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
                         ]}
                         inputType="secondary"
                         classname="w-64"
@@ -192,11 +194,11 @@ const Organization: React.FC = () => {
                         helperText={errors.organizationType?.message}
                     />
                     <DropdownInput
-                        title="Ставка НДС"
-                        label="Выберите ставку"
+                        title={t("organizations.vatRate")}
+                        label={t("organizations.selectBet")}
                         type={"typeOrg"}
                         options={[
-                            { name: "Без НДС", value: "WithoutVAT" },
+                            { name: t("organizations.withoutVat"), value: "WithoutVAT" },
                             { name: "10%", value: "Vat10" },
                             { name: "18%", value: "Vat18" },
                             { name: "20%", value: "Vat20" }
@@ -209,9 +211,9 @@ const Organization: React.FC = () => {
                         error={!!errors.rateVat}
                         helperText={errors.rateVat?.message}
                     />
-                    <div className="text-sm text-text01 font-normal mb-4 uppercase">Юридические реквизиты</div>
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.legalDetails")}</div>
                     <Input
-                        title="ИНН"
+                        title={t("organizations.tin")}
                         type="text"
                         classname="w-96"
                         {...register('inn', { required: !isEditMode && 'Inn is required' })}
@@ -221,7 +223,7 @@ const Organization: React.FC = () => {
                         helperText={errors.inn?.message}
                     />
                     <Input
-                        title={"Полное наименование"}
+                        title={t("organizations.fullName")}
                         type={'text'}
                         classname="w-96"
                         {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
@@ -231,7 +233,7 @@ const Organization: React.FC = () => {
                         helperText={errors.fullName?.message}
                     />
                     <Input
-                        title="ОКПО"
+                        title={t("organizations.okpo")}
                         type="text"
                         classname="w-96"
                         {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
@@ -241,7 +243,7 @@ const Organization: React.FC = () => {
                         helperText={errors.okpo?.message}
                     />
                     <Input
-                        title="КПП"
+                        title={t("organizations.kpp")}
                         type="text"
                         classname="w-96"
                         {...register('kpp')}
@@ -249,7 +251,7 @@ const Organization: React.FC = () => {
                         changeValue={(e) => handleInputChange('kpp', e.target.value)}
                     />
                     <MultilineInput
-                        title="Адрес регистрации"
+                        title={t("organizations.address")}
                         classname="w-96"
                         {...register('addressRegistration', { required: !isEditMode && 'Registration Address is required' })}
                         value={formData.addressRegistration}
@@ -258,7 +260,7 @@ const Organization: React.FC = () => {
                         helperText={errors.addressRegistration?.message}
                     />
                     <Input
-                        title="ОГРН"
+                        title={t("organizations.ogrn")}
                         type="text"
                         classname="w-96"
                         {...register('ogrn', { required: !isEditMode && 'OGRN is required' })}
@@ -267,9 +269,9 @@ const Organization: React.FC = () => {
                         error={!!errors.ogrn}
                         helperText={errors.ogrn?.message}
                     />
-                    <div className="text-sm text-text01 font-normal mb-4 uppercase">Банковские реквизиты</div>
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.bankDetails")}</div>
                     <Input
-                        title="БИК"
+                        title={t("organizations.bik")}
                         type="text"
                         classname="w-96"
                         {...register('bik', { required: !isEditMode && 'BIK is required' })}
@@ -279,7 +281,7 @@ const Organization: React.FC = () => {
                         helperText={errors.bik?.message}
                     />
                     <Input
-                        title="Корр. счёт"
+                        title={t("organizations.corres")}
                         type="text"
                         classname="w-96"
                         {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
@@ -289,7 +291,7 @@ const Organization: React.FC = () => {
                         helperText={errors.correspondentAccount?.message}
                     />
                     <Input
-                        title="Банк"
+                        title={t("organizations.bank")}
                         type="text"
                         classname="w-96"
                         {...register('bank', { required: !isEditMode && 'Bank is required' })}
@@ -299,7 +301,7 @@ const Organization: React.FC = () => {
                         helperText={errors.bank?.message}
                     />
                     <Input
-                        title="Расчётный счёт"
+                        title={t("organizations.current")}
                         type="text"
                         classname="w-96"
                         {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
@@ -309,7 +311,7 @@ const Organization: React.FC = () => {
                         helperText={errors.settlementAccount?.message}
                     />
                     <MultilineInput
-                        title="Адрес"
+                        title={t("organizations.add")}
                         classname="w-96"
                         {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
                         value={formData.addressBank}
@@ -320,11 +322,11 @@ const Organization: React.FC = () => {
 
                     <div className="flex justify-end space-x-4">
                         <Button
-                            title='Отменить'
+                            title={t("organizations.cancel")}
                             type='outline'
                             handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
                         <Button
-                            title='Сохранить'
+                            title={t("organizations.save")}
                             form={true}
                             isLoading={isMutating}
                             handleClick={() => { }} />
@@ -361,8 +363,8 @@ const Organization: React.FC = () => {
                         </>
                     ) : (
                         <NoDataUI
-                            title="Не создано никаких юридических лиц"
-                            description="Добавить юридическое лицо"
+                            title={t("organizations.noLegal")}
+                            description={t("organizations.addLegal")}
                         >
                             <SalyIamge className="mx-auto" />
                         </NoDataUI>

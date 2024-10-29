@@ -5,19 +5,18 @@ import PrivateRoute from "@/routes/PrivateRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
 import { Can } from "@/permissions/Can";
-import useAuthStore from '@/config/store/authSlice';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { usePermissions } from "./hooks/useAuthStore";
 
 const App: React.FC = () => {
+  const permissions = usePermissions();
   const [userPermissions, setUserPermissions] = useState<
-    { object: string; action: string }[]
+    { subject: string; action: string }[]
   >([]);
 
-  const fetchedPermissions = useAuthStore((state) => state.permissions);
-
   useEffect(() => {
-    setUserPermissions(fetchedPermissions);
-  }, [fetchedPermissions]);
+    setUserPermissions(permissions);
+  }, [permissions]);
 
   return (
     <BrowserRouter>
@@ -35,39 +34,12 @@ const App: React.FC = () => {
         {/* Private Routes */}
         <Route element={<PrivateRoute element={<DashboardLayout />} />}>
           {routes.map((route) => {
-            const hasSubNav = route.subNav && route.subNav.length > 0;
-
             return (
               <Route
                 key={route.link}
                 path={route.link}
                 element={
-                  hasSubNav ? (
-                    <Can
-                      requiredPermissions={route.permissions || []}
-                      userPermissions={userPermissions}
-                    >
-                      {(allowed) =>
-                        allowed ? (
-                          // Check permissions for the first subNav item
-                          <Can
-                            requiredPermissions={route.subNav[0].permissions || []}
-                            userPermissions={userPermissions}
-                          >
-                            {(subNavAllowed) =>
-                              subNavAllowed ? (
-                                <Navigate to={route.subNav[0].path} replace />
-                              ) : (
-                                <Navigate to="/" replace />
-                              )
-                            }
-                          </Can>
-                        ) : (
-                          <Navigate to="/" replace />
-                        )
-                      }
-                    </Can>
-                  ) : (
+                  (
                     <Can
                       requiredPermissions={route.permissions || []}
                       userPermissions={userPermissions}

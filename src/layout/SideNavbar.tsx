@@ -14,10 +14,10 @@ import { useButtonCreate, useFilterOpen } from "@/components/context/useContext"
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
-import useAuthStore from '@/config/store/authSlice';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
+import { usePermissions } from "@/hooks/useAuthStore";
 
 type Props = {
   children: React.ReactNode;
@@ -35,8 +35,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const navigate = useNavigate();
   const user = useUser();
 
-  // Update user permissions as an array of objects
-  const userPermissions = useAuthStore((state) => state.permissions);
+  const userPermissions = usePermissions();
 
   const getActivePage = () => {
     for (const item of routes) {
@@ -122,7 +121,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                           {hoveredNavItem === item.name && item.subNav && (
                             <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
                               <div className="py-1 mx-4 text-text02 mb-3">
-                                {item.subNavHeading}
+                                {t(`routes.${item.subNavHeading}`)}
                               </div>
                               {item.subNav.map((subItem) => (
                                 subItem.isSidebar &&
@@ -206,7 +205,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
                       }`}
                   >
-                    Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {t("routes.filter")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
                   </button>
                 )}
               </div>
@@ -214,7 +213,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             {activePage?.addButton && (
               <div>
                 <Button
-                  title={"Добавить"}
+                  title={t("routes.add")}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />

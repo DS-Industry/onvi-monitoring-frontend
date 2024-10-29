@@ -6,9 +6,11 @@ import { useUser } from '@/hooks/useUserStore';
 import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
+import { useTranslation } from 'react-i18next';
 
 
 const InfoTab: React.FC = () => {
+  const { t } = useTranslation();
   // const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const initials = 'CE'; // Replace this with dynamic initials logic
@@ -112,8 +114,8 @@ const InfoTab: React.FC = () => {
             <div>
               <Input
                 type="text"
-                title='Имя *'
-                label="Имя *"
+                title={t("profile.name")}
+                label={t("profile.name")}
                 value={formData?.name}
                 changeValue={(e) => handleInputChange('name', e.target.value)}
                 {...register('name', { required: 'Имя is required' })}
@@ -127,8 +129,8 @@ const InfoTab: React.FC = () => {
             <div>
               <Input
                 type="text"
-                title='Фамилия'
-                label="Фамилия"
+                title={t("profile.middlename")}
+                label={t("profile.middlename")}
                 value={formData.middlename}
                 changeValue={(e) => handleInputChange('middlename', e.target.value)}
                 {...register('middlename')}
@@ -142,8 +144,8 @@ const InfoTab: React.FC = () => {
             <div>
               <Input
                 type="text"
-                title='Отчество'
-                label="Отчество"
+                title={t("profile.surname")}
+                label={t("profile.surname")}
                 value={formData.surname}
                 changeValue={(e) => handleInputChange('surname', e.target.value)}
                 {...register('surname', { required: 'Отчество is required' })}
@@ -157,8 +159,8 @@ const InfoTab: React.FC = () => {
             <div>
               <Input
                 type="text"
-                label="Телефон"
-                title='Телефон'
+                label={t("profile.telephone")}
+                title={t("profile.telephone")}
                 value={formData.phone}
                 changeValue={(e) => handleInputChange('phone', e.target.value)}
                 {...register('phone')}
@@ -191,15 +193,15 @@ const InfoTab: React.FC = () => {
                   helperText={errors.email?.message}
                 />
               </div>
-              <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>Изменить E-mail</div>
+              <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div>
             </div>
             <div className='flex'>
               <input type='checkbox' />
-              <div className='ml-2 text-text02 text-base'>Согласен на получение уведомлений по e-mail</div>
+              <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
             </div>
           </div>
           <div className="flex flex-col mt-10">
-            <div>Фото</div>
+            <div>{t("profile.photo")}</div>
             <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
               {imagePreview ? (
                 <img
@@ -213,7 +215,7 @@ const InfoTab: React.FC = () => {
             </div>
             <div className="mt-2">
               <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
-                Сменить фото
+                {t("profile.changePh")}
               </label>
               <input
                 id="file-upload"
@@ -227,7 +229,7 @@ const InfoTab: React.FC = () => {
         </div>
 
         <div className="flex">
-          <Button form={true} title="Сохранить изменнния" classname='mt-10' isLoading={isMutating} />
+          <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
         </div>
       </form>
     </div>
