@@ -81,8 +81,8 @@ const ForgotOTPForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgotO
 
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1 mt-16">{t('Введите код')}</p>
-            <p className="font-normal text-text01 text-base">Мы отправили его на E-mail</p>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1 mt-16">{t('register.enter')}</p>
+            <p className="font-normal text-text01 text-base">{t("register.otpEmail")}</p>
             <p className="font-normal text-text01 text-base mb-5">{forgotObj.email}</p>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex justify-center space-x-4 mt-10">
@@ -103,12 +103,12 @@ const ForgotOTPForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgotO
                     ))}
                 </div>
                 {isError && (
-                    <p className="text-errorFill text-center mt-2">Вы ввели неверный код</p>
+                    <p className="text-errorFill text-center mt-2">{t("register.wrong")}</p>
                 )}
                 
-                <Button type="basic" title={t('Далее')} form={true} classname='w-full' isLoading={isMutating} />
+                <Button type="basic" title={t('register.next')} form={true} classname='w-full' isLoading={isMutating} />
                 {isError && (
-                    <p className="text-primary02 text-center mt-2">Отправить код подтверждения  еще раз</p>
+                    <p className="text-primary02 text-center mt-2">{t("forgot.send")}</p>
                 )}
             </form>
         </div>

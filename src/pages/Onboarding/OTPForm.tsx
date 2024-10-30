@@ -6,7 +6,7 @@ import useSWRMutation from "swr/mutation";
 import { registerActivationUser } from "@/services/api/platform";
 import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import { useSetTokens } from '@/hooks/useAuthStore';
+import { useSetPermissions, useSetTokens } from '@/hooks/useAuthStore';
 
 type Props = {
     registerObj: { email: string };
@@ -21,6 +21,7 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
     const setUser = useSetUser();
     const clearData = useClearUserData();
     const setTokens = useSetTokens();
+    const setPermissions = useSetPermissions();
 
     const defaultValues = {
         confirmString: ''
@@ -68,11 +69,12 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
         console.log(data);
         try {
             const result = await trigger();
-            if (result && result.user && result.tokens) {
+            if (result && result.admin && result.tokens && result.permissionInfo) {
                 console.log(result);
-                const { user, tokens } = result;
-                setUser({ user: user?.props });
+                const { admin, tokens, permissionInfo } = result;
+                setUser({ user: admin?.props });
                 setTokens({ tokens });
+                setPermissions(permissionInfo.permissions)
                 navigate('/');
             } else {
                 setIsError(true);
@@ -86,8 +88,8 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
 
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1 mt-16">{t('Введите код')}</p>
-            <p className="font-normal text-text01 text-base">Мы отправили его на E-mail</p>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1 mt-16">{t('register.enter')}</p>
+            <p className="font-normal text-text01 text-base">{t("register.otpEmail")}</p>
             <p className="font-normal text-text01 text-base">{registerObj.email}</p>
 
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -103,16 +105,15 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
                                 onKeyDown={(e) => e.key === 'Backspace' && handleBackspace(index)}
                                 className={`w-8 h-12 text-center bg-background02 text-text01 border ${isError ? 'border-errorFill' : 'border-[#E4E5E7]'} rounded-lg text-2xl focus:outline-none`}
                             />
-                            {/* Render the dash after the third input */}
                             {index === 2 && <span className="text-2xl text-[#e4e5e7] font-semibold self-center">-</span>}
                         </React.Fragment>
                     ))}
                 </div>
                 {isError && (
-                    <p className="text-errorFill text-center mt-2">Вы ввели неверный код</p>
+                    <p className="text-errorFill text-center mt-2">{t("register.wrong")}</p>
                 )}
 
-                <Button type="basic" title={t('Зарегистрироваться')} form={true} classname='w-full' isLoading={isMutating} />
+                <Button type="basic" title={t('register.register')} form={true} classname='w-full' isLoading={isMutating} />
             </form>
         </div>
     );

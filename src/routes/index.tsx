@@ -45,15 +45,15 @@ const routes = [
         link: "/administration",
         subMenu: true,
         filter: false,
-        addButton: true,
+        addButton: false,
         icon: AdministrationIcon,
-        subNavHeading: "Справочники",
+        subNavHeading: "directories",
         component: Default,
-        permissions: [],
+        permissions: [{action: "manage", subject: "Organization"}],
         subNav: [
-          { name: "subscriptions", filter: false, addButton: false, isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [], isSidebar: true },
-          { name: "accessRights", filter: false, addButton: false, isVisible: true, path: "/administration/accessRights", component: Default, permissions: [], isSidebar: true },
-          { name: "legalEntities", filter: true, addButton: true, isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [], isSidebar: true },
+          { name: "subscriptions", filter: false, addButton: false, isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [{action: "manag", subject: "Organization"}], isSidebar: true },
+          { name: "accessRights", filter: false, addButton: false, isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{action: "manag", subject: "Organization"}], isSidebar: true },
+          { name: "legalEntities", filter: true, addButton: true, isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{action: "manage", subject: "Organization"}], isSidebar: true },
         ],
         isSidebar: true
       },
@@ -61,23 +61,23 @@ const routes = [
         name: "station",
         link: "/station",
         subMenu: true,
-        filter: true,
-        addButton: true,
+        filter: false,
+        addButton: false,
         icon: CarWashIcon,
-        subNavHeading: "Справочники",
-        permissions: [],
+        subNavHeading: "directories",
+        permissions: [{action: "manage", subject: "Pos"}],
         subNav: [
-          { name: "objectManagement", filter: true, addButton: true, isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [], isSidebar: true },
-          { name: "services", filter: true, addButton: false, isVisible: false, path: "/station/services", component: Default, permissions: [], isSidebar: true },
-          { name: "deposits", filter: true, addButton: false, isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [], isSidebar: true },
-          { name: "depositDevices", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [], isSidebar: false },
-          { name: "depositDevice", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [], isSidebar: false },
-          { name: "programs", filter: true, addButton: false, isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [], isSidebar: true },
-          { name: "programDevices", filter: true, addButton: false, isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [], isSidebar: false },
-          { name: "programDevice", filter: true, addButton: false, isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [], isSidebar: false },
-          { name: "planAct", filter: true, addButton: false, isVisible: true, path: "/station/plan/act", component: Default, permissions: [], isSidebar: true },
-          { name: "cleaning", filter: true, addButton: false, isVisible: false, path: "/station/cleaning", component: Default, permissions: [], isSidebar: true },
-          { name: "simpleBoxes", filter: true, addButton: false, isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [], isSidebar: true },
+          { name: "objectManagement", filter: true, addButton: true, isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [{action: "manage", subject: "Pos"}], isSidebar: true },
+          { name: "services", filter: true, addButton: false, isVisible: false, path: "/station/services", component: Default, permissions: [{action: "manag", subject: "Pos"}], isSidebar: true },
+          { name: "deposits", filter: true, addButton: false, isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [{action: "manage", subject: "Pos"}], isSidebar: true },
+          { name: "depositDevices", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [{action: "manage", subject: "Pos"}], isSidebar: false },
+          { name: "depositDevice", filter: true, addButton: false, isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [{action: "manage", subject: "Pos"}], isSidebar: false },
+          { name: "programs", filter: true, addButton: false, isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [{action: "manage", subject: "Pos"}], isSidebar: true },
+          { name: "programDevices", filter: true, addButton: false, isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [{action: "manage", subject: "Pos"}], isSidebar: false },
+          { name: "programDevice", filter: true, addButton: false, isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [{action: "manage", subject: "Pos"}], isSidebar: false },
+          { name: "planAct", filter: true, addButton: false, isVisible: true, path: "/station/plan/act", component: Default, permissions: [{action: "manag", subject: "Pos"}], isSidebar: true },
+          { name: "cleaning", filter: true, addButton: false, isVisible: false, path: "/station/cleaning", component: Default, permissions: [{action: "manag", subject: "Pos"}], isSidebar: true },
+          { name: "simpleBoxes", filter: true, addButton: false, isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [{action: "manag", subject: "Pos"}], isSidebar: true },
         ],
         component: Default,
         isSidebar: true
@@ -91,7 +91,7 @@ const routes = [
         icon: PersonnelIcon,
         component: Default,
         isSidebar: true,
-        permissions: []
+        permissions: [{action: "manage", subject: "HR"}]
       },
       {
         name: "finance",
@@ -102,7 +102,7 @@ const routes = [
         icon: FinancesIcon,
         component: Default,
         isSidebar: true,
-        permissions: []
+        permissions: [{action: "manage", subject: "Finance"}]
       },
       {
         name: "analysis",
@@ -113,7 +113,7 @@ const routes = [
         icon: MonitoringIcon,
         component: Default,
         isSidebar: true,
-        permissions: []
+        permissions: [{action: "manage", subject: "Analysis"}]
       },
       {
         name: "marketing",
@@ -124,7 +124,7 @@ const routes = [
         icon: LoyaltyIcon,
         component: Default,
         isSidebar: true,
-        permissions: []
+        permissions: [{action: "manage", subject: "Marketing"}]
       },
       {
         name: "equipment",
@@ -135,7 +135,7 @@ const routes = [
         icon: EquipmentIcon,
         component: Default,
         isSidebar: true,
-        permissions: []
+        permissions: [{action: "manage", subject: "Equipment"}]
       },
       {
         name: "store",

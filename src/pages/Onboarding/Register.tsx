@@ -30,28 +30,28 @@ const Register: React.FC = () => {
         <div className="p-8 lg:w-full">
           <div className='flex text-primary02 mb-5'>
             <ArrowLeft icon={'arrow-left'} />
-            <p>Назад</p>
+            <p>{t("login.back")}</p>
           </div>
           <div className='flex mb-5'>
             <img src={OnviBlue} className='h-7 w-14' />
-            <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">БИЗНЕС</div>
+            <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
           </div>
           {count === 0 && <RegisterForm count={count} setCount={setCount} registerObj={registerObj} setRegisterObj={setRegisterObj} />}
           {count === 1 && <OTPForm registerObj={registerObj} />}
           {count === 2 && <PostRegisterForm />}
           <p className="mt-6 text-center text-sm text-opacity01">
-            {t('Нажимая кнопку “Зарегестрироваться”, вы принимаете условия')}{' '}
+            {t('register.terms')}{' '}
           </p>
           <p className="text-center text-sm text-text01">
-            {t('Политики конфиденциальности')}
+            {t('register.privacy')}
           </p>
           <p className="mt-6 text-center text-sm text-opacity01">
-            {t('У вас есть учетной записи?')}{' '}
+            {t('register.do')}{' '}
             <span
               className="text-primary02 hover:text-primary02_Hover font-medium cursor-pointer"
               onClick={handleLoginNavigate}
             >
-              {t('Войти!')}
+              {t(`${t('login.login')}!`)}
             </span>
           </p>
 

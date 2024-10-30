@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { ServicesTab } from './ServicesTab';
 import InfoTab from './InfoTab';
-// Import other tab components as needed
+import { useTranslation } from 'react-i18next';
 
 const ProfileForm: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('info');
-  
 
-  // Array of tabs with names and corresponding components
   const tabs = [
-    { id: 'info', name: 'Основные данные', content: <InfoTab /> },
-    { id: 'services', name: 'Сменить пароль', content: <ServicesTab /> },
+    { id: 'info', name: t("profile.basic"), content: <InfoTab /> },
+    { id: 'services', name: t("profile.changePass"), content: <ServicesTab /> },
   ];
 
   return (
     <div className="max-w-5xl mx-auto bg-white">
-      {/* Navigation Tabs */}
       <div className="flex space-x-4 border-b mb-6 w-72">
         {tabs.map((tab) => (
           <button
@@ -27,18 +25,9 @@ const ProfileForm: React.FC = () => {
           </button>
         ))}
       </div>
-
-      {/* Main Information Section */}
-
-      {/* Profile Form Container */}
       <div className="flex space-x-10">
-        {/* Render the content of the active tab */}
         {tabs.find((tab) => tab.id === activeTab)?.content}
-
-        {/* Avatar Section (Visible only in InfoTab) */}
       </div>
-
-      {/* Save Button */}
     </div>
   );
 };

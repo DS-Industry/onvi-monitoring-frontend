@@ -51,6 +51,10 @@ type LOGINRESPONSE = {
         accessTokenExp: Date;
         refreshToken: string;
         refreshTokenExp: Date;
+    },
+    permissionInfo: {
+        permissions: Array<{subject: string; action: string;}>;
+        role: string;
     }
 }
 
@@ -82,7 +86,7 @@ type REGISTERACTIVATION = {
 }
 
 type REGISTERACTIVATIONRESPONSE = {
-    user: {
+    admin: {
         props: {
             id: number;
             userRoleId: number;
@@ -111,6 +115,10 @@ type REGISTERACTIVATIONRESPONSE = {
         accessTokenExp: Date;
         refreshToken: string;
         refreshTokenExp: Date;
+    },
+    permissionInfo: {
+        permissions: Array<{subject: string; action: string;}>;
+        role: string;
     }
 }
 

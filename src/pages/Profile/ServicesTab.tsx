@@ -6,9 +6,10 @@ import useSWRMutation from 'swr/mutation';
 import { updateUserPassword } from '@/services/api/platform';
 import { useNavigate } from 'react-router-dom';
 import { useSetUser } from '@/hooks/useUserStore';
+import { useTranslation } from 'react-i18next';
 
 export const ServicesTab: React.FC = () => {
-
+  const { t } = useTranslation();
   const defaultValues = {
       password: "",
       newPassword: "",
@@ -63,9 +64,9 @@ export const ServicesTab: React.FC = () => {
       <div>
         <Input
           type={'password'}
-          title='Текущий пароль'
+          title={t("profile.current")}
           value={formData.password}
-          label='Введите текущий пароль'
+          label={t("profile.enterCurrent")}
           changeValue={(e) => handleInputChange('password', e.target.value)}
           {...register('password', { required: 'пароль is required' })}
           disabled={false}
@@ -80,8 +81,8 @@ export const ServicesTab: React.FC = () => {
         <Input
           type={'password'}
           value={formData.newPassword}
-          title='Новый пароль'
-          label='Придумайте новый пароль'
+          title={t("profile.new")}
+          label={t("profile.createNew")}
           changeValue={(e) => handleInputChange('newPassword', e.target.value)}
           {...register('newPassword', { required: 'New password is required' })}
           disabled={false}
@@ -96,8 +97,8 @@ export const ServicesTab: React.FC = () => {
         <Input
           type={'password'}
           value={formData.confirmPassword}
-          title='Подтвердите пароль'
-          label='Подтвердите новый пароль'
+          title={t("profile.confirm")}
+          label={t("profile.confirmNew")}
           changeValue={(e) => handleInputChange('confirmPassword', e.target.value)}
           {...register('confirmPassword', {
             required: 'Confirmation is required',
@@ -113,7 +114,7 @@ export const ServicesTab: React.FC = () => {
       </div>
       
       <div className="flex">
-        <Button form={true} title="Изменить пароль" classname='mt-5' isLoading={isMutating} />
+        <Button form={true} title={t("profile.changePass")} classname='mt-5' isLoading={isMutating} />
       </div>
     </form>
   );

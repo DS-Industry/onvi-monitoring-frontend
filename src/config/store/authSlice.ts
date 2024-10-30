@@ -9,7 +9,7 @@ export interface Tokens {
 }
 
 type Permission = {
-  object: string;
+  subject: string;
   action: string;
 };
 interface AuthState {
