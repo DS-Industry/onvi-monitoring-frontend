@@ -107,7 +107,7 @@ const Pos: React.FC = () => {
         const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder','lat','lon'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
-        setValue(field, value); // Update react-hook-form's internal value
+        setValue(field, value); 
     };
 
     const handleTimeWorkChange = (field: string, value: number) => {
@@ -161,7 +161,7 @@ const Pos: React.FC = () => {
                                 <div className="flex">
                                     <SearchInput
                                         placeholder="Filter by name..."
-                                        classname="w-64 mr-5 mb-1"
+                                        classname="w-64 mr-5 mb-2"
                                         searchType="outlined"
                                         value={searchTerm}
                                         onChange={handleSearchChange}

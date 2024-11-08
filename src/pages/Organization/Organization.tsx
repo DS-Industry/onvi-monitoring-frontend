@@ -178,7 +178,7 @@ const Organization: React.FC = () => {
         <>
             <DrawerCreate>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5">Новое юридическое лицо</span>
+                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("organizations.new")}</span>
                     <DropdownInput
                         title={t("organizations.typeLegal")}
                         options={[
@@ -344,7 +344,7 @@ const Organization: React.FC = () => {
                                 <div className="flex">
                                     <SearchInput
                                         placeholder="Filter by name..."
-                                        classname="w-64 mr-5"
+                                        classname="w-64 mr-5 mb-2"
                                         searchType="outlined"
                                         value={searchTerm}
                                         onChange={handleSearchChange}

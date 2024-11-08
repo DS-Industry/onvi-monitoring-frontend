@@ -205,7 +205,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
                       }`}
                   >
-                    {t("routes.filter")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {filterOpen ? t("routes.filter") : t("routes.expand")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
                   </button>
                 )}
               </div>
@@ -213,7 +213,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             {activePage?.addButton && (
               <div>
                 <Button
-                  title={t("routes.add")}
+                  title={t(`routes.${activePage?.addButtonText}`)}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />
