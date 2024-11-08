@@ -7,11 +7,12 @@ interface ButtonCreateProviderProps {
 
 export const ButtonCreateContext = createContext({ buttonOn: false, setButtonOn: (buttonOn: boolean) => { } });
 export const FilterContext = createContext({ filterOpen: false, setFilterOpen: (filterOpen: boolean) => { } });
+export const FilterOpenContext = createContext({ filterOn: false, setFilterOn: (filterOn: boolean) => { } });
 
 export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
     const [buttonOn, setButtonOn] = useState(false);
     const [filterOpen, setFilterOpen] = useState(false);
-
+    const [filterOn, setFilterOn] = useState(false);
 
     const location = useLocation();
 
@@ -23,7 +24,9 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
     return (
         <ButtonCreateContext.Provider value={{ buttonOn, setButtonOn }}>
             <FilterContext.Provider value={{ filterOpen, setFilterOpen }}>
+                <FilterOpenContext.Provider value={{ filterOn, setFilterOn }}>
                     {children}
+                </FilterOpenContext.Provider>
             </FilterContext.Provider>
         </ButtonCreateContext.Provider>
     );

@@ -26,7 +26,10 @@
     "profile": "Profile",
     "add": "Add",
     "filter": "Collapse Filter",
-    "directories": "Directories"
+    "directories": "Directories",
+    "equipmentFailure": "Equipment Failures",
+    "fix": "Fix the breakdown",
+    "expand": "Expand filter"
   },
   "dashboard": {
     "news": "News",
@@ -81,7 +84,8 @@
     "noLegal": "No legal entities have been created",
     "addLegal": "Add a legal entity",
     "legalDetails": "Legal Details",
-    "bankDetails": "Bank Details"
+    "bankDetails": "Bank Details",
+    "new": "New Legal Entity"
   },
   "pos": {
     "companyName": "Company Name",
@@ -169,5 +173,26 @@
   "default": {
     "default": "Page under construction",
     "come": "Come back later"
+  },
+  "equipment": {
+    "nodata": "This section displays equipment breakdowns",
+    "noBreakdown": "At the moment you have no recorded breakdowns",
+    "break": "Breaking",
+    "carWash": "Car wash/ Branch *",
+    "employee": "Employee *",
+    "call": "Date of call *",
+    "start": "Start Date",
+    "end": "End Date",
+    "whole": "Whole Wash",
+    "device": "Device",
+    "knot": "Knot",
+    "name": "Name",
+    "cause": "Reasons",
+    "measures": "Solutions",
+    "simple": "Simple",
+    "yes": "Yes",
+    "no": "No",
+    "program": "Program",
+    "comment": "Comment"
   }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
+import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
@@ -7,7 +7,7 @@ import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, u
 
 type Optional = {
     name: string;
-    value: string;
+    value: any;
 }
 
 type Props = {
@@ -31,7 +31,8 @@ const FilterMonitoring: React.FC<Props> = ({
     const posType = usePosType();
     const storeStartDate = useStartDate();
     const storeEndDate = useEndDate();
-    const { buttonOn, setButtonOn } = useButtonCreate();
+    // const { buttonOn, setButtonOn } = useButtonCreate();
+    const { filterOn, setFilterOn } = useFilterOn();
     const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
     const [startDate, setStartDate] = useState(storeStartDate);
@@ -76,7 +77,7 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             deviceId: deviceId,
         });
-    }, [buttonOn]);
+    }, [filterOn]);
 
     return (
         <div
@@ -133,13 +134,13 @@ const FilterMonitoring: React.FC<Props> = ({
                         setPosType(0); 
                         setStartDateInStore(new Date(`${formattedDate} 00:00`)); 
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
-                        setButtonOn(!buttonOn);
+                        setFilterOn(!filterOn);
                     }}
                 />
                 <Button
                     title='Применить'
                     form={true}
-                    handleClick={() => setButtonOn(!buttonOn)}
+                    handleClick={() => setFilterOn(!filterOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
             </div>

@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {ButtonCreateContext, FilterContext} from "./Context.tsx";
+import {ButtonCreateContext, FilterContext, FilterOpenContext} from "./Context.tsx";
 
 export const useButtonCreate = () => {
     return useContext(ButtonCreateContext)
@@ -7,4 +7,8 @@ export const useButtonCreate = () => {
 
 export const useFilterOpen = () => {
     return useContext(FilterContext)
+}
+
+export const useFilterOn = () => {
+    return useContext(FilterOpenContext)
 }
