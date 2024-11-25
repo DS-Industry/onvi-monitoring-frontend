@@ -11,6 +11,13 @@ enum EQUIPMENT {
     GET_PROGRAMS = 'user/device/program/type'
 }
 
+enum TECHTASKS {
+    GET_TECH_TASKS = 'user/tech-task/manage',
+    CREATE_TECH_TASK = 'user/tech-task',
+    READ_TECH_TASKS = 'user/tech-task/read',
+    READ_TECH_TASK_ITEM = 'user/tech-task/item',
+}
+
 type IncidentParam = {
     dateStart: string;
     dateEnd: string;
@@ -183,6 +190,110 @@ type AllProgramsResponse = {
     }
 }
 
+type TechTasksResponse = {
+    id: number;
+    name: string;
+    posId: number;
+    type: string;
+    status: string;
+    period: string;
+    nextCreateDate?: Date;
+    startDate: Date;
+    items: {
+        id: number;
+        title: string;
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
+    createdById: number;
+    updatedById: number;
+}
+
+type TechTaskBody = {
+    name: string;
+    posId: number;
+    type: string;
+    period: string;
+    startDate: Date;
+    techTaskItem: number[];
+}
+
+type UpdateTechTaskBody = {
+    techTaskId: number;
+    name?: string;
+    type?: string;
+    status?: string;
+    period?: string;
+    techTaskItem?: number[];
+}
+
+type TechTaskResponse = {
+    props: {
+        id: number;
+        name: string;
+        posId: number;
+        type: string;
+        status: string;
+        period: string;
+        nextCreateDate?: Date;
+        startDate: Date;
+        startWorkDate?: Date;
+        sendWorkDate?: Date;
+        executorId?: number;
+        createdAt?: Date;
+        updatedAt?: Date;
+        createdById: number;
+        updatedById: number;
+    }
+}
+
+type ReadTechTasksResponse = {
+    id: number;
+    name: string;
+    posId: number;
+    type: string;
+    status: string;
+    startWorkDate?: Date;
+    sendWorkDate?: Date;
+    executorId?: number;
+}
+
+type TechTaskItemResponse = {
+    props: {
+        id: number;
+        title: string;
+        code?: string;
+        type: string;
+        group: string;
+    }
+}
+
+type TechTaskShapeResponse = {
+    id: number;
+    name: string;
+    posId: number;
+    type: string;
+    status: string;
+    startWorkDate?: Date;
+    sendWorkDate?: Date;
+    executorId?: number;
+    items: {
+        id: number;
+        title: string;
+        type: string;
+        group: string;
+        code: string;
+        value?: string;
+    }[];
+}
+
+type TechTaskShapeBody = {
+    valueData: {
+        itemValueId: number;
+        value: string;
+    }[]
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -236,5 +347,50 @@ export async function getIncidentEquipmentKnots(id: number): Promise<IncidentEqu
 export async function getPrograms(): Promise<AllProgramsResponse[]> {
     const response: AxiosResponse<AllProgramsResponse[]> = await api.get(EQUIPMENT.GET_PROGRAMS);
 
+    return response.data;
+}
+
+export async function getTechTasks(posId: number): Promise<TechTasksResponse[]> {
+    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS + `/${posId}`);
+
+    return response.data;
+}
+
+export async function createTechTask(body: TechTaskBody): Promise<TechTaskResponse> {
+    console.log(body);
+    const response: AxiosResponse<TechTaskResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTaskResponse> {
+    console.log(body);
+    const response: AxiosResponse<TechTaskResponse> = await api.patch(TECHTASKS.CREATE_TECH_TASK, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function readTechTasks(posId: number): Promise<ReadTechTasksResponse[]> {
+    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS + `/${posId}`);
+
+    return response.data;
+}
+
+export async function getTechTaskItem(): Promise<TechTaskItemResponse[]> {
+    const response: AxiosResponse<TechTaskItemResponse[]> = await api.get(TECHTASKS.READ_TECH_TASK_ITEM);
+
+    return response.data;
+}
+
+export async function getTechTaskShapeItem(id: number): Promise<TechTaskShapeResponse> {
+    const response: AxiosResponse<TechTaskShapeResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + `/${id}`);
+
+    return response.data;
+}
+
+export async function createTechTaskShape(id: number, body: TechTaskShapeBody): Promise<TechTaskResponse> {
+    console.log(body);
+    const response: AxiosResponse<TechTaskResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK + `/${id}`, body);
+    console.log(response.data);
     return response.data;
 }

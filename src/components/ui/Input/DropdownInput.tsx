@@ -56,7 +56,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
         }
     };
 
-    const handleSelectOption = (option: any) => {
+    const handleSelectOption = (option: Option) => {
         setSelectedOption(option);
         if (isMultiSelect) {
             const updatedValues = selectedValues.includes(option.value)
@@ -75,24 +75,29 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     const handleClearSelection = () => {
         setSelectedOption(null);
         if (onChange) {
-            onChange('');  
+            onChange('');
         }
-        setSelectedValues([]); 
+        setSelectedValues([]);
     };
 
     useEffect(() => {
         if (value === '') {
-            handleClearSelection();  
+            handleClearSelection();
         }
     }, [value]);
 
     useEffect(() => {
-        const matchedOption = options.find(option => option.value === value);
-        setSelectedOption(matchedOption || null);
-    }, [value, options]);
+        if (isMultiSelect && Array.isArray(value)) {
+            setSelectedValues(value);
+        } else if (!isMultiSelect) {
+            const matchedOption = options.find(option => option.value === value);
+            setSelectedOption(matchedOption || null);
+        }
+    }, [value, options, isMultiSelect]);
     
 
-    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" :(inputType == 'tertiary') ? "py-0" : "py-2"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : ( error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
+
+    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : (inputType == 'tertiary') ? "py-0" : "py-2"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -122,7 +127,16 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                     {label}
                 </label>
                 <input
-                    value={selectedOption ? selectedOption.name : ''}
+                    value={
+                        isMultiSelect
+                            ? options
+                                .filter(option => selectedValues.includes(option.value))
+                                .map(option => option.name)
+                                .join(', ')
+                            : selectedOption
+                                ? selectedOption.name
+                                : ''
+                    }
                     onClick={handleToggleDropdown} // Toggle dropdown when clicking the input
                     disabled={isDisabled}
                     className={`${className}`}
@@ -159,7 +173,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                             {options.map(option => (
                                 <li
                                     key={option.value}
-                                    className={`px-4 py-2 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between`}
+                                    className={`px-2 py-1 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between`}
                                     onClick={() => handleSelectOption(option)}
                                 >
                                     {isMultiSelect ? (

@@ -95,6 +95,10 @@ const OverflowTable: React.FC<Props> = ({
                               {row[column.key]}
                             </div>
                           </span>
+                        ) : column.key === 'status' ? (
+                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : "text-text01"}`}>
+                            {row[column.key]}
+                          </div>
                         ) : (
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                             {column.type === 'date' ? (

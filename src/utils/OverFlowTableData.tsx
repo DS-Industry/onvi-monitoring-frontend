@@ -494,3 +494,64 @@ export const columnsEquipmentFailure = [
   }
 ]
 
+export const columnsTechTasks = [
+  {
+    label: "Автомойка/ Филиал",
+    key: "posId"
+  },
+  {
+    label: "Наименование работ",
+    key: "name"
+  },
+  {
+    label: "Периодичность",
+    key: "period"
+  },
+  {
+    label: "Тип работы",
+    key: "type"
+  },
+  {
+    label: "Дата начала работ",
+    key: "startDate",
+    type: "date"
+  }
+]
+
+export const columnsTechTasksRead = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Автомойка/ Филиал",
+    key: "posId"
+  },
+  {
+    label: "Наименование работ",
+    key: "name"
+  },
+  {
+    label: "Периодичность",
+    key: "type"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Дата начала",
+    key: "startWorkDate",
+    type: "date"
+  },
+  {
+    label: "Дата окончания",
+    key: "sendWorkDate",
+    type: "date"
+  },
+  {
+    label: "Исполнитель",
+    key: "executorId"
+  }
+]
+

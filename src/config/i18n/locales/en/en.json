@@ -29,7 +29,19 @@
     "directories": "Directories",
     "equipmentFailure": "Equipment Failures",
     "fix": "Fix the breakdown",
-    "expand": "Expand filter"
+    "expand": "Expand filter",
+    "daily": "Daily options",
+    "chemical": "Chemical Consumption",
+    "routine": "Routine Work",
+    "consumption": "Consumption Rate",
+    "replacing": "Replacing Programs",
+    "dailyOptions": "Daily options technical services",
+    "report": "Create Report",
+    "create": "Create",
+    "list": "List of works",
+    "progress": "Implementation report",
+    "from": "From REPORTS",
+    "settings": "Settings"
   },
   "dashboard": {
     "news": "News",
@@ -194,5 +206,34 @@
     "no": "No",
     "program": "Program",
     "comment": "Comment"
+  },
+  "daily": {
+    "noText": "This section displays reports on daily parameters",
+    "create": "Create your first report"
+  },
+  "chemical": {
+    "noText": "This section displays chemical consumption reports",
+    "dont": "You don't have any reports at the moment"
+  },
+  "routine": {
+    "display": "This section displays routine maintenance",
+    "fields": "Fields marked",
+    "are": "are required",
+    "title": "Title of work",
+    "enter": "Enter the title of the work",
+    "frequency": "Frequency",
+    "checklist": "Checklist of tasks",
+    "add": "Add a task",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "task": "Task",
+    "enterTask": "Enter a task name",
+    "delete": "Delete task",
+    "type": "Type of work",
+    "routine": "Routine",
+    "regulation": "Regulation",
+    "reports": "This section displays routine maintenance reports",
+    "done": "Done"
   }
 }

@@ -70,14 +70,13 @@ const EquipmentFailure: React.FC = () => {
     const handleDataFilter = (newFilterData: Partial<FilterIncidentPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
-
         if(newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
     const { data, isLoading: incidentLoading, mutate: incidentMutate } = useSWR([`get-incident`], () => getIncident({
-        dateStart: dataFilter.dateStart.slice(0, 10),
-        dateEnd: dataFilter.dateEnd.slice(0, 10),
+        dateStart: dataFilter.dateStart,
+        dateEnd: dataFilter.dateEnd,
         posId: dataFilter.posId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
@@ -254,8 +253,8 @@ const EquipmentFailure: React.FC = () => {
                         classname="w-72"
                         {...register('posId', {
                             required: !isEditMode && 'Pos ID is required',
-                            // validate: (value) =>
-                            //     value == 0 && !isEditMode && "Pos ID is required"
+                            validate: (value) =>
+                                value == 0 && !isEditMode && "Pos ID is required"
                         })}
                         value={formData.posId}
                         onChange={(value) => handleInputChange('posId', value)}
@@ -269,8 +268,8 @@ const EquipmentFailure: React.FC = () => {
                         classname="w-72"
                         {...register('workerId', {
                             required: !isEditMode && 'Worker ID is required',
-                            // validate: (value) =>
-                            //     value === 0 && !isEditMode && "Worker ID is required"
+                            validate: (value) =>
+                                value === 0 && !isEditMode && "Worker ID is required"
                         })}
                         value={formData.workerId}
                         onChange={(value) => handleInputChange('workerId', value)}

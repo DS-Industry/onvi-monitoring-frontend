@@ -25,8 +25,8 @@ const App: React.FC = () => {
         {routes.map((route) =>
           route.isPublicRoute && (
             <Route
-              key={route.link}
-              path={route.link}
+              key={route.path}
+              path={route.path}
               element={<PublicRoute element={<route.component />} />}
             />
           )
@@ -36,8 +36,8 @@ const App: React.FC = () => {
           {routes.map((route) => {
             return (
               <Route
-                key={route.link}
-                path={route.link}
+                key={route.path}
+                path={route.path}
                 element={
                   (
                     <Can
@@ -74,6 +74,30 @@ const App: React.FC = () => {
                       {(allowed) =>
                         allowed ? (
                           <subRoute.component />
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  }
+                />
+              ))
+          )}
+          {routes.map(
+            (route) =>
+              route.subNav &&
+              route.subNav.map((subRoute) => subRoute.subNav && subRoute.subNav.map((subSubRoute) =>
+                <Route
+                  key={subSubRoute.path}
+                  path={subSubRoute.path}
+                  element={
+                    <Can
+                      requiredPermissions={subSubRoute.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <subSubRoute.component />
                         ) : (
                           <Navigate to="/" replace />
                         )
