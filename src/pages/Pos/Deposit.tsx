@@ -1,45 +1,121 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useState } from "react";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
-import {columnsDevice, columnsMonitoringPos} from "@/utils/OverFlowTableData.tsx";
+import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/Saly-46.svg?react";
-import useSWR, {useSWRConfig} from "swr";
-import {getDeposit} from "@/services/api/monitoring";
+import SalyIamge from "@/assets/Saly-45.svg?react";
+import useSWR from "swr";
+import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import {getPos} from "@/services/api/pos";
-import {useLocation} from "react-router-dom";
+import { getPos } from "@/services/api/pos";
+import { useLocation } from "react-router-dom";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
 
+interface FilterDepositPos {
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
+}
+
+interface PosMonitoring {
+    id: number;
+    name: string;
+    slug: string;
+    monthlyPlan: number;
+    timeWork: string;
+    organizationId: number;
+    posMetaData: string;
+    timezone: number;
+    image: string;
+    rating: number;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById: number;
+    updatedById: number;
+    address:
+    {
+        id: number;
+        city: string;
+        location: string;
+        lat: number;
+        lon: number;
+    };
+    posType:
+    {
+        id: number;
+        name: string;
+        slug: string;
+        carWashPosType: string;
+        minSumOrder: number;
+        maxSumOrder: number;
+        stepSumOrder: number;
+    };
+}
+
+interface DepositMonitoring {
+    id: number;
+    name: string;
+    city: string;
+    counter: number;
+    cashSum: number;
+    virtualSum: number;
+    yandexSum: number;
+    mobileSum: number;
+    cardSum: number;
+    lastOper: Date;
+    discountSum: number;
+    cashbackSumCard: number;
+    cashbackSumMub: number;
+}
 
 const Deposit: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
     const location = useLocation();
 
-    const [isData, setIsData] = useState(true);
+    const posType = usePosType();
+    const startDate = useStartDate();
+    const endDate = useEndDate();
+    const setPosType = useSetPosType();
+    const setStartDate = useSetStartDate();
+    const setEndDate = useSetEndDate();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59`});
+    const [isTableLoading, setIsTableLoading] = useState(false);
+    const initialFilter = {
+        dateStart: startDate || `2024-10-01 00:00`,
+        dateEnd: endDate || `${formattedDate} 23:59`,
+        posId: posType || location.state?.ownerId,
+    };
+
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
+
+        if(newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
+        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
 
-    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit(dataFilter.posId ? dataFilter.posId : location.state.ownerId,{
+    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit(dataFilter.posId ? dataFilter.posId : location.state.ownerId, {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+    const { data, error } = useSWR([`get-pos`], () => getPos(1))
 
     useEffect(() => {
         console.log(JSON.stringify(error, null, 2));
     }, [error]);
 
     useEffect(() => {
-        filterMutate();
-    }, [dataFilter]);
+        filterMutate().then(() => setIsTableLoading(false));
+    }, [dataFilter, filterMutate]);
 
-    const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
+    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;
@@ -52,30 +128,32 @@ const Deposit: React.FC = () => {
 
     return (
         <>
-                <FilterMonitoring
-                    count={posMonitoring.length}
-                    posesSelect={posOptional}
-                    handleDataFilter={handleDataFilter}
-                />
-            {isData ? (
-                <div className="mt-8">
-                    <OverflowTable
-                        tableData={posMonitoring}
-                        columns={columnsMonitoringPos}
-                        isDisplayEdit={true}
-                        nameUrl={"/station/enrollments/device"}
-                    />
-                </div>
-            ):(
-                <>
-                    <NoDataUI
-                        title="В этом разделе представленны операции"
-                        description="У вас пока нету операций"
-                    >
-                        <SalyIamge className="mx-auto" />
-                    </NoDataUI>
-                </>
-            )}
+            <FilterMonitoring
+                count={posMonitoring.length}
+                posesSelect={posOptional}
+                handleDataFilter={handleDataFilter}
+            />
+            { isTableLoading || filterLoading ? (<TableSkeleton rowCount={5} columnCount={columnsMonitoringPos.length} />)
+                :
+                posMonitoring.length > 0 ? (
+                    <div className="mt-8">
+                        <OverflowTable
+                            tableData={posMonitoring}
+                            columns={columnsMonitoringPos}
+                            isDisplayEdit={true}
+                            nameUrl={"/station/enrollments/device"}
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <NoDataUI
+                            title="В этом разделе представленны операции"
+                            description="У вас пока нету операций"
+                        >
+                            <SalyIamge className="mx-auto" />
+                        </NoDataUI>
+                    </>
+                )}
         </>
     )
 }

@@ -3,8 +3,8 @@ import hasPermission from "./hasPermission";
 
 interface CanProps {
   children: (allowed: boolean) => ReactNode;
-  requiredPermissions: { object: string; action: string }[];
-  userPermissions: { object: string; action: string }[];
+  requiredPermissions: { subject: string; action: string }[];
+  userPermissions: { subject: string; action: string }[];
 }
 
 const Can: React.FC<CanProps> = ({

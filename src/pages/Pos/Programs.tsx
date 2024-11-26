@@ -1,30 +1,74 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import {getDeposit, getPrograms} from "@/services/api/monitoring";
-import {columnsMonitoringPos, columnsProgramsPos} from "@/utils/OverFlowTableData.tsx";
+import { getPrograms } from "@/services/api/pos";
+import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import {getPos} from "@/services/api/pos";
+import { getPos } from "@/services/api/pos";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import { useLocation } from "react-router-dom";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+
+interface FilterDepositPos {
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
+}
+
+interface ProgramInfo {
+    programName: string;
+    counter: number;
+    totalTime: number;
+    averageTime: string;
+    lastOper: Date;
+}
+
+interface PosPrograms {
+    id: number;
+    name: string;
+    programsInfo: ProgramInfo[];
+}
+
+interface PosMonitoring {
+    id: number;
+    name: string;
+}
 
 const Programs: React.FC = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
     const location = useLocation();
+    const posType = usePosType();
+    const startDate = useStartDate();
+    const endDate = useEndDate();
+    const setPosType = useSetPosType();
+    const setStartDate = useSetStartDate();
+    const setEndDate = useSetEndDate();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>({dateStart: `01.01.2024 00:00`, dateEnd: `${formattedDate} 23:59`});
+    const [isTableLoading, setIsTableLoading] = useState(false);
+    const initialFilter = {
+        dateStart: startDate || `${formattedDate} 00:00`,
+        dateEnd: endDate || `${formattedDate} 23:59`,
+        posId: posType || location.state?.ownerId,
+    };
+    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
+
+        if (newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
+        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
 
-    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-programs'], () => getPrograms(dataFilter.posId ? dataFilter.posId : location.state?.ownerId,{
+    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-programs'], () => getPrograms(dataFilter.posId ? dataFilter.posId : location.state?.ownerId, {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd,
     }));
-    const { data, error, isLoading } = useSWR([`get-pos-7`], () => getPos(7))
+    const { data } = useSWR([`get-pos`], () => getPos(1))
 
 
     useEffect(() => {
@@ -32,12 +76,12 @@ const Programs: React.FC = () => {
     }, [filterErtot]);
 
     useEffect(() => {
-        filterMutate();
-    }, [dataFilter]);
+        filterMutate().then(() => setIsTableLoading(false));
+    }, [dataFilter, filterMutate]);
 
     const posPrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
         return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
     const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
         return item;
@@ -55,29 +99,32 @@ const Programs: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            {posPrograms.length > 0 ? (
-                <div className="mt-8">
-                    { posPrograms.map((posProgram) =>
-                        <OverflowTable
-                            title={posProgram.name}
-                            urlTitleId={posProgram.id}
-                            nameUrlTitle={"/station/programs/device"}
-                            tableData={posProgram.programsInfo}
-                            columns={columnsProgramsPos}
-                        />
-                    )
-                    }
-                </div>
-            ):(
-                <>
-                    <NoDataUI
-                        title="В этом разделе представленны программы"
-                        description="По данной выборке программ не обнаружено"
-                    >
-                        <SalyIamge className="mx-auto" />
-                    </NoDataUI>
-                </>
-            )}
+            {
+                isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsProgramsPos.length} />)
+                    :
+                    posPrograms.length > 0 ? (
+                        <div className="mt-8">
+                            {posPrograms.map((posProgram) =>
+                                <OverflowTable
+                                    title={posProgram.name}
+                                    urlTitleId={posProgram.id}
+                                    nameUrlTitle={"/station/programs/device"}
+                                    tableData={posProgram.programsInfo}
+                                    columns={columnsProgramsPos}
+                                />
+                            )
+                            }
+                        </div>
+                    ) : (
+                        <>
+                            <NoDataUI
+                                title="В этом разделе представленны программы"
+                                description="По данной выборке программ не обнаружено"
+                            >
+                                <SalyIamge className="mx-auto" />
+                            </NoDataUI>
+                        </>
+                    )}
         </>
     )
 }

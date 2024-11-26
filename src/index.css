@@ -2,15 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
+:root {
     color-scheme: light !important;
-} */
+}
 
 /* body {
     background-color: white; 
     color: black; 
   } */
 
-  input[type="date"]::-webkit-calendar-picker-indicator {
+ /* input[type="date"]::-webkit-calendar-picker-indicator {
     display: none;
-}
+} */

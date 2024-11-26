@@ -1,12 +1,14 @@
 import NoDataUI from "@ui/NoDataUI.tsx";
 import SalyIamge from "@/assets/Saly-11.svg?react";
+import { useTranslation } from "react-i18next";
 
 const Default = () => {
+  const { t } = useTranslation();
   return (
       <div >
           <NoDataUI
-              title="Страница в разработке"
-              description="Возвращайтесь позже"
+              title={t("default.default")}
+              description={t("default.come")}
           >
             <SalyIamge className="mx-16"/>
           </NoDataUI>

@@ -1,6 +1,6 @@
 import { DefaultValues, useForm, SubmitHandler } from 'react-hook-form';
 
-const useFormHook = <T extends Record<string, any>>(defaultValues?: DefaultValues<T>) => {
+const useFormHook = <T extends Record<string, unknown>>(defaultValues?: DefaultValues<T>) => {
   const {
     register,
     handleSubmit,
@@ -13,9 +13,6 @@ const useFormHook = <T extends Record<string, any>>(defaultValues?: DefaultValue
 
   const onSubmit: SubmitHandler<T> = (data) => {
     console.log('Form Data:', data);
-    if (data.file && data.file.length > 0) {
-      console.log('File uploaded:', data.file[0]);
-    }
     reset();
   };
 

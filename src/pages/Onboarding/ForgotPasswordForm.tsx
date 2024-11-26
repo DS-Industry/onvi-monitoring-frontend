@@ -26,7 +26,9 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-    const handleInputChange = (field: any, value: string) => {
+    type FieldType = "password" | "confirmPassword";
+
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
@@ -40,7 +42,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
         })
     );
     
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log(data);
         try {
             const result = await trigger();
@@ -60,12 +62,12 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
 
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mt-20 mb-1">Восстановление пароля</p>
-            <p className="font-normal text-text01 text-base mb-5">Пожалуйста, придумайте новый пароль, который будете знать только вы.</p>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mt-20 mb-1">{t("forgot.passwordRecovery")}</p>
+            <p className="font-normal text-text01 text-base mb-5">{t("forgot.please")}</p>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     type="password"
-                    title='Пароль'
+                    title={t("login.password")}
                     classname="mb-5"
                     value={formData.password}
                     changeValue={(e) => handleInputChange('password', e.target.value)}
@@ -78,7 +80,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
                 />
                 <Input
                     type="password"
-                    title='Подтвердите пароль'
+                    title={t("profile.confirm")}
                     classname="mb-5"
                     value={formData.confirmPassword}
                     changeValue={(e) => handleInputChange('confirmPassword', e.target.value)}
@@ -93,11 +95,11 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
                 />
                 <div className="flex items-center justify-between mb-10">
                     <label className="inline-flex items-center">
-                        <input type="checkbox" className="rounded text-primary02 border-gray-300 focus:ring-indigo-500" />
-                        <span className="ml-2 text-sm text-text02">{t('Запомнить меня')}</span>
+                        <input type="checkbox" className="rounded text-primary02 border-text02" />
+                        <span className="ml-2 text-sm text-text02">{t('login.remember')}</span>
                     </label>
                 </div>
-                <Button type="basic" title={t('Войти')} form={true} classname='w-full' isLoading={isMutating} />
+                <Button type="basic" title={t('login.login')} form={true} classname='w-full' isLoading={isMutating} />
             </form>
         </div>
     )

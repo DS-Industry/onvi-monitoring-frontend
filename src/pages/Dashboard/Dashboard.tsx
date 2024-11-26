@@ -1,9 +1,7 @@
-import React from "react";
+import TabComponent from "@/components/TabComponent";
 
-const Dashboard: React.FC = () => {
-    return (
-        <div>Dashboard</div>
-    )
-}
+const Dashboard = () => {
+  return <TabComponent />;
+};
 
 export default Dashboard;

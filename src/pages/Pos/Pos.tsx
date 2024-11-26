@@ -1,38 +1,68 @@
-import { useTranslation } from "react-i18next";
 import PosEmpty from "@/assets/EmptyPos.svg?react";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
+import { useButtonCreate } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
-import { getPos, postCreatePos } from "@/services/api/pos/index.ts";
-import { getOrganization, postCreateOrganization, postPosData } from "@/services/api/organization/index.ts";
+import { getPos } from "@/services/api/pos/index.ts";
+import { postPosData } from "@/services/api/pos/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import SearchInput from "@/components/ui/Input/SearchInput";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useTranslation } from "react-i18next";
+
+interface Pos {
+    id: number;
+    name: string;
+    slug: string;
+    monthlyPlan: number;
+    timeWork: string;
+    organizationId: number;
+    posMetaData: string;
+    timezone: number;
+    image: string;
+    rating: number;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById: number;
+    updatedById: number;
+    address:
+    {
+        id: number;
+        city: string;
+        location: string;
+        lat: number;
+        lon: number;
+    };
+    posType:
+    {
+        id: number;
+        name: string;
+        slug: string;
+        carWashPosType: string;
+        minSumOrder: number;
+        maxSumOrder: number;
+        stepSumOrder: number;
+    };
+}
 
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const { data, error, isLoading } = useSWR([`get-pos-7`], async () => {
-        const response = await getPos(1);
-        mutate(`get-pos-7`, response, false); // Store data in cache without revalidation
-        return response;
-    }, { revalidateOnFocus: false })
-    const { data: org, error: orgEr, isLoading: orgLoad } = useSWR([`get-org-7`], () => getOrganization(7), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    // const { data: pos, error: posError, mutate: posMutate } = useSWR([`post-pos`], () => postCreatePos(postData))
+    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const contentRef = useRef<HTMLDivElement>(null);
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
-    const [searchTerm, setSearchTerm] = useState(''); // State for search input
+    const [searchTerm, setSearchTerm] = useState(''); 
 
     const defaultValues = {
         name: '',
@@ -60,22 +90,24 @@ const Pos: React.FC = () => {
         timeWork: formData.timeWork,
         address: {
             city: formData.city,
-            location: "Брусилова",
-            lat: 10,
-            lon: 10
+            location: formData.location,
+            lat: formData.lat,
+            lon: formData.lon
         },
-        organizationId: 1,
+        organizationId: formData.organizationId,
         carWashPosType: formData.carWashPosType,
         minSumOrder: formData.minSumOrder,
         maxSumOrder: formData.maxSumOrder,
         stepSumOrder: formData.stepSumOrder
     }));
 
-    const handleInputChange = (field: any, value: any) => {
-        const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder'];
+    type FieldType = "name" | "monthlyPlan" | "timeWork" | "posMetaData" | "city" | "location" | "lat" | "lon" | "organizationId" | "carWashPosType" | "minSumOrder" | "maxSumOrder" | "stepSumOrder";
+
+    const handleInputChange = (field: FieldType, value: string | null) => {
+        const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder','lat','lon'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
-        setValue(field, value); // Update react-hook-form's internal value
+        setValue(field, value); 
     };
 
     const handleTimeWorkChange = (field: string, value: number) => {
@@ -90,13 +122,14 @@ const Pos: React.FC = () => {
         }
     };
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
-        console.log('Form data:', data); // Check if form data is being logged
+        console.log('Form data:', data); 
         try {
-            const result = await createPos(); // Ensure createPos() is called
+            const result = await createPos(); 
             if (result) {
                 console.log('API Response:', result);
+                mutate([`get-pos`]);
             } else {
                 throw new Error('Invalid response from API');
             }
@@ -106,82 +139,82 @@ const Pos: React.FC = () => {
     };
 
     const poses: Pos[] = data
-        ?.filter((item: any) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter poses by search term
-        .map((item: any) => item)
+        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+        .map((item: Pos) => item)
         .sort((a, b) => a.id - b.id) || [];
 
     const handleSearchChange = (value: string) => {
         setSearchTerm(value);
     };
 
-    const orgData = org?.map((organization) => ({
-        value: organization.id,
-        name: organization.name
-    })) || [];
-
     return (
         <>
-            {poses.length !== 0 ? (
-                <>
-                    <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
-                        {/* Pass any filter inputs you need here */}
-                        <div className="flex">
-                            <SearchInput
-                                placeholder="Filter by name..."
-                                classname="w-64 mr-5 mb-1"
-                                searchType="outlined"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
+            {
+                posLoading ? (
+                    <TableSkeleton columnCount={columnsPos.length} />
+                )
+                    :
+                    poses.length > 0 ? (
+                        <>
+                            <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                                {/* Pass any filter inputs you need here */}
+                                <div className="flex">
+                                    <SearchInput
+                                        placeholder="Filter by name..."
+                                        classname="w-64 mr-5 mb-2"
+                                        searchType="outlined"
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                    />
+                                </div>
+                            </Filter>
+                            <div className="mt-8">
+                                <OverflowTable
+                                    tableData={poses}
+                                    columns={columnsPos}
+                                    isDisplayEdit={true}
+                                    isUpdate={false}
+                                    nameUrl={'/station/enrollments/device'}
+                                />
+                            </div>
+                        </>
+                    ) : (<>
+                        {notificationVisible && (
+                            <Notification
+                                title={t("pos.companyName")}
+                                message={t("pos.createObject")}
+                                link={t("pos.goto")}
+                                linkUrl="/administration/legalRights"
+                                onClose={() => setNotificationVisible(false)}
                             />
-                        </div>
-                    </Filter>
-                    <div className="mt-8">
-                        <OverflowTable
-                            tableData={poses}
-                            columns={columnsPos}
-                            isDisplayEdit={true}
-                            isUpdate={false}
-                            nameUrl={'/station/enrollments'}
-                        />
-                    </div>
-                </>
-            ) : (<>
-                {notificationVisible && (
-                    <Notification
-                        title="Наименование компании"
-                        message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
-                        link="Перейти в раздел Юридические лица >"
-                        linkUrl="/administration/legalRights"
-                        onClose={() => setNotificationVisible(false)}
-                    />
-                )}
-                <NoDataUI
-                    title="Пока не создан ни один объект"
-                    description="Добавьте автомойку"
-                >
-                    <PosEmpty className="mx-auto" />
-                </NoDataUI>
-            </>
-            )}
+                        )}
+                        <NoDataUI
+                            title={t("pos.noObject")}
+                            description={t("pos.addCar")}
+                        >
+                            <PosEmpty className="mx-auto" />
+                        </NoDataUI>
+                    </>
+                    )}
 
 
             <DrawerCreate>
                 {notificationVisible && (
                     <Notification
-                        title="Юридическаое лицо"
-                        message="Чтобы создать объект, сначала нужно ввести данные юридического лица во вкладке Администрирование!"
-                        link="Перейти в раздел Юридические лица >"
+                        title={t("organizations.legalEntity")}
+                        message={t("pos.createObject")}
+                        link={t("pos.goto")}
                         linkUrl="/administration/legalRights"
                         onClose={() => setNotificationVisible(false)}
                     />
                 )}
 
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5">Создание объекта</span>
+                    <span className="font-semibold text-xl md:text-3xl mb-5">{t("pos.creating")}</span>
                     <Input
-                        title={"Наименование объекта"}
+                        title={t("pos.name")}
                         type={'text'}
-                        label={"Например, автомойка"}
+                        label={t("pos.example")}
                         classname="w-96"
                         {...register('name', { required: 'Name is required' })}
                         value={formData.name}
@@ -189,25 +222,46 @@ const Pos: React.FC = () => {
                         error={!!errors.name}
                         helperText={errors.name?.message}
                     />
-                    {/* <Input
-                        title={"Город"}
-                        type={'text'}
-                        name={'city'}
-                        label={"Город автомойки"}
-                    /> */}
                     <Input
-                        title={"Адрес"}
+                        title={t("pos.city")}
                         type={'text'}
-                        label={"Адрес автомойки"}
+                        label={t("pos.address")}
                         classname="w-96"
-                        {...register('city', { required: 'Address is required' })}
+                        {...register('city', { required: 'City is required' })}
                         value={formData.city}
                         changeValue={(e) => handleInputChange('city', e.target.value)}
                         error={!!errors.city}
                         helperText={errors.city?.message}
                     />
+                    <Input
+                        title={t("pos.location")}
+                        type={'text'}
+                        label={t("pos.location")}
+                        classname="w-96"
+                        {...register('location', { required: 'Location is required' })}
+                        value={formData.location}
+                        changeValue={(e) => handleInputChange('location', e.target.value)}
+                        error={!!errors.location}
+                        helperText={errors.location?.message}
+                    />
+                    <Input
+                        title={t("pos.lat")}
+                        type="number"
+                        classname="w-48"
+                        {...register('lat')}
+                        value={formData.lat}
+                        changeValue={(e) => handleInputChange('lat', e.target.value)}
+                    />
+                    <Input
+                        title={t("pos.lon")}
+                        type="number"
+                        classname="w-48"
+                        {...register('lon')}
+                        value={formData.lon}
+                        changeValue={(e) => handleInputChange('lon', e.target.value)}
+                    />
                     <div>
-                        <label className="text-sm text-text02">Часы работы</label>
+                        <label className="text-sm text-text02">{t("pos.opening")}</label>
                         <div className="flex space-x-2">
                             <Input
                                 type="number"
@@ -231,11 +285,11 @@ const Pos: React.FC = () => {
                         </div>
                         <div className="flex mt-2">
                             <input type="checkbox" />
-                            <div className="text-text02 ml-2">Круглосуточно</div>
+                            <div className="text-text02 ml-2">{t("pos.clock")}</div>
                         </div>
                     </div>
                     <Input
-                        title={"Месячный план"}
+                        title={t("pos.monthly")}
                         type={'number'}
                         defaultValue={'0'}
                         classname="w-48"
@@ -246,8 +300,8 @@ const Pos: React.FC = () => {
                         helperText={errors.monthlyPlan?.message}
                     />
                     <DropdownInput
-                        title={"Компания"}
-                        label={"Наименование компании"}
+                        title={t("pos.company")}
+                        label={t("pos.companyName")}
                         options={[
                             { name: "LLC ONVI", value: 1 },
                             // { name: `ООО “Мой-Ка”`, value: 2 },
@@ -261,12 +315,12 @@ const Pos: React.FC = () => {
                         helperText={errors.organizationId?.message}
                     />
                     <DropdownInput
-                        title={"Тип автомойки"}
-                        label={"Мойка самообслуживания"}
+                        title={t("pos.type")}
+                        label={t("pos.self")}
                         options={[
                             { name: "МСО", value: "SelfService" },
-                            { name: "Робот  мойка", value: "Portal" },
-                            { name: "МСО + Робот  мойка", value: "SelfServiceAndPortal" }
+                            { name: t("pos.robot"), value: "Portal" },
+                            { name: `МСО + ${t("pos.robot")}`, value: "SelfServiceAndPortal" }
                         ]}
                         classname="w-96"
                         {...register('carWashPosType', { required: 'Pos Type is required' })}
@@ -276,7 +330,7 @@ const Pos: React.FC = () => {
                         helperText={errors.carWashPosType?.message}
                     />
                     <div>
-                        <label className="text-sm text-text02">Минимальный  шаг суммы заказа</label>
+                        <label className="text-sm text-text02">{t("pos.min")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -288,7 +342,7 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label className="text-sm text-text02">Минимальная сумма заказа</label>
+                        <label className="text-sm text-text02">{t("pos.minAmount")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -300,7 +354,7 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label className="text-sm text-text02">Максимальная сумма заказа</label>
+                        <label className="text-sm text-text02">{t("pos.maxAmount")}</label>
                         <Input
                             type="number"
                             classname="w-48"
@@ -312,24 +366,24 @@ const Pos: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <div>Фотографии</div>
-                        <div>Максимальный количество фотографий: 6</div>
+                        <div>{t("pos.photos")}</div>
+                        <div>{t("pos.maxNumber")}</div>
                         <Button
                             form={false}
                             iconPlus={true}
                             type="outline"
-                            title="Скачать"
+                            title={t("pos.download")}
                         />
                     </div>
                     <div className="flex justify-end space-x-4">
                         <Button
-                            title='Отменить'
+                            title={t("organizations.cancel")}
                             type='outline'
                             handleClick={() =>
                                 setButtonOn(!buttonOn)}
                         />
                         <Button
-                            title='Сохранить'
+                            title={t("organizations.save")}
                             form={true}
                             handleClick={() => { }}
                             isLoading={isMutating}

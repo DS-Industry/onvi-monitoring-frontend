@@ -408,3 +408,150 @@ export const columnsProgramDevice = [
   }
 ]
 
+export const columnsEquipmentFailure = [
+  {
+    label: "Название объекта",
+    key: "posId"
+  },
+  {
+    label: "Тип объекта",
+    key: "type"
+  },
+  {
+    label: "Сотрудник",
+    key: "workerId"
+  },
+  {
+    label: "Дата вызова",
+    key: "appearanceDate",
+    type: "date"
+  },
+  {
+    label: "Дата начала работы",
+    key: "startDate",
+    type: "date"
+  },
+  {
+    label: "Дата окончания работы",
+    key: "finishDate",
+    type: "date"
+  },
+  {
+    label: "Устройство",
+    key: "objectName"
+  },
+  {
+    label: "Узел",
+    key: "equipmentKnot"
+  },
+  {
+    label: "Проблема",
+    key: "incidentName"
+  },
+  {
+    label: "Причина",
+    key: "incidentReason"
+  },
+  {
+    label: "Принятые меры",
+    key: "incidentSolution"
+  },
+  {
+    label: "Замена",
+    key: "repair"
+  },
+  {
+    label: "Простой",
+    key: "downtime"
+  },
+  {
+    label: "Авто/час",
+    key: "autoHour"
+  },
+  {
+    label: "Комментарий",
+    key: "comment"
+  },
+  {
+    label: "Цена минуты",
+    key: "pricePerMinute"
+  },
+  {
+    label: "Проверка простоя",
+    key: "idleCheck"
+  },
+  {
+    label: "Стоимость простоя",
+    key: "downtimeCost"
+  },
+  {
+    label: "Авто на устройстве",
+    key: "autoOnDevice"
+  },
+  {
+    label: "Программа",
+    key: "programId"
+  }
+]
+
+export const columnsTechTasks = [
+  {
+    label: "Автомойка/ Филиал",
+    key: "posId"
+  },
+  {
+    label: "Наименование работ",
+    key: "name"
+  },
+  {
+    label: "Периодичность",
+    key: "period"
+  },
+  {
+    label: "Тип работы",
+    key: "type"
+  },
+  {
+    label: "Дата начала работ",
+    key: "startDate",
+    type: "date"
+  }
+]
+
+export const columnsTechTasksRead = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Автомойка/ Филиал",
+    key: "posId"
+  },
+  {
+    label: "Наименование работ",
+    key: "name"
+  },
+  {
+    label: "Периодичность",
+    key: "type"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Дата начала",
+    key: "startWorkDate",
+    type: "date"
+  },
+  {
+    label: "Дата окончания",
+    key: "sendWorkDate",
+    type: "date"
+  },
+  {
+    label: "Исполнитель",
+    key: "executorId"
+  }
+]
+

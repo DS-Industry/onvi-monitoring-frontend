@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import InputLineOption from "../InputLine/InputLineOption.tsx";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext.tsx";
+import React, { useEffect, useRef, useState } from "react";
+import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
+import DropdownInput from "../Input/DropdownInput.tsx";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore.ts";
 
 type Optional = {
     name: string;
-    value: string;
+    value: any;
 }
 
 type Props = {
@@ -27,21 +28,29 @@ const FilterMonitoring: React.FC<Props> = ({
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
-    const { buttonOn, setButtonOn } = useButtonCreate();
-    const { filterOpen, setFilterOpen } = useFilterOpen();
+    const posType = usePosType();
+    const storeStartDate = useStartDate();
+    const storeEndDate = useEndDate();
+    // const { buttonOn, setButtonOn } = useButtonCreate();
+    const { filterOn, setFilterOn } = useFilterOn();
+    const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
-    const [startDate, setStartDate] = useState(`${formattedDate} 00:00`);
-    const [endDate, setEndDate] = useState(`${formattedDate} 23:59`);
-    const [posId, setPosId] = useState();
-    const [deviceId, setDeviceId] = useState();
+    const [startDate, setStartDate] = useState(storeStartDate);
+    const [endDate, setEndDate] = useState(storeEndDate);
+    const [organizationId, setOrganizationId] = useState('');
+    const [posId, setPosId] = useState(posType);
+    const [deviceId, setDeviceId] = useState('');
 
+    const setPosType = useSetPosType();
+    const setStartDateInStore = useSetStartDate();
+    const setEndDateInStore = useSetEndDate();
 
-    const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setStartDate(event);
+    const handleStartDateChange = (combinedDateTime: Date) => {
+        setStartDate(combinedDateTime);
     };
 
-    const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setEndDate(event);
+    const handleEndDateChange = (combinedDateTime: Date) => {
+        setEndDate(combinedDateTime);
     };
 
 
@@ -68,7 +77,7 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             deviceId: deviceId,
         });
-    }, [buttonOn]);
+    }, [filterOn]);
 
     return (
         <div
@@ -76,32 +85,32 @@ const FilterMonitoring: React.FC<Props> = ({
             className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
         >
             <div className="grid grid-cols-2 gap-6">
-                {organizationsSelect && (<InputLineOption
+                {organizationsSelect && (<DropdownInput
                     title={"Организация"}
                     type={"string"}
-                    name={'org'}
-                    placeholder={'Выберите организацию'}
-                    optionals={organizationsSelect}
+                    label={'Выберите организацию'}
+                    classname="w-80"
+                    options={organizationsSelect}
+                    value={organizationId}
+                    onChange={setOrganizationId}
                 />)}
-                {posesSelect && (<InputLineOption
+                {posesSelect && (<DropdownInput
                     title={"Объект"}
                     type={"string"}
-                    name={'pos'}
-                    placeholder={'Выберите объект'}
-                    optionals={posesSelect}
-                    onSelect={(selectedOption) => {
-                        setPosId(selectedOption.value);
-                    }}
+                    label={'Выберите объект'}
+                    classname="w-80"
+                    options={posesSelect}
+                    value={posId}
+                    onChange={setPosId}
                 />)}
-                {devicesSelect && (<InputLineOption
+                {devicesSelect && (<DropdownInput
                     title={"Устройство"}
                     type={"string"}
-                    name={'device'}
-                    placeholder={'Выберите устройство'}
-                    optionals={devicesSelect}
-                    onSelect={(selectedOption) => {
-                        setDeviceId(selectedOption.value);
-                    }}
+                    label={'Выберите устройство'}
+                    classname="w-80"
+                    options={devicesSelect}
+                    value={deviceId}
+                    onChange={setDeviceId}
                 />)}
 
             </div>
@@ -117,15 +126,21 @@ const FilterMonitoring: React.FC<Props> = ({
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
-                        setStartDate(`${formattedDate} 00:00`);
-                        setEndDate(`${formattedDate} 23:59`);
-                        setPosId(null);
+                        setStartDate(new Date(`${formattedDate} 00:00`));
+                        setEndDate(new Date(`${formattedDate} 23:59`));
+                        setPosId(0);
+                        setOrganizationId('');
+                        setDeviceId('');
+                        setPosType(0); 
+                        setStartDateInStore(new Date(`${formattedDate} 00:00`)); 
+                        setEndDateInStore(new Date(`${formattedDate} 23:59`));
+                        setFilterOn(!filterOn);
                     }}
                 />
                 <Button
                     title='Применить'
                     form={true}
-                    handleClick={() => setButtonOn(!buttonOn)}
+                    handleClick={() => setFilterOn(!filterOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
             </div>

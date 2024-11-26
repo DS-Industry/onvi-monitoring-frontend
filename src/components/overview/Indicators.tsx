@@ -5,13 +5,35 @@ import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
 import Notification from "@ui/Notification";
 import LineChart from "@ui/LineChart";
 import DatePickerComponent from "@ui/DatePickerComponent";
-import { columnsMonitoringPos, columnsUser, tableUserData } from "@/utils/OverFlowTableData";
+import { columnsMonitoringPos } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
-import { getOrganization, getRating, getStatistic } from "@/services/api/organization";
-import { getPos } from "@/services/api/pos";
-import { getDeposit } from "@/services/api/monitoring";
+import { getStatistic } from "@/services/api/organization";
+import { getDepositPos } from "@/services/api/pos";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
+import TableSkeleton from "../ui/Table/TableSkeleton";
+import { useTranslation } from "react-i18next";
+
+interface PosMonitoring {
+  id: number;
+  name: string;
+  city: string;
+  counter: number;
+  cashSum: number;
+  virtualSum: number;
+  yandexSum: number;
+  mobileSum: number;
+  cardSum: number;
+  lastOper: Date;
+  discountSum: number;
+  cashbackSumCard: number;
+  cashbackSumMub: number;
+}
+
+interface Statistic {
+  cars: number;
+  sum: number;
+}
 
 const selectOptions: {
   value: string;
@@ -47,25 +69,25 @@ const Indicators: React.FC = () => {
 
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState('');
+  const { t } = useTranslation();
 
-  const { data, error, } = useSWR(['get-statistic-org-12'], () => getStatistic(
-    12, { dateStart: `${formattedDate} 00:00`, dateEnd: `${formattedDate} 23:59` }
-  ))
+  const { data } = useSWR(['get-statistic'], () => getStatistic());
 
-  const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit({
-    dateStart: `01.01.2024 00:00`,
-    dateEnd: `${formattedDate} 23:59`
+  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits'], () => getDepositPos({
+    dateStart: new Date(`2023-01-01 00:00`),
+    dateEnd: new Date(`${formattedDate} 23:59`),
+    posId: 1
   }));
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;
-  }).sort((a, b) => a.id - b.id) || [];
+  }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
-  const statisticData: Statistic = data;
+  const statisticData: Statistic = data || { cars: 0, sum: 0 };
 
   const cards = [
     {
-      title: "Всего посетителей",
+      title: "visitors",
       number: statisticData ? statisticData.cars : 0,
       unit: "",
       icon: TotalVisitorsIcon,
@@ -74,7 +96,7 @@ const Indicators: React.FC = () => {
       day: "К предыдущему дню",
     },
     {
-      title: "Прибыль",
+      title: "profit",
       number: statisticData ? statisticData.sum : 0,
       unit: "₽",
       icon: ProfitIcon,
@@ -83,7 +105,7 @@ const Indicators: React.FC = () => {
       day: "К предыдущему дню",
     },
     {
-      title: "Общее время простоя",
+      title: "downtime",
       number: 7,
       unit: "мин",
       icon: TotalDownTimeIcon,
@@ -97,9 +119,11 @@ const Indicators: React.FC = () => {
     <>
       {notificationVisible && (
         <Notification
-          title="Показатели"
-          message="В  данном разделе будут отображаться основные показатели по автомойкам за день"
+          title={t("indicators.notification")}
+          message={t("indicators.notificationText")}
           onClose={() => setNotificationVisible(false)}
+          link={""}
+          linkUrl={""}
         />
       )}
       <div className="grid gap-4">
@@ -112,7 +136,7 @@ const Indicators: React.FC = () => {
               <div className="flex justify-between lg:justify-normal lg:space-x-4 mb-5">
                 <div>
                   <p className="text-sm lg:text-base font-semibold">
-                    {item.title}
+                    {t(`indicators.${item.title}`)}
                   </p>
                   <p className="text-xl lg:text-3xl font-bold text-[#202224]">
                     {item.number} {item.unit}
@@ -139,20 +163,9 @@ const Indicators: React.FC = () => {
 
         <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
-            График по выручке
+            {t("indicators.revenue")}
           </p>
           <div className="lg:flex justify-between px-3 lg:px-8">
-            {/* <select
-              id="countries"
-              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
-            >
-              <option selected>Choose a country</option>
-              {selectOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.name}
-                </option>
-              ))}
-            </select> */}
             <DropdownInput
               inputType="primary"
               label="Choose a country"
@@ -261,10 +274,12 @@ const Indicators: React.FC = () => {
         </div>
         */}
         <div className="mt-8">
-          <OverflowTable
-            tableData={posMonitoring}
-            columns={columnsMonitoringPos}
-          />
+          {filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
+            :
+            <OverflowTable
+              tableData={posMonitoring}
+              columns={columnsMonitoringPos}
+            />}
         </div>
       </div>
     </>

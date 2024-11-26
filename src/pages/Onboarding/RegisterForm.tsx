@@ -2,7 +2,7 @@ import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { Calendar } from 'feather-icons-react';
+// import { Calendar } from 'feather-icons-react';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from "swr/mutation";
 import { registerPlatformUser } from "@/services/api/platform";
@@ -35,14 +35,16 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         'user/auth/register',
         async () => registerPlatformUser({
             name: formData.name,
-            birthday: `${formData.birthday}T13:24:45.742+03:00`,
+            birthday: new Date(`${formData.birthday}T13:24:45.742+03:00`),
             phone: formData.phone,
             email: formData.email,
             password: formData.password
         }) 
       );
 
-    const handleInputChange = (field: any, value: string) => {
+    type FieldType = "name" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
+
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
@@ -51,16 +53,16 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         setIsToggled(!isToggled);
     };
 
-    const handleIconClick = () => {
-        const dateInput = document.getElementById("date-input");
-        if (dateInput) {
-            dateInput.focus();
-            // Workaround to trigger date picker on focus
-            (dateInput as HTMLInputElement).showPicker?.();
-        }
-    };
+    // const handleIconClick = () => {
+    //     const dateInput = document.getElementById("date-input");
+    //     if (dateInput) {
+    //         dateInput.focus();
+    //         // Workaround to trigger date picker on focus
+    //         (dateInput as HTMLInputElement).showPicker?.();
+    //     }
+    // };
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log("Form data:", data);
         try {
             const result = await trigger();
@@ -77,13 +79,13 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
 
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-2">{t('Присоединяйтесь к Onvi-бизнес!')}</p>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-2">{t('register.join')}</p>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} >
                 <div className="overflow-y-auto pr-6 h-96">
                     <div>
                         <Input
                             type="text"
-                            title='Имя пользователя'
+                            title={t("register.username")}
                             classname="mb-0"
                             value={formData.name}
                             changeValue={(e) => handleInputChange('name', e.target.value)}
@@ -93,13 +95,13 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                             })}
                             helperText={errors.name?.message || ''}
                         />
-                        <label className="text-xs text-text02 mb-5">Под этим именем вас будут знать другие пользователи Onvi-бизнес.</label>
+                        <label className="text-xs text-text02 mb-5">{t("register.other")}</label>
                     </div>
 
                     <div>
                         <Input
                             type="password"
-                            title='Пароль'
+                            title={t("login.password")}
                             classname="mb-5"
                             value={formData.password}
                             changeValue={(e) => handleInputChange('password', e.target.value)}
@@ -112,7 +114,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                         />
                         <Input
                             type="password"
-                            title='Подтвердите пароль'
+                            title={t("profile.confirm")}
                             classname="mb-5"
                             value={formData.confirmPassword}
                             changeValue={(e) => handleInputChange('confirmPassword', e.target.value)}
@@ -128,7 +130,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                         <div className="flex mb-5">
                             <Input
                                 type="date"
-                                title="Дата рождения"
+                                title={t("register.date")}
                                 classname="w-40"
                                 id="date-input"
                                 value={formData.birthday}
@@ -139,13 +141,13 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                                 })}
                                 helperText={errors.birthday?.message || ''}
                             />
-                            <div onClick={handleIconClick} className="mt-9 text-primary02 ml-1 cursor-pointer">
+                            {/* <div onClick={handleIconClick} className="mt-9 text-primary02 ml-1 cursor-pointer">
                                 <Calendar className="pointer-events-none" />
-                            </div>
+                            </div> */}
                         </div>
                         <Input
                             type="text"
-                            title='Номер телефона'
+                            title={t("register.phone")}
                             classname="mb-5"
                             value={formData.phone}
                             changeValue={(e) => handleInputChange('phone', e.target.value)}
@@ -161,7 +163,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                         />
                         <Input
                             type="text"
-                            title='Email (требуется подтверждение)'
+                            title={t("register.email")}
                             classname="mb-5"
                             value={formData.email}
                             changeValue={(e) => handleInputChange('email', e.target.value)}
@@ -193,14 +195,14 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                                 </div>
                             </div>
                             <div className="ml-5">
-                                <div className="text-text01 text-lg font-semibold">Заказать обратный звонок</div>
-                                <div className="text-text01 font-normal text-sm">После регистрации наш менеджер свяжется с вами и ответит на все вопросы системы</div>
+                                <div className="text-text01 text-lg font-semibold">{t("register.request")}</div>
+                                <div className="text-text01 font-normal text-sm">{t("register.after")}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <Button type="basic" title={t('Далее')} form={true} classname='w-full' isLoading={isMutating} />
+                <Button type="basic" title={t('register.next')} form={true} classname='w-full' isLoading={isMutating} />
             </form>
         </div>
     )

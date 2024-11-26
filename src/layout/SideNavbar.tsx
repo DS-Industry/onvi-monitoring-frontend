@@ -14,9 +14,10 @@ import { useButtonCreate, useFilterOpen } from "@/components/context/useContext"
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
-import useAuthStore from '@/config/store/authSlice';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
+import { useTranslation } from "react-i18next";
+import { usePermissions } from "@/hooks/useAuthStore";
 
 type Props = {
   children: React.ReactNode;
@@ -25,26 +26,32 @@ type Props = {
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
-  const [notificationVisible, setNotificationVisible] = useState(true);
-  const [isData, setIsData] = useState(true);
+  const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
+  // const [notificationVisible, setNotificationVisible] = useState(true);
+  const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
-
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const user = useUser();
 
-  // Update user permissions as an array of objects
-  const userPermissions = useAuthStore((state) => state.permissions);
+  const userPermissions = usePermissions();
 
   const getActivePage = () => {
     for (const item of routes) {
-      if (location.pathname === item.link) {
+      if (location.pathname === item.path) {
         return item;
       } else if (item.subMenu && item.subNav) {
         for (const subItem of item.subNav) {
           if (location.pathname === subItem.path) {
             return subItem;
+          } if (subItem.subMenu && subItem.subNav) {
+            for (const subSubItem of subItem.subNav) {
+              if (location.pathname === subSubItem.path) {
+                return subSubItem;
+              }
+            }
           }
         }
       }
@@ -75,11 +82,19 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     setHoveredNavItem(null);
   };
 
+  const handleSubNavMouseEnter = (subItem: string) => {
+    setHoveredSubNavItem(subItem);
+  };
+
+  const handleSubNavMouseLeave = () => {
+    setHoveredSubNavItem(null);
+  };
+
   return (
     <div className="flex">
       <div
         className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${isOpen ? "translate-x-0" : "translate-x-0 w-20"
-          } transition-width duration-300 ease-in-out ${isOpen ? "w-64" : "w-20"
+          } transition-width duration-300 ease-in-out ${isOpen ? "w-56" : "w-20"
           }`}
       >
         <div className="h-full flex flex-col justify-between relative">
@@ -103,7 +118,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                           onMouseLeave={handleMouseLeave}
                         >
                           <NavLink
-                            to={item.link}
+                            to={item.path}
                             className={({ isActive }) =>
                               isActive
                                 ? `flex items-center ${!isOpen && "justify-center"
@@ -112,40 +127,85 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 } py-1.5 px-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02`
                             }
                           >
-                            <item.icon className={`${isOpen && "mr-2"}`} />
-                            {isOpen && <span>{item.name}</span>}
+                            {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
+                            {isOpen && <span>{t(`routes.${item.name}`)}</span>}
                             {item.subMenu && isOpen && (
                               <ArrowRight className="ml-auto" />
                             )}
                           </NavLink>
                           {hoveredNavItem === item.name && item.subNav && (
                             <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
-                              <div className="py-1 mx-4 text-text02 mb-3">
-                                {item.subNavHeading}
+                              <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
+                                {t(`routes.${item.subNavHeading}`)}
                               </div>
                               {item.subNav.map((subItem) => (
                                 subItem.isSidebar &&
-                                <Can
+                                <div
                                   key={subItem.name}
-                                  requiredPermissions={subItem.permissions} // Check sub-menu permissions
-                                  userPermissions={userPermissions}
+                                  onMouseEnter={() => handleSubNavMouseEnter(subItem.name)}
+                                  onMouseLeave={handleSubNavMouseLeave}
                                 >
-                                  {(allowed) =>
-                                    allowed && (
-                                      <NavLink
-                                        key={subItem.name}
-                                        to={subItem.path}
-                                        className={({ isActive }) =>
-                                          isActive
-                                            ? `flex items-center p-2 mx-4 rounded bg-opacity01/30 text-text01`
-                                            : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02`
-                                        }
-                                      >
-                                        {subItem.name}
-                                      </NavLink>
-                                    )
+                                  {subItem.titleName &&
+                                    <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
+                                      {t(`routes.${subItem.titleName}`)}
+                                    </div>
                                   }
-                                </Can>
+                                  <Can
+                                    key={subItem.name}
+                                    requiredPermissions={subItem.permissions} // Check sub-menu permissions
+                                    userPermissions={userPermissions}
+                                  >
+                                    {(allowed) =>
+                                      allowed && (
+                                        <NavLink
+                                          key={subItem.name}
+                                          to={subItem.path}
+                                          className={({ isActive }) =>
+                                            isActive
+                                              ? `flex items-center p-2.5 mx-4 rounded bg-opacity01/30 text-text01 font-medium text-sm`
+                                              : `flex items-center p-2.5 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-medium text-sm`
+                                          }
+                                        >
+                                          {t(`routes.${subItem.name}`)}
+                                          {subItem.subMenu && (
+                                            <ArrowRight className="ml-auto" />
+                                          )}
+                                        </NavLink>
+                                      )
+                                    }
+                                  </Can>
+                                  {subItem.isHr && <hr className="my-3" />}
+                                  {hoveredSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
+                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01">
+                                      {subItem.subNav.map((subSubItem) => (
+                                        subSubItem.isSidebar &&
+                                        <div>
+                                          <Can
+                                            key={subSubItem.name}
+                                            requiredPermissions={subSubItem.permissions} 
+                                            userPermissions={userPermissions}
+                                          >
+                                            {(allowed) =>
+                                              allowed && (
+                                                <NavLink
+                                                  key={subSubItem.name}
+                                                  to={subSubItem.path}
+                                                  className={({ isActive }) =>
+                                                    isActive
+                                                      ? `flex items-center p-2.5 mx-4 rounded bg-opacity01/30 text-text01 font-medium text-sm`
+                                                      : `flex items-center p-2.5 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-medium text-sm`
+                                                  }
+                                                >
+                                                  {t(`routes.${subSubItem.name}`)}
+                                                </NavLink>
+                                              )
+                                            }
+                                          </Can>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               ))}
                             </div>
                           )}
@@ -181,7 +241,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
           }`}
       >
-        <div className="px-6 relative min-h-screen bg-background02 z-10">
+        <div className={`px-6 relative min-h-screen bg-background02 ${hoveredNavItem !== null ? "bg-opacity-50" : ""} z-10`}>
           {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
@@ -195,7 +255,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </button>
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{activePageName}</span>
+                  <span className="text-3xl font-normal text-text01">{t(`routes.${activePageName}`)}</span>
                   <QuestionmarkIcon className="text-2xl ms-2" />
                 </div>
                 {activePage?.filter && (
@@ -205,7 +265,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
                       }`}
                   >
-                    Свернуть фильтр {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {filterOpen ? t("routes.filter") : t("routes.expand")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
                   </button>
                 )}
               </div>
@@ -213,7 +273,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             {activePage?.addButton && (
               <div>
                 <Button
-                  title={"Добавить"}
+                  title={t(`routes.${activePage?.addButtonText}`)}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />

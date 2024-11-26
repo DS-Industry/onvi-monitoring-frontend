@@ -36,7 +36,7 @@ const ForgotEmailForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgo
         }) 
       );
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: unknown) => {
         console.log("Form data:", data);
         try {
             const result = await trigger();
@@ -55,8 +55,8 @@ const ForgotEmailForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgo
 
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mt-20 mb-1">Восстановление пароля</p>
-            <p className="font-normal text-text01 text-base mb-5">Введите ваш Email, зарегистрированный на сайте, и мы вышлем код для восстановления пароля</p>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mt-20 mb-1">{t("forgot.passwordRecovery")}</p>
+            <p className="font-normal text-text01 text-base mb-5">{t("forgot.enter")}</p>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     type="text"
@@ -74,7 +74,7 @@ const ForgotEmailForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgo
                     })}
                     helperText={errors.email?.message || emailErrorMessage || ''}
                 />
-                <Button type="basic" title={t('Далее')} form={true} classname='w-full' isLoading={isMutating} />
+                <Button type="basic" title={t('register.next')} form={true} classname='w-full' isLoading={isMutating} />
             </form>
         </div>
     )

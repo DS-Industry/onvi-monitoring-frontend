@@ -32,7 +32,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     const DefaultIcon = User;
 
     return (
-        <div className={`relative min-w-40 ${classname}`}>
+        <div className={`relative ${classname}`}>
             <label className="text-sm text-text02">{title}</label>
             <div className="relative">
                 <label

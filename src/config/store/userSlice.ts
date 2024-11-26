@@ -6,20 +6,22 @@ export interface User {
     userRoleId: number;
     name: string;
     surname: string;
-    middlename: string | null;
-    birthday: string | null;
-    phone: string;
+    middlename?: string;
+    birthday?: Date;
+    phone?: string;
     email: string;
     password: string;
     gender: string;
+    position: string;
     status: string;
-    avatar: string | null;
+    avatar?: string;
     country: string;
     countryCode: number;
     timezone: number;
     refreshTokenId: string;
-    createdAt: string;
-    updatedAt: string;
+    receiveNotifications: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 interface UserState {
     user: User | null;
@@ -48,7 +50,7 @@ const useUserStore = create<UserState>()(
 );
 
 // Subscribe to state changes (optional)
-useUserStore.subscribe((state:unknown) => {
+useUserStore.subscribe((state: unknown) => {
     console.log('State changed:', state);
 });
 
