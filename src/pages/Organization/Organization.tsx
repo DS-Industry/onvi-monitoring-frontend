@@ -343,8 +343,9 @@ const Organization: React.FC = () => {
                                 {/* Pass any filter inputs you need here */}
                                 <div className="flex">
                                     <SearchInput
+                                        title="Имя"
                                         placeholder="Filter by name..."
-                                        classname="w-64 mr-5 mb-2"
+                                        classname="w-64 ml-2"
                                         searchType="outlined"
                                         value={searchTerm}
                                         onChange={handleSearchChange}

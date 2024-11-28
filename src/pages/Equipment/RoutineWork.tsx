@@ -1,5 +1,5 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SalyImage from "@/assets/NoEquipment.svg?react"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -15,8 +15,9 @@ import { columnsTechTasks } from "@/utils/OverFlowTableData";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext";
+import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
+import Icon from 'feather-icons-react';
 
 interface TechTasks {
     id: number;
@@ -46,16 +47,21 @@ interface TechTaskBody {
     techTaskItem: number[];
 }
 
+interface Item {
+    id: number;
+    title: string;
+    description?: string;
+}
+
 const RoutineWork: React.FC = () => {
     const { t } = useTranslation();
     // const [taskCount, setTaskCount] = useState(0);
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { filterOpen } = useFilterOpen();
     const [searchPosId, setSearchPosId] = useState(1);
     const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
-    const [selectedValues, setSelectedValues] = useState<number[]>([]);
+
     const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`], () => getTechTasks(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -86,7 +92,7 @@ const RoutineWork: React.FC = () => {
         techTaskItem: formData.techTaskItem
     }));
 
-    const { trigger: updateTech } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
+    const { trigger: updateTech, isMutating: updatingTechTask } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
         techTaskId: editTechTaskId,
         name: formData.name,
         type: formData.type,
@@ -103,17 +109,6 @@ const RoutineWork: React.FC = () => {
         setValue(field, value);
     };
 
-    const handleDropdownChange = (value: string) => {
-        const valuesArray = value
-            .split(", ")
-            .filter(Boolean) // Remove empty strings
-            .map(Number); // Convert strings to numbers
-        console.log("Values Array:", valuesArray);
-        setSelectedValues(valuesArray);
-        setFormData((prev) => ({ ...prev, ["techTaskItem"]: valuesArray }));
-        setValue("techTaskItem", valuesArray);
-    };
-
     const handleUpdate = (id: number) => {
         setEditTechTaskId(id);
         setIsEditMode(true);
@@ -124,7 +119,9 @@ const RoutineWork: React.FC = () => {
         console.log(techTaskToEdit);
         if (techTaskToEdit) {
             const techTaskItemNumber: number[] = techTaskToEdit.items?.map((item) => (item.id)) || [];
-            setSelectedValues(techTaskItemNumber);
+            const techTaskss: { id: number; title: string; description: string; }[] = techTaskToEdit.items.map((item) => ({ id: item.id, title: item.title, description: "This is the description text." }));
+            setSelectedItems(techTaskss);
+            setAvailableItems(availableItems.filter((item) => !techTaskItemNumber.includes(item.id)));
             setFormData({
                 name: techTaskToEdit.name,
                 posId: techTaskToEdit.posId,
@@ -142,7 +139,8 @@ const RoutineWork: React.FC = () => {
         reset();
         setEditTechTaskId(0);
         setButtonOn(false);
-        setSelectedValues([]);
+        setAvailableItems(techTask);
+        setSelectedItems([]);
     };
 
     const onSubmit = async (data: unknown) => {
@@ -176,12 +174,84 @@ const RoutineWork: React.FC = () => {
 
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.filter((item: { period: string }) => item.period.toLowerCase().includes(searchRoutine.toLowerCase()))
+        ?.filter((item: { period?: string }) => item.period && item.period.toLowerCase().includes(searchRoutine.toLowerCase()))
         ?.map((item: TechTasks) => item)
         .sort((a, b) => a.id - b.id) || [];
 
-    const techTask: { name: string; value: number; }[] = techTaskItems?.map((item) => ({ name: item.props.title, value: item.props.id })) || [];
+    const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);
 
+    const [selected, setSelected] = useState<number[]>([]);
+    const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
+    const [selectedItems, setSelectedItems] = useState<Item[]>([]);
+
+    // const areItemsInAvailableList = selected.every((id) =>
+    //     availableItems.some((item) => item.id === id)
+    // );
+
+    useEffect(() => {
+        if (techTask) {
+            setAvailableItems(techTask); // Update state once data is fetched
+        }
+    }, [techTask]);
+
+    const handleTransferToSelected = () => {
+        let updatedSelectedItems = [...selectedItems];
+        let updatedAvailableItems = [...availableItems];
+        const movingItems = availableItems.filter((item) => selected.includes(item.id));
+        updatedSelectedItems = [...updatedSelectedItems, ...movingItems];
+        updatedAvailableItems = availableItems.filter((item) => !selected.includes(item.id));
+        setAvailableItems(updatedAvailableItems);
+        setSelectedItems(updatedSelectedItems);
+        setSelected([]);
+        const movingItemIds = updatedSelectedItems.map((item) => item.id);
+        setFormData((prev) => ({ ...prev, ["techTaskItem"]: movingItemIds }));
+        setValue("techTaskItem", movingItemIds);
+    };
+
+
+    const handleTransferToAvailable = () => {
+        let updatedSelectedItems = [...selectedItems];
+        let updatedAvailableItems = [...availableItems];
+        const movingItems = selectedItems.filter((item) => selected.includes(item.id));
+        updatedAvailableItems = [...updatedAvailableItems, ...movingItems];
+        updatedSelectedItems = selectedItems.filter((item) => !selected.includes(item.id));
+        setAvailableItems(updatedAvailableItems);
+        setSelectedItems(updatedSelectedItems);
+        setSelected([]);
+        const movingItemIds = updatedSelectedItems.map((item) => item.id);
+        setFormData((prev) => ({ ...prev, ["techTaskItem"]: movingItemIds }));
+        setValue("techTaskItem", movingItemIds);
+    };
+
+    // Transfer selected items
+    // const handleTransfer = () => {
+    //     let updatedSelectedItems = [...selectedItems];
+    //     let updatedAvailableItems = [...availableItems];
+    //     if (areItemsInAvailableList) {
+    //         // Move from Available to Selected
+    //         const movingItems = availableItems.filter((item) => selected.includes(item.id));
+    //         updatedSelectedItems = [...updatedSelectedItems, ...movingItems];
+    //         updatedAvailableItems = availableItems.filter((item) => !selected.includes(item.id));
+    //     } else {
+    //         // Move from Selected to Available
+    //         const movingItems = selectedItems.filter((item) => selected.includes(item.id));
+    //         updatedAvailableItems = [...updatedAvailableItems, ...movingItems];
+    //         updatedSelectedItems = selectedItems.filter((item) => !selected.includes(item.id));
+    //     }
+    //     setAvailableItems(updatedAvailableItems);
+    //     setSelectedItems(updatedSelectedItems);
+    //     setSelected([]);
+    //     const movingItemIds = updatedSelectedItems.map((item) => item.id);
+    //     setFormData((prev) => ({ ...prev, ["techTaskItem"]: movingItemIds }));
+    //     setValue("techTaskItem", movingItemIds);
+    // };
+
+    const toggleSelection = (id: number) => {
+        setSelected((prev) =>
+            prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+        );
+    };
+    console.log("Techtasks test:", techTask);
     return (
         <>
             <DrawerCreate>
@@ -209,8 +279,8 @@ const RoutineWork: React.FC = () => {
                         classname="w-64"
                         {...register('posId', {
                             required: !isEditMode && 'Pos ID is required',
-                            // validate: (value) =>
-                            //     value == 0 && !isEditMode && "Pos ID is required"
+                            validate: (value) =>
+                                (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
                         onChange={(value) => handleInputChange('posId', value)}
@@ -261,31 +331,6 @@ const RoutineWork: React.FC = () => {
                         helperText={errors.startDate?.message || ''}
                         disabled={isEditMode}
                     />
-                    <div className="flex">
-                        <DropdownInput
-                            value={formData.techTaskItem}
-                            options={techTask}
-                            isMultiSelect={true}
-                            title="Select Tech Tasks"
-                            classname="w-64"
-                            {...register('techTaskItem', {
-                                required: !isEditMode && 'Tech Task Item is required',
-                                // validate: (value) =>
-                                // value[0] == 0 && !isEditMode && "Tech Task Item is required"
-                            })}
-                            onChange={handleDropdownChange}
-                            error={!!errors.techTaskItem}
-                            helperText={errors.techTaskItem?.message || ''}
-                        />
-                        {selectedValues.length > 0 && <div className="ml-4">
-                            <h2 className="text-lg font-medium">Selected Values:</h2>
-                            <ul className="list-disc ml-5">
-                                {selectedValues.map((value, index) => (
-                                    <li key={index}>{techTask.find((tech) => tech.value === value)?.name}</li>
-                                ))}
-                            </ul>
-                        </div>}
-                    </div>
                     {/* <div className="font-semibold text-2xl text-text01">{t("routine.checklist")}</div>
                     {taskCount > 0 && (
                         Array.from({ length: taskCount }).map((_, index) => (
@@ -310,6 +355,69 @@ const RoutineWork: React.FC = () => {
                         <Plus icon="plus" className="h-6 w-6" />
                         <div className="font-semibold">{t("routine.add")}</div>
                     </div> */}
+                    <div className="flex flex-col">
+                        {/* Available Items List */}
+                        <div className="border rounded w-80">
+                            <div className="flex border-b-[1px] bg-background05 text-xs">
+                                <div className="font-normal text-text01 p-2">Available Tasks</div>
+                                <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
+                            </div>
+                            <div className="border-b-[1px] h-64 overflow-y-auto w-80">
+                                {availableItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        onClick={() => toggleSelection(item.id)}
+                                        className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
+                                            }`}
+                                    >
+                                        <div className="font-light text-[11px]">{item.title}</div>
+                                        {/* <div className="text-sm text-gray-600">{item.description}</div> */}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Buttons in the center */}
+                        <div className="flex max-w-80 justify-center items-center my-2">
+                            <button
+                                className="border border-r-0 bg-white text-black cursor-pointer"
+                                onClick={handleTransferToSelected}
+                                disabled={selected.length === 0}
+                                title={"→"}
+                            >
+                                <Icon icon="chevrons-down" />
+                            </button>
+                            <button
+                                className="border border-l-0 bg-white text-black cursor-pointer"
+                                onClick={handleTransferToAvailable}
+                                disabled={selected.length === 0}
+                                title={"→"}
+                            >
+                                <Icon icon="chevrons-up" />
+                            </button>
+                        </div>
+
+                        {/* Selected Items List */}
+                        <div className="border rounded w-80">
+                            <div className="flex border-b-[1px] bg-background05 text-xs">
+                                <div className="font-normal text-text01 p-2">Selected Tasks</div>
+                                <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
+                            </div>
+                            <div className="border-b-[1px] h-64 w-80 overflow-y-auto">
+                                {selectedItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        onClick={() => toggleSelection(item.id)}
+                                        className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
+                                            }`}
+                                    >
+                                        <div className="text-[11px] font-light">{item.title}</div>
+                                        <div className="text-[10px] font-light text-text01">{item.description}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                     <div className="flex justify-start space-x-4">
                         <Button
                             title={t("organizations.cancel")}
@@ -317,13 +425,14 @@ const RoutineWork: React.FC = () => {
                             handleClick={() => {
                                 setButtonOn(!buttonOn);
                                 resetForm();
-                                setSelectedValues([]);
+                                setAvailableItems(techTask);
+                                setSelectedItems([]);
                             }}
                         />
                         <Button
                             title={t("routes.create")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingTechTask : isMutating}
                             handleClick={() => { }}
                         />
                     </div>
@@ -335,14 +444,14 @@ const RoutineWork: React.FC = () => {
                         <DropdownInput
                             title={t("equipment.carWash")}
                             value={searchPosId}
-                            classname={`${filterOpen ? "mb-24" : "mb-2"}`}
+                            classname="ml-2"
                             options={poses}
                             onChange={(value) => setSearchPosId(value)}
                         />
                         <DropdownInput
                             title={`${t("routine.frequency")}`}
                             value={searchRoutine}
-                            classname={`${filterOpen ? "mb-24" : "mb-2"} ml-4`}
+                            classname="ml-2"
                             options={[
                                 { name: t("routine.daily"), value: "Daily" },
                                 { name: t("routine.weekly"), value: "Weekly" },

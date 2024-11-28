@@ -10,6 +10,7 @@ interface TableColumn {
   label: string;
   key: string;
   type?: "date" | "string" | "number" | string;
+  render?: any;
 }
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
   nameUrlTitle?: string;
   urlTitleId?: number;
   onUpdate?: (id: number) => void;
+  handleChange?: (id: number, key: string, value: string | number) => void;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -34,6 +36,7 @@ const OverflowTable: React.FC<Props> = ({
   nameUrlTitle,
   urlTitleId,
   onUpdate,
+  handleChange
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -64,38 +67,39 @@ const OverflowTable: React.FC<Props> = ({
               </div>
             </span>
           )}
-            <table className="w-full">
-              <thead>
-                <tr>
-                  {columns.map(
-                    (column) =>
-                      selectedColumns.includes(column.key) && (
-                        <th
-                          key={column.key}
-                          className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
+          <table className="w-full">
+            <thead>
+              <tr>
+                {columns.map(
+                  (column) =>
+                    selectedColumns.includes(column.key) && (
+                      <th
+                        key={column.key}
+                        className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
+                      >
+                        {column.label}
+                      </th>
+                    )
+                )}
+                {isUpdate && <th className="border border-background02 bg-background06"></th>}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((row) => (
+                <tr key={row.id}>
+                  {displayedColumns.map((column) => (
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
+                      {column.key === 'name' && nameUrl ? (
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
                         >
-                          {column.label}
-                        </th>
-                      )
-                  )}
-                  {isUpdate && <th className="border border-background02 bg-background06"></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {tableData.map((row) => (
-                  <tr key={row.id}>
-                    {displayedColumns.map((column) => (
-                      <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
-                        {column.key === 'name' && nameUrl ? (
-                          <span
-                            className="cursor-pointer"
-                            onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
-                          >
-                            <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
-                              {row[column.key]}
-                            </div>
-                          </span>
-                        ) : column.key === 'status' ? (
+                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
+                            {row[column.key]}
+                          </div>
+                        </span>
+                      ) : column.render ? column.render(row, handleChange)
+                        : column.key === 'status' ? (
                           <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : "text-text01"}`}>
                             {row[column.key]}
                           </div>
@@ -110,19 +114,19 @@ const OverflowTable: React.FC<Props> = ({
                             )}
                           </div>
                         )}
-                      </td>
-                    ))}
-                    {isUpdate && (
-                      <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-center">
-                        <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                          <UpdateIcon />
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </td>
+                  ))}
+                  {isUpdate && (
+                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-center">
+                      <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
+                        <UpdateIcon />
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
       {isDisplayEdit && <>

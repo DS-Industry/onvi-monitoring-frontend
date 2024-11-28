@@ -555,3 +555,115 @@ export const columnsTechTasksRead = [
   }
 ]
 
+export const columnsChemicalConsumption = [
+  {
+    label: "Период",
+    key: "period"
+  },
+  {
+    label: "Вода + шампунь, факт",
+    key: "Вода + шампунь, факт"
+  },
+  {
+    label: "Вода + шампунь, время",
+    key: "Вода + шампунь, время"
+  },
+  {
+    label: "Вода + шампунь, пересчет",
+    key: "Вода + шампунь, пересчет"
+  },
+  {
+    label: "Активная химия, факт",
+    key: "Активная химия, факт"
+  },
+  {
+    label: "Активная химия, время",
+    key: "Активная химия, время"
+  },
+  {
+    label: "Активная химия, пересчет",
+    key: "Активная химия, пересчет"
+  },
+  {
+    label: "Мойка дисков, факт",
+    key: "Мойка дисков, факт"
+  },
+  {
+    label: "Мойка дисков, время",
+    key: "Мойка дисков, время"
+  },
+  {
+    label: "Мойка дисков, пересчет",
+    key: "Мойка дисков, пересчет"
+  },
+  {
+    label: "Щетка + пена, факт",
+    key: "Щетка + пена, факт"
+  },
+  {
+    label: "Щетка + пена, время",
+    key: "Щетка + пена, время"
+  },
+  {
+    label: "Щетка + пена, пересчет",
+    key: "Щетка + пена, пересчет"
+  },
+  {
+    label: "Воск + защита, факт",
+    key: "Воск + защита, факт"
+  },
+  {
+    label: "Воск + защита, время",
+    key: "Воск + защита, время"
+  },
+  {
+    label: "Воск + защита, пересчет",
+    key: "Воск + защита, пересчет"
+  },
+  {
+    label: "T-POWER, факт",
+    key: "T-POWER, факт"
+  },
+  {
+    label: "T-POWER, время",
+    key: "T-POWER, время"
+  },
+  {
+    label: "T-POWER, пересчет",
+    key: "T-POWER, пересчет"
+  }
+]
+
+export const columnsConsumptionRate = [
+  {
+    label: "Программа",
+    key: "programTypeName",
+    render: (row) => <span>{row.programTypeName}</span>,
+  },
+  {
+    label: "Расход литр/минута",
+    key: "literRate",
+    render: (row: { literRate: string | number | readonly string[] | undefined; id: any; }, handleChange: (arg0: any, arg1: string, arg2: string) => void) => (
+      <input
+        type="number"
+        className="border border-gray-300 p-2 w-full"
+        value={row.literRate}
+        onChange={(e) => handleChange(row.id, "literRate", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Концентрация 1/х",
+    key: "concentration",
+    render: (row: { concentration: string | number | readonly string[] | undefined; id: any; }, handleChange: (arg0: any, arg1: string, arg2: string) => void) => (
+      <input
+        type="number"
+        className="border border-gray-300 p-2 w-full"
+        value={row.concentration}
+        onChange={(e) => handleChange(row.id, "concentration", e.target.value)}
+      />
+    ),
+  },
+];
+
+
