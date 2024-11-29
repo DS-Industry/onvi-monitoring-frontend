@@ -2,6 +2,7 @@ import Button from "@/components/ui/Button/Button";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { getConsumptionRate, getPoses, patchProgramCoefficient } from "@/services/api/equipment";
 import { columnsConsumptionRate } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
@@ -15,12 +16,12 @@ const ConsumptionRate: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: consumptionRateData } = useSWR([`get-consumption-rate`], () => getConsumptionRate(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR([`get-consumption-rate`], () => getConsumptionRate(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff'], 
+    const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff'],
         async (_, { arg }: { arg: { valueData: { programTechRateId: number; literRate: number; concentration: number; }[] } }) => {
-        return patchProgramCoefficient(1, arg);
-    });
+            return patchProgramCoefficient(1, arg);
+        });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -80,14 +81,18 @@ const ConsumptionRate: React.FC = () => {
                     onChange={(value) => setSearchPosId(value)}
                 />
             </Filter>
-            <div className="mt-8">
-                <OverflowTable
-                    tableData={tableData}
-                    columns={columnsConsumptionRate}
-                    isDisplayEdit={true}
-                    handleChange={handleTableChange}
-                />
-            </div>
+            {programCoeffsLoading ? (
+                <TableSkeleton columnCount={columnsConsumptionRate.length} />
+            ) :
+                <div className="mt-8">
+                    <OverflowTable
+                        tableData={tableData}
+                        columns={columnsConsumptionRate}
+                        isDisplayEdit={true}
+                        handleChange={handleTableChange}
+                    />
+                </div>
+            }
             <div className="flex space-x-4">
                 <Button
                     title={t("organizations.cancel")}
