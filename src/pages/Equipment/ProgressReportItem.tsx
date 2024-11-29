@@ -33,7 +33,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                     type="text"
                     value={value == null ? "" : value as string}
                     changeValue={(e) => onChange(e.target.value)}
-                    classname="px-2 py-1 ml-10 w-80"
+                    classname="px-2 py-1 w-80"
                 />
             );
 
@@ -42,8 +42,8 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                 <Input
                     type="number"
                     value={value as number}
-                    changeValue={(e) => onChange(Number(e.target.value))}
-                    classname="px-2 py-1 ml-10 w-80"
+                    changeValue={(e) => onChange(e.target.value)}
+                    classname="px-2 py-1 w-80"
                 />
             );
 
@@ -57,7 +57,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                         { name: "Выше нормы", value: "aboveNormal" },
                     ]}
                     onChange={(value) => onChange(value)}
-                    classname="w-80"
+                    classname="px-2 py-1 w-80"
                 />
             );
 
@@ -76,7 +76,6 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
     }
 };
 
-// Main Component
 const ProgressReportItem: React.FC = () => {
     const { t } = useTranslation();
     const location = useLocation();
@@ -98,14 +97,12 @@ const ProgressReportItem: React.FC = () => {
         }
     );
 
-    // Initialize state when API response is loaded
     useEffect(() => {
         if (techTaskItems.length > 0) {
             setTaskValues(techTaskItems);
         }
     }, [techTaskItems]);
 
-    // Update specific item's value
     const handleChange = (id: number, value: string | number | boolean) => {
         setTaskValues((prevValues) =>
             prevValues.map((item) =>
@@ -114,26 +111,21 @@ const ProgressReportItem: React.FC = () => {
         );
     };
 
-    // Handle form submission
     const handleSubmit = async () => {
         console.log("Final Task Values:", taskValues);
 
-        // Prepare the API payload directly from taskValues
         const techTaskValue: { itemValueId: number; value: string }[] = taskValues.map((task) => ({
             itemValueId: task.id,
-            value: task.value as string, // Ensure the value is cast to the expected type
+            value: task.value as string,
         }));
 
-        // Log the payload for debugging
         console.log("Payload for API:", techTaskValue);
 
-        // Make the API call with the payload
         const result = await createTechTasks({
             valueData: techTaskValue,
         });
 
         if (result) {
-            // Revalidate the data after successful submission
             mutate([`get-tech-task`]);
         }
     };
@@ -143,17 +135,18 @@ const ProgressReportItem: React.FC = () => {
         <>
             <div className="text-text01 font-semibold text-lg">{t("routine.checklist")}</div>
             {taskValues.map((techItem) => (
-                <div key={techItem.id} className="flex items-baseline space-y-6 mb-20">
-                    <input type="checkbox" />
-                    <div className="ml-2 text-text01">{techItem.title}</div>
+                <div key={techItem.id} className="flex w-full gap-4 my-10 items-center">
+                    <div className="flex-1 text-text01">{techItem.title}</div>
+                    <div className="flex-1">
                     <DynamicInput
                         type={techItem.type}
                         value={techItem.value}
                         onChange={(value) => handleChange(techItem.id, value)}
                     />
-                    <div className="ml-10">
-                        <div>{t("pos.photos")}</div>
-                        <div>{t("pos.maxNumber")}</div>
+                    </div>
+                    <div className="flex-1 mb-10">
+                        <div className="text-sm">{t("pos.photos")}</div>
+                        <div className="text-sm">{t("pos.maxNumber")}</div>
                         <Button
                             form={false}
                             iconPlus={true}

@@ -1,6 +1,6 @@
 import React from "react";
 import { Spinner } from "@material-tailwind/react";
-import { Plus, ChevronRight } from 'feather-icons-react';
+import Icon from 'feather-icons-react';
 
 type ButtonCreateProps = {
     title: string;
@@ -12,9 +12,10 @@ type ButtonCreateProps = {
     isLoading?: boolean; 
     disabled?: boolean;
     classname?: string;
+    iconDown?: boolean;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: `bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center`,
@@ -32,9 +33,10 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
             onClick={handleClick}
             disabled={disabled}
         >
-            {iconPlus && <Plus size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
+            {iconPlus && <Icon icon="plus" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
             {isLoading ? <Spinner className={`animate-spin ${ type == 'basic' ? "text-white" : "text-primary02"}`}/> : title}
-            {iconRight && <ChevronRight size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
+            {iconRight && <Icon icon="chevron-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
+            {iconDown && <Icon icon="chevron-down" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
         </button>
     );
 };

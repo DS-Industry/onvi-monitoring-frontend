@@ -28,11 +28,12 @@ import Programs from "@/pages/Pos/Programs";
 import DepositDevices from "@/pages/Pos/DepositDevices";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import EquipmentFailure from "@/pages/Equipment/EquipmentFailure";
-import DailyReports from "@/pages/Equipment/DailyReports";
+// import DailyReports from "@/pages/Equipment/DailyReports";
 import ChemicalConsumption from "@/pages/Equipment/ChemicalConsumption";
 import RoutineWork from "@/pages/Equipment/RoutineWork";
 import ProgressReport from "@/pages/Equipment/ProgressReport";
 import ProgressReportItem from "@/pages/Equipment/ProgressReportItem";
+import ConsumptionRate from "@/pages/Equipment/ConsumptionRate";
 
 
 const routes = [
@@ -150,8 +151,8 @@ const routes = [
     icon: EquipmentIcon,
     subNavHeading: "dailyOptions",
     subNav: [
-      { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "chemical", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/chemical/consumption", component: ChemicalConsumption, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      // { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "chemical", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/equipment/chemical/consumption", component: ChemicalConsumption, permissions: [], isSidebar: true, subNav: [], subMenu: false },
       {
         name: "routine", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work", component: RoutineWork, permissions: [], isSidebar: true, subNav: [
           { name: "list", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/list", component: RoutineWork, permissions: [], isSidebar: true },
@@ -159,7 +160,7 @@ const routes = [
           { name: "progress", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress/item", component: ProgressReportItem, permissions: [], isSidebar: false }
         ], subMenu: true
       },
-      { name: "consumption", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/consumption/rate", component: Default, permissions: [], isSidebar: true, subNav: [], isHr: true },
+      { name: "consumption", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/consumption/rate", component: ConsumptionRate, permissions: [], isSidebar: true, subNav: [], isHr: true },
       { titleName: "from", name: "equipmentFailure", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/failure", component: EquipmentFailure, permissions: [], isSidebar: true, subNav: [], isHr: true },
       { titleName: "settings", name: "replacing", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
     ],

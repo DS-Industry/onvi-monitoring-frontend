@@ -4,6 +4,7 @@ import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore.ts";
+import SearchInput from "../Input/SearchInput.tsx";
 
 type Optional = {
     name: string;
@@ -15,7 +16,7 @@ type Props = {
     organizationsSelect?: Optional[];
     posesSelect?: Optional[];
     devicesSelect?: Optional[];
-    handleDataFilter: any;
+    handleDataFilter?: any;
 };
 const FilterMonitoring: React.FC<Props> = ({
     count,
@@ -32,6 +33,8 @@ const FilterMonitoring: React.FC<Props> = ({
     const storeStartDate = useStartDate();
     const storeEndDate = useEndDate();
     // const { buttonOn, setButtonOn } = useButtonCreate();
+    const [city, setCity] = useState("");
+    const [linesPerPage, setLinesPerPage] = useState(10);
     const { filterOn, setFilterOn } = useFilterOn();
     const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
@@ -84,12 +87,26 @@ const FilterMonitoring: React.FC<Props> = ({
             ref={contentRef}
             className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
         >
-            <div className="grid grid-cols-2 gap-6">
+            <div className="flex">
+                <SearchInput
+                    value={""}
+                    onChange={() => { }}
+                    classname="w-80"
+                    searchType="outlined"
+                    title="Поиск"
+                />
+                <DropdownInput
+                    title={"Город"}
+                    value={city}
+                    classname="ml-2 w-80"
+                    options={[]}
+                    onChange={(value) => setCity(value)}
+                />
                 {organizationsSelect && (<DropdownInput
                     title={"Организация"}
                     type={"string"}
                     label={'Выберите организацию'}
-                    classname="w-80"
+                    classname="ml-2 w-80"
                     options={organizationsSelect}
                     value={organizationId}
                     onChange={setOrganizationId}
@@ -98,7 +115,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     title={"Объект"}
                     type={"string"}
                     label={'Выберите объект'}
-                    classname="w-80"
+                    classname="ml-2 w-80"
                     options={posesSelect}
                     value={posId}
                     onChange={setPosId}
@@ -107,12 +124,22 @@ const FilterMonitoring: React.FC<Props> = ({
                     title={"Устройство"}
                     type={"string"}
                     label={'Выберите устройство'}
-                    classname="w-80"
+                    classname="ml-2 w-80"
                     options={devicesSelect}
                     value={deviceId}
                     onChange={setDeviceId}
                 />)}
-
+                <DropdownInput
+                    title={"Строк на стр."}
+                    value={linesPerPage}
+                    classname="ml-2 w-24"
+                    options={[
+                        { name: 10, value: 10 },
+                        { name: 20, value: 20 },
+                        { name: 50, value: 50 }
+                    ]}
+                    onChange={(value) => setLinesPerPage(value)}
+                />
             </div>
             <InputDateGap
                 onStartDateChange={handleStartDateChange}
@@ -131,8 +158,8 @@ const FilterMonitoring: React.FC<Props> = ({
                         setPosId(0);
                         setOrganizationId('');
                         setDeviceId('');
-                        setPosType(0); 
-                        setStartDateInStore(new Date(`${formattedDate} 00:00`)); 
+                        setPosType(0);
+                        setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);
                     }}
@@ -143,6 +170,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     handleClick={() => setFilterOn(!filterOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
+                <Button title={"Дополнительно"} classname="ml-96" type="outline" iconDown={true} />
             </div>
         </div>
     );

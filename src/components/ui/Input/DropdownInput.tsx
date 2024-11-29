@@ -114,7 +114,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     }, []);
 
     return (
-        <div ref={dropdownRef} className={`relative min-w-40 ${classname}`}>
+        <div ref={dropdownRef} className={`relative ${classname}`}>
             <label className="text-sm text-text02">{title}</label>
             <div className='relative'>
                 <label

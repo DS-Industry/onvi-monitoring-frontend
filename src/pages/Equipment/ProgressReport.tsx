@@ -9,7 +9,6 @@ import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useFilterOpen } from "@/components/context/useContext";
 
 interface ReadTechTasks {
     id: number;
@@ -24,7 +23,6 @@ interface ReadTechTasks {
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
-    const { filterOpen } = useFilterOpen();
     const [searchPosId, setSearchPosId] = useState(1);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -45,7 +43,7 @@ const ProgressReport: React.FC = () => {
                     <DropdownInput
                         title={t("equipment.carWash")}
                         value={searchPosId}
-                        classname={`${filterOpen ? "mb-24" : "mb-2"}`}
+                        classname={"ml-2"}
                         options={poses}
                         onChange={(value) => setSearchPosId(value)}
                     />
