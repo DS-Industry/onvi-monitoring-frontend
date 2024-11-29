@@ -85,7 +85,7 @@ const OverflowTable: React.FC<Props> = ({
               </tr>
             </thead>
             <tbody>
-              {tableData.map((row) => (
+              {tableData?.map((row) => (
                 <tr key={row.id}>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">

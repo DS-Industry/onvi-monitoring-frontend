@@ -2,11 +2,12 @@ import Button from "@/components/ui/Button/Button";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
-import { getPoses } from "@/services/api/equipment";
+import { getConsumptionRate, getPoses, patchProgramCoefficient } from "@/services/api/equipment";
 import { columnsConsumptionRate } from "@/utils/OverFlowTableData";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import useSWRMutation from "swr/mutation";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
@@ -14,25 +15,58 @@ const ConsumptionRate: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: consumptionRateData } = useSWR([`get-consumption-rate`], () => getConsumptionRate(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff'], 
+        async (_, { arg }: { arg: { valueData: { programTechRateId: number; literRate: number; concentration: number; }[] } }) => {
+        return patchProgramCoefficient(1, arg);
+    });
+
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const mockData = [
-        { id: 1, programTypeName: "Ополаскивание", literRate: "", concentration: "" },
-        { id: 2, programTypeName: "Активная химия", literRate: "", concentration: "" },
-        { id: 3, programTypeName: "Вода + шампунь", literRate: "", concentration: "" },
-        { id: 4, programTypeName: "Мойка дисков", literRate: "", concentration: "" },
-        { id: 5, programTypeName: "Воск + защита", literRate: "", concentration: "" },
-        // Add more rows as needed
-    ];
+    // const mockData = [
+    //     { id: 1, programTypeName: "Ополаскивание", literRate: "", concentration: "" },
+    //     { id: 2, programTypeName: "Активная химия", literRate: "", concentration: "" },
+    //     { id: 3, programTypeName: "Вода + шампунь", literRate: "", concentration: "" },
+    //     { id: 4, programTypeName: "Мойка дисков", literRate: "", concentration: "" },
+    //     { id: 5, programTypeName: "Воск + защита", literRate: "", concentration: "" },
+    //     // Add more rows as needed
+    // ];
 
-    const [tableData, setTableData] = useState(mockData);
+    const [tableData, setTableData] = useState(consumptionRateData);
+
+    useEffect(() => {
+        if (consumptionRateData) {
+            setTableData(consumptionRateData); // Update state once data is fetched
+        }
+    }, [consumptionRateData]);
 
     const handleTableChange = (id: number, key: any, value: any) => {
         setTableData((prevData) =>
-            prevData.map((item) =>
+            prevData?.map((item) =>
                 item.id === id ? { ...item, [key]: value } : item
             )
         );
+    };
+
+    const handleSubmit = async () => {
+        console.log("Final Task Values:", tableData);
+
+        const programCoeff: { programTechRateId: number; literRate: number; concentration: number; }[] = tableData?.map((data) => ({
+            programTechRateId: data.id,
+            literRate: Number(data.literRate),
+            concentration: Number(data.concentration)
+        })) || [];
+
+        console.log("Payload for API:", programCoeff);
+
+        const result = await patchProgramCoeff({
+            valueData: programCoeff,
+        });
+
+        if (result) {
+            mutate([`get-consumption-rate`]);
+        }
     };
 
     return (
@@ -63,7 +97,8 @@ const ConsumptionRate: React.FC = () => {
                 <Button
                     title={t("organizations.save")}
                     form={true}
-                    handleClick={() => console.log("Saving Data:", tableData)}
+                    isLoading={isMutating}
+                    handleClick={handleSubmit}
                 />
             </div>
         </div>

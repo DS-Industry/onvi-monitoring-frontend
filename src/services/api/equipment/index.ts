@@ -315,9 +315,28 @@ type ChemicalResponse = {
 }
 
 type ConsumptionRateResponse = {
+    id: number;
     programTypeName: string;
-    literRate: string;
+    literRate: number;
     concentration: number;
+}
+
+type ConsumptionRateCoeffPatch = {
+    valueData: {
+        programTechRateId: number;
+        literRate: number;
+        concentration: number;
+    }[]
+}
+
+type ConsumptionRateCoeffPatchResponse = {
+    props: {
+        id: number;
+        carWashPosId: number;
+        carWashDeviceProgramsTypeId: number;
+        literRate: number;
+        concentration: number;
+    }
 }
 
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
@@ -428,7 +447,14 @@ export async function getChemicalReport(params: ChemicalParams, posId: number): 
 }
 
 export async function getConsumptionRate(posId: number): Promise<ConsumptionRateResponse[]> {
-    const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION + `/${posId}`);
+    const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(TECHTASKS.GET_CONSUMPTION_RATE + `/${posId}`);
 
+    return response.data;
+}
+
+export async function patchProgramCoefficient(id: number, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
+    console.log(response.data);
     return response.data;
 }
