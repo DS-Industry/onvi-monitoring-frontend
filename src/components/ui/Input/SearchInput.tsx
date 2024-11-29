@@ -12,6 +12,7 @@ type SearchInputProps = {
     error?: boolean;
     errorText?: string;
     classname?: string;
+    title?: string;
 };
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -23,17 +24,18 @@ const SearchInput: React.FC<SearchInputProps> = ({
     searchType = 'underline', // Default to 'underline'
     error = false,
     errorText = '',
-    classname
+    classname,
+    title = ""
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     const getClassNames = () => {
         if (searchType === 'underline') {
-            return `border-b-2 ${ isDisabled ? "border-text03" : (isFocused ? "border-primary02" : error ? 'border-errorFill' : 'border-primary02 opacity-30')}
+            return `border-b-2 ${isDisabled ? "border-text03" : (isFocused ? "border-primary02" : error ? 'border-errorFill' : 'border-primary02 opacity-30')}
             focus:border-primary02 ${isDisabled ? "outline-none" : "hover:border-primary02"} 
             bg-background02 pl-8 pr-10 py-2 w-full outline-none transition-all duration-300`;
         } else {
-            return `border border-1 ${ isDisabled ? "border-text03" : (isFocused ? "border-primary02" : error ? 'border-errorFill' : 'border-primary02 opacity-30')} 
+            return `border border-1 ${isDisabled ? "border-text03" : (isFocused ? "border-primary02" : error ? 'border-errorFill' : 'border-primary02 opacity-30')} 
             focus:border-primary02 ${isDisabled ? "outline-none" : "hover:border-primary02"} 
             bg-background02 pl-8 pr-10 py-2 w-full outline-none rounded-md`;
         }
@@ -41,6 +43,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
     return (
         <div className={`min-w-40 ${classname}`}>
+            <label className="text-sm text-text02">{title}</label>
             <div className="relative flex items-center w-full">
                 <input
                     placeholder={placeholder}

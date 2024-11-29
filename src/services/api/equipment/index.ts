@@ -16,6 +16,8 @@ enum TECHTASKS {
     CREATE_TECH_TASK = 'user/tech-task',
     READ_TECH_TASKS = 'user/tech-task/read',
     READ_TECH_TASK_ITEM = 'user/tech-task/item',
+    GET_CHEMICAL_CONSUMPTION = 'user/tech-task/chemistry-report',
+    GET_CONSUMPTION_RATE = 'user/equipment/rate'
 }
 
 type IncidentParam = {
@@ -294,6 +296,49 @@ type TechTaskShapeBody = {
     }[]
 }
 
+type ChemicalParams = {
+    posId: number;
+    dateStart: string;
+    dateEnd: string;
+}
+
+type ChemicalResponse = {
+    techTaskId: number;
+    period: string;
+    techRateInfos: {
+        code: string;
+        spent: string;
+        time: string;
+        recalculation: string;
+        service: string;
+    }[]
+}
+
+type ConsumptionRateResponse = {
+    id: number;
+    programTypeName: string;
+    literRate: number;
+    concentration: number;
+}
+
+type ConsumptionRateCoeffPatch = {
+    valueData: {
+        programTechRateId: number;
+        literRate: number;
+        concentration: number;
+    }[]
+}
+
+type ConsumptionRateCoeffPatchResponse = {
+    props: {
+        id: number;
+        carWashPosId: number;
+        carWashDeviceProgramsTypeId: number;
+        literRate: number;
+        concentration: number;
+    }
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -391,6 +436,25 @@ export async function getTechTaskShapeItem(id: number): Promise<TechTaskShapeRes
 export async function createTechTaskShape(id: number, body: TechTaskShapeBody): Promise<TechTaskResponse> {
     console.log(body);
     const response: AxiosResponse<TechTaskResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK + `/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getChemicalReport(params: ChemicalParams, posId: number): Promise<ChemicalResponse[]> {
+    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION + `/${posId}`, { params });
+
+    return response.data;
+}
+
+export async function getConsumptionRate(posId: number): Promise<ConsumptionRateResponse[]> {
+    const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(TECHTASKS.GET_CONSUMPTION_RATE + `/${posId}`);
+
+    return response.data;
+}
+
+export async function patchProgramCoefficient(id: number, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
     console.log(response.data);
     return response.data;
 }
