@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import routes from "@/routes";
 import PrivateRoute from "@/routes/PrivateRoute";
 import PublicRoute from "@/routes/PublicRoute";
@@ -20,7 +20,7 @@ const App: React.FC = () => {
   }, [permissions]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         {/* Public Routes */}
         {routes.map((route) =>
@@ -113,7 +113,7 @@ const App: React.FC = () => {
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
