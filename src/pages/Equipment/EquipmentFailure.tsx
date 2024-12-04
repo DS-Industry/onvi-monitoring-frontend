@@ -254,7 +254,7 @@ const EquipmentFailure: React.FC = () => {
                         {...register('posId', {
                             required: !isEditMode && 'Pos ID is required',
                             validate: (value) =>
-                                value == 0 && !isEditMode && "Pos ID is required"
+                                (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
                         onChange={(value) => handleInputChange('posId', value)}
@@ -269,7 +269,7 @@ const EquipmentFailure: React.FC = () => {
                         {...register('workerId', {
                             required: !isEditMode && 'Worker ID is required',
                             validate: (value) =>
-                                value === 0 && !isEditMode && "Worker ID is required"
+                                (value !== 0 || isEditMode) || "Worker ID is required"
                         })}
                         value={formData.workerId}
                         onChange={(value) => handleInputChange('workerId', value)}
