@@ -65,6 +65,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
 
+  const isParentActive = (subMenu: any[] | undefined) =>
+    subMenu && subMenu.some((child) => child.path === location.pathname);
+
   const handleClickButtonCreate = () => {
     setButtonOn(!buttonOn);
     console.log("Button on", buttonOn);
@@ -127,14 +130,17 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                             }}
                             className={({ isActive }) =>
                               item.subMenu
-                                ? `flex items-center ${!isOpen && "justify-center"} 
-                                    py-1.5 px-2 mx-4 rounded transition 
-                                    ${hoveredNavItem === item.name ? 'bg-opacity01/30 text-primary01' : 'text-text02'}
-                                    hover:bg-opacity01/30 hover:text-primary01`
+                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                              ${isParentActive(item.subNav)
+                                  ? 'bg-opacity01/30 text-primary01'
+                                  : hoveredNavItem === item.name
+                                    ? 'bg-opacity01/30 text-primary01'
+                                    : 'text-text02'
+                                } hover:bg-opacity01/30 hover:text-primary01`
                                 : isActive
-                                ? `flex items-center ${!isOpen && "justify-center"} 
+                                  ? `flex items-center 
                                     py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-primary01`
-                                : `flex items-center ${!isOpen && "justify-center"} 
+                                  : `flex items-center 
                                     py-1.5 px-2 mx-4 rounded transition duration-200 
                                     hover:bg-opacity01/30 hover:text-primary01 text-text02`
                             }
@@ -180,13 +186,15 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           }}
                                           className={({ isActive }) =>
                                             subItem.subMenu
-                                              ? `flex items-center ${!isOpen && "justify-center"} 
-                                                  py-1.5 px-2 mx-4 rounded transition text-text02
-                                                  hover:bg-opacity01/30 hover:text-text01`
+                                              ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                                                ${isParentActive(subItem.subNav)
+                                                ? 'bg-opacity01/30 text-text01'
+                                                : 'text-text02'
+                                              } hover:bg-opacity01/30 hover:text-text01`
                                               : isActive
-                                              ? `flex items-center ${!isOpen && "justify-center"} 
+                                                ? `flex items-center 
                                                   py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
-                                              : `flex items-center ${!isOpen && "justify-center"} 
+                                                : `flex items-center 
                                                   py-1.5 px-2 mx-4 rounded transition duration-200 
                                                   hover:bg-opacity01/30 hover:text-text01 text-text02`
                                           }
@@ -207,7 +215,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                         <div>
                                           <Can
                                             key={subSubItem.name}
-                                            requiredPermissions={subSubItem.permissions} 
+                                            requiredPermissions={subSubItem.permissions}
                                             userPermissions={userPermissions}
                                           >
                                             {(allowed) =>
