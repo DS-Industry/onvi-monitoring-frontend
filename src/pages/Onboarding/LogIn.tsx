@@ -8,7 +8,7 @@ import { useSetPermissions, useSetTokens } from '@/hooks/useAuthStore';
 import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
-import LoginImage from '@/assets/LoginImage.svg';
+import LoginImage from '@/assets/LoginImage.png';
 import ArrowLeft from 'feather-icons-react';
 import OnviBlue from '@/assets/onvi_blue.png';
 // import LanguageSelector from '@/components/LanguageSelector';

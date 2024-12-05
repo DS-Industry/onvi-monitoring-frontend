@@ -7,6 +7,7 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import { createTechTaskShape, getTechTaskShapeItem } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 
 // Define interfaces
 interface TechTaskItem {
@@ -22,10 +23,11 @@ interface DynamicInputProps {
     type: string;
     value?: string | number | boolean;
     onChange: (value: string | number | boolean) => void;
+    location: any;
 }
 
 // DynamicInput Component
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) => {
+const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location }) => {
     switch (type) {
         case "Text":
             return (
@@ -34,6 +36,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                     value={value == null ? "" : value as string}
                     changeValue={(e) => onChange(e.target.value)}
                     classname="px-2 py-1 w-80"
+                    disabled={location.state?.status === "FINISHED"}
                 />
             );
 
@@ -44,6 +47,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                     value={value as number}
                     changeValue={(e) => onChange(e.target.value)}
                     classname="px-2 py-1 w-80"
+                    disabled={location.state?.status === "FINISHED"}
                 />
             );
 
@@ -58,6 +62,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange }) =>
                     ]}
                     onChange={(value) => onChange(value)}
                     classname="px-2 py-1 w-80"
+                    isDisabled={location.status?.status === "FINISHED"}
                 />
             );
 
@@ -80,7 +85,7 @@ const ProgressReportItem: React.FC = () => {
     const { t } = useTranslation();
     const location = useLocation();
 
-    const { data: techTaskData } = useSWR(
+    const { data: techTaskData, isLoading: techTaskLoading } = useSWR(
         [`get-tech-task`],
         () => getTechTaskShapeItem(location.state?.ownerId),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
@@ -133,29 +138,37 @@ const ProgressReportItem: React.FC = () => {
 
     return (
         <>
+            <div className="flex">
+                <div className="text-text01 font-medium text-lg">{location.state?.ownerId}</div>
+                <div className="text-text01 font-medium text-lg ml-2">{location.state?.name}</div>
+            </div>
             <div className="text-text01 font-semibold text-lg">{t("routine.checklist")}</div>
-            {taskValues.map((techItem) => (
-                <div key={techItem.id} className="flex w-full gap-4 my-10 items-center">
-                    <div className="flex-1 text-text01">{techItem.title}</div>
-                    <div className="flex-1">
-                    <DynamicInput
-                        type={techItem.type}
-                        value={techItem.value}
-                        onChange={(value) => handleChange(techItem.id, value)}
-                    />
-                    </div>
-                    <div className="flex-1 mb-10">
-                        <div className="text-sm">{t("pos.photos")}</div>
-                        <div className="text-sm">{t("pos.maxNumber")}</div>
-                        <Button
-                            form={false}
-                            iconPlus={true}
-                            type="outline"
-                            title={t("pos.download")}
-                        />
-                    </div>
-                </div>
-            ))}
+            {
+                techTaskLoading ? (<TableSkeleton columnCount={5} />)
+                    :
+                    taskValues.map((techItem) => (
+                        <div key={techItem.id} className="flex w-full gap-4 my-10 items-center">
+                            <div className="flex-1 text-text01">{techItem.title}</div>
+                            <div className="flex-1">
+                                <DynamicInput
+                                    type={techItem.type}
+                                    value={techItem.value}
+                                    onChange={(value) => handleChange(techItem.id, value)}
+                                    location={location}
+                                />
+                            </div>
+                            <div className="flex-1 mb-10">
+                                <div className="text-sm">{t("pos.photos")}</div>
+                                <div className="text-sm">{t("pos.maxNumber")}</div>
+                                <Button
+                                    form={false}
+                                    iconPlus={true}
+                                    type="outline"
+                                    title={t("pos.download")}
+                                />
+                            </div>
+                        </div>
+                    ))}
             <div className="flex justify-start space-x-4">
                 <Button
                     title={t("organizations.cancel")}

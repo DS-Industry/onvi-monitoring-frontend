@@ -52,6 +52,12 @@ const OverflowTable: React.FC<Props> = ({
     );
   };
 
+  const formatNumber = (num: number): string => {
+    if (isNaN(num)) return num.toString();
+    return num.toLocaleString("en-IN");
+  };
+
+
   return (
     <>
       <div className="w-full h-64 lg:h-96 overflow-x-auto overflow-y-auto mb-16">
@@ -85,14 +91,14 @@ const OverflowTable: React.FC<Props> = ({
               </tr>
             </thead>
             <tbody>
-              {tableData?.map((row) => (
+              {tableData?.map((row: any) => (
                 <tr key={row.id}>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id } })}
+                          onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status } })}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
@@ -107,6 +113,8 @@ const OverflowTable: React.FC<Props> = ({
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                             {column.type === 'date' ? (
                               row[column.key] ? moment(row[column.key]).format('DD-MM-YYYY HH:mm:ss') : '-'
+                            ) : column.type === 'number' ? (
+                              row[column.key] ? formatNumber(row[column.key]) : '-'
                             ) : typeof row[column.key] === 'object' ? (
                               `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
                             ) : (

@@ -14,10 +14,19 @@ const App: React.FC = () => {
   const [userPermissions, setUserPermissions] = useState<
     { subject: string; action: string }[]
   >([]);
+  const [isPermissionsLoaded, setIsPermissionsLoaded] = useState(false);
+
 
   useEffect(() => {
-    setUserPermissions(permissions);
+    if (permissions) {
+      setUserPermissions(permissions);
+      setIsPermissionsLoaded(true);
+    }
   }, [permissions]);
+
+  if (!isPermissionsLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <HashRouter>

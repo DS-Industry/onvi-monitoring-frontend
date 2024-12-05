@@ -1,7 +1,7 @@
 import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.svg?react"
+import SalyImage from "@/assets/NoEquipment.png"
 import useSWR from "swr";
 import { getChemicalReport, getPoses } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
@@ -130,7 +130,7 @@ const ChemicalConsumption: React.FC = () => {
                         title={t("chemical.noText")}
                         description={t("chemical.dont")}
                     >
-                        <SalyImage className="mx-auto" />
+                        <img src={SalyImage} className="mx-auto" />
                     </NoDataUI>
             }
         </>

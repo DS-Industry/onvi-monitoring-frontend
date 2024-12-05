@@ -144,7 +144,8 @@
     "new": "New Password",
     "createNew": "Create a new password",
     "confirm": "Confirm your password",
-    "confirmNew": "Confirm your new password"
+    "confirmNew": "Confirm your new password",
+    "logout": "Log Out"
   },
   "login": {
     "back": "Back",

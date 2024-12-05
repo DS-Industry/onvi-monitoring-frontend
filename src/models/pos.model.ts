@@ -1,4 +1,4 @@
-interface Pos {
+export interface Pos {
     id: number;
     name: string;
     slug: string;
@@ -13,7 +13,7 @@ interface Pos {
     updateBy: string;
 }
 
-interface PosPost {
+export interface PosPost {
     name: string;
     monthlyPlan?: number;
     posMetaData?: string;
@@ -25,7 +25,7 @@ interface PosPost {
     organizationId: number;
 }
 
-interface PosData {
+export interface PosData {
     name: string;
     monthlyPlan: number | undefined;
     timezone: string;
@@ -37,7 +37,7 @@ interface PosData {
     }
 }
 
-interface PosMonitoring {
+export interface PosMonitoring {
     id: number;
     name: string;
     city: string;
@@ -53,7 +53,7 @@ interface PosMonitoring {
     cashbackSumMub: number;
 }
 
-interface PosPrograms {
+export interface PosPrograms {
     id: number;
     name: string;
     programsInfo: PosProgramInfo[];

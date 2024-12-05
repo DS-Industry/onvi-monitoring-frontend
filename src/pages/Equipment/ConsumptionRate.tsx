@@ -12,15 +12,15 @@ import useSWRMutation from "swr/mutation";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
-    const [searchPosId, setSearchPosId] = useState("");
+    const [searchPosId, setSearchPosId] = useState(1);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR([`get-consumption-rate`], () => getConsumptionRate(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR([`get-consumption-rate`, searchPosId], () => getConsumptionRate(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff'],
+    const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff', searchPosId],
         async (_, { arg }: { arg: { valueData: { programTechRateId: number; literRate: number; concentration: number; }[] } }) => {
-            return patchProgramCoefficient(1, arg);
+            return patchProgramCoefficient(searchPosId, arg);
         });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
@@ -72,7 +72,7 @@ const ConsumptionRate: React.FC = () => {
 
     return (
         <div>
-            <Filter count={10}>
+            <Filter count={tableData?.length !== undefined ? tableData?.length : 0}>
                 <DropdownInput
                     title={t("equipment.carWash")}
                     value={searchPosId}

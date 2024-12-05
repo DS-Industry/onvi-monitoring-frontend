@@ -1,4 +1,4 @@
-interface Device {
+export interface Device {
     id: number;
     name: string;
     status: string;
@@ -8,7 +8,7 @@ interface Device {
     carWashPosId: number;
 }
 
-interface DevicesMonitoring {
+export interface DevicesMonitoring {
     id: number;
     name: string;
     counter: number;
@@ -23,7 +23,7 @@ interface DevicesMonitoring {
     cashbackSumMub: number;
 }
 
-interface DeviceMonitoring {
+export interface DeviceMonitoring {
     id: number;
     sumOper: number;
     dateOper: Date;
@@ -33,7 +33,7 @@ interface DeviceMonitoring {
     currencyType: string;
 }
 
-interface DeviceProgram {
+export interface DeviceProgram {
     id: number;
     name: string;
     dateBegin: Date;

@@ -1,7 +1,7 @@
 import NoDataUI from "@/components/ui/NoDataUI";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.svg?react"
+import SalyImage from "@/assets/NoEquipment.png"
 
 const DailyReports: React.FC = () => {
     const { t } = useTranslation();
@@ -10,7 +10,7 @@ const DailyReports: React.FC = () => {
             title={t("daily.noText")}
             description={t("daily.create")}
         >
-            <SalyImage className="mx-auto" />
+            <img src={SalyImage} className="mx-auto" />
         </NoDataUI>
     )
 }

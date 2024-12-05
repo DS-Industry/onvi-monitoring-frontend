@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Input from '@ui/Input/Input';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
-import { useUser } from '@/hooks/useUserStore';
+import { useClearUserData, useUser } from '@/hooks/useUserStore';
 import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { useClearJwtToken } from '@/hooks/useAuthStore';
 
 
 const InfoTab: React.FC = () => {
@@ -16,6 +18,9 @@ const InfoTab: React.FC = () => {
   const initials = 'CE'; // Replace this with dynamic initials logic
   const user = useUser();
   const setUser = useSetUser();
+  const setClearUser = useClearUserData();
+  const setClearToken = useClearJwtToken();
+  const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
@@ -53,9 +58,9 @@ const InfoTab: React.FC = () => {
 
 
   useEffect(() => {
-    const storedAvatarUrl = localStorage.getItem('avatarUrl'); 
+    const storedAvatarUrl = localStorage.getItem('avatarUrl');
     if (storedAvatarUrl) {
-      setImagePreview(storedAvatarUrl); 
+      setImagePreview(storedAvatarUrl);
     }
   }, []);
 
@@ -76,7 +81,7 @@ const InfoTab: React.FC = () => {
 
   const handleInputChange = (field: FieldName, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value); 
+    setValue(field, value);
   };
 
   const onSubmit = async (data: unknown) => {
@@ -105,12 +110,16 @@ const InfoTab: React.FC = () => {
     }
   };
 
+  const logout = () => {
+    setClearUser();
+    setClearToken();
+    navigate('/login');
+  }
 
   return (
     <div className="max-w-6xl mr-auto">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
+          <div className="flex flex-col space-y-6 w-full md:w-2/3">
             <div>
               <Input
                 type="text"
@@ -199,8 +208,11 @@ const InfoTab: React.FC = () => {
               <input type='checkbox' />
               <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
             </div>
+            <div className="flex">
+              <Button form={false} title={t("profile.logout")} classname='mt-2' handleClick={logout} />
+            </div>
           </div>
-          <div className="flex flex-col mt-10">
+          <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
             <div>{t("profile.photo")}</div>
             <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
               {imagePreview ? (
@@ -225,12 +237,10 @@ const InfoTab: React.FC = () => {
                 onChange={handleFileChange}
               />
             </div>
+            <div className="flex">
+              <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
+            </div>
           </div>
-        </div>
-
-        <div className="flex">
-          <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
-        </div>
       </form>
     </div>
   );

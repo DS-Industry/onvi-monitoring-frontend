@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ArrowLeft from 'feather-icons-react';
-import OTPImage from '@/assets/OTPImage.svg';
+import OTPImage from '@/assets/OTPImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
 import ForgotEmailForm from './ForgotEmailForm';
 import ForgotOTPForm from './ForgotOTPForm';

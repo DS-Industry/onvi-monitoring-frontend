@@ -1,4 +1,4 @@
-import SalyIamge from "@/assets/Saly-11.svg?react";
+import SalyIamge from "@/assets/Saly-11.png";
 import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
@@ -37,9 +37,9 @@ const Organization: React.FC = () => {
     const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization());
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
-    const [searchTerm, setSearchTerm] = useState(''); 
+    const [searchTerm, setSearchTerm] = useState('');
     const organizations: OrganizationResponse[] = data
-        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
 
@@ -101,13 +101,13 @@ const Organization: React.FC = () => {
 
     const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setValue(field, value); 
+        setValue(field, value);
     };
 
     const handleUpdate = (id: number) => {
-        setEditOrgId(id); 
+        setEditOrgId(id);
         setIsEditMode(true);
-        setButtonOn(true); 
+        setButtonOn(true);
         console.log(id);
         console.log(isEditMode);
         const orgToEdit = organizations.find((org) => org.id === id);
@@ -139,7 +139,7 @@ const Organization: React.FC = () => {
         setIsEditMode(false);
         reset();
         setEditOrgId(0);
-        setButtonOn(false); 
+        setButtonOn(false);
     };
 
     const onSubmit = async (data: unknown) => {
@@ -176,6 +176,18 @@ const Organization: React.FC = () => {
 
     return (
         <>
+            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+                <div className="flex">
+                    <SearchInput
+                        title="Имя"
+                        placeholder="Filter by name..."
+                        classname="w-64 ml-2"
+                        searchType="outlined"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
+                </div>
+            </Filter>
             <DrawerCreate>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("organizations.new")}</span>
@@ -339,19 +351,6 @@ const Organization: React.FC = () => {
                     :
                     organizations.length > 0 ? (
                         <>
-                            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
-                                {/* Pass any filter inputs you need here */}
-                                <div className="flex">
-                                    <SearchInput
-                                        title="Имя"
-                                        placeholder="Filter by name..."
-                                        classname="w-64 ml-2"
-                                        searchType="outlined"
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                    />
-                                </div>
-                            </Filter>
                             <div className="mt-8">
                                 <OverflowTable
                                     tableData={organizations}
@@ -367,7 +366,7 @@ const Organization: React.FC = () => {
                             title={t("organizations.noLegal")}
                             description={t("organizations.addLegal")}
                         >
-                            <SalyIamge className="mx-auto" />
+                            <img src={SalyIamge} className="mx-auto" />
                         </NoDataUI>
                     )}
         </>

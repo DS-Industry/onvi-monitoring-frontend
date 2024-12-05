@@ -1,10 +1,10 @@
-interface FilterDepositPos {
+export interface FilterDepositPos {
     dateStart: string;
     dateEnd: string;
     posId?: number;
 }
 
-interface FilterDepositDevice {
+export interface FilterDepositDevice {
     dateStart: string;
     dateEnd: string;
     deviceId?: number;

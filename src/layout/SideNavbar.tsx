@@ -228,9 +228,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               <EZ />
               {isOpen && (
-                <div className="text-text02">
+                <div className="text-text02 flex items-center">
                   <p>{user.name}</p>
-                  <p>{user.email}</p>
                 </div>
               )}
             </div>

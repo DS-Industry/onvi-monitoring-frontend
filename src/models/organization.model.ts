@@ -1,4 +1,4 @@
-interface Organization {
+export interface Organization {
     id: number;
     name: string;
     slug: string;
@@ -11,14 +11,14 @@ interface Organization {
     owner: string;
 }
 
-interface OrganizationPost {
+export interface OrganizationPost {
     name: string;
     organizationType: string;
     city: string;
     location: string;
 }
 
-interface OrgData {
+export interface OrgData {
     name: string;
     organizationType: string;
     address: {
@@ -27,12 +27,12 @@ interface OrgData {
     }
 }
 
-interface Rating {
+export interface Rating {
     posName: string;
     sum: number;
 }
 
-interface Statistic {
+export interface Statistic {
     sum: number;
     cars: number;
 }

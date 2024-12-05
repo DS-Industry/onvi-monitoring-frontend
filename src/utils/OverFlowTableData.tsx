@@ -124,6 +124,7 @@ export const columnsPos = [
   {
     label: "Месячный план",
     key: "monthlyPlan",
+    type: "number"
   },
   {
     label: "Название организации",
@@ -242,6 +243,7 @@ export const columnsMonitoringPos = [
   {
     label: "Кол-во операций",
     key: "quantity",
+    type: "number"
   },
   {
     label: "Последняя операция",
@@ -255,10 +257,12 @@ export const columnsMonitoringPos = [
   {
     label: "Наличные",
     key: "cashSum",
+    type: "number"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
+    type: "number"
   },
   {
     label: "Списание по приложению",
@@ -266,19 +270,23 @@ export const columnsMonitoringPos = [
   },
   {
     label: "Сashback по картам",
-    key: "cashbackSumCard"
+    key: "cashbackSumCard",
+    type: "number"
   },
   {
     label: "Сумма скидки",
-    key: "discountSum"
+    key: "discountSum",
+    type: "number"
   },
   {
     label: "Кол-во опреаций",
     key: "counter",
+    type: "number"
   },  
   {
     label: "Яндекс Сумма",
     key: "yandexSum",
+    type: "number"
   },
 ]
 
@@ -298,14 +306,17 @@ export const columnsMonitoringFullDevices = [
   {
     label: "Наличные",
     key: "cashSum",
+    type: "number"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
+    type: "number"
   },
   {
     label: "Яндекс Заправки",
     key: "yandexSum",
+    type: "number"
   },
   {
     label: "Последняя операция",
@@ -336,6 +347,7 @@ export const columnsMonitoringDevice = [
   {
     label: "Счетчик",
     key: "counter",
+    type: "number"
   },
   {
     label: "Локальный id",
@@ -355,14 +367,17 @@ export const columnsProgramsPos = [
   {
     label: "Кол-во программ",
     key: "counter",
+    type: "number"
   },
   {
     label: "Общее время мин.",
     key: "totalTime",
+    type: "number"
   },
   {
     label: "Среднее время мин.",
     key: "averageTime",
+    type: "number"
   },
   {
     label: "Последняя программа",
@@ -393,10 +408,12 @@ export const columnsProgramDevice = [
   {
     label: "Время выполнения",
     key: "time",
+    type: "number"
   },
   {
     label: "Локальный id",
     key: "localId",
+    type: "number"
   },
   {
     label: "Оплата",

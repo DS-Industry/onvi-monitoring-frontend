@@ -1,12 +1,10 @@
 import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.svg?react"
+import SalyImage from "@/assets/NoEquipment.png"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-// import MultilineInput from "@/components/ui/Input/MultilineInput";
-// import Plus from 'feather-icons-react';
 import Button from "@/components/ui/Button/Button";
 import { createTechTask, getPoses, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
@@ -481,7 +479,7 @@ const RoutineWork: React.FC = () => {
                             title={t("routine.display")}
                             description={""}
                         >
-                            <SalyImage className="mx-auto" />
+                            <img src={SalyImage} className="mx-auto" />
                         </NoDataUI>
                 }
             </>

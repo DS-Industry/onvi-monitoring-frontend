@@ -1,7 +1,7 @@
 import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.svg?react"
+import SalyImage from "@/assets/NoEquipment.png"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
@@ -123,13 +123,13 @@ const EquipmentFailure: React.FC = () => {
         startDate: '',
         finishDate: '',
         objectName: '',
-        equipmentKnotId: undefined,
-        incidentNameId: undefined,
-        incidentReasonId: undefined,
-        incidentSolutionId: undefined,
+        equipmentKnotId: 0,
+        incidentNameId: 0,
+        incidentReasonId: 0,
+        incidentSolutionId: 0,
         downtime: 2,
         comment: '',
-        carWashDeviceProgramsTypeId: undefined,
+        carWashDeviceProgramsTypeId: 0,
     };
 
     const [formData, setFormData] = useState(defaultValues);
@@ -450,7 +450,7 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.nodata")}
                         description={t("equipment.noBreakdown")}
                     >
-                        <SalyImage className="mx-auto" />
+                        <img src={SalyImage} className="mx-auto" />
                     </NoDataUI>
             }
         </>

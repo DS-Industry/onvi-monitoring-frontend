@@ -68,7 +68,7 @@ const DepositDevice: React.FC = () => {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
     }));
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(66))
+    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(location.state?.ownerId))
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {

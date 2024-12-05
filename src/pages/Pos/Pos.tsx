@@ -1,4 +1,4 @@
-import PosEmpty from "@/assets/EmptyPos.svg?react";
+import PosEmpty from "@/assets/EmptyPos.png";
 import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
@@ -15,9 +15,9 @@ import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
-import SearchInput from "@/components/ui/Input/SearchInput";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
+import { getPoses } from "@/services/api/equipment";
 
 interface Pos {
     id: number;
@@ -58,11 +58,11 @@ interface Pos {
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const [searchTerm, setSearchTerm] = useState(1);
+    const { data, isLoading: posLoading } = useSWR([`get-pos`, searchTerm], () => getPos(searchTerm), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
-    const [searchTerm, setSearchTerm] = useState(''); 
 
     const defaultValues = {
         name: '',
@@ -101,13 +101,18 @@ const Pos: React.FC = () => {
         stepSumOrder: formData.stepSumOrder
     }));
 
+    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const pose: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+
     type FieldType = "name" | "monthlyPlan" | "timeWork" | "posMetaData" | "city" | "location" | "lat" | "lon" | "organizationId" | "carWashPosType" | "minSumOrder" | "maxSumOrder" | "stepSumOrder";
 
     const handleInputChange = (field: FieldType, value: string | null) => {
-        const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder','lat','lon'];
+        const numericFields = ['monthlyPlan', 'stepSumOrder', 'minSumOrder', 'maxSumOrder', 'lat', 'lon'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
-        setValue(field, value); 
+        setValue(field, value);
     };
 
     const handleTimeWorkChange = (field: string, value: number) => {
@@ -124,9 +129,9 @@ const Pos: React.FC = () => {
 
     const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
-        console.log('Form data:', data); 
+        console.log('Form data:', data);
         try {
-            const result = await createPos(); 
+            const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
                 mutate([`get-pos`]);
@@ -139,16 +144,22 @@ const Pos: React.FC = () => {
     };
 
     const poses: Pos[] = data
-        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) 
-        .map((item: Pos) => item)
+        ?.map((item: Pos) => item)
         .sort((a, b) => a.id - b.id) || [];
-
-    const handleSearchChange = (value: string) => {
-        setSearchTerm(value);
-    };
 
     return (
         <>
+            <Filter count={poses.length}>
+                <div className="flex">
+                <DropdownInput
+                    title={t("equipment.carWash")}
+                    value={searchTerm}
+                    classname="ml-2"
+                    options={pose}
+                    onChange={(value) => setSearchTerm(value)}
+                />
+                </div>
+            </Filter>
             {
                 posLoading ? (
                     <TableSkeleton columnCount={columnsPos.length} />
@@ -156,19 +167,6 @@ const Pos: React.FC = () => {
                     :
                     poses.length > 0 ? (
                         <>
-                            <Filter count={poses.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
-                                {/* Pass any filter inputs you need here */}
-                                <div className="flex">
-                                    <SearchInput
-                                        title="Имя"
-                                        placeholder="Filter by name..."
-                                        classname="w-64 ml-2"
-                                        searchType="outlined"
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                    />
-                                </div>
-                            </Filter>
                             <div className="mt-8">
                                 <OverflowTable
                                     tableData={poses}
@@ -179,23 +177,24 @@ const Pos: React.FC = () => {
                                 />
                             </div>
                         </>
-                    ) : (<>
-                        {notificationVisible && (
-                            <Notification
-                                title={t("pos.companyName")}
-                                message={t("pos.createObject")}
-                                link={t("pos.goto")}
-                                linkUrl="/administration/legalRights"
-                                onClose={() => setNotificationVisible(false)}
-                            />
-                        )}
-                        <NoDataUI
-                            title={t("pos.noObject")}
-                            description={t("pos.addCar")}
-                        >
-                            <PosEmpty className="mx-auto" />
-                        </NoDataUI>
-                    </>
+                    ) : (
+                        <>
+                            {notificationVisible && (
+                                <Notification
+                                    title={t("pos.companyName")}
+                                    message={t("pos.createObject")}
+                                    link={t("pos.goto")}
+                                    linkUrl="/administration/legalRights"
+                                    onClose={() => setNotificationVisible(false)}
+                                />
+                            )}
+                            <NoDataUI
+                                title={t("pos.noObject")}
+                                description={t("pos.addCar")}
+                            >
+                                <img src={PosEmpty} className="mx-auto" />
+                            </NoDataUI>
+                        </>
                     )}
 
 

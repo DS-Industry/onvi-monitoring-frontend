@@ -1,7 +1,7 @@
 import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.svg?react"
+import SalyImage from "@/assets/NoEquipment.png";
 import useSWR from "swr";
 import { getPoses, readTechTasks } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
@@ -68,7 +68,7 @@ const ProgressReport: React.FC = () => {
                         title={t("routine.reports")}
                         description={""}
                     >
-                        <SalyImage className="mx-auto" />
+                        <img src={SalyImage} className="mx-auto" />
                     </NoDataUI>
             }
         </>
