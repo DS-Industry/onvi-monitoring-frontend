@@ -95,6 +95,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   return (
     <div className="flex">
+      {hoveredNavItem && (
+        <div
+          className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
+          aria-hidden="true"
+        ></div>
+      )}
       <div
         className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${isOpen ? "translate-x-0" : "translate-x-0 w-20"
           } transition-width duration-300 ease-in-out ${isOpen ? "w-64" : "w-20"
@@ -273,7 +279,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
           }`}
       >
-        <div className={`px-6 relative min-h-screen bg-background02 ${hoveredNavItem !== null ? "opacity-50" : ""} z-10`}>
+        <div className={`px-6 relative min-h-screen bg-background02 z-10`}>
           {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
