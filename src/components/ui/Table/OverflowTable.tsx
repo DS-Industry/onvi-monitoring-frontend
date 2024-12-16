@@ -60,7 +60,7 @@ const OverflowTable: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-full h-64 lg:h-96 overflow-x-auto overflow-y-auto mb-16">
+      <div className="w-full overflow-auto mb-5">
         <div className="overflow-x-auto">
 
           {title && (
@@ -144,7 +144,7 @@ const OverflowTable: React.FC<Props> = ({
         >
           Настройки таблицы <Edit />
         </button>
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => setIsModalOpen(false)} classname="max-h-[600px] overflow-auto">
           <TableSettings
             columns={columns}
             selectedColumns={selectedColumns}

@@ -5,7 +5,7 @@ import Icon from 'feather-icons-react';
 type ButtonCreateProps = {
     title: string;
     form?: boolean;
-    type?: 'outline' | 'basic' | 'filled'
+    type?: 'outline' | 'basic'
     iconPlus?: boolean;
     iconRight?: boolean;
     handleClick?: () => void;
@@ -13,9 +13,10 @@ type ButtonCreateProps = {
     disabled?: boolean;
     classname?: string;
     iconDown?: boolean;
+    iconDownload?: boolean;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false, iconDownload = false}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: `bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center`,
@@ -33,10 +34,11 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
             onClick={handleClick}
             disabled={disabled}
         >
-            {iconPlus && <Icon icon="plus" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
-            {isLoading ? <Spinner className={`animate-spin ${ type == 'basic' ? "text-white" : "text-primary02"}`}/> : title}
-            {iconRight && <Icon icon="chevron-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
-            {iconDown && <Icon icon="chevron-down" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02"}`} /> }
+            {iconPlus && <Icon icon="plus" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
+            {iconDownload && <Icon icon="download" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
+            {isLoading ? <Spinner className={`animate-spin ${type == 'basic' ? "text-white" : "text-primary02"}`} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}/> : title}
+            {iconRight && <Icon icon="chevron-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
+            {iconDown && <Icon icon="chevron-down" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
         </button>
     );
 };

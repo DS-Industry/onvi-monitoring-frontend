@@ -18,8 +18,9 @@ import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
+import { getOrganization } from "@/services/api/organization";
 
-interface Pos {
+type Pos = {
     id: number;
     name: string;
     slug: string;
@@ -55,14 +56,31 @@ interface Pos {
     };
 }
 
+type OrganizationResponse = {
+    id: number;
+    name: string;
+    slug: string;
+    address: string;
+    organizationStatus: string;
+    organizationType: string;
+    createdAt: Date;
+    updatedAt: Date;
+    ownerId: number;
+}
+
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [searchTerm, setSearchTerm] = useState(1);
     const { data, isLoading: posLoading } = useSWR([`get-pos`, searchTerm], () => getPos(searchTerm), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
-    const { buttonOn, setButtonOn } = useButtonCreate();
+    const { data: organizationData } = useSWR([`get-org`], () => getOrganization());
+    const { setButtonOn } = useButtonCreate();
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
+
+    const organizations: OrganizationResponse[] = organizationData
+        ?.map((item: OrganizationResponse) => item)
+        .sort((a, b) => a.id - b.id) || [];
 
     const defaultValues = {
         name: '',
@@ -82,7 +100,7 @@ const Pos: React.FC = () => {
 
     const [formData, setFormData] = useState(defaultValues);
 
-    const { register, handleSubmit, errors, setValue } = useFormHook(formData);
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
     const { trigger: createPos, isMutating } = useSWRMutation('user/pos', async () => postPosData({
         name: formData.name,
@@ -127,6 +145,12 @@ const Pos: React.FC = () => {
         }
     };
 
+    const resetForm = () => {
+        setFormData(defaultValues);
+        reset();
+        setButtonOn(false);
+    };
+
     const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
@@ -134,7 +158,8 @@ const Pos: React.FC = () => {
             const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-pos`]);
+                mutate([`get-pos`, searchTerm]);
+                resetForm();
             } else {
                 throw new Error('Invalid response from API');
             }
@@ -179,7 +204,7 @@ const Pos: React.FC = () => {
                         </>
                     ) : (
                         <>
-                            {notificationVisible && (
+                            {notificationVisible && organizations.length === 0 && (
                                 <Notification
                                     title={t("pos.companyName")}
                                     message={t("pos.createObject")}
@@ -199,7 +224,7 @@ const Pos: React.FC = () => {
 
 
             <DrawerCreate>
-                {notificationVisible && (
+                {notificationVisible && organizations.length === 0 && (
                     <Notification
                         title={t("organizations.legalEntity")}
                         message={t("pos.createObject")}
@@ -380,7 +405,8 @@ const Pos: React.FC = () => {
                             title={t("organizations.cancel")}
                             type='outline'
                             handleClick={() =>
-                                setButtonOn(!buttonOn)}
+                                resetForm()
+                            }
                         />
                         <Button
                             title={t("organizations.save")}

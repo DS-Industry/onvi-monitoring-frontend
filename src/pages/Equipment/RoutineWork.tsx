@@ -17,7 +17,7 @@ import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 
-interface TechTasks {
+type TechTasks = {
     id: number;
     name: string;
     posId: number;
@@ -36,7 +36,7 @@ interface TechTasks {
     updatedById: number;
 }
 
-interface TechTaskBody {
+type TechTaskBody = {
     name: string;
     posId: number;
     type: string;

@@ -159,9 +159,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                           </NavLink>
                           {hoveredNavItem === item.name && item.subNav && (
                             <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
-                              <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
+                              {item.subNavHeading !== "" && <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
                                 {t(`routes.${item.subNavHeading}`)}
-                              </div>
+                              </div>}
                               {item.subNav.map((subItem) => (
                                 subItem.isSidebar &&
                                 <div
@@ -308,15 +308,23 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 )}
               </div>
             </div>
-            {activePage?.addButton && (
-              <div>
+            <div className="flex">
+              {activePage?.isImport && (
+                <Button
+                  title={t("warehouse.import")}
+                  iconPlus={true} type="outline"
+                  classname="mr-2"
+                  handleClick={() => navigate('/warehouse/inventory/import')}
+                />
+              )}
+              {activePage?.addButton && (
                 <Button
                   title={t(`routes.${activePage?.addButtonText}`)}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           {children}
         </div>

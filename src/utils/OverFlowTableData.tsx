@@ -282,7 +282,7 @@ export const columnsMonitoringPos = [
     label: "Кол-во опреаций",
     key: "counter",
     type: "number"
-  },  
+  },
   {
     label: "Яндекс Сумма",
     key: "yandexSum",
@@ -680,6 +680,48 @@ export const columnsConsumptionRate = [
         onChange={(e) => handleChange(row.id, "concentration", e.target.value)}
       />
     ),
+  },
+];
+
+export const columnsInventory = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Имя",
+    key: "name"
+  },
+  {
+    label: "Артикул",
+    key: "sku"
+  },
+  {
+    label: "Organization",
+    key: "organizationId"
+  },
+  {
+    label: "Supplier",
+    key: "supplierId"
+  },
+  {
+    label: "Category",
+    key: "categoryId"
+  },
+  {
+    label: "Measurement",
+    key: "measurement"
+  }
+];
+
+export const columnsCategory = [
+  {
+    label: "Название группы",
+    key: "name"
+  },
+  {
+    label: "Описание",
+    key: "description"
   },
 ];
 
