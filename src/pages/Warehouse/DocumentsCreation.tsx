@@ -97,10 +97,29 @@ const DocumentsCreation: React.FC = () => {
         else {
             setWarehouseId(location?.state?.warehouseId || null);
             setNoOverHead(location?.state?.name || '');
-            setSelectedDate(new Date(location?.state?.carryingAt).toISOString().split("T")[0] || null);
+            const validDate = new Date(location?.state?.carryingAt ?? '');
+            setSelectedDate(!isNaN(validDate.getTime()) ? validDate.toISOString().split("T")[0] : null);
             setDocId(location?.state.ownerId);
+
+            const tableData: { id: number; responsibleId: number | null; nomenclatureId: number | null; quantity: number; comment?: string; oldQuantity?: number; deviation?: number }[] = documentType === "INVENTORY" ?
+                [{
+                    id: location?.state.ownerId,
+                    responsibleId: null,
+                    nomenclatureId: null,
+                    quantity: 0,
+                    comment: "",
+                    oldQuantity: 0,
+                    deviation: 0
+                }] : [{
+                    id: location?.state.ownerId,
+                    responsibleId: null,
+                    nomenclatureId: null,
+                    quantity: 0,
+                    comment: ""
+                }];
+                setTableData(tableData);
         }
-    }, [document, documentType, location.state.carryingAt, location.state.ownerId, location.state.name, location.state.warehouseId]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId]);
 
     const [errors, setErrors] = useState({
         warehouse: false,
