@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UpdateIcon from "@icons/update-icon.svg?react";
+import UpdateIcon from "@icons/PencilIcon.png";
 import FolderIcon from "@icons/folder.svg?react";
 import Icon from 'feather-icons-react';
 
@@ -52,16 +52,16 @@ const TreeTable: React.FC<Props> = ({
             <React.Fragment key={row.id}>
                 <tr>
                     {isUpdate && (
-                        <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 text-center flex items-center justify-center">
+                        <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 px-2 text-start">
                             <button onClick={() => onUpdate && onUpdate(row.id)}>
-                                <UpdateIcon className="h-4 w-4" />
+                                <img src={UpdateIcon} />
                             </button>
                         </td>
                     )}
                     {columns.map((column) => (
                         <td
                             key={column.key}
-                            className={`border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible`}
+                            className={`border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible`}
                         >
                             {column.key === "name" ? (
                                 <div
@@ -95,11 +95,11 @@ const TreeTable: React.FC<Props> = ({
             <table className="w-full">
                 <thead>
                     <tr>
-                        {isUpdate && <th className="border border-background02 bg-background06"></th>}
+                        {isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
                         {columns.map((column) => (
                             <th
                                 key={column.key}
-                                className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
+                                className="border-b border-x-2 border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider"
                             >
                                 {column.label}
                             </th>

@@ -133,7 +133,7 @@ const Deposit: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
             />
-            { isTableLoading || filterLoading ? (<TableSkeleton rowCount={5} columnCount={columnsMonitoringPos.length} />)
+            { isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
                 :
                 posMonitoring.length > 0 ? (
                     <div className="mt-8">

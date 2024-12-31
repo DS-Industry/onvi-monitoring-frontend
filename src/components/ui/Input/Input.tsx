@@ -33,12 +33,12 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
 
     return (
         <div className={`relative ${classname}`}>
-            <label className="text-sm text-text02">{title}</label>
+            {title && title[title?.length - 1] === "*" ?<label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label>  : <label className="text-sm text-text02">{title}</label>}
             <div className="relative">
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating) ? "text-base invisible" : "text-text03 visible")} 
+                        ${disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating) ? "text-base invisible" : "text-text02 visible")} 
                         ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >

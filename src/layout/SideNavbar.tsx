@@ -17,7 +17,7 @@ import { Can } from "@/permissions/Can";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
-import { usePermissions } from "@/hooks/useAuthStore";
+import { useDocumentType, usePermissions } from "@/hooks/useAuthStore";
 
 type Props = {
   children: React.ReactNode;
@@ -64,6 +64,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
+  const document = useDocumentType();
 
   const isParentActive = (subMenu: any[] | undefined) =>
     subMenu && subMenu.some((child) => child.path === location.pathname);
@@ -293,7 +294,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </button>
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{t(`routes.${activePageName}`)}</span>
+                  <span className="text-3xl font-normal text-text01">{activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
                   <QuestionmarkIcon className="text-2xl ms-2" />
                 </div>
                 {activePage?.filter && (

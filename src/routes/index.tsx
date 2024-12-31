@@ -37,10 +37,11 @@ import ConsumptionRate from "@/pages/Equipment/ConsumptionRate";
 import InventoryCreation from "@/pages/Warehouse/InventoryCreation";
 import InventoryGroups from "@/pages/Warehouse/InventoryGroups";
 import OverheadCosts from "@/pages/Warehouse/OverheadCosts";
-import Remains from "@/pages/Warehouse/Remains";
 import Suppliers from "@/pages/Warehouse/Suppliers";
 import InventoryImport from "@/pages/Warehouse/InventoryImport";
-
+import Documents from "@/pages/Warehouse/Documents";
+import DocumentsCreation from "@/pages/Warehouse/DocumentsCreation";
+import DocumentView from "@/pages/Warehouse/DocumentView";
 
 const routes = [
   {
@@ -190,7 +191,9 @@ const routes = [
       { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [], isSidebar: false, subNav: [], subMenu: false },
       { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [], isSidebar: true, subNav: [], subMenu: false },
       { name: "overhead", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/overhead/costs", component: OverheadCosts, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "remains", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/remains", component: Remains, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "documents", filter: true, addButton: true, addButtonText: "createDo", isVisible: true, path: "/warehouse/documents", component: Documents, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/documents/creation", component: DocumentsCreation, permissions: [], isSidebar: false, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/warehouse/documents/view", component: DocumentView, permissions: [], isSidebar: false, subNav: [], subMenu: false },
       { name: "suppliers", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/suppliers", component: Suppliers, permissions: [], isSidebar: true, subNav: [], subMenu: false },
     ],
     permissions: []

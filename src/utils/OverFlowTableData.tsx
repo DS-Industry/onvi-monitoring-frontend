@@ -685,33 +685,33 @@ export const columnsConsumptionRate = [
 
 export const columnsInventory = [
   {
-    label: "№",
+    label: "Код",
     key: "id"
   },
   {
-    label: "Имя",
+    label: "Номенклатура",
     key: "name"
   },
+  // {
+  //   label: "Артикул",
+  //   key: "sku"
+  // },
+  // {
+  //   label: "Organization",
+  //   key: "organizationId"
+  // },
+  // {
+  //   label: "Supplier",
+  //   key: "supplierId"
+  // },
   {
-    label: "Артикул",
-    key: "sku"
-  },
-  {
-    label: "Organization",
-    key: "organizationId"
-  },
-  {
-    label: "Supplier",
-    key: "supplierId"
-  },
-  {
-    label: "Category",
+    label: "Категория",
     key: "categoryId"
-  },
-  {
-    label: "Measurement",
-    key: "measurement"
   }
+  // {
+  //   label: "Measurement",
+  //   key: "measurement"
+  // }
 ];
 
 export const columnsCategory = [
@@ -724,5 +724,48 @@ export const columnsCategory = [
     key: "description"
   },
 ];
+
+export const columnsAllDocuments = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Номер",
+    key: "name"
+  },
+  {
+    label: "Дата",
+    key: "carryingAt",
+    type: "date"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Вид документа",
+    key: "type"
+  },
+  {
+    label: "Склад",
+    key: "warehouseId"
+  },
+  {
+    label: "Ответственный",
+    key: "responsibleId"
+  }
+]
+
+export const columnsInventoryItems = [
+  {
+    label: "Код",
+    key: "nomenclatureId"
+  },
+  {
+    label: "Наименование товара",
+    key: "nomenclatureName"
+  }
+]
 
 

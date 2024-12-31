@@ -45,10 +45,18 @@
     "nomenclature": "Nomenclature",
     "groups": "Nomenclature groups",
     "overhead": "Overhead Costs",
-    "remains": "Remains",
+    "documents": "Documents",
     "suppliers": "Suppliers",
     "": "",
-    "import": "Import Nomenclature"
+    "import": "Import Nomenclature",
+    "COMMISSIONING": "Commissioning",
+    "WRITEOFF": "Write-off to expense",
+    "MOVING": "Movement of goods",
+    "INVENTORY": "Inventorization",
+    "RECEIPT": "Receipt of goods",
+    "writeGoods": "Write-off of goods",
+    "createDo": "Create a document",
+    "edit": "Editing"
   },
   "dashboard": {
     "news": "News",
@@ -310,6 +318,18 @@
     "noDataGroups": "You haven't created any nomenclature groups.",
     "groupCreate": "Group creation",
     "included": "Included in the group",
-    "noOverhead": "There are no records of goods receipt in the program"
+    "noOverhead": "There are no records of goods receipt in the program",
+    "createDoc": "Document Creation",
+    "docType": "Document Type",
+    "no": "No.",
+    "overhead": "Overhead",
+    "ware": "Warehouse",
+    "from": "From",
+    "saveDraft": "Save as Draft",
+    "saveAccept": "Save and Accept",
+    "enterWare": "Enter warehouse name",
+    "warehouseSend": "Warehouse Sender",
+    "warehouseRec": "Warehouse Recipient",
+    "advanced": "Advanced product search"
   }
 }

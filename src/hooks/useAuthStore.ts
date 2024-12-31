@@ -49,6 +49,23 @@ export const usePermissions = () => {
   return useAuthStore((state) => state.permissions);
 }
 
+export const useWareHouseId = () => {
+  return useAuthStore((state) => state.wareHouseId);
+}
+
 export const useSetPermissions = () => {
   return useAuthStore((state) => state.setPermissions);
 }
+
+export const useDocumentType = () => {
+  return useAuthStore((state) => state.documentType);
+}
+
+export const useSetDocumentType = () => {
+  return useAuthStore((state) => state.setDocumentType);
+}
+
+export const useSetWareHouseId = () => {
+  return useAuthStore((state) => state.setWareHouseId);
+}
+

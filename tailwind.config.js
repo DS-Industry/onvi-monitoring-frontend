@@ -22,6 +22,7 @@ export default {
         background02: "#FFFFFF",
         background05: "#F8F8FA",
         background06: "#E4F0FF",
+        background07: "#D9D9D9",
         opacity01: "#D8D9DD",
         disabledFill: "#F7F9FC"
       },
@@ -31,6 +32,9 @@ export default {
       backgroundImage: {
         "Factory-Letter-S": "url('./src/assets/Factory Letter S.svg')",
       },
+      fontFamily: {
+        sans: ['Source Sans Pro', 'sans-serif'],
+      }
     },
   },
   plugins: [require('daisyui'),],

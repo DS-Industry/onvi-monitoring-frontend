@@ -103,7 +103,7 @@ const ProgramDevices: React.FC = () => {
                 handleDataFilter={handleDataFilter}
             />
             {
-                isTableLoading || filterLoading ? (<TableSkeleton rowCount={5} columnCount={columnsProgramsPos.length} />)
+                isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsProgramsPos.length} />)
                     :
                     devicePrograms.length > 0 ? (
                         <div className="mt-8">

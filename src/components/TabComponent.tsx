@@ -7,7 +7,7 @@ import LanguageSelector from "./LanguageSelector";
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const tabs = [t("dashboard.news"), t("dashboard.indicators"), t("dashboard.rating")];
 
@@ -17,11 +17,10 @@ const TabComponent: React.FC = () => {
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={`py-2 px-4 font-semibold ${
-              activeTab === index
+            className={`py-2 px-4 font-semibold ${activeTab === index
                 ? "border-b-4 border-primary02 text-text01"
                 : "text-text02"
-            }`}
+              }`}
             onClick={() => setActiveTab(index)}
           >
             {tab}

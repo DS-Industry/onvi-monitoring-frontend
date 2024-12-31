@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import Edit from "@icons/edit.svg?react";
 import moment from 'moment';
-import UpdateIcon from "@icons/update-icon.svg?react";
+import UpdateIcon from "@icons/PencilIcon.png";
 import { useNavigate } from "react-router-dom";
-import Modal from "../Modal.tsx";
+import Modal from "../Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
+import SavedIcon from "@icons/SavedIcon.png";
+import SentIcon from "@icons/SentIcon.png";
+import { useSetDocumentType } from "@/hooks/useAuthStore.ts";
 
 interface TableColumn {
   label: string;
@@ -17,6 +20,8 @@ type Props = {
   tableData: any;
   columns: TableColumn[];
   isUpdate?: boolean;
+  isUpdateLeft?: boolean;
+  isStatus?: boolean;
   isDisplayEdit?: boolean;
   nameUrl?: string;
   title?: string;
@@ -30,6 +35,8 @@ const OverflowTable: React.FC<Props> = ({
   tableData,
   columns,
   isUpdate,
+  isUpdateLeft,
+  isStatus,
   isDisplayEdit,
   nameUrl,
   title,
@@ -44,6 +51,7 @@ const OverflowTable: React.FC<Props> = ({
   );
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
   const navigate = useNavigate();
+  const setDocumentType = useSetDocumentType();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleColumnToggle = (key: string) => {
@@ -76,29 +84,43 @@ const OverflowTable: React.FC<Props> = ({
           <table className="w-full">
             <thead>
               <tr>
+                {isStatus && <th className="border border-background02 bg-background06 w-11"></th>}
+                {isUpdateLeft && <th className="border border-background02 bg-background06 w-11"></th>}
                 {columns.map(
                   (column) =>
                     selectedColumns.includes(column.key) && (
                       <th
                         key={column.key}
-                        className="border-b border-x-2 border-background02 bg-background06 px-5 py-2 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
+                        className="border-b border-x-2 border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider"
                       >
                         {column.label}
                       </th>
                     )
                 )}
-                {isUpdate && <th className="border border-background02 bg-background06"></th>}
+                {isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
               </tr>
             </thead>
             <tbody>
               {tableData?.map((row: any) => (
                 <tr key={row.id}>
+                  {isStatus && (
+                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
+                      {row.status === "SENT" ? <img src={SentIcon} /> : <img src={SavedIcon} />}
+                    </td>
+                  )}
+                  {isUpdateLeft && (
+                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
+                      <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
+                        <img src={UpdateIcon} />
+                      </button>
+                    </td>
+                  )}
                   {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-center whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status } })}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status } }); setDocumentType(row.type) }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
@@ -112,7 +134,7 @@ const OverflowTable: React.FC<Props> = ({
                         ) : (
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                             {column.type === 'date' ? (
-                              row[column.key] ? moment(row[column.key]).format('DD-MM-YYYY HH:mm:ss') : '-'
+                              row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
                             ) : column.type === 'number' ? (
                               row[column.key] ? formatNumber(row[column.key]) : '-'
                             ) : typeof row[column.key] === 'object' ? (
@@ -125,9 +147,9 @@ const OverflowTable: React.FC<Props> = ({
                     </td>
                   ))}
                   {isUpdate && (
-                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-center">
+                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                       <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                        <UpdateIcon />
+                        <img src={UpdateIcon} />
                       </button>
                     </td>
                   )}

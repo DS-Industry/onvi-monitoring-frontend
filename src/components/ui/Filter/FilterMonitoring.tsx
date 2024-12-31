@@ -3,7 +3,7 @@ import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx"
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
 
 type Optional = {
@@ -16,6 +16,7 @@ type Props = {
     organizationsSelect?: Optional[];
     posesSelect?: Optional[];
     devicesSelect?: Optional[];
+    wareHousesSelect?: Optional[];
     handleDataFilter?: any;
 };
 const FilterMonitoring: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const FilterMonitoring: React.FC<Props> = ({
     organizationsSelect,
     posesSelect,
     devicesSelect,
+    wareHousesSelect,
     handleDataFilter
 }: Props) => {
 
@@ -30,6 +32,7 @@ const FilterMonitoring: React.FC<Props> = ({
     const formattedDate = today.toISOString().slice(0, 10);
 
     const posType = usePosType();
+    const wareHouseId = useWareHouseId();
     const storeStartDate = useStartDate();
     const storeEndDate = useEndDate();
     // const { buttonOn, setButtonOn } = useButtonCreate();
@@ -42,9 +45,11 @@ const FilterMonitoring: React.FC<Props> = ({
     const [endDate, setEndDate] = useState(storeEndDate);
     const [organizationId, setOrganizationId] = useState('');
     const [posId, setPosId] = useState(posType);
+    const [warehouseId, setWarehouseId] = useState(wareHouseId);
     const [deviceId, setDeviceId] = useState('');
 
     const setPosType = useSetPosType();
+    const setWareHouseId = useSetWareHouseId();
     const setStartDateInStore = useSetStartDate();
     const setEndDateInStore = useSetEndDate();
 
@@ -80,6 +85,11 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             deviceId: deviceId,
         });
+        wareHousesSelect && handleDataFilter({
+            dateStart: startDate,
+            dateEnd: endDate,
+            warehouseId: warehouseId
+        })
     }, [filterOn]);
 
     return (
@@ -129,6 +139,15 @@ const FilterMonitoring: React.FC<Props> = ({
                     value={deviceId}
                     onChange={setDeviceId}
                 />)}
+                {wareHousesSelect && (<DropdownInput
+                    title={"Склад"}
+                    type={"string"}
+                    label={'Введите название склада'}
+                    classname="ml-2 w-80"
+                    options={wareHousesSelect}
+                    value={warehouseId}
+                    onChange={setWarehouseId}
+                />)}
                 <DropdownInput
                     title={"Строк на стр."}
                     value={linesPerPage}
@@ -156,9 +175,11 @@ const FilterMonitoring: React.FC<Props> = ({
                         setStartDate(new Date(`${formattedDate} 00:00`));
                         setEndDate(new Date(`${formattedDate} 23:59`));
                         setPosId(0);
+                        setWarehouseId(0);
                         setOrganizationId('');
                         setDeviceId('');
                         setPosType(0);
+                        setWareHouseId(0);
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);

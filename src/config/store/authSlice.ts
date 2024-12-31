@@ -19,6 +19,8 @@ interface AuthState {
   startDate: Date;
   endDate: Date;
   deviceId: number;
+  documentType: string;
+  wareHouseId: number;
   setTokens: (tokens: { tokens: Tokens }) => void;
   clearTokens: () => void;
   setPermissions: (permissions: Permission[]) => void;
@@ -26,6 +28,8 @@ interface AuthState {
   setStartDate: (startDate: Date) => void;
   setEndDate: (endDate: Date) => void;
   setDeviceId: (deviceId: number) => void;
+  setDocumentType: (documentType: string) => void;
+  setWareHouseId: (wareHouseId: number) => void;
 }
 
 const today = new Date();
@@ -40,6 +44,8 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   startDate: startDate,
   endDate: endDate,
   deviceId: 0,
+  documentType: "",
+  wareHouseId: 0,
   setTokens: (tokens) =>
     set(() => ({
       tokens: tokens.tokens,
@@ -49,7 +55,9 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   setPosType: (posType) => set({ posType }),
   setStartDate: (startDate) => set({ startDate }),
   setEndDate: (endDate) => set({ endDate }),
-  setDeviceId: (deviceId) => set({ deviceId })
+  setDeviceId: (deviceId) => set({ deviceId }),
+  setDocumentType: (documentType) => set({documentType}),
+  setWareHouseId: (wareHouseId) => set({wareHouseId})
 });
 
 const useAuthStore = create<AuthState>()(

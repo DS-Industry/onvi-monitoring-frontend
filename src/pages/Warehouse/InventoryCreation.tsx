@@ -31,12 +31,12 @@ const InventoryCreation: React.FC = () => {
     const { t } = useTranslation();
     const [forSale, setForSale] = useState(false);
     const [writeOff, setWriteOff] = useState(false);
-    const [searchOrganizationId, setSearchOrganizationId] = useState(1);
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
+    const [category, setCategory] = useState(1);
 
-    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, searchOrganizationId], () => getNomenclature(searchOrganizationId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -44,9 +44,13 @@ const InventoryCreation: React.FC = () => {
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const inventories = inventoryData?.map((item) => item.props) || [];
+    const inventories = inventoryData?.map((item) => item.props)
+    ?.filter((item: {categoryId: number}) => item.categoryId === category)
+    ?.map((item) => item) || [];
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const inventoriesDisplay: { id: number, name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name}));
 
     const suppliers: { name: string; value: number; }[] = supplierData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -128,7 +132,7 @@ const InventoryCreation: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-inventory`, searchOrganizationId]);
+                    mutate([`get-inventory`,category]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -137,7 +141,7 @@ const InventoryCreation: React.FC = () => {
                 const result = await createInventory();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-inventory`, searchOrganizationId]);
+                    mutate([`get-inventory`,category]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -150,24 +154,24 @@ const InventoryCreation: React.FC = () => {
 
     return (
         <>
-            <Filter count={inventoryData?.length !== undefined ? inventoryData?.length : 0}>
+            <Filter count={inventoriesDisplay.length} hideDateTime={true}>
                 <DropdownInput
-                    title={t("warehouse.organization")}
-                    value={searchOrganizationId}
+                    title={t("warehouse.category")}
+                    value={category}
                     classname="ml-2"
-                    options={organizations}
-                    onChange={(value) => setSearchOrganizationId(value)}
+                    options={categories}
+                    onChange={(value) => setCategory(value)}
                 />
             </Filter>
             {inventoryLoading ? (
                 <TableSkeleton columnCount={columnsInventory.length} />
-            ) : inventories.length > 0 ?
+            ) : inventoriesDisplay.length > 0 ?
                 <div className="mt-8">
                     <OverflowTable
-                        tableData={inventories}
+                        tableData={inventoriesDisplay}
                         columns={columnsInventory}
                         isDisplayEdit={true}
-                        isUpdate={true}
+                        isUpdateLeft={true}
                         onUpdate={handleUpdate}
                     />
                 </div> :
