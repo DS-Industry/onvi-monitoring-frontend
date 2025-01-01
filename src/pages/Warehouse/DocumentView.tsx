@@ -11,6 +11,15 @@ import GoodsTable from "@/components/ui/Table/GoodsTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
 
+type InventoryMetaData = {
+    oldQuantity: number;
+    deviation: number;
+}
+
+type MovingMetaData = {
+    warehouseReceirId: number;
+}
+
 const DocumentView: React.FC = () => {
     const location = useLocation();
     const { t } = useTranslation();
@@ -84,23 +93,39 @@ const DocumentView: React.FC = () => {
         }
     ];
 
-    const tableData: { id: number; responsibleId: number; nomenclatureId: number; quantity: number; comment?: string; oldQuantity?: number; deviation?: number }[] = (documentType === "INVENTORY") ? document?.details
-        .map((doc) => ({
+    function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
+        return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
+    }
+
+    function isMovingMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is MovingMetaData {
+        return !!metaData && 'warehouseReceirId' in metaData;
+    }
+
+    const tableData: { 
+        id: number; 
+        responsibleId: number; 
+        nomenclatureId: number; 
+        quantity: number; 
+        comment?: string; 
+        oldQuantity?: number; 
+        deviation?: number; 
+    }[] = documentType === "INVENTORY"
+        ? (document?.details || []).map((doc) => ({
             id: doc.props.id,
-            responsibleId: document.document.props.responsibleId,
+            responsibleId: document?.document.props.responsibleId ?? 0, 
             nomenclatureId: doc.props.nomenclatureId,
             quantity: doc.props.quantity,
             comment: doc.props.comment,
-            oldQuantity: doc.props.metaData?.oldQuantity,
-            deviation: doc.props.metaData?.deviation
-        })) : document?.details
-            .map((doc) => ({
-                id: doc.props.id,
-                responsibleId: document.document.props.responsibleId,
-                nomenclatureId: doc.props.nomenclatureId,
-                quantity: doc.props.quantity,
-                comment: doc.props.comment
-            }));
+            oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
+            deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
+        }))
+        : (document?.details || []).map((doc) => ({
+            id: doc.props.id,
+            responsibleId: document?.document.props.responsibleId ?? 0, 
+            nomenclatureId: doc.props.nomenclatureId,
+            quantity: doc.props.quantity,
+            comment: doc.props.comment
+        }));    
 
     useEffect(() => {
         if(buttonOn)
@@ -149,7 +174,7 @@ const DocumentView: React.FC = () => {
                             {documentType === "MOVING" && <div className="flex">
                                 <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
                                 <DropdownInput
-                                    value={document?.details[0].props.metaData?.warehouseReceirId}
+                                    value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
                                     options={warehouses}
                                     classname="w-80"
                                     onChange={() => { }}

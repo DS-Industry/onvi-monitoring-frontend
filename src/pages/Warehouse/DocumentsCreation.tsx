@@ -25,6 +25,15 @@ import useSWRMutation from "swr/mutation";
 //     MOVING = 'MOVING'
 // }
 
+type InventoryMetaData = {
+    oldQuantity: number;
+    deviation: number;
+}
+
+type MovingMetaData = {
+    warehouseReceirId: number;
+}
+
 const DocumentsCreation: React.FC = () => {
     // const getDocumentType = (document: string) => {
     //     if (document === "COMMISSIONING")
@@ -67,59 +76,75 @@ const DocumentsCreation: React.FC = () => {
     //     }
     // }, []);
 
+    function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
+        return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
+    }
+
+    function isMovingMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is MovingMetaData {
+        return !!metaData && 'warehouseReceirId' in metaData;
+    }
 
     useEffect(() => {
-        if (document?.document.props.status === "SAVED" || document?.document.props.status === "SENT") {
-            setWarehouseId(document.document.props.warehouseId);
-            setNoOverHead(document.document.props.name);
-            setSelectedDate(new Date(document.document.props.carryingAt).toISOString().split("T")[0]);
-            setDocId(document.document.props.id);
-
-            const tableData: { id: number; responsibleId: number; nomenclatureId: number; quantity: number; comment?: string; oldQuantity?: number; deviation?: number }[] = documentType === "INVENTORY" ? document?.details
-                .map((doc) => ({
-                    id: doc.props.id,
-                    responsibleId: document.document.props.responsibleId,
-                    nomenclatureId: doc.props.nomenclatureId,
-                    quantity: doc.props.quantity,
-                    comment: doc.props.comment,
-                    oldQuantity: doc.props.metaData?.oldQuantity,
-                    deviation: doc.props.metaData?.deviation
-                })) : document?.details
-                    .map((doc) => ({
+        if (!loadingDocument) {
+            if (document?.document.props.status === "SAVED" || document?.document.props.status === "SENT") {
+                setWarehouseId(document.document.props.warehouseId);
+                setNoOverHead(document.document.props.name);
+                setSelectedDate(new Date(document.document.props.carryingAt).toISOString().split("T")[0]);
+                setDocId(document.document.props.id);
+                if (documentType === "MOVING")
+                    if (isMovingMetaData(document.details[0].props.metaData))
+                        setWarehouseRecId(document.details[0].props.metaData?.warehouseReceirId)
+                const tableData = documentType === "INVENTORY"
+                    ? document?.details.map((doc) => ({
                         id: doc.props.id,
+                        check: false, // Add the 'check' property
                         responsibleId: document.document.props.responsibleId,
                         nomenclatureId: doc.props.nomenclatureId,
                         quantity: doc.props.quantity,
-                        comment: doc.props.comment
+                        comment: doc.props.comment || "",
+                        oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
+                        deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
+                    }))
+                    : document?.details.map((doc) => ({
+                        id: doc.props.id,
+                        check: false, // Add the 'check' property
+                        responsibleId: document.document.props.responsibleId,
+                        nomenclatureId: doc.props.nomenclatureId,
+                        quantity: doc.props.quantity,
+                        comment: doc.props.comment || ""
                     }));
-            setTableData(tableData);
-        }
-        else {
-            setWarehouseId(location?.state?.warehouseId || null);
-            setNoOverHead(location?.state?.name || '');
-            const validDate = new Date(location?.state?.carryingAt ?? '');
-            setSelectedDate(!isNaN(validDate.getTime()) ? validDate.toISOString().split("T")[0] : null);
-            setDocId(location?.state.ownerId);
-
-            const tableData: { id: number; responsibleId: number | null; nomenclatureId: number | null; quantity: number; comment?: string; oldQuantity?: number; deviation?: number }[] = documentType === "INVENTORY" ?
-                [{
-                    id: location?.state.ownerId,
-                    responsibleId: null,
-                    nomenclatureId: null,
-                    quantity: 0,
-                    comment: "",
-                    oldQuantity: 0,
-                    deviation: 0
-                }] : [{
-                    id: location?.state.ownerId,
-                    responsibleId: null,
-                    nomenclatureId: null,
-                    quantity: 0,
-                    comment: ""
-                }];
                 setTableData(tableData);
+            } else {
+                setWarehouseId(location?.state?.warehouseId || null);
+                setNoOverHead(location?.state?.name || '');
+                const validDate = new Date(location?.state?.carryingAt ?? '');
+                setSelectedDate(!isNaN(validDate.getTime()) ? validDate.toISOString().split("T")[0] : null);
+                setDocId(location?.state.ownerId);
+
+                const tableData = documentType === "INVENTORY"
+                    ? [{
+                        id: location?.state.ownerId,
+                        check: false, // Add the 'check' property
+                        responsibleId: 0,
+                        nomenclatureId: 0,
+                        quantity: 0,
+                        comment: "",
+                        oldQuantity: 0,
+                        deviation: 0
+                    }]
+                    : [{
+                        id: location?.state.ownerId,
+                        check: false, // Add the 'check' property
+                        responsibleId: 0,
+                        nomenclatureId: 0,
+                        quantity: 0,
+                        comment: ""
+                    }];
+                setTableData(tableData);
+            }
         }
-    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId, loadingDocument]);
+
 
     const [errors, setErrors] = useState({
         warehouse: false,

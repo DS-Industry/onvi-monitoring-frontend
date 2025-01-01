@@ -8,9 +8,10 @@ interface ModalProps {
   handleClick?: () => void;
   children: ReactNode;
   classname?: string;
+  loading?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading }) => {
   if (!isOpen) return null;
 
   return createPortal(
@@ -30,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
           <Button
             title={"Сохранить"}
             handleClick={handleClick}
+            isLoading={loading}
           />
         </div>
       </div>

@@ -106,7 +106,7 @@ const Documents: React.FC = () => {
         setDocument(value);
     };
 
-    const { trigger: createDoc } = useSWRMutation(
+    const { trigger: createDoc, isMutating: loadingDocument } = useSWRMutation(
         ['create-document'], 
         (_, { arg }: { arg: { type: WarehouseDocumentType } }) => createDocument(arg)
     );
@@ -175,7 +175,7 @@ const Documents: React.FC = () => {
                         <img src={OverheadsEmpty} className="mx-auto" />
                     </NoDataUI>
             }
-            <Modal isOpen={buttonOn} onClose={() => setButtonOn(false)} handleClick={handleModalSubmit} classname="w-96">
+            <Modal isOpen={buttonOn} onClose={() => setButtonOn(false)} handleClick={handleModalSubmit} classname="w-96" loading={loadingDocument}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-2xl font-semibold text-text01">{t("warehouse.createDoc")}</h2>
                     <div className="flex items-center gap-6">
