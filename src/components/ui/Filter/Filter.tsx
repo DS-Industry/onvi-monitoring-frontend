@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useFilterOpen } from "@/components/context/useContext.tsx";
+import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap";
 import { useStartDate, useEndDate } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput";
@@ -14,6 +14,7 @@ type Props = {
   hideDateTime?: boolean;
   search?: string;
   setSearch?: (value: string) => void;
+  handleClear?: () => void;
 };
 const Filter: React.FC<Props> = ({
   children,
@@ -22,7 +23,8 @@ const Filter: React.FC<Props> = ({
   setSearchTerm,
   hideDateTime = false,
   search = "",
-  setSearch
+  setSearch,
+  handleClear
 }: Props) => {
   const { filterOpen } = useFilterOpen();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,7 @@ const Filter: React.FC<Props> = ({
   const [linesPerPage, setLinesPerPage] = useState(10);
   const [startDate, setStartDate] = useState(storeStartDate);
   const [endDate, setEndDate] = useState(storeEndDate);
+  const {filterOn, setFilterOn} = useFilterOn();
 
   useEffect(() => {
     if (filterOpen) {
@@ -46,10 +49,13 @@ const Filter: React.FC<Props> = ({
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
     if(setSearch) setSearch("");
+    if(handleClear) handleClear();
+    setFilterOn(!filterOn);
   };
   const handleApply = () => {
     if (setSearchTerm && searchTerm) setSearchTerm(searchTerm);
     if(setSearch && search) setSearch(search);
+    setFilterOn(!filterOn);
   };
 
   const handleStartDateChange = (combinedDateTime: Date) => {

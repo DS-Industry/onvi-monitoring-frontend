@@ -56,7 +56,8 @@
     "RECEIPT": "Receipt of goods",
     "writeGoods": "Write-off of goods",
     "createDo": "Create a document",
-    "edit": "Editing"
+    "edit": "Editing",
+    "left": "Leftovers"
   },
   "dashboard": {
     "news": "News",
@@ -334,6 +335,7 @@
     "noSupply": "You don't have vendor data in the program",
     "supName": "Name*",
     "enterSup": "Enter supplier name",
-    "enterPhone": "Enter employee phone number"
+    "enterPhone": "Enter employee phone number",
+    "noStock": "You don't have any products on stock"
   }
 }
