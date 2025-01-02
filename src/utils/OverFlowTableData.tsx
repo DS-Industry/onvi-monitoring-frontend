@@ -655,12 +655,12 @@ export const columnsConsumptionRate = [
   {
     label: "Программа",
     key: "programTypeName",
-    render: (row) => <span>{row.programTypeName}</span>,
+    render: (row: { programTypeName: string; }) => <span>{row.programTypeName}</span>,
   },
   {
     label: "Расход литр/минута",
     key: "literRate",
-    render: (row: { literRate: string | number | readonly string[] | undefined; id: any; }, handleChange: (arg0: any, arg1: string, arg2: string) => void) => (
+    render: (row: { literRate: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
       <input
         type="number"
         className="border border-gray-300 p-2 w-full"
@@ -672,7 +672,7 @@ export const columnsConsumptionRate = [
   {
     label: "Концентрация 1/х",
     key: "concentration",
-    render: (row: { concentration: string | number | readonly string[] | undefined; id: any; }, handleChange: (arg0: any, arg1: string, arg2: string) => void) => (
+    render: (row: { concentration: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
       <input
         type="number"
         className="border border-gray-300 p-2 w-full"
@@ -767,5 +767,20 @@ export const columnsInventoryItems = [
     key: "nomenclatureName"
   }
 ]
+
+export const columnsSupplier = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Ниименование",
+    key: "name"
+  },
+  {
+    label: "Контакт",
+    key: "contact"
+  },
+];
 
 

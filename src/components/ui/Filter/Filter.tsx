@@ -12,6 +12,8 @@ type Props = {
   searchTerm?: string;
   setSearchTerm?: (value: string) => void;
   hideDateTime?: boolean;
+  search?: string;
+  setSearch?: (value: string) => void;
 };
 const Filter: React.FC<Props> = ({
   children,
@@ -19,6 +21,8 @@ const Filter: React.FC<Props> = ({
   searchTerm,
   setSearchTerm,
   hideDateTime = false,
+  search = "",
+  setSearch
 }: Props) => {
   const { filterOpen } = useFilterOpen();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -41,9 +45,11 @@ const Filter: React.FC<Props> = ({
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
+    if(setSearch) setSearch("");
   };
   const handleApply = () => {
     if (setSearchTerm && searchTerm) setSearchTerm(searchTerm);
+    if(setSearch && search) setSearch(search);
   };
 
   const handleStartDateChange = (combinedDateTime: Date) => {
@@ -54,6 +60,10 @@ const Filter: React.FC<Props> = ({
     setEndDate(combinedDateTime);
   };
 
+  const handleSearchChange = (value: string) => {
+    if(setSearch) setSearch(value);
+};
+
   return (
     <div
       ref={contentRef}
@@ -61,8 +71,8 @@ const Filter: React.FC<Props> = ({
     >
       <div className="flex">
         <SearchInput
-          value={""}
-          onChange={() => {}}
+          value={search}
+          onChange={handleSearchChange}
           classname="w-80"
           searchType="outlined"
           title="Поиск"

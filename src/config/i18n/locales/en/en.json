@@ -330,6 +330,10 @@
     "enterWare": "Enter warehouse name",
     "warehouseSend": "Warehouse Sender",
     "warehouseRec": "Warehouse Recipient",
-    "advanced": "Advanced product search"
+    "advanced": "Advanced product search",
+    "noSupply": "You don't have vendor data in the program",
+    "supName": "Name*",
+    "enterSup": "Enter supplier name",
+    "enterPhone": "Enter employee phone number"
   }
 }

@@ -17,14 +17,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
-// enum WarehouseDocumentType {
-//     WRITEOFF = 'WRITEOFF',
-//     INVENTORY = 'INVENTORY',
-//     COMMISSIONING = 'COMMISSIONING',
-//     RECEIPT = 'RECEIPT',
-//     MOVING = 'MOVING'
-// }
-
 type InventoryMetaData = {
     oldQuantity: number;
     deviation: number;
@@ -35,46 +27,21 @@ type MovingMetaData = {
 }
 
 const DocumentsCreation: React.FC = () => {
-    // const getDocumentType = (document: string) => {
-    //     if (document === "COMMISSIONING")
-    //         return WarehouseDocumentType.COMMISSIONING;
-    //     else if (document === "WRITEOFF")
-    //         return WarehouseDocumentType.WRITEOFF;
-    //     else if (document === "MOVING")
-    //         return WarehouseDocumentType.MOVING;
-    //     else if (document === "INVENTORY")
-    //         return WarehouseDocumentType.INVENTORY
-    //     else
-    //         return WarehouseDocumentType.RECEIPT;
-    // }
 
     const documentType = useDocumentType();
-    // const isTriggered = useRef(false);
-
-    // const { trigger: createDoc, data: docData, isMutating: documentLoading } = useSWRMutation(['create-document'], () => createDocument({
-    //     type: getDocumentType(documentType)
-    // }))
-
     const { t } = useTranslation();
     const [warehouseId, setWarehouseId] = useState<number | null>(0);
     const [warehouseRecId, setWarehouseRecId] = useState(0);
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
     const [selectedDate, setSelectedDate] = useState<string | null>(() => {
-        const today = new Date(); // Get today's date
-        return today.toISOString().split("T")[0]; // Format as 'YYYY-MM-DD' for input type="date"
+        const today = new Date(); 
+        return today.toISOString().split("T")[0]; 
     });
     const navigate = useNavigate();
     const location = useLocation();
 
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    // useLayoutEffect(() => {
-    //     if (!isTriggered.current) {
-    //         createDoc();
-    //         isTriggered.current = true; // Mark as triggered
-    //     }
-    // }, []);
 
     function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
         return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;

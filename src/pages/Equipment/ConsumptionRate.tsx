@@ -42,7 +42,7 @@ const ConsumptionRate: React.FC = () => {
         }
     }, [consumptionRateData]);
 
-    const handleTableChange = (id: number, key: any, value: any) => {
+    const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
             prevData?.map((item) =>
                 item.id === id ? { ...item, [key]: value } : item
@@ -66,7 +66,7 @@ const ConsumptionRate: React.FC = () => {
         });
 
         if (result) {
-            mutate([`get-consumption-rate`]);
+            mutate([`get-consumption-rate`, searchPosId]);
         }
     };
 
