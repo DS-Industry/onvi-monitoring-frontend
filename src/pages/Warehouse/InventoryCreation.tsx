@@ -34,7 +34,7 @@ const InventoryCreation: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
-    const [category, setCategory] = useState(1);
+    const [category, setCategory] = useState(0);
 
     const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
@@ -45,7 +45,7 @@ const InventoryCreation: React.FC = () => {
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const inventories = inventoryData?.map((item) => item.props)
-    ?.filter((item: {categoryId: number}) => item.categoryId === category)
+    ?.filter((item: { categoryId: number }) => category === 0 || item.categoryId === category)
     ?.map((item) => item) || [];
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
@@ -132,7 +132,8 @@ const InventoryCreation: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-inventory`,category]);
+                    setCategory(result.props.categoryId)
+                    mutate([`get-inventory`, result.props.categoryId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -141,7 +142,8 @@ const InventoryCreation: React.FC = () => {
                 const result = await createInventory();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-inventory`,category]);
+                    setCategory(result.props.categoryId)
+                    mutate([`get-inventory`, result.props.categoryId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -152,9 +154,13 @@ const InventoryCreation: React.FC = () => {
         }
     };
 
+    const handleClear = () => {
+        setCategory(0);
+    }
+
     return (
         <>
-            <Filter count={inventoriesDisplay.length} hideDateTime={true}>
+            <Filter count={inventoriesDisplay.length} hideDateTime={true} handleClear={handleClear}>
                 <DropdownInput
                     title={t("warehouse.category")}
                     value={category}

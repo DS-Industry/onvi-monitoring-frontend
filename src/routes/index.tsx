@@ -187,16 +187,16 @@ const routes = [
     isSidebar: true,
     subNavHeading: "",
     subNav: [
-      { name: "nomenclature", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventory", component: InventoryCreation, permissions: [], isSidebar: true, subNav: [], subMenu: false, isImport: true },
-      { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "documents", filter: true, addButton: true, addButtonText: "createDo", isVisible: true, path: "/warehouse/documents", component: Documents, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "createDo", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/documents/creation", component: DocumentsCreation, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "createDo", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/warehouse/documents/view", component: DocumentView, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "left", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/leftovers", component: OverheadCosts, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "suppliers", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/suppliers", component: Suppliers, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "nomenclature", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventory", component: InventoryCreation, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false, isImport: true },
+      { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "documents", filter: true, addButton: true, addButtonText: "createDo", isVisible: true, path: "/warehouse/documents", component: Documents, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/documents/creation", component: DocumentsCreation, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/warehouse/documents/view", component: DocumentView, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "left", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/leftovers", component: OverheadCosts, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "suppliers", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/suppliers", component: Suppliers, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
     ],
-    permissions: []
+    permissions: [{ action: "manage", subject: "Warehouse"}]
   },
   {
     name: "Register",
