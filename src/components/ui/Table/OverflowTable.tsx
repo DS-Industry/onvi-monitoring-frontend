@@ -162,7 +162,7 @@ const OverflowTable: React.FC<Props> = ({
       {isDisplayEdit && <>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="text-primary02 text-sm font-semibold flex items-center gap-2 mt-1.5 py-2"
+          className="text-primary02 text-sm font-semibold flex items-center gap-2 mt-5 py-2"
         >
           Настройки таблицы <Edit />
         </button>

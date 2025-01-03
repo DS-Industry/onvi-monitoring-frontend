@@ -3,20 +3,29 @@ import { Navigate } from 'react-router-dom';
 import useAuthStore from '../config/store/authSlice';
 
 type PublicRouteProps = {
-    element: React.ReactNode;
+  element: React.ReactNode;
 };
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ element }) => {
-    // Use the hook to access the state properly, avoiding frequent re-renders
-    const jwtToken = useAuthStore((state) => state.tokens?.accessToken);
+  const jwtToken = useAuthStore((state) => state.tokens?.accessToken);
+  const accessTokenExp = useAuthStore((state) => state.tokens?.accessTokenExp);
 
-    // Only navigate if the jwtToken is present, avoiding infinite navigation cycles
-    if (jwtToken) {
-        return <Navigate to="/" replace />;
-    }
+  const isTokenExpired = () => {
+    if (!accessTokenExp) return false;
 
-    // Return the public route element if the user is not authenticated
-    return element;
+    const currentTime = new Date();
+    const tokenExpiryTime = new Date(accessTokenExp);
+    
+    return currentTime >= tokenExpiryTime; // Returns true if token is expired
+  };
+
+  // If jwtToken exists and is not expired, navigate to home
+  if (jwtToken && !isTokenExpired()) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Otherwise, render the public route
+  return element;
 };
 
 export default PublicRoute;
