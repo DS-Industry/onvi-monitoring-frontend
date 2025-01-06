@@ -10,7 +10,7 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 
-interface ReadTechTasks {
+type ReadTechTasks = {
     id: number;
     name: string;
     posId: number;
@@ -32,9 +32,12 @@ const ProgressReport: React.FC = () => {
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const techTasks: ReadTechTasks[] = data
-        ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.map((item: ReadTechTasks) => item)
-        .sort((a, b) => a.id - b.id) || [];
+    ?.filter((item: { posId: number }) => item.posId === searchPosId)
+    ?.map((item: ReadTechTasks) => ({
+        ...item,
+        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+    }))
+    .sort((a, b) => a.id - b.id) || [];
 
     return (
         <>
@@ -59,6 +62,7 @@ const ProgressReport: React.FC = () => {
                                 tableData={techTasks}
                                 columns={columnsTechTasksRead}
                                 isDisplayEdit={true}
+                                isCheck={true}
                                 nameUrl="/equipment/routine/work/progress/item"
                             />
                         </div>

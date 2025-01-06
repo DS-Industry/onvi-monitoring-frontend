@@ -542,7 +542,7 @@ export const columnsTechTasksRead = [
   },
   {
     label: "Автомойка/ Филиал",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Наименование работ",
@@ -749,11 +749,11 @@ export const columnsAllDocuments = [
   },
   {
     label: "Склад",
-    key: "warehouseId"
+    key: "warehouseName"
   },
   {
     label: "Ответственный",
-    key: "responsibleId"
+    key: "responsibleName"
   }
 ]
 

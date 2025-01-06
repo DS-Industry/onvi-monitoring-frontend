@@ -190,7 +190,6 @@ const Indicators: React.FC = () => {
           <div className="w-full h-64 lg:h-96 overflow-x-hidden overflow-y-hidden px-3 lg:px-8">
             <LineChart />
           </div>
-
         </div>
         {/*
         <div className="mt-4 py-8 bg-white shadow-card rounded-lg">
@@ -273,13 +272,42 @@ const Indicators: React.FC = () => {
           </Modal>
         </div>
         */}
-        <div className="mt-8">
-          {filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
-            :
-            <OverflowTable
-              tableData={posMonitoring}
-              columns={columnsMonitoringPos}
-            />}
+        <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
+          <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
+            {t("indicators.revReport")}
+          </p>
+          <div className="lg:flex justify-between px-3 lg:px-8">
+            <DropdownInput
+              inputType="primary"
+              label="Choose a country"
+              options={selectOptions}
+              value={selectedValue}
+              onChange={setSelectedValue}
+              isSelectable={true}
+              classname="mt-3"
+            />
+            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
+              {durations.map((duration) => (
+                <button
+                  key={duration.label}
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
+                >
+                  {duration.label}
+                </button>
+              ))}
+              <DatePickerComponent />
+            </div>
+          </div>
+          <div>
+            {filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
+              :
+              <OverflowTable
+                tableData={posMonitoring}
+                columns={columnsMonitoringPos}
+                isDisplayEdit={true}
+                nameUrl={"/station/enrollments/devices"}
+              />}
+          </div>
         </div>
       </div>
     </>

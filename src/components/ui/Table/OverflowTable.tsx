@@ -7,6 +7,7 @@ import Modal from "../Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
+import CheckIcon from "@icons/checkSuccess.png";
 import { useSetDocumentType } from "@/hooks/useAuthStore.ts";
 
 interface TableColumn {
@@ -29,6 +30,7 @@ type Props = {
   urlTitleId?: number;
   onUpdate?: (id: number) => void;
   handleChange?: (id: number, key: string, value: string | number) => void;
+  isCheck?: boolean;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -43,7 +45,8 @@ const OverflowTable: React.FC<Props> = ({
   nameUrlTitle,
   urlTitleId,
   onUpdate,
-  handleChange
+  handleChange,
+  isCheck
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -84,6 +87,7 @@ const OverflowTable: React.FC<Props> = ({
           <table className="w-full">
             <thead>
               <tr>
+                {isCheck && <th className="border border-background02 bg-background06 w-11"></th>}
                 {isStatus && <th className="border border-background02 bg-background06 w-11"></th>}
                 {isUpdateLeft && <th className="border border-background02 bg-background06 w-11"></th>}
                 {columns.map(
@@ -103,6 +107,11 @@ const OverflowTable: React.FC<Props> = ({
             <tbody>
               {tableData?.map((row: any) => (
                 <tr key={row.id}>
+                  {isCheck && (
+                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
+                      {row.status === "FINISHED" && <img src={CheckIcon} />}
+                    </td>
+                  )}
                   {isStatus && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                       {row.status === "SENT" ? <img src={SentIcon} /> : <img src={SavedIcon} />}

@@ -15,6 +15,7 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import NoDataUI from "@/components/ui/NoDataUI";
 import OverheadsEmpty from "@/assets/NoOverhead.png"
 import useSWRMutation from "swr/mutation";
+import { getWorkers } from "@/services/api/equipment";
 
 type DocumentParams = {
     dateStart: Date;
@@ -61,7 +62,11 @@ const Documents: React.FC = () => {
             return WarehouseDocumentType.RECEIPT;
     }
 
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -76,7 +81,7 @@ const Documents: React.FC = () => {
     const handleDataFilter = (newFilterData: Partial<DocumentParams>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
-        if(newFilterData.warehouseId) setWareHouseId(newFilterData.warehouseId);
+        if (newFilterData.warehouseId) setWareHouseId(newFilterData.warehouseId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
@@ -91,7 +96,17 @@ const Documents: React.FC = () => {
         documentsMutating().then(() => setIsTableLoading(false));
     }, [dataFilter, documentsMutating]);
 
-    const data = allDocuments || [];
+    useEffect(() => {
+        if (!documentsLoading) {
+            setIsTableLoading(false);
+        }
+    }, [documentsLoading]);    
+
+    const data = allDocuments?.map((item) => ({
+        ...item,
+        warehouseName: warehouses.find((ware) => ware.value === item.warehouseId)?.name || "-",
+        responsibleName: workers.find((wor) => wor.value === item.responsibleId)?.name || "-"
+    })) || [];
 
     const documentTypes = [
         { name: t("routes.COMMISSIONING"), value: "COMMISSIONING" },
@@ -107,7 +122,7 @@ const Documents: React.FC = () => {
     };
 
     const { trigger: createDoc, isMutating: loadingDocument } = useSWRMutation(
-        ['create-document'], 
+        ['create-document'],
         (_, { arg }: { arg: { type: WarehouseDocumentType } }) => createDocument(arg)
     );
 
@@ -121,23 +136,23 @@ const Documents: React.FC = () => {
     const handleModalSubmit = async () => {
         if (documentType) {
             const documentTypeEnum = getDocumentType(documentType);
-    
+
             try {
                 // Await the creation of the document
                 const result = await createDoc({ type: documentTypeEnum });
-    
+
                 // Ensure result has the expected data
                 if (result?.props) {
                     const { id, name, carryingAt, warehouseId } = result.props;
-    
+
                     // Navigate with the correct state values
-                    navigate("/warehouse/documents/creation", { 
-                        state: { 
-                            ownerId: id, 
-                            name, 
-                            carryingAt, 
-                            wareHouseId: warehouseId 
-                        } 
+                    navigate("/warehouse/documents/creation", {
+                        state: {
+                            ownerId: id,
+                            name,
+                            carryingAt,
+                            wareHouseId: warehouseId
+                        }
                     });
                 } else {
                     console.error("Document creation did not return expected data:", result);
@@ -146,7 +161,9 @@ const Documents: React.FC = () => {
                 console.error("Error creating document:", error);
             }
         }
-    };    
+    };
+
+    console.log("Data length: ", data.length);
 
     return (
         <>

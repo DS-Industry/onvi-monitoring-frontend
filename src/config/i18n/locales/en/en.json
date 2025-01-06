@@ -87,7 +87,9 @@
     "notification": "Indicators",
     "notificationText": "This section will display the main indicators of car washes per day",
     "revenue": "Revenue Chart",
-    "rev": "Revenue"
+    "rev": "Revenue",
+    "revReport": "Revenue report",
+    "carWash": "Car wash rating"
   },
   "organizations": {
     "typeLegal": "Type of Legal faces",
