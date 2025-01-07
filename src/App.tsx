@@ -8,6 +8,7 @@ import DashboardLayout from "@/layout/DashboardLayout";
 import { Can } from "@/permissions/Can";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { usePermissions } from "./hooks/useAuthStore";
+import PublicLayout from "./layout/PublicLayout";
 
 const App: React.FC = () => {
   const permissions = usePermissions();
@@ -32,15 +33,17 @@ const App: React.FC = () => {
     <HashRouter>
       <Routes>
         {/* Public Routes */}
-        {routes.map((route) =>
-          route.isPublicRoute && (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={<PublicRoute element={<route.component />} />}
-            />
-          )
-        )}
+        <Route element={<PublicRoute element={<PublicLayout />} />}>
+          {routes.map((route) =>
+            route.isPublicRoute && (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={<route.component />}
+              />
+            )
+          )}
+        </Route>
         {/* Private Routes */}
         <Route element={<PrivateRoute element={<DashboardLayout />} />}>
           {routes.map((route) => {

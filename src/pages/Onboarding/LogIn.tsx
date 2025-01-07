@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { loginPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
@@ -11,6 +11,8 @@ import useFormHook from '@/hooks/useFormHook';
 import LoginImage from '@/assets/LoginImage.png';
 import ArrowLeft from 'feather-icons-react';
 import OnviBlue from '@/assets/onvi_blue.png';
+import { useSnackbar } from '@/components/context/useContext';
+import { setSnackbarFunction } from '@/config/axiosConfig';
 // import LanguageSelector from '@/components/LanguageSelector';
 
 const LogIn: React.FC = () => {
@@ -55,7 +57,7 @@ const LogIn: React.FC = () => {
 
   const handleInputChange = (field: FieldName, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setValue(field, value); 
+    setValue(field, value);
   };
 
   const onSubmit = async (data: { loginEmail: string, loginPassword: string }) => {
@@ -83,6 +85,12 @@ const LogIn: React.FC = () => {
       clearData();
     }
   };
+
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    setSnackbarFunction(showSnackbar);
+  }, [showSnackbar]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">

@@ -7,7 +7,7 @@ import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDocumentType } from "@/hooks/useAuthStore";
+import { useDocumentType, useSetEndDate } from "@/hooks/useAuthStore";
 import { getWorkers } from "@/services/api/equipment";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
 import { columnsInventoryItems } from "@/utils/OverFlowTableData";
@@ -40,6 +40,7 @@ const DocumentsCreation: React.FC = () => {
     });
     const navigate = useNavigate();
     const location = useLocation();
+    const setEndDate = useSetEndDate();
 
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -310,6 +311,8 @@ const DocumentsCreation: React.FC = () => {
             details: detailValues
         })
 
+        setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
+
         if (result) {
             console.log(result);
             navigate('/warehouse/documents');
@@ -407,6 +410,8 @@ const DocumentsCreation: React.FC = () => {
             carryingAt: new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate),
             details: detailValues
         })
+
+        setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
 
         if (result) {
             console.log(result);

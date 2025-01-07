@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
@@ -10,7 +10,7 @@ import NotificationYes from "@icons/Notification_Yes.svg?react";
 import EZ from "@icons/EZ.svg?react";
 import ArrowDown from "@icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
-import { useButtonCreate, useFilterOpen } from "@/components/context/useContext";
+import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/context/useContext";
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
 import { useDocumentType, usePermissions } from "@/hooks/useAuthStore";
+import { setSnackbarFunction } from "@/config/axiosConfig";
 
 type Props = {
   children: React.ReactNode;
@@ -93,6 +94,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const handleSubNavMouseLeave = () => {
     setHoveredSubNavItem(null);
   };
+
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    setSnackbarFunction(showSnackbar);
+  }, [showSnackbar]);
 
   return (
     <div className="flex">
