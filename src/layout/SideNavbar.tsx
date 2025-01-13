@@ -317,12 +317,21 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </div>
             </div>
             <div className="flex">
-              {activePage?.isImport && (
+              {activePage?.name === "nomenclature" && (
                 <Button
                   title={t("warehouse.import")}
-                  iconPlus={true} type="outline"
+                  iconPlus={true}
+                  type="outline"
                   classname="mr-2"
                   handleClick={() => navigate('/warehouse/inventory/import')}
+                />
+              )}
+              {activePage?.name === "clients" && (
+                <Button
+                  title={t("routes.importClients")}
+                  type="outline"
+                  classname="mr-2"
+                  handleClick={() => navigate('/marketing/clients/import')}
                 />
               )}
               {activePage?.addButton && (

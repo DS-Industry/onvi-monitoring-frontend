@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap";
-import { useStartDate, useEndDate } from "@/hooks/useAuthStore.ts";
+import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput";
 import DropdownInput from "../Input/DropdownInput";
 import Button from "../Button/Button";
@@ -31,10 +31,12 @@ const Filter: React.FC<Props> = ({
   const storeStartDate = useStartDate();
   const storeEndDate = useEndDate();
   const [city, setCity] = useState("");
-  const [linesPerPage, setLinesPerPage] = useState(10);
+  // const [linesPerPage, setLinesPerPage] = useState(10);
   const [startDate, setStartDate] = useState(storeStartDate);
   const [endDate, setEndDate] = useState(storeEndDate);
-  const {filterOn, setFilterOn} = useFilterOn();
+  const { filterOn, setFilterOn } = useFilterOn();
+  const pageNumber = usePageNumber();
+  const setPageNumber = useSetPageNumber();
 
   useEffect(() => {
     if (filterOpen) {
@@ -48,13 +50,13 @@ const Filter: React.FC<Props> = ({
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
-    if(setSearch) setSearch("");
-    if(handleClear) handleClear();
+    if (setSearch) setSearch("");
+    if (handleClear) handleClear();
     setFilterOn(!filterOn);
   };
   const handleApply = () => {
     if (setSearchTerm && searchTerm) setSearchTerm(searchTerm);
-    if(setSearch && search) setSearch(search);
+    if (setSearch && search) setSearch(search);
     setFilterOn(!filterOn);
   };
 
@@ -67,8 +69,8 @@ const Filter: React.FC<Props> = ({
   };
 
   const handleSearchChange = (value: string) => {
-    if(setSearch) setSearch(value);
-};
+    if (setSearch) setSearch(value);
+  };
 
   return (
     <div
@@ -93,14 +95,15 @@ const Filter: React.FC<Props> = ({
         {children}
         <DropdownInput
           title={"Строк на стр."}
-          value={linesPerPage}
+          value={pageNumber}
           classname="ml-2 w-24"
           options={[
+            { name: 5, value: 5 },
             { name: 10, value: 10 },
             { name: 20, value: 20 },
             { name: 50, value: 50 },
           ]}
-          onChange={(value) => setLinesPerPage(value)}
+          onChange={(value) => setPageNumber(value)}
         />
       </div>
       {!hideDateTime ? (
@@ -113,7 +116,7 @@ const Filter: React.FC<Props> = ({
           />
         </div>
       ) :
-      <div className="h-5"></div>}
+        <div className="h-5"></div>}
       <div className="flex items-center gap-6">
         <Button title="Сбросить" handleClick={handleReset} type="outline" />
         <Button title="Применить" handleClick={handleApply} />

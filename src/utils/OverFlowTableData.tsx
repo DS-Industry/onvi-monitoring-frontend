@@ -127,6 +127,10 @@ export const columnsPos = [
     type: "number"
   },
   {
+    label: "Организация",
+    key: "organizationName"
+  },
+  {
     label: "Название организации",
     key: "posType",
   },
@@ -155,7 +159,7 @@ export const columnsPos = [
   {
     label: "Обновил",
     key: "updatedById",
-  },
+  }
 ]
 export const columnsOrg = [
   {
@@ -782,5 +786,16 @@ export const columnsSupplier = [
     key: "contact"
   },
 ];
+
+export const columnsClient = [
+  {
+    label: "Тип клиента",
+    key: "type"
+  },
+  {
+    label: "Имя клиента",
+    key: "name"
+  }
+]
 
 

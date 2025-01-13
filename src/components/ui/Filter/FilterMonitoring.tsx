@@ -3,7 +3,7 @@ import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx"
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
 
 type Optional = {
@@ -37,7 +37,7 @@ const FilterMonitoring: React.FC<Props> = ({
     const storeEndDate = useEndDate();
     // const { buttonOn, setButtonOn } = useButtonCreate();
     const [city, setCity] = useState("");
-    const [linesPerPage, setLinesPerPage] = useState(10);
+    // const [linesPerPage, setLinesPerPage] = useState(10);
     const { filterOn, setFilterOn } = useFilterOn();
     const { filterOpen } = useFilterOpen();
     const contentRef = useRef<HTMLDivElement>(null);
@@ -52,6 +52,8 @@ const FilterMonitoring: React.FC<Props> = ({
     const setWareHouseId = useSetWareHouseId();
     const setStartDateInStore = useSetStartDate();
     const setEndDateInStore = useSetEndDate();
+    const pageNumber = usePageNumber();
+    const setPageNumber = useSetPageNumber();
 
     const handleStartDateChange = (combinedDateTime: Date) => {
         setStartDate(combinedDateTime);
@@ -150,14 +152,14 @@ const FilterMonitoring: React.FC<Props> = ({
                 />)}
                 <DropdownInput
                     title={"Строк на стр."}
-                    value={linesPerPage}
+                    value={pageNumber}
                     classname="ml-2 w-24"
                     options={[
                         { name: 10, value: 10 },
                         { name: 20, value: 20 },
                         { name: 50, value: 50 }
                     ]}
-                    onChange={(value) => setLinesPerPage(value)}
+                    onChange={(value) => setPageNumber(value)}
                 />
             </div>
             <InputDateGap

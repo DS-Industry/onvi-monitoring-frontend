@@ -23,7 +23,7 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
         outline: `bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center`,
         //custom: `bg-${}`
     }
-    const className = ` ${typeButton[type]} font-semibold rounded-md text-base px-5 py-2.5 mb-2 relative flex justify-center items-center`
+    const className = ` ${typeButton[type]} font-semibold rounded-md text-base px-3 py-2 relative flex justify-center items-center`
 
     const typeForm = form ? 'submit' : 'button';
 

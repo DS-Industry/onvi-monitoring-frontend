@@ -1,6 +1,7 @@
 import Button from "@/components/ui/Button/Button";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
+import NoDataUI from "@/components/ui/NoDataUI";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { getConsumptionRate, getPoses, patchProgramCoefficient } from "@/services/api/equipment";
@@ -9,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
+import SalyImage from "@/assets/NoEquipment.png"
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
@@ -84,6 +86,7 @@ const ConsumptionRate: React.FC = () => {
             {programCoeffsLoading ? (
                 <TableSkeleton columnCount={columnsConsumptionRate.length} />
             ) :
+                tableData && tableData.length > 0 ?
                 <div className="mt-8">
                     <OverflowTable
                         tableData={tableData}
@@ -91,9 +94,15 @@ const ConsumptionRate: React.FC = () => {
                         isDisplayEdit={true}
                         handleChange={handleTableChange}
                     />
-                </div>
+                </div> :
+                <NoDataUI
+                title={t("chemical.noText")}
+                description={t("chemical.dont")}
+            >
+                <img src={SalyImage} className="mx-auto" />
+            </NoDataUI>
             }
-            <div className="flex space-x-4">
+            {tableData && tableData.length > 0 && <div className="flex space-x-4">
                 <Button
                     title={t("organizations.cancel")}
                     type='outline'
@@ -105,7 +114,7 @@ const ConsumptionRate: React.FC = () => {
                     isLoading={isMutating}
                     handleClick={handleSubmit}
                 />
-            </div>
+            </div> }
         </div>
     )
 }

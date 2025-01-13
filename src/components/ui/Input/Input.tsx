@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, Calendar } from 'feather-icons-react';
 
 type InputProps = {
-    type: string;
+    type?: string;
     value?: any;
-    changeValue: (e: any) => void;
+    changeValue?: (e: any) => void;
     error?: boolean;
     label?: string;
     helperText?: string;
@@ -67,13 +67,13 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         )}
                     </div>
                 )}
-                {/* {type === "date" && (
+                {type === "date" && (
                     <div
                         className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" // Ensuring icon is purely decorative
                     >
                         <Calendar size={20} className={`${disabled ? "text-text03" : "text-text02"}`} />
                     </div>
-                )} */}
+                )}
                 {(showIcon && type !== "date" && type !== "password") && (
                     <div
                         className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"

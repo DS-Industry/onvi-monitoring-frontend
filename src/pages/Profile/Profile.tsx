@@ -14,7 +14,7 @@ const ProfileForm: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto bg-white">
-      <div className="flex space-x-4 border-b mb-6 w-72">
+      <div className="flex space-x-4 border-b mb-6 w-fit">
         {tabs.map((tab) => (
           <button
             key={tab.id}

@@ -53,6 +53,10 @@ export const useWareHouseId = () => {
   return useAuthStore((state) => state.wareHouseId);
 }
 
+export const usePageNumber = () => {
+  return useAuthStore((state) => state.pageNumber);
+}
+
 export const useSetPermissions = () => {
   return useAuthStore((state) => state.setPermissions);
 }
@@ -68,4 +72,9 @@ export const useSetDocumentType = () => {
 export const useSetWareHouseId = () => {
   return useAuthStore((state) => state.setWareHouseId);
 }
+
+export const useSetPageNumber = () => {
+  return useAuthStore((state) => state.setPageNumber);
+}
+
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Input from "../Input/Input";
 
 type InputDateGapProps = {
     defaultDateStart: Date | string;
@@ -63,33 +64,33 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
                 {/* Start Date and Time */}
                 <div className="flex gap-2.5 items-center">
                     <span>с</span>
-                    <input
+                    <Input
                         type="date"
-                        className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
+                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
                         value={dateStart}
-                        onChange={handleStartDateChange}
+                        changeValue={handleStartDateChange}
                     />
-                    <input
+                    <Input
                         type="time"
-                        className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
+                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
                         value={timeStart}
-                        onChange={handleStartTimeChange}
+                        changeValue={handleStartTimeChange}
                     />
                 </div>
                 {/* End Date and Time */}
                 <div className="flex gap-2.5 items-center">
                     <span>по</span>
-                    <input
+                    <Input
                         type="date"
-                        className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
+                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
                         value={dateEnd}
-                        onChange={handleEndDateChange}
+                        changeValue={handleEndDateChange}
                     />
-                    <input
+                    <Input
                         type="time"
-                        className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
+                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
                         value={timeEnd}
-                        onChange={handleEndTimeChange}
+                        changeValue={handleEndTimeChange}
                     />
                 </div>
             </div>

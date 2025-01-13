@@ -42,6 +42,14 @@ import InventoryImport from "@/pages/Warehouse/InventoryImport";
 import Documents from "@/pages/Warehouse/Documents";
 import DocumentsCreation from "@/pages/Warehouse/DocumentsCreation";
 import DocumentView from "@/pages/Warehouse/DocumentView";
+import Clients from "@/pages/Marketing/Clients";
+import Segments from "@/pages/Marketing/Segments";
+import LoyaltyPrograms from "@/pages/Marketing/LoyaltyPrograms";
+import ShareConstructor from "@/pages/Marketing/ShareConstructor";
+import MarketResearch from "@/pages/Marketing/MarketResearch";
+import ClientsImport from "@/pages/Marketing/ClientsImport";
+import Marketing from "@/pages/Marketing/Marketing";
+import ClientsProfile from "@/pages/Marketing/ClientsProfile";
 
 const routes = [
   {
@@ -139,14 +147,24 @@ const routes = [
   {
     name: "marketing",
     path: "/marketing",
-    subMenu: false,
+    subMenu: true,
     filter: false,
     addButton: false,
     addButtonText: "",
     icon: LoyaltyIcon,
-    component: Default,
+    subNavHeading: "",
+    subNav: [
+      { name: "clients", filter: true, addButton: true, addButtonText: "addClient", isVisible: true, path: "/marketing/clients", component: Clients, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "importClients", filter: true, addButton: false, addButtonText: "addClient", isVisible: true, path: "/marketing/clients/import", component: ClientsImport, permissions: [], isSidebar: false, subNav: [], subMenu: false },
+      { name: "clientProfile", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/marketing/clients/profile", component: ClientsProfile, permissions: [], isSidebar: false, subNav: [], subMenu: false },
+      { name: "segments", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/segments", component: Segments, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "loyalty", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/loyalty", component: LoyaltyPrograms, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "share", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/share/constructor", component: ShareConstructor, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "marketRes", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: MarketResearch, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+    ],
+    component: Marketing,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Marketing" }]
+    permissions: []
   },
   {
     name: "equipment",

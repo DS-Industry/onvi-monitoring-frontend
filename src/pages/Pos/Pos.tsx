@@ -82,6 +82,8 @@ const Pos: React.FC = () => {
         ?.map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
 
+    const organization: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
     const defaultValues = {
         name: '',
         monthlyPlan: null,
@@ -169,7 +171,10 @@ const Pos: React.FC = () => {
     };
 
     const poses: Pos[] = data
-        ?.map((item: Pos) => item)
+        ?.map((item: Pos) => ({ 
+            ...item,
+            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-"
+        }))
         .sort((a, b) => a.id - b.id) || [];
 
     return (
@@ -327,11 +332,7 @@ const Pos: React.FC = () => {
                     <DropdownInput
                         title={t("pos.company")}
                         label={t("pos.companyName")}
-                        options={[
-                            { name: "LLC ONVI", value: 1 },
-                            // { name: `ООО “Мой-Ка”`, value: 2 },
-                            // { name: "Добавить Компанию", value: 3 }
-                        ]}
+                        options={organization}
                         classname="w-96"
                         {...register('organizationId', { required: 'Organization ID is required' })}
                         value={formData.organizationId}
