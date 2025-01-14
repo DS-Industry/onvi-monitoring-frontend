@@ -17,8 +17,9 @@ import { Can } from "@/permissions/Can";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
-import { useDocumentType, usePermissions } from "@/hooks/useAuthStore";
+import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
+import useAuthStore from "@/config/store/authSlice";
 
 type Props = {
   children: React.ReactNode;
@@ -37,7 +38,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const navigate = useNavigate();
   const user = useUser();
 
-  const userPermissions = usePermissions();
+  const userPermissions = useAuthStore((state) => state.permissions);
 
   const getActivePage = () => {
     for (const item of routes) {
@@ -100,6 +101,39 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   useEffect(() => {
     setSnackbarFunction(showSnackbar);
   }, [showSnackbar]);
+
+  const getRequiredPermissions = (path: string) => {
+    if (path.includes("administration"))
+      return [
+        { action: "manage", subject: "Organization" },
+        { action: "create", subject: "Organization" },
+        { action: "update", subject: "Organization" },
+      ];
+    if (path.includes("station"))
+      return [
+        { action: "manage", subject: "Pos" },
+        { action: "create", subject: "Pos" },
+        { action: "update", subject: "Pos" },
+      ];
+    if (path.includes("equipment"))
+      return [
+        { action: "manage", subject: "Incident" },
+        { action: "create", subject: "Incident" },
+        { action: "update", subject: "Incident" },
+        { action: "manage", subject: "TechTask" },
+        { action: "create", subject: "TechTask" },
+        { action: "update", subject: "TechTask" },
+      ];
+    if (path.includes("warehouse"))
+      return [
+        { action: "manage", subject: "Warehouse" },
+        { action: "create", subject: "Warehouse" },
+        { action: "update", subject: "Warehouse" },
+      ];
+    // Add cases for other components as needed
+    else
+      return [];
+  };
 
   return (
     <div className="flex">
@@ -335,16 +369,16 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 />
               )}
               <Can
-                requiredPermissions={[{ action: "manage", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "manage", subject: "Organization"},{ action: "create", subject: "Organization"},{ action: "update", subject: "Organization"},{ action: "manage", subject: "Pos"},{ action: "create", subject: "Pos"},{ action: "update", subject: "Pos"},{ action: "manage", subject: "Incident"},{ action: "create", subject: "Incident"},{ action: "update", subject: "Incident"},{ action: "manage", subject: "Techtask"},{ action: "create", subject: "Techtask"},{ action: "update", subject: "Techtask"}]}
+                requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                 userPermissions={userPermissions}
               >
-              {(allowed) => allowed && activePage?.addButton && (
-                <Button
-                  title={t(`routes.${activePage?.addButtonText}`)}
-                  iconPlus={true}
-                  handleClick={handleClickButtonCreate}
-                />
-              )}
+                {(allowed) => allowed && activePage?.addButton && (
+                  <Button
+                    title={t(`routes.${activePage?.addButtonText}`)}
+                    iconPlus={true}
+                    handleClick={handleClickButtonCreate}
+                  />
+                )}
               </Can>
             </div>
           </div>

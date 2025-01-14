@@ -19,7 +19,7 @@ const hasPermission = _.memoize(
     }
 
     // Check if user has at least one required permission
-    return requiredPermissions.every((required) =>
+    return requiredPermissions.some((required) =>
       userPermissions.some(
         (userPermission) =>
           userPermission.subject === required.subject &&

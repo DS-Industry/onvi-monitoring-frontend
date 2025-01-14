@@ -7,11 +7,12 @@ import PublicRoute from "@/routes/PublicRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
 import { Can } from "@/permissions/Can";
 import 'react-loading-skeleton/dist/skeleton.css';
-import { usePermissions } from "./hooks/useAuthStore";
+// import { usePermissions } from "./hooks/useAuthStore";
 import PublicLayout from "./layout/PublicLayout";
+import useAuthStore from "./config/store/authSlice";
 
 const App: React.FC = () => {
-  const userPermissions = usePermissions();
+  const userPermissions = useAuthStore((state) => state.permissions);
 
   return (
     <HashRouter>
