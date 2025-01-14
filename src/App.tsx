@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import routes from "@/routes";
 import PrivateRoute from "@/routes/PrivateRoute";
@@ -11,23 +11,7 @@ import { usePermissions } from "./hooks/useAuthStore";
 import PublicLayout from "./layout/PublicLayout";
 
 const App: React.FC = () => {
-  const permissions = usePermissions();
-  const [userPermissions, setUserPermissions] = useState<
-    { subject: string; action: string }[]
-  >([]);
-  const [isPermissionsLoaded, setIsPermissionsLoaded] = useState(false);
-
-
-  useEffect(() => {
-    if (permissions) {
-      setUserPermissions(permissions);
-      setIsPermissionsLoaded(true);
-    }
-  }, [permissions]);
-
-  if (!isPermissionsLoaded) {
-    return <div>Loading...</div>;
-  }
+  const userPermissions = usePermissions();
 
   return (
     <HashRouter>
