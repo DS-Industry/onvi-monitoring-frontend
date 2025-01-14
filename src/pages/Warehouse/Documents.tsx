@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useDocumentType, useEndDate, useSetDocumentType, useSetEndDate, useSetStartDate, useSetWareHouseId, useStartDate, useWareHouseId } from "@/hooks/useAuthStore";
+import { useDocumentType, useEndDate, usePosType, useSetDocumentType, useSetEndDate, useSetStartDate, useSetWareHouseId, useStartDate, useWareHouseId } from "@/hooks/useAuthStore";
 import useSWR from "swr";
 import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/warehouse";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
@@ -62,9 +62,11 @@ const Documents: React.FC = () => {
             return WarehouseDocumentType.RECEIPT;
     }
 
+    const posType = usePosType();
+
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

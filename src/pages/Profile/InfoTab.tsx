@@ -13,7 +13,7 @@ import { useClearJwtToken } from '@/hooks/useAuthStore';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
-  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const initials = 'CE'; // Replace this with dynamic initials logic
   const user = useUser();
@@ -54,7 +54,7 @@ const InfoTab: React.FC = () => {
     phone: formData.phone,
     middlename: formData.middlename,
     surname: formData.surname,
-  }));
+  }, selectedFile));
 
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const InfoTab: React.FC = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    // setSelectedFile(file);
+    setSelectedFile(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -89,6 +89,12 @@ const InfoTab: React.FC = () => {
     try {
       // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
+
+      if ((await updateUserData).props.avatar) {
+        const avatarUrl = "  https://storage.yandexcloud.net/onvi-business/avatar/user/" + `${(await updateUserData).props.avatar}` || null;
+        setImagePreview(avatarUrl);
+        localStorage.setItem('avatarUrl', avatarUrl || ""); // Store the avatar URL in localStorage for persistence
+      }
 
       const [updatedData] = await Promise.all([updateUserData]);
 

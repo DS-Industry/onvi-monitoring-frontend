@@ -53,7 +53,7 @@ type LOGINRESPONSE = {
         refreshTokenExp: Date;
     },
     permissionInfo: {
-        permissions: Array<{subject: string; action: string;}>;
+        permissions: Array<{ subject: string; action: string; }>;
         role: string;
     }
 }
@@ -117,7 +117,7 @@ type REGISTERACTIVATIONRESPONSE = {
         refreshTokenExp: Date;
     },
     permissionInfo: {
-        permissions: Array<{subject: string; action: string;}>;
+        permissions: Array<{ subject: string; action: string; }>;
         role: string;
     }
 }
@@ -249,9 +249,27 @@ export async function passwordResetUser(body: RESETBODY): Promise<RESETRESPONSE>
 //     return response.data;
 // }
 
-export async function updateUserProfile(body: UPDATEUSERBODY): Promise<UPDATEUSERRESPONSE> {
+export async function updateUserProfile(body: UPDATEUSERBODY, file?: File | null): Promise<UPDATEUSERRESPONSE> {
     console.log(body);
-    const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(USER.USER_UPDATE, body);
+    const formData = new FormData();
+
+    for (const key in body) {
+        const value = body[key as keyof UPDATEUSERBODY];
+        if (value !== undefined) {
+            // Convert value to a string if it's a number
+            formData.append(key, value.toString());
+        }
+    }
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(USER.USER_UPDATE, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     console.log(response.data);
     return response.data;
 }

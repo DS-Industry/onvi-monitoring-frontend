@@ -334,13 +334,18 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   handleClick={() => navigate('/marketing/clients/import')}
                 />
               )}
-              {activePage?.addButton && (
+              <Can
+                requiredPermissions={[{ action: "manage", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "manage", subject: "Organization"},{ action: "create", subject: "Organization"},{ action: "update", subject: "Organization"},{ action: "manage", subject: "Pos"},{ action: "create", subject: "Pos"},{ action: "update", subject: "Pos"},{ action: "manage", subject: "Incident"},{ action: "create", subject: "Incident"},{ action: "update", subject: "Incident"},{ action: "manage", subject: "Techtask"},{ action: "create", subject: "Techtask"},{ action: "update", subject: "Techtask"}]}
+                userPermissions={userPermissions}
+              >
+              {(allowed) => allowed && activePage?.addButton && (
                 <Button
                   title={t(`routes.${activePage?.addButtonText}`)}
                   iconPlus={true}
                   handleClick={handleClickButtonCreate}
                 />
               )}
+              </Can>
             </div>
           </div>
           {children}

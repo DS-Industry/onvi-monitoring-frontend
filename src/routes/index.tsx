@@ -74,11 +74,11 @@ const routes = [
     icon: AdministrationIcon,
     subNavHeading: "directories",
     component: Default,
-    permissions: [{ action: "manage", subject: "Organization" }],
+    permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }],
     subNav: [
       { name: "subscriptions", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "legalEntities", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "legalEntities", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
     ],
     isSidebar: true
   },
@@ -91,16 +91,16 @@ const routes = [
     addButtonText: '',
     icon: CarWashIcon,
     subNavHeading: "directories",
-    permissions: [{ action: "manage", subject: "Pos" }],
+    permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }],
     subNav: [
-      { name: "objectManagement", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "objectManagement", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/station/objectManagement", component: Pos, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "services", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/services", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "deposits", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "depositDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: false },
-      { name: "depositDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: false },
-      { name: "programs", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "programDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: false },
-      { name: "programDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [{ action: "manage", subject: "Pos" }], isSidebar: false },
+      { name: "deposits", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments", component: DepositDevices, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "depositDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments/devices", component: Deposit, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
+      { name: "depositDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/enrollments/device", component: DepositDevice, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
+      { name: "programs", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "programDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
+      { name: "programDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
       { name: "planAct", filter: true, addButton: false, addButtonText: "", isVisible: true, path: "/station/plan/act", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "cleaning", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/cleaning", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "simpleBoxes", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
@@ -164,7 +164,7 @@ const routes = [
     ],
     component: Marketing,
     isSidebar: true,
-    permissions: []
+    permissions: [{ action: "manage", subject: "Marketing" }]
   },
   {
     name: "equipment",
@@ -177,21 +177,21 @@ const routes = [
     subNavHeading: "dailyOptions",
     subNav: [
       // { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "chemical", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/equipment/chemical/consumption", component: ChemicalConsumption, permissions: [{ action: "manage", subject: "TechTask" }], isSidebar: true, subNav: [], subMenu: false },
+      { name: "chemical", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/equipment/chemical/consumption", component: ChemicalConsumption, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true, subNav: [], subMenu: false },
       {
-        name: "routine", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" }], isSidebar: true, subNav: [
-          { name: "list", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/list", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" }], isSidebar: true },
-          { name: "progress", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress", component: ProgressReport, permissions: [{ action: "manage", subject: "TechTask" }], isSidebar: true },
-          { name: "progress", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress/item", component: ProgressReportItem, permissions: [{ action: "manage", subject: "TechTask" }], isSidebar: false }
+        name: "routine", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true, subNav: [
+          { name: "list", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/list", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true },
+          { name: "progress", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress", component: ProgressReport, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true },
+          { name: "progress", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress/item", component: ProgressReportItem, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: false }
         ], subMenu: true
       },
       { name: "consumption", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/consumption/rate", component: ConsumptionRate, permissions: [], isSidebar: true, subNav: [], isHr: true },
-      { titleName: "from", name: "equipmentFailure", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/failure", component: EquipmentFailure, permissions: [{ action: "manage", subject: "Incident" }], isSidebar: true, subNav: [], isHr: true },
+      { titleName: "from", name: "equipmentFailure", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/failure", component: EquipmentFailure, permissions: [{ action: "manage", subject: "Incident" },{ action: "create", subject: "Incident" },{ action: "read", subject: "Incident" },{ action: "update", subject: "Incident" },{ action: "delete", subject: "Incident" }], isSidebar: true, subNav: [], isHr: true },
       { titleName: "settings", name: "replacing", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
     ],
     component: Default,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Incident" }, { action: "manage", subject: "TechTask" }]
+    permissions: [{ action: "manage", subject: "Incident" },{ action: "create", subject: "Incident" },{ action: "read", subject: "Incident" },{ action: "update", subject: "Incident" },{ action: "delete", subject: "Incident" }, { action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }]
   },
   {
     name: "store",
@@ -205,16 +205,16 @@ const routes = [
     isSidebar: true,
     subNavHeading: "",
     subNav: [
-      { name: "nomenclature", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventory", component: InventoryCreation, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false, isImport: true },
-      { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
-      { name: "documents", filter: true, addButton: true, addButtonText: "createDo", isVisible: true, path: "/warehouse/documents", component: Documents, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
-      { name: "createDo", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/documents/creation", component: DocumentsCreation, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "createDo", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/warehouse/documents/view", component: DocumentView, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "left", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/leftovers", component: OverheadCosts, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
-      { name: "suppliers", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/suppliers", component: Suppliers, permissions: [{ action: "manage", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "nomenclature", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventory", component: InventoryCreation, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false, isImport: true },
+      { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "documents", filter: true, addButton: true, addButtonText: "createDo", isVisible: true, path: "/warehouse/documents", component: Documents, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/documents/creation", component: DocumentsCreation, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "createDo", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/warehouse/documents/view", component: DocumentView, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "left", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/leftovers", component: OverheadCosts, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "suppliers", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/suppliers", component: Suppliers, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },
     ],
-    permissions: [{ action: "manage", subject: "Warehouse"}]
+    permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}]
   },
   {
     name: "Register",
