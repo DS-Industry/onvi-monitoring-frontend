@@ -1,22 +1,38 @@
 import React, { useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 
-const DatePickerComponent: React.FC = () => {
-  const [value, setValue] = useState({
+type DatePickerProps = {
+  onDateChange?: (dateRange: { startDate: Date | null; endDate: Date | null }) => void;
+};
+
+const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
+  const [value, setValue] = useState<DateValueType>({
     startDate: null,
     endDate: null,
   });
 
-  const handleValueChange = (newValue) => {
+  const handleValueChange = (newValue: DateValueType) => {
     console.log("newValue:", newValue);
+
+    // Update state
     setValue(newValue);
+
+    // Notify parent component with parsed Date objects
+    if (newValue?.startDate && newValue?.endDate) {
+      onDateChange && onDateChange({
+        startDate: new Date(newValue.startDate),
+        endDate: new Date(newValue.endDate),
+      });
+    } else {
+      onDateChange && onDateChange({ startDate: null, endDate: null });
+    }
   };
 
   return (
     <Datepicker
-      useRange={false}
+      useRange={true} // Enable range selection
       showFooter={true}
-      popoverDirection="down" 
+      popoverDirection="down"
       displayFormat={"DD/MM/YYYY"}
       value={value}
       onChange={handleValueChange}

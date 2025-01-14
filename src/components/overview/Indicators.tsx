@@ -13,6 +13,7 @@ import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
+// import { usePosType } from "@/hooks/useAuthStore";
 
 interface PosMonitoring {
   id: number;
@@ -46,11 +47,11 @@ const selectOptions: {
     { value: "last_year", name: "Последний год" },
   ];
 
-const durations: { label: string }[] = [
-  { label: "Today" },
-  { label: "For a week" },
-  { label: "For a month" },
-];
+  const durations: { label: string; value: "today" | "week" | "month" }[] = [
+    { label: "Today", value: "today" },
+    { label: "For a week", value: "week" },
+    { label: "For a month", value: "month" },
+  ];
 
 // const tableHeader: string[] = [
 //   "id",
@@ -69,15 +70,16 @@ const Indicators: React.FC = () => {
 
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState('');
+  const [dateRange, setDateRange] = useState({
+    dateStart: new Date("2023-01-01T00:00:00"),
+    dateEnd: new Date(`${formattedDate}T23:59:59`),
+  });
+  // const posType = usePosType();
   const { t } = useTranslation();
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
-  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits'], () => getDepositPos({
-    dateStart: new Date(`2023-01-01 00:00`),
-    dateEnd: new Date(`${formattedDate} 23:59`),
-    posId: 1
-  }));
+  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange], () => getDepositPos(dateRange));
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;
@@ -114,6 +116,34 @@ const Indicators: React.FC = () => {
       day: "К предыдущему дню",
     },
   ];
+
+  const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
+    setDateRange({
+      dateStart: newDateRange.startDate || new Date(),
+      dateEnd: newDateRange.endDate || new Date(),
+    });
+  };
+
+  // Handle duration click
+  const handleDurationClick = (duration: "today" | "week" | "month") => {
+    const now = new Date();
+    let newDateStart: Date = now;
+
+    if (duration === "today") {
+      newDateStart = new Date(now.toISOString().slice(0, 10)); // Start of today
+    } else if (duration === "week") {
+      newDateStart = new Date();
+      newDateStart.setDate(now.getDate() - 7); // Last 7 days
+    } else if (duration === "month") {
+      newDateStart = new Date();
+      newDateStart.setMonth(now.getMonth() - 1); // Last month
+    }
+
+    setDateRange({
+      dateStart: newDateStart,
+      dateEnd: now,
+    });
+  };
 
   return (
     <>
@@ -290,12 +320,20 @@ const Indicators: React.FC = () => {
               {durations.map((duration) => (
                 <button
                   key={duration.label}
+                  onClick={() => handleDurationClick(duration.value)}
                   className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
                 >
                   {duration.label}
                 </button>
               ))}
-              <DatePickerComponent />
+              <DatePickerComponent
+                onDateChange={(range) =>
+                  handleDateChange({
+                    startDate: range.startDate, // Assuming DatePicker returns an array
+                    endDate: range.endDate,
+                  })
+                }
+               />
             </div>
           </div>
           <div>
