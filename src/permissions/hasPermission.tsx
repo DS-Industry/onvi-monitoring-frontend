@@ -13,12 +13,8 @@ const hasPermission = _.memoize(
     requiredPermissions: { subject: string; action: string }[],
     userPermissions: { subject: string; action: string }[]
   ): boolean => {
-    // If no permissions are required, return true
-    if (requiredPermissions.length === 0) {
-      return true;
-    }
+    if (requiredPermissions.length === 0) return true;
 
-    // Check if user has at least one required permission
     return requiredPermissions.some((required) =>
       userPermissions.some(
         (userPermission) =>
@@ -26,7 +22,10 @@ const hasPermission = _.memoize(
           userPermission.action === required.action
       )
     );
-  }
+  },
+  (requiredPermissions, userPermissions) =>
+    JSON.stringify({ requiredPermissions, userPermissions })
 );
+
 
 export default hasPermission;
