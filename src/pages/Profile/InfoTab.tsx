@@ -8,7 +8,7 @@ import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { useClearJwtToken } from '@/hooks/useAuthStore';
+import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hooks/useAuthStore';
 
 
 const InfoTab: React.FC = () => {
@@ -20,6 +20,8 @@ const InfoTab: React.FC = () => {
   const setUser = useSetUser();
   const setClearUser = useClearUserData();
   const setClearToken = useClearJwtToken();
+  const setClearPermissions = useClearPermissions();
+  const setPermissions = useSetPermissions();
   const navigate = useNavigate();
 
   const defaultValues = useMemo(
@@ -117,8 +119,12 @@ const InfoTab: React.FC = () => {
   };
 
   const logout = () => {
+    localStorage.clear();
+    
     setClearUser();
     setClearToken();
+    setClearPermissions();
+    setPermissions([]);
     navigate('/login');
   }
 

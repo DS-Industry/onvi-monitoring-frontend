@@ -4,7 +4,7 @@ import { loginPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import { useSetPermissions, useSetTokens } from '@/hooks/useAuthStore';
+import { useSetTokens } from '@/hooks/useAuthStore';
 import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
@@ -13,6 +13,7 @@ import ArrowLeft from 'feather-icons-react';
 import OnviBlue from '@/assets/onvi_blue.png';
 import { useSnackbar } from '@/components/context/useContext';
 import { setSnackbarFunction } from '@/config/axiosConfig';
+import useAuthStore from '@/config/store/authSlice';
 // import LanguageSelector from '@/components/LanguageSelector';
 
 const LogIn: React.FC = () => {
@@ -49,7 +50,6 @@ const LogIn: React.FC = () => {
   const setUser = useSetUser();
   const clearData = useClearUserData();
   const setTokens = useSetTokens();
-  const setPermissions = useSetPermissions();
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -71,7 +71,9 @@ const LogIn: React.FC = () => {
         const { admin, tokens, permissionInfo } = result;
         setUser({ user: admin?.props });
         setTokens({ tokens });
-        setPermissions(permissionInfo.permissions)
+        console.log('Setting permissions:', permissionInfo.permissions);
+        useAuthStore.getState().setPermissions(permissionInfo.permissions);
+        console.log('Current permissions in store:', useAuthStore.getState().permissions);
         navigate('/');
       } else {
         throw new Error(t('Invalid email or password. Please try again.'));

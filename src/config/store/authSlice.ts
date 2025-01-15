@@ -32,6 +32,7 @@ interface AuthState {
   setDocumentType: (documentType: string) => void;
   setWareHouseId: (wareHouseId: number) => void;
   setPageNumber: (pageNumber: number) => void;
+  clearPermissions: () => void;
 }
 
 const today = new Date();
@@ -59,9 +60,10 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   setStartDate: (startDate) => set({ startDate }),
   setEndDate: (endDate) => set({ endDate }),
   setDeviceId: (deviceId) => set({ deviceId }),
-  setDocumentType: (documentType) => set({documentType}),
-  setWareHouseId: (wareHouseId) => set({wareHouseId}),
-  setPageNumber: (pageNumber) => set({pageNumber})
+  setDocumentType: (documentType) => set({ documentType }),
+  setWareHouseId: (wareHouseId) => set({ wareHouseId }),
+  setPageNumber: (pageNumber) => set({ pageNumber }),
+  clearPermissions: () => set(() => ({ permissions: [] }))
 });
 
 const useAuthStore = create<AuthState>()(

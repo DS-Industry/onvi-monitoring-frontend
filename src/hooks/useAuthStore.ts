@@ -77,4 +77,6 @@ export const useSetPageNumber = () => {
   return useAuthStore((state) => state.setPageNumber);
 }
 
-
+export const useClearPermissions = () => {
+  return useAuthStore((state) => state.clearPermissions);
+}
