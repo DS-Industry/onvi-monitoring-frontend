@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import Edit from "@icons/edit.svg?react";
 import moment from 'moment';
 import UpdateIcon from "@icons/PencilIcon.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import CheckIcon from "@icons/checkSuccess.png";
-import { usePageNumber, useSetDocumentType } from "@/hooks/useAuthStore.ts";
+import { usePageNumber, usePermissions, useSetDocumentType } from "@/hooks/useAuthStore.ts";
 import Icon from 'feather-icons-react';
+import { Can } from "@/permissions/Can.tsx";
+import routes from "@/routes/index.tsx";
 
 interface TableColumn {
   label: string;
@@ -63,6 +65,7 @@ const OverflowTable: React.FC<Props> = ({
 
   const navigate = useNavigate();
   const setDocumentType = useSetDocumentType();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleColumnToggle = (key: string) => {
@@ -76,6 +79,28 @@ const OverflowTable: React.FC<Props> = ({
     return num.toLocaleString("en-IN");
   };
 
+  const getActivePage = () => {
+    for (const item of routes) {
+      if (location.pathname === item.path) {
+        return item;
+      } else if (item.subMenu && item.subNav) {
+        for (const subItem of item.subNav) {
+          if (location.pathname === subItem.path) {
+            return subItem;
+          } if (subItem.subMenu && subItem.subNav) {
+            for (const subSubItem of subItem.subNav) {
+              if (location.pathname === subSubItem.path) {
+                return subSubItem;
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const userPermissions = usePermissions();
+  const activePage = getActivePage();
   // const handlePrevious = () => {
   //   setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
   // };
@@ -86,28 +111,56 @@ const OverflowTable: React.FC<Props> = ({
 
   const generatePaginationRange = () => {
     const range: (number | string)[] = [];
-  
+
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) range.push(i);
     } else {
       range.push(1);
-  
+
       if (currentPage > 3) range.push("...");
-  
+
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
       for (let i = start; i <= end; i++) range.push(i);
-  
+
       if (currentPage < totalPages - 2) range.push("...");
-  
+
       range.push(totalPages);
     }
-  
+
     return range;
-  };  
+  };
 
   const handlePageClick = (page: number | string) => {
     if (typeof page === "number") setCurrentPage(page);
+  };
+
+  const getRequiredPermissions = (path: string) => {
+    if (path.includes("administration"))
+      return [
+        { action: "manage", subject: "Organization" },
+        { action: "update", subject: "Organization" },
+      ];
+    if (path.includes("station"))
+      return [
+        { action: "manage", subject: "Pos" },
+        { action: "update", subject: "Pos" },
+      ];
+    if (path.includes("equipment"))
+      return [
+        { action: "manage", subject: "Incident" },
+        { action: "update", subject: "Incident" },
+        { action: "manage", subject: "TechTask" },
+        { action: "update", subject: "TechTask" },
+      ];
+    if (path.includes("warehouse"))
+      return [
+        { action: "manage", subject: "Warehouse" },
+        { action: "update", subject: "Warehouse" },
+      ];
+    // Add cases for other components as needed
+    else
+      return [];
   };
 
   return (
@@ -130,7 +183,12 @@ const OverflowTable: React.FC<Props> = ({
               <tr>
                 {isCheck && <th className="border border-background02 bg-background06 w-11"></th>}
                 {isStatus && <th className="border border-background02 bg-background06 w-11"></th>}
-                {isUpdateLeft && <th className="border border-background02 bg-background06 w-11"></th>}
+                <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) => allowed && isUpdateLeft && <th className="border border-background02 bg-background06 w-11"></th>}
+                </Can>
                 {columns.map(
                   (column) =>
                     selectedColumns.includes(column.key) && (
@@ -142,7 +200,12 @@ const OverflowTable: React.FC<Props> = ({
                       </th>
                     )
                 )}
-                {isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
+                <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
+                </Can>
               </tr>
             </thead>
             <tbody>
@@ -158,13 +221,18 @@ const OverflowTable: React.FC<Props> = ({
                       {row.status === "SENT" ? <img src={SentIcon} /> : <img src={SavedIcon} />}
                     </td>
                   )}
-                  {isUpdateLeft && (
+                  <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) => allowed && isUpdateLeft && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                       <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
                         <img src={UpdateIcon} />
                       </button>
                     </td>
                   )}
+                  </Can>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
                       {column.key === 'name' && nameUrl ? (
@@ -196,13 +264,18 @@ const OverflowTable: React.FC<Props> = ({
                         )}
                     </td>
                   ))}
-                  {isUpdate && (
+                   <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) => allowed && isUpdate && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                       <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
                         <img src={UpdateIcon} />
                       </button>
                     </td>
                   )}
+                  </Can>
                 </tr>
               ))}
             </tbody>

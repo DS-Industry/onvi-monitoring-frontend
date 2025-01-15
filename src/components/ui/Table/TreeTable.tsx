@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import UpdateIcon from "@icons/PencilIcon.png";
 import FolderIcon from "@icons/folder.svg?react";
 import Icon from 'feather-icons-react';
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 interface TableColumn {
     label: string;
@@ -47,17 +49,27 @@ const TreeTable: React.FC<Props> = ({
         });
     };
 
+    const userPermissions = usePermissions();
+
     const renderRows = (data: TreeData[], level: number = 0): JSX.Element[] => {
         return data.map((row) => (
             <React.Fragment key={row.id}>
                 <tr>
-                    {isUpdate && (
-                        <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 px-2 text-start">
-                            <button onClick={() => onUpdate && onUpdate(row.id)}>
-                                <img src={UpdateIcon} />
-                            </button>
-                        </td>
-                    )}
+                    <Can
+                        requiredPermissions={[
+                            { action: "manage", subject: "Warehouse" },
+                            { action: "update", subject: "Warehouse" },
+                        ]}
+                        userPermissions={userPermissions}
+                    >
+                        {(allowed) => allowed && isUpdate && (
+                            <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 px-2 text-start">
+                                <button onClick={() => onUpdate && onUpdate(row.id)}>
+                                    <img src={UpdateIcon} />
+                                </button>
+                            </td>
+                        )}
+                    </Can>
                     {columns.map((column) => (
                         <td
                             key={column.key}
@@ -95,7 +107,15 @@ const TreeTable: React.FC<Props> = ({
             <table className="w-full">
                 <thead>
                     <tr>
-                        {isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
+                        <Can
+                            requiredPermissions={[
+                                { action: "manage", subject: "Warehouse" },
+                                { action: "update", subject: "Warehouse" },
+                            ]}
+                            userPermissions={userPermissions}
+                        >
+                            {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
+                        </Can>
                         {columns.map((column) => (
                             <th
                                 key={column.key}
