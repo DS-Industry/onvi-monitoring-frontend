@@ -30,7 +30,8 @@ const InfoTab: React.FC = () => {
       email: user.email || '',
       phone: user.phone || '',
       middlename: user.middlename || '',
-      surname: user.surname || ''
+      surname: user.surname || '',
+      imagePreview: "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar
     }),
     [user]
   );
@@ -60,11 +61,11 @@ const InfoTab: React.FC = () => {
 
 
   useEffect(() => {
-    const storedAvatarUrl = localStorage.getItem('avatarUrl');
+    const storedAvatarUrl = localStorage.getItem('avatarUrl') || defaultValues.imagePreview;
     if (storedAvatarUrl) {
       setImagePreview(storedAvatarUrl);
     }
-  }, []);
+  }, [defaultValues.imagePreview]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
@@ -93,7 +94,7 @@ const InfoTab: React.FC = () => {
       const updateUserData = updateUser();
 
       if ((await updateUserData).props.avatar) {
-        const avatarUrl = "  https://storage.yandexcloud.net/onvi-business/avatar/user/" + `${(await updateUserData).props.avatar}` || null;
+        const avatarUrl = "https://storage.yandexcloud.net/onvi-business/avatar/user/" + `${(await updateUserData).props.avatar}` || null;
         setImagePreview(avatarUrl);
         localStorage.setItem('avatarUrl', avatarUrl || ""); // Store the avatar URL in localStorage for persistence
       }
@@ -197,7 +198,6 @@ const InfoTab: React.FC = () => {
                 <Input
                   type="email"
                   title="E-mail *"
-                  label="E-mail *"
                   value={formData.email}
                   changeValue={(e) => handleInputChange('email', e.target.value)}
                   {...register('email', {
@@ -207,14 +207,14 @@ const InfoTab: React.FC = () => {
                       message: 'Invalid email format'
                     }
                   })}
-                  disabled={false}
+                  disabled={true}
                   inputType="primary"
                   classname='w-80'
                   error={!!errors.email}
                   helperText={errors.email?.message}
                 />
               </div>
-              <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div>
+              {/* <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div> */}
             </div>
             <div className='flex'>
               <input type='checkbox' />

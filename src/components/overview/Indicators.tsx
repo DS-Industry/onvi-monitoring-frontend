@@ -13,7 +13,8 @@ import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-// import { usePosType } from "@/hooks/useAuthStore";
+import { getPoses } from "@/services/api/equipment";
+import { useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
 
 interface PosMonitoring {
   id: number;
@@ -36,16 +37,16 @@ interface Statistic {
   sum: number;
 }
 
-const selectOptions: {
-  value: string;
-  name: string;
-}[] = [
-    { value: "last_7_days", name: "Последние 7 дней" },
-    { value: "last_30_days", name: "Последние 30 дней" },
-    { value: "last_90_days", name: "Последние 90 дней" },
-    { value: "last_month", name: "Последний месяц" },
-    { value: "last_year", name: "Последний год" },
-  ];
+// const selectOptions: {
+//   value: string;
+//   name: string;
+// }[] = [
+//     { value: "last_7_days", name: "Последние 7 дней" },
+//     { value: "last_30_days", name: "Последние 30 дней" },
+//     { value: "last_90_days", name: "Последние 90 дней" },
+//     { value: "last_month", name: "Последний месяц" },
+//     { value: "last_year", name: "Последний год" },
+//   ];
 
   const durations: { label: string; value: "today" | "week" | "month" }[] = [
     { label: "Today", value: "today" },
@@ -65,27 +66,34 @@ const selectOptions: {
 // ];
 
 const Indicators: React.FC = () => {
-  const today = new Date();
-  const formattedDate = today.toISOString().slice(0, 10);
+  const posType = usePosType();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState(posType);
+  const startDate = useStartDate();
+  const endDate = useEndDate();
   const [dateRange, setDateRange] = useState({
-    dateStart: new Date("2023-01-01T00:00:00"),
-    dateEnd: new Date(`${formattedDate}T23:59:59`),
+    dateStart: startDate,
+    dateEnd: endDate,
   });
-  // const posType = usePosType();
   const { t } = useTranslation();
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
-  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange], () => getDepositPos(dateRange));
+  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
+    ...dateRange,
+    posId: selectedValue
+}));
+
+  const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;
   }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
   const statisticData: Statistic = data || { cars: 0, sum: 0 };
+
+  const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
   const cards = [
     {
@@ -198,8 +206,8 @@ const Indicators: React.FC = () => {
           <div className="lg:flex justify-between px-3 lg:px-8">
             <DropdownInput
               inputType="primary"
-              label="Choose a country"
-              options={selectOptions}
+              label="Все автомойки"
+              options={poses}
               value={selectedValue}
               onChange={setSelectedValue}
               isSelectable={true}
@@ -309,8 +317,8 @@ const Indicators: React.FC = () => {
           <div className="lg:flex justify-between px-3 lg:px-8">
             <DropdownInput
               inputType="primary"
-              label="Choose a country"
-              options={selectOptions}
+              label="Все автомойки"
+              options={poses}
               value={selectedValue}
               onChange={setSelectedValue}
               isSelectable={true}

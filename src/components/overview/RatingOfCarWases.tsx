@@ -5,22 +5,23 @@ import { useTranslation } from "react-i18next";
 import DropdownInput from "@ui/Input/DropdownInput";
 import { useState } from "react";
 import DatePickerComponent from "@ui/DatePickerComponent";
+import { getPoses } from "@/services/api/equipment";
 
 type Rating = {
   posName: string;
   sum: number;
 };
 
-const selectOptions: {
-  value: string;
-  name: string;
-}[] = [
-  { value: "last_7_days", name: "Последние 7 дней" },
-  { value: "last_30_days", name: "Последние 30 дней" },
-  { value: "last_90_days", name: "Последние 90 дней" },
-  { value: "last_month", name: "Последний месяц" },
-  { value: "last_year", name: "Последний год" },
-];
+// const selectOptions: {
+//   value: string;
+//   name: string;
+// }[] = [
+//   { value: "last_7_days", name: "Последние 7 дней" },
+//   { value: "last_30_days", name: "Последние 30 дней" },
+//   { value: "last_90_days", name: "Последние 90 дней" },
+//   { value: "last_month", name: "Последний месяц" },
+//   { value: "last_year", name: "Последний год" },
+// ];
 
 const durations: { label: string; value: "today" | "week" | "month" }[] = [
   { label: "Today", value: "today" },
@@ -43,6 +44,10 @@ const RatingOfCarWases = () => {
   const { data } = useSWR(["get-rating-org", dateRange], () =>
     getRating(dateRange)
   );
+
+  const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+  const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
   const ratingData: Rating[] = data?.map((item: Rating) => item) || [];
 
@@ -84,8 +89,8 @@ const RatingOfCarWases = () => {
         <div className="lg:flex justify-between px-3 lg:px-8">
           <DropdownInput
             inputType="primary"
-            label="Choose a country"
-            options={selectOptions}
+            label="Все автомойки"
+            options={poses}
             value={selectedValue}
             onChange={setSelectedValue}
             isSelectable={true}

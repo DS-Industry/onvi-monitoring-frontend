@@ -198,7 +198,7 @@ export const columnsOrg = [
   },
   {
     label: "Хозяин",
-    key: "ownerId",
+    key: "ownerName",
   },
 ]
 export const columnsDevice = [

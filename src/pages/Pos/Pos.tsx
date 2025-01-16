@@ -17,8 +17,8 @@ import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-import { getPoses } from "@/services/api/equipment";
 import { getOrganization } from "@/services/api/organization";
+import SearchInput from "@/components/ui/Input/SearchInput";
 
 type Pos = {
     id: number;
@@ -71,12 +71,13 @@ type OrganizationResponse = {
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const [searchTerm, setSearchTerm] = useState(1);
-    const { data, isLoading: posLoading } = useSWR([`get-pos`, searchTerm], () => getPos(searchTerm), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const [searchTerm, setSearchTerm] = useState("");
+    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization());
     const { setButtonOn } = useButtonCreate();
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
+    const [address, setAddress] = useState("");
 
     const organizations: OrganizationResponse[] = organizationData
         ?.map((item: OrganizationResponse) => item)
@@ -121,11 +122,6 @@ const Pos: React.FC = () => {
         stepSumOrder: formData.stepSumOrder
     }));
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const pose: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-
     type FieldType = "name" | "monthlyPlan" | "timeWork" | "posMetaData" | "city" | "location" | "lat" | "lon" | "organizationId" | "carWashPosType" | "minSumOrder" | "maxSumOrder" | "stepSumOrder";
 
     const handleInputChange = (field: FieldType, value: string | null) => {
@@ -160,7 +156,7 @@ const Pos: React.FC = () => {
             const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-pos`, searchTerm]);
+                mutate([`get-pos`]);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -175,17 +171,23 @@ const Pos: React.FC = () => {
             ...item,
             organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-"
         }))
+        ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        ?.filter((pos) => pos.address.city.toLowerCase().includes(address.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
+
+    const handleClear = () => {
+        setSearchTerm("");
+    }
 
     return (
         <>
-            <Filter count={poses.length}>
+            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setAddress}>
                 <div className="flex">
-                <DropdownInput
+                <SearchInput
                     title={t("equipment.carWash")}
                     value={searchTerm}
+                    searchType="outlined"
                     classname="ml-2"
-                    options={pose}
                     onChange={(value) => setSearchTerm(value)}
                 />
                 </div>

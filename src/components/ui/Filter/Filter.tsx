@@ -15,6 +15,8 @@ type Props = {
   search?: string;
   setSearch?: (value: string) => void;
   handleClear?: () => void;
+  address?: string;
+  setAddress?: (value: string) => void;
 };
 const Filter: React.FC<Props> = ({
   children,
@@ -24,13 +26,14 @@ const Filter: React.FC<Props> = ({
   hideDateTime = false,
   search = "",
   setSearch,
-  handleClear
+  handleClear,
+  address = "",
+  setAddress
 }: Props) => {
   const { filterOpen } = useFilterOpen();
   const contentRef = useRef<HTMLDivElement>(null);
   const storeStartDate = useStartDate();
   const storeEndDate = useEndDate();
-  const [city, setCity] = useState("");
   // const [linesPerPage, setLinesPerPage] = useState(10);
   const [startDate, setStartDate] = useState(storeStartDate);
   const [endDate, setEndDate] = useState(storeEndDate);
@@ -50,12 +53,14 @@ const Filter: React.FC<Props> = ({
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
+    if(setAddress) setAddress("");
     if (setSearch) setSearch("");
     if (handleClear) handleClear();
     setFilterOn(!filterOn);
   };
   const handleApply = () => {
     if (setSearchTerm && searchTerm) setSearchTerm(searchTerm);
+    if(setAddress && address) setAddress(address);
     if (setSearch && search) setSearch(search);
     setFilterOn(!filterOn);
   };
@@ -72,6 +77,10 @@ const Filter: React.FC<Props> = ({
     if (setSearch) setSearch(value);
   };
 
+  const handleAddressChange = (value: string) => {
+    if(setAddress) setAddress(value);
+  }
+
   return (
     <div
       ref={contentRef}
@@ -85,12 +94,12 @@ const Filter: React.FC<Props> = ({
           searchType="outlined"
           title="Поиск"
         />
-        <DropdownInput
+        <SearchInput
           title={"Город"}
-          value={city}
+          value={address}
+          searchType="outlined"
           classname="ml-2"
-          options={[]}
-          onChange={(value) => setCity(value)}
+          onChange={handleAddressChange}
         />
         {children}
         <DropdownInput

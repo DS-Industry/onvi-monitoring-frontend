@@ -18,6 +18,7 @@ import Filter from "@/components/ui/Filter/Filter.tsx";
 import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
+import { useUser } from "@/hooks/useUserStore";
 
 type OrganizationResponse = {
     id: number;
@@ -38,9 +39,15 @@ const Organization: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const [address, setAddress] = useState("");
+    const user = useUser();
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .map((item: OrganizationResponse) => item)
+        ?.filter((item: { address: string }) => item.address.toLowerCase().includes(address.toLowerCase()))
+        .map((item: OrganizationResponse) => ({
+            ...item,
+            ownerName: user.name
+        }))
         .sort((a, b) => a.id - b.id) || [];
 
     const defaultValues = {
@@ -176,7 +183,7 @@ const Organization: React.FC = () => {
 
     return (
         <>
-            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange}>
+            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress}>
                 <div className="flex">
                     <SearchInput
                         title="Имя"

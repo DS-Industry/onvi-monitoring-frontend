@@ -7,7 +7,6 @@ import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
 import DoubleArrowRight from "@icons/keyboard_double_arrow_right.svg?react";
 import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
 import NotificationYes from "@icons/Notification_Yes.svg?react";
-import EZ from "@icons/EZ.svg?react";
 import ArrowDown from "@icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
 import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/context/useContext";
@@ -302,7 +301,11 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {isOpen && <span>Notification</span>}
             </div>
             <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
-              <EZ />
+            <img
+                  src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
+                  alt="Profile"
+                  className="rounded-full w-12 h-12 object-cover"
+                />
               {isOpen && (
                 <div className="text-text02 flex items-center">
                   <p>{user.name}</p>
