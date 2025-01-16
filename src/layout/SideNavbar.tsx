@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
+import EZ from "@icons/EZ.svg?react";
 
 type Props = {
   children: React.ReactNode;
@@ -301,11 +302,11 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {isOpen && <span>Notification</span>}
             </div>
             <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
-            <img
-                  src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
-                  alt="Profile"
-                  className="rounded-full w-12 h-12 object-cover"
-                />
+              {user.avatar ? <img
+                src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
+                alt="Profile"
+                className="rounded-full w-12 h-12 object-cover"
+              /> : <EZ />}
               {isOpen && (
                 <div className="text-text02 flex items-center">
                   <p>{user.name}</p>

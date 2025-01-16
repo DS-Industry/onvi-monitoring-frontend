@@ -31,7 +31,7 @@ const InfoTab: React.FC = () => {
       phone: user.phone || '',
       middlename: user.middlename || '',
       surname: user.surname || '',
-      imagePreview: "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar
+      imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null
     }),
     [user]
   );
@@ -128,6 +128,8 @@ const InfoTab: React.FC = () => {
     setPermissions([]);
     navigate('/login');
   }
+
+  console.log("Image Preview: ", imagePreview);
 
   return (
     <div className="max-w-6xl mr-auto">
