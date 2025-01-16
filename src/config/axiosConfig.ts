@@ -32,7 +32,7 @@ api.interceptors.response.use(
   (response) => {
     if (showSnackbar) {
       const successStatuses = [200, 201];
-      if (successStatuses.includes(response.status)) {
+      if (successStatuses.includes(response.status) && response.config.method !== "get") {
         showSnackbar("Your request has been processed!", "success");
       }
     } else {
