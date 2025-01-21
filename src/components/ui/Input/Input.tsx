@@ -76,7 +76,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                 )}
                 {(showIcon && type !== "date" && type !== "password") && (
                     <div
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     >
                         {IconComponent || <DefaultIcon size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />}
                     </div>

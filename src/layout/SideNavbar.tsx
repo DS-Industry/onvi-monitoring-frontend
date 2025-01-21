@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
+import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
 import DoubleArrowRight from "@icons/keyboard_double_arrow_right.svg?react";
 import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
@@ -333,9 +334,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
               </button>
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
+                {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
                 <div className="flex items-center mb-3">
                   <span className="text-3xl font-normal text-text01">{activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
-                  <QuestionmarkIcon className="text-2xl ms-2" />
+                  {activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />}
                 </div>
                 {activePage?.filter && (
                   <button

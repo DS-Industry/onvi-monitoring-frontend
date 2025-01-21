@@ -1,21 +1,17 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import BasicInformation from "./BasicInformation";
-import KeyTab from "./KeyTab";
-import Communication from "./Communication";
-import Loyalty from "./Loyalty";
-import Actions from "./Actions";
+import Settings from "./Settings";
+import Levels from "./Levels";
+import Events from "./Events";
 
-const ClientsProfile: React.FC = () => {
+const BonusProgram: React.FC = () => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState('basic');
+    const [activeTab, setActiveTab] = useState('settings');
 
     const tabs = [
-        { id: 'basic', name: t("warehouse.basic"), content: <BasicInformation /> },
-        { id: 'key', name: t("marketing.key"), content: <KeyTab /> },
-        { id: 'comm', name: t("marketing.comm"), content: <Communication /> },
-        { id: 'loyalty', name: t("news.loyalty"), content: <Loyalty /> },
-        { id: 'actions', name: t("marketing.actions"), content: <Actions /> },
+        { id: 'settings', name: t("routes.settings"), content: <Settings /> },
+        { id: 'levels', name: t("marketing.levels"), content: <Levels /> },
+        { id: 'events', name: t("marketing.events"), content: <Events /> },
     ];
 
     return (
@@ -38,4 +34,4 @@ const ClientsProfile: React.FC = () => {
     )
 }
 
-export default ClientsProfile;
+export default BonusProgram;

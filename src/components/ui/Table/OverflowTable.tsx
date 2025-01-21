@@ -167,7 +167,6 @@ const OverflowTable: React.FC<Props> = ({
     <>
       <div className="w-full overflow-auto">
         <div className="overflow-x-auto">
-
           {title && (
             <span
               className="cursor-pointer"
@@ -187,7 +186,7 @@ const OverflowTable: React.FC<Props> = ({
                   requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                   userPermissions={userPermissions}
                 >
-                  {(allowed) => allowed && isUpdateLeft && <th className="border border-background02 bg-background06 w-11"></th>}
+                  {(allowed) => allowed && isUpdateLeft && <th className="border border-background02 bg-background06 w-11 min-w-11"></th>}
                 </Can>
                 {columns.map(
                   (column) =>
@@ -204,7 +203,7 @@ const OverflowTable: React.FC<Props> = ({
                   requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                   userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11"></th>}
+                {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11 min-w-11"></th>}
                 </Can>
               </tr>
             </thead>
