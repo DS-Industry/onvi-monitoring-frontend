@@ -145,7 +145,7 @@ const Documents: React.FC = () => {
 
                 // Ensure result has the expected data
                 if (result?.props) {
-                    const { id, name, carryingAt, warehouseId } = result.props;
+                    const { id, name, carryingAt, warehouseId, status } = result.props;
 
                     // Navigate with the correct state values
                     navigate("/warehouse/documents/creation", {
@@ -153,7 +153,8 @@ const Documents: React.FC = () => {
                             ownerId: id,
                             name,
                             carryingAt,
-                            wareHouseId: warehouseId
+                            wareHouseId: warehouseId,
+                            status
                         }
                     });
                 } else {

@@ -172,7 +172,7 @@ const Pos: React.FC = () => {
             organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-"
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        ?.filter((pos) => pos.address.city.toLowerCase().includes(address.toLowerCase()))
+        ?.filter((pos) => pos.address?.city.toLowerCase().includes(address.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
 
     const handleClear = () => {
@@ -181,7 +181,7 @@ const Pos: React.FC = () => {
 
     return (
         <>
-            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setAddress}>
+            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setAddress} hideSearch={true}>
                 <div className="flex">
                 <SearchInput
                     title={t("equipment.carWash")}

@@ -23,11 +23,11 @@ type ReadTechTasks = {
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
-    const [searchPosId, setSearchPosId] = useState(1);
+    const [searchPosId, setSearchPosId] = useState(66);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`], () => readTechTasks(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId], () => readTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -41,7 +41,7 @@ const ProgressReport: React.FC = () => {
 
     return (
         <>
-            <Filter count={techTasks.length}>
+            <Filter count={techTasks.length} hideDateTime={true} hideCity={true} hideSearch={true}>
                 <div className="flex">
                     <DropdownInput
                         title={t("equipment.carWash")}

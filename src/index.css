@@ -4,6 +4,7 @@
 
 :root {
     color-scheme: light !important;
+    background-color: white !important;
 }
 
 /* body {
@@ -15,3 +16,4 @@
     opacity: 0;
     cursor: pointer;
 }
+

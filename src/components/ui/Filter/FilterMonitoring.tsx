@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
+import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
@@ -18,6 +18,8 @@ type Props = {
     devicesSelect?: Optional[];
     wareHousesSelect?: Optional[];
     handleDataFilter?: any;
+    hideCity?: boolean;
+    hideSearch?: boolean;
 };
 const FilterMonitoring: React.FC<Props> = ({
     count,
@@ -25,7 +27,9 @@ const FilterMonitoring: React.FC<Props> = ({
     posesSelect,
     devicesSelect,
     wareHousesSelect,
-    handleDataFilter
+    handleDataFilter,
+    hideCity = false,
+    hideSearch = false
 }: Props) => {
 
     const today = new Date();
@@ -40,6 +44,7 @@ const FilterMonitoring: React.FC<Props> = ({
     // const [linesPerPage, setLinesPerPage] = useState(10);
     const { filterOn, setFilterOn } = useFilterOn();
     const { filterOpen } = useFilterOpen();
+    const { buttonOn } = useButtonCreate();
     const contentRef = useRef<HTMLDivElement>(null);
     const [startDate, setStartDate] = useState(storeStartDate);
     const [endDate, setEndDate] = useState(storeEndDate);
@@ -65,7 +70,7 @@ const FilterMonitoring: React.FC<Props> = ({
 
 
     useEffect(() => {
-        if (filterOpen) {
+        if (filterOpen && !buttonOn) {
             if (contentRef.current) {
                 contentRef.current.style.maxHeight = `${contentRef.current.scrollHeight}px`;
             }
@@ -74,7 +79,7 @@ const FilterMonitoring: React.FC<Props> = ({
                 contentRef.current.style.maxHeight = "0";
             }
         }
-    }, [filterOpen]);
+    }, [filterOpen, buttonOn]);
 
     useEffect(() => {
         posesSelect && handleDataFilter({
@@ -100,20 +105,20 @@ const FilterMonitoring: React.FC<Props> = ({
             className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
         >
             <div className="flex">
-                <SearchInput
+                {!hideSearch && <SearchInput
                     value={""}
                     onChange={() => { }}
                     classname="w-80"
                     searchType="outlined"
                     title="Поиск"
-                />
-                <DropdownInput
+                /> }
+                {!hideCity && <DropdownInput
                     title={"Город"}
                     value={city}
                     classname="ml-2 w-80"
                     options={[]}
                     onChange={(value) => setCity(value)}
-                />
+                /> }
                 {organizationsSelect && (<DropdownInput
                     title={"Организация"}
                     type={"string"}
@@ -155,6 +160,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     value={pageNumber}
                     classname="ml-2 w-24"
                     options={[
+                        { name: 5, value: 5 },
                         { name: 10, value: 10 },
                         { name: 20, value: 20 },
                         { name: 50, value: 50 }
@@ -193,7 +199,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     handleClick={() => setFilterOn(!filterOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
-                <Button title={"Дополнительно"} classname="ml-96" type="outline" iconDown={true} />
+                {/* <Button title={"Дополнительно"} classname="ml-96" type="outline" iconDown={true} /> */}
             </div>
         </div>
     );

@@ -84,11 +84,11 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: deviceData } = useSWR([`get-device`], () => getDevices(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR([`get-device`], () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: equipmentKnotData } = useSWR([`get-equipment-knot`], () => getEquipmentKnots(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: equipmentKnotData } = useSWR([`get-equipment-knot`], () => getEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: incidentEquipmentKnotData } = useSWR([`get-incident-equipment-knot`], () => getIncidentEquipmentKnots(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: incidentEquipmentKnotData } = useSWR([`get-incident-equipment-knot`], () => getIncidentEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -432,6 +432,8 @@ const EquipmentFailure: React.FC = () => {
                 count={incidents.length}
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             {isTableLoading || incidentLoading ? (
                 <TableSkeleton columnCount={columnsEquipmentFailure.length} />

@@ -27,7 +27,7 @@ const InventoryImport: React.FC = () => {
 
     const handleDownload = () => {
         const link = document.createElement("a");
-        link.href = "src/assets/templates/template.xlsx";
+        link.href = "/templates/template.xlsx";
         link.download = "template.xlsx";
         link.click();
     };

@@ -183,7 +183,7 @@ const Organization: React.FC = () => {
 
     return (
         <>
-            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress}>
+            <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress} hideSearch={true}>
                 <div className="flex">
                     <SearchInput
                         title="Имя"

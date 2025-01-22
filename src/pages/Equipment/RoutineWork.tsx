@@ -55,12 +55,12 @@ const RoutineWork: React.FC = () => {
     const { t } = useTranslation();
     // const [taskCount, setTaskCount] = useState(0);
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const [searchPosId, setSearchPosId] = useState(1);
+    const [searchPosId, setSearchPosId] = useState(66);
     const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`], () => getTechTasks(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine], () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -150,7 +150,7 @@ const RoutineWork: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-tech-tasks`]);
+                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -159,7 +159,7 @@ const RoutineWork: React.FC = () => {
                 const result = await createTech();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-tech-tasks`]);
+                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -249,6 +249,11 @@ const RoutineWork: React.FC = () => {
             prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
         );
     };
+
+    const handleClear = () => {
+        setSearchPosId(0);
+        setSearchRoutine("");
+    }
     console.log("Techtasks test:", techTask);
     return (
         <>
@@ -437,7 +442,7 @@ const RoutineWork: React.FC = () => {
                 </form>
             </DrawerCreate>
             <>
-                <Filter count={techTasks.length}>
+                <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
                     <div className="flex">
                         <DropdownInput
                             title={t("equipment.carWash")}

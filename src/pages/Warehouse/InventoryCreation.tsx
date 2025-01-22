@@ -35,8 +35,10 @@ const InventoryCreation: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
     const [category, setCategory] = useState(0);
+    const [name, setName] = useState("");
+    const [orgId, setOrgId] = useState(1);
 
-    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category, orgId], () => getNomenclature(orgId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -45,12 +47,13 @@ const InventoryCreation: React.FC = () => {
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const inventories = inventoryData?.map((item) => item.props)
-    ?.filter((item: { categoryId: number }) => category === 0 || item.categoryId === category)
-    ?.map((item) => item) || [];
+        ?.filter((item: { categoryId: number }) => category === 0 || item.categoryId === category)
+        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))
+        ?.map((item) => item) || [];
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const inventoriesDisplay: { id: number, name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name}));
+    const inventoriesDisplay: { id: number, name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
 
     const suppliers: { name: string; value: number; }[] = supplierData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -133,7 +136,7 @@ const InventoryCreation: React.FC = () => {
                 if (result) {
                     console.log(result);
                     setCategory(result.props.categoryId)
-                    mutate([`get-inventory`, result.props.categoryId]);
+                    mutate([`get-inventory`, result.props.categoryId, orgId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -143,7 +146,7 @@ const InventoryCreation: React.FC = () => {
                 if (result) {
                     console.log('API Response:', result);
                     setCategory(result.props.categoryId)
-                    mutate([`get-inventory`, result.props.categoryId]);
+                    mutate([`get-inventory`, result.props.categoryId, orgId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -160,7 +163,14 @@ const InventoryCreation: React.FC = () => {
 
     return (
         <>
-            <Filter count={inventoriesDisplay.length} hideDateTime={true} handleClear={handleClear}>
+            <Filter count={inventoriesDisplay.length} hideDateTime={true} handleClear={handleClear} hideCity={true} search={name} setSearch={setName}>
+                <DropdownInput
+                    title={t("warehouse.organization")}
+                    value={orgId}
+                    options={organizations}
+                    onChange={(value) => setOrgId(value)}
+                    classname="ml-2"
+                />
                 <DropdownInput
                     title={t("warehouse.category")}
                     value={category}

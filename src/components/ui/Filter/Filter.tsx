@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
+import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap";
 import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput";
@@ -12,6 +12,8 @@ type Props = {
   searchTerm?: string;
   setSearchTerm?: (value: string) => void;
   hideDateTime?: boolean;
+  hideCity?: boolean;
+  hideSearch?: boolean;
   search?: string;
   setSearch?: (value: string) => void;
   handleClear?: () => void;
@@ -24,6 +26,8 @@ const Filter: React.FC<Props> = ({
   searchTerm,
   setSearchTerm,
   hideDateTime = false,
+  hideCity = false,
+  hideSearch = false,
   search = "",
   setSearch,
   handleClear,
@@ -31,6 +35,7 @@ const Filter: React.FC<Props> = ({
   setAddress
 }: Props) => {
   const { filterOpen } = useFilterOpen();
+  const { buttonOn } = useButtonCreate();
   const contentRef = useRef<HTMLDivElement>(null);
   const storeStartDate = useStartDate();
   const storeEndDate = useEndDate();
@@ -42,25 +47,25 @@ const Filter: React.FC<Props> = ({
   const setPageNumber = useSetPageNumber();
 
   useEffect(() => {
-    if (filterOpen) {
+    if (filterOpen && !buttonOn) {
       contentRef.current!.style.maxHeight = `${contentRef.current!.scrollHeight}px`;
       contentRef.current!.style.overflow = "visible";
     } else {
       contentRef.current!.style.maxHeight = "0px";
       contentRef.current!.style.overflow = "hidden";
     }
-  }, [filterOpen]);
+  }, [filterOpen, buttonOn]);
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
-    if(setAddress) setAddress("");
+    if (setAddress) setAddress("");
     if (setSearch) setSearch("");
     if (handleClear) handleClear();
     setFilterOn(!filterOn);
   };
   const handleApply = () => {
     if (setSearchTerm && searchTerm) setSearchTerm(searchTerm);
-    if(setAddress && address) setAddress(address);
+    if (setAddress && address) setAddress(address);
     if (setSearch && search) setSearch(search);
     setFilterOn(!filterOn);
   };
@@ -78,7 +83,7 @@ const Filter: React.FC<Props> = ({
   };
 
   const handleAddressChange = (value: string) => {
-    if(setAddress) setAddress(value);
+    if (setAddress) setAddress(value);
   }
 
   return (
@@ -87,20 +92,20 @@ const Filter: React.FC<Props> = ({
       className={`transition-all duration-500 ease-in-out max-h-0`}
     >
       <div className="flex">
-        <SearchInput
+        {!hideSearch && <SearchInput
           value={search}
           onChange={handleSearchChange}
           classname="w-80"
           searchType="outlined"
           title="Поиск"
-        />
-        <SearchInput
+        /> }
+        {!hideCity && <SearchInput
           title={"Город"}
           value={address}
           searchType="outlined"
           classname="ml-2"
           onChange={handleAddressChange}
-        />
+        /> }
         {children}
         <DropdownInput
           title={"Строк на стр."}
@@ -130,12 +135,12 @@ const Filter: React.FC<Props> = ({
         <Button title="Сбросить" handleClick={handleReset} type="outline" />
         <Button title="Применить" handleClick={handleApply} />
         <p className="font-semibold">Найдено: {count}</p>
-        <Button
+        {/* <Button
           title={"Дополнительно"}
           classname="ml-96"
           type="outline"
           iconDown={true}
-        />
+        /> */}
       </div>
     </div>
   );

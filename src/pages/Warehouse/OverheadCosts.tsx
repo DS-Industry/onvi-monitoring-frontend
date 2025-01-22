@@ -9,6 +9,7 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
+import { getOrganization } from "@/services/api/organization";
 
 type StockParams = {
     categoryId?: number;
@@ -17,10 +18,11 @@ type StockParams = {
 
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
+    const [orgId, setOrgId] = useState(1);
     const [categoryId, setCategoryId] = useState(0);
     const [warehouseId, setWarehouseId] = useState(0);
     const [isTableLoading, setIsTableLoading] = useState(false);
-    const {filterOn} = useFilterOn();
+    const { filterOn } = useFilterOn();
 
     const baseColumns = useMemo(() => [
         {
@@ -43,13 +45,17 @@ const OverheadCosts: React.FC = () => {
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(66), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR([`get-all-stock-levels`], () => getAllStockLevels(1, {
+    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR([`get-all-stock-levels`, orgId], () => getAllStockLevels(orgId, {
         warehouseId: dataFilter.warehouseId,
         categoryId: dataFilter.categoryId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -92,7 +98,7 @@ const OverheadCosts: React.FC = () => {
         setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
         if (newFilterData.warehouseId) setWarehouseId(newFilterData.warehouseId);
-        if(newFilterData.categoryId) setCategoryId(newFilterData.categoryId);
+        if (newFilterData.categoryId) setCategoryId(newFilterData.categoryId);
     }
 
     useEffect(() => {
@@ -100,11 +106,11 @@ const OverheadCosts: React.FC = () => {
             categoryId: categoryId,
             warehouseId: warehouseId
         })
-    },[filterOn])
+    }, [filterOn])
 
     useEffect(() => {
         stocksMutating().then(() => setIsTableLoading(false));
-    },[dataFilter, stocksMutating]);
+    }, [dataFilter, stocksMutating]);
 
     const handleClear = () => {
         setWarehouseId(0);
@@ -113,7 +119,14 @@ const OverheadCosts: React.FC = () => {
 
     return (
         <>
-            <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear}>
+            <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+                <DropdownInput
+                    title={t("warehouse.organization")}
+                    value={orgId}
+                    options={organizations}
+                    onChange={(value) => setOrgId(value)}
+                    classname="ml-2"
+                />
                 <DropdownInput
                     title={t("warehouse.category")}
                     value={categoryId}
