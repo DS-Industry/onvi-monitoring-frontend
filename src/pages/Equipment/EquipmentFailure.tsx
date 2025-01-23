@@ -182,17 +182,20 @@ const EquipmentFailure: React.FC = () => {
         setEditIncidentId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
         const incidentToEdit = incidents.find((org) => org.id === id);
-        console.log(incidentToEdit);
+    
         if (incidentToEdit) {
+            const formatDateTime = (dateString: Date) => {
+                const date = new Date(dateString); // Convert string to Date object
+                return date.toISOString().slice(0, 16); // Format to YYYY-MM-DDTHH:MM
+            };
+    
             setFormData({
                 posId: incidentToEdit.posId,
                 workerId: incidentToEdit.workerId,
-                appearanceDate: incidentToEdit.appearanceDate.toString().substring(0, 10),
-                startDate: incidentToEdit.startDate.toString().substring(0, 10),
-                finishDate: incidentToEdit.finishDate.toString().substring(0, 10),
+                appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
+                startDate: formatDateTime(incidentToEdit.startDate),
+                finishDate: formatDateTime(incidentToEdit.finishDate),
                 objectName: incidentToEdit.objectName,
                 equipmentKnotId: Number(equipmentKnots.find((equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot)?.value),
                 incidentNameId: Number(problemNames.find((incidentName) => incidentName.name === incidentToEdit.incidentName)?.value),
@@ -203,7 +206,7 @@ const EquipmentFailure: React.FC = () => {
                 carWashDeviceProgramsTypeId: incidentToEdit.programId,
             });
         }
-    };
+    };    
 
     const resetForm = () => {
         setFormData(defaultValues);
@@ -277,7 +280,7 @@ const EquipmentFailure: React.FC = () => {
                         helperText={errors.workerId?.message}
                     />
                     <Input
-                        type={"date"}
+                        type={"datetime-local"}
                         title={t("equipment.call")}
                         classname="w-44"
                         value={formData.appearanceDate}
@@ -287,7 +290,7 @@ const EquipmentFailure: React.FC = () => {
                         helperText={errors.appearanceDate?.message || ''}
                     />
                     <Input
-                        type={"date"}
+                        type={"datetime-local"}
                         title={t("equipment.start")}
                         classname="w-44"
                         value={formData.startDate}
@@ -297,7 +300,7 @@ const EquipmentFailure: React.FC = () => {
                         helperText={errors.startDate?.message || ''}
                     />
                     <Input
-                        type={"date"}
+                        type={"datetime-local"}
                         title={t("equipment.end")}
                         classname="w-44"
                         value={formData.finishDate}

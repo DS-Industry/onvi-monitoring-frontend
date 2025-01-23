@@ -175,7 +175,7 @@ const DocumentsCreation: React.FC = () => {
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR([`get-inventory-items`], () => getInventoryItems(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
