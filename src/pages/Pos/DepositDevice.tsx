@@ -106,6 +106,8 @@ const DepositDevice: React.FC = () => {
                 count={deviceMonitoring.length}
                 devicesSelect={deviceOptional}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsMonitoringDevice.length} />)
                 :

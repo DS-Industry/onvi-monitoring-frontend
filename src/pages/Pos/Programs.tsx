@@ -98,6 +98,8 @@ const Programs: React.FC = () => {
                 count={posPrograms.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             {
                 isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsProgramsPos.length} />)

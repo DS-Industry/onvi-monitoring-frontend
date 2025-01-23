@@ -101,6 +101,8 @@ const ProgramDevices: React.FC = () => {
                 count={devicePrograms.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             {
                 isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsProgramsPos.length} />)

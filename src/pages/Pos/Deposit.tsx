@@ -132,6 +132,8 @@ const Deposit: React.FC = () => {
                 count={posMonitoring.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             { isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
                 :

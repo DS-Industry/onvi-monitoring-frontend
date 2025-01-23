@@ -143,6 +143,8 @@ const DepositDevices: React.FC = () => {
                 count={devicesMonitoring.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
+                hideCity={true}
+                hideSearch={true}
             />
             {
                 isTableLoading || filterLoading ? (
