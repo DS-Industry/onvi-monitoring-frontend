@@ -172,7 +172,7 @@ const Pos: React.FC = () => {
             organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-"
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        ?.filter((pos) => pos.address?.city.toLowerCase().includes(address.toLowerCase()))
+        ?.filter((pos) => pos.address?.city?.toLowerCase().includes(address.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
 
     const handleClear = () => {
@@ -205,7 +205,7 @@ const Pos: React.FC = () => {
                                     columns={columnsPos}
                                     isDisplayEdit={true}
                                     isUpdate={false}
-                                    nameUrl={'/station/enrollments/device'}
+                                    nameUrl={'/station/enrollments/devices'}
                                 />
                             </div>
                         </>
