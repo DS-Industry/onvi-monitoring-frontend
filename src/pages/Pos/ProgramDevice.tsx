@@ -11,7 +11,7 @@ import SalyIamge from "@/assets/Saly-45.svg?react";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId } from '@/hooks/useAuthStore'; 
+import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType } from '@/hooks/useAuthStore'; 
 
 interface FilterDepositDevice {
     dateStart: Date;
@@ -47,6 +47,7 @@ const ProgramDevice: React.FC = () => {
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setDeviceId = useSetDeviceId();
+    const posType = usePosType();
 
     const location = useLocation();
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -63,7 +64,7 @@ const ProgramDevice: React.FC = () => {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
     }));
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(location.state?.ownerId))
+    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
