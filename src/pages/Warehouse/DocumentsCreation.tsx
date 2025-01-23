@@ -187,12 +187,26 @@ const DocumentsCreation: React.FC = () => {
 
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
-            prevData?.map((item) =>
-                item.id === id ? { ...item, [key]: value } : item
-            )
+            prevData?.map((item) => {
+                if (item.id === id) {
+                    if ('oldQuantity' in item && 'deviation' in item) {
+                        return {
+                            ...item,
+                            [key]: value,
+                            deviation:
+                                key === "quantity" || key === "oldQuantity"
+                                    ? (key === "quantity" ? Number(value) : item.quantity) -
+                                      (key === "oldQuantity" ? Number(value) : item.oldQuantity)
+                                    : item.deviation,
+                        };
+                    }
+                    return { ...item, [key]: value };
+                }
+                return item;
+            })
         );
-    };
-
+    };    
+    
     const updateRow = () => {
         if (documentType === "INVENTORY")
             setTableData((prevData) => [
@@ -496,6 +510,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.oldQuantity}
                     changeValue={(e) => handleChange(row.id, "oldQuantity", e.target.value)}
+                    disabled={true}
                 />
             ),
         },
@@ -507,6 +522,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.deviation}
                     changeValue={(e) => handleChange(row.id, "deviation", e.target.value)}
+                    disabled={true}
                 />
             ),
         }

@@ -6,7 +6,7 @@ import moment from "moment";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useDocumentType } from "@/hooks/useAuthStore";
+import { useDocumentType, usePosType } from "@/hooks/useAuthStore";
 import GoodsTable from "@/components/ui/Table/GoodsTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -26,9 +26,11 @@ const DocumentView: React.FC = () => {
     const documentType = useDocumentType();
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
+    const posType = usePosType();
+
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
