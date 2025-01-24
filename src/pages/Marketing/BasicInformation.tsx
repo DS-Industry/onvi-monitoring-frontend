@@ -70,10 +70,6 @@ const BasicInformation: React.FC = () => {
                                     {option.label}
                                     <button
                                         className="text-white"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            // handleRemove(option.id);
-                                        }}
                                     >
                                         <Icon icon="x" className="w-4 h-4" />
                                     </button>

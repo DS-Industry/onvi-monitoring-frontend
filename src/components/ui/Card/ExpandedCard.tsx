@@ -1,5 +1,7 @@
 import React, { FunctionComponent, SVGProps, useState } from "react";
 import Icon from "feather-icons-react";
+import Button from "../Button/Button";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     children: React.ReactNode;
@@ -20,6 +22,8 @@ const ExpandedCard: React.FC<Props> = ({
         setIsExpanded((prevState) => !prevState);
     };
 
+    const { t } = useTranslation();
+
     return (
         <div>
             <div className={`shadow-card rounded-2xl min-w-[1100px] w-full max-w-[1400px] ${isExpanded ? "h-auto" : "h-24"} flex flex-col py-5 px-6 space-y-5`}>
@@ -34,9 +38,21 @@ const ExpandedCard: React.FC<Props> = ({
                     </div>
                 </div>
 
-                {isExpanded && 
+                {isExpanded &&
                     children
                 }
+                {isExpanded && (
+                    <div className="pl-14 flex space-x-4">
+                        <Button
+                            title={t("organizations.save")}
+                        />
+                        <Button
+                            title={t("marketing.close")}
+                            type="outline"
+                            handleClick={toggleExpand}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

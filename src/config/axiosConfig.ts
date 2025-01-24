@@ -42,11 +42,13 @@ api.interceptors.response.use(
   },
   (error) => {
     if (showSnackbar) {
-      if (error.response?.status === 401) {
-        showSnackbar("Unauthorized! Please log in again.", "error");
-      } else if (error.response?.status === 500) {
-        showSnackbar("Server error occurred. Please try again later.", "error");
-        console.log("Server error is coming.");
+      const { response } = error;
+
+      // Extract error message from API response if it exists
+      const apiMessage = response?.data?.message;
+      if (apiMessage) {
+        // Show the error message from the API response
+        showSnackbar(apiMessage, "error");
       } else {
         showSnackbar("An error occurred. Please try again.", "error");
       }

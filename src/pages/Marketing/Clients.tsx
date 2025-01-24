@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button/Button";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsClient } from "@/utils/OverFlowTableData";
+import { Tooltip } from "@material-tailwind/react";
 
 const Clients: React.FC = () => {
     const { t } = useTranslation();
@@ -37,7 +38,7 @@ const Clients: React.FC = () => {
                         columns={columnsClient}
                         isDisplayEdit={true}
                         nameUrl="/marketing/clients/profile"
-                        // handleChange={handleTableChange}
+                    // handleChange={handleTableChange}
                     />
                 </div> :
                 <div className="flex flex-col justify-center items-center">
@@ -116,7 +117,11 @@ const Clients: React.FC = () => {
                     <div>
                         <div className="flex items-center text-text01 space-x-2">
                             <div className="font-semibold text-2xl">{t("marketing.mess")}</div>
-                            <Icon icon="alert-circle" />
+                            <Tooltip content={t("marketing.applies")} placement="right-end">
+                                <span>
+                                    <Icon icon="alert-circle" />
+                                </span>
+                            </Tooltip>
                         </div>
                         <div className="space-y-3 mt-3">
                             <div className="flex space-x-10">

@@ -5,7 +5,6 @@ import ExpandedCard from "@ui/Card/ExpandedCard";
 import Input from "@/components/ui/Input/Input";
 import PercentageIcon from "@icons/Percentage.svg?react";
 import DiamondIcon from "@icons/Diamond.svg?react";
-import Button from "@/components/ui/Button/Button";
 import Icon from 'feather-icons-react';
 
 const Levels: React.FC = () => {
@@ -118,15 +117,6 @@ const Levels: React.FC = () => {
                             )}
                         </div>
                     )}
-                    <div className="flex space-x-4 mt-8">
-                        <Button
-                            title={t("organizations.save")}
-                        />
-                        <Button
-                            title={t("marketing.close")}
-                            type="outline"
-                        />
-                    </div>
                 </div>
             </ExpandedCard>
             <ExpandedCard firstText={t("marketing.amateur")} secondText="от 0 ₽ | Бонусы" Component={Profile}>

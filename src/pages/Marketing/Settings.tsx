@@ -4,16 +4,20 @@ import { useTranslation } from "react-i18next";
 // import Icon from "feather-icons-react";
 import DropdownInput from "@ui/Input/DropdownInput";
 import ExpandedCard from "@ui/Card/ExpandedCard";
-import Button from "@/components/ui/Button/Button";
 import DiamondImage from "@icons/DiamondIcon.svg?react";
 import GiftImage from "@icons/GiftIcon.svg?react";
-import Conversion from "@/assets/ConversionRate.png";
+// import Conversion from "@/assets/ConversionRate.png";
 import Input from "@/components/ui/Input/Input";
 import Alert from "@icons/AlertTriangle.svg?react";
+import DiamondOne from "@/assets/DiamondOne.svg?react";
+import TwoArrow from "@/assets/TwoArrow.svg?react";
 
 const Settings: React.FC = () => {
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
+    const [isToggledTwo, setIsToggledTwo] = useState(false);
+    const [isToggledThree, setIsToggledThree] = useState(false);
+    const [isToggledFour, setIsToggledFour] = useState(false);
 
     const [selectedOption, setSelectedOption] = useState<string>("never");
 
@@ -23,6 +27,18 @@ const Settings: React.FC = () => {
 
     const handleToggle = () => {
         setIsToggled(!isToggled);
+    };
+
+    const handleToggleTwo = () => {
+        setIsToggledTwo(!isToggledTwo);
+    };
+
+    const handleToggleThree = () => {
+        setIsToggledThree(!isToggledThree);
+    };
+
+    const handleToggleFour = () => {
+        setIsToggledFour(!isToggledFour);
     };
 
     return (
@@ -81,16 +97,6 @@ const Settings: React.FC = () => {
                             </div>
                         </label>
                     </div>
-
-                    <div className="flex space-x-4 mt-8">
-                        <Button
-                            title={t("organizations.save")}
-                        />
-                        <Button
-                            title={t("marketing.close")}
-                            type="outline"
-                        />
-                    </div>
                 </div>
             </ExpandedCard>
             <ExpandedCard firstText={t("marketing.bonus")} secondText={t("marketing.setUpAcc")} Component={DiamondImage}>
@@ -115,12 +121,12 @@ const Settings: React.FC = () => {
                     <div className="flex space-x-2">
                         <div>
                             <div
-                                onClick={handleToggle}
-                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggled ? 'bg-primary02' : 'bg-opacity01'
+                                onClick={handleToggleTwo}
+                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggledTwo ? 'bg-primary02' : 'bg-opacity01'
                                     }`}
                             >
                                 <div
-                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggled ? 'translate-x-6' : 'translate-x-0'
+                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggledTwo ? 'translate-x-6' : 'translate-x-0'
                                         }`}
                                 />
                             </div>
@@ -155,7 +161,20 @@ const Settings: React.FC = () => {
                         </div>
                     </div>
                     <div className="text-2xl text-text01 font-semibold">{t("marketing.write")}</div>
-                    <img src={Conversion} />
+                    <div className="bg-Bonus-Image bg-blend-multiply h-40 rounded-lg w-80 bg-[#0a0a0b]/70 px-4 py-8 space-y-6">
+                        <div className="text-background02 font-semibold text-3xl">{t("marketing.ex")}</div>
+                        <div className="flex items-center justify-center space-x-4">
+                            <DiamondOne />
+                            <TwoArrow />
+                            <Input
+                                label={t("marketing.1")}
+                                inputType="primary"
+                                showIcon={true}
+                                classname="w-48"
+                                IconComponent={<div className="text-3xl font-semibold text-text01">₽</div>}
+                            />
+                        </div>
+                    </div>
                     <div>
                         <div className="text-lg font-semibold text-text01">{t("marketing.max")}</div>
                         <div className="text-text02">{t("marketing.no")}</div>
@@ -172,12 +191,12 @@ const Settings: React.FC = () => {
                     <div className="flex space-x-2">
                         <div>
                             <div
-                                onClick={handleToggle}
-                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggled ? 'bg-primary02' : 'bg-opacity01'
+                                onClick={handleToggleThree}
+                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggledThree ? 'bg-primary02' : 'bg-opacity01'
                                     }`}
                             >
                                 <div
-                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggled ? 'translate-x-6' : 'translate-x-0'
+                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggledThree ? 'translate-x-6' : 'translate-x-0'
                                         }`}
                                 />
                             </div>
@@ -190,12 +209,12 @@ const Settings: React.FC = () => {
                     <div className="flex space-x-2">
                         <div>
                             <div
-                                onClick={handleToggle}
-                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggled ? 'bg-primary02' : 'bg-opacity01'
+                                onClick={handleToggleFour}
+                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggledFour ? 'bg-primary02' : 'bg-opacity01'
                                     }`}
                             >
                                 <div
-                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggled ? 'translate-x-6' : 'translate-x-0'
+                                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggledFour ? 'translate-x-6' : 'translate-x-0'
                                         }`}
                                 />
                             </div>
@@ -261,15 +280,6 @@ const Settings: React.FC = () => {
                             />
                         </div>
                     )}
-                    <div className="flex space-x-4 mt-8">
-                        <Button
-                            title={t("organizations.save")}
-                        />
-                        <Button
-                            title={t("marketing.close")}
-                            type="outline"
-                        />
-                    </div>
                 </div>
             </ExpandedCard>
             <ExpandedCard firstText={t("marketing.present")} secondText={t("marketing.rules")} Component={GiftImage}>

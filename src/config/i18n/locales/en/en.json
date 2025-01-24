@@ -67,7 +67,9 @@
     "importClients": "Import Clients",
     "clientProfile": "Client Oleg Sidorov",
     "newPromo": "New Promotion",
-    "bonus": "Bonus Program"
+    "bonus": "Bonus Program",
+    "addSeg": "Add Segment",
+    "createSeg": "Creating a new segment"
   },
   "dashboard": {
     "news": "News",
@@ -488,6 +490,16 @@
     "respo": "Response period",
     "5": "5th visit as a gift",
     "period": "Period",
-    "num": "Number of visits to apply the event"
+    "num": "Number of visits to apply the event",
+    "customer": "Customer segments (groups) are displayed here",
+    "atThe": "At the moment you have not created any segments",
+    "segName": "Segment name*",
+    "addSel": "Add selection filter",
+    "nodata": "No data to analyze",
+    "filter": "Filter data to display marketing companies",
+    "cust": "Customer Sample Size",
+    "ex": "Bonus exchange rate",
+    "1": "1 bonus equals",
+    "applies": "Applies only to communications sent from the “Marketing Companies” section"
   }
 }

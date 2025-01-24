@@ -9,7 +9,6 @@ import DiamondIcon from "@icons/Diamond.svg?react";
 import Input from "@/components/ui/Input/Input";
 import Icon from "feather-icons-react";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Button from "@/components/ui/Button/Button";
 
 const Events: React.FC = () => {
     const { t } = useTranslation();
@@ -62,7 +61,7 @@ const Events: React.FC = () => {
                                 <div className="flex space-x-2">
                                     <input
                                         type="radio"
-                                        name="marketing"
+                                        name="imm"
                                         value="imm"
                                         checked={time === "imm"}
                                         onChange={handleTime}
@@ -72,7 +71,7 @@ const Events: React.FC = () => {
                                 <div className="flex space-x-2">
                                     <input
                                         type="radio"
-                                        name="marketing"
+                                        name="fixed"
                                         value="fixed"
                                         checked={time === "fixed"}
                                         onChange={handleTime}
@@ -106,8 +105,8 @@ const Events: React.FC = () => {
                                 <div className="flex space-x-2">
                                     <input
                                         type="radio"
-                                        name="marketing"
-                                        value="imm"
+                                        name="one"
+                                        value="one"
                                         checked={visit === "one"}
                                         onChange={handleVisit}
                                     />
@@ -116,12 +115,12 @@ const Events: React.FC = () => {
                                 <div className="flex space-x-2">
                                     <input
                                         type="radio"
-                                        name="marketing"
-                                        value="fixed"
-                                        checked={visit === "fixed"}
+                                        name="all"
+                                        value="all"
+                                        checked={visit === "all"}
                                         onChange={handleVisit}
                                     />
-                                    <div className={`${visit === "fixed" ? "text-primary02" : "text-text02"}`}>{t("marketing.forAll")}</div>
+                                    <div className={`${visit === "all" ? "text-primary02" : "text-text02"}`}>{t("marketing.forAll")}</div>
                                 </div>
                             </div>
                         </div>
@@ -148,15 +147,6 @@ const Events: React.FC = () => {
                             </div>
                         </div>
                     )}
-                    <div className="flex space-x-4">
-                        <Button
-                            title={t("organizations.save")}
-                        />
-                        <Button
-                            title={t("marketing.close")}
-                            type="outline"
-                        />
-                    </div>
                 </div>
             </ExpandedCard>
             <ExpandedCard firstText={t("marketing.birth")} secondText={t("marketing.annual")} Component={BirthdayIcon}>
@@ -211,15 +201,6 @@ const Events: React.FC = () => {
                         showIcon={true}
                         IconComponent={<Icon icon="percent" />}
                     />
-                    <div className="flex space-x-4">
-                        <Button
-                            title={t("organizations.save")}
-                        />
-                        <Button
-                            title={t("marketing.close")}
-                            type="outline"
-                        />
-                    </div>
                 </div>
             </ExpandedCard>
         </div>

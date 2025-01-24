@@ -4,6 +4,8 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
+    "./node_modules/@material-tailwind/react/components/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@material-tailwind/react/theme/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -26,18 +28,19 @@ export default {
         opacity01: "#D8D9DD",
         disabledFill: "#F7F9FC",
         borderFill: "#E4E5E7",
-        warningFill: "#F58A00"
+        warningFill: "#F58A00",
       },
       boxShadow: {
         card: "0 2px 13px -2px rgba(27, 33, 44, 0.12)",
       },
       backgroundImage: {
         "Factory-Letter-S": "url('./src/assets/Factory Letter S.svg')",
+        "Bonus-Image": "url('./src/assets/ShareBonus.png')",
       },
       fontFamily: {
         sans: ['Source Sans Pro', 'sans-serif'],
-      }
+      },
     },
   },
-  plugins: [require('daisyui'),],
+  plugins: [require("daisyui")],
 };
