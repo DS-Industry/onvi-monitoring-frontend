@@ -35,7 +35,7 @@ export default {
       },
       backgroundImage: {
         "Factory-Letter-S": "url('./src/assets/Factory Letter S.svg')",
-        "Bonus-Image": "url('./src/assets/ShareBonus.png')",
+        "Bonus-Image": "url('/assets/ShareBonus.png')",
       },
       fontFamily: {
         sans: ['Source Sans Pro', 'sans-serif'],
