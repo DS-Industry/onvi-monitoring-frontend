@@ -500,6 +500,10 @@
     "cust": "Customer Sample Size",
     "ex": "Bonus exchange rate",
     "1": "1 bonus equals",
-    "applies": "Applies only to communications sent from the “Marketing Companies” section"
+    "applies": "Applies only to communications sent from the “Marketing Companies” section",
+    "filterC": "Filter",
+    "apply": "Apply",
+    "edit": "Edit selection segments",
+    "list": "List of clients in the segment"
   }
 }

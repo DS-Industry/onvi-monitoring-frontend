@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, EyeOff, User, Calendar } from 'feather-icons-react';
+import Icon from 'feather-icons-react';
 
 type InputProps = {
     type?: string;
@@ -22,14 +22,14 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const isLabelFloating = isFocused || value?.length > 0;
+    const isLabelFloating = isFocused || (typeof value === "number" ? value !== null && value !== undefined : value?.length > 0);
     const handlePasswordToggle = () => {
         if (!disabled) {
             setShowPassword(!showPassword);
         }
     }
     const className = `w-full px-3 ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : (inputType == 'tertiary') ? "py-0" : "py-2"} ${disabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${disabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${disabled ? "hover:outline-none" : "hover:border-primary02"}`
-    const DefaultIcon = User;
+    const DefaultIcon = "user";
 
     return (
         <div className={`relative ${classname}`}>
@@ -61,9 +61,9 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         onClick={handlePasswordToggle}
                     >
                         {!showPassword ? (
-                            <EyeOff size={20} className={`${disabled ? "text-text03 cursor-default" : (isFocused ? "text-text03" : "text-text02")}`} />
+                            <Icon icon="eye" size={20} className={`${disabled ? "text-text03 cursor-default" : (isFocused ? "text-text03" : "text-text02")}`} />
                         ) : (
-                            <Eye size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />
+                            <Icon icon="eye-off" size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />
                         )}
                     </div>
                 )}
@@ -71,14 +71,14 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                     <div
                         className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" // Ensuring icon is purely decorative
                     >
-                        <Calendar size={20} className={`${disabled ? "text-text03" : "text-text02"}`} />
+                        <Icon icon="calendar" size={20} className={`${disabled ? "text-text03" : "text-text02"}`} />
                     </div>
                 )}
                 {(showIcon && type !== "date" && type !== "password") && (
                     <div
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     >
-                        {IconComponent || <DefaultIcon size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />}
+                        {IconComponent || <Icon icon={DefaultIcon} size={20} className={`${disabled ? "text-text03 cursor-default" : "text-text02"}`} />}
                     </div>
                 )
 
