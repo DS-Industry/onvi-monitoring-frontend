@@ -27,7 +27,7 @@ const InventoryImport: React.FC = () => {
 
     const handleDownload = () => {
         const link = document.createElement("a");
-        link.href = "/templates/template.xlsx";
+        link.href = "https://storage.yandexcloud.net/onvi-business/nomenclature/template.xlsx";
         link.download = "template.xlsx";
         link.click();
     };
