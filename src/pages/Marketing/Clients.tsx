@@ -1,5 +1,5 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClientEmpty from "@/assets/NoMarketing.png";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -13,10 +13,15 @@ import { columnsClient } from "@/utils/OverFlowTableData";
 import { Tooltip } from "@material-tailwind/react";
 import useFormHook from "@/hooks/useFormHook";
 import { useButtonCreate } from "@/components/context/useContext";
+import SearchInput from "@/components/ui/Input/SearchInput";
 
 const Clients: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const [openTag, setOpenTag] = useState(false);
+    const [hoveredTag, setHoveredTag] = useState("del");
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const options = [
         { id: 1, label: "Red Option", color: "#EF4444" },
@@ -25,9 +30,13 @@ const Clients: React.FC = () => {
         { id: 4, label: "Yellow Option", color: "#F59E0B" },
     ];
 
+    const filteredOptions = options.filter((opt) =>
+        opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const handleSelectionChange = (selected: typeof options) => {
         console.log("Selected Options:", selected);
-        handleInputChange("selectedOptions", selected); 
+        handleInputChange("selectedOptions", selected);
     };
 
     const tableData = [
@@ -75,18 +84,88 @@ const Clients: React.FC = () => {
         console.log('Form data:', data);
     };
 
+    const tagOptions = [
+        { value: "del", name: t("marketing.delete") },
+        { value: "add", name: t("marketing.addA") },
+        { value: "remove", name: t("marketing.remove") }
+    ];
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenTag(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
         <>
             {tableData.length > 0 ?
-                <div className="mt-8">
+                <div className="mt-8 flex flex-col min-h-screen">
                     <OverflowTable
                         tableData={tableData}
                         columns={columnsClient}
                         isDisplayEdit={true}
                         nameUrl="/marketing/clients/profile"
                     />
-                </div> :
+                    <div className="mt-auto border-t border-opacity01 py-8 flex space-x-10 items-center">
+                        <div className="text-text01 font-semibold">{t("marketing.high")}:2</div>
+                        <div
+                            className="relative flex flex-col"
+                            onMouseLeave={() => setHoveredTag("del")}
+                            ref={dropdownRef}
+                        >
+                            {openTag && (
+                                <div className="absolute bottom-full left-0 mb-2 shadow-md rounded-lg p-2 bg-white w-72 z-10">
+                                    {tagOptions.map((tag) => (
+                                        <div
+                                            key={tag.value}
+                                            className="px-2 py-2 text-text01 hover:text-primary02 cursor-pointer hover:bg-background06 rounded-md"
+                                            onMouseEnter={() => setHoveredTag(tag.value)}
+                                        >
+                                            {tag.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {hoveredTag !== "del" && (
+                                <div className="absolute bottom-full left-[18rem] mb-2 shadow-md rounded-lg p-2 bg-white w-72 z-20">
+                                    <SearchInput
+                                        value={searchQuery}
+                                        onChange={(value) => {
+                                            setSearchQuery(value);
+                                        }}
+                                        searchType="outlined"
+                                    />
+                                    {filteredOptions.length > 0 ? filteredOptions.map((option) => (
+                                        <div
+                                            key={option.id}
+                                            className="px-2 py-2 flex items-center rounded-md cursor-pointer hover:bg-background06"
+                                        >
+                                            <span className="text-text01 p-1 rounded" style={{ backgroundColor: option.color }}>{option.label}</span>
+                                        </div>
+                                    )) : (
+                                        <div className="px-3 py-2 text-text02 text-sm">Нет доступных опций</div>
+                                    )}
+                                </div>
+                            )}
+                            <Button
+                                title={t("marketing.actions")}
+                                type="outline"
+                                iconDown={!openTag}
+                                iconUp={openTag}
+                                handleClick={() => setOpenTag(!openTag)}
+                            />
+                        </div>
+                    </div>
+                </div>
+                :
                 <div className="flex flex-col justify-center items-center">
                     <NoDataUI
                         title={t("marketing.noClient")}

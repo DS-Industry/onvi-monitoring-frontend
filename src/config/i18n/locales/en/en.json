@@ -504,6 +504,10 @@
     "filterC": "Filter",
     "apply": "Apply",
     "edit": "Edit selection segments",
-    "list": "List of clients in the segment"
+    "list": "List of clients in the segment",
+    "high": "Highlighted",
+    "delete": "Delete",
+    "addA": "Add a tag",
+    "remove": "Remove tag"
   }
 }

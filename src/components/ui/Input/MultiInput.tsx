@@ -132,7 +132,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                             </li>
                         ))
                     ) : (
-                        <li className="px-3 py-2 text-gray-500 text-sm">Нет доступных опций</li>
+                        <li className="px-3 py-2 text-text02 text-sm">Нет доступных опций</li>
                     )}
                 </ul>
             )}
