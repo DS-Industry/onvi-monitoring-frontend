@@ -127,7 +127,8 @@
     "addLegal": "Add a legal entity",
     "legalDetails": "Legal Details",
     "bankDetails": "Bank Details",
-    "new": "New Legal Entity"
+    "new": "New Legal Entity",
+    "update": "Update Legal Entity"
   },
   "pos": {
     "companyName": "Company Name",

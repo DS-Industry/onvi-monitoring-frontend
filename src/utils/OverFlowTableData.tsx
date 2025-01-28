@@ -166,14 +166,14 @@ export const columnsOrg = [
     label: "id",
     key: "id",
   },
-  {
-    label: "Название",
-    key: "name",
-  },
-  {
-    label: "Обозначение",
-    key: "slug",
-  },
+  // {
+  //   label: "Название",
+  //   key: "name",
+  // },
+  // {
+  //   label: "Обозначение",
+  //   key: "slug",
+  // },
   {
     label: "Адресс",
     key: "address",

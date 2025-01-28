@@ -6,10 +6,10 @@ import SalyIamge from "@/assets/Saly-45.svg?react";
 import useSWR from "swr";
 import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import { getPos } from "@/services/api/pos";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
     dateStart: Date;
@@ -103,7 +103,7 @@ const Deposit: React.FC = () => {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
-    const { data, error } = useSWR([`get-pos`], () => getPos(1))
+    const { data, error } = useSWR([`get-pos`], () => getPoses())
 
     useEffect(() => {
         console.log(JSON.stringify(error, null, 2));

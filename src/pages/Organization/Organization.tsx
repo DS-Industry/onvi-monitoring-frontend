@@ -7,7 +7,7 @@ import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
-import { getOrganization, postUpdateOrganization } from "@/services/api/organization/index.ts";
+import { getOrganization, getOrganizationDocument, postUpdateOrganization } from "@/services/api/organization/index.ts";
 import DropdownInput from "@ui/Input/DropdownInput.tsx";
 import Input from "@ui/Input/Input.tsx";
 import MultilineInput from "@ui/Input/MultilineInput.tsx";
@@ -41,6 +41,9 @@ const Organization: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [address, setAddress] = useState("");
     const user = useUser();
+
+    useSWR(editOrgId !== 0 ? [`get-org-doc`] : null, () => getOrganizationDocument(editOrgId));
+
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
         ?.filter((item: { address: string }) => item.address.toLowerCase().includes(address.toLowerCase()))
@@ -111,35 +114,38 @@ const Organization: React.FC = () => {
         setValue(field, value);
     };
 
-    const handleUpdate = (id: number) => {
+    const handleUpdate = async (id: number) => {
         setEditOrgId(id);
         setIsEditMode(true);
         setButtonOn(true);
         console.log(id);
         console.log(isEditMode);
+
+        const fetchedOrgData = await getOrganizationDocument(id);
+        const orgs = fetchedOrgData.props;
+
         const orgToEdit = organizations.find((org) => org.id === id);
         console.log(orgToEdit);
-        if (orgToEdit) {
+        if (orgToEdit && orgs) {
             setFormData({
                 fullName: orgToEdit.name,
                 organizationType: orgToEdit.organizationType,
-                rateVat: formData.rateVat,
-                inn: formData.inn,
-                okpo: formData.okpo,
-                kpp: formData.kpp,
+                rateVat: orgs.rateVat,
+                inn: orgs.inn,
+                okpo: orgs.okpo,
+                kpp: orgs.kpp ? orgs.kpp : '',
                 addressRegistration: orgToEdit.address,
-                ogrn: formData.ogrn,
-                bik: formData.bik,
-                correspondentAccount: formData.correspondentAccount,
-                bank: formData.bank,
-                settlementAccount: formData.settlementAccount,
-                addressBank: formData.addressBank,
-                certificateNumber: formData.certificateNumber,
-                dateCertificate: formData.dateCertificate,
+                ogrn: orgs.ogrn,
+                bik: orgs.bik,
+                correspondentAccount: orgs.correspondentAccount,
+                bank: orgs.bank,
+                settlementAccount: orgs.settlementAccount,
+                addressBank: orgs.addressBank,
+                certificateNumber: orgs.certificateNumber ? orgs.certificateNumber : "",
+                dateCertificate: orgs.dateCertificate ? orgs.dateCertificate : "",
             });
         }
     };
-
 
     const resetForm = () => {
         setFormData(defaultValues);
@@ -197,7 +203,7 @@ const Organization: React.FC = () => {
             </Filter>
             <DrawerCreate>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("organizations.new")}</span>
+                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("organizations.update") : t("organizations.new")}</span>
                     <DropdownInput
                         title={t("organizations.typeLegal")}
                         options={[

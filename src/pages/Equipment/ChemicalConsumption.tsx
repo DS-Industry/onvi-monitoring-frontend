@@ -94,7 +94,7 @@ const ChemicalConsumption: React.FC = () => {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         posId: dataFilter.posId
-    }, 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    }, dataFilter.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

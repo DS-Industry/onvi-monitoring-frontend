@@ -5,11 +5,11 @@ import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
-import { getPos } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
     dateStart: Date;
@@ -64,7 +64,7 @@ const ProgramDevices: React.FC = () => {
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { data } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {

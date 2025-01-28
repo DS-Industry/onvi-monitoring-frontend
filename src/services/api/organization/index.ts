@@ -6,6 +6,7 @@ enum ORGANIZATION {
     GET_RATING = 'user/organization/rating',
     GET_STATISTIC = 'user/organization/statistics',
     UPDATE_ORGANIZATION = 'user/organization',
+    GET_ORGANIZATION_DOC = 'user/organization/document'
 }
 
 type Organization = {
@@ -86,6 +87,25 @@ type Rating = {
     sum: number;
 }
 
+type OrganizationDocResponse = {
+    props: {
+        id: number;
+        rateVat: string;
+        inn: string;
+        okpo: string;
+        kpp?: string;
+        ogrn: string;
+        bik: string;
+        correspondentAccount: string;
+        bank: string;
+        settlementAccount: string;
+        addressBank: string;
+        documentDoc?: string;
+        certificateNumber?: string;
+        dateCertificate?: string;
+    }
+}
+
 export async function getOrganization(): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
     const response: AxiosResponse<Organization[]> = await api.get(url);
@@ -116,6 +136,12 @@ export async function getStatistic(): Promise<Statistic> {
 export async function postUpdateOrganization(body: OrganizationUpdateBody): Promise<OrganizationPostResponse> {
     console.log(body);
     const response: AxiosResponse<OrganizationPostResponse> = await api.patch(ORGANIZATION.UPDATE_ORGANIZATION, body);
+
+    return response.data;
+}
+
+export async function getOrganizationDocument(orgId: number): Promise<OrganizationDocResponse> {
+    const response: AxiosResponse<OrganizationDocResponse> = await api.get(ORGANIZATION.GET_ORGANIZATION_DOC + `/${orgId}`);
 
     return response.data;
 }
