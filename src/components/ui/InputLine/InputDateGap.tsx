@@ -8,6 +8,19 @@ type InputDateGapProps = {
     onEndDateChange: (value: Date) => void;
 };
 
+const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+
+const formatTime = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+};
+
 const InputDateGap: React.FC<InputDateGapProps> = ({
     defaultDateStart,
     defaultDateEnd,
@@ -17,10 +30,10 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     const startDate = typeof defaultDateStart === "string" ? new Date(defaultDateStart) : defaultDateStart;
     const endDate = typeof defaultDateEnd === "string" ? new Date(defaultDateEnd) : defaultDateEnd;
 
-    const [dateStart, setDateStart] = useState(startDate.toISOString().split('T')[0]);
-    const [timeStart, setTimeStart] = useState(startDate.toTimeString().slice(0, 5));
-    const [dateEnd, setDateEnd] = useState(endDate.toISOString().split('T')[0]);
-    const [timeEnd, setTimeEnd] = useState(endDate.toTimeString().slice(0, 5));
+    const [dateStart, setDateStart] = useState(formatDate(startDate));
+    const [timeStart, setTimeStart] = useState(formatTime(startDate));
+    const [dateEnd, setDateEnd] = useState(formatDate(endDate));
+    const [timeEnd, setTimeEnd] = useState(formatTime(endDate));
 
     // Handle date and time changes for start
     const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,11 +63,11 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     useEffect(() => {
         const updatedStartDate = typeof defaultDateStart === "string" ? new Date(defaultDateStart) : defaultDateStart;
         const updatedEndDate = typeof defaultDateEnd === "string" ? new Date(defaultDateEnd) : defaultDateEnd;
-        
-        setDateStart(updatedStartDate.toISOString().split('T')[0]);
-        setTimeStart(updatedStartDate.toTimeString().slice(0, 5));
-        setDateEnd(updatedEndDate.toISOString().split('T')[0]);
-        setTimeEnd(updatedEndDate.toTimeString().slice(0, 5));
+
+        setDateStart(formatDate(updatedStartDate));
+        setTimeStart(formatTime(updatedStartDate));
+        setDateEnd(formatDate(updatedEndDate));
+        setTimeEnd(formatTime(updatedEndDate));
     }, [defaultDateStart, defaultDateEnd]);
 
     return (

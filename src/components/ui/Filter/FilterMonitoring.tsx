@@ -180,7 +180,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
-                        setStartDate(new Date(`${formattedDate} 06:00`));
+                        setStartDate(new Date(`${formattedDate} 00:00`));
                         setEndDate(new Date(`${formattedDate} 23:59`));
                         setPosId(66);
                         setWarehouseId(0);
@@ -188,7 +188,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         setDeviceId('');
                         setPosType(66);
                         setWareHouseId(0);
-                        setStartDateInStore(new Date(`${formattedDate} 06:00`));
+                        setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);
                     }}

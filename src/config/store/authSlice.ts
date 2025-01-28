@@ -37,7 +37,7 @@ interface AuthState {
 
 const today = new Date();
 const formattedDate = today.toISOString().slice(0, 10);
-const startDate = new Date(`${formattedDate} 06:00`);
+const startDate = new Date(`${formattedDate} 00:00`);
 const endDate = new Date(`${formattedDate} 23:59`);
 
 const createAuthStore: StateCreator<AuthState> = (set) => ({
