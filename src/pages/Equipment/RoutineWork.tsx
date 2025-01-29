@@ -262,7 +262,7 @@ const RoutineWork: React.FC = () => {
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
                     <div className="mb-5 flex">
                         <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
-                        <span className="text-red-600">*</span>
+                        <span className="text-errorFill">*</span>
                         <span className="font-semibold text-sm text-text01">{t("routine.are")}</span>
                     </div>
                     <Input

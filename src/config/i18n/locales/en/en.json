@@ -241,7 +241,27 @@
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
-    "create": "Create your first report"
+    "create": "Create your first report",
+    "report": "Report Options",
+    "date": "Report Date",
+    "exam": "Examination",
+    "rem": "Remaining reagent, kg *",
+    "check": "Checking treatment facilities, normal *",
+    "norm": "Norm",
+    "mile": "Mileage *",
+    "route": "Route",
+    "elec": "Electricity consumption (kilowatt)",
+    "count": "Counter value *",
+    "trans": "Transformation ratio",
+    "setting": "Settings",
+    "press": "Pressure booster pump (functional check)",
+    "boost": "Booster pump (pressure bar)",
+    "pre": "Pressure recovery unit",
+    "che": "(Checking functionality and integrity)",
+    "multi": "(Multistage pump pressure, psi)",
+    "comp": "Compressor (Checking functionality and integrity)",
+    "hour": "Hour meter",
+    "oil": "Oil change"
   },
   "chemical": {
     "noText": "This section displays chemical consumption reports",

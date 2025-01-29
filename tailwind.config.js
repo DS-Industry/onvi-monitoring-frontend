@@ -22,6 +22,7 @@ export default {
         errorFill: "#EB5757",
         background01: "#1F1F1F",
         background02: "#FFFFFF",
+        background03: "#EEF0F2",
         background05: "#F8F8FA",
         background06: "#E4F0FF",
         background07: "#D9D9D9",
