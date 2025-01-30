@@ -356,6 +356,7 @@ export const columnsMonitoringDevice = [
   {
     label: "Локальный id",
     key: "localId",
+    type: "number"
   },
   {
     label: "Валюта",
