@@ -265,7 +265,11 @@
   },
   "chemical": {
     "noText": "This section displays chemical consumption reports",
-    "dont": "You don't have any reports at the moment"
+    "dont": "You don't have any reports at the moment",
+    "enter": "Enter a value",
+    "select": "Select a value",
+    "Chemistry": "Chemistry",
+    "Check": "Check"
   },
   "routine": {
     "display": "This section displays routine maintenance",

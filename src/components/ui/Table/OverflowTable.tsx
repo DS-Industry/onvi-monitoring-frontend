@@ -244,8 +244,8 @@ const OverflowTable: React.FC<Props> = ({
                           </div>
                         </span>
                       ) : column.render ? column.render(row, handleChange)
-                        : column.key === 'status' ? (
-                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : "text-text01"}`}>
+                        : column.key.toLocaleLowerCase().includes('status') ? (
+                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : row[column.key] === "OVERDUE" ? "text-errorFill" : "text-text01"}`}>
                             {row[column.key]}
                           </div>
                         ) : (

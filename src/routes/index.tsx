@@ -52,7 +52,7 @@ import Marketing from "@/pages/Marketing/Marketing";
 import ClientsProfile from "@/pages/Marketing/ClientsProfile";
 import BonusProgram from "@/pages/Marketing/BonusProgram";
 import NewSegment from "@/pages/Marketing/NewSegment";
-import DailyReports from "@/pages/Equipment/DailyReports";
+// import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
   {
@@ -181,7 +181,7 @@ const routes = [
     icon: EquipmentIcon,
     subNavHeading: "dailyOptions",
     subNav: [
-      { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      // { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
       { name: "chemical", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/equipment/chemical/consumption", component: ChemicalConsumption, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true, subNav: [], subMenu: false },
       {
         name: "routine", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true, subNav: [
