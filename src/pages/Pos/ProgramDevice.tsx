@@ -11,7 +11,7 @@ import SalyIamge from "@/assets/Saly-45.svg?react";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber } from '@/hooks/useAuthStore'; 
+import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 
 interface FilterDepositDevice {
     dateStart: Date;
@@ -54,6 +54,7 @@ const ProgramDevice: React.FC = () => {
     const setDeviceId = useSetDeviceId();
     const setCurrentPage = useSetCurrentPage();
     const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize();
     const posType = usePosType();
 
     const location = useLocation();
@@ -83,18 +84,24 @@ const ProgramDevice: React.FC = () => {
 
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if(newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
-        if(newFilterData.page) setCurrentPage(newFilterData.page);
-        if(newFilterData.size) setPageSize(newFilterData.size);
+        if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
     }, [filterError]);
+
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
 
-    const deviceProgram: DeviceProgram[] = filter?.map((item: DeviceProgram) => {
+    useEffect(() => {
+        if (!filterIsLoading && filter?.totalCount)
+            setTotalCount(filter?.totalCount)
+    }, [filter?.totalCount, filterIsLoading, setTotalCount]);
+
+    const deviceProgram: DeviceProgram[] = filter?.prog?.map((item: DeviceProgram) => {
         return item;
     }).sort((a: { dateBegin: string | number | Date; }, b: { dateBegin: string | number | Date; }) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || [];
 

@@ -11,7 +11,7 @@ import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber } from '@/hooks/useAuthStore';
+import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 
 type DeviceMonitoring = {
     props: {
@@ -59,6 +59,7 @@ const DepositDevice: React.FC = () => {
     const setEndDate = useSetEndDate();
     const setCurrentPage = useSetCurrentPage();
     const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize()
     const posType = usePosType();
 
     const location = useLocation();
@@ -92,6 +93,7 @@ const DepositDevice: React.FC = () => {
         if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
         if(newFilterData.page) setCurrentPage(newFilterData.page);
         if(newFilterData.size) setPageSize(newFilterData.size);
+        
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
@@ -101,7 +103,12 @@ const DepositDevice: React.FC = () => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
 
-    const deviceMonitoring: DepositDeviceResponse[] = filter?.map((item: DepositDeviceResponse) => {
+    useEffect(() => {
+        if(!filterIsLoading && filter?.totalCount)
+            setTotalCount(filter?.totalCount)
+    },[filter?.totalCount, filterIsLoading, setTotalCount]);
+
+    const deviceMonitoring: DepositDeviceResponse[] = filter?.oper?.map((item: DepositDeviceResponse) => {
         return item;
     }).sort((a: { dateOper: Date; }, b: { dateOper: Date; }) => new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()) || [];
 

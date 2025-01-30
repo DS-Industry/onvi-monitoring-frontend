@@ -8,10 +8,11 @@ import TableSettings from "./TableSettings.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import CheckIcon from "@icons/checkSuccess.png";
-import { useCurrentPage, usePageNumber, usePermissions, useSetCurrentPage, useSetDocumentType } from "@/hooks/useAuthStore.ts";
+import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType } from "@/hooks/useAuthStore.ts";
 import Icon from 'feather-icons-react';
 import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
+import { useFilterOn } from "@/components/context/useContext.tsx";
 
 interface TableColumn {
   label: string;
@@ -55,15 +56,17 @@ const OverflowTable: React.FC<Props> = ({
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     columns.map((col) => col.key)
   );
+
   const curr = useCurrentPage();
   const setCurr = useSetCurrentPage();
-  const [currentPage, setCurrentPage] = useState(curr);
   const rowsPerPage = usePageNumber();
+  const totalCount = usePageSize();
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
-  const totalPages = Math.ceil(tableData?.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentData = tableData?.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(totalCount / rowsPerPage);
+  const currentData = tableData;
+
+  const { filterOn, setFilterOn } = useFilterOn();
 
   const navigate = useNavigate();
   const setDocumentType = useSetDocumentType();
@@ -119,13 +122,13 @@ const OverflowTable: React.FC<Props> = ({
     } else {
       range.push(1);
 
-      if (currentPage > 3) range.push("...");
+      if (curr > 3) range.push("...");
 
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
+      const start = Math.max(2, curr - 1);
+      const end = Math.min(totalPages - 1, curr + 1);
       for (let i = start; i <= end; i++) range.push(i);
 
-      if (currentPage < totalPages - 2) range.push("...");
+      if (curr < totalPages - 2) range.push("...");
 
       range.push(totalPages);
     }
@@ -135,7 +138,7 @@ const OverflowTable: React.FC<Props> = ({
 
   const handlePageClick = (page: number | string) => {
     if (typeof page === "number") {
-      setCurrentPage(page);
+      setFilterOn(!filterOn);
       setCurr(page);
     }
   };
@@ -208,7 +211,7 @@ const OverflowTable: React.FC<Props> = ({
                   requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                   userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11 min-w-11"></th>}
+                  {(allowed) => allowed && isUpdate && <th className="border border-background02 bg-background06 w-11 min-w-11"></th>}
                 </Can>
               </tr>
             </thead>
@@ -226,16 +229,16 @@ const OverflowTable: React.FC<Props> = ({
                     </td>
                   )}
                   <Can
-                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
-                  userPermissions={userPermissions}
-                >
-                  {(allowed) => allowed && isUpdateLeft && (
-                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
-                      <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                        <img src={UpdateIcon} />
-                      </button>
-                    </td>
-                  )}
+                    requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                    userPermissions={userPermissions}
+                  >
+                    {(allowed) => allowed && isUpdateLeft && (
+                      <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
+                        <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
+                          <img src={UpdateIcon} />
+                        </button>
+                      </td>
+                    )}
                   </Can>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
@@ -268,17 +271,17 @@ const OverflowTable: React.FC<Props> = ({
                         )}
                     </td>
                   ))}
-                   <Can
-                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
-                  userPermissions={userPermissions}
-                >
-                  {(allowed) => allowed && isUpdate && (
-                    <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
-                      <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                        <img src={UpdateIcon} />
-                      </button>
-                    </td>
-                  )}
+                  <Can
+                    requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                    userPermissions={userPermissions}
+                  >
+                    {(allowed) => allowed && isUpdate && (
+                      <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
+                        <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
+                          <img src={UpdateIcon} />
+                        </button>
+                      </td>
+                    )}
                   </Can>
                 </tr>
               ))}
@@ -287,15 +290,15 @@ const OverflowTable: React.FC<Props> = ({
         </div>
       </div>
       {/* Pagination */}
-      <div className="mt-4 flex gap-2">
+      {(location.pathname === "/station/enrollments/device" || location.pathname === "/station/programs/device") && <div className="mt-4 flex gap-2">
         <button
           onClick={() => {
-            setCurrentPage((prev) => Math.max(1, prev - 1));
             const newPage = Math.max(1, curr - 1);
+            setFilterOn(!filterOn);
             setCurr(newPage);
           }}
-          disabled={currentPage === 1}
-          className={`px-2 py-1 ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+          disabled={curr === 1}
+          className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
           <Icon icon="chevron-left" />
         </button>
@@ -306,7 +309,7 @@ const OverflowTable: React.FC<Props> = ({
             <button
               key={index}
               onClick={() => handlePageClick(page)}
-              className={`px-4 py-2 font-semibold ${currentPage === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
+              className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
             >
               {page}
             </button>
@@ -314,15 +317,15 @@ const OverflowTable: React.FC<Props> = ({
         )}
         <button
           onClick={() => {
-            setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+            setFilterOn(!filterOn);
             setCurr(Math.min(totalPages, curr + 1));
           }}
-          disabled={currentPage === totalPages}
-          className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+          disabled={curr === totalPages}
+          className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
           <Icon icon="chevron-right" />
         </button>
-      </div>
+      </div>}
       {isDisplayEdit && <>
         <button
           onClick={() => setIsModalOpen(true)}

@@ -87,13 +87,16 @@ type DepositResponse = {
 }
 
 type DepositDeviceResponse = {
-    id: number;
-    sumOper: number;
-    dateOper: Date;
-    dateLoad: Date;
-    counter: number;
-    localId: number;
-    currencyType: string;
+    oper: {
+        id: number;
+        sumOper: number;
+        dateOper: Date;
+        dateLoad: Date;
+        counter: number;
+        localId: number;
+        currencyType: string;
+    }[];
+    totalCount: number;
 }
 
 type Program = {
@@ -110,14 +113,17 @@ type Program = {
 }
 
 type ProgramDevice = {
-    id: number;
-    name: string;
-    dateBegin: Date;
-    dateEnd: Date;
-    time: string;
-    localId: number;
-    payType: string;
-    isCar: number;
+    prog: {
+        id: number;
+        name: string;
+        dateBegin: Date;
+        dateEnd: Date;
+        time: string;
+        localId: number;
+        payType: string;
+        isCar: number;
+    }[];
+    totalCount: number;
 }
 
 type DevicesParams = {
@@ -161,8 +167,8 @@ export async function getDepositPos(params: DepositParam): Promise<DepositRespon
     return response.data;
 }
 
-export async function getDepositDevice(deviceId: number, params: DeviceParams): Promise<DepositDeviceResponse[]> {
-    const response: AxiosResponse<DepositDeviceResponse[]> = await api.get(`/user/device/monitoring/${deviceId}`, { params });
+export async function getDepositDevice(deviceId: number, params: DeviceParams): Promise<DepositDeviceResponse> {
+    const response: AxiosResponse<DepositDeviceResponse> = await api.get(`/user/device/monitoring/${deviceId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));
     return response.data;
@@ -183,8 +189,8 @@ export async function getProgramPos(params: DepositParam): Promise<Program[]> {
 }
 
 
-export async function getProgramDevice(deviceId: number, params: DeviceParams): Promise<ProgramDevice[]> {
-    const response: AxiosResponse<ProgramDevice[]> = await api.get(`/user/device/program/${deviceId}`, { params });
+export async function getProgramDevice(deviceId: number, params: DeviceParams): Promise<ProgramDevice> {
+    const response: AxiosResponse<ProgramDevice> = await api.get(`/user/device/program/${deviceId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));
     return response.data;
