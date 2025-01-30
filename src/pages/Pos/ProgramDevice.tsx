@@ -11,12 +11,14 @@ import SalyIamge from "@/assets/Saly-45.svg?react";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType } from '@/hooks/useAuthStore'; 
+import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber } from '@/hooks/useAuthStore'; 
 
 interface FilterDepositDevice {
     dateStart: Date;
     dateEnd: Date;
     deviceId?: number;
+    page?: number;
+    size?: number;
 }
 
 interface DeviceProgram {
@@ -44,9 +46,14 @@ const ProgramDevice: React.FC = () => {
     const deviceId = useDeviceId();
     const startDate = useStartDate();
     const endDate = useEndDate();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageNumber();
+
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setDeviceId = useSetDeviceId();
+    const setCurrentPage = useSetCurrentPage();
+    const setPageSize = useSetPageNumber();
     const posType = usePosType();
 
     const location = useLocation();
@@ -54,6 +61,8 @@ const ProgramDevice: React.FC = () => {
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
+        page: currentPage,
+        size: pageSize,
         deviceId: deviceId || location.state?.ownerId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
@@ -63,6 +72,8 @@ const ProgramDevice: React.FC = () => {
         dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
+        page: dataFilter.page,
+        size: dataFilter.size
     }));
     const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
@@ -73,6 +84,8 @@ const ProgramDevice: React.FC = () => {
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
         if(newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
+        if(newFilterData.page) setCurrentPage(newFilterData.page);
+        if(newFilterData.size) setPageSize(newFilterData.size);
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));

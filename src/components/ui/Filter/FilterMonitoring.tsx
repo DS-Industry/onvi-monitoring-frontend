@@ -3,8 +3,9 @@ import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/contex
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useSetCurrentPage } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
+import Input from "../Input/Input.tsx";
 
 type Optional = {
     name: string;
@@ -60,6 +61,9 @@ const FilterMonitoring: React.FC<Props> = ({
     const pageNumber = usePageNumber();
     const setPageNumber = useSetPageNumber();
 
+    const currentPage = useCurrentPage();
+    const setCurrentPage = useSetCurrentPage();
+
     const handleStartDateChange = (combinedDateTime: Date) => {
         setStartDate(combinedDateTime);
     };
@@ -91,6 +95,8 @@ const FilterMonitoring: React.FC<Props> = ({
             dateStart: startDate,
             dateEnd: endDate,
             deviceId: deviceId,
+            page: currentPage,
+            size: pageNumber
         });
         wareHousesSelect && handleDataFilter({
             dateStart: startDate,
@@ -111,14 +117,14 @@ const FilterMonitoring: React.FC<Props> = ({
                     classname="w-80"
                     searchType="outlined"
                     title="Поиск"
-                /> }
+                />}
                 {!hideCity && <DropdownInput
                     title={"Город"}
                     value={city}
                     classname="ml-2 w-80"
                     options={[]}
                     onChange={(value) => setCity(value)}
-                /> }
+                />}
                 {organizationsSelect && (<DropdownInput
                     title={"Организация"}
                     type={"string"}
@@ -137,15 +143,26 @@ const FilterMonitoring: React.FC<Props> = ({
                     value={posId}
                     onChange={setPosId}
                 />)}
-                {devicesSelect && (<DropdownInput
-                    title={"Устройство"}
-                    type={"string"}
-                    label={'Выберите устройство'}
-                    classname="ml-2 w-80"
-                    options={devicesSelect}
-                    value={deviceId}
-                    onChange={setDeviceId}
-                />)}
+                {devicesSelect && (
+                    <div className="flex space-x-2">
+                        <DropdownInput
+                            title={"Устройство"}
+                            type={"string"}
+                            label={'Выберите устройство'}
+                            classname="ml-2 w-80"
+                            options={devicesSelect}
+                            value={deviceId}
+                            onChange={setDeviceId}
+                        />
+                        <Input
+                            title="Current Page"
+                            type="number"
+                            classname="w-40"
+                            value={currentPage}
+                            changeValue={(e) => setCurrentPage(e.target.value)}
+                        />
+                    </div>
+                )}
                 {wareHousesSelect && (<DropdownInput
                     title={"Склад"}
                     type={"string"}

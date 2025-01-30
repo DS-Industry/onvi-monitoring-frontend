@@ -22,6 +22,8 @@ interface AuthState {
   documentType: string;
   wareHouseId: number;
   pageNumber: number;
+  currentPage: number;
+  pageSize: number;
   setTokens: (tokens: { tokens: Tokens }) => void;
   clearTokens: () => void;
   setPermissions: (permissions: Permission[]) => void;
@@ -33,6 +35,8 @@ interface AuthState {
   setWareHouseId: (wareHouseId: number) => void;
   setPageNumber: (pageNumber: number) => void;
   clearPermissions: () => void;
+  setCurrentPage: (currentPage: number) => void;
+  setPageSize: (pageSize: number) => void;
 }
 
 const today = new Date();
@@ -50,6 +54,8 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   documentType: "",
   wareHouseId: 0,
   pageNumber: 5,
+  currentPage: 1,
+  pageSize: 10,
   setTokens: (tokens) =>
     set(() => ({
       tokens: tokens.tokens,
@@ -63,7 +69,9 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   setDocumentType: (documentType) => set({ documentType }),
   setWareHouseId: (wareHouseId) => set({ wareHouseId }),
   setPageNumber: (pageNumber) => set({ pageNumber }),
-  clearPermissions: () => set(() => ({ permissions: [] }))
+  clearPermissions: () => set(() => ({ permissions: [] })),
+  setCurrentPage: (currentPage) => set({ currentPage }),
+  setPageSize: (pageSize) => set({ pageSize })
 });
 
 const useAuthStore = create<AuthState>()(

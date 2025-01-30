@@ -107,7 +107,7 @@ const ProgressReportItem: React.FC = () => {
         }, {} as Record<string, boolean>);
         setOpenSettings(initialSettings);
     }, [techTaskItems]);
-    
+
     const toggleGroup = (groupName: string) => {
         setOpenSettings((prev) => ({
             ...prev,
@@ -172,10 +172,6 @@ const ProgressReportItem: React.FC = () => {
 
     return (
         <>
-            <div className="flex">
-                <div className="text-text01 font-medium text-lg">{location.state?.ownerId}</div>
-                <div className="text-text01 font-medium text-lg ml-2">{location.state?.name}</div>
-            </div>
             <div className="text-text01 font-semibold text-lg">{t("routine.checklist")}</div>
             {
                 techTaskLoading ? (<TableSkeleton columnCount={5} />)
@@ -190,8 +186,8 @@ const ProgressReportItem: React.FC = () => {
                                     <div className="text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
                                 </div>
                                 <div className="ml-8">
-                                    { openSettings[groupName] && items.map((techItem) => (
-                                        <div key={techItem.id} className="flex w-full gap-4 my-4 items-start">
+                                    {openSettings[groupName] && items.map((techItem) => (
+                                        <div key={techItem.id} className="flex w-full gap-4 my-4 items-center">
                                             <div className="flex-1">
                                                 <div className="text-text01">{techItem.title}</div>
                                                 <div className="text-sm text-text02 w-96">Task description s simply dummy text of the printing and typesetting industry. Lorem Ipsum has been.</div>
@@ -203,7 +199,7 @@ const ProgressReportItem: React.FC = () => {
                                                     t={t}
                                                 />
                                             </div>
-                                            <div className="flex-1">
+                                            <div className="flex-1 mt-10">
                                                 <div className="text-sm">{t("pos.photos")}</div>
                                                 <div className="text-sm">{t("pos.maxNumber")}</div>
                                                 <Button

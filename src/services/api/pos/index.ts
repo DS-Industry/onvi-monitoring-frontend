@@ -125,6 +125,13 @@ type DevicesParams = {
     dateEnd: Date;
 }
 
+type DeviceParams = {
+    dateStart: Date;
+    dateEnd: Date;
+    page?: number;
+    size?: number;
+}
+
 export async function getPos(userId: number): Promise<Pos[]> {
     const url = POS.GET_POSES + `/${userId}`;
     const response: AxiosResponse<Pos[]> = await api.get(url);
@@ -154,7 +161,7 @@ export async function getDepositPos(params: DepositParam): Promise<DepositRespon
     return response.data;
 }
 
-export async function getDepositDevice(deviceId: number, params: DevicesParams): Promise<DepositDeviceResponse[]> {
+export async function getDepositDevice(deviceId: number, params: DeviceParams): Promise<DepositDeviceResponse[]> {
     const response: AxiosResponse<DepositDeviceResponse[]> = await api.get(`/user/device/monitoring/${deviceId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));
@@ -176,7 +183,7 @@ export async function getProgramPos(params: DepositParam): Promise<Program[]> {
 }
 
 
-export async function getProgramDevice(deviceId: number, params: DevicesParams): Promise<ProgramDevice[]> {
+export async function getProgramDevice(deviceId: number, params: DeviceParams): Promise<ProgramDevice[]> {
     const response: AxiosResponse<ProgramDevice[]> = await api.get(`/user/device/program/${deviceId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));

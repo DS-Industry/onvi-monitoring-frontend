@@ -57,6 +57,14 @@ export const usePageNumber = () => {
   return useAuthStore((state) => state.pageNumber);
 }
 
+export const useCurrentPage = () => {
+  return useAuthStore((state) => state.currentPage);
+}
+
+export const usePageSize = () => {
+  return useAuthStore((state) => state.pageSize);
+}
+
 export const useSetPermissions = () => {
   return useAuthStore((state) => state.setPermissions);
 }
@@ -79,4 +87,12 @@ export const useSetPageNumber = () => {
 
 export const useClearPermissions = () => {
   return useAuthStore((state) => state.clearPermissions);
+}
+
+export const useSetCurrentPage = () => {
+  return useAuthStore((state) => state.setCurrentPage);
+}
+
+export const useSetPageSize = () => {
+  return useAuthStore((state) => state.setPageSize);
 }

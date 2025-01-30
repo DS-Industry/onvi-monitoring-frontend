@@ -21,6 +21,7 @@ import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import EZ from "@icons/EZ.svg?react";
+import moment from "moment";
 
 type Props = {
   children: React.ReactNode;
@@ -336,8 +337,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
                 <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
-                  {activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />}
+                  <span className="text-3xl font-normal text-text01">{location.pathname === "/equipment/routine/work/progress/item" ? location.state.name : activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
+                  {location.pathname !== "/equipment/routine/work/progress/item" && (activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />)}
                 </div>
                 {activePage?.filter && (
                   <button
@@ -352,6 +353,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </div>
             </div>
             <div className="flex">
+              {location.pathname === "/equipment/routine/work/progress/item" && (
+                <div className="flex space-x-4 text-text01 text-2xl">
+                  <div>{location.state.type}-</div>
+                  <div>{moment(location.state.workDate).add(1, 'days').format('DD.MM.YYYY')}</div>
+                </div>
+              )}
               {activePage?.name === "nomenclature" && (
                 <Button
                   title={t("warehouse.import")}

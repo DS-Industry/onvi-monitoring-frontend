@@ -8,7 +8,7 @@ import TableSettings from "./TableSettings.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import CheckIcon from "@icons/checkSuccess.png";
-import { usePageNumber, usePermissions, useSetDocumentType } from "@/hooks/useAuthStore.ts";
+import { useCurrentPage, usePageNumber, usePermissions, useSetCurrentPage, useSetDocumentType } from "@/hooks/useAuthStore.ts";
 import Icon from 'feather-icons-react';
 import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
@@ -55,7 +55,9 @@ const OverflowTable: React.FC<Props> = ({
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     columns.map((col) => col.key)
   );
-  const [currentPage, setCurrentPage] = useState(1);
+  const curr = useCurrentPage();
+  const setCurr = useSetCurrentPage();
+  const [currentPage, setCurrentPage] = useState(curr);
   const rowsPerPage = usePageNumber();
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
@@ -132,7 +134,10 @@ const OverflowTable: React.FC<Props> = ({
   };
 
   const handlePageClick = (page: number | string) => {
-    if (typeof page === "number") setCurrentPage(page);
+    if (typeof page === "number") {
+      setCurrentPage(page);
+      setCurr(page);
+    }
   };
 
   const getRequiredPermissions = (path: string) => {
@@ -237,7 +242,7 @@ const OverflowTable: React.FC<Props> = ({
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status } }); setDocumentType(row.type) }}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(row.type) }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
@@ -284,7 +289,11 @@ const OverflowTable: React.FC<Props> = ({
       {/* Pagination */}
       <div className="mt-4 flex gap-2">
         <button
-          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          onClick={() => {
+            setCurrentPage((prev) => Math.max(1, prev - 1));
+            const newPage = Math.max(1, curr - 1);
+            setCurr(newPage);
+          }}
           disabled={currentPage === 1}
           className={`px-2 py-1 ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
@@ -304,7 +313,10 @@ const OverflowTable: React.FC<Props> = ({
           )
         )}
         <button
-          onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+          onClick={() => {
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+            setCurr(Math.min(totalPages, curr + 1));
+          }}
           disabled={currentPage === totalPages}
           className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
