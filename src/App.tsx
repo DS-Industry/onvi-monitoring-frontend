@@ -1,35 +1,117 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import React from "react";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import routes from "@/routes";
+import PrivateRoute from "@/routes/PrivateRoute";
+import PublicRoute from "@/routes/PublicRoute";
+import DashboardLayout from "@/layout/DashboardLayout";
+import { Can } from "@/permissions/Can";
+import 'react-loading-skeleton/dist/skeleton.css';
+// import { usePermissions } from "./hooks/useAuthStore";
+import PublicLayout from "./layout/PublicLayout";
+import useAuthStore from "./config/store/authSlice";
+
+const App: React.FC = () => {
+  const userPermissions = useAuthStore((state) => state.permissions);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <HashRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route element={<PublicRoute element={<PublicLayout />} />}>
+          {routes.map((route) =>
+            route.isPublicRoute && (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={<route.component />}
+              />
+            )
+          )}
+        </Route>
+        {/* Private Routes */}
+        <Route element={<PrivateRoute element={<DashboardLayout />} />}>
+          {routes.map((route) => {
+            return (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={
+                  (
+                    <Can
+                      requiredPermissions={route.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <route.component />
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  )
+                }
+              />
+            );
+          })}
 
-export default App
+          {/* Sub Navigation Routes */}
+          {routes.map(
+            (route) =>
+              route.subNav &&
+              route.subNav.map((subRoute) => (
+                <Route
+                  key={subRoute.path}
+                  path={subRoute.path}
+                  element={
+                    <Can
+                      requiredPermissions={subRoute.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <subRoute.component />
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  }
+                />
+              ))
+          )}
+          {routes.map(
+            (route) =>
+              route.subNav &&
+              route.subNav.map((subRoute) => subRoute.subNav && subRoute.subNav.map((subSubRoute) =>
+                <Route
+                  key={subSubRoute.path}
+                  path={subSubRoute.path}
+                  element={
+                    <Can
+                      requiredPermissions={subSubRoute.permissions || []}
+                      userPermissions={userPermissions}
+                    >
+                      {(allowed) =>
+                        allowed ? (
+                          <subSubRoute.component />
+                        ) : (
+                          <Navigate to="/" replace />
+                        )
+                      }
+                    </Can>
+                  }
+                />
+              ))
+          )}
+        </Route>
+
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </HashRouter>
+  );
+};
+
+export default App;
