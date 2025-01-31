@@ -3,9 +3,8 @@ import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/contex
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useSetCurrentPage } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
-import Input from "../Input/Input.tsx";
 
 type Optional = {
     name: string;
@@ -62,7 +61,6 @@ const FilterMonitoring: React.FC<Props> = ({
     const setPageNumber = useSetPageNumber();
 
     const currentPage = useCurrentPage();
-    const setCurrentPage = useSetCurrentPage();
 
     const handleStartDateChange = (combinedDateTime: Date) => {
         setStartDate(combinedDateTime);
@@ -144,24 +142,15 @@ const FilterMonitoring: React.FC<Props> = ({
                     onChange={setPosId}
                 />)}
                 {devicesSelect && (
-                    <div className="flex space-x-2">
-                        <DropdownInput
-                            title={"Устройство"}
-                            type={"string"}
-                            label={'Выберите устройство'}
-                            classname="ml-2 w-80"
-                            options={devicesSelect}
-                            value={deviceId}
-                            onChange={setDeviceId}
-                        />
-                        <Input
-                            title="Current Page"
-                            type="number"
-                            classname="w-40"
-                            value={currentPage}
-                            changeValue={(e) => setCurrentPage(e.target.value)}
-                        />
-                    </div>
+                    <DropdownInput
+                        title={"Устройство"}
+                        type={"string"}
+                        label={'Выберите устройство'}
+                        classname="ml-2 w-80"
+                        options={devicesSelect}
+                        value={deviceId}
+                        onChange={setDeviceId}
+                    />
                 )}
                 {wareHousesSelect && (<DropdownInput
                     title={"Склад"}
@@ -177,6 +166,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     value={pageNumber}
                     classname="ml-2 w-24"
                     options={[
+                        { name: 15, value: 15 },
                         { name: 50, value: 50 },
                         { name: 100, value: 100 },
                         { name: 120, value: 120 },

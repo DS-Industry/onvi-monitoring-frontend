@@ -68,6 +68,13 @@ const ProgramDevice: React.FC = () => {
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setIsDataFilter((prevFilter) => ({ 
+            ...prevFilter, 
+            page: 1 
+        }));  
+    }, [location, setCurrentPage]);  
 
     const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getProgramDevice(
         dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId, {
