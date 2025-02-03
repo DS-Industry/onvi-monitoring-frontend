@@ -36,6 +36,8 @@ const ProgressReport: React.FC = () => {
     ?.map((item: ReadTechTasks) => ({
         ...item,
         posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+        type: t(`tables.${item.type}`),
+        status: t(`tables.${item.status}`)
     }))
     .sort((a, b) => a.id - b.id) || [];
 

@@ -13,6 +13,7 @@ import Icon from 'feather-icons-react';
 import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
+import { useTranslation } from "react-i18next";
 
 interface TableColumn {
   label: string;
@@ -61,6 +62,7 @@ const OverflowTable: React.FC<Props> = ({
   const setCurr = useSetCurrentPage();
   const rowsPerPage = usePageNumber();
   const totalCount = usePageSize();
+  const { t } = useTranslation();
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
   const totalPages = Math.ceil(totalCount / rowsPerPage);
@@ -253,7 +255,7 @@ const OverflowTable: React.FC<Props> = ({
                         </span>
                       ) : column.render ? column.render(row, handleChange)
                         : column.key.toLocaleLowerCase().includes('status') ? (
-                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : row[column.key] === "OVERDUE" ? "text-errorFill" : "text-text01"}`}>
+                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === t("tables.ACTIVE") ? "text-[#00A355]" : row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : "text-text01"}`}>
                             {row[column.key]}
                           </div>
                         ) : (

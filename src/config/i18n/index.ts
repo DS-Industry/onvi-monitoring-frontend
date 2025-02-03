@@ -6,8 +6,8 @@ import ruLang from "./locales/ru/ru.json";
 
 const languageDetector = new LanguageDetector();
 languageDetector.init({
-  order: ["localStorage", "navigator", "htmlTag"], 
-  caches: ["localStorage"], 
+  order: ["localStorage", "navigator", "htmlTag"],
+  caches: ["localStorage"],
 });
 
 i18n
@@ -26,3 +26,5 @@ i18n
       },
     },
   });
+
+export default i18n;

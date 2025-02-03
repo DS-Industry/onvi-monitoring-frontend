@@ -168,7 +168,8 @@ const Pos: React.FC = () => {
     const poses: Pos[] = data
         ?.map((item: Pos) => ({ 
             ...item,
-            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-"
+            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-",
+            status: t(`tables.${item.status}`)
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         ?.filter((pos) => pos.address?.city?.toLowerCase().includes(address.toLowerCase()))
