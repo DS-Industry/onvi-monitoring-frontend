@@ -173,7 +173,11 @@ const RoutineWork: React.FC = () => {
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
         ?.filter((item: { period?: string }) => item.period && item.period.toLowerCase().includes(searchRoutine.toLowerCase()))
-        ?.map((item: TechTasks) => item)
+        ?.map((item: TechTasks) => ({
+            ...item,
+            period: t(`tables.${item.period}`),
+            type: t(`tables.${item.type}`)
+        }))
         .sort((a, b) => a.id - b.id) || [];
 
     const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);

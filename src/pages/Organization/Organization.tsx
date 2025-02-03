@@ -49,7 +49,8 @@ const Organization: React.FC = () => {
         ?.filter((item: { address: string }) => item.address.toLowerCase().includes(address.toLowerCase()))
         .map((item: OrganizationResponse) => ({
             ...item,
-            ownerName: user.name
+            ownerName: user.name,
+            organizationStatus: t(`tables.${item.organizationStatus}`)
         }))
         .sort((a, b) => a.id - b.id) || [];
 

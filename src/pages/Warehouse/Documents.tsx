@@ -107,7 +107,9 @@ const Documents: React.FC = () => {
     const data = allDocuments?.map((item) => ({
         ...item,
         warehouseName: warehouses.find((ware) => ware.value === item.warehouseId)?.name || "-",
-        responsibleName: workers.find((wor) => wor.value === item.responsibleId)?.name || "-"
+        responsibleName: workers.find((wor) => wor.value === item.responsibleId)?.name || "-",
+        status: t(`tables.${item.status}`),
+        type: t(`routes.${item.type}`)
     })) || [];
 
     const documentTypes = [

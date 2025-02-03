@@ -83,9 +83,12 @@ const OverheadCosts: React.FC = () => {
 
         return {
             columns: [...baseColumns, ...warehouseColumns],
-            transformedData: transformedStockLevels,
+            transformedData: transformedStockLevels.map((item) => ({
+                ...item,
+                measurement: item.measurement !== null ? t(`tables.${item.measurement}`) : ""
+            })),
         };
-    }, [stockLevels, baseColumns]);
+    }, [stockLevels, baseColumns, t]);
 
     const initialFilter = {
         categoryId: categoryId,

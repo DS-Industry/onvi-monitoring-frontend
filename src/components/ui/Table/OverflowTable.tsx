@@ -13,6 +13,7 @@ import Icon from 'feather-icons-react';
 import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
+import { useTranslation } from "react-i18next";
 
 interface TableColumn {
   label: string;
@@ -61,6 +62,7 @@ const OverflowTable: React.FC<Props> = ({
   const setCurr = useSetCurrentPage();
   const rowsPerPage = usePageNumber();
   const totalCount = usePageSize();
+  const { t } = useTranslation();
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
   const totalPages = Math.ceil(totalCount / rowsPerPage);
@@ -171,6 +173,14 @@ const OverflowTable: React.FC<Props> = ({
       return [];
   };
 
+  const documentTypes = [
+    { name: t("routes.COMMISSIONING"), value: "COMMISSIONING" },
+    { name: t("routes.WRITEOFF"), value: "WRITEOFF" },
+    { name: t("routes.MOVING"), value: "MOVING" },
+    { name: t("routes.INVENTORY"), value: "INVENTORY" },
+    { name: t("routes.RECEIPT"), value: "RECEIPT" },
+  ];
+
   return (
     <>
       <div className="w-full overflow-auto">
@@ -245,7 +255,7 @@ const OverflowTable: React.FC<Props> = ({
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(row.type) }}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
@@ -253,7 +263,7 @@ const OverflowTable: React.FC<Props> = ({
                         </span>
                       ) : column.render ? column.render(row, handleChange)
                         : column.key.toLocaleLowerCase().includes('status') ? (
-                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === "ACTIVE" ? "text-[#00A355]" : row[column.key] === "OVERDUE" ? "text-errorFill" : "text-text01"}`}>
+                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === t("tables.ACTIVE") ? "text-[#00A355]" : row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : "text-text01"}`}>
                             {row[column.key]}
                           </div>
                         ) : (

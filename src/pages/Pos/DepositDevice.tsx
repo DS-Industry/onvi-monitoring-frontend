@@ -73,6 +73,13 @@ const DepositDevice: React.FC = () => {
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setIsDataFilter((prevFilter) => ({ 
+            ...prevFilter, 
+            page: 1 
+        }));  
+    }, [location, setCurrentPage]);
 
     const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-deposits-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getDepositDevice(
         dataFilter.deviceId ? dataFilter.deviceId : location.state.ownerId, {
@@ -91,9 +98,9 @@ const DepositDevice: React.FC = () => {
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
         if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
-        if(newFilterData.page) setCurrentPage(newFilterData.page);
-        if(newFilterData.size) setPageSize(newFilterData.size);
-        
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
+
     };
     useEffect(() => {
         console.log(JSON.stringify(filterError, null, 2));
@@ -104,9 +111,9 @@ const DepositDevice: React.FC = () => {
     }, [dataFilter, filterMutate]);
 
     useEffect(() => {
-        if(!filterIsLoading && filter?.totalCount)
+        if (!filterIsLoading && filter?.totalCount)
             setTotalCount(filter?.totalCount)
-    },[filter?.totalCount, filterIsLoading, setTotalCount]);
+    }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
     const deviceMonitoring: DepositDeviceResponse[] = filter?.oper?.map((item: DepositDeviceResponse) => {
         return item;
