@@ -22,7 +22,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== "");
+    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== "") || (defaultValue !== undefined && defaultValue !== "");
     const handlePasswordToggle = () => {
         if (!disabled) {
             setShowPassword(!showPassword);
