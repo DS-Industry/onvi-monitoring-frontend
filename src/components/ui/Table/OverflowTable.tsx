@@ -173,6 +173,14 @@ const OverflowTable: React.FC<Props> = ({
       return [];
   };
 
+  const documentTypes = [
+    { name: t("routes.COMMISSIONING"), value: "COMMISSIONING" },
+    { name: t("routes.WRITEOFF"), value: "WRITEOFF" },
+    { name: t("routes.MOVING"), value: "MOVING" },
+    { name: t("routes.INVENTORY"), value: "INVENTORY" },
+    { name: t("routes.RECEIPT"), value: "RECEIPT" },
+  ];
+
   return (
     <>
       <div className="w-full overflow-auto">
@@ -247,7 +255,7 @@ const OverflowTable: React.FC<Props> = ({
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(row.type) }}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
