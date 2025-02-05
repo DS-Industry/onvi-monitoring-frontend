@@ -36,6 +36,7 @@ type Props = {
   onUpdate?: (id: number) => void;
   handleChange?: (id: number, key: string, value: string | number) => void;
   isCheck?: boolean;
+  showTotal?: boolean;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -51,7 +52,8 @@ const OverflowTable: React.FC<Props> = ({
   urlTitleId,
   onUpdate,
   handleChange,
-  isCheck
+  isCheck,
+  showTotal = false
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -251,7 +253,7 @@ const OverflowTable: React.FC<Props> = ({
                     )}
                   </Can>
                   {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
                       {column.key === 'name' && nameUrl ? (
                         <span
                           className="cursor-pointer"
@@ -295,6 +297,18 @@ const OverflowTable: React.FC<Props> = ({
                   </Can>
                 </tr>
               ))}
+              {currentData.length > 0 && showTotal && (
+                <tr className="h-11 px-3 bg-background05 text-sm font-semibold text-text01">
+                  <td className="p-2 text-left" colSpan={3}>{t("finance.total")}</td>
+                  {displayedColumns.slice(3).map((column) => (
+                    <td key={column.key} className="p-2 text-right">
+                      {column.type === 'number'
+                        ? formatNumber(currentData.reduce((sum: number, row: { [x: string]: unknown; }) => sum + (Number(row[column.key]) || 0), 0))
+                        : '-'}
+                    </td>
+                  ))}
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
