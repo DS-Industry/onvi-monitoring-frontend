@@ -799,4 +799,97 @@ export const columnsClient = [
   }
 ]
 
+export const columnsCollections = [
+  {
+    label: "Тип",
+    key: "typeName",
+    render: (row: { typeName: string; }) => <span>{row.typeName}</span>,
+  },
+  {
+    label: "Купюры",
+    key: "sumPaperDeviceType",
+    render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <input
+        type="number"
+        className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        placeholder="00,00"
+        value={row.sumPaperDeviceType}
+        onChange={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Монеты",
+    key: "sumCoinDeviceType",
+    render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <input
+        type="number"
+        className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        placeholder="00,00"
+        value={row.sumCoinDeviceType}
+        onChange={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Сумма всего",
+    key: "sumFactDeviceType",
+    type: "number",
+    render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
+  },
+  {
+    label: "Недостача",
+    key: "shortageDeviceType",
+    type: "number",
+    render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
+  },
+  {
+    label: "Безналичная оплата",
+    key: "virtualSumDeviceType",
+    type: "number",
+    render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
+  }
+]
+
+export const columnsDeviceData = [
+  {
+    label: "Код",
+    key: "deviceId"
+  },
+  {
+    label: "Название",
+    key: "deviceName"
+  },
+  {
+    label: "Тип",
+    key: "deviceType"
+  },
+  {
+    label: "Предыдущая инкассация",
+    key: "oldTookMoneyTime",
+    type: "date"
+  },
+  {
+    label: "Текущая инкассация",
+    key: "tookMoneyTime",
+    type: "date"
+  },
+  {
+    label: "Купюры",
+    key: "sumPaperDevice"
+  },
+  {
+    label: "Монеты",
+    key: "sumCoinDevice"
+  },
+  {
+    label: "Сумма всего",
+    key: "sumDevice"
+  },
+  {
+    label: "Безналичная оплата",
+    key: "virtualSumDevice"
+  }
+]
+
 

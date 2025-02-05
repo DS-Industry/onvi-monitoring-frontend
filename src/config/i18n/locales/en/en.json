@@ -69,7 +69,11 @@
     "newPromo": "New Promotion",
     "bonus": "Bonus Program",
     "addSeg": "Add Segment",
-    "createSeg": "Creating a new segment"
+    "createSeg": "Creating a new segment",
+    "collection": "Collection",
+    "period": "Collection for the period",
+    "employee": "Employee changes",
+    "collectionCreation": "Collection (Creation)"
   },
   "dashboard": {
     "news": "News",
@@ -593,5 +597,23 @@
     "PIECE": "PIECE",
     "LITER": "LITER",
     "METER": "METER"
+  },
+  "finance": {
+    "details": "Details are displayed here for each collection",
+    "at": "At the moment you have no completed collections",
+    "begin": "Begin of Period",
+    "end": "End of Period",
+    "carWash": "Car wash/Branch",
+    "select": "Select department",
+    "form": "Form",
+    "add": "Additionally",
+    "create": "Create collection",
+    "no": "Document No.",
+    "cars": "Total cars",
+    "cash": "Cashless payment",
+    "amt": "Amount on cards",
+    "nos": "Number of cars on cards",
+    "short": "Shortage",
+    "total": "Total"
   }
 }

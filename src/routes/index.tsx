@@ -52,6 +52,10 @@ import Marketing from "@/pages/Marketing/Marketing";
 import ClientsProfile from "@/pages/Marketing/ClientsProfile";
 import BonusProgram from "@/pages/Marketing/BonusProgram";
 import NewSegment from "@/pages/Marketing/NewSegment";
+import Collection from "@/pages/Finance/Collection";
+import Period from "@/pages/Finance/Period";
+import EmployeeChanges from "@/pages/Finance/EmployeeChanges";
+import CollectionCreation from "@/pages/Finance/CollectionCreation";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -126,14 +130,21 @@ const routes = [
   {
     name: "finance",
     path: "/finance",
-    subMenu: false,
+    subMenu: true,
     filter: false,
     addButton: false,
     addButtonText: "",
     icon: FinancesIcon,
     component: Default,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Finance" }]
+    permissions: [],
+    subNavHeading: "",
+    subNav: [
+      { name: "collection", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/finance/collection", component: Collection, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "collectionCreation", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/collection/creation", component: CollectionCreation, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "period", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/period", component: Period, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/employee", component: EmployeeChanges, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+    ]
   },
   {
     name: "analysis",
