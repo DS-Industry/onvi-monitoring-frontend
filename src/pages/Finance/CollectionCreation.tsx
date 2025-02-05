@@ -144,24 +144,16 @@ const CollectionCreation: React.FC = () => {
     return (
         <div className="space-y-6">
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex space-x-4">
-                    <Input
-                        type="date"
-                        title={t("finance.begin")}
-                        classname="w-44"
-                        disabled={true}
-                    />
-                    <Input
-                        type="date"
-                        title={t("finance.end")}
-                        classname="w-44"
-                        value={formData.cashCollectionDate}
-                        changeValue={(e) => handleInputChange('cashCollectionDate', e.target.value)}
-                        error={!!errors.cashCollectionDate}
-                        {...register('cashCollectionDate', { required: 'Start Date is required' })}
-                        helperText={errors.cashCollectionDate?.message || ''}
-                    />
-                </div>
+                <Input
+                    type="date"
+                    title={t("finance.end")}
+                    classname="w-44"
+                    value={formData.cashCollectionDate}
+                    changeValue={(e) => handleInputChange('cashCollectionDate', e.target.value)}
+                    error={!!errors.cashCollectionDate}
+                    {...register('cashCollectionDate', { required: 'Start Date is required' })}
+                    helperText={errors.cashCollectionDate?.message || ''}
+                />
                 <DropdownInput
                     title={t("finance.carWash")}
                     options={poses}
@@ -249,21 +241,21 @@ const CollectionCreation: React.FC = () => {
                 }
             </div>
             <div className="flex space-x-3">
-                            <Button
-                                type="outline"
-                                title={t("organizations.cancel")}
-                                handleClick={() => navigate('/finance/collection')}
-                            />
-                            <Button
-                                type="outline"
-                                title={t("warehouse.saveDraft")}
-                                form={true}
-                            />
-                            <Button
-                                title={t("warehouse.saveAccept")}
-                                form={true}
-                            />
-                        </div>
+                <Button
+                    type="outline"
+                    title={t("organizations.cancel")}
+                    handleClick={() => navigate('/finance/collection')}
+                />
+                <Button
+                    type="outline"
+                    title={t("warehouse.saveDraft")}
+                    form={true}
+                />
+                <Button
+                    title={t("warehouse.saveAccept")}
+                    form={true}
+                />
+            </div>
         </div>
     )
 }
