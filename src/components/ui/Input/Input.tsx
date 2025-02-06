@@ -16,9 +16,10 @@ type InputProps = {
     defaultValue?: string;
     title?: string;
     id?: string;
+    placeholder?: string;
 }
 
-const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'forth', showIcon = false, IconComponent, classname, title, id }: InputProps, defaultValue) => {
+const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'forth', showIcon = false, IconComponent, classname, title, id, placeholder }: InputProps, defaultValue) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -54,6 +55,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     id={id}
+                    placeholder={placeholder}
                 />
                 {type === "password" && (
                     <div

@@ -37,6 +37,7 @@ type Props = {
   handleChange?: (id: number, key: string, value: string | number) => void;
   isCheck?: boolean;
   showTotal?: boolean;
+  renderCell?: (column: any, row: any) => React.ReactNode;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -53,7 +54,8 @@ const OverflowTable: React.FC<Props> = ({
   onUpdate,
   handleChange,
   isCheck,
-  showTotal = false
+  showTotal = false,
+  renderCell
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -264,23 +266,24 @@ const OverflowTable: React.FC<Props> = ({
                           </div>
                         </span>
                       ) : column.render ? column.render(row, handleChange)
-                        : column.key.toLocaleLowerCase().includes('status') ? (
-                          <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === t("tables.ACTIVE") ? "text-[#00A355]" : row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : "text-text01"}`}>
-                            {row[column.key]}
-                          </div>
-                        ) : (
-                          <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                            {column.type === 'date' ? (
-                              row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
-                            ) : column.type === 'number' ? (
-                              row[column.key] ? formatNumber(row[column.key]) : '-'
-                            ) : typeof row[column.key] === 'object' ? (
-                              `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                            ) : (
-                              row[column.key]
-                            )}
-                          </div>
-                        )}
+                        : renderCell ? renderCell(column, row)
+                          : column.key.toLocaleLowerCase().includes('status') ? (
+                            <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === t("tables.ACTIVE") ? "text-[#00A355]" : row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : "text-text01"}`}>
+                              {row[column.key]}
+                            </div>
+                          ) : (
+                            <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                              {column.type === 'date' ? (
+                                row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
+                              ) : column.type === 'number' ? (
+                                row[column.key] ? formatNumber(row[column.key]) : '-'
+                              ) : typeof row[column.key] === 'object' ? (
+                                `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
+                              ) : (
+                                row[column.key]
+                              )}
+                            </div>
+                          )}
                     </td>
                   ))}
                   <Can

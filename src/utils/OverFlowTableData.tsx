@@ -1,3 +1,5 @@
+import Input from "@/components/ui/Input/Input";
+
 export const tableUserData = [
   {
     id: 1,
@@ -809,12 +811,14 @@ export const columnsCollections = [
     label: "Купюры",
     key: "sumPaperDeviceType",
     render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
         placeholder="00,00"
         value={row.sumPaperDeviceType}
-        onChange={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+        error={!row.sumPaperDeviceType}
+        helperText={!row.sumPaperDeviceType ? "Sum Paper Device type is required." : undefined}
+        changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
       />
     ),
   },
@@ -822,12 +826,14 @@ export const columnsCollections = [
     label: "Монеты",
     key: "sumCoinDeviceType",
     render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
         placeholder="00,00"
         value={row.sumCoinDeviceType}
-        onChange={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+        error={!row.sumCoinDeviceType}
+        helperText={!row.sumCoinDeviceType ? "Sum Coin Device type is required." : undefined}
+        changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
       />
     ),
   },

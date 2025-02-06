@@ -614,6 +614,10 @@
     "amt": "Amount on cards",
     "nos": "Number of cars on cards",
     "short": "Shortage",
-    "total": "Total"
+    "total": "Total",
+    "cashColl": "Cash collection for car wash",
+    "collDev": "Collection by device",
+    "colle": "Collections are displayed here",
+    "atMom": "At the moment you have no completed collections"
   }
 }
