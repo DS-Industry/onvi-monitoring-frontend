@@ -250,7 +250,6 @@ const CollectionCreation: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
-            navigate("/finance/collection");
         }
     };
 
@@ -295,56 +294,58 @@ const CollectionCreation: React.FC = () => {
     return (
         <div className="space-y-6">
             {((location?.state?.status === t("tables.SENT")) || (location?.state?.status === t("tables.SAVED"))) ?
-            <></> :
-             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex space-x-4">
-                    <Input
-                        type="date"
-                        title={t("finance.end")}
-                        classname="w-44"
-                        value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
-                        error={!!errors.cashCollectionDate}
-                        {...register("cashCollectionDate", { required: "Cash Collection DateTime is required" })}
-                        helperText={errors.cashCollectionDate?.message || ""}
+                <></> :
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                    <div className="flex space-x-4">
+                        <Input
+                            type="date"
+                            title={t("finance.end")}
+                            classname="w-44"
+                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
+                            changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
+                            error={!!errors.cashCollectionDate}
+                            {...register("cashCollectionDate", { required: "Cash Collection DateTime is required" })}
+                            helperText={errors.cashCollectionDate?.message || ""}
+                        />
+                        <Input
+                            type="time"
+                            classname="w-32 mt-6"
+                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[1]?.slice(0, 5) : ""}
+                            changeValue={(e) => handleDateTimeChange(e.target.value, "time")}
+                            error={!!errors.cashCollectionDate}
+                        />
+                    </div>
+                    <DropdownInput
+                        title={t("finance.carWash")}
+                        options={poses}
+                        classname="w-64"
+                        {...register('posId', {
+                            required: 'Pos ID is required',
+                            validate: (value) =>
+                                (value !== 0) || "Pos ID is required"
+                        })}
+                        value={formData.posId}
+                        onChange={(value) => handleInputChange('posId', value)}
+                        error={!!errors.posId}
+                        helperText={errors.posId?.message}
                     />
-                    <Input
-                        type="time"
-                        classname="w-32 mt-6"
-                        value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[1]?.slice(0, 5) : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "time")}
-                        error={!!errors.cashCollectionDate}
-                    />
-                </div>
-                <DropdownInput
-                    title={t("finance.carWash")}
-                    options={poses}
-                    classname="w-64"
-                    {...register('posId', {
-                        required: 'Pos ID is required',
-                        validate: (value) =>
-                            (value !== 0) || "Pos ID is required"
-                    })}
-                    value={formData.posId}
-                    onChange={(value) => handleInputChange('posId', value)}
-                    error={!!errors.posId}
-                    helperText={errors.posId?.message}
-                />
-                <div className="flex justify-between">
-                    <Button
-                        title={t("finance.form")}
-                        isLoading={collectionLoading}
-                        form={true}
-                    />
-                    {collection && Object.keys(collection).length > 0 && <Button
-                        title={t("finance.add")}
-                        type="outline"
-                        iconDown={showData}
-                        iconUp={!showData}
-                        handleClick={() => setShowData(!showData)}
-                    />}
-                </div>
-            </form>}
+                    <div className="flex justify-between">
+                        <Button
+                            title={t("finance.form")}
+                            isLoading={collectionLoading}
+                            form={true}
+                        />
+                    </div>
+                </form>}
+            <div className="flex justify-end">
+                {collection && Object.keys(collection).length > 0 && <Button
+                    title={t("finance.add")}
+                    type="outline"
+                    iconDown={showData}
+                    iconUp={!showData}
+                    handleClick={() => setShowData(!showData)}
+                />}
+            </div>
             {showData && collection && Object.keys(collection).length > 0 && (
                 <div className="flex space-x-20">
                     <div className="text-text01 space-y-4">

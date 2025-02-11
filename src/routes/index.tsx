@@ -58,6 +58,7 @@ import CollectionCreation from "@/pages/Finance/CollectionCreation";
 import TimesheetCreation from "@/pages/Finance/TimeSheetCreation";
 import Timesheet from "@/pages/Finance/Timesheet";
 import Timestamps from "@/pages/Finance/Timestamps";
+import Analysis from "@/pages/Analysis/Analysis";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -158,9 +159,9 @@ const routes = [
     addButton: false,
     addButtonText: "",
     icon: MonitoringIcon,
-    component: Default,
+    component: Analysis,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Analysis" }]
+    permissions: []
   },
   {
     name: "marketing",
