@@ -8,6 +8,13 @@ import MultilineInput from "../Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
 import Icon from "feather-icons-react";
 import Button from "../Button/Button";
+import RedDot from "@icons/RedDot.svg?react";
+import OrangeDot from "@icons/OrangeDot.svg?react";
+import GreenDot from "@icons/GreenDot.svg?react";
+import BN from "@icons/Бл.svg?react";
+import OTN from "@icons/ОТП.svg?react";
+import O from "@icons/О.svg?react";
+import NP from "@icons/Пр.svg?react"
 
 interface Employee {
     id: number;
@@ -29,7 +36,7 @@ interface FormData {
     grade: string;
 }
 
-const employees: Employee[] = [
+const emps: Employee[] = [
     {
         id: 1,
         branch: "Мойка_1",
@@ -74,6 +81,7 @@ const ScheduleTable: React.FC = () => {
     const [filledData, setFilledData] = useState<Record<string, FormData>>({});
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>("");
+    const [employees, setEmployees] = useState(emps);
 
     // Initialize Form Hook
     const { register, handleSubmit, setValue, watch, reset } = useFormHook({
@@ -132,6 +140,17 @@ const ScheduleTable: React.FC = () => {
         setSelectedDate("");
     };
 
+    const addNewRow = () => {
+        const newEmployee = {
+            id: employees.length + 1, 
+            branch: "Мойка_1",
+            name: "Петров Петр Петрович",
+            position: "Мойщик",
+            schedule: {},
+        };
+        setEmployees([...employees, newEmployee]); 
+    };
+
     return (
         <div className="overflow-x-auto">
             <table className="w-full border-separate border-spacing-0.5">
@@ -157,16 +176,80 @@ const ScheduleTable: React.FC = () => {
                             {dates.map((d, index) => (
                                 <td
                                     key={index}
-                                    className="border border-borderFill bg-background02 cursor-pointer hover:bg-background05 py-2 px-2.5 text-start whitespace-nowrap text-sm text-text01"
+                                    className={`border border-borderFill ${filledData[`${emp.id}-${d.date}`]?.dayType === "workingday" ? "bg-[#DDF5FF]" : "bg-background02"} cursor-pointer hover:bg-background05 py-2 px-2.5 items-center whitespace-nowrap text-sm text-text01`}
                                     onClick={() => handleOpenModal(emp, d.date)}
-                                >
-                                    {/* Placeholder for input data */}
+                                >   <div className="flex flex-col justify-between h-full min-h-[40px]">
+                                        <div className="flex items-center m-auto"> {/* Center top div */}
+                                            {filledData[`${emp.id}-${d.date}`]?.dayType === "sick" ? <BN /> :
+                                                filledData[`${emp.id}-${d.date}`]?.dayType === "vacation" ? <OTN /> :
+                                                    filledData[`${emp.id}-${d.date}`]?.dayType === "timeoff" ? <O /> :
+                                                        filledData[`${emp.id}-${d.date}`]?.dayType === "absent" ? <NP /> :
+                                                            <></>
+                                            }
+                                        </div>
+                                        <div className="flex items-center justify-between mt-auto"> {/* Push bottom div to bottom */}
+                                            {filledData[`${emp.id}-${d.date}`]?.grade === "gross" ? <RedDot className="w-2 h-2" /> :
+                                                filledData[`${emp.id}-${d.date}`]?.grade === "minor" ? <OrangeDot className="w-2 h-2" /> :
+                                                    filledData[`${emp.id}-${d.date}`]?.grade === "onetime" ? <GreenDot className="w-2 h-2" /> :
+                                                        <></>
+                                            }
+                                            <div className="text-text02 text-xs">+1000</div>
+                                        </div>
+                                    </div>
                                 </td>
                             ))}
                         </tr>
                     ))}
                 </tbody>
             </table>
+            <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={addNewRow}>
+                <Icon icon="plus" className="w-5 h-5" />
+                <div>{t("finance.addE")}</div>
+            </div>
+            <div className="mt-5">
+                <div className="flex justify-center space-x-10">
+                    <div className="flex space-x-2 items-center">
+                        <RedDot />
+                        <div className="text-text01">{t("finance.gross")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <OrangeDot />
+                        <div className="text-text01">{t("finance.minor")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <GreenDot />
+                        <div className="text-text01">{t("finance.one")}</div>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-5">
+                <div className="flex justify-center space-x-10">
+                    <div className="flex space-x-2 items-center">
+                        <div className="w-4 h-4 bg-[#DDF5FF]"></div>
+                        <div className="text-text01">{t("finance.work")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <div className="w-4 h-4 border border-borderFill"></div>
+                        <div className="text-text01">{t("finance.dayOff")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <BN />
+                        <div className="text-text01">{t("finance.sick")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <OTN />
+                        <div className="text-text01">{t("finance.vac")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <O />
+                        <div className="text-text01">{t("finance.time")}</div>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                        <NP />
+                        <div className="text-text01">{t("finance.abs")}</div>
+                    </div>
+                </div>
+            </div>
             {selectedEmployee && selectedDate && (
                 <Modal isOpen={openModals[`${selectedEmployee.id}-${selectedDate}`]} onClose={handleCloseModal} typeSubmit={true} classname="max-h-[600px] overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">
@@ -247,12 +330,12 @@ const ScheduleTable: React.FC = () => {
                             {...register("dayType")}
                             value={dayType}
                             options={[
-                                { name: t("finance.work"),value: "workingday" },
-                                { name: t("finance.dayOff"),value: "dayoff" },
-                                { name: t("finance.sick"),value: "sick" },
-                                { name: t("finance.vac"),value: "vacation" },
-                                { name: t("finance.time"),value: "timeoff" },
-                                { name: t("finance.abs"),value: "absent" }
+                                { name: t("finance.work"), value: "workingday" },
+                                { name: t("finance.dayOff"), value: "dayoff" },
+                                { name: t("finance.sick"), value: "sick" },
+                                { name: t("finance.vac"), value: "vacation" },
+                                { name: t("finance.time"), value: "timeoff" },
+                                { name: t("finance.abs"), value: "absent" }
                             ]}
                             label={t("finance.selectDay")}
                             classname="w-96"
@@ -338,10 +421,10 @@ const ScheduleTable: React.FC = () => {
                             {...register("grade")}
                             value={grade}
                             options={[
-                                { name: t("finance.noc"),value: "nocomment" },
-                                { name: t("finance.gross"),value: "gross" },
-                                { name: t("finance.minor"),value: "minor" },
-                                { name: t("finance.one"),value: "onetime" }
+                                { name: t("finance.noc"), value: "nocomment" },
+                                { name: t("finance.gross"), value: "gross" },
+                                { name: t("finance.minor"), value: "minor" },
+                                { name: t("finance.one"), value: "onetime" }
                             ]}
                             label={t("finance.noc")}
                             classname="w-96"

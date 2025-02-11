@@ -658,6 +658,7 @@
     "one": "One-time remark",
     "refund": "Refund",
     "recal": "Recalculate",
-    "recalSend": "Recalculate and send"
+    "recalSend": "Recalculate and send",
+    "addE": "Add an employee"
   }
 }

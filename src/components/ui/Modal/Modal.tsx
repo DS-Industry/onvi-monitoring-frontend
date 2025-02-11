@@ -12,7 +12,7 @@ interface ModalProps {
   typeSubmit?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading, typeSubmit=false }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading, typeSubmit }) => {
   if (!isOpen) return null;
 
   return createPortal(
