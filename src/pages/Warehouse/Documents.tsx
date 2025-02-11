@@ -75,7 +75,7 @@ const Documents: React.FC = () => {
     const initialFilter = {
         dateStart: new Date(startDate.toString().slice(0, 10) || "2024-01-01"),
         dateEnd: new Date(endDate.toString().slice(0, 10) || `${formattedDate}`),
-        warehouseId: wareHouseId || 1
+        warehouseId: wareHouseId || 3
     };
 
     const [dataFilter, setIsDataFilter] = useState<DocumentParams>(initialFilter);

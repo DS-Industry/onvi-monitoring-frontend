@@ -380,7 +380,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                 userPermissions={userPermissions}
               >
-                {(allowed) => allowed && activePage?.addButton && location?.state?.status !== "SENT" && (
+                {(allowed) => allowed && activePage?.addButton && location?.state?.status !== t("tables.SENT") && (
                   <Button
                     title={t(`routes.${activePage?.addButtonText}`)}
                     iconPlus={true}

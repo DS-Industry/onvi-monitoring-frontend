@@ -17,6 +17,7 @@ type Props = {
     posesSelect?: Optional[];
     devicesSelect?: Optional[];
     wareHousesSelect?: Optional[];
+    usersSelect?: Optional[];
     handleDataFilter?: any;
     hideCity?: boolean;
     hideSearch?: boolean;
@@ -27,6 +28,7 @@ const FilterMonitoring: React.FC<Props> = ({
     posesSelect,
     devicesSelect,
     wareHousesSelect,
+    usersSelect,
     handleDataFilter,
     hideCity = false,
     hideSearch = false
@@ -88,6 +90,8 @@ const FilterMonitoring: React.FC<Props> = ({
             dateStart: startDate,
             dateEnd: endDate,
             posId: posId,
+            page: currentPage,
+            size: pageNumber
         });
         devicesSelect && handleDataFilter({
             dateStart: startDate,
@@ -140,6 +144,14 @@ const FilterMonitoring: React.FC<Props> = ({
                     options={posesSelect}
                     value={posId}
                     onChange={setPosId}
+                />)}
+                {usersSelect && (<DropdownInput
+                    title={"Пользователь"}
+                    type={"string"}
+                    label={'Выберите объект'}
+                    classname="ml-2 w-80"
+                    options={usersSelect}
+                    value={undefined}
                 />)}
                 {devicesSelect && (
                     <DropdownInput
