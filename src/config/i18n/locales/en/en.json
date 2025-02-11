@@ -581,7 +581,11 @@
     "7008": "An error occurred while retrieving the warehouse. Please try again.",
     "7009": "An error occurred while retrieving inventory items. Please try again.",
     "7010": "An error occurred while saving the document. Please try again.",
-    "7011": "An error occurred while retrieving remaining items. Please try again."
+    "7011": "An error occurred while retrieving remaining items. Please try again.",
+    "8001": "An error occurred while creating the cash collection. Please try again.",
+    "8002": "An error occurred while recalculate the cash collection. Please try again.",
+    "8003": "An error occurred while return the cash collection. Please try again.",
+    "8004": "An error occurred while retrieving the cash collection. Please try again."
   },
   "tables": {
     "ACTIVE": "ACTIVE",
