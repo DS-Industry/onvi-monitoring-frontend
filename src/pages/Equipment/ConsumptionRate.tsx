@@ -14,7 +14,7 @@ import SalyImage from "@/assets/NoEquipment.png"
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
-    const [searchPosId, setSearchPosId] = useState(1);
+    const [searchPosId, setSearchPosId] = useState(66);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -91,7 +91,6 @@ const ConsumptionRate: React.FC = () => {
                     <OverflowTable
                         tableData={tableData}
                         columns={columnsConsumptionRate}
-                        isDisplayEdit={true}
                         handleChange={handleTableChange}
                     />
                 </div> :
@@ -102,7 +101,7 @@ const ConsumptionRate: React.FC = () => {
                 <img src={SalyImage} className="mx-auto" />
             </NoDataUI>
             }
-            {tableData && tableData.length > 0 && <div className="flex space-x-4">
+            {tableData && tableData.length > 0 && <div className="flex mt-4 space-x-4">
                 <Button
                     title={t("organizations.cancel")}
                     type='outline'

@@ -5,11 +5,11 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
-import { postCollection } from "@/services/api/finance";
+import { getCollectionById, postCollection, recalculateCollection, returnCollection, sendCollection } from "@/services/api/finance";
 import { columnsCollections, columnsDeviceData } from "@/utils/OverFlowTableData";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
@@ -76,8 +76,11 @@ type Collection = {
 const CollectionCreation: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: collections } = useSWR(location?.state?.ownerId ? [`get-collection`] : null, () => getCollectionById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -95,6 +98,8 @@ const CollectionCreation: React.FC = () => {
         posId: formData.posId
     }));
 
+    const { trigger: returnColl, isMutating: returningColl } = useSWRMutation(location?.state?.ownerId ? ['return-collection'] : null, async () => returnCollection(location.state?.ownerId));
+
     type FieldType = "posId" | "cashCollectionDate";
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -108,6 +113,18 @@ const CollectionCreation: React.FC = () => {
     //     setFormData(defaultValues);
     //     reset();
     // };
+
+    useEffect(() => {
+        if (collections && Object.keys(collections).length > 0) {
+            setTableData(collections.cashCollectionDeviceType);
+            setDeviceData(collections.cashCollectionDevice);
+            setCollection(collections);
+        } else {
+            setTableData([]);
+            setDeviceData([]);
+            setCollection({} as Collection);
+        }
+    }, [collections]);
 
     const onSubmit = async (data: unknown) => {
         console.log('Form data:', data);
@@ -166,64 +183,169 @@ const CollectionCreation: React.FC = () => {
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, rowId: number, key: string) => {
+        const inputDate = e.target.value;
+        const isoDate = new Date(inputDate).toISOString();
+
         setDeviceData((prevData) =>
             prevData.map((row) =>
-                row.deviceId === rowId ? { ...row, [key]: e.target.value } : row
+                row.deviceId === rowId ? { ...row, [key]: isoDate } : row
             )
         );
     };
 
+    const { trigger: recalCollection, isMutating } = useSWRMutation(['recal-collection'],
+        async (_, { arg }: {
+            arg: {
+                cashCollectionDeviceData: {
+                    cashCollectionDeviceId: number;
+                    tookMoneyTime: Date;
+                }[]
+                cashCollectionDeviceTypeData: {
+                    cashCollectionDeviceTypeId: number;
+                    sumCoin?: number;
+                    sumPaper?: number;
+                }[]
+            }
+        }) => {
+            return recalculateCollection(arg, collection.id);
+        });
+
+    const { trigger: senCollection, isMutating: sendingColl } = useSWRMutation(['send-collection'],
+        async (_, { arg }: {
+            arg: {
+                cashCollectionDeviceData: {
+                    cashCollectionDeviceId: number;
+                    tookMoneyTime: Date;
+                }[]
+                cashCollectionDeviceTypeData: {
+                    cashCollectionDeviceTypeId: number;
+                    sumCoin?: number;
+                    sumPaper?: number;
+                }[]
+            }
+        }) => {
+            return sendCollection(arg, collection.id);
+        });
+
+    const handleRecalculation = async () => {
+        console.log("Final Task Values:", tableData);
+
+        const collectionDeviceType: { cashCollectionDeviceTypeId: number; sumCoin: number; sumPaper: number; }[] = tableData?.map((data) => ({
+            cashCollectionDeviceTypeId: data.id,
+            sumCoin: Number(data.sumCoinDeviceType),
+            sumPaper: Number(data.sumPaperDeviceType)
+        })) || [];
+
+        const collectionDevice: { cashCollectionDeviceId: number; tookMoneyTime: Date; }[] = deviceData?.map((data) => ({
+            cashCollectionDeviceId: data.id,
+            tookMoneyTime: data.tookMoneyTime
+        })) || [];
+
+        console.log("Payload for API:", collectionDevice, collectionDeviceType);
+
+        const result = await recalCollection({
+            cashCollectionDeviceData: collectionDevice,
+            cashCollectionDeviceTypeData: collectionDeviceType
+        });
+
+        if (result) {
+            console.log("Result of the api: ", result);
+        }
+    };
+
+    const handleSend = async () => {
+        console.log("Final Task Values:", tableData);
+
+        const collectionDeviceType: { cashCollectionDeviceTypeId: number; sumCoin: number; sumPaper: number; }[] = tableData?.map((data) => ({
+            cashCollectionDeviceTypeId: data.id,
+            sumCoin: Number(data.sumCoinDeviceType),
+            sumPaper: Number(data.sumPaperDeviceType)
+        })) || [];
+
+        const collectionDevice: { cashCollectionDeviceId: number; tookMoneyTime: Date; }[] = deviceData?.map((data) => ({
+            cashCollectionDeviceId: data.id,
+            tookMoneyTime: data.tookMoneyTime
+        })) || [];
+
+        console.log("Payload for API:", collectionDevice, collectionDeviceType);
+
+        const result = await senCollection({
+            cashCollectionDeviceData: collectionDevice,
+            cashCollectionDeviceTypeData: collectionDeviceType
+        });
+
+        if (result) {
+            console.log("Result of the api: ", result);
+            navigate("/finance/collection");
+        }
+    };
+
+    const handleReturn = async () => {
+        console.log("Final Task Values:", tableData);
+
+        const result = await returnColl();
+
+        if (result) {
+            console.log("Result of the api: ", result);
+            navigate("/finance/collection");
+        }
+    };
+
     return (
         <div className="space-y-6">
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex space-x-4">
-                    <Input
-                        type="date"
-                        title={t("finance.end")}
-                        classname="w-44"
-                        value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
-                        error={!!errors.cashCollectionDate}
-                        {...register("cashCollectionDate", { required: "Cash Collection DateTime is required" })}
-                        helperText={errors.cashCollectionDate?.message || ""}
+            {((location?.state?.status === t("tables.SENT")) || (location?.state?.status === t("tables.SAVED"))) ?
+                <></> :
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                    <div className="flex space-x-4">
+                        <Input
+                            type="date"
+                            title={t("finance.end")}
+                            classname="w-44"
+                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
+                            changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
+                            error={!!errors.cashCollectionDate}
+                            {...register("cashCollectionDate", { required: "Cash Collection DateTime is required" })}
+                            helperText={errors.cashCollectionDate?.message || ""}
+                        />
+                        <Input
+                            type="time"
+                            classname="w-32 mt-6"
+                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[1]?.slice(0, 5) : ""}
+                            changeValue={(e) => handleDateTimeChange(e.target.value, "time")}
+                            error={!!errors.cashCollectionDate}
+                        />
+                    </div>
+                    <DropdownInput
+                        title={t("finance.carWash")}
+                        options={poses}
+                        classname="w-64"
+                        {...register('posId', {
+                            required: 'Pos ID is required',
+                            validate: (value) =>
+                                (value !== 0) || "Pos ID is required"
+                        })}
+                        value={formData.posId}
+                        onChange={(value) => handleInputChange('posId', value)}
+                        error={!!errors.posId}
+                        helperText={errors.posId?.message}
                     />
-                    <Input
-                        type="time"
-                        classname="w-32 mt-6"
-                        value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[1]?.slice(0, 5) : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "time")}
-                        error={!!errors.cashCollectionDate}
-                    />
-                </div>
-                <DropdownInput
-                    title={t("finance.carWash")}
-                    options={poses}
-                    classname="w-64"
-                    {...register('posId', {
-                        required: 'Pos ID is required',
-                        validate: (value) =>
-                            (value !== 0) || "Pos ID is required"
-                    })}
-                    value={formData.posId}
-                    onChange={(value) => handleInputChange('posId', value)}
-                    error={!!errors.posId}
-                    helperText={errors.posId?.message}
-                />
-                <div className="flex justify-between">
-                    <Button
-                        title={t("finance.form")}
-                        isLoading={collectionLoading}
-                        form={true}
-                    />
-                    {collection && Object.keys(collection).length > 0 && <Button
-                        title={t("finance.add")}
-                        type="outline"
-                        iconDown={showData}
-                        iconUp={!showData}
-                        handleClick={() => setShowData(!showData)}
-                    />}
-                </div>
-            </form>
+                    <div className="flex justify-between">
+                        <Button
+                            title={t("finance.form")}
+                            isLoading={collectionLoading}
+                            form={true}
+                        />
+                    </div>
+                </form>}
+            <div className="flex justify-end">
+                {collection && Object.keys(collection).length > 0 && <Button
+                    title={t("finance.add")}
+                    type="outline"
+                    iconDown={showData}
+                    iconUp={!showData}
+                    handleClick={() => setShowData(!showData)}
+                />}
+            </div>
             {showData && collection && Object.keys(collection).length > 0 && (
                 <div className="flex space-x-20">
                     <div className="text-text01 space-y-4">
@@ -296,7 +418,7 @@ const CollectionCreation: React.FC = () => {
                                 onUpdate={handleUpdate}
                                 renderCell={(column, row) => {
                                     if (column.type === "date") {
-                                        if (editingRow === row.deviceId) {
+                                        if (editingRow === row.id && column.key === "tookMoneyTime") {
                                             const formattedDate = row[column.key]
                                                 ? new Date(row[column.key]).toISOString().slice(0, 16) // Convert to 'YYYY-MM-DDTHH:MM'
                                                 : "";
@@ -325,15 +447,24 @@ const CollectionCreation: React.FC = () => {
                     title={t("organizations.cancel")}
                     handleClick={() => navigate('/finance/collection')}
                 />
-                <Button
+                {location.state?.status !== t("tables.SENT") && <Button
                     type="outline"
-                    title={t("warehouse.saveDraft")}
+                    title={t("finance.recal")}
+                    isLoading={isMutating}
                     form={true}
-                />
-                <Button
-                    title={t("warehouse.saveAccept")}
+                    handleClick={handleRecalculation}
+                />}
+                {location.state?.status !== t("tables.SENT") && <Button
+                    title={t("finance.recalSend")}
+                    isLoading={sendingColl}
                     form={true}
-                />
+                    handleClick={handleSend}
+                />}
+                {location.state?.status === t("tables.SENT") && <Button
+                    title={t("finance.refund")}
+                    isLoading={returningColl}
+                    handleClick={handleReturn}
+                />}
             </div>}
         </div>
     )

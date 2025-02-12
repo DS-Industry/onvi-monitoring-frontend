@@ -59,7 +59,7 @@ const DepositDevice: React.FC = () => {
     const setEndDate = useSetEndDate();
     const setCurrentPage = useSetCurrentPage();
     const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize()
+    const setTotalCount = useSetPageSize();
     const posType = usePosType();
 
     const location = useLocation();
@@ -144,6 +144,7 @@ const DepositDevice: React.FC = () => {
                             tableData={deviceMonitoring}
                             columns={columnsMonitoringDevice}
                             isDisplayEdit={true}
+                            showPagination={true}
                         />
                     </div>
                 ) : (

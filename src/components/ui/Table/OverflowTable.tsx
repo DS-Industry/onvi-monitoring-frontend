@@ -38,6 +38,7 @@ type Props = {
   isCheck?: boolean;
   showTotal?: boolean;
   renderCell?: (column: any, row: any) => React.ReactNode;
+  showPagination?: boolean;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -55,7 +56,8 @@ const OverflowTable: React.FC<Props> = ({
   handleChange,
   isCheck,
   showTotal = false,
-  renderCell
+  renderCell,
+  showPagination
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -147,6 +149,21 @@ const OverflowTable: React.FC<Props> = ({
       setFilterOn(!filterOn);
       setCurr(page);
     }
+  };
+
+  const formatPeriodType = (periodString: string) => {
+    if (!periodString) return ""; // Handle empty values
+
+    const [startStr, endStr] = periodString.split("-").map(s => s.trim());
+
+    const parseDate = (dateString: string) => {
+      // Extract only the first part (before GMT) to ensure compatibility
+      const datePart = dateString.split("GMT")[0].trim();
+      const date = new Date(datePart);
+      return date.toLocaleDateString("ru-RU"); // Formats to DD.MM.YYYY
+    };
+
+    return `${parseDate(startStr)} - ${parseDate(endStr)}`;
   };
 
   const getRequiredPermissions = (path: string) => {
@@ -256,7 +273,7 @@ const OverflowTable: React.FC<Props> = ({
                   </Can>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
-                      {column.key === 'name' && nameUrl ? (
+                      {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
                         <span
                           className="cursor-pointer"
                           onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
@@ -275,6 +292,8 @@ const OverflowTable: React.FC<Props> = ({
                             <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                               {column.type === 'date' ? (
                                 row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
+                              ) : column.type === "period" ? (
+                                row[column.key] ? formatPeriodType(row[column.key]) : '-'
                               ) : column.type === 'number' ? (
                                 row[column.key] ? formatNumber(row[column.key]) : '-'
                               ) : typeof row[column.key] === 'object' ? (
@@ -317,7 +336,7 @@ const OverflowTable: React.FC<Props> = ({
         </div>
       </div>
       {/* Pagination */}
-      {(location.pathname === "/station/enrollments/device" || location.pathname === "/station/programs/device") && <div className="mt-4 flex gap-2">
+      {showPagination && <div className="mt-4 flex gap-2">
         <button
           onClick={() => {
             const newPage = Math.max(1, curr - 1);

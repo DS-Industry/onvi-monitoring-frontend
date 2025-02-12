@@ -52,7 +52,7 @@ const createAuthStore: StateCreator<AuthState> = (set) => ({
   endDate: endDate,
   deviceId: 0,
   documentType: "",
-  wareHouseId: 0,
+  wareHouseId: 3,
   pageNumber: 15,
   currentPage: 1,
   pageSize: 10,

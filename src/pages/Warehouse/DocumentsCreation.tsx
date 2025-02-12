@@ -175,7 +175,7 @@ const DocumentsCreation: React.FC = () => {
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 3), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -185,6 +185,8 @@ const DocumentsCreation: React.FC = () => {
 
     const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })) || [];
 
+    const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({nomenclatureId: item.nomenclatureId, quantity: item.quantity})) || [];
+
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
             prevData?.map((item) => {
@@ -193,11 +195,12 @@ const DocumentsCreation: React.FC = () => {
                         return {
                             ...item,
                             [key]: value,
+                            oldQuantity: oldQuantityItems.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity,
                             deviation:
                                 key === "quantity" || key === "oldQuantity"
                                     ? (key === "quantity" ? Number(value) : item.quantity) -
                                       (key === "oldQuantity" ? Number(value) : item.oldQuantity)
-                                    : item.deviation,
+                                    : item.deviation
                         };
                     }
                     return { ...item, [key]: value };

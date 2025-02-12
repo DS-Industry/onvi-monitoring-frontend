@@ -9,9 +9,10 @@ interface ModalProps {
   children: ReactNode;
   classname?: string;
   loading?: boolean;
+  typeSubmit?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading, typeSubmit }) => {
   if (!isOpen) return null;
 
   return createPortal(
@@ -22,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
       ></div>
       <div className={`bg-white p-5 rounded-2xl shadow-lg z-10 ${classname}`}>
         {children}
-        <div className="flex gap-3 mt-5">
+        <div className="flex justify-end gap-3 mt-5">
           <Button
             title={"Сбросить"}
             handleClick={onClose}
@@ -31,6 +32,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
           <Button
             title={"Сохранить"}
             handleClick={handleClick}
+            form={typeSubmit}
             isLoading={loading}
           />
         </div>

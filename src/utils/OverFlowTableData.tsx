@@ -898,4 +898,47 @@ export const columnsDeviceData = [
   }
 ]
 
+export const columnsCollectionsData = [
+  {
+    label: "№ Документа",
+    key: "id"
+  },
+  {
+    label: "Мойка/Филиал",
+    key: "posId"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Период",
+    key: "period"
+  },
+  {
+    label: "Инкассация",
+    key: "sumFact"
+  },
+  {
+    label: "Сумма по картам",
+    key: "sumCard"
+  },
+  {
+    label: "Безналичная оплата",
+    key: "sumVirtual"
+  },
+  {
+    label: "Прибыль",
+    key: "profit"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Недостача",
+    key: "shortage"
+  }
+]
+
 

@@ -137,6 +137,7 @@ const ProgramDevice: React.FC = () => {
                             <OverflowTable
                                 tableData={deviceProgram}
                                 columns={columnsProgramDevice}
+                                showPagination={true}
                             />
                         </div>
                     ) : (

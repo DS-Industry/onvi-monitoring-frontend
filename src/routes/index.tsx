@@ -54,8 +54,11 @@ import BonusProgram from "@/pages/Marketing/BonusProgram";
 import NewSegment from "@/pages/Marketing/NewSegment";
 import Collection from "@/pages/Finance/Collection";
 import Period from "@/pages/Finance/Period";
-import EmployeeChanges from "@/pages/Finance/EmployeeChanges";
 import CollectionCreation from "@/pages/Finance/CollectionCreation";
+import TimesheetCreation from "@/pages/Finance/TimeSheetCreation";
+import Timesheet from "@/pages/Finance/Timesheet";
+import Timestamps from "@/pages/Finance/Timestamps";
+import Analysis from "@/pages/Analysis/Analysis";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -142,8 +145,10 @@ const routes = [
     subNav: [
       { name: "collection", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/finance/collection", component: Collection, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "collectionCreation", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/collection/creation", component: CollectionCreation, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "timestamp", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/timestamp", component: Timestamps, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "period", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/period", component: Period, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/employee", component: EmployeeChanges, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/timesheet", component: Timesheet, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "timeCreation", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/creation", component: TimesheetCreation, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
     ]
   },
   {
@@ -154,9 +159,9 @@ const routes = [
     addButton: false,
     addButtonText: "",
     icon: MonitoringIcon,
-    component: Default,
+    component: Analysis,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Analysis" }]
+    permissions: []
   },
   {
     name: "marketing",
