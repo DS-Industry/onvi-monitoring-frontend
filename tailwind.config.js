@@ -31,6 +31,15 @@ export default {
         borderFill: "#E4E5E7",
         warningFill: "#F58A00",
       },
+      animation: {
+        progressMove: "progressMove 1.5s linear infinite",
+      },
+      keyframes: {
+        progressMove: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
       boxShadow: {
         card: "0 2px 13px -2px rgba(27, 33, 44, 0.12)",
       },
