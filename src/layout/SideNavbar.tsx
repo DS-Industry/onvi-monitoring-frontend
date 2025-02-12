@@ -127,6 +127,11 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         { action: "manage", subject: "Warehouse" },
         { action: "create", subject: "Warehouse" },
       ];
+      if (path.includes("finance"))
+        return [
+          { action: "manage", subject: "CashCollection" },
+          { action: "create", subject: "CashCollection" },
+        ];
     // Add cases for other components as needed
     else
       return [];

@@ -75,7 +75,8 @@
     "employee": "Time sheet",
     "collectionCreation": "Collection (Creation)",
     "timeCreation": "Time sheet (Creation)",
-    "timestamp": "Timestamps"
+    "timestamp": "Timestamps",
+    "income": "Income report"
   },
   "dashboard": {
     "news": "News",
@@ -660,5 +661,16 @@
     "recal": "Recalculate",
     "recalSend": "Recalculate and send",
     "addE": "Add an employee"
+  },
+  "analysis": {
+    "search": "Search",
+    "all": "All",
+    "oper": "Operations by Device",
+    "tran": "Transactions recorded bill acceptor",
+    "to": "To the report",
+    "group": "Grouping operations",
+    "list": "List of service events",
+    "there": "There is not enough data for the report.",
+    "you": "You need to set report parameters"
   }
 }
