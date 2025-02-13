@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,11 @@ import BN from "@icons/Бл.svg?react";
 import OTN from "@icons/ОТП.svg?react";
 import O from "@icons/О.svg?react";
 import NP from "@icons/Пр.svg?react"
+import useSWR from "swr";
+import { getPoses, getWorkers } from "@/services/api/equipment";
+import useSWRMutation from "swr/mutation";
+import { addWorker, getShiftById } from "@/services/api/finance";
+import { useLocation } from "react-router-dom";
 
 interface Employee {
     id: number;
@@ -36,29 +41,29 @@ interface FormData {
     grade: string;
 }
 
-const emps: Employee[] = [
-    {
-        id: 1,
-        branch: "Мойка_1",
-        name: "Иванов Иван Иванович",
-        position: "Мойщик",
-        schedule: {},
-    },
-    {
-        id: 2,
-        branch: "Мойка_1",
-        name: "Петров Петр Петрович",
-        position: "Мойщик",
-        schedule: {},
-    },
-    {
-        id: 3,
-        branch: "Мойка_1",
-        name: "Сидоров Игнат Артемович",
-        position: "Мойщик",
-        schedule: {},
-    },
-];
+// const emps: Employee[] = [
+//     {
+//         id: 1,
+//         branch: "Мойка_1",
+//         name: "Иванов Иван Иванович",
+//         position: "Мойщик",
+//         schedule: {},
+//     },
+//     {
+//         id: 2,
+//         branch: "Мойка_1",
+//         name: "Петров Петр Петрович",
+//         position: "Мойщик",
+//         schedule: {},
+//     },
+//     {
+//         id: 3,
+//         branch: "Мойка_1",
+//         name: "Сидоров Игнат Артемович",
+//         position: "Мойщик",
+//         schedule: {},
+//     },
+// ];
 
 const dates = [
     { day: "СР", date: "1" },
@@ -75,13 +80,40 @@ const dates = [
     { day: "ВС", date: "12" },
 ];
 
-const ScheduleTable: React.FC = () => {
+type Props = {
+    id: number;
+}
+
+const ScheduleTable: React.FC<Props> = ({
+    id
+}: Props) => {
     const { t } = useTranslation();
+    const location = useLocation();
+
+    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const { data: shiftData } = useSWR(location?.state?.ownerId !== 0 ? [`get-shift-data`] : null, () => getShiftById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const emp: {
+        id: number;
+        branch: string;
+        name: string;
+        position: string;
+        schedule: { [key: string]: string }; // Key: date, Value: shift/work info
+    }[] = [];
     const [openModals, setOpenModals] = useState<{ [key: string]: boolean }>({});
     const [filledData, setFilledData] = useState<Record<string, FormData>>({});
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>("");
-    const [employees, setEmployees] = useState(emps);
+    const [employees, setEmployees] = useState(emp);
+    const [userId, setUserId] = useState(0);
+    const [isUser, setIsUser] = useState(false);
 
     // Initialize Form Hook
     const { register, handleSubmit, setValue, watch, reset } = useFormHook({
@@ -95,6 +127,10 @@ const ScheduleTable: React.FC = () => {
         dayType: "",
         grade: ""
     });
+
+    const { trigger: addWork } = useSWRMutation(userId !== 0 ? ['add-worker'] : null, async () => addWorker({
+        userId: userId
+    }, id));
 
     // Watch form values to ensure updates
     const hours = watch("hours");
@@ -140,20 +176,62 @@ const ScheduleTable: React.FC = () => {
         setSelectedDate("");
     };
 
-    const addNewRow = () => {
-        const newEmployee = {
-            id: employees.length + 1, 
-            branch: "Мойка_1",
-            name: "Петров Петр Петрович",
-            position: "Мойщик",
-            schedule: {},
-        };
-        setEmployees([...employees, newEmployee]); 
+    useEffect(() => {
+        if (shiftData) {
+            const newEmployee: Employee[] = shiftData.workers.map((item) => ({
+                id: item.workerId,
+                name: item.name + " " + item.middlename + " " + item.surname,
+                branch: poses.find((pos) => pos.value === shiftData.posId)?.name || "",
+                position: item.position,
+                schedule: {}
+            }));
+            setEmployees([...newEmployee]);
+        } else {
+            setEmployees([]);
+        }
+    }, [shiftData]);
+
+    useEffect(() => {
+        if (userId !== 0) {
+            addWork().then((result) => {
+                if (result) {
+                    const newEmployee: Employee[] = result.workers.map((item) => ({
+                        id: item.workerId,
+                        name: item.name + " " + item.middlename + " " + item.surname,
+                        branch: poses.find((pos) => pos.value === result.posId)?.name || "",
+                        position: item.position,
+                        schedule: {}
+                    }));
+                    setEmployees([...newEmployee]);
+                }
+            });
+        }
+    }, [userId]); // Trigger API call whenever userId changes
+
+    const addNewRow = (value: React.SetStateAction<number>) => {
+        setUserId(value); // This change will now trigger the API call via useEffect
     };
+
+
+    // const addNewRow = async (value: React.SetStateAction<number>) => {
+    //     setUserId(value)
+    //     const result = await addWork();
+    //     let newEmployee: Employee[] = [];
+    //     if (result) {
+    //         newEmployee = result.workers.map((item) => ({
+    //             id: item.workerId,
+    //             name: item.name + " " + item.middlename + " " + item.surname,
+    //             branch: poses.find((pos) => pos.value === result.posId)?.name || "",
+    //             position: item.position,
+    //             schedule: {}
+    //         }))
+    //     }
+    //     setEmployees([...newEmployee]);
+    // };
 
     return (
         <div className="overflow-x-auto">
-            <table className="w-full border-separate border-spacing-0.5">
+            {id !== 0 && employees && (<table className="w-full border-separate border-spacing-0.5">
                 <thead>
                     <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider">
                         <th>Мойка/Филиал</th>
@@ -193,7 +271,7 @@ const ScheduleTable: React.FC = () => {
                                                     filledData[`${emp.id}-${d.date}`]?.grade === "onetime" ? <GreenDot className="w-2 h-2" /> :
                                                         <></>
                                             }
-                                            <div className="text-text02 text-xs">+1000</div>
+                                            <div className="text-text02 text-xs"></div>
                                         </div>
                                     </div>
                                 </td>
@@ -201,12 +279,20 @@ const ScheduleTable: React.FC = () => {
                         </tr>
                     ))}
                 </tbody>
-            </table>
-            <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={addNewRow}>
+            </table>)}
+            {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setIsUser(true)}>
                 <Icon icon="plus" className="w-5 h-5" />
                 <div>{t("finance.addE")}</div>
-            </div>
-            <div className="mt-5">
+            </div>}
+            {isUser && <div className="mt-5">
+                <DropdownInput
+                    value={userId}
+                    options={workers}
+                    onChange={addNewRow}
+                    classname="w-64"
+                />
+            </div>}
+            {id !== 0 && <div className="mt-5">
                 <div className="flex justify-center space-x-10">
                     <div className="flex space-x-2 items-center">
                         <RedDot />
@@ -221,8 +307,8 @@ const ScheduleTable: React.FC = () => {
                         <div className="text-text01">{t("finance.one")}</div>
                     </div>
                 </div>
-            </div>
-            <div className="mt-5">
+            </div>}
+            {id !== 0 && <div className="mt-5">
                 <div className="flex justify-center space-x-10">
                     <div className="flex space-x-2 items-center">
                         <div className="w-4 h-4 bg-[#DDF5FF]"></div>
@@ -249,7 +335,7 @@ const ScheduleTable: React.FC = () => {
                         <div className="text-text01">{t("finance.abs")}</div>
                     </div>
                 </div>
-            </div>
+            </div>}
             {selectedEmployee && selectedDate && (
                 <Modal isOpen={openModals[`${selectedEmployee.id}-${selectedDate}`]} onClose={handleCloseModal} typeSubmit={true} classname="max-h-[600px] overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">

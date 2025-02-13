@@ -3,7 +3,8 @@ import api from "@/config/axiosConfig";
 
 enum FINANCE {
     POST_CASH_COLLECTION = 'user/finance/cash-collection',
-    TIME_STAMP = 'user/finance/time-stamp'
+    TIME_STAMP = 'user/finance/time-stamp',
+    SHIFT_REPORT = 'user/finance/shift-report'
 }
 
 type CollectionBody = {
@@ -107,6 +108,55 @@ type TimestampResponseBody = {
     tookMoneyTime: Date;
 }
 
+type ShiftRequestBody = {
+    startDate: Date;
+    endDate: Date;
+    posId: number;
+}
+
+type ShiftResponseBody = {
+    props: {
+        id: number;
+        posId: number;
+        startDate: Date;
+        endDate: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById: number;
+        updatedById: number;
+    }
+}
+
+type ShiftWorkerBody = {
+    userId: number;
+}
+
+type ShiftWorkerResponse = {
+    id: number;
+    posId: number;
+    startDate: Date;
+    endDate: Date;
+    workers: {
+        workerId: number;
+        name: string;
+        surname: string;
+        middlename: string;
+        position: string;
+    }[]
+}
+
+type ShiftParamsResponse = {
+    shiftReportsData: {
+        id: number;
+        period: string;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById: number;
+        updatedById: number;
+    }[];
+    totalCount: number;
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
@@ -155,6 +205,32 @@ export async function getTimestamp(posId: number): Promise<TimestampResponse[]> 
 export async function postTimestamp(body: TimestampBody, id: number): Promise<TimestampResponseBody> {
     console.log(body);
     const response: AxiosResponse<TimestampResponseBody> = await api.post(FINANCE.TIME_STAMP + `/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createShift(body: ShiftRequestBody): Promise<ShiftResponseBody> {
+    console.log(body);
+    const response: AxiosResponse<ShiftResponseBody> = await api.post(FINANCE.SHIFT_REPORT, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function addWorker(body: ShiftWorkerBody, id: number): Promise<ShiftWorkerResponse> {
+    console.log(body);
+    const response: AxiosResponse<ShiftWorkerResponse> = await api.post(FINANCE.SHIFT_REPORT + `/worker/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getShifts(posId: number, params: CashCollectionParams): Promise<ShiftParamsResponse> {
+    const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s/${posId}`, { params });
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getShiftById(id: number): Promise<ShiftWorkerResponse> {
+    const response: AxiosResponse<ShiftWorkerResponse> = await api.get(FINANCE.SHIFT_REPORT + `/${id}`);
     console.log(response.data);
     return response.data;
 }

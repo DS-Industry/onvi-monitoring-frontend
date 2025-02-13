@@ -306,10 +306,10 @@ const CollectionCreation: React.FC = () => {
               // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
               placeholder="00,00"
               value={row.sumPaperDeviceType}
-              error={!row.sumPaperDeviceType && location.state.status !== t("tables.SENT")}
-              helperText={!row.sumPaperDeviceType && location.state.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
+              error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
+              helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
               changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
-              disabled={location.state.status === t("tables.SENT")}
+              disabled={location.state?.status === t("tables.SENT")}
             />
           ),
         },
@@ -322,10 +322,10 @@ const CollectionCreation: React.FC = () => {
               // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
               placeholder="00,00"
               value={row.sumCoinDeviceType}
-              error={!row.sumCoinDeviceType && location.state.status !== t("tables.SENT")}
-              helperText={!row.sumCoinDeviceType && location.state.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
+              error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
+              helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
               changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
-              disabled={location.state.status === t("tables.SENT")}
+              disabled={location.state?.status === t("tables.SENT")}
             />
           ),
         },
@@ -486,7 +486,7 @@ const CollectionCreation: React.FC = () => {
                                                     type="datetime-local"
                                                     value={formattedDate}
                                                     changeValue={(e) => handleDateChange(e, row.deviceId, column.key)}
-                                                    disabled={location.state.status === t("tables.SENT")}
+                                                    disabled={location.state?.status === t("tables.SENT")}
                                                 />
                                             );
                                         } else {
