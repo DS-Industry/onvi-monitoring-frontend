@@ -6,7 +6,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
 import { getCollectionById, postCollection, recalculateCollection, returnCollection, sendCollection } from "@/services/api/finance";
-import { columnsCollections, columnsDeviceData } from "@/utils/OverFlowTableData";
+import { columnsDeviceData } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -291,6 +291,64 @@ const CollectionCreation: React.FC = () => {
         }
     };
 
+    const columnsCollections = [
+        {
+          label: "Тип",
+          key: "typeName",
+          render: (row: { typeName: string; }) => <span>{row.typeName}</span>,
+        },
+        {
+          label: "Купюры",
+          key: "sumPaperDeviceType",
+          render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+            <Input
+              type="number"
+              // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+              placeholder="00,00"
+              value={row.sumPaperDeviceType}
+              error={!row.sumPaperDeviceType && location.state.status !== t("tables.SENT")}
+              helperText={!row.sumPaperDeviceType && location.state.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
+              changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+              disabled={location.state.status === t("tables.SENT")}
+            />
+          ),
+        },
+        {
+          label: "Монеты",
+          key: "sumCoinDeviceType",
+          render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+            <Input
+              type="number"
+              // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+              placeholder="00,00"
+              value={row.sumCoinDeviceType}
+              error={!row.sumCoinDeviceType && location.state.status !== t("tables.SENT")}
+              helperText={!row.sumCoinDeviceType && location.state.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
+              changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+              disabled={location.state.status === t("tables.SENT")}
+            />
+          ),
+        },
+        {
+          label: "Сумма всего",
+          key: "sumFactDeviceType",
+          type: "number",
+          render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
+        },
+        {
+          label: "Недостача",
+          key: "shortageDeviceType",
+          type: "number",
+          render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
+        },
+        {
+          label: "Безналичная оплата",
+          key: "virtualSumDeviceType",
+          type: "number",
+          render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
+        }
+      ]
+
     return (
         <div className="space-y-6">
             {((location?.state?.status === t("tables.SENT")) || (location?.state?.status === t("tables.SAVED"))) ?
@@ -428,6 +486,7 @@ const CollectionCreation: React.FC = () => {
                                                     type="datetime-local"
                                                     value={formattedDate}
                                                     changeValue={(e) => handleDateChange(e, row.deviceId, column.key)}
+                                                    disabled={location.state.status === t("tables.SENT")}
                                                 />
                                             );
                                         } else {
