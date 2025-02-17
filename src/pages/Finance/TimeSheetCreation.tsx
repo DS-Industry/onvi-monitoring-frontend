@@ -11,6 +11,19 @@ import { useLocation } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
+type TimeSheet = {
+    props: {
+        id: number;
+        posId: number;
+        startDate: Date;
+        endDate: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById: number;
+        updatedById: number;
+    }
+}
+
 const TimeSheetCreation: React.FC = () => {
     const { t } = useTranslation();
 
@@ -26,6 +39,7 @@ const TimeSheetCreation: React.FC = () => {
 
     const [formData, setFormData] = useState(defaultValues);
     const [shiftId, setShiftId] = useState(0);
+    const [shift, setShift] = useState<TimeSheet>({} as TimeSheet);
     const location = useLocation();
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
@@ -48,12 +62,12 @@ const TimeSheetCreation: React.FC = () => {
     };
 
     useEffect(() => {
-            if (shiftData) {
-                setShiftId(shiftData.id);
-            } else {
-                setShiftId(0);
-            }
-        }, [shiftData]);
+        if (shiftData) {
+            setShiftId(shiftData.id);
+        } else {
+            setShiftId(0);
+        }
+    }, [shiftData]);
 
     const onSubmit = async (data: unknown) => {
         console.log('Form data:', data);
@@ -64,10 +78,7 @@ const TimeSheetCreation: React.FC = () => {
             if (result) {
                 console.log(result);
                 setShiftId(result.props.id);
-                // setTableData(result.cashCollectionDeviceType);
-                // setDeviceData(result.cashCollectionDevice);
-                // setCollection(result);
-                // resetForm();
+                setShift(result);
             } else {
                 throw new Error('Invalid update data.');
             }
@@ -82,18 +93,18 @@ const TimeSheetCreation: React.FC = () => {
             const currentDate = prev[field] ? prev[field].split("T") : ["", ""];
             const updatedDateTime =
                 type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
-    
+
             const updatedFormData = { ...prev, [field]: updatedDateTime };
-    
+
             setValue(field, updatedDateTime);
-    
+
             return updatedFormData;
         });
-    };    
+    };
 
     return (
         <div>
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {location.state.ownerId === 0 && <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex space-x-4">
                     <Input
                         type="date"
@@ -151,9 +162,9 @@ const TimeSheetCreation: React.FC = () => {
                         form={true}
                     />
                 </div>
-            </form> 
+            </form>}
             <div className="mt-10">
-                <ScheduleTable id={shiftId} />
+                <ScheduleTable id={shiftId} shift={shift} />
             </div>
         </div>
     )
