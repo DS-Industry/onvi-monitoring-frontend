@@ -97,7 +97,7 @@ const Timesheet: React.FC = () => {
 
     useEffect(() => {
         if (buttonOn)
-            navigate("/finance/timesheet/creation",{ state: { ownerId: 0 }});
+            navigate("/finance/timesheet/creation", { state: { ownerId: 0 } });
     }, [buttonOn, navigate]);
 
     const shifts = filter?.shiftReportsData.map((item) => ({

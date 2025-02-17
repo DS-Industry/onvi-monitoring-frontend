@@ -104,7 +104,7 @@ const TimeSheetCreation: React.FC = () => {
 
     return (
         <div>
-            {location.state.ownerId === 0 && <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {location.state?.ownerId === 0 && <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex space-x-4">
                     <Input
                         type="date"
@@ -162,7 +162,7 @@ const TimeSheetCreation: React.FC = () => {
                         form={true}
                     />
                 </div>
-            </form>}
+            </form> }
             <div className="mt-10">
                 <ScheduleTable id={shiftId} shift={shift} />
             </div>

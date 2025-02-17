@@ -136,11 +136,9 @@ const ScheduleTable: React.FC<Props> = ({
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.surname, value: item.id })) || [];
+    const workers: { name: string; value: number; surname: string; }[] = workerData?.map((item) => ({ name: item.name, value: item.id, surname: item.surname })) || [];
 
-    const ownerId = location.state.ownerId;
-
-    const { data: shiftData } = useSWR([`get-shift-data`], () => getShiftById(ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: shiftData } = useSWR(location.state?.ownerId ? [`get-shift-data`] : null, () => getShiftById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const emp: {
         id: number;
@@ -269,7 +267,7 @@ const ScheduleTable: React.FC<Props> = ({
 
         // Create or fetch the workday entry
         const result = await createDay({
-            shiftReportId: location.state.ownerId,
+            shiftReportId: id,
             userId: emp.userId,
             workDate: new Date(date)
         });
@@ -324,7 +322,7 @@ const ScheduleTable: React.FC<Props> = ({
                 name: `${item.name} ${item.middlename} ${item.surname}`,
                 branch: poses.find((pos) => pos.value === shiftData.posId)?.name || "",
                 position: item.position,
-                userId: workers.find((work) => work.name === item.surname)?.value || 0
+                userId: workers.find((work) => work.surname === item.surname)?.value || 0
             }));
 
             const newFilledData: { [key: string]: any } = {};
