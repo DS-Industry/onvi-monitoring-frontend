@@ -12,7 +12,7 @@ interface ModalProps {
   typeSubmit?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading, typeSubmit }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, classname, loading }) => {
   if (!isOpen) return null;
 
   return createPortal(
@@ -29,12 +29,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
             handleClick={onClose}
             type="outline"
           />
-          <Button
+          {handleClick && <Button
             title={"Сохранить"}
             handleClick={handleClick}
-            form={typeSubmit}
             isLoading={loading}
-          />
+          />}
         </div>
       </div>
     </div>,

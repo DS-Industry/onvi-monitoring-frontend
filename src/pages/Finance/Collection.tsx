@@ -174,6 +174,7 @@ const Collection: React.FC = () => {
                 count={collectionsData.length}
                 posesSelect={poses}
                 hideSearch={true}
+                hideCity={true}
                 handleDataFilter={handleDataFilter}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columns.length} />)

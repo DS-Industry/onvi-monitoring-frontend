@@ -75,7 +75,8 @@
     "employee": "Time sheet",
     "collectionCreation": "Collection (Creation)",
     "timeCreation": "Time sheet (Creation)",
-    "timestamp": "Timestamps"
+    "timestamp": "Timestamps",
+    "income": "Income report"
   },
   "dashboard": {
     "news": "News",
@@ -633,7 +634,7 @@
     "num": "Number of hours worked",
     "cal": "Calculate automatically",
     "grade": "Grade",
-    "noc": "No comments",
+    "NO_VIOLATION": "No comments",
     "prize": "Prize",
     "fine": "Fine",
     "desc": "Describe the employee's shift",
@@ -647,18 +648,29 @@
     "fill": "Fill out and save the schedule",
     "start": "Start of shift",
     "endOf": "End of shift",
-    "work": "Working day",
-    "dayOff": "Day off",
-    "sick": "Sick leave",
-    "vac": "Vacation",
-    "time": "Time off",
-    "abs": "Absenteeism",
-    "gross": "Gross violation",
-    "minor": "Minor",
-    "one": "One-time remark",
+    "WORKING": "Working day",
+    "WEEKEND": "Day off",
+    "MEDICAL": "Sick leave",
+    "VACATION": "Vacation",
+    "TIMEOFF": "Time off",
+    "TRUANCY": "Absenteeism",
+    "GROSS_VIOLATION": "Gross violation",
+    "MINOR_VIOLATION": "Minor",
+    "ONE_REMARK": "One-time remark",
     "refund": "Refund",
     "recal": "Recalculate",
     "recalSend": "Recalculate and send",
     "addE": "Add an employee"
+  },
+  "analysis": {
+    "search": "Search",
+    "all": "All",
+    "oper": "Operations by Device",
+    "tran": "Transactions recorded bill acceptor",
+    "to": "To the report",
+    "group": "Grouping operations",
+    "list": "List of service events",
+    "there": "There is not enough data for the report.",
+    "you": "You need to set report parameters"
   }
 }

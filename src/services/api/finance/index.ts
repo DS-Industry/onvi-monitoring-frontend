@@ -3,7 +3,24 @@ import api from "@/config/axiosConfig";
 
 enum FINANCE {
     POST_CASH_COLLECTION = 'user/finance/cash-collection',
-    TIME_STAMP = 'user/finance/time-stamp'
+    TIME_STAMP = 'user/finance/time-stamp',
+    SHIFT_REPORT = 'user/finance/shift-report'
+}
+
+enum TypeWorkDay {
+    WORKING = "WORKING",
+    WEEKEND = "WEEKEND",
+    MEDICAL = "MEDICAL",
+    VACATION = "VACATION",
+    TIMEOFF = "TIMEOFF",
+    TRUANCY = "TRUANCY"
+}
+
+enum TypeEstimation {
+    NO_VIOLATION = "NO_VIOLATION",
+    GROSS_VIOLATION = "GROSS_VIOLATION",
+    MINOR_VIOLATION = "MINOR_VIOLATION",
+    ONE_REMARK = "ONE_REMARK"
 }
 
 type CollectionBody = {
@@ -107,6 +124,95 @@ type TimestampResponseBody = {
     tookMoneyTime: Date;
 }
 
+type ShiftRequestBody = {
+    startDate: Date;
+    endDate: Date;
+    posId: number;
+}
+
+type ShiftResponseBody = {
+    props: {
+        id: number;
+        posId: number;
+        startDate: Date;
+        endDate: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById: number;
+        updatedById: number;
+    }
+}
+
+type ShiftWorkerBody = {
+    userId: number;
+}
+
+type ShiftWorkerResponse = {
+    id: number;
+    posId: number;
+    startDate: Date;
+    endDate: Date;
+    workers: {
+        workerId: number;
+        name: string;
+        surname: string;
+        middlename: string;
+        position: string;
+        workDays: {
+            workDayId: number;
+            workDate: Date;
+            typeWorkDay: TypeWorkDay;
+            estimation: TypeEstimation;
+            timeWorkedOut?: string;
+            prize?: number;
+            fine?: number;
+        }[];
+    }[];
+}
+
+type ShiftParamsResponse = {
+    shiftReportsData: {
+        id: number;
+        period: string;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById: number;
+        updatedById: number;
+    }[];
+    totalCount: number;
+}
+
+type CreateDayShiftBody = {
+    shiftReportId: number;
+    userId: number;
+    workDate: Date;
+}
+
+type DayShiftResponse = {
+    id: number;
+    workerId: number;
+    workDate: Date;
+    typeWorkDay: TypeWorkDay;
+    timeWorkedOut?: string;
+    startWorkingTime?: Date;
+    endWorkingTime?: Date;
+    estimation?: TypeEstimation;
+    prize?: number;
+    fine?: number;
+    comment?: string;
+}
+
+type UpdateDayShiftBody = {
+    typeWorkDay?: TypeWorkDay;
+    timeWorkedOut?: string;
+    startWorkingTime?: Date;
+    endWorkingTime?: Date;
+    estimation?: TypeEstimation;
+    prize?: number;
+    fine?: number;
+    comment?: string;
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
@@ -159,3 +265,48 @@ export async function postTimestamp(body: TimestampBody, id: number): Promise<Ti
     return response.data;
 }
 
+export async function createShift(body: ShiftRequestBody): Promise<ShiftResponseBody> {
+    console.log(body);
+    const response: AxiosResponse<ShiftResponseBody> = await api.post(FINANCE.SHIFT_REPORT, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function addWorker(body: ShiftWorkerBody, id: number): Promise<ShiftWorkerResponse> {
+    console.log(body);
+    const response: AxiosResponse<ShiftWorkerResponse> = await api.post(FINANCE.SHIFT_REPORT + `/worker/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getShifts(posId: number, params: CashCollectionParams): Promise<ShiftParamsResponse> {
+    const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s/${posId}`, { params });
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getShiftById(id: number): Promise<ShiftWorkerResponse> {
+    const response: AxiosResponse<ShiftWorkerResponse> = await api.get(FINANCE.SHIFT_REPORT + `/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createDayShift(body: CreateDayShiftBody): Promise<DayShiftResponse> {
+    console.log(body);
+    const response: AxiosResponse<DayShiftResponse> = await api.post(FINANCE.SHIFT_REPORT + '/day-report', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getDayShiftById(id: number): Promise<DayShiftResponse> {
+    const response: AxiosResponse<DayShiftResponse> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function updateDayShift(body: UpdateDayShiftBody, id: number): Promise<DayShiftResponse> {
+    console.log(body);
+    const response: AxiosResponse<DayShiftResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}

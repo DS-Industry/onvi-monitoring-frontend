@@ -19,7 +19,9 @@ type Props = {
   handleClear?: () => void;
   address?: string;
   setAddress?: (value: string) => void;
+  hidePage?: boolean;
 };
+
 const Filter: React.FC<Props> = ({
   children,
   count,
@@ -32,7 +34,8 @@ const Filter: React.FC<Props> = ({
   setSearch,
   handleClear,
   address = "",
-  setAddress
+  setAddress,
+  hidePage = false
 }: Props) => {
   const { filterOpen } = useFilterOpen();
   const { buttonOn } = useButtonCreate();
@@ -107,7 +110,7 @@ const Filter: React.FC<Props> = ({
           onChange={handleAddressChange}
         /> }
         {children}
-        <DropdownInput
+        {!hidePage && <DropdownInput
           title={"Строк на стр."}
           value={pageNumber}
           classname="ml-2 w-24"
@@ -118,7 +121,7 @@ const Filter: React.FC<Props> = ({
             { name: 50, value: 50 },
           ]}
           onChange={(value) => setPageNumber(value)}
-        />
+        /> }
       </div>
       {!hideDateTime ? (
         <div>

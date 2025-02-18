@@ -941,4 +941,29 @@ export const columnsCollectionsData = [
   }
 ]
 
+export const columnsShifts = [
+  {
+    label: "Мойка/филиал",
+    key: "posName"
+  },
+  {
+    label: "Период",
+    key: "period",
+    type: "period"
+  },
+  {
+    label: "Дата форматирования",
+    key: "createdAt",
+    type: "date"
+  },
+  {
+    label: "Ответственный",
+    key: "createdById"
+  },
+  {
+    label: "Изменения в отчете",
+    key: "updatedAt",
+    type: "date"
+  }
+]
 

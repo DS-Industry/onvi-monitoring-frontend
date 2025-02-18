@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { XCircle, Search } from 'feather-icons-react';
+import Icon from 'feather-icons-react';
 
 
 type SearchInputProps = {
@@ -58,7 +58,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
                 {/* Left search icon */}
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className={`w-5 h-5 ${isDisabled ? 'text-text03' : (isFocused ? 'text-text03' : 'text-text02')}`} />
+                    <Icon icon='search' className={`w-5 h-5 ${isDisabled ? 'text-text03' : (isFocused ? 'text-text03' : 'text-text02')}`} />
                 </span>
 
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -66,7 +66,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
                         <button
                             onClick={() => onClear ? onClear() : onChange('')}
                             className="focus:outline-none">
-                            <XCircle className={`w-5 h-5 ${isFocused ? "text-text03" : "text-text02"}`} />
+                            <Icon icon='x-circle' className={`w-5 h-5 ${isFocused ? "text-text03" : "text-text02"}`} />
                         </button>
                     ) : null}
                 </div>
