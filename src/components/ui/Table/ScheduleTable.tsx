@@ -29,16 +29,21 @@ interface Employee {
     userId: number;
 }
 
-interface FormData {
-    timeWorkedOut: string;
-    startWorkingTime: string;
-    endWorkingTime: string;
-    prize: number;
-    fine: number;
-    comment: string;
-    isCal: boolean;
-    typeWorkDay: string;
-    estimation: string;
+type FormData = {
+    typeWorkDay?: TypeWorkDay;
+    timeWorkedOut?: string;
+    hours_timeWorkedOut?: string;
+    minutes_timeWorkedOut?: string;
+    startWorkingTime?: string;
+    hours_startWorkingTime?: string;
+    minutes_startWorkingTime?: string;
+    endWorkingTime?: string;
+    hours_endWorkingTime?: string;
+    minutes_endWorkingTime?: string;
+    estimation?: TypeEstimation | null;
+    prize?: number | null;
+    fine?: number | null;
+    comment?: string;
 }
 
 // const emps: Employee[] = [
@@ -153,17 +158,16 @@ const ScheduleTable: React.FC<Props> = ({
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [employees, setEmployees] = useState(emp);
     const [userId, setUserId] = useState(0);
-    const [isUser, setIsUser] = useState(false);
     const [openModalId, setOpenModalId] = useState(0);
+    const [openAddRow, setOpenAddRow] = useState(false);
 
     // Initialize Form Hook
-    const { register, handleSubmit, setValue, watch, reset } = useFormHook({
-        prize: 0,
-        fine: 0,
+    const { register, handleSubmit, setValue, watch, reset } = useFormHook<FormData>({
+        prize: undefined,
+        fine: undefined,
         comment: "",
-        isCal: false,
-        typeWorkDay: "",
-        estimation: "",
+        typeWorkDay: "WEEKEND" as TypeWorkDay,
+        estimation: undefined,
         timeWorkedOut: "",
         startWorkingTime: "",
         endWorkingTime: "",
@@ -213,7 +217,6 @@ const ScheduleTable: React.FC<Props> = ({
     const prize = watch("prize");
     const fine = watch("fine");
     const comment = watch("comment");
-    const isCal = watch("isCal");
     const typeWorkDay = watch("typeWorkDay");
     const estimation = watch("estimation");
 
@@ -248,9 +251,9 @@ const ScheduleTable: React.FC<Props> = ({
             : String(watchFields[fieldMinutes] || "00"); // Ensure it's a string
 
         if (updatedHours !== "" && updatedMinutes !== "") {
-            if (field === "startWorkingTime")
+            if (field === "startWorkingTime" && startedTime)
                 setValue(field, updateTime(startedTime, updatedHours, updatedMinutes));
-            else if (field === "endWorkingTime")
+            else if (field === "endWorkingTime" && endTime)
                 setValue(field, updateTime(endTime, updatedHours, updatedMinutes));
             else
                 setValue(field, updatedHours.padStart(2, "0") + ":" + updatedMinutes.padStart(2, "0"));
@@ -285,11 +288,10 @@ const ScheduleTable: React.FC<Props> = ({
             endWorkingTime: result?.endWorkingTime ? new Date(result.endWorkingTime).toISOString() : "",
             hours_endWorkingTime: result?.endWorkingTime ? new Date(result.endWorkingTime).getUTCHours().toString().padStart(2, "0") : "",
             minutes_endWorkingTime: result?.endWorkingTime ? new Date(result.endWorkingTime).getUTCMinutes().toString().padStart(2, "0") : "",
-            estimation: result?.estimation || "",
-            prize: result?.prize || 0,
-            fine: result?.fine || 0,
-            comment: result?.comment || "",
-            isCal: false
+            estimation: result?.estimation || undefined,
+            prize: result?.prize ?? undefined, // Ensure it's empty when no value is provided
+            fine: result?.fine ?? undefined,
+            comment: result?.comment || ""
         };
 
         // Update filledData state
@@ -302,18 +304,40 @@ const ScheduleTable: React.FC<Props> = ({
         reset(updatedFormData);
     };
 
-
     const handleCloseModal = () => {
         if (!selectedEmployee || !selectedDate) return;
+
         const modalKey = `${selectedEmployee.userId}-${selectedDate}`;
+
+        const formValues = watch();
+
+        const updatedFormData: FormData = {
+            typeWorkDay: formValues.typeWorkDay as TypeWorkDay, // Ensure correct type
+            timeWorkedOut: formValues.timeWorkedOut || "",
+            hours_timeWorkedOut: formValues.hours_timeWorkedOut || "",
+            minutes_timeWorkedOut: formValues.minutes_timeWorkedOut || "",
+            startWorkingTime: formValues.startWorkingTime || "",
+            hours_startWorkingTime: formValues.hours_startWorkingTime || "",
+            minutes_startWorkingTime: formValues.minutes_startWorkingTime || "",
+            endWorkingTime: formValues.endWorkingTime || "",
+            hours_endWorkingTime: formValues.hours_endWorkingTime || "",
+            minutes_endWorkingTime: formValues.minutes_endWorkingTime || "",
+            estimation: formValues.estimation ?? undefined, // Ensure it's null instead of undefined
+            prize: formValues.prize ?? undefined,
+            fine: formValues.fine ?? undefined,
+            comment: formValues.comment || "",
+        };
+
         setFilledData((prev) => ({
             ...prev,
-            [modalKey]: watch(), // Save current form values
+            [modalKey]: updatedFormData, // Ensure correct type assignment
         }));
+
         setOpenModals((prev) => ({ ...prev, [modalKey]: false }));
         setSelectedEmployee(null);
         setSelectedDate("");
     };
+
 
     useEffect(() => {
         if (shiftData) {
@@ -408,9 +432,9 @@ const ScheduleTable: React.FC<Props> = ({
             id: openModalId,
             typeWorkDay: typeWorkDay as TypeWorkDay,
             timeWorkedOut: watchFields["timeWorkedOut"],
-            startWorkingTime: new Date(watchFields["startWorkingTime"]),
-            endWorkingTime: new Date(watchFields["endWorkingTime"]),
-            estimation: estimation as TypeEstimation,
+            startWorkingTime: watchFields["startWorkingTime"] ? new Date(watchFields["startWorkingTime"]) : undefined,
+            endWorkingTime: watchFields["endWorkingTime"] ? new Date(watchFields["endWorkingTime"]) : undefined,
+            estimation: estimation as unknown as TypeEstimation,
             prize: Number(prize),
             fine: Number(fine),
             comment: comment
@@ -453,70 +477,72 @@ const ScheduleTable: React.FC<Props> = ({
 
     return (
         <div className="overflow-x-auto">
-            {id !== 0 && employees && (<table className="w-full border-separate border-spacing-0.5">
-                <thead>
-                    <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider">
-                        <th>Мойка/Филиал</th>
-                        <th>ФИО Сотрудника</th>
-                        {dates.map((d, index) => (
-                            <th key={index} className="border-b border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider">
-                                {d.day} <br /> {d.date}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {employees.map((emp) => (
-                        <tr key={emp.id}>
-                            <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02">{emp.branch}</td>
-                            <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm text-text01">
-                                <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
-                                <span className="text-text02 text-sm">{emp.position}</span>
-                            </td>
+            {id !== 0 && employees && (
+                <table className="w-full table-fixed border-separate border-spacing-0.5">
+                    <thead>
+                        <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase">
+                            <th className="w-32 h-16">Мойка/Филиал</th>
+                            <th className="w-60 h-16">ФИО Сотрудника</th>
                             {dates.map((d, index) => (
-                                <td
-                                    key={index}
-                                    className={`border border-borderFill ${filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "WORKING" ? "bg-[#DDF5FF]" : "bg-background02"} cursor-pointer hover:bg-background05 py-2 px-2.5 items-center whitespace-nowrap text-sm text-text01`}
-                                    onClick={() => handleOpenModal(emp, d.workDate)}
-                                >   <div className="flex flex-col justify-between h-full min-h-[40px]">
-                                        <div className="flex items-center m-auto"> {/* Center top div */}
-                                            {filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut ? <div>{filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut}</div> :
-                                                filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "MEDICAL" ? <BN /> :
-                                                    filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "VACATION" ? <OTN /> :
-                                                        filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TIMEOFF" ? <O /> :
-                                                            filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TRUANCY" ? <NP /> :
-                                                                <></>
-                                            }
-                                        </div>
-                                        <div className="flex items-center justify-between mt-auto"> {/* Push bottom div to bottom */}
-                                            {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
-                                                filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
-                                                    filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
-                                                        <></>
-                                            }
-                                            <div className="flex justify-end">
-                                                <div className="text-text02 text-xs ml-1">{filledData[`${emp.userId}-${d.workDate}`]?.prize}</div>
-                                                <div className="text-text02 text-xs ml-1">{filledData[`${emp.userId}-${d.workDate}`]?.fine}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+                                <th key={index} className="border-b border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider w-16 h-16">
+                                    {d.day} <br /> {d.date}
+                                </th>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>)}
-            {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setIsUser(true)}>
+                    </thead>
+                    <tbody>
+                        {employees.map((emp) => (
+                            <tr key={emp.id}>
+                                <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02 w-32 h-16">{emp.branch}</td>
+                                <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm text-text01 w-60 h-16">
+                                    <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
+                                    <span className="text-text02 text-sm">{emp.position}</span>
+                                </td>
+                                {dates.map((d, index) => (
+                                    <td
+                                        key={index}
+                                        className={`border border-borderFill w-16 h-16 overflow-x-auto 
+                                    ${filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "WORKING" ? "bg-[#DDF5FF]" : "bg-background02"} 
+                                    cursor-pointer hover:bg-background05 text-sm text-text01`}
+                                        onClick={() => handleOpenModal(emp, d.workDate)}
+                                    >
+                                        <div className="flex flex-col justify-between overflow-hidden">
+                                            <div className="flex items-center justify-center"> {/* Center top div */}
+                                                {filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut ? <div>{filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut}</div> :
+                                                    filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "MEDICAL" ? <BN /> :
+                                                        filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "VACATION" ? <OTN /> :
+                                                            filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TIMEOFF" ? <O /> :
+                                                                filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TRUANCY" ? <NP /> :
+                                                                    <></>
+                                                }
+                                            </div>
+                                            <div className="flex items-center justify-between mt-1"> {/* Push bottom div to bottom */}
+                                                {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
+                                                    filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
+                                                        filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
+                                                            <></>
+                                                }
+                                                <div className="flex justify-end">
+                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {filledData[`${emp.userId}-${d.workDate}`]?.prize}
+                                                    </div>
+                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {filledData[`${emp.userId}-${d.workDate}`]?.fine}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>)}
+            {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setOpenAddRow(true)}>
                 <Icon icon="plus" className="w-5 h-5" />
                 <div>{t("finance.addE")}</div>
-            </div>}
-            {isUser && <div className="mt-5">
-                <DropdownInput
-                    value={userId}
-                    options={workers}
-                    onChange={addNewRow}
-                    classname="w-64"
-                />
             </div>}
             {id !== 0 && <div className="mt-5">
                 <div className="flex justify-center space-x-10">
@@ -673,11 +699,11 @@ const ScheduleTable: React.FC<Props> = ({
                                     changeValue={(e) => handleTimeChange("timeWorkedOut", "minutes", e.target.value)}
                                 />
                             </div>
-                            <div className="flex items-center space-x-2 mt-2">
+                            {/* <div className="flex items-center space-x-2 mt-2">
                                 <input type="checkbox" className="w-[18px] h-[18px]" {...register("isCal")} />
                                 <div>{t("finance.cal")}</div>
-                            </div>
-                            {isCal && (<div className="flex space-x-8">
+                            </div> */}
+                            <div className="flex space-x-8 mt-2">
                                 <div>
                                     <div>{t("finance.start")}</div>
                                     <div className="flex space-x-2">
@@ -720,7 +746,7 @@ const ScheduleTable: React.FC<Props> = ({
                                         />
                                     </div>
                                 </div>
-                            </div>)}
+                            </div>
                         </div>
                         <div className="flex space-x-8">
                             <Input
@@ -771,6 +797,20 @@ const ScheduleTable: React.FC<Props> = ({
                     </form>
                 </Modal>
             )}
+            <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)}>
+                <div className="flex flex-row items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-text01">{t("finance.addNew")}</h2>
+                    <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
+                </div>
+                <div className="mt-5">
+                    <DropdownInput
+                        value={userId}
+                        options={workers}
+                        onChange={addNewRow}
+                        classname="w-64"
+                    />
+                </div>
+            </Modal>
         </div>
     );
 };

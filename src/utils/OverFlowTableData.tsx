@@ -882,19 +882,23 @@ export const columnsDeviceData = [
   },
   {
     label: "Купюры",
-    key: "sumPaperDevice"
+    key: "sumPaperDevice",
+    type: "number"
   },
   {
     label: "Монеты",
-    key: "sumCoinDevice"
+    key: "sumCoinDevice",
+    type: "number"
   },
   {
     label: "Сумма всего",
-    key: "sumDevice"
+    key: "sumDevice",
+    type: "number"
   },
   {
     label: "Безналичная оплата",
-    key: "virtualSumDevice"
+    key: "virtualSumDevice",
+    type: "number"
   }
 ]
 

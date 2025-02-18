@@ -196,9 +196,9 @@ type DayShiftResponse = {
     timeWorkedOut?: string;
     startWorkingTime?: Date;
     endWorkingTime?: Date;
-    estimation?: TypeEstimation;
-    prize?: number;
-    fine?: number;
+    estimation?: TypeEstimation | null;
+    prize?: number | null;
+    fine?: number | null;
     comment?: string;
 }
 
@@ -207,9 +207,9 @@ type UpdateDayShiftBody = {
     timeWorkedOut?: string;
     startWorkingTime?: Date;
     endWorkingTime?: Date;
-    estimation?: TypeEstimation;
-    prize?: number;
-    fine?: number;
+    estimation?: TypeEstimation | null;
+    prize?: number | null;
+    fine?: number | null;
     comment?: string;
 }
 

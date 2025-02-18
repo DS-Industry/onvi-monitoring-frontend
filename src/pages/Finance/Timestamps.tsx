@@ -1,5 +1,5 @@
 import Button from "@/components/ui/Button/Button";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
+import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType } from "@/hooks/useAuthStore";
@@ -26,6 +26,7 @@ const Timestamps: React.FC = () => {
     const posType = usePosType();
 
     const [posId, setPosId] = useState(posType);
+    const [disabledButtons, setDisabledButtons] = useState<{ [key: number]: boolean }>({});
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -37,17 +38,18 @@ const Timestamps: React.FC = () => {
             key: "deviceName"
         },
         {
-            label: "Начать",
+            label: "Инкассация",
             key: "Begin",
             render: (row: { deviceId: number }) => (
                 <div className="flex justify-end">
                     <Button
-                        title="Начать"
-                        classname="border border-successFill rounded px-2 py-2 text-successFill hover:bg-disabledFill"
+                        title="Проинкассировал"
+                        classname="border border-successFill rounded px-2 py-2 text-successFill hover:border-successFill/80 hover:text-successFill/80"
                         type="outline"
                         handleClick={() => {
                             handleBegin(row.deviceId);
                         }}
+                        disabled={disabledButtons[row.deviceId]}
                     />
                 </div>
             ),
@@ -78,6 +80,10 @@ const Timestamps: React.FC = () => {
             const body = { dateTimeStamp: new Date() }; // Send current timestamp
             const response = await postTime({ body, id: deviceId }); // Call API
 
+            if(response) {
+                setDisabledButtons((prev) => ({ ...prev, [deviceId]: true }));
+            }
+
             // Update SWR cache manually without refetching
             mutate((prevData: TimestampResponse[] | undefined) => {
                 if (!prevData) return prevData; // If no previous data, return as is
@@ -94,7 +100,7 @@ const Timestamps: React.FC = () => {
 
     return (
         <div>
-            <DropdownInput
+            <SearchDropdownInput
                 title={t("finance.carWash")}
                 options={poses}
                 classname="w-64"
@@ -106,7 +112,7 @@ const Timestamps: React.FC = () => {
                     <TableSkeleton columnCount={columnsTimestamp.length} />
                     :
                     <OverflowTable
-                        tableData={timestampData}
+                        tableData={timestampData?.sort((a, b) => a.deviceId - b.deviceId)}
                         columns={columnsTimestamp}
                     />
                 }
