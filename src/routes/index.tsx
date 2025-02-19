@@ -60,6 +60,7 @@ import Timesheet from "@/pages/Finance/Timesheet";
 import Timestamps from "@/pages/Finance/Timestamps";
 import Analysis from "@/pages/Analysis/Analysis";
 import IncomeReport from "@/pages/Analysis/IncomeReport";
+import TimesheetView from "@/pages/Finance/TimesheetView";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -149,7 +150,8 @@ const routes = [
       { name: "timestamp", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/timestamp", component: Timestamps, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "period", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/period", component: Period, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/timesheet", component: Timesheet, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "employee", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/creation", component: TimesheetCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
+      { name: "employee", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/creation", component: TimesheetCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "abcd", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/view", component: TimesheetView, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
     ]
   },
   {

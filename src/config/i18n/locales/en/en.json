@@ -662,7 +662,16 @@
     "recalSend": "Recalculate and send",
     "addE": "Add an employee",
     "collDate": "Collection date",
-    "addNew": "Add New User"
+    "addNew": "Add New User",
+    "shiftOver": "Shift Overview",
+    "curr": "Current shift",
+    "status": "Status",
+    "change": "Change",
+    "exchange": "Exchange",
+    "returns": "Returns",
+    "susp": "Suspicious transactions",
+    "salary": "Salary",
+    "time": "Time worked"
   },
   "analysis": {
     "search": "Search",

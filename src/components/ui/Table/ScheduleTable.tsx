@@ -15,11 +15,11 @@ import BN from "@icons/Бл.svg?react";
 import OTN from "@icons/ОТП.svg?react";
 import O from "@icons/О.svg?react";
 import NP from "@icons/Пр.svg?react"
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/services/api/finance";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Employee {
     id: number;
@@ -160,6 +160,7 @@ const ScheduleTable: React.FC<Props> = ({
     const [userId, setUserId] = useState(0);
     const [openModalId, setOpenModalId] = useState(0);
     const [openAddRow, setOpenAddRow] = useState(false);
+    const navigate = useNavigate();
 
     // Initialize Form Hook
     const { register, handleSubmit, setValue, watch, reset } = useFormHook<FormData>({
@@ -341,7 +342,7 @@ const ScheduleTable: React.FC<Props> = ({
 
     useEffect(() => {
         if (shiftData) {
-            const newEmployee: Employee[] = shiftData.workers.map((item) => ({
+            const newEmployee: Employee[] = shiftData?.workers.map((item) => ({
                 id: item.workerId,
                 name: `${item.name} ${item.middlename} ${item.surname}`,
                 branch: poses.find((pos) => pos.value === shiftData.posId)?.name || "",
@@ -441,21 +442,20 @@ const ScheduleTable: React.FC<Props> = ({
         });
 
         if (result) {
+            console.log("Checking the result: ", result);
             reset({
                 typeWorkDay: result.typeWorkDay,
                 timeWorkedOut: result.timeWorkedOut,
                 hours_timeWorkedOut: result.timeWorkedOut?.split(":")[0],
                 minutes_timeWorkedOut: result.timeWorkedOut?.split(":")[1],
-                startWorkingTime: result.startWorkingTime?.toISOString(),
-                endWorkingTime: result.endWorkingTime?.toISOString(),
+                startWorkingTime: result.startWorkingTime? new Date(result.startWorkingTime).toISOString() : undefined,
+                endWorkingTime: result.endWorkingTime? new Date(result.endWorkingTime).toISOString() : undefined,
                 estimation: result.estimation,
                 prize: result.prize,
                 fine: result.fine,
                 comment: result.comment
             });
-
-            // ✅ Revalidate API data
-            await mutate([`get-shift-data`]);
+            navigate("/finance/timesheet/view",{ state: { ownerId: openModalId }});
         }
     };
 
