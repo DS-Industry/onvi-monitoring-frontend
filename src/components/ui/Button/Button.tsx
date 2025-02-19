@@ -31,7 +31,7 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
     return(
         <button
             type={typeForm}
-            className={`${className} ${classname} ${ disabled ? 'opacity-20 cursor-default' : ''}`}
+            className={`${className} ${classname} ${ disabled ? 'opacity-20 bg-disabledFill cursor-default' : ''}`}
             onClick={handleClick}
             disabled={disabled}
         >

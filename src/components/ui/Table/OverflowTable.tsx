@@ -189,11 +189,11 @@ const OverflowTable: React.FC<Props> = ({
         { action: "manage", subject: "Warehouse" },
         { action: "update", subject: "Warehouse" },
       ];
-      if (path.includes("finance"))
-        return [
-          { action: "manage", subject: "CashCollection" },
-          { action: "update", subject: "CashCollection" },
-        ];
+    if (path.includes("finance"))
+      return [
+        { action: "manage", subject: "CashCollection" },
+        { action: "update", subject: "CashCollection" },
+      ];
     // Add cases for other components as needed
     else
       return [];
@@ -287,27 +287,38 @@ const OverflowTable: React.FC<Props> = ({
                             {row[column.key]}
                           </div>
                         </span>
-                      ) : column.render ? column.render(row, handleChange)
-                        : renderCell ? renderCell(column, row)
-                          : column.key.toLocaleLowerCase().includes('status') ? (
-                            <div className={`whitespace-nowrap text-ellipsis overflow-hidden ${row[column.key] === t("tables.ACTIVE") ? "text-[#00A355]" : row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : "text-text01"}`}>
-                              {row[column.key]}
-                            </div>
-                          ) : (
-                            <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                              {column.type === 'date' ? (
-                                row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
-                              ) : column.type === "period" ? (
-                                row[column.key] ? formatPeriodType(row[column.key]) : '-'
-                              ) : column.type === 'number' ? (
-                                row[column.key] ? formatNumber(row[column.key]) : '-'
-                              ) : typeof row[column.key] === 'object' ? (
-                                `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                              ) : (
-                                row[column.key]
-                              )}
-                            </div>
-                          )}
+                      ) : column.type === 'number' ? (
+                        row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key])}</div> : '-'
+                      )
+                        : column.render ? column.render(row, handleChange)
+                          : renderCell ? renderCell(column, row)
+                            : column.key.toLocaleLowerCase().includes('status') ? (
+                              <div className={`flex items-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
+                             ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT")) ? "text-[#00A355]" :
+                                  row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : row[column.key] === t("tables.SAVED") ? "text-[#FF9066]" : "text-text01"} 
+                             ${row[column.key] === t("tables.SENT") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
+                             ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
+                                {row[column.key] === t("tables.SENT") && (
+                                  <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
+                                )}
+                                {row[column.key] === t("tables.SAVED") && (
+                                  <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
+                                )}
+                                {row[column.key]}
+                              </div>
+                            ) : (
+                              <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                                {column.type === 'date' ? (
+                                  row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
+                                ) : column.type === "period" ? (
+                                  row[column.key] ? formatPeriodType(row[column.key]) : '-'
+                                ) : typeof row[column.key] === 'object' ? (
+                                  `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
+                                ) : (
+                                  row[column.key]
+                                )}
+                              </div>
+                            )}
                     </td>
                   ))}
                   <Can

@@ -112,19 +112,23 @@ const Collection: React.FC = () => {
         },
         {
             label: "Инкассация",
-            key: "sumFact"
+            key: "sumFact",
+            type: "number"
         },
         {
             label: "Сумма по картам",
-            key: "sumCard"
+            key: "sumCard",
+            type: "number"
         },
         {
             label: "Безналичная оплата",
-            key: "sumVirtual"
+            key: "sumVirtual",
+            type: "number"
         },
         {
             label: "Прибыль",
-            key: "profit"
+            key: "profit",
+            type: "number"
         },
         {
             label: "Статус",
@@ -132,7 +136,8 @@ const Collection: React.FC = () => {
         },
         {
             label: "Недостача",
-            key: "shortage"
+            key: "shortage",
+            type: "number"
         }
     ], []);
 
@@ -140,33 +145,37 @@ const Collection: React.FC = () => {
 
     const { columns, transformedData } = useMemo(() => {
         if (!collectionsData.length) return { columns: baseColumns, transformedData: collectionsData };
-
-        const warehouseColumns: { label: string; key: string }[] = [];
+    
+        const collectionColumns: { label: string; key: string; type: string }[] = [];
         const transformedStockLevels = collectionsData.map((level) => {
             const transformedLevel = { ...level };
             level.cashCollectionDeviceType.forEach((item, index) => {
-                const columnKey = `warehouse_${index}`;
+                const columnKey = `collection_${index}`;
                 const columnLabel = item.typeName || `Склад ${index + 1}`;
-
-                if (!warehouseColumns.some((col) => col.key === columnKey)) {
-                    warehouseColumns.push({ label: columnLabel, key: columnKey });
+    
+                if (!collectionColumns.some((col) => col.key === columnKey)) {
+                    collectionColumns.push({ label: columnLabel, key: columnKey, type: "number" });
                 }
-
+    
                 transformedLevel[columnKey] = item.typeShortage ?? 0;
             });
             return transformedLevel;
         });
-
-        return {
-            columns: [...baseColumns, ...warehouseColumns],
-            transformedData: transformedStockLevels.map((item) => ({
+    
+        const sortedData = transformedStockLevels
+            .map((item) => ({
                 ...item,
                 posName: poses.find((pos) => pos.value === item.posId)?.name || "",
-                status: t(`tables.${item.status}`)
-            })),
+                status: t(`tables.${item.status}`),
+                parsedPeriod: new Date(item.period.split("-")[0]) // Extract start date
+            }))
+            .sort((a, b) => b.parsedPeriod.getTime() - a.parsedPeriod.getTime()); // Sort by most recent date
+    
+        return {
+            columns: [...baseColumns, ...collectionColumns],
+            transformedData: sortedData
         };
-    }, [collectionsData, baseColumns]);
-
+    }, [collectionsData, baseColumns]);    
 
     return (
         <div>

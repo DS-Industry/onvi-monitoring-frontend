@@ -137,6 +137,7 @@ const CollectionCreation: React.FC = () => {
                 setTableData(result.cashCollectionDeviceType);
                 setDeviceData(result.cashCollectionDevice);
                 setCollection(result);
+                setHideButton(true);
                 // resetForm();
             } else {
                 throw new Error('Invalid update data.');
@@ -150,10 +151,11 @@ const CollectionCreation: React.FC = () => {
     const [tableData, setTableData] = useState<TableRow[]>([]);
     const [deviceData, setDeviceData] = useState<CashCollectionDevice[]>([]);
     const [collection, setCollection] = useState<Collection>({} as Collection);
-    const [showData, setShowData] = useState(false);
+    const [showData, setShowData] = useState(true);
     const [editingRow, setEditingRow] = useState<number | null>(null);
-    const [openCashColl, setOpenCashColl] = useState(false);
-    const [openCollDevice, setOpenCollDevice] = useState(false);
+    const [openCashColl, setOpenCashColl] = useState(true);
+    const [openCollDevice, setOpenCollDevice] = useState(true);
+    const [hideButton, setHideButton] = useState(false);
 
     const handleUpdate = (id: number) => {
         console.log("Id of handle update: ", id);
@@ -250,6 +252,9 @@ const CollectionCreation: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
+            setTableData(result.cashCollectionDeviceType);
+            setDeviceData(result.cashCollectionDevice);
+            setCollection(result);
         }
     };
 
@@ -276,6 +281,9 @@ const CollectionCreation: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
+            setTableData(result.cashCollectionDeviceType);
+            setDeviceData(result.cashCollectionDevice);
+            setCollection(result);
             navigate("/finance/collection");
         }
     };
@@ -293,61 +301,57 @@ const CollectionCreation: React.FC = () => {
 
     const columnsCollections = [
         {
-          label: "Тип",
-          key: "typeName",
-          render: (row: { typeName: string; }) => <span>{row.typeName}</span>,
+            label: "Тип",
+            key: "typeName"
         },
         {
-          label: "Купюры",
-          key: "sumPaperDeviceType",
-          render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-            <Input
-              type="number"
-              // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
-              placeholder="00,00"
-              value={row.sumPaperDeviceType}
-              error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
-              helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
-              changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
-              disabled={location.state?.status === t("tables.SENT")}
-            />
-          ),
+            label: "Купюры",
+            key: "sumPaperDeviceType",
+            render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+                <Input
+                    type="number"
+                    // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+                    placeholder="00,00"
+                    value={row.sumPaperDeviceType}
+                    //   error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
+                    //   helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
+                    changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+                    disabled={location.state?.status === t("tables.SENT")}
+                />
+            ),
         },
         {
-          label: "Монеты",
-          key: "sumCoinDeviceType",
-          render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-            <Input
-              type="number"
-              // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
-              placeholder="00,00"
-              value={row.sumCoinDeviceType}
-              error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
-              helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
-              changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
-              disabled={location.state?.status === t("tables.SENT")}
-            />
-          ),
+            label: "Монеты",
+            key: "sumCoinDeviceType",
+            render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+                <Input
+                    type="number"
+                    // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+                    placeholder="00,00"
+                    value={row.sumCoinDeviceType}
+                    //   error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
+                    //   helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
+                    changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+                    disabled={location.state?.status === t("tables.SENT")}
+                />
+            ),
         },
         {
-          label: "Сумма всего",
-          key: "sumFactDeviceType",
-          type: "number",
-          render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
+            label: "Сумма всего",
+            key: "sumFactDeviceType",
+            type: "number"
         },
         {
-          label: "Недостача",
-          key: "shortageDeviceType",
-          type: "number",
-          render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
+            label: "Недостача",
+            key: "shortageDeviceType",
+            type: "number"
         },
         {
-          label: "Безналичная оплата",
-          key: "virtualSumDeviceType",
-          type: "number",
-          render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
+            label: "Безналичная оплата",
+            key: "virtualSumDeviceType",
+            type: "number"
         }
-      ]
+    ]
 
     return (
         <div className="space-y-6">
@@ -357,7 +361,7 @@ const CollectionCreation: React.FC = () => {
                     <div className="flex space-x-4">
                         <Input
                             type="date"
-                            title={t("finance.end")}
+                            title={t("finance.collDate")}
                             classname="w-44"
                             value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
                             changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
@@ -387,20 +391,20 @@ const CollectionCreation: React.FC = () => {
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
                     />
-                    <div className="flex justify-between">
+                    {!hideButton && (<div className="flex justify-between">
                         <Button
                             title={t("finance.form")}
                             isLoading={collectionLoading}
                             form={true}
                         />
-                    </div>
+                    </div>)}
                 </form>}
             <div className="flex justify-end">
                 {collection && Object.keys(collection).length > 0 && <Button
                     title={t("finance.add")}
                     type="outline"
-                    iconDown={showData}
-                    iconUp={!showData}
+                    iconUp={showData}
+                    iconDown={!showData}
                     handleClick={() => setShowData(!showData)}
                 />}
             </div>
@@ -412,8 +416,7 @@ const CollectionCreation: React.FC = () => {
                             { label: t("marketing.total"), value: `${collection.sumFact || "00"} ₽` },
                             { label: t("finance.cars"), value: collection.countCar },
                             { label: t("finance.cash"), value: `${collection.virtualSum || "00"} ₽` },
-                            { label: t("finance.amt"), value: `${collection.sumCard || "00"} ₽` },
-                            { label: t("finance.nos"), value: collection.countCarCard }
+                            { label: t("finance.amt"), value: `${collection.sumCard || "00"} ₽` }
                         ].map((item, index) => (
                             <div key={index} className="grid grid-cols-2 gap-10">
                                 <div>{item.label}</div>
@@ -448,7 +451,7 @@ const CollectionCreation: React.FC = () => {
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
                             {openCashColl && <OverflowTable
-                                tableData={tableData}
+                                tableData={tableData.sort((a, b) => a.id - b.id)}
                                 columns={columnsCollections}
                                 handleChange={handleTableChange}
                                 showTotal={true}
@@ -477,15 +480,23 @@ const CollectionCreation: React.FC = () => {
                                 renderCell={(column, row) => {
                                     if (column.type === "date") {
                                         if (editingRow === row.id && column.key === "tookMoneyTime") {
-                                            const formattedDate = row[column.key]
-                                                ? new Date(row[column.key]).toISOString().slice(0, 16) // Convert to 'YYYY-MM-DDTHH:MM'
+                                            // Get the original value and ensure it is formatted without conversion to UTC
+                                            const originalDate = row[column.key] || "";
+
+                                            // If the originalDate is valid, use it directly in the 'datetime-local' format
+                                            const formattedDate = originalDate
+                                                ? originalDate.slice(0, 16) // Extract 'YYYY-MM-DDTHH:MM' format
                                                 : "";
 
                                             return (
-                                                <Input
+                                                <input
                                                     type="datetime-local"
                                                     value={formattedDate}
-                                                    changeValue={(e) => handleDateChange(e, row.deviceId, column.key)}
+                                                    className="w-full px-3 py-1 rounded-md caret-primary02 text-black border outline-none border-primary02 border-opacity-30 hover:border-primary02"
+                                                    onChange={(e) => handleDateChange(e, row.deviceId, column.key)}
+                                                    onBlur={() => setEditingRow(null)} // Exit edit mode on blur
+                                                    autoFocus
+                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)} // Exit edit mode on Enter
                                                     disabled={location.state?.status === t("tables.SENT")}
                                                 />
                                             );
@@ -496,6 +507,7 @@ const CollectionCreation: React.FC = () => {
                                     return row[column.key] || "-";
                                 }}
                             />}
+
                         </div>
                         : <></>
                 }
