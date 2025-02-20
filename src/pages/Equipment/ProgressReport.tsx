@@ -9,6 +9,7 @@ import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
+import { usePosType } from "@/hooks/useAuthStore";
 
 type ReadTechTasks = {
     id: number;
@@ -23,7 +24,8 @@ type ReadTechTasks = {
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
-    const [searchPosId, setSearchPosId] = useState(66);
+    const posType = usePosType();
+    const [searchPosId, setSearchPosId] = useState(posType);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

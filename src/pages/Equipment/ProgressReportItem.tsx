@@ -121,12 +121,11 @@ const ProgressReportItem: React.FC = () => {
                 acc[item.group] = [];
             }
             acc[item.group].push(item);
+            acc[item.group].sort((a, b) => a.id - b.id);
             return acc;
         }, {} as Record<string, TechTaskItem[]>);
     }, [techTaskItems]);
-
-    console.log(groupedTechTaskItems);
-
+    
     const [taskValues, setTaskValues] = useState<TechTaskItem[]>([]);
 
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
@@ -151,14 +150,11 @@ const ProgressReportItem: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        console.log("Final Task Values:", taskValues);
 
         const techTaskValue: { itemValueId: number; value: string }[] = taskValues.map((task) => ({
             itemValueId: task.id,
             value: task.value as string,
         }));
-
-        console.log("Payload for API:", techTaskValue);
 
         const result = await createTechTasks({
             valueData: techTaskValue,

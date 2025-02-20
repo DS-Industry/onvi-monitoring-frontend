@@ -10,6 +10,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
+import { usePosType } from "@/hooks/useAuthStore";
 
 type StockParams = {
     categoryId?: number;
@@ -43,9 +44,11 @@ const OverheadCosts: React.FC = () => {
         }
     ], []);
 
+    const posType = usePosType();
+
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(66), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

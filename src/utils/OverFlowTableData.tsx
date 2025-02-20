@@ -521,7 +521,7 @@ export const columnsEquipmentFailure = [
 export const columnsTechTasks = [
   {
     label: "Автомойка/ Филиал",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Наименование работ",
