@@ -174,7 +174,11 @@ const TimesheetView: React.FC = () => {
                             <div className="text-text01 font-semibold">{t("finance.shiftOver")}</div>
                             <div>
                                 <div className="text-sm text-text02 font-semibold">{t("finance.curr")}</div>
-                                <div className="text-text01">{"9:00 AM - 5:00 PM"}</div>
+                                <div className="flex space-x-2 text-text01">
+                                    <div>{dayShiftData?.startWorkingTime ? `${new Date(dayShiftData.startWorkingTime).getHours()} : ${new Date(dayShiftData.startWorkingTime).getMinutes()}` : "9:00"}</div>
+                                    <div>-</div>
+                                    <div>{dayShiftData?.endWorkingTime ? `${new Date(dayShiftData.endWorkingTime).getHours()} : ${new Date(dayShiftData.endWorkingTime).getMinutes()}` : "5:30"}</div>
+                                </div>
                             </div>
                         </div>
                         <div className="w-16 h-16 rounded-full bg-[#dbeafe] flex items-center justify-center">
