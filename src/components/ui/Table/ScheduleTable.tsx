@@ -499,7 +499,7 @@ const ScheduleTable: React.FC<Props> = ({
     return (
         <div className="overflow-x-auto">
             {id !== 0 && employees && (
-                <table className="w-full table-fixed border-separate border-spacing-0.5">
+                <table className="w-fit table-fixed border-separate border-spacing-0.5">
                     <thead>
                         <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase">
                             <th className="w-32 h-16">Мойка/Филиал</th>
