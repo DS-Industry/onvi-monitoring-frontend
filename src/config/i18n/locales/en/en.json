@@ -600,6 +600,7 @@
     "FINISHED": "FINISHED",
     "SENT": "SENT",
     "SAVED": "SAVED",
+    "CREATED": "CREATED",
     "KILOGRAM": "KILOGRAM",
     "PIECE": "PIECE",
     "LITER": "LITER",
@@ -671,7 +672,13 @@
     "returns": "Returns",
     "susp": "Suspicious transactions",
     "salary": "Salary",
-    "time": "Time worked"
+    "time": "Time worked",
+    "sum": "Sum",
+    "operType": "Operation type",
+    "REFUND": "REFUND",
+    "REPLENISHMENT": "REPLENISHMENT",
+    "date": "Date and time",
+    "adding": "Adding an operation"
   },
   "analysis": {
     "search": "Search",

@@ -1,17 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClockImage from "@icons/ClockImage.svg?react";
 import Icon from 'feather-icons-react';
 import { useLocation } from "react-router-dom";
-import useSWR from "swr";
-import { getCashOperById, getCashOperCleanById, getCashOperRefundById, getCashOperSuspiciousById, getDayShiftById } from "@/services/api/finance";
+import useSWR, { mutate } from "swr";
+import { createCashOper, getCashOperById, getCashOperCleanById, getCashOperRefundById, getCashOperSuspiciousById, getDayShiftById, returnDayShift, sendDayShift } from "@/services/api/finance";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsDataCashOper, columnsDataCashOperCleaning, columnsDataCashOperRefund, columnsDataCashOperSuspiciously } from "@/utils/OverFlowTableData";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import Modal from "@/components/ui/Modal/Modal";
+import Close from "@icons/close.svg?react";
+import Input from "@/components/ui/Input/Input";
+import MultilineInput from "@/components/ui/Input/MultilineInput";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
+import { getDevices } from "@/services/api/equipment";
+import useFormHook from "@/hooks/useFormHook";
+import Button from "@/components/ui/Button/Button";
+import useSWRMutation from "swr/mutation";
+
+enum TypeWorkDayShiftReportCashOper {
+    REFUND = "REFUND",
+    REPLENISHMENT = "REPLENISHMENT"
+}
+
+type CreateCashOperBody = {
+    type: TypeWorkDayShiftReportCashOper;
+    sum: number;
+    carWashDeviceId?: number;
+    eventData?: Date;
+    comment?: string;
+}
+
 
 const TimesheetView: React.FC = () => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('change');
+    const [isModalOpenReturn, setIsModalOpenReturn] = useState(false);
     const location = useLocation();
 
     const tabs = [
@@ -22,7 +46,23 @@ const TimesheetView: React.FC = () => {
         { id: 'susp', name: t("finance.susp") }
     ];
 
-    const { data: dayShiftData } = useSWR(location.state?.ownerId ? [`get-shift-data`] : null, () => getDayShiftById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR(location.state?.posId ? [`get-device`] : null, () => getDevices(location.state?.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const devices: { name: string; value: number; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const [ownerId, setOwnerId] = useState(location.state?.ownerId);
+
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setOwnerId(location.state.ownerId);
+        }
+    }, [location.state?.ownerId]);
+
+    const { data: dayShiftData, isValidating } = useSWR(
+        ownerId ? [`get-shift-data`, ownerId] : null,  // Only fetch when ownerId is available
+        () => getDayShiftById(ownerId),
+        { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+    );
 
     const { data: cashOperData, isLoading: loadingCashOper } = useSWR(location.state?.ownerId ? [`get-cash-oper-data`] : null, () => getCashOperById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -36,9 +76,94 @@ const TimesheetView: React.FC = () => {
 
     const cashOperReturnArray = cashOperReturnData?.map((item) => item.props) || [];
 
-    const cashOperCleanArray = [];
+    const transformDataForTable = (data: { deviceId: number; programData: { programName: string; countProgram: number; time: string }[] }[]) => {
+        return data.flatMap(({ deviceId, programData }) =>
+            programData.map(({ programName, countProgram, time }, index) => ({
+                deviceId: index === 0 ? deviceId : null,
+                programName,
+                countProgram,
+                time
+            }))
+        );
+    };
+
+    const cashOperCleanArray = cashOperCleanData && cashOperCleanData?.length > 0 ? transformDataForTable(cashOperCleanData) : [];
 
     const cashOperSubsArray = cashOperSuspData || [];
+
+    const defaultValues = {
+        type: undefined,
+        sum: undefined,
+        carWashDeviceId: undefined,
+        eventData: undefined,
+        comment: undefined
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook<CreateCashOperBody>(formData);
+
+    const { trigger: createCash, isMutating: loadingCash } = useSWRMutation(['create-cash-oper'], async () => createCashOper({
+        type: formData.type ? formData.type as TypeWorkDayShiftReportCashOper : "REPLENISHMENT" as TypeWorkDayShiftReportCashOper,
+        sum: formData.sum || 0,
+        carWashDeviceId: formData.carWashDeviceId,
+        eventData: formData.eventData,
+        comment: formData.comment
+    }, location.state?.ownerId));
+
+
+    const { trigger: sendCash, isMutating: loadingSendCash } = useSWRMutation(['send-cash-oper'], async () => sendDayShift(location.state?.ownerId));
+
+    const { trigger: returnCash, isMutating: loadingReturnCash } = useSWRMutation(['return-cash-oper'], async () => returnDayShift(location.state?.ownerId));
+
+    type FieldType = "type" | "sum" | "carWashDeviceId" | "eventData" | "comment";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        const numericFields = ['sum', 'carWashDeviceId'];
+        const updatedValue = numericFields.includes(field) ? Number(value) : value;
+        setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+        setValue(field, value);
+    };
+
+    const resetForm = () => {
+        setFormData(defaultValues);
+        reset();
+    };
+
+    const onSubmit = async (data: unknown) => {
+        console.log("Data of usbmit: ", data);
+
+        const result = await createCash();
+
+        if (result) {
+            console.log("Result of the api: ", result);
+
+            mutate([`get-cash-oper-return-data`])
+            mutate([`get-cash-oper-data`]);
+        }
+    }
+
+    const handleSend = async () => {
+        const result = await sendCash();
+
+        if (result) {
+            console.log("Result of the api: ", result);
+            // navigate("/finance/timesheet/creation");
+        }
+    }
+
+    const handleReturn = async () => {
+        const result = await returnCash();
+
+        if (result) {
+            console.log("Result of the api: ", result);
+            // navigate("/finance/timesheet/creation");
+        }
+    }
+
+    if (isValidating && !dayShiftData) {
+        return <TableSkeleton columnCount={5} />;
+    }
 
     return (
         <div className="space-y-4">
@@ -58,8 +183,8 @@ const TimesheetView: React.FC = () => {
                     </div>
                     <div className="w-[373px] h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
                         <Icon icon="truck" className="w-[22px] h-[18px]" />
-                        <div>{dayShiftData?.status || ""}</div>
-                        <div className="font-bold">{t("tables.SENT")}</div>
+                        <div>{t("finance.status")}</div>
+                        <div className="font-bold">{location.state?.status ? t(`tables.${location.state.status}`) : ""}</div>
                     </div>
                 </div>
                 <div className="w-72 h-[148px] rounded-2xl shadow-card p-4">
@@ -70,7 +195,7 @@ const TimesheetView: React.FC = () => {
                         </div>
                     </div>
                     <div className="w-[182px] h-14 bg-[#f0fdf4] rounded-lg flex items-center justify-center text-sm px-2 text-[#16a34a]">
-                        <div className="font-extrabold">{t(`finance.${dayShiftData?.estimation}`)}</div>
+                        <div className="font-extrabold">{dayShiftData?.estimation ? t(`finance.${dayShiftData?.estimation}`) : ""}</div>
                     </div>
                 </div>
             </div>
@@ -87,40 +212,54 @@ const TimesheetView: React.FC = () => {
             </div>
             <div className="flex space-x-10">
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.change") && (
-                    <div className="space-y-3">
-                        <div className="flex space-x-3">
-                            {/* <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
+                    <div className="flex flex-col">
+                        <div className="space-y-3">
+                            <div className="flex space-x-3">
+                                {/* <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
                                 <div className="text-text01 font-bold text-3xl">{dayShiftData?.prize} ₽</div>
                                 <div className="text-text02/70">{t("finance.salary")}</div>
                             </div> */}
-                            <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                <div className="text-errorFill font-bold text-3xl">-{dayShiftData?.fine} ₽</div>
-                                <div className="text-text02/70">{t("finance.fine")}</div>
+                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-text01 font-bold text-3xl">{dayShiftData?.timeWorkedOut || "-"}</div>
+                                    <div className="text-text02/70">{t("finance.time")}</div>
+                                </div>
+                                <div className="h-28 w-[440px] px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-text01">{dayShiftData?.comment || "-"}</div>
+                                    <div className="text-text02/70">{t("equipment.comment")}</div>
+                                </div>
                             </div>
-                            <div className="h-24 w-[440px] px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                <div className="text-text01">{dayShiftData?.comment || "-"}</div>
-                                <div className="text-text02/70">{t("equipment.comment")}</div>
+                            <div className="flex space-x-3">
+                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-errorFill font-bold text-3xl">{dayShiftData?.fine ? `-${dayShiftData?.fine} ₽` : ""}</div>
+                                    <div className="text-text02/70">{t("finance.fine")}</div>
+                                </div>
+                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-successFill font-bold text-3xl">{dayShiftData?.prize ? `+${dayShiftData?.prize} ₽` : ""}</div>
+                                    <div className="text-text02/70">{t("finance.prize")}</div>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex space-x-3">
-                            <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                <div className="text-text01 font-bold text-3xl">{dayShiftData?.timeWorkedOut || "-"}</div>
-                                <div className="text-text02/70">{t("finance.time")}</div>
-                            </div>
-                            <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                <div className="text-successFill font-bold text-3xl">+{dayShiftData?.prize} ₽</div>
-                                <div className="text-text02/70">{t("finance.prize")}</div>
-                            </div>
+                        <div className="flex space-x-4 mt-10">
+                            <Button
+                                title={t("finance.refund")}
+                                type="outline"
+                                handleClick={handleReturn}
+                                isLoading={loadingReturnCash}
+                            />
+                            {location.state.status !== "SENT" && <Button
+                                title={t("finance.change")}
+                                handleClick={handleSend}
+                                isLoading={loadingSendCash}
+                            />}
                         </div>
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.exchange") && (
                     <div>
-
-                        <div className="w-[1003px] h-44 rounded-2xl shadow-card p-4 space-y-2 mt-5">
-                            <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal">
+                        <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 space-y-2 mt-5">
+                            {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpenReturn(true)}>
                                 {t("routes.add")}
-                            </button>
+                            </button>}
                             {loadingCashOper ?
                                 <TableSkeleton columnCount={columnsDataCashOper.length} />
                                 : cashOperArray.length > 0 ?
@@ -133,7 +272,10 @@ const TimesheetView: React.FC = () => {
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.returns") && (
-                    <div className="w-[1003px] h-44 rounded-2xl shadow-card p-4 mt-5">
+                    <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
+                        {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpenReturn(true)}>
+                            {t("routes.add")}
+                        </button>}
                         {loadingCashOperReturn ?
                             <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
                             : cashOperReturnArray.length > 0 ?
@@ -145,19 +287,19 @@ const TimesheetView: React.FC = () => {
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("routes.cleaning") && (
-                    <div className="w-[1003px] h-44 rounded-2xl shadow-card p-4 mt-5">
+                    <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5">
                         {loadingCashOperClean ?
                             <TableSkeleton columnCount={columnsDataCashOperCleaning.length} />
                             : cashOperCleanArray.length > 0 ?
                                 <OverflowTable
-                                    tableData={[]}
+                                    tableData={cashOperCleanArray}
                                     columns={columnsDataCashOperCleaning}
                                 /> : <></>
                         }
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.susp") && (
-                    <div className="w-[1003px] h-44 rounded-2xl shadow-card p-4 mt-5">
+                    <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5">
                         {loadingCashOperSusp ?
                             <TableSkeleton columnCount={columnsDataCashOperSuspiciously.length} />
                             : cashOperSubsArray.length > 0 ?
@@ -168,6 +310,72 @@ const TimesheetView: React.FC = () => {
                         }
                     </div>
                 )}
+                <Modal isOpen={isModalOpenReturn}>
+                    <div className="flex flex-row items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
+                        <Close onClick={() => { resetForm(); setIsModalOpenReturn(false); }} className="cursor-pointer text-text01" />
+                    </div>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
+                        <DropdownInput
+                            title={t("finance.operType")}
+                            options={[
+                                { name: t("finance.REFUND"), value: "REFUND" },
+                                { name: t("finance.REPLENISHMENT"), value: "REPLENISHMENT" }
+                            ]}
+                            classname="w-96"
+                            {...register('type', { required: "Type is Required." })}
+                            value={formData.type}
+                            onChange={(value) => handleInputChange('type', value)}
+                            error={!!errors.type}
+                            helperText={errors.type?.message || ''}
+                        />
+                        <Input
+                            type="number"
+                            title={t("finance.sum")}
+                            classname="w-80"
+                            value={formData.sum}
+                            changeValue={(e) => handleInputChange('sum', e.target.value)}
+                            error={!!errors.sum}
+                            {...register('sum', { required: 'Sum is required' })}
+                            helperText={errors.sum?.message || ''}
+                        />
+                        <DropdownInput
+                            title={t("equipment.device")}
+                            options={devices}
+                            classname="w-96"
+                            {...register('carWashDeviceId')}
+                            value={formData.carWashDeviceId}
+                            onChange={(value) => handleInputChange('carWashDeviceId', value)}
+                        />
+                        <Input
+                            type="datetime-local"
+                            title={t("finance.date")}
+                            classname="w-52"
+                            {...register('eventData')}
+                            value={formData.eventData}
+                            changeValue={(e) => handleInputChange('eventData', e.target.value)}
+                        />
+                        <MultilineInput
+                            title={t("equipment.comment")}
+                            classname="w-96"
+                            {...register('comment')}
+                            value={formData.comment}
+                            changeValue={(e) => handleInputChange('comment', e.target.value)}
+                        />
+                        <div className="flex justify-end gap-3 mt-5">
+                            <Button
+                                title={"Сбросить"}
+                                handleClick={() => { resetForm(); setIsModalOpenReturn(false); }}
+                                type="outline"
+                            />
+                            <Button
+                                title={"Сохранить"}
+                                form={true}
+                                isLoading={loadingCash}
+                            />
+                        </div>
+                    </form>
+                </Modal>
             </div>
         </div>
     )

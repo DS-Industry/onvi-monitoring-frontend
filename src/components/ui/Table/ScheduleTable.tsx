@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Modal from "../Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -15,11 +15,12 @@ import BN from "@icons/Бл.svg?react";
 import OTN from "@icons/ОТП.svg?react";
 import O from "@icons/О.svg?react";
 import NP from "@icons/Пр.svg?react"
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/services/api/finance";
 import { useLocation, useNavigate } from "react-router-dom";
+import { usePosType } from "@/hooks/useAuthStore";
 
 interface Employee {
     id: number;
@@ -139,10 +140,18 @@ const ScheduleTable: React.FC<Props> = ({
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const workers: { name: string; value: number; surname: string; }[] = workerData?.map((item) => ({ name: item.name, value: item.id, surname: item.surname })) || [];
-
+    const poses = useMemo(() => {
+        return posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    }, [posData]);
+    
+    const workers = useMemo(() => {
+        return workerData?.map((item) => ({ 
+            name: item.name, 
+            value: item.id, 
+            surname: item.surname 
+        })) || [];
+    }, [workerData]);
+    
     const { data: shiftData } = useSWR(location.state?.ownerId ? [`get-shift-data`] : null, () => getShiftById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const emp: {
@@ -159,11 +168,14 @@ const ScheduleTable: React.FC<Props> = ({
     const [employees, setEmployees] = useState(emp);
     const [userId, setUserId] = useState(0);
     const [openModalId, setOpenModalId] = useState(0);
+    const [status, setStatus] = useState("");
     const [openAddRow, setOpenAddRow] = useState(false);
     const navigate = useNavigate();
+    const posType = usePosType();
+    const [posId, setPosId] = useState(posType);
 
     // Initialize Form Hook
-    const { register, handleSubmit, setValue, watch, reset } = useFormHook<FormData>({
+    const { register, handleSubmit, setValue, watch, reset, errors } = useFormHook<FormData>({
         prize: undefined,
         fine: undefined,
         comment: "",
@@ -277,6 +289,7 @@ const ScheduleTable: React.FC<Props> = ({
         });
 
         setOpenModalId(result?.id);
+        setStatus(result?.status || "");
 
         const updatedFormData = {
             typeWorkDay: result?.typeWorkDay || "",
@@ -341,8 +354,8 @@ const ScheduleTable: React.FC<Props> = ({
 
 
     useEffect(() => {
-        if (shiftData) {
-            const newEmployee: Employee[] = shiftData?.workers.map((item) => ({
+        if (shiftData?.workers?.length) {  // Ensure workers array exists and is not empty
+            const newEmployee: Employee[] = shiftData.workers.map((item) => ({
                 id: item.workerId,
                 name: `${item.name} ${item.middlename} ${item.surname}`,
                 branch: poses.find((pos) => pos.value === shiftData.posId)?.name || "",
@@ -352,7 +365,7 @@ const ScheduleTable: React.FC<Props> = ({
 
             const newFilledData: { [key: string]: any } = {};
             shiftData.workers.forEach((worker) => {
-                worker.workDays.forEach((work) => {
+                worker.workDays?.forEach((work) => {  // Ensure workDays exists before iterating
                     const modalKey = `${worker.workerId}-${work.workDate}`;
                     newFilledData[modalKey] = {
                         typeWorkDay: work.typeWorkDay,
@@ -364,6 +377,8 @@ const ScheduleTable: React.FC<Props> = ({
                 });
             });
 
+            console.log("Checking the filled data: ", filledData);
+
             setFilledData((prev) => {
                 return JSON.stringify(prev) === JSON.stringify(newFilledData) ? prev : newFilledData;
             });
@@ -374,10 +389,11 @@ const ScheduleTable: React.FC<Props> = ({
 
             setStartDate(shiftData.startDate);
             setEndDate(shiftData.endDate);
+            setPosId(shiftData.posId);
         } else {
             setEmployees([]);
         }
-    }, [shiftData]);
+    }, [shiftData, filledData, workers, poses]);
 
     const generateDates = (start: string | Date, end: string | Date) => {
         const dates = [];
@@ -448,16 +464,21 @@ const ScheduleTable: React.FC<Props> = ({
                 timeWorkedOut: result.timeWorkedOut,
                 hours_timeWorkedOut: result.timeWorkedOut?.split(":")[0],
                 minutes_timeWorkedOut: result.timeWorkedOut?.split(":")[1],
-                startWorkingTime: result.startWorkingTime? new Date(result.startWorkingTime).toISOString() : undefined,
-                endWorkingTime: result.endWorkingTime? new Date(result.endWorkingTime).toISOString() : undefined,
+                startWorkingTime: result.startWorkingTime ? new Date(result.startWorkingTime).toISOString() : undefined,
+                endWorkingTime: result.endWorkingTime ? new Date(result.endWorkingTime).toISOString() : undefined,
                 estimation: result.estimation,
                 prize: result.prize,
                 fine: result.fine,
                 comment: result.comment
             });
-            navigate("/finance/timesheet/view",{ state: { ownerId: openModalId }});
+            if (result.typeWorkDay === "WORKING") {
+                const name = workers.find((work) => work.value === result.workerId)?.name;
+                const surname = workers.find((work) => work.value === result.workerId)?.surname;
+                navigate("/finance/timesheet/view", { state: { ownerId: result.id, posId: posId, name: `${name} ${surname}`, date: result.workDate, status: result.status } });
+            }
+            mutate([`get-shift-data`]);
         }
-    };
+    }
 
     // const addNewRow = async (value: React.SetStateAction<number>) => {
     //     setUserId(value)
@@ -516,18 +537,18 @@ const ScheduleTable: React.FC<Props> = ({
                                                                     <></>
                                                 }
                                             </div>
-                                            <div className="flex items-center justify-between mt-1"> {/* Push bottom div to bottom */}
+                                            <div className="flex items-center mt-2"> {/* Push bottom div to bottom */}
                                                 {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
                                                     filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
                                                         filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
                                                             <></>
                                                 }
                                                 <div className="flex justify-end">
-                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                        {filledData[`${emp.userId}-${d.workDate}`]?.prize}
+                                                    <div className="text-text02 text-xs ml-1 max-w-[30px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {filledData[`${emp.userId}-${d.workDate}`]?.prize ? `+${filledData[`${emp.userId}-${d.workDate}`]?.prize}` : ""}
                                                     </div>
-                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                        {filledData[`${emp.userId}-${d.workDate}`]?.fine}
+                                                    <div className="text-text02 text-xs ml-1 max-w-[30px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        {filledData[`${emp.userId}-${d.workDate}`]?.fine ? `-${filledData[`${emp.userId}-${d.workDate}`]?.fine}` : ""}
                                                     </div>
                                                 </div>
 
@@ -589,7 +610,7 @@ const ScheduleTable: React.FC<Props> = ({
                 </div>
             </div>}
             {selectedEmployee && selectedDate && (
-                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} onClose={handleCloseModal} classname="max-h-[600px] overflow-y-auto">
+                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} classname="max-h-[600px] overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-text01">{selectedEmployee.name}, смена: {selectedDate}</h2>
                         <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
@@ -675,9 +696,9 @@ const ScheduleTable: React.FC<Props> = ({
                                 { name: t("finance.TIMEOFF"), value: "TIMEOFF" },
                                 { name: t("finance.TRUANCY"), value: "TRUANCY" }
                             ]}
-                            label={t("finance.selectDay")}
                             classname="w-96"
                             onChange={(value) => setValue("typeWorkDay", value)}
+                            isDisabled={status === "SENT"}
                         />
                         <div>
                             <div>{t("finance.num")}</div>
@@ -686,17 +707,25 @@ const ScheduleTable: React.FC<Props> = ({
                                     type="number"
                                     placeholder="00 ч"
                                     classname="w-[68px]"
-                                    {...register("hours_timeWorkedOut")}
+                                    {...register("hours_timeWorkedOut", {
+                                        required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                    })}
                                     value={watchFields["hours_timeWorkedOut"]}
                                     changeValue={(e) => handleTimeChange("timeWorkedOut", "hours", e.target.value)}
+                                    error={!!errors.hours_timeWorkedOut}
+                                    disabled={status === "SENT"}
                                 />
                                 <Input
                                     type="number"
                                     placeholder="00 м"
                                     classname="w-[70px]"
-                                    {...register("minutes_timeWorkedOut")}
+                                    {...register("minutes_timeWorkedOut", {
+                                        required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                    })}
                                     value={watchFields["minutes_timeWorkedOut"]}
                                     changeValue={(e) => handleTimeChange("timeWorkedOut", "minutes", e.target.value)}
+                                    error={!!errors.minutes_timeWorkedOut}
+                                    disabled={status === "SENT"}
                                 />
                             </div>
                             {/* <div className="flex items-center space-x-2 mt-2">
@@ -711,17 +740,25 @@ const ScheduleTable: React.FC<Props> = ({
                                             type="number"
                                             placeholder="00 ч"
                                             classname="w-[68px]"
-                                            {...register("hours_startWorkingTime")}
+                                            {...register("hours_startWorkingTime", {
+                                                required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                            })}
                                             value={watchFields["hours_startWorkingTime"]}
                                             changeValue={(e) => handleTimeChange("startWorkingTime", "hours", e.target.value)}
+                                            error={!!errors.hours_startWorkingTime}
+                                            disabled={status === "SENT"}
                                         />
                                         <Input
                                             type="number"
                                             placeholder="00 м"
                                             classname="w-[70px]"
-                                            {...register("minutes_startWorkingTime")}
+                                            {...register("minutes_startWorkingTime", {
+                                                required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                            })}
                                             value={watchFields["minutes_startWorkingTime"]}
                                             changeValue={(e) => handleTimeChange("startWorkingTime", "minutes", e.target.value)}
+                                            error={!!errors.minutes_startWorkingTime}
+                                            disabled={status === "SENT"}
                                         />
                                     </div>
                                 </div>
@@ -732,17 +769,25 @@ const ScheduleTable: React.FC<Props> = ({
                                             type="number"
                                             placeholder="00 ч"
                                             classname="w-[68px]"
-                                            {...register("hours_endWorkingTime")}
+                                            {...register("hours_endWorkingTime", {
+                                                required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                            })}
                                             value={watchFields["hours_endWorkingTime"]}
                                             changeValue={(e) => handleTimeChange("endWorkingTime", "hours", e.target.value)}
+                                            error={!!errors.hours_endWorkingTime}
+                                            disabled={status === "SENT"}
                                         />
                                         <Input
                                             type="number"
                                             placeholder="00 м"
                                             classname="w-[70px]"
-                                            {...register("minutes_endWorkingTime")}
+                                            {...register("minutes_endWorkingTime", {
+                                                required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                            })}
                                             value={watchFields["minutes_endWorkingTime"]}
                                             changeValue={(e) => handleTimeChange("endWorkingTime", "minutes", e.target.value)}
+                                            error={!!errors.minutes_endWorkingTime}
+                                            disabled={status === "SENT"}
                                         />
                                     </div>
                                 </div>
@@ -756,6 +801,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 {...register("prize")}
                                 value={prize}
                                 changeValue={(e) => setValue("prize", e.target.value)}
+                                disabled={status === "SENT"}
                             />
                             <Input
                                 type="number"
@@ -764,6 +810,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 {...register("fine")}
                                 value={fine}
                                 changeValue={(e) => setValue("fine", e.target.value)}
+                                disabled={status === "SENT"}
                             />
                         </div>
                         <DropdownInput
@@ -776,9 +823,9 @@ const ScheduleTable: React.FC<Props> = ({
                                 { name: t("finance.MINOR_VIOLATION"), value: "MINOR_VIOLATION" },
                                 { name: t("finance.ONE_REMARK"), value: "ONE_REMARK" }
                             ]}
-                            label={t("finance.NO_VIOLATION")}
                             classname="w-96"
                             onChange={(value) => setValue("estimation", value)}
+                            isDisabled={status === "SENT"}
                         />
                         <MultilineInput
                             title={t("equipment.comment")}
@@ -786,21 +833,29 @@ const ScheduleTable: React.FC<Props> = ({
                             value={comment}
                             changeValue={(e) => setValue("comment", e.target.value)}
                             classname="w-96"
-                            label={t("finance.desc")}
+                            // label={t("finance.desc")}
                             inputType="secondary"
+                            disabled={status === "SENT"}
                         />
-                        <Button
-                            title={"Сохранить"}
-                            form={true}
-                            isLoading={updatingDayShift}
-                        />
+                        <div className="flex justify-end gap-3 mt-5">
+                            <Button
+                                title={"Сбросить"}
+                                handleClick={handleCloseModal}
+                                type="outline"
+                            />
+                            <Button
+                                title={"Сохранить"}
+                                form={true}
+                                isLoading={updatingDayShift}
+                            />
+                        </div>
                     </form>
                 </Modal>
             )}
             <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01">{t("finance.addNew")}</h2>
-                    <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
+                    <Close onClick={() => setOpenAddRow(false)} className="cursor-pointer text-text01" />
                 </div>
                 <div className="mt-5">
                     <DropdownInput

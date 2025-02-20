@@ -273,6 +273,10 @@ type GetDayReportSuspResponse = {
     lastProgramTime: string;
 }
 
+type ReturnCashCollectionResponse = {
+    status: string
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
@@ -367,6 +371,18 @@ export async function getDayShiftById(id: number): Promise<DayShiftResponse> {
 export async function updateDayShift(body: UpdateDayShiftBody, id: number): Promise<DayShiftResponse> {
     console.log(body);
     const response: AxiosResponse<DayShiftResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function sendDayShift(id: number): Promise<DayShiftResponse> {
+    const response: AxiosResponse<DayShiftResponse> = await api.post(FINANCE.SHIFT_REPORT + `/day-report/send/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function returnDayShift(id: number): Promise<ReturnCashCollectionResponse> {
+    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/return/${id}`);
     console.log(response.data);
     return response.data;
 }
