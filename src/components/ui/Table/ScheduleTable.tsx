@@ -612,12 +612,12 @@ const ScheduleTable: React.FC<Props> = ({
                 </div>
             </div>}
             {selectedEmployee && selectedDate && (
-                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} classname="max-h-[600px] overflow-y-auto">
+                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} classname="max-h-[650px] px-8 py-8 overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-text01">{selectedEmployee.name}, смена: {new Date(selectedDate).getDate()}</h2>
                         <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
                     </div>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
+                    <form onSubmit={handleSubmit(onSubmit)} className="text-text02">
                         {/* <div className="flex items-center space-x-2">
                             <input type="checkbox" className="w-[18px] h-[18px]" />
                             <div>{t("finance.set")}</div>
@@ -698,7 +698,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 { name: t("finance.TIMEOFF"), value: "TIMEOFF" },
                                 { name: t("finance.TRUANCY"), value: "TRUANCY" }
                             ]}
-                            classname="w-96"
+                            classname="w-96 mb-4"
                             onChange={(value) => setValue("typeWorkDay", value)}
                             isDisabled={status === "SENT"}
                         />
@@ -841,7 +841,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 disabled={status === "SENT"}
                             />
                         </div>)}
-                        <div className="flex gap-3 mt-5">
+                        <div className="flex gap-3 mt-14">
                             <Button
                                 title={"Сбросить"}
                                 handleClick={handleCloseModal}
