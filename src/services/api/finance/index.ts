@@ -23,6 +23,17 @@ enum TypeEstimation {
     ONE_REMARK = "ONE_REMARK"
 }
 
+enum StatusWorkDayShiftReport {
+    CREATED = "CREATED",
+    SAVED = "SAVED",
+    SENT = "SENT"
+}
+
+enum TypeWorkDayShiftReportCashOper {
+    REFUND = "REFUND",
+    REPLENISHMENT = "REPLENISHMENT"
+}
+
 type CollectionBody = {
     cashCollectionDate: Date;
     posId: number;
@@ -197,6 +208,9 @@ type DayShiftResponse = {
     startWorkingTime?: Date;
     endWorkingTime?: Date;
     estimation?: TypeEstimation | null;
+    status?: StatusWorkDayShiftReport;
+    cashAtStart?: number;
+    cashAtEnd?: number;
     prize?: number | null;
     fine?: number | null;
     comment?: string;
@@ -211,6 +225,56 @@ type UpdateDayShiftBody = {
     prize?: number | null;
     fine?: number | null;
     comment?: string;
+}
+
+type CreateCashOperBody = {
+    type: TypeWorkDayShiftReportCashOper;
+    sum: number;
+    carWashDeviceId?: number;
+    eventData?: Date;
+    comment?: string;
+}
+
+type CreateCashOperResponse = {
+    props: {
+        id: number;
+        workDayShiftReportId: number;
+        carWashDeviceId?: number;
+        eventDate?: Date;
+        type: TypeWorkDayShiftReportCashOper;
+        sum: number;
+        comment?: string;
+    }
+}
+
+type GetDataOperResponse = {
+    cashAtStart: number;
+    replenishmentSum: number;
+    expenditureSum: number;
+    cashAtEnd: number;
+}
+
+type GetDayReportCleanResponse = {
+    deviceId: number;
+    programData: {
+        programName: string;
+        countProgram: number;
+        time: string
+    }[]
+}
+
+type GetDayReportSuspResponse = {
+    deviceId: number;
+    programName: string;
+    programDate: Date;
+    programTime: string;
+    lastProgramName: string;
+    lastProgramDate: Date;
+    lastProgramTime: string;
+}
+
+type ReturnCashCollectionResponse = {
+    status: string
 }
 
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
@@ -307,6 +371,49 @@ export async function getDayShiftById(id: number): Promise<DayShiftResponse> {
 export async function updateDayShift(body: UpdateDayShiftBody, id: number): Promise<DayShiftResponse> {
     console.log(body);
     const response: AxiosResponse<DayShiftResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function sendDayShift(id: number): Promise<DayShiftResponse> {
+    const response: AxiosResponse<DayShiftResponse> = await api.post(FINANCE.SHIFT_REPORT + `/day-report/send/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function returnDayShift(id: number): Promise<ReturnCashCollectionResponse> {
+    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/return/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createCashOper(body: CreateCashOperBody, id: number): Promise<CreateCashOperResponse> {
+    console.log(body);
+    const response: AxiosResponse<CreateCashOperResponse> = await api.post(FINANCE.SHIFT_REPORT + `/day-report/oper/${id}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getCashOperById(id: number): Promise<GetDataOperResponse> {
+    const response: AxiosResponse<GetDataOperResponse> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/oper/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getCashOperRefundById(id: number): Promise<CreateCashOperResponse[]> {
+    const response: AxiosResponse<CreateCashOperResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/refund/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getCashOperCleanById(id: number): Promise<GetDayReportCleanResponse[]> {
+    const response: AxiosResponse<GetDayReportCleanResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/clean/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getCashOperSuspiciousById(id: number): Promise<GetDayReportSuspResponse[]> {
+    const response: AxiosResponse<GetDayReportSuspResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/suspiciously/${id}`);
     console.log(response.data);
     return response.data;
 }

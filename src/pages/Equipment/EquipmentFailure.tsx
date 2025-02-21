@@ -16,7 +16,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
 
 
 interface Incident {
@@ -70,7 +70,7 @@ const EquipmentFailure: React.FC = () => {
     const handleDataFilter = (newFilterData: Partial<FilterIncidentPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
-        if(newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
@@ -92,15 +92,18 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
     const incidents: Incident[] = data
-        ?.map((item: Incident) => item)
+        ?.map((item: Incident) => ({
+            ...item,
+            posName: poses.find((pos) => pos.value === item.posId)?.name
+        }))
         .sort((a, b) => a.id - b.id) || [];
 
     useEffect(() => {
         incidentMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, incidentMutate]);
-
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -183,13 +186,13 @@ const EquipmentFailure: React.FC = () => {
         setIsEditMode(true);
         setButtonOn(true);
         const incidentToEdit = incidents.find((org) => org.id === id);
-    
+
         if (incidentToEdit) {
             const formatDateTime = (dateString: Date) => {
                 const date = new Date(dateString); // Convert string to Date object
                 return date.toISOString().slice(0, 16); // Format to YYYY-MM-DDTHH:MM
             };
-    
+
             setFormData({
                 posId: incidentToEdit.posId,
                 workerId: incidentToEdit.workerId,
@@ -206,7 +209,7 @@ const EquipmentFailure: React.FC = () => {
                 carWashDeviceProgramsTypeId: incidentToEdit.programId,
             });
         }
-    };    
+    };
 
     const resetForm = () => {
         setFormData(defaultValues);

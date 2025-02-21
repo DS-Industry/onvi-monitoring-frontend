@@ -6,10 +6,12 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import Icon from "feather-icons-react";
+import { usePosType } from "@/hooks/useAuthStore";
 
 const IncomeReport: React.FC = () => {
     const { t } = useTranslation();
-    const [pos, setPos] = useState(66);
+    const posType = usePosType();
+    const [pos, setPos] = useState(posType);
     const { filterOn } = useFilterOn();
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), {

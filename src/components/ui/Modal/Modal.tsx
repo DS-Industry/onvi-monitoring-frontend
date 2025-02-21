@@ -4,7 +4,7 @@ import Button from "../Button/Button";
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   handleClick?: () => void;
   children: ReactNode;
   classname?: string;
@@ -24,11 +24,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
       <div className={`bg-white p-5 rounded-2xl shadow-lg z-10 ${classname}`}>
         {children}
         <div className="flex justify-end gap-3 mt-5">
-          <Button
+          {onClose && <Button
             title={"Сбросить"}
             handleClick={onClose}
             type="outline"
-          />
+          />}
           {handleClick && <Button
             title={"Сохранить"}
             handleClick={handleClick}

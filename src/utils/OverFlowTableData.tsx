@@ -156,11 +156,11 @@ export const columnsPos = [
   },
   {
     label: "Создал",
-    key: "createdById",
+    key: "createdByName",
   },
   {
     label: "Обновил",
-    key: "updatedById",
+    key: "updatedByName",
   }
 ]
 export const columnsOrg = [
@@ -435,7 +435,7 @@ export const columnsProgramDevice = [
 export const columnsEquipmentFailure = [
   {
     label: "Название объекта",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Тип объекта",
@@ -521,7 +521,7 @@ export const columnsEquipmentFailure = [
 export const columnsTechTasks = [
   {
     label: "Автомойка/ Филиал",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Наименование работ",
@@ -693,7 +693,7 @@ export const columnsConsumptionRate = [
 export const columnsInventory = [
   {
     label: "Код",
-    key: "id"
+    key: "sku"
   },
   {
     label: "Номенклатура",
@@ -962,7 +962,7 @@ export const columnsShifts = [
   },
   {
     label: "Ответственный",
-    key: "createdById"
+    key: "createdByName"
   },
   {
     label: "Изменения в отчете",
@@ -971,3 +971,99 @@ export const columnsShifts = [
   }
 ]
 
+export const columnsDataCashOper = [
+  {
+    label: "На начало смены",
+    key: "cashAtStart",
+    type: "number"
+  },
+  {
+    label: "Пополнение",
+    key: "replenishmentSum",
+    type: "number"
+  },
+  {
+    label: "Расход",
+    key: "expenditureSum",
+    type: "number"
+  },
+  {
+    label: "На конец смены",
+    key: "cashAtEnd",
+    type: "number"
+  }
+]
+
+export const columnsDataCashOperRefund = [
+  {
+    label: "Устройство",
+    key: "deviceName"
+  },
+  {
+    label: "Дата и время",
+    key: "eventDate",
+    type: "date"
+  },
+  {
+    label: "Сумма",
+    key: "sum",
+    type: "number"
+  },
+  {
+    label: "Комментарий",
+    key: "comment"
+  }
+]
+
+export const columnsDataCashOperCleaning = [
+  {
+    label: "Наименование",
+    key: "deviceName"
+  },
+  {
+    label: "Программа",
+    key: "programName"
+  },
+  {
+    label: "Кол-во программ",
+    key: "countProgram",
+    type: "number"
+  },
+  {
+    label: "Общее время",
+    key: "time"
+  }
+]
+
+export const columnsDataCashOperSuspiciously = [
+  {
+    label: "Устройство",
+    key: "deviceName"
+  },
+  {
+    label: "Время включения",
+    key: "programDate",
+    type: "date"
+  },
+  {
+    label: "Программа",
+    key: "programName"
+  },
+  {
+    label: "Время работы",
+    key: "programTime"
+  },
+  {
+    label: "Время включения (Предыдущая)",
+    key: "lastProgramDate",
+    type: "date"
+  },
+  {
+    label: "Программа (Предыдущая)",
+    key: "lastProgramName"
+  },
+  {
+    label: "Время работы (Предыдущая)",
+    key: "lastProgramTime"
+  }
+]

@@ -16,6 +16,7 @@ import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
+import { usePosType } from "@/hooks/useAuthStore";
 
 type TechTasks = {
     id: number;
@@ -54,8 +55,9 @@ interface Item {
 const RoutineWork: React.FC = () => {
     const { t } = useTranslation();
     // const [taskCount, setTaskCount] = useState(0);
+    const posType = usePosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const [searchPosId, setSearchPosId] = useState(66);
+    const [searchPosId, setSearchPosId] = useState(posType);
     const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
@@ -176,7 +178,8 @@ const RoutineWork: React.FC = () => {
         ?.map((item: TechTasks) => ({
             ...item,
             period: t(`tables.${item.period}`),
-            type: t(`tables.${item.type}`)
+            type: t(`tables.${item.type}`),
+            posName: poses.find((pos) => pos.value === item.posId)?.name
         }))
         .sort((a, b) => a.id - b.id) || [];
 
@@ -255,7 +258,7 @@ const RoutineWork: React.FC = () => {
     };
 
     const handleClear = () => {
-        setSearchPosId(0);
+        setSearchPosId(posType);
         setSearchRoutine("");
     }
     console.log("Techtasks test:", techTask);

@@ -11,10 +11,12 @@ import { useTranslation } from "react-i18next";
 import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import SalyImage from "@/assets/NoEquipment.png"
+import { usePosType } from "@/hooks/useAuthStore";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
-    const [searchPosId, setSearchPosId] = useState(66);
+    const posType = usePosType();
+    const [searchPosId, setSearchPosId] = useState(posType);
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

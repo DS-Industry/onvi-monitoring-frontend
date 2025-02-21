@@ -18,6 +18,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getOrganization } from "@/services/api/organization";
 import SearchInput from "@/components/ui/Input/SearchInput";
+import { getWorkers } from "@/services/api/equipment";
 
 type Pos = {
     id: number;
@@ -78,9 +79,13 @@ const Pos: React.FC = () => {
     const [endHour, setEndHour] = useState<number | null>(null);
     const [address, setAddress] = useState("");
 
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const organizations: OrganizationResponse[] = organizationData
         ?.map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const organization: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -169,7 +174,9 @@ const Pos: React.FC = () => {
         ?.map((item: Pos) => ({ 
             ...item,
             organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-",
-            status: t(`tables.${item.status}`)
+            status: t(`tables.${item.status}`),
+            createdByName: workers.find((work) => work.value === item.createdById)?.name || "-",
+            updatedByName: workers.find((work) => work.value === item.updatedById)?.name || "-"
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         ?.filter((pos) => pos.address?.city?.toLowerCase().includes(address.toLowerCase()))

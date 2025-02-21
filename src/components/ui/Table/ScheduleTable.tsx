@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Modal from "../Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,8 @@ import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/services/api/finance";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { usePosType } from "@/hooks/useAuthStore";
 
 interface Employee {
     id: number;
@@ -139,9 +140,17 @@ const ScheduleTable: React.FC<Props> = ({
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses = useMemo(() => {
+        return posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    }, [posData]);
 
-    const workers: { name: string; value: number; surname: string; }[] = workerData?.map((item) => ({ name: item.name, value: item.id, surname: item.surname })) || [];
+    const workers = useMemo(() => {
+        return workerData?.map((item) => ({
+            name: item.name,
+            value: item.id,
+            surname: item.surname
+        })) || [];
+    }, [workerData]);
 
     const { data: shiftData } = useSWR(location.state?.ownerId ? [`get-shift-data`] : null, () => getShiftById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -159,10 +168,14 @@ const ScheduleTable: React.FC<Props> = ({
     const [employees, setEmployees] = useState(emp);
     const [userId, setUserId] = useState(0);
     const [openModalId, setOpenModalId] = useState(0);
+    const [status, setStatus] = useState("");
     const [openAddRow, setOpenAddRow] = useState(false);
+    const navigate = useNavigate();
+    const posType = usePosType();
+    const [posId, setPosId] = useState(posType);
 
     // Initialize Form Hook
-    const { register, handleSubmit, setValue, watch, reset } = useFormHook<FormData>({
+    const { register, handleSubmit, setValue, watch, reset, errors } = useFormHook<FormData>({
         prize: undefined,
         fine: undefined,
         comment: "",
@@ -237,8 +250,8 @@ const ScheduleTable: React.FC<Props> = ({
         const fieldHours = `hours_${field}` as keyof typeof watchFields;
         const fieldMinutes = `minutes_${field}` as keyof typeof watchFields;
 
-        const startedTime = watchFields["startWorkingTime"];
-        const endTime = watchFields["endWorkingTime"];
+        const startedTime = selectedDate.slice(0, 10);
+        const endTime = selectedDate.slice(0, 10);
 
         setValue(type === "hours" ? fieldHours : fieldMinutes, value);
 
@@ -276,6 +289,7 @@ const ScheduleTable: React.FC<Props> = ({
         });
 
         setOpenModalId(result?.id);
+        setStatus(result?.status || "");
 
         const updatedFormData = {
             typeWorkDay: result?.typeWorkDay || "",
@@ -340,7 +354,7 @@ const ScheduleTable: React.FC<Props> = ({
 
 
     useEffect(() => {
-        if (shiftData) {
+        if (shiftData?.workers?.length) {  // Ensure workers array exists and is not empty
             const newEmployee: Employee[] = shiftData.workers.map((item) => ({
                 id: item.workerId,
                 name: `${item.name} ${item.middlename} ${item.surname}`,
@@ -351,7 +365,7 @@ const ScheduleTable: React.FC<Props> = ({
 
             const newFilledData: { [key: string]: any } = {};
             shiftData.workers.forEach((worker) => {
-                worker.workDays.forEach((work) => {
+                worker.workDays?.forEach((work) => {  // Ensure workDays exists before iterating
                     const modalKey = `${worker.workerId}-${work.workDate}`;
                     newFilledData[modalKey] = {
                         typeWorkDay: work.typeWorkDay,
@@ -363,6 +377,8 @@ const ScheduleTable: React.FC<Props> = ({
                 });
             });
 
+            console.log("Checking the filled data: ", filledData);
+
             setFilledData((prev) => {
                 return JSON.stringify(prev) === JSON.stringify(newFilledData) ? prev : newFilledData;
             });
@@ -373,10 +389,11 @@ const ScheduleTable: React.FC<Props> = ({
 
             setStartDate(shiftData.startDate);
             setEndDate(shiftData.endDate);
+            setPosId(shiftData.posId);
         } else {
             setEmployees([]);
         }
-    }, [shiftData]);
+    }, [shiftData, filledData, workers, poses]);
 
     const generateDates = (start: string | Date, end: string | Date) => {
         const dates = [];
@@ -441,23 +458,27 @@ const ScheduleTable: React.FC<Props> = ({
         });
 
         if (result) {
+            console.log("Checking the result: ", result);
             reset({
                 typeWorkDay: result.typeWorkDay,
                 timeWorkedOut: result.timeWorkedOut,
                 hours_timeWorkedOut: result.timeWorkedOut?.split(":")[0],
                 minutes_timeWorkedOut: result.timeWorkedOut?.split(":")[1],
-                startWorkingTime: result.startWorkingTime?.toISOString(),
-                endWorkingTime: result.endWorkingTime?.toISOString(),
+                startWorkingTime: result.startWorkingTime ? new Date(result.startWorkingTime).toISOString() : undefined,
+                endWorkingTime: result.endWorkingTime ? new Date(result.endWorkingTime).toISOString() : undefined,
                 estimation: result.estimation,
                 prize: result.prize,
                 fine: result.fine,
                 comment: result.comment
             });
-
-            // ✅ Revalidate API data
-            await mutate([`get-shift-data`]);
+            if (result.typeWorkDay === "WORKING") {
+                const name = workers.find((work) => work.value === result.workerId)?.name;
+                const surname = workers.find((work) => work.value === result.workerId)?.surname;
+                navigate("/finance/timesheet/view", { state: { ownerId: result.id, posId: posId, name: `${name} ${surname}`, date: result.workDate, status: result.status } });
+            }
+            mutate([`get-shift-data`]);
         }
-    };
+    }
 
     // const addNewRow = async (value: React.SetStateAction<number>) => {
     //     setUserId(value)
@@ -476,70 +497,72 @@ const ScheduleTable: React.FC<Props> = ({
     // };
 
     return (
-        <div className="overflow-x-auto">
+        <div>
             {id !== 0 && employees && (
-                <table className="w-full table-fixed border-separate border-spacing-0.5">
-                    <thead>
-                        <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase">
-                            <th className="w-32 h-16">Мойка/Филиал</th>
-                            <th className="w-60 h-16">ФИО Сотрудника</th>
-                            {dates.map((d, index) => (
-                                <th key={index} className="border-b border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider w-16 h-16">
-                                    {d.day} <br /> {d.date}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {employees.map((emp) => (
-                            <tr key={emp.id}>
-                                <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02 w-32 h-16">{emp.branch}</td>
-                                <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm text-text01 w-60 h-16">
-                                    <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
-                                    <span className="text-text02 text-sm">{emp.position}</span>
-                                </td>
+                <div className="max-w-7xl overflow-x-auto">
+                    <table className="w-fit table-fixed border-separate border-spacing-0.5">
+                        <thead>
+                            <tr className="border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase">
+                                <th className="w-32 h-16">Мойка/Филиал</th>
+                                <th className="w-60 h-16">ФИО Сотрудника</th>
                                 {dates.map((d, index) => (
-                                    <td
-                                        key={index}
-                                        className={`border border-borderFill w-16 h-16 overflow-x-auto 
-                                    ${filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "WORKING" ? "bg-[#DDF5FF]" : "bg-background02"} 
-                                    cursor-pointer hover:bg-background05 text-sm text-text01`}
-                                        onClick={() => handleOpenModal(emp, d.workDate)}
-                                    >
-                                        <div className="flex flex-col justify-between overflow-hidden">
-                                            <div className="flex items-center justify-center"> {/* Center top div */}
-                                                {filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut ? <div>{filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut}</div> :
-                                                    filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "MEDICAL" ? <BN /> :
-                                                        filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "VACATION" ? <OTN /> :
-                                                            filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TIMEOFF" ? <O /> :
-                                                                filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TRUANCY" ? <NP /> :
-                                                                    <></>
-                                                }
-                                            </div>
-                                            <div className="flex items-center justify-between mt-1"> {/* Push bottom div to bottom */}
-                                                {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
-                                                    filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
-                                                        filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
-                                                            <></>
-                                                }
-                                                <div className="flex justify-end">
-                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                        {filledData[`${emp.userId}-${d.workDate}`]?.prize}
-                                                    </div>
-                                                    <div className="text-text02 text-xs ml-1 max-w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                        {filledData[`${emp.userId}-${d.workDate}`]?.fine}
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </td>
-
+                                    <th key={index} className="border-b border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider w-16 h-16">
+                                        {d.day} <br /> {d.date}
+                                    </th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>)}
+                        </thead>
+                        <tbody>
+                            {employees.map((emp) => (
+                                <tr key={emp.id}>
+                                    <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02 w-32 h-16">{emp.branch}</td>
+                                    <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm text-text01 w-60 h-16">
+                                        <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
+                                        <span className="text-text02 text-sm">{emp.position}</span>
+                                    </td>
+                                    {dates.map((d, index) => (
+                                        <td
+                                            key={index}
+                                            className={`border border-borderFill w-16 h-16
+                                    ${filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "WORKING" ? "bg-[#DDF5FF]" : "bg-background02"} 
+                                    cursor-pointer hover:bg-background05 text-sm text-text01`}
+                                            onClick={() => handleOpenModal(emp, d.workDate)}
+                                        >
+                                            <div className="flex flex-col justify-between overflow-hidden">
+                                                <div className="flex items-center justify-center"> {/* Center top div */}
+                                                    {filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut ? <div>{filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut}</div> :
+                                                        filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "MEDICAL" ? <BN /> :
+                                                            filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "VACATION" ? <OTN /> :
+                                                                filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TIMEOFF" ? <O /> :
+                                                                    filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TRUANCY" ? <NP /> :
+                                                                        <></>
+                                                    }
+                                                </div>
+                                                <div className="flex items-center justify-between mt-2"> {/* Push bottom div to bottom */}
+                                                    {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
+                                                        filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
+                                                            filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
+                                                                <></>
+                                                    }
+                                                    <div className="flex ml-auto space-x-1">
+                                                        <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {filledData[`${emp.userId}-${d.workDate}`]?.prize ? `+${filledData[`${emp.userId}-${d.workDate}`]?.prize}` : ""}
+                                                        </div>
+                                                        <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {filledData[`${emp.userId}-${d.workDate}`]?.fine ? `-${filledData[`${emp.userId}-${d.workDate}`]?.fine}` : ""}
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>)}
             {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setOpenAddRow(true)}>
                 <Icon icon="plus" className="w-5 h-5" />
                 <div>{t("finance.addE")}</div>
@@ -589,9 +612,9 @@ const ScheduleTable: React.FC<Props> = ({
                 </div>
             </div>}
             {selectedEmployee && selectedDate && (
-                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} onClose={handleCloseModal} classname="max-h-[600px] overflow-y-auto">
+                <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} classname="max-h-[600px] overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-text01">{selectedEmployee.name}, смена: {selectedDate}</h2>
+                        <h2 className="text-lg font-semibold text-text01">{selectedEmployee.name}, смена: {new Date(selectedDate).getDate()}</h2>
                         <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
@@ -675,132 +698,168 @@ const ScheduleTable: React.FC<Props> = ({
                                 { name: t("finance.TIMEOFF"), value: "TIMEOFF" },
                                 { name: t("finance.TRUANCY"), value: "TRUANCY" }
                             ]}
-                            label={t("finance.selectDay")}
                             classname="w-96"
                             onChange={(value) => setValue("typeWorkDay", value)}
+                            isDisabled={status === "SENT"}
                         />
-                        <div>
-                            <div>{t("finance.num")}</div>
-                            <div className="flex space-x-2">
-                                <Input
-                                    type="number"
-                                    placeholder="00 ч"
-                                    classname="w-[68px]"
-                                    {...register("hours_timeWorkedOut")}
-                                    value={watchFields["hours_timeWorkedOut"]}
-                                    changeValue={(e) => handleTimeChange("timeWorkedOut", "hours", e.target.value)}
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="00 м"
-                                    classname="w-[70px]"
-                                    {...register("minutes_timeWorkedOut")}
-                                    value={watchFields["minutes_timeWorkedOut"]}
-                                    changeValue={(e) => handleTimeChange("timeWorkedOut", "minutes", e.target.value)}
-                                />
-                            </div>
-                            {/* <div className="flex items-center space-x-2 mt-2">
+                        {typeWorkDay === "WORKING" && (<div className="space-y-2">
+                            <div>
+                                <div>{t("finance.num")}</div>
+                                <div className="flex space-x-2">
+                                    <Input
+                                        type="number"
+                                        placeholder="00 ч"
+                                        classname="w-[68px]"
+                                        {...register("hours_timeWorkedOut", {
+                                            required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                        })}
+                                        value={watchFields["hours_timeWorkedOut"]}
+                                        changeValue={(e) => handleTimeChange("timeWorkedOut", "hours", e.target.value)}
+                                        error={!!errors.hours_timeWorkedOut}
+                                        disabled={status === "SENT"}
+                                    />
+                                    <Input
+                                        type="number"
+                                        placeholder="00 м"
+                                        classname="w-[70px]"
+                                        {...register("minutes_timeWorkedOut", {
+                                            required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                        })}
+                                        value={watchFields["minutes_timeWorkedOut"]}
+                                        changeValue={(e) => handleTimeChange("timeWorkedOut", "minutes", e.target.value)}
+                                        error={!!errors.minutes_timeWorkedOut}
+                                        disabled={status === "SENT"}
+                                    />
+                                </div>
+                                {/* <div className="flex items-center space-x-2 mt-2">
                                 <input type="checkbox" className="w-[18px] h-[18px]" {...register("isCal")} />
                                 <div>{t("finance.cal")}</div>
                             </div> */}
-                            <div className="flex space-x-8 mt-2">
-                                <div>
-                                    <div>{t("finance.start")}</div>
-                                    <div className="flex space-x-2">
-                                        <Input
-                                            type="number"
-                                            placeholder="00 ч"
-                                            classname="w-[68px]"
-                                            {...register("hours_startWorkingTime")}
-                                            value={watchFields["hours_startWorkingTime"]}
-                                            changeValue={(e) => handleTimeChange("startWorkingTime", "hours", e.target.value)}
-                                        />
-                                        <Input
-                                            type="number"
-                                            placeholder="00 м"
-                                            classname="w-[70px]"
-                                            {...register("minutes_startWorkingTime")}
-                                            value={watchFields["minutes_startWorkingTime"]}
-                                            changeValue={(e) => handleTimeChange("startWorkingTime", "minutes", e.target.value)}
-                                        />
+                                <div className="flex space-x-8 mt-2">
+                                    <div>
+                                        <div>{t("finance.start")}</div>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                type="number"
+                                                placeholder="00 ч"
+                                                classname="w-[68px]"
+                                                {...register("hours_startWorkingTime", {
+                                                    required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                                })}
+                                                value={watchFields["hours_startWorkingTime"]}
+                                                changeValue={(e) => handleTimeChange("startWorkingTime", "hours", e.target.value)}
+                                                error={!!errors.hours_startWorkingTime}
+                                                disabled={status === "SENT"}
+                                            />
+                                            <Input
+                                                type="number"
+                                                placeholder="00 м"
+                                                classname="w-[70px]"
+                                                {...register("minutes_startWorkingTime", {
+                                                    required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                                })}
+                                                value={watchFields["minutes_startWorkingTime"]}
+                                                changeValue={(e) => handleTimeChange("startWorkingTime", "minutes", e.target.value)}
+                                                error={!!errors.minutes_startWorkingTime}
+                                                disabled={status === "SENT"}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <div>{t("finance.endOf")}</div>
-                                    <div className="flex space-x-2">
-                                        <Input
-                                            type="number"
-                                            placeholder="00 ч"
-                                            classname="w-[68px]"
-                                            {...register("hours_endWorkingTime")}
-                                            value={watchFields["hours_endWorkingTime"]}
-                                            changeValue={(e) => handleTimeChange("endWorkingTime", "hours", e.target.value)}
-                                        />
-                                        <Input
-                                            type="number"
-                                            placeholder="00 м"
-                                            classname="w-[70px]"
-                                            {...register("minutes_endWorkingTime")}
-                                            value={watchFields["minutes_endWorkingTime"]}
-                                            changeValue={(e) => handleTimeChange("endWorkingTime", "minutes", e.target.value)}
-                                        />
+                                    <div>
+                                        <div>{t("finance.endOf")}</div>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                type="number"
+                                                placeholder="00 ч"
+                                                classname="w-[68px]"
+                                                {...register("hours_endWorkingTime", {
+                                                    required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                                })}
+                                                value={watchFields["hours_endWorkingTime"]}
+                                                changeValue={(e) => handleTimeChange("endWorkingTime", "hours", e.target.value)}
+                                                error={!!errors.hours_endWorkingTime}
+                                                disabled={status === "SENT"}
+                                            />
+                                            <Input
+                                                type="number"
+                                                placeholder="00 м"
+                                                classname="w-[70px]"
+                                                {...register("minutes_endWorkingTime", {
+                                                    required: typeWorkDay === "WORKING" ? "Обязательное поле" : false,
+                                                })}
+                                                value={watchFields["minutes_endWorkingTime"]}
+                                                changeValue={(e) => handleTimeChange("endWorkingTime", "minutes", e.target.value)}
+                                                error={!!errors.minutes_endWorkingTime}
+                                                disabled={status === "SENT"}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="flex space-x-8">
-                            <Input
-                                type="number"
-                                title={t("finance.prize")}
-                                classname="w-44"
-                                {...register("prize")}
-                                value={prize}
-                                changeValue={(e) => setValue("prize", e.target.value)}
+                            <div className="flex space-x-8">
+                                <Input
+                                    type="number"
+                                    title={t("finance.prize")}
+                                    classname="w-44"
+                                    {...register("prize")}
+                                    value={prize}
+                                    changeValue={(e) => setValue("prize", e.target.value)}
+                                    disabled={status === "SENT"}
+                                />
+                                <Input
+                                    type="number"
+                                    title={t("finance.fine")}
+                                    classname="w-44"
+                                    {...register("fine")}
+                                    value={fine}
+                                    changeValue={(e) => setValue("fine", e.target.value)}
+                                    disabled={status === "SENT"}
+                                />
+                            </div>
+                            <DropdownInput
+                                title={t("finance.grade")}
+                                {...register("estimation")}
+                                value={estimation}
+                                options={[
+                                    { name: t("finance.NO_VIOLATION"), value: "NO_VIOLATION" },
+                                    { name: t("finance.GROSS_VIOLATION"), value: "GROSS_VIOLATION" },
+                                    { name: t("finance.MINOR_VIOLATION"), value: "MINOR_VIOLATION" },
+                                    { name: t("finance.ONE_REMARK"), value: "ONE_REMARK" }
+                                ]}
+                                classname="w-96"
+                                onChange={(value) => setValue("estimation", value)}
+                                isDisabled={status === "SENT"}
                             />
-                            <Input
-                                type="number"
-                                title={t("finance.fine")}
-                                classname="w-44"
-                                {...register("fine")}
-                                value={fine}
-                                changeValue={(e) => setValue("fine", e.target.value)}
+                            <MultilineInput
+                                title={t("equipment.comment")}
+                                {...register("comment")}
+                                value={comment}
+                                changeValue={(e) => setValue("comment", e.target.value)}
+                                classname="w-96"
+                                // label={t("finance.desc")}
+                                inputType="secondary"
+                                disabled={status === "SENT"}
+                            />
+                        </div>)}
+                        <div className="flex gap-3 mt-5">
+                            <Button
+                                title={"Сбросить"}
+                                handleClick={handleCloseModal}
+                                type="outline"
+                            />
+                            <Button
+                                title={"Сохранить"}
+                                form={true}
+                                isLoading={updatingDayShift}
                             />
                         </div>
-                        <DropdownInput
-                            title={t("finance.grade")}
-                            {...register("estimation")}
-                            value={estimation}
-                            options={[
-                                { name: t("finance.NO_VIOLATION"), value: "NO_VIOLATION" },
-                                { name: t("finance.GROSS_VIOLATION"), value: "GROSS_VIOLATION" },
-                                { name: t("finance.MINOR_VIOLATION"), value: "MINOR_VIOLATION" },
-                                { name: t("finance.ONE_REMARK"), value: "ONE_REMARK" }
-                            ]}
-                            label={t("finance.NO_VIOLATION")}
-                            classname="w-96"
-                            onChange={(value) => setValue("estimation", value)}
-                        />
-                        <MultilineInput
-                            title={t("equipment.comment")}
-                            {...register("comment")}
-                            value={comment}
-                            changeValue={(e) => setValue("comment", e.target.value)}
-                            classname="w-96"
-                            label={t("finance.desc")}
-                            inputType="secondary"
-                        />
-                        <Button
-                            title={"Сохранить"}
-                            form={true}
-                            isLoading={updatingDayShift}
-                        />
                     </form>
                 </Modal>
             )}
             <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01">{t("finance.addNew")}</h2>
-                    <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
+                    <Close onClick={() => setOpenAddRow(false)} className="cursor-pointer text-text01" />
                 </div>
                 <div className="mt-5">
                     <DropdownInput

@@ -53,7 +53,7 @@ const InventoryCreation: React.FC = () => {
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const inventoriesDisplay: { id: number, name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
+    const inventoriesDisplay: { id: number; sku: string; name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id,sku: item.sku, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
 
     const suppliers: { name: string; value: number; }[] = supplierData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 

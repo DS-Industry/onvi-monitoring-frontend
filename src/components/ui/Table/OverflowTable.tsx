@@ -39,6 +39,7 @@ type Props = {
   showTotal?: boolean;
   renderCell?: (column: any, row: any) => React.ReactNode;
   showPagination?: boolean;
+  showTotalClean?: boolean;
 };
 
 const OverflowTable: React.FC<Props> = ({
@@ -57,7 +58,8 @@ const OverflowTable: React.FC<Props> = ({
   isCheck,
   showTotal = false,
   renderCell,
-  showPagination
+  showPagination,
+  showTotalClean = false
 }: Props) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
@@ -343,6 +345,18 @@ const OverflowTable: React.FC<Props> = ({
                       {column.type === 'number'
                         ? formatNumber(currentData.reduce((sum: number, row: { [x: string]: unknown; }) => sum + (Number(row[column.key]) || 0), 0))
                         : '-'}
+                    </td>
+                  ))}
+                </tr>
+              )}
+              {currentData.length > 0 && showTotalClean && (
+                <tr className="h-11 px-3 bg-background05 text-sm font-semibold text-text01">
+                  <td className="p-2 text-left" colSpan={2}>{t("finance.total")}</td>
+                  {displayedColumns.slice(2).map((column) => (
+                    <td key={column.key} className="p-2 text-right">
+                      {column.type === 'number'
+                        ? formatNumber(currentData.reduce((sum: number, row: { [x: string]: unknown; }) => sum + (Number(row[column.key]) || 0), 0))
+                        : ''}
                     </td>
                   ))}
                 </tr>

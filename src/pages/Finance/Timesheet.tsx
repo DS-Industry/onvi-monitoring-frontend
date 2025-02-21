@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
-import { getPoses } from "@/services/api/equipment";
+import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -93,7 +93,11 @@ const Timesheet: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     useEffect(() => {
         if (buttonOn)
@@ -102,7 +106,8 @@ const Timesheet: React.FC = () => {
 
     const shifts = filter?.shiftReportsData.map((item) => ({
         ...item,
-        posName: poses.find((pos) => pos.value === posType)?.name || "-"
+        posName: poses.find((pos) => pos.value === posType)?.name || "-",
+        createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
     })) || [];
 
     return (

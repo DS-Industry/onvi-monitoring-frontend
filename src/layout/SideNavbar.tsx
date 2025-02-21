@@ -342,7 +342,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
                 <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{location.pathname === "/equipment/routine/work/progress/item" ? location.state.name : activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
+                  <span className="text-3xl font-normal text-text01">{location.pathname === "/finance/timesheet/view" ? `${location.state.name} : ${location.state.date.slice(0,10)}` : location.pathname === "/equipment/routine/work/progress/item" ? location.state.name : activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
                   {location.pathname !== "/equipment/routine/work/progress/item" && (activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />)}
                 </div>
                 {activePage?.filter && (
