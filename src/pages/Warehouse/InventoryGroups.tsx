@@ -54,6 +54,8 @@ const buildTree = (data: any[]): TreeData[] => {
 const InventoryGroups: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editInventoryId, setEditInventoryId] = useState<number>(0);
 
     const { data: categoryData, isLoading: loadingCategory } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -86,9 +88,29 @@ const InventoryGroups: React.FC = () => {
         setValue(field, value);
     };
 
+    const handleUpdate = (id: number) => {
+        setEditInventoryId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+        console.log(id);
+        console.log(isEditMode);
+        const inventoryToEdit = category.find((inventory) => inventory.id === id);
+        console.log(inventoryToEdit);
+        if (inventoryToEdit) {
+            setFormData({
+                name: inventoryToEdit.name,
+                description: inventoryToEdit.description,
+                ownerCategoryId: inventoryToEdit.ownerCategoryId
+            });
+        }
+        console.log("The id to edit: ", id);
+    };
+
     const resetForm = () => {
         setFormData(defaultValues);
+        setIsEditMode(false);
         reset();
+        setEditInventoryId(0);
         setButtonOn(!buttonOn);
     };
 
@@ -122,7 +144,7 @@ const InventoryGroups: React.FC = () => {
                         treeData={treeData}
                         columns={columnsCategory}
                         isUpdate={true}
-                        onUpdate={(id) => console.log("Update clicked for ID:", id)}
+                        onUpdate={handleUpdate}
                     />
                 </div> :
                 <NoDataUI
