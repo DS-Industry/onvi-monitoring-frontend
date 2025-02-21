@@ -678,7 +678,8 @@
     "REFUND": "REFUND",
     "REPLENISHMENT": "REPLENISHMENT",
     "date": "Date and time",
-    "adding": "Adding an operation"
+    "adding": "Adding an operation",
+    "send": "Send"
   },
   "analysis": {
     "search": "Search",

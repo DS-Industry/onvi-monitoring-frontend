@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClockImage from "@icons/ClockImage.svg?react";
 import Icon from 'feather-icons-react';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { createCashOper, getCashOperById, getCashOperCleanById, getCashOperRefundById, getCashOperSuspiciousById, getDayShiftById, returnDayShift, sendDayShift } from "@/services/api/finance";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
@@ -17,6 +17,8 @@ import { getDevices } from "@/services/api/equipment";
 import useFormHook from "@/hooks/useFormHook";
 import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
+import NoDataUI from "@/components/ui/NoDataUI";
+import NoTimeSheet from "@/assets/NoTimesheet.png";
 
 enum TypeWorkDayShiftReportCashOper {
     REFUND = "REFUND",
@@ -38,6 +40,7 @@ const TimesheetView: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenReturn, setIsModalOpenReturn] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const tabs = [
         { id: 'change', name: t("finance.change") },
@@ -75,12 +78,15 @@ const TimesheetView: React.FC = () => {
 
     const cashOperArray = [cashOperData];
 
-    const cashOperReturnArray = cashOperReturnData?.map((item) => item.props) || [];
+    const cashOperReturnArray = cashOperReturnData?.map((item) => ({
+        ...item.props,
+        deviceName: devices.find((dev) => dev.value === item.props.carWashDeviceId)?.name
+    })) || [];
 
     const transformDataForTable = (data: { deviceId: number; programData: { programName: string; countProgram: number; time: string }[] }[]) => {
         return data.flatMap(({ deviceId, programData }) =>
             programData.map(({ programName, countProgram, time }, index) => ({
-                deviceId: index === 0 ? deviceId : null,
+                deviceName: index === 0 ? devices.find((dev) => dev.value === deviceId)?.name : null,
                 programName,
                 countProgram,
                 time
@@ -90,7 +96,10 @@ const TimesheetView: React.FC = () => {
 
     const cashOperCleanArray = cashOperCleanData && cashOperCleanData?.length > 0 ? transformDataForTable(cashOperCleanData) : [];
 
-    const cashOperSubsArray = cashOperSuspData || [];
+    const cashOperSubsArray = cashOperSuspData?.map((item) => ({
+        ...item,
+        deviceName: devices.find((dev) => dev.value === item.deviceId)?.name
+    })) || [];
 
     const defaultValues = {
         type: undefined,
@@ -105,9 +114,9 @@ const TimesheetView: React.FC = () => {
     const { register, handleSubmit, errors, setValue, reset } = useFormHook<CreateCashOperBody>(formData);
 
     const { trigger: createCash, isMutating: loadingCash } = useSWRMutation(['create-cash-oper'], async () => createCashOper({
-        type: isModalOpen ? "REFUND" as TypeWorkDayShiftReportCashOper : formData.type ? formData.type as TypeWorkDayShiftReportCashOper : "REPLENISHMENT" as TypeWorkDayShiftReportCashOper,
+        type: isModalOpenReturn ? "REFUND" as TypeWorkDayShiftReportCashOper : formData.type ? formData.type as TypeWorkDayShiftReportCashOper : "REPLENISHMENT" as TypeWorkDayShiftReportCashOper,
         sum: formData.sum || 0,
-        carWashDeviceId: isModalOpen ? undefined : formData.carWashDeviceId,
+        carWashDeviceId: isModalOpenReturn ? undefined : formData.carWashDeviceId,
         eventData: formData.eventData,
         comment: formData.comment
     }, location.state?.ownerId));
@@ -138,10 +147,8 @@ const TimesheetView: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
-            if (isModalOpenReturn)
-                mutate([`get-cash-oper-return-data`]);
-            if (isModalOpen)
-                mutate([`get-cash-oper-data`]);
+            mutate([`get-cash-oper-return-data`]);
+            mutate([`get-cash-oper-data`]);
         }
     }
 
@@ -150,7 +157,7 @@ const TimesheetView: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
-            // navigate("/finance/timesheet/creation");
+            navigate(-1);
         }
     }
 
@@ -159,7 +166,7 @@ const TimesheetView: React.FC = () => {
 
         if (result) {
             console.log("Result of the api: ", result);
-            // navigate("/finance/timesheet/creation");
+            navigate(-1);
         }
     }
 
@@ -177,9 +184,31 @@ const TimesheetView: React.FC = () => {
                             <div>
                                 <div className="text-sm text-text02 font-semibold">{t("finance.curr")}</div>
                                 <div className="flex space-x-2 text-text01">
-                                    <div>{dayShiftData?.startWorkingTime ? `${new Date(dayShiftData.startWorkingTime).getHours()} : ${new Date(dayShiftData.startWorkingTime).getMinutes()}` : "9:00"}</div>
+                                    <div>
+                                        {dayShiftData?.startWorkingTime
+                                            ? (() => {
+                                                const date = new Date(dayShiftData.startWorkingTime);
+                                                const hours = date.getUTCHours();
+                                                const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+                                                const period = hours >= 12 ? 'PM' : 'AM';
+                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0'); // Convert 24h to 12h format
+                                                return `${formattedHours}:${minutes} ${period}`;
+                                            })()
+                                            : "09:00 AM"}
+                                    </div>
                                     <div>-</div>
-                                    <div>{dayShiftData?.endWorkingTime ? `${new Date(dayShiftData.endWorkingTime).getHours()} : ${new Date(dayShiftData.endWorkingTime).getMinutes()}` : "5:30"}</div>
+                                    <div>
+                                        {dayShiftData?.endWorkingTime
+                                            ? (() => {
+                                                const date = new Date(dayShiftData.endWorkingTime);
+                                                const hours = date.getUTCHours();
+                                                const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+                                                const period = hours >= 12 ? 'PM' : 'AM';
+                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0'); // Convert 24h to 12h format
+                                                return `${formattedHours}:${minutes} ${period}`;
+                                            })()
+                                            : "05:30 PM"}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +217,7 @@ const TimesheetView: React.FC = () => {
                         </div>
                     </div>
                     <div className="w-[373px] h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
-                        <Icon icon="truck" className="w-[22px] h-[18px]" />
+                        <Icon icon="mail" className="w-[22px] h-[18px]" />
                         <div>{t("finance.status")}</div>
                         <div className="font-bold">{location.state?.status ? t(`tables.${location.state.status}`) : ""}</div>
                     </div>
@@ -200,7 +229,7 @@ const TimesheetView: React.FC = () => {
                             <Icon icon="star" className="text-[#ff9066] w-8 h-8" />
                         </div>
                     </div>
-                    <div className="w-[182px] h-14 bg-[#f0fdf4] rounded-lg flex items-center justify-center text-sm px-2 text-[#16a34a]">
+                    <div className={`w-[182px] h-14 ${dayShiftData?.estimation === "GROSS_VIOLATION" ? "bg-[#fef2f2] text-[#dc2626]" : dayShiftData?.estimation === "MINOR_VIOLATION" ? "bg-[#fff7ed] text-[#ea580c]" : dayShiftData?.estimation === "ONE_REMARK" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-background05"} rounded-lg flex items-center justify-center text-sm px-2`}>
                         <div className="font-extrabold">{dayShiftData?.estimation ? t(`finance.${dayShiftData?.estimation}`) : ""}</div>
                     </div>
                 </div>
@@ -229,9 +258,9 @@ const TimesheetView: React.FC = () => {
                                     <div className="text-text01 font-bold text-3xl">{dayShiftData?.timeWorkedOut || "-"}</div>
                                     <div className="text-text02/70">{t("finance.time")}</div>
                                 </div>
-                                <div className="h-28 w-[440px] px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                    <div className="text-text01">{dayShiftData?.comment || "-"}</div>
-                                    <div className="text-text02/70">{t("equipment.comment")}</div>
+                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-successFill font-bold text-3xl">{dayShiftData?.prize ? `+${dayShiftData?.prize} ₽` : ""}</div>
+                                    <div className="text-text02/70">{t("finance.prize")}</div>
                                 </div>
                             </div>
                             <div className="flex space-x-3">
@@ -239,21 +268,21 @@ const TimesheetView: React.FC = () => {
                                     <div className="text-errorFill font-bold text-3xl">{dayShiftData?.fine ? `-${dayShiftData?.fine} ₽` : ""}</div>
                                     <div className="text-text02/70">{t("finance.fine")}</div>
                                 </div>
-                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                    <div className="text-successFill font-bold text-3xl">{dayShiftData?.prize ? `+${dayShiftData?.prize} ₽` : ""}</div>
-                                    <div className="text-text02/70">{t("finance.prize")}</div>
+                                <div className="h-28 w-[440px] px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-text01">{dayShiftData?.comment || "-"}</div>
+                                    <div className="text-text02/70">{t("equipment.comment")}</div>
                                 </div>
                             </div>
                         </div>
                         <div className="flex space-x-4 mt-10">
-                            <Button
+                            {location.state.status === "SENT" && <Button
                                 title={t("finance.refund")}
                                 type="outline"
                                 handleClick={handleReturn}
                                 isLoading={loadingReturnCash}
-                            />
+                            />}
                             {location.state.status !== "SENT" && <Button
-                                title={t("finance.change")}
+                                title={t("finance.send")}
                                 handleClick={handleSend}
                                 isLoading={loadingSendCash}
                             />}
@@ -272,75 +301,22 @@ const TimesheetView: React.FC = () => {
                                     <OverflowTable
                                         tableData={cashOperArray}
                                         columns={columnsDataCashOper}
-                                    /> : <></>
+                                    /> : (
+                                        <div className="flex flex-col justify-center items-center">
+                                            <NoDataUI
+                                                title={t("finance.data")}
+                                                description={t("finance.atThe")}
+                                            >
+                                                <img src={NoTimeSheet} className="mx-auto" />
+                                            </NoDataUI>
+                                        </div>
+                                    )
                             }
                         </div>
                         <Modal isOpen={isModalOpen}>
                             <div className="flex flex-row items-center justify-between mb-4">
                                 <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
                                 <Close onClick={() => { resetForm(); setIsModalOpen(false); }} className="cursor-pointer text-text01" />
-                            </div>
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
-                                <Input
-                                    type="number"
-                                    title={t("finance.sum")}
-                                    classname="w-80"
-                                    value={formData.sum}
-                                    changeValue={(e) => handleInputChange('sum', e.target.value)}
-                                    error={!!errors.sum}
-                                    {...register('sum', { required: 'Sum is required' })}
-                                    helperText={errors.sum?.message || ''}
-                                />
-                                <Input
-                                    type="datetime-local"
-                                    title={t("finance.date")}
-                                    classname="w-52"
-                                    {...register('eventData')}
-                                    value={formData.eventData}
-                                    changeValue={(e) => handleInputChange('eventData', e.target.value)}
-                                />
-                                <MultilineInput
-                                    title={t("equipment.comment")}
-                                    classname="w-96"
-                                    {...register('comment')}
-                                    value={formData.comment}
-                                    changeValue={(e) => handleInputChange('comment', e.target.value)}
-                                />
-                                <div className="flex justify-end gap-3 mt-5">
-                                    <Button
-                                        title={"Сбросить"}
-                                        handleClick={() => { resetForm(); setIsModalOpenReturn(false); }}
-                                        type="outline"
-                                    />
-                                    <Button
-                                        title={"Сохранить"}
-                                        form={true}
-                                        isLoading={loadingCash}
-                                    />
-                                </div>
-                            </form>
-                        </Modal>
-                    </div>
-                )}
-                {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.returns") && (
-                    <div>
-                        <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
-                            {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpenReturn(true)}>
-                                {t("routes.add")}
-                            </button>}
-                            {loadingCashOperReturn ?
-                                <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
-                                : cashOperReturnArray.length > 0 ?
-                                    <OverflowTable
-                                        tableData={cashOperReturnArray}
-                                        columns={columnsDataCashOperRefund}
-                                    /> : <></>
-                            }
-                        </div>
-                        <Modal isOpen={isModalOpenReturn}>
-                            <div className="flex flex-row items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
-                                <Close onClick={() => { resetForm(); setIsModalOpenReturn(false); }} className="cursor-pointer text-text01" />
                             </div>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
                                 <DropdownInput
@@ -392,6 +368,77 @@ const TimesheetView: React.FC = () => {
                                 <div className="flex justify-end gap-3 mt-5">
                                     <Button
                                         title={"Сбросить"}
+                                        handleClick={() => { resetForm(); setIsModalOpen(false); }}
+                                        type="outline"
+                                    />
+                                    <Button
+                                        title={"Сохранить"}
+                                        form={true}
+                                        isLoading={loadingCash}
+                                    />
+                                </div>
+                            </form>
+                        </Modal>
+                    </div>
+                )}
+                {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.returns") && (
+                    <div>
+                        <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
+                            {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpenReturn(true)}>
+                                {t("routes.add")}
+                            </button>}
+                            {loadingCashOperReturn ?
+                                <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
+                                : cashOperReturnArray.length > 0 ?
+                                    <OverflowTable
+                                        tableData={cashOperReturnArray}
+                                        columns={columnsDataCashOperRefund}
+                                    /> : (
+                                        <div className="flex flex-col justify-center items-center">
+                                            <NoDataUI
+                                                title={t("finance.data")}
+                                                description={t("finance.atThe")}
+                                            >
+                                                <img src={NoTimeSheet} className="mx-auto" />
+                                            </NoDataUI>
+                                        </div>
+                                    )
+                            }
+                        </div>
+                        <Modal isOpen={isModalOpenReturn}>
+                            <div className="flex flex-row items-center justify-between mb-4">
+                                <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
+                                <Close onClick={() => { resetForm(); setIsModalOpenReturn(false); }} className="cursor-pointer text-text01" />
+                            </div>
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
+                                <Input
+                                    type="number"
+                                    title={t("finance.sum")}
+                                    classname="w-80"
+                                    value={formData.sum}
+                                    changeValue={(e) => handleInputChange('sum', e.target.value)}
+                                    error={!!errors.sum}
+                                    {...register('sum', { required: 'Sum is required' })}
+                                    helperText={errors.sum?.message || ''}
+                                />
+                                <Input
+                                    type="datetime-local"
+                                    title={t("finance.date")}
+                                    classname="w-52"
+                                    {...register('eventData')}
+                                    value={formData.eventData}
+                                    changeValue={(e) => handleInputChange('eventData', e.target.value)}
+                                />
+                                <MultilineInput
+                                    title={t("equipment.comment")}
+                                    classname="w-96"
+                                    {...register('comment')}
+                                    value={formData.comment}
+                                    changeValue={(e) => handleInputChange('comment', e.target.value)}
+                                />
+                                <div className="flex gap-3 mt-5">
+                                    <Button
+                                        title={"Сбросить"}
                                         handleClick={() => { resetForm(); setIsModalOpenReturn(false); }}
                                         type="outline"
                                     />
@@ -413,7 +460,17 @@ const TimesheetView: React.FC = () => {
                                 <OverflowTable
                                     tableData={cashOperCleanArray}
                                     columns={columnsDataCashOperCleaning}
-                                /> : <></>
+                                    showTotalClean={true}
+                                /> : (
+                                    <div className="flex flex-col justify-center items-center">
+                                        <NoDataUI
+                                            title={t("finance.data")}
+                                            description={t("finance.atThe")}
+                                        >
+                                            <img src={NoTimeSheet} className="mx-auto" />
+                                        </NoDataUI>
+                                    </div>
+                                )
                         }
                     </div>
                 )}
@@ -425,7 +482,16 @@ const TimesheetView: React.FC = () => {
                                 <OverflowTable
                                     tableData={cashOperSubsArray}
                                     columns={columnsDataCashOperSuspiciously}
-                                /> : <></>
+                                /> : (
+                                    <div className="flex flex-col justify-center items-center">
+                                        <NoDataUI
+                                            title={t("finance.data")}
+                                            description={t("finance.atThe")}
+                                        >
+                                            <img src={NoTimeSheet} className="mx-auto" />
+                                        </NoDataUI>
+                                    </div>
+                                )
                         }
                     </div>
                 )}

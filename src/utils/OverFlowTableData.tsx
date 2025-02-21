@@ -156,11 +156,11 @@ export const columnsPos = [
   },
   {
     label: "Создал",
-    key: "createdById",
+    key: "createdByName",
   },
   {
     label: "Обновил",
-    key: "updatedById",
+    key: "updatedByName",
   }
 ]
 export const columnsOrg = [
@@ -435,7 +435,7 @@ export const columnsProgramDevice = [
 export const columnsEquipmentFailure = [
   {
     label: "Название объекта",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Тип объекта",
@@ -693,7 +693,7 @@ export const columnsConsumptionRate = [
 export const columnsInventory = [
   {
     label: "Код",
-    key: "id"
+    key: "sku"
   },
   {
     label: "Номенклатура",
@@ -962,7 +962,7 @@ export const columnsShifts = [
   },
   {
     label: "Ответственный",
-    key: "createdById"
+    key: "createdByName"
   },
   {
     label: "Изменения в отчете",
@@ -997,8 +997,7 @@ export const columnsDataCashOper = [
 export const columnsDataCashOperRefund = [
   {
     label: "Устройство",
-    key: "carWashDeviceId",
-    type: "number"
+    key: "deviceName"
   },
   {
     label: "Дата и время",
@@ -1019,8 +1018,7 @@ export const columnsDataCashOperRefund = [
 export const columnsDataCashOperCleaning = [
   {
     label: "Наименование",
-    key: "deviceId",
-    type: "number"
+    key: "deviceName"
   },
   {
     label: "Программа",
@@ -1040,8 +1038,7 @@ export const columnsDataCashOperCleaning = [
 export const columnsDataCashOperSuspiciously = [
   {
     label: "Устройство",
-    key: "deviceId",
-    type: "number"
+    key: "deviceName"
   },
   {
     label: "Время включения",
