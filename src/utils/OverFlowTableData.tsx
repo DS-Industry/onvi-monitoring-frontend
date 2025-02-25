@@ -1067,3 +1067,58 @@ export const columnsDataCashOperSuspiciously = [
     key: "lastProgramTime"
   }
 ]
+
+export const columnsEmployees = [
+  {
+    label: "ФИО Сотрудника",
+    key: "employeeName"
+  },
+  {
+    label: "Должность",
+    key: "jobTitle"
+  },
+  {
+    label: "Роль СRM",
+    key: "role"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Работает с",
+    key: "works"
+  }
+]
+
+export const columnsRoles = [
+  {
+    label: "Роль СRM",
+    key: "role"
+  },
+  {
+    label: "Права доступа",
+    key: "access"
+  }
+] 
+
+export const columnsTransactions = [
+  {
+    label: "Отчет",
+    key: "reportTemplateId"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Дата начала создания",
+    key: "startTemplateAt",
+    type: "date"
+  },
+  {
+    label: "Дата окончания создания",
+    key: "endTemplateAt",
+    type: "date"
+  }
+]

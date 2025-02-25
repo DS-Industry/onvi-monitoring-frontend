@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Edit from "@icons/edit.svg?react";
-import moment from 'moment';
 import UpdateIcon from "@icons/PencilIcon.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../Modal/Modal.tsx";
@@ -71,6 +70,7 @@ const OverflowTable: React.FC<Props> = ({
   const rowsPerPage = usePageNumber();
   const totalCount = usePageSize();
   const { t } = useTranslation();
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
   const totalPages = Math.ceil(totalCount / rowsPerPage);
@@ -212,7 +212,7 @@ const OverflowTable: React.FC<Props> = ({
   return (
     <>
       <div className="w-full overflow-auto">
-        <div className="overflow-x-auto">
+        <div className="max-w-7xl overflow-x-auto">
           {title && (
             <span
               className="cursor-pointer"
@@ -311,7 +311,17 @@ const OverflowTable: React.FC<Props> = ({
                             ) : (
                               <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                                 {column.type === 'date' ? (
-                                  row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
+                                  row[column.key]
+                                    ? new Date(row[column.key]).toLocaleString("ru-RU", {
+                                      timeZone: userTimezone,
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      second: "2-digit",
+                                    })
+                                    : '-'
                                 ) : column.type === "period" ? (
                                   row[column.key] ? formatPeriodType(row[column.key]) : '-'
                                 ) : typeof row[column.key] === 'object' ? (

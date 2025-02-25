@@ -843,12 +843,12 @@ const ScheduleTable: React.FC<Props> = ({
                         </div>)}
                         <div className="flex gap-3 mt-14">
                             <Button
-                                title={"Сбросить"}
+                                title={t("warehouse.reset")}
                                 handleClick={handleCloseModal}
                                 type="outline"
                             />
                             <Button
-                                title={"Сохранить"}
+                                title={t("finance.openR")}
                                 form={true}
                                 isLoading={updatingDayShift}
                             />

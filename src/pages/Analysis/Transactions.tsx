@@ -1,23 +1,16 @@
-import DropdownInput from "@ui/Input/DropdownInput";
+import { useFilterOn } from "@/components/context/useContext";
+import Filter from "@/components/ui/Filter/Filter";
+import OverflowTable from "@/components/ui/Table/OverflowTable";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
+import { getTransactions } from "@/services/api/reports";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import AnalysisCard from "@ui/Card/AnalysisCard";
-import Filter from "@/components/ui/Filter/Filter";
 import useSWR from "swr";
-import { getAllReports } from "@/services/api/reports";
-import { useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
-import { useFilterOn } from "@/components/context/useContext";
 import Icon from 'feather-icons-react';
-import CardSkeleton from "@/components/ui/Card/CardSkeleton";
 
-enum CategoryReportTemplate {
-    POS = "POS"
-}
-
-const Analysis: React.FC = () => {
+const Transactions: React.FC = () => {
     const { t } = useTranslation();
-
-    const [cat, setCat] = useState("POS");
     const pageNumber = usePageNumber();
     const currentPage = useCurrentPage();
     const curr = useCurrentPage();
@@ -29,25 +22,26 @@ const Analysis: React.FC = () => {
     const { filterOn, setFilterOn } = useFilterOn();
     const [tableLoading, setTableLoading] = useState(false);
 
-    const { data: filter, mutate: mutateGetAllReport, isLoading: loadingReports } = useSWR(["get-all-report"], () => getAllReports({
-        category: cat as CategoryReportTemplate,
+    const { data: transactionData, mutate: mutateTransactions, isLoading: loadingTransactions } = useSWR([`get-transaction`], () => getTransactions({
         page: currentPage,
         size: pageNumber
-    }));
+    }), {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true
+    });
 
     useEffect(() => {
         setTableLoading(true);
-        mutateGetAllReport().then(() => setTableLoading(false));
-    }, [filterOn, mutateGetAllReport]);
+        mutateTransactions().then(() => setTableLoading(false));
+    }, [filterOn, mutateTransactions]);
 
     useEffect(() => {
-        if (!loadingReports && filter?.count)
-            setTotalCount(filter?.count)
-    }, [filter?.count, loadingReports, setTotalCount]);
+        if (!loadingTransactions && transactionData?.count)
+            setTotalCount(transactionData?.count)
+    }, [transactionData?.count, loadingTransactions, setTotalCount]);
 
-    const reportsData = useMemo(() => filter?.reports || [], [filter]);
-
-    console.log("Filter data: ", filter);
+    const transactions = useMemo(() => transactionData?.transactions || [], [transactionData]);
 
     const generatePaginationRange = () => {
         const range: (number | string)[] = [];
@@ -78,28 +72,60 @@ const Analysis: React.FC = () => {
         }
     };
 
+    const handleDownload = (reportKey: string, id: number) => {
+        const downloadUrl = `https://storage.yandexcloud.net/onvi-business/report/${id}/${reportKey}`; // Adjust API path
+        window.open(downloadUrl, "_blank");
+    }
+
+    const columnsTransactions = [
+        {
+            label: "Отчет",
+            key: "reportTemplateId"
+        },
+        {
+            label: "Статус",
+            key: "status"
+        },
+        {
+            label: "Дата начала создания",
+            key: "startTemplateAt",
+            type: "date"
+        },
+        {
+            label: "Дата окончания создания",
+            key: "endTemplateAt",
+            type: "date"
+        },
+        {
+            label: "",
+            key: "Download",
+            render: (row: { status: string; reportKey: string; userId: number; }) => (
+                row.status === "DONE" && (<div>
+                    <button onClick={() => handleDownload(row.reportKey, row.userId)}>
+                        <Icon icon="download" />
+                    </button>
+                </div>)
+            ),
+        }
+    ]
+
     return (
         <div>
-            <Filter count={reportsData.length} hideDateTime={true} hideCity={true}>
-                <DropdownInput
-                    title={t("warehouse.category")}
-                    value={cat}
-                    classname="w-64 ml-2"
-                    options={[
-                        { name: "POS", value: "POS" }
-                    ]}
-                    onChange={(value) => setCat(value)}
-                />
+            <Filter count={transactions.length} hideSearch={true} hideCity={true} hideDateTime={true} children={undefined}>
             </Filter>
-            <hr className="my-4" />
-            <div className="space-y-3">
-                <div className="text-text01 uppercase">{t("analysis.oper")}</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {reportsData.map((report) => (
-                        loadingReports || tableLoading ? <CardSkeleton cardHeight="200px" cardWidth="456px" />
-                            : <AnalysisCard iconText="file-text" firstText={report.name} secondText={report.description || ""} reports={report} />
-                    ))}
-                </div>
+            <div className="mt-5">
+                {loadingTransactions || tableLoading ?
+                    <TableSkeleton columnCount={columnsTransactions.length} />
+                    : transactions.length > 0 ?
+                        <OverflowTable
+                            tableData={transactions}
+                            columns={columnsTransactions}
+                        /> : (
+                            <div className="flex flex-col items-center justify-center mt-40 text-text02">
+                                <div>{t("analysis.there")}</div>
+                                <div>{t("analysis.you")}</div>
+                            </div>
+                        )}
             </div>
             <div className="mt-4 flex gap-2">
                 <button
@@ -141,4 +167,4 @@ const Analysis: React.FC = () => {
     )
 }
 
-export default Analysis;
+export default Transactions;

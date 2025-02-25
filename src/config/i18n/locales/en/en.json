@@ -76,7 +76,8 @@
     "collectionCreation": "Collection (Creation)",
     "timeCreation": "Time sheet (Creation)",
     "timestamp": "Timestamps",
-    "income": "Income report"
+    "income": "Income report",
+    "my": "My reports"
   },
   "dashboard": {
     "news": "News",
@@ -679,7 +680,11 @@
     "REPLENISHMENT": "REPLENISHMENT",
     "date": "Date and time",
     "adding": "Adding an operation",
-    "send": "Send"
+    "send": "Send",
+    "listOf": "List of employees",
+    "listRoles": "List of roles",
+    "addR": "Add a role",
+    "openR": "Open Report"
   },
   "analysis": {
     "search": "Search",
@@ -690,6 +695,21 @@
     "group": "Grouping operations",
     "list": "List of service events",
     "there": "There is not enough data for the report.",
-    "you": "You need to set report parameters"
+    "you": "You need to set report parameters",
+    "PROGRESS": "PROGRESS",
+    "DONE": "DONE",
+    "ERROR": "ERROR"
+  },
+  "roles": {
+    "access": "Access rights management",
+    "change": "To change or transfer manager access rights, opposite the desired employee, select an action and click",
+    "then": "«Change access rights», then specify the new rights you want to give the employee.",
+    "the": "The platform cannot exist without an administrator. The first administrator is the user who registered the Onvi-BUSINESS portal",
+    "job": "Job title",
+    "create": "Create a CRM role",
+    "name": "Name*",
+    "enter": "Enter CRM role name",
+    "desc": "Describe the user role",
+    "acc": "Access to the program"
   }
 }

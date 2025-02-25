@@ -101,27 +101,28 @@ const Filter: React.FC<Props> = ({
           classname="w-80"
           searchType="outlined"
           title="Поиск"
-        /> }
+        />}
         {!hideCity && <SearchInput
           title={"Город"}
           value={address}
           searchType="outlined"
           classname="ml-2"
           onChange={handleAddressChange}
-        /> }
+        />}
         {children}
         {!hidePage && <DropdownInput
           title={"Строк на стр."}
           value={pageNumber}
           classname="ml-2 w-24"
           options={[
-            { name: 5, value: 5 },
-            { name: 10, value: 10 },
-            { name: 20, value: 20 },
+            { name: 15, value: 15 },
             { name: 50, value: 50 },
+            { name: 100, value: 100 },
+            { name: 120, value: 120 },
+            { name: 150, value: 150 }
           ]}
           onChange={(value) => setPageNumber(value)}
-        /> }
+        />}
       </div>
       {!hideDateTime ? (
         <div>

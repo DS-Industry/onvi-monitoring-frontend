@@ -61,6 +61,9 @@ import Timestamps from "@/pages/Finance/Timestamps";
 import Analysis from "@/pages/Analysis/Analysis";
 import IncomeReport from "@/pages/Analysis/IncomeReport";
 import TimesheetView from "@/pages/Finance/TimesheetView";
+import ListOfEmployees from "@/pages/Organization/ListOfEmployees";
+import ListOfRoles from "@/pages/Organization/ListOfRoles";
+import Transactions from "@/pages/Analysis/Transactions";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -89,7 +92,10 @@ const routes = [
     permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }],
     subNav: [
       { name: "subscriptions", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [
+        { name: "listOf", filter: true, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights/employees", component: ListOfEmployees, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+        { name: "listRoles", filter: false, addButton: true, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/roles", component: ListOfRoles, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      ], subMenu: true },
       { name: "legalEntities", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
     ],
     isSidebar: true
@@ -158,24 +164,35 @@ const routes = [
     name: "analysis",
     path: "/analysis",
     subMenu: false,
-    filter: false,
+    filter: true,
     addButton: false,
     addButtonText: "",
     icon: MonitoringIcon,
     component: Analysis,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Analysis" }]
+    permissions: []
   },
   {
     name: "income",
     path: "/analysis/report",
     subMenu: false,
-    filter: true,
+    filter: false,
     addButton: false,
     addButtonText: "",
     component: IncomeReport,
     isSidebar: false,
-    permissions: [{ action: "manage", subject: "Analysis" }]
+    permissions: []
+  },
+  {
+    name: "my",
+    path: "/analysis/transactions",
+    subMenu: false,
+    filter: true,
+    addButton: false,
+    addButtonText: "",
+    component: Transactions,
+    isSidebar: false,
+    permissions: []
   },
   {
     name: "marketing",
