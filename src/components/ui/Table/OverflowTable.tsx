@@ -91,7 +91,7 @@ const OverflowTable: React.FC<Props> = ({
 
   const formatNumber = (num: number): string => {
     if (isNaN(num)) return num.toString();
-    return new Intl.NumberFormat("en-IN").format(num);
+    return new Intl.NumberFormat("en-US").format(num);
   };
 
   const getActivePage = () => {
