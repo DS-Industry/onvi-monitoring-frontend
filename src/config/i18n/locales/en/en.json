@@ -698,7 +698,15 @@
     "you": "You need to set report parameters",
     "PROGRESS": "PROGRESS",
     "DONE": "DONE",
-    "ERROR": "ERROR"
+    "ERROR": "ERROR",
+    "repo": "Report parameters",
+    "add": "Add report",
+    "startDate": "startDate",
+    "endDate": "endDate",
+    "posId": "POS",
+    "deviceId": "Device",
+    "warehouseId": "Warehouse",
+    "organizationId": "Organization"
   },
   "roles": {
     "access": "Access rights management",

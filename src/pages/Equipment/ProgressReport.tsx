@@ -17,6 +17,7 @@ type ReadTechTasks = {
     posId: number;
     type: string;
     status: string;
+    endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
@@ -34,14 +35,14 @@ const ProgressReport: React.FC = () => {
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const techTasks: ReadTechTasks[] = data
-    ?.filter((item: { posId: number }) => item.posId === searchPosId)
-    ?.map((item: ReadTechTasks) => ({
-        ...item,
-        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
-        type: t(`tables.${item.type}`),
-        status: t(`tables.${item.status}`)
-    }))
-    .sort((a, b) => a.id - b.id) || [];
+        ?.filter((item: { posId: number }) => item.posId === searchPosId)
+        ?.map((item: ReadTechTasks) => ({
+            ...item,
+            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+            type: t(`tables.${item.type}`),
+            status: t(`tables.${item.status}`)
+        }))
+        .sort((a, b) => a.id - b.id) || [];
 
     return (
         <>

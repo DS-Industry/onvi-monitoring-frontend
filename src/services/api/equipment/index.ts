@@ -200,6 +200,7 @@ type TechTasksResponse = {
     status: string;
     period: string;
     nextCreateDate?: Date;
+    endSpecifiedDate?: Date;
     startDate: Date;
     items: {
         id: number;
@@ -217,6 +218,7 @@ type TechTaskBody = {
     type: string;
     period: string;
     startDate: Date;
+    endSpecifiedDate?: Date;
     techTaskItem: number[];
 }
 
@@ -226,6 +228,7 @@ type UpdateTechTaskBody = {
     type?: string;
     status?: string;
     period?: string;
+    endSpecifiedDate?: Date;
     techTaskItem?: number[];
 }
 
@@ -238,6 +241,7 @@ type TechTaskResponse = {
         status: string;
         period: string;
         nextCreateDate?: Date;
+        endSpecifiedDate?: Date;
         startDate: Date;
         startWorkDate?: Date;
         sendWorkDate?: Date;
@@ -255,6 +259,7 @@ type ReadTechTasksResponse = {
     posId: number;
     type: string;
     status: string;
+    endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
@@ -276,6 +281,7 @@ type TechTaskShapeResponse = {
     posId: number;
     type: string;
     status: string;
+    endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;

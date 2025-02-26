@@ -11,8 +11,10 @@ import Button from "@/components/ui/Button/Button";
 import { usePosType } from "@/hooks/useAuthStore";
 import { getWarehouses } from "@/services/api/warehouse";
 import { getOrganization } from "@/services/api/organization";
+import { useTranslation } from "react-i18next";
 
 const IncomeReport: React.FC = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const posType = usePosType();
@@ -83,13 +85,13 @@ const IncomeReport: React.FC = () => {
             {/* Dynamic Input Fields Based on API Response */}
             <div className="p-4 bg-white rounded-lg shadow-md">
                 <form onSubmit={onSubmit}>
-                    <h3 className="text-lg font-semibold mb-4">Report Parameters</h3>
+                    <h3 className="text-lg font-semibold mb-4">{t("analysis.repo")}</h3>
                     <div className="space-y-4">
                         {reportData?.params && Object.entries(reportData.params).map(([key, value]) => (
                             <div key={key} className="flex flex-col">
-                                <label className="text-sm font-medium text-gray-700 capitalize">{key}</label>
                                 {key.toLowerCase().includes("date") ? (
                                     <Input
+                                        title={t(`analysis.${key}`)}
                                         type="date"
                                         value={formData[key] || ""}
                                         changeValue={(e) => handleInputChange(key, e.target.value)}
@@ -97,6 +99,7 @@ const IncomeReport: React.FC = () => {
                                     />
                                 ) : key.toLowerCase().includes("pos") ?
                                     <DropdownInput
+                                        title={t("analysis.posId")}
                                         value={formData[key] || ""}
                                         options={poses}
                                         onChange={(value) => handleInputChange(key, value)}
@@ -104,6 +107,7 @@ const IncomeReport: React.FC = () => {
                                     />
                                     : key.toLowerCase().includes("device") ?
                                         <DropdownInput
+                                            title={t("analysis.deviceId")}
                                             value={formData[key] || ""}
                                             options={devices}
                                             onChange={(value) => handleInputChange(key, value)}
@@ -111,6 +115,7 @@ const IncomeReport: React.FC = () => {
                                         />
                                         : key.toLowerCase().includes("warehouse") ?
                                             <DropdownInput
+                                                title={t("analysis.warehouseId")}
                                                 value={formData[key] || ""}
                                                 options={warehouses}
                                                 onChange={(value) => handleInputChange(key, value)}
@@ -118,6 +123,7 @@ const IncomeReport: React.FC = () => {
                                             />
                                             : key.toLowerCase().includes("org") ?
                                                 <DropdownInput
+                                                    title={t("analysis.organizationId")}
                                                     value={formData[key] || ""}
                                                     options={organizations}
                                                     onChange={(value) => handleInputChange(key, value)}
@@ -125,6 +131,7 @@ const IncomeReport: React.FC = () => {
                                                 />
                                                 : typeof value === "number" ? (
                                                     <Input
+                                                        title={t(`analysis.${key}`)}
                                                         type="number"
                                                         value={formData[key] || ""}
                                                         changeValue={(e) => handleInputChange(key, Number(e.target.value))}
@@ -132,6 +139,7 @@ const IncomeReport: React.FC = () => {
                                                     />
                                                 ) : (
                                                     <Input
+                                                        title={t(`analysis.${key}`)}
                                                         type="text"
                                                         value={formData[key] || ""}
                                                         changeValue={(e) => handleInputChange(key, e.target.value)}
@@ -141,7 +149,7 @@ const IncomeReport: React.FC = () => {
                             </div>
                         ))}
                         <Button
-                            title="Add report"
+                            title={t("analysis.add")}
                             form={true}
                             isLoading={isMutating}
                         />

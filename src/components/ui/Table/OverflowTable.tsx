@@ -283,7 +283,7 @@ const OverflowTable: React.FC<Props> = ({
                       {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}

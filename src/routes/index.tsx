@@ -163,36 +163,20 @@ const routes = [
   {
     name: "analysis",
     path: "/analysis",
-    subMenu: false,
+    subMenu: true,
     filter: true,
     addButton: false,
     addButtonText: "",
     icon: MonitoringIcon,
-    component: Analysis,
+    component: Default,
     isSidebar: true,
-    permissions: []
-  },
-  {
-    name: "income",
-    path: "/analysis/report",
-    subMenu: false,
-    filter: false,
-    addButton: false,
-    addButtonText: "",
-    component: IncomeReport,
-    isSidebar: false,
-    permissions: []
-  },
-  {
-    name: "my",
-    path: "/analysis/transactions",
-    subMenu: false,
-    filter: true,
-    addButton: false,
-    addButtonText: "",
-    component: Transactions,
-    isSidebar: false,
-    permissions: []
+    permissions: [],
+    subNavHeading: "",
+    subNav: [
+      { name: "analysis", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/analysis/all", component: Analysis, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "income", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/analysis/report", component: IncomeReport, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "my", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/analysis/transactions", component: Transactions, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
+    ]
   },
   {
     name: "marketing",
