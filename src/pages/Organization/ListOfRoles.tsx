@@ -7,10 +7,19 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
+import useSWR from "swr";
+import { getRoles } from "@/services/api/organization";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useButtonCreate } from "@/components/context/useContext";
 
 const ListOfRoles: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
+    const { buttonOn, setButtonOn } = useButtonCreate();
+
+    const { data: rolesData, isLoading: loadingRoles } = useSWR([`get-role`], () => getRoles(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const roles = rolesData || [];
 
     return (
         <div>
@@ -22,11 +31,13 @@ const ListOfRoles: React.FC = () => {
                     onClose={() => setNotificationVisible(false)}
                 />
             )}
-            <OverflowTable
-                tableData={[]}
-                columns={columnsRoles}
-                isUpdate={true}
-            />
+            {loadingRoles ?
+                <TableSkeleton columnCount={columnsRoles.length} />
+                : <OverflowTable
+                    tableData={roles}
+                    columns={columnsRoles}
+                    isUpdate={true}
+                />}
             <DrawerCreate>
                 <form className="space-y-6">
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("roles.create")}</span>
@@ -58,7 +69,7 @@ const ListOfRoles: React.FC = () => {
                         <Button
                             title={t("organizations.cancel")}
                             type='outline'
-                        // handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} 
+                            handleClick={() => { setButtonOn(!buttonOn); }}
                         />
                         <Button
                             title={t("roles.create")}

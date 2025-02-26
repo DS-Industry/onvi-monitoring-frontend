@@ -77,7 +77,8 @@
     "timeCreation": "Time sheet (Creation)",
     "timestamp": "Timestamps",
     "income": "Income report",
-    "my": "My reports"
+    "my": "My reports",
+    "pos": "POS Connection"
   },
   "dashboard": {
     "news": "News",
@@ -718,6 +719,9 @@
     "name": "Name*",
     "enter": "Enter CRM role name",
     "desc": "Describe the user role",
-    "acc": "Access to the program"
+    "acc": "Access to the program",
+    "noServ": "The organization currently has no employees",
+    "crea": "Send an invitation by email",
+    "role": "Role Change"
   }
 }

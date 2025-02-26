@@ -1071,15 +1071,15 @@ export const columnsDataCashOperSuspiciously = [
 export const columnsEmployees = [
   {
     label: "ФИО Сотрудника",
-    key: "employeeName"
+    key: "name"
   },
   {
     label: "Должность",
-    key: "jobTitle"
+    key: "position"
   },
   {
     label: "Роль СRM",
-    key: "role"
+    key: "roleName"
   },
   {
     label: "Статус",
@@ -1087,18 +1087,19 @@ export const columnsEmployees = [
   },
   {
     label: "Работает с",
-    key: "works"
+    key: "createdAt",
+    type: "date"
   }
 ]
 
 export const columnsRoles = [
   {
     label: "Роль СRM",
-    key: "role"
+    key: "name"
   },
   {
     label: "Права доступа",
-    key: "access"
+    key: "description"
   }
 ] 
 

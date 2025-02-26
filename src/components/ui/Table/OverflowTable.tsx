@@ -298,9 +298,9 @@ const OverflowTable: React.FC<Props> = ({
                               <div className={`flex items-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
                              ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT")) ? "text-[#00A355]" :
                                   row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : row[column.key] === t("tables.SAVED") ? "text-[#FF9066]" : "text-text01"} 
-                             ${row[column.key] === t("tables.SENT") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
+                             ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
                              ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
-                                {row[column.key] === t("tables.SENT") && (
+                                {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
                                   <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
                                 )}
                                 {row[column.key] === t("tables.SAVED") && (
