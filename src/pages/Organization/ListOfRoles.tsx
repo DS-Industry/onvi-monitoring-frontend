@@ -36,7 +36,6 @@ const ListOfRoles: React.FC = () => {
                 : <OverflowTable
                     tableData={roles}
                     columns={columnsRoles}
-                    isUpdate={true}
                 />}
             <DrawerCreate>
                 <form className="space-y-6">

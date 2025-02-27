@@ -6,6 +6,8 @@ import { connectPosPermission, getPosPermission, getPosPermissionUser } from "@/
 import Button from "@/components/ui/Button/Button";
 import { useTranslation } from "react-i18next";
 import useSWRMutation from "swr/mutation";
+import { getWorkers } from "@/services/api/equipment";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
 
 
 interface Item {
@@ -19,14 +21,19 @@ const PosConnection: React.FC = () => {
     const [availableItems, setAvailableItems] = useState<Item[]>([]);
     const [selectedItems, setSelectedItems] = useState<Item[]>([]);
     const user = useUser();
+    const [workerId, setWorkerId] = useState(user.id);
 
     const { data: posPermissionData } = useSWR([`get-pos-permission`], () => getPosPermission(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: posPermissionUserData } = useSWR([`get-pos-permission-user`], () => getPosPermissionUser(user.id), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posPermissionUserData } = useSWR([`get-pos-permission-user`, workerId], () => getPosPermissionUser(workerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { trigger: connectPos, isMutating } = useSWRMutation(['connect-pos'], async () => connectPosPermission({
         posIds: selected
-    }, user.id));
+    }, workerId));
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name + " " + item.middlename + " " + item.surname, value: item.id })) || [];
 
     useEffect(() => {
         if (posPermissionUserData)
@@ -45,20 +52,20 @@ const PosConnection: React.FC = () => {
 
     useEffect(() => {
         setSelected(selectedItems.map(item => item.id));
-    }, [selectedItems]);    
+    }, [selectedItems]);
 
     const handleTransferToSelected = () => {
         const movingItems = availableItems.filter((item) => selected.includes(item.id));
         setAvailableItems(availableItems.filter((item) => !selected.includes(item.id)));
         setSelectedItems([...selectedItems, ...movingItems]);
     };
-    
+
     const handleTransferToAvailable = () => {
         const movingItems = selectedItems.filter((item) => selected.includes(item.id));
         setSelectedItems(selectedItems.filter((item) => !selected.includes(item.id)));
         setAvailableItems([...availableItems, ...movingItems]);
     };
-    
+
 
     const toggleSelection = (id: number) => {
         setSelected((prev) =>
@@ -66,16 +73,23 @@ const PosConnection: React.FC = () => {
         );
     };
 
-    const handleConnection = async() => {
-        const result  = await connectPos();
+    const handleConnection = async () => {
+        const result = await connectPos();
 
-        if(result) {
+        if (result) {
             console.log("The result of api: ", result);
         }
     }
 
     return (
         <div className="space-y-4">
+            <DropdownInput
+                title={t("equipment.user")}
+                options={workers}
+                classname="w-72"
+                value={workerId}
+                onChange={(value) => setWorkerId(value)}
+            />
             <div className="flex flex-row space-x-4">
                 {/* Available Items List */}
                 <div className="border rounded w-80">
