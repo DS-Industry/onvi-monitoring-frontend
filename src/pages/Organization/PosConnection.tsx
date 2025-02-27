@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-
+import { useSnackbar } from "@/components/context/useContext";
 
 interface Item {
     id: number;
@@ -22,6 +22,7 @@ const PosConnection: React.FC = () => {
     const [selectedItems, setSelectedItems] = useState<Item[]>([]);
     const user = useUser();
     const [workerId, setWorkerId] = useState(user.id);
+    const { showSnackbar } = useSnackbar();
 
     const { data: posPermissionData } = useSWR([`get-pos-permission`], () => getPosPermission(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -74,12 +75,15 @@ const PosConnection: React.FC = () => {
     };
 
     const handleConnection = async () => {
-        const result = await connectPos();
-
-        if (result) {
-            console.log("The result of api: ", result);
+        try {
+            const result = await connectPos();
+            if (result) {
+                showSnackbar(t("analysis.the"), "success");
+            }
+        } catch (error) {
+            showSnackbar("The operation is unsuccessful", "error");
         }
-    }
+    };
 
     return (
         <div className="space-y-4">
@@ -94,7 +98,7 @@ const PosConnection: React.FC = () => {
                 {/* Available Items List */}
                 <div className="border rounded w-80">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
-                        <div className="font-normal text-text01 p-2">Available POS</div>
+                        <div className="font-normal text-text01 p-2">{t("analysis.branch")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
                     </div>
                     <div className="border-b-[1px] h-64 overflow-y-auto w-80">
@@ -134,7 +138,7 @@ const PosConnection: React.FC = () => {
                 {/* Selected Items List */}
                 <div className="border rounded w-80">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
-                        <div className="font-normal text-text01 p-2">Selected POS</div>
+                        <div className="font-normal text-text01 p-2">{t("analysis.added")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
                     </div>
                     <div className="border-b-[1px] h-64 w-80 overflow-y-auto">
@@ -152,7 +156,7 @@ const PosConnection: React.FC = () => {
                 </div>
             </div>
             <Button
-                title={t("routes.pos")}
+                title={t("organizations.save")}
                 isLoading={isMutating}
                 handleClick={handleConnection}
             />

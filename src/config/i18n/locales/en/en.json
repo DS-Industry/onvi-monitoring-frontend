@@ -78,7 +78,7 @@
     "timestamp": "Timestamps",
     "income": "Income report",
     "my": "My reports",
-    "pos": "POS Connection"
+    "pos": "Adding branches"
   },
   "dashboard": {
     "news": "News",
@@ -708,7 +708,10 @@
     "posId": "POS",
     "deviceId": "Device",
     "warehouseId": "Warehouse",
-    "organizationId": "Organization"
+    "organizationId": "Organization",
+    "branch": "Branches",
+    "added": "Added branches",
+    "the": "The branches connection is established successfully."
   },
   "roles": {
     "access": "Access rights management",
