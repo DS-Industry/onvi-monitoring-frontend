@@ -196,6 +196,11 @@ const OverflowTable: React.FC<Props> = ({
         { action: "manage", subject: "CashCollection" },
         { action: "update", subject: "CashCollection" },
       ];
+    if (path.includes("analysis"))
+      return [
+        { action: "manage", subject: "ShiftReport" },
+        { action: "update", subject: "ShiftReport" },
+      ];
     // Add cases for other components as needed
     else
       return [];
