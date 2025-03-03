@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import Notification from "@ui/Notification.tsx";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
@@ -14,7 +14,6 @@ import { useButtonCreate } from "@/components/context/useContext";
 
 const ListOfRoles: React.FC = () => {
     const { t } = useTranslation();
-    const [notificationVisible, setNotificationVisible] = useState(true);
     const { buttonOn, setButtonOn } = useButtonCreate();
 
     const { data: rolesData, isLoading: loadingRoles } = useSWR([`get-role`], () => getRoles(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -23,14 +22,11 @@ const ListOfRoles: React.FC = () => {
 
     return (
         <div>
-            {notificationVisible && (
-                <Notification
-                    title={t("roles.access")}
-                    message={t("roles.the")}
-                    showEmp={true}
-                    onClose={() => setNotificationVisible(false)}
-                />
-            )}
+            <Notification
+                title={t("roles.access")}
+                message={t("roles.the")}
+                showEmp={true}
+            />
             {loadingRoles ?
                 <TableSkeleton columnCount={columnsRoles.length} />
                 : <OverflowTable

@@ -28,6 +28,7 @@ const Analysis: React.FC = () => {
     const totalPages = Math.ceil(totalCount / rowsPerPage);
     const { filterOn, setFilterOn } = useFilterOn();
     const [tableLoading, setTableLoading] = useState(false);
+    const [searchReport, setSearchReport] = useState("");
 
     const { data: filter, mutate: mutateGetAllReport, isLoading: loadingReports } = useSWR(["get-all-report"], () => getAllReports({
         category: cat as CategoryReportTemplate,
@@ -45,7 +46,9 @@ const Analysis: React.FC = () => {
             setTotalCount(filter?.count)
     }, [filter?.count, loadingReports, setTotalCount]);
 
-    const reportsData = useMemo(() => filter?.reports || [], [filter]);
+    const reportsData = useMemo(() => filter?.reports.filter(
+        (report) => report.name.toLowerCase().includes(searchReport.toLowerCase())
+    ) || [], [filter?.reports, searchReport]);
 
     console.log("Filter data: ", filter);
 
@@ -80,7 +83,7 @@ const Analysis: React.FC = () => {
 
     return (
         <div>
-            <Filter count={reportsData.length} hideDateTime={true} hideCity={true}>
+            <Filter count={reportsData.length} hideDateTime={true} hideCity={true} search={searchReport} setSearch={setSearchReport}>
                 <DropdownInput
                     title={t("warehouse.category")}
                     value={cat}

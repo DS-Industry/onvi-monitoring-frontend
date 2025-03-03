@@ -84,11 +84,11 @@ const IncomeReport: React.FC = () => {
             </Filter>
             {/* Dynamic Input Fields Based on API Response */}
             <div className="p-4 bg-white rounded-lg shadow-md">
-                <form onSubmit={onSubmit}>
+                <form onSubmit={onSubmit} className="space-y-4">
                     <h3 className="text-lg font-semibold mb-4">{t("analysis.repo")}</h3>
-                    <div className="space-y-4">
+                    <div className="flex space-x-4">
                         {reportData?.params && Object.entries(reportData.params).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
+                            <div key={key}>
                                 {key.toLowerCase().includes("date") ? (
                                     <Input
                                         title={t(`analysis.${key}`)}
@@ -148,12 +148,12 @@ const IncomeReport: React.FC = () => {
                                                 )}
                             </div>
                         ))}
-                        <Button
-                            title={t("analysis.add")}
-                            form={true}
-                            isLoading={isMutating}
-                        />
                     </div>
+                    <Button
+                        title={t("analysis.add")}
+                        form={true}
+                        isLoading={isMutating}
+                    />
                 </form>
             </div>
 

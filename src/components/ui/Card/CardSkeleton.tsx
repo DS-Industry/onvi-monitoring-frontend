@@ -16,7 +16,7 @@ const CardSkeleton: React.FC<CardSkeletonProps> = ({
     return (
         <div className={`table-skeleton bg-white w-[${cardWidth}]`}>
             {[...Array(cardCount)].map((_, index) => (
-                <div key={index} className="bg-opacity01 border animate-pulse">
+                <div key={index} className="bg-opacity01 border rounded-2xl animate-pulse">
                     <Skeleton height={cardHeight} width={cardWidth} className="rounded w-full" />
                 </div>
             ))}

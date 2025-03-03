@@ -3,7 +3,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
-import { getTransactions } from "@/services/api/reports";
+import { getAllReports, getTransactions } from "@/services/api/reports";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
@@ -22,6 +22,15 @@ const Transactions: React.FC = () => {
     const { filterOn, setFilterOn } = useFilterOn();
     const [tableLoading, setTableLoading] = useState(false);
 
+    const { data: filter } = useSWR(["get-all-report"], () => getAllReports({}));
+
+    const allReports = useMemo(() => {
+        return filter?.reports?.map((item) => ({
+            name: item.name,
+            value: item.id
+        })) || [];
+    }, [filter?.reports]); 
+    
     const { data: transactionData, mutate: mutateTransactions, isLoading: loadingTransactions } = useSWR([`get-transaction`], () => getTransactions({
         page: currentPage,
         size: pageNumber
@@ -41,7 +50,14 @@ const Transactions: React.FC = () => {
             setTotalCount(transactionData?.count)
     }, [transactionData?.count, loadingTransactions, setTotalCount]);
 
-    const transactions = useMemo(() => transactionData?.transactions || [], [transactionData]);
+    const transactions = useMemo(() => {
+        return (transactionData?.transactions.map((item) => ({
+            ...item,
+            status: t(`analysis.${item.status}`),
+            reportTemplateId: allReports.find((rep) => rep.value === item.reportTemplateId)?.name || ""
+        })) || [])
+            .sort((a, b) => new Date(b.startTemplateAt).getTime() - new Date(a.startTemplateAt).getTime());
+    }, [allReports, t, transactionData?.transactions]);
 
     const generatePaginationRange = () => {
         const range: (number | string)[] = [];
@@ -100,9 +116,10 @@ const Transactions: React.FC = () => {
             label: "",
             key: "Download",
             render: (row: { status: string; reportKey: string; userId: number; }) => (
-                row.status === "DONE" && (<div>
-                    <button onClick={() => handleDownload(row.reportKey, row.userId)}>
-                        <Icon icon="download" />
+                row.status === t("analysis.DONE") && (<div>
+                    <button onClick={() => handleDownload(row.reportKey, row.userId)} className="flex space-x-2 items-center text-primary02">
+                        <div>{t("tables.Download")}</div>
+                        <Icon icon="download" className="w-5 h-5" />
                     </button>
                 </div>)
             ),

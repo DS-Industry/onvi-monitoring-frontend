@@ -1087,8 +1087,7 @@ export const columnsEmployees = [
   },
   {
     label: "Работает с",
-    key: "createdAt",
-    type: "date"
+    key: "createdAt"
   }
 ]
 

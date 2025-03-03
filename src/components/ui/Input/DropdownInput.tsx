@@ -4,7 +4,11 @@ import { Spinner } from '@material-tailwind/react';
 import Check from 'feather-icons-react';
 
 
-type Option = { name: any, value: any };
+type Option = {
+    name: any;
+    value: any;
+    render?: JSX.Element;
+};
 
 type DropdownInputProps = {
     value: any;
@@ -23,6 +27,7 @@ type DropdownInputProps = {
     classname?: string;
     error?: boolean;
     helperText?: string;
+    renderOption?: (option: Option) => JSX.Element;
 };
 
 const DropdownInput: React.FC<DropdownInputProps> = ({
@@ -41,7 +46,8 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     type,
     classname,
     error = false,
-    helperText
+    helperText,
+    renderOption
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -120,7 +126,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
 
     return (
         <div ref={dropdownRef} className={`relative ${classname}`}>
-            {title && title[title?.length - 1] === "*" ?<label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label>  : <label className="text-sm text-text02">{title}</label>}
+            {title && title[title?.length - 1] === "*" ? <label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label> : <label className="text-sm text-text02">{title}</label>}
             <div className='relative'>
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
@@ -183,20 +189,21 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                                     className={`px-2 py-1 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between`}
                                     onClick={() => handleSelectOption(option)}
                                 >
-                                    {isMultiSelect ? (
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedValues.includes(option.value)}
-                                                style={{ accentColor: 'blue' }}
-                                                className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
-                                                readOnly
-                                            />
-                                            {option.name}
-                                        </div>
-                                    ) : (
-                                        option.name
-                                    )}
+                                    {renderOption ? renderOption(option) :
+                                        isMultiSelect ? (
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedValues.includes(option.value)}
+                                                    style={{ accentColor: 'blue' }}
+                                                    className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
+                                                    readOnly
+                                                />
+                                                {option.name}
+                                            </div>
+                                        ) : (
+                                            option.name
+                                        )}
 
                                     {isSelectable && !isMultiSelect && (
                                         value === option.value ? (

@@ -18,7 +18,6 @@ import useSWRMutation from "swr/mutation";
 
 const ListOfEmployees: React.FC = () => {
     const { t } = useTranslation();
-    const [notificationVisible, setNotificationVisible] = useState(true);
     const [selectedWorker, setSelectedWorker] = useState<string>("");
     const [openModal, setOpenModal] = useState(false);
     const [roleId, setRoleId] = useState(0);
@@ -34,15 +33,33 @@ const ListOfEmployees: React.FC = () => {
     }));
 
 
-    const roles: { name: string, value: number }[] = rolesData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const roles: { name: string, value: number }[] = rolesData?.map((item) => ({
+        name: item.name,
+        value: item.id,
+        render: (
+            <div>
+                <div>{item.name}</div>
+                <div className="text-text02">Lorem ipsum dolor, sit amet consectetur</div>
+            </div>
+        )
+    })) || [];
 
-    const workers: { id: number; name: string; position: string; roleName: string; status: string; createdAt: Date }[] = workerData?.map((item) => ({
+    const workers: {
+        id: number;
+        name: string;
+        position: string;
+        roleName: string;
+        status: string;
+        createdAt: string;
+    }[] = workerData?.map((item) => ({
         id: item.id,
-        name: item.surname + " " + item.name + " " + item.middlename,
+        name: `${item.surname} ${item.name} ${item.middlename}`,
         position: item.position,
         roleName: item.roleName,
         status: t(`tables.${item.status}`),
         createdAt: item.createAt
+            ? new Date(item.createAt).toLocaleDateString("ru-RU")
+            : "N/A"
     })) || [];
 
     const handleUpdate = (rowId: number) => {
@@ -82,15 +99,12 @@ const ListOfEmployees: React.FC = () => {
                 />
             </Filter>
             <div className="mt-5">
-                {notificationVisible && (
-                    <Notification
-                        title={t("roles.access")}
-                        message={t("roles.change")}
-                        message2={t("roles.then")}
-                        showEmp={true}
-                        onClose={() => setNotificationVisible(false)}
-                    />
-                )}
+                <Notification
+                    title={t("roles.access")}
+                    message={t("roles.change")}
+                    message2={t("roles.then")}
+                    showEmp={true}
+                />
                 {loadingWorkers ?
                     <TableSkeleton columnCount={columnsEmployees.length} />
                     : workers.length > 0 ?
@@ -108,17 +122,19 @@ const ListOfEmployees: React.FC = () => {
                             </NoDataUI>
                         )}
                 {openModal && selectedWorker && (
-                    <Modal isOpen={openModal} classname="p-10">
-                        <div className="flex flex-row items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-text01">{t("roles.role")}</h2>
+                    <Modal isOpen={openModal} classname="w-[552px]">
+                        <div className="flex items-center justify-between">
+                            <div></div>
                             <Close onClick={() => setOpenModal(false)} className="cursor-pointer text-text01" />
                         </div>
-                        <p className="text-primary02">{selectedWorker}</p>
+                        <h2 className="text-2xl font-semibold text-text01 mb-4">{t("roles.role")}</h2>
+                        <p className="text-primary02 text-sm">{selectedWorker}</p>
                         <DropdownInput
                             value={roleId}
                             options={roles}
                             onChange={(value) => setRoleId(value)}
-                            classname="w-80"
+                            classname="w-[456px]"
+                            renderOption={(option) => option.render || <span>{option.name}</span>}
                         />
                         <div className="flex justify-end space-x-4 mt-10">
                             <Button

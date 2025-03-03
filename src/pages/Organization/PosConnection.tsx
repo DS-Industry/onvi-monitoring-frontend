@@ -7,8 +7,8 @@ import Button from "@/components/ui/Button/Button";
 import { useTranslation } from "react-i18next";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useSnackbar } from "@/components/context/useContext";
+import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 
 interface Item {
     id: number;
@@ -87,21 +87,29 @@ const PosConnection: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            <DropdownInput
-                title={t("equipment.user")}
-                options={workers}
-                classname="w-72"
-                value={workerId}
-                onChange={(value) => setWorkerId(value)}
-            />
+            <div className="flex justify-between items-center">
+                <SearchDropdownInput
+                    title={t("equipment.user")}
+                    options={workers}
+                    classname="w-72"
+                    value={workerId}
+                    onChange={(value) => setWorkerId(value)}
+                />
+                <Button
+                    title={t("organizations.save")}
+                    isLoading={isMutating}
+                    handleClick={handleConnection}
+                    classname="h-10 mt-5"
+                />
+            </div>
             <div className="flex flex-row space-x-4">
                 {/* Available Items List */}
-                <div className="border rounded w-80">
+                <div className="border rounded w-96">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
                         <div className="font-normal text-text01 p-2">{t("analysis.branch")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
                     </div>
-                    <div className="border-b-[1px] h-64 overflow-y-auto w-80">
+                    <div className="border-b-[1px] h-96 overflow-y-auto w-96">
                         {availableItems.map((item) => (
                             <div
                                 key={item.id}
@@ -116,7 +124,7 @@ const PosConnection: React.FC = () => {
                 </div>
 
                 {/* Buttons in the center */}
-                <div className="flex flex-col max-w-80 justify-center items-center my-2">
+                <div className="flex flex-col max-w-96 justify-center items-center my-2">
                     <button
                         className="border border-b-0 bg-white text-black cursor-pointer"
                         onClick={handleTransferToSelected}
@@ -136,12 +144,12 @@ const PosConnection: React.FC = () => {
                 </div>
 
                 {/* Selected Items List */}
-                <div className="border rounded w-80">
+                <div className="border rounded w-96">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
                         <div className="font-normal text-text01 p-2">{t("analysis.added")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
                     </div>
-                    <div className="border-b-[1px] h-64 w-80 overflow-y-auto">
+                    <div className="border-b-[1px] h-96 w-96 overflow-y-auto">
                         {selectedItems.map((item) => (
                             <div
                                 key={item.id}
@@ -155,11 +163,6 @@ const PosConnection: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <Button
-                title={t("organizations.save")}
-                isLoading={isMutating}
-                handleClick={handleConnection}
-            />
         </div>
     )
 }

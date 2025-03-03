@@ -301,8 +301,8 @@ const OverflowTable: React.FC<Props> = ({
                           : renderCell ? renderCell(column, row)
                             : column.key.toLocaleLowerCase().includes('status') ? (
                               <div className={`flex items-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
-                             ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT")) ? "text-[#00A355]" :
-                                  row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : row[column.key] === t("tables.SAVED") ? "text-[#FF9066]" : "text-text01"} 
+                             ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT") || row[column.key] === t("analysis.DONE")) ? "text-[#00A355]" :
+                                  row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
                              ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
                              ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
                                 {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (

@@ -20,6 +20,8 @@ import {
     Tooltip,
     Legend
 } from "chart.js";
+import CardSkeleton from "@/components/ui/Card/CardSkeleton";
+import { useTranslation } from "react-i18next";
 
 // Register Chart.js Components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -50,6 +52,7 @@ interface PosMonitoring {
 
 
 const ProgramDevices: React.FC = () => {
+    const { t } = useTranslation();
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
@@ -126,12 +129,31 @@ const ProgramDevices: React.FC = () => {
                 hideSearch={true}
             />
             {
-                isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsProgramsPos.length} />)
+                isTableLoading || filterLoading ? (
+                    <div className="mt-8 space-y-6">
+                        {/* Skeleton for Bar Chart Cards */}
+                        <div className="mt-8 space-y-6">
+                            <div className="flex space-x-2 w-full">
+                                <div className="w-1/2 h-80">
+                                    <CardSkeleton cardHeight="320px" cardWidth="100%" />
+                                </div>
+                                <div className="w-1/2 h-80">
+                                    <CardSkeleton cardHeight="320px" cardWidth="100%" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Skeleton for Table Card */}
+                        <div>
+                            <TableSkeleton columnCount={columnsProgramsPos.length} />
+                        </div>
+                    </div>
+                )
                     :
                     devicePrograms.length > 0 ? (
                         <div className="mt-8 space-y-6">
-                            <div className="flex space-x-2">
-                                <div className="w-[561px] h-80 shadow-card rounded-2xl p-4">
+                            <div className="flex space-x-2 w-full">
+                                <div className="w-1/2 h-80 shadow-card rounded-2xl p-4">
                                     <Bar
                                         data={{
                                             labels: devicePrograms.flatMap(program =>
@@ -156,8 +178,9 @@ const ProgramDevices: React.FC = () => {
                                                 legend: { display: false },
                                                 title: {
                                                     display: true,
-                                                    text: "Программы",
-                                                    font: { size: 16 },
+                                                    text: t("routes.programs"),
+                                                    font: { size: 20 },
+                                                    color: "black"
                                                 }
                                             },
                                             scales: {
@@ -166,9 +189,9 @@ const ProgramDevices: React.FC = () => {
                                             },
                                         }}
                                     />
-                                    <div className="flex items-center justify-center ml-20 text-text01">Кол-во авто</div>
+                                    <div className="flex items-center justify-center ml-20 text-text01">{t("pos.no")}</div>
                                 </div>
-                                <div className="w-[561px] h-80 shadow-card rounded-2xl p-4">
+                                <div className="w-1/2 h-80 shadow-card rounded-2xl p-4">
                                     <Bar
                                         data={{
                                             labels: devicePrograms.flatMap(program =>
@@ -194,7 +217,8 @@ const ProgramDevices: React.FC = () => {
                                                 title: {
                                                     display: true,
                                                     text: "Выручка по программам",
-                                                    font: { size: 16 },
+                                                    font: { size: 20 },
+                                                    color: "black"
                                                 }
                                             },
                                             scales: {
@@ -216,7 +240,7 @@ const ProgramDevices: React.FC = () => {
                                 </div>
                             </div>
                             <div className="shadow-card rounded-2xl p-4 space-y-6">
-                                <div className="text-text01 font-semibold text-2xl">Отчет по выручке</div>
+                                <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
                                 {devicePrograms.map((deviceProgram) =>
                                     <OverflowTable
                                         title={deviceProgram.name}
@@ -232,8 +256,8 @@ const ProgramDevices: React.FC = () => {
                     ) : (
                         <>
                             <NoDataUI
-                                title="В этом разделе представленны программы"
-                                description="У вас пока нету программ"
+                                title={t("pos.this")}
+                                description={t("pos.you")}
                             >
                                 <SalyIamge className="mx-auto" />
                             </NoDataUI>

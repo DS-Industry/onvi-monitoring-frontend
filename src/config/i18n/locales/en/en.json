@@ -165,7 +165,11 @@
     "maxAmount": "Maximum order amount",
     "photos": "Photos",
     "maxNumber": "Maximum number of photos: 6",
-    "download": "Download"
+    "download": "Download",
+    "this": "This section presents programs",
+    "you": "You don't have any programs yet",
+    "rev": "Revenue report",
+    "no": "Number of cars"
   },
   "profile": {
     "basic": "Basic Details",
@@ -607,7 +611,9 @@
     "KILOGRAM": "KILOGRAM",
     "PIECE": "PIECE",
     "LITER": "LITER",
-    "METER": "METER"
+    "METER": "METER",
+    "Download": "Download",
+    "FIRED": "FIRED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",

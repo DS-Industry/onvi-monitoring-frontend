@@ -12,7 +12,7 @@ interface NotificationProps {
   linkUrl?: string;
   showBonus?: boolean;
   showEmp?: boolean;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const Notification: React.FC<NotificationProps> = ({
@@ -40,9 +40,9 @@ const Notification: React.FC<NotificationProps> = ({
         {/* <SalyIamge className="h-[50%] w-40" /> */}
         {showBonus && <img src={ShareBonus} className="w-40 m-auto" />}
         {showEmp && <img src={Employees} className="w-40 m-auto absolute bottom-0" />}
-        <button onClick={onClose} className="absolute right-0 top-0 p-4">
+        {onClose && <button onClick={onClose} className="absolute right-0 top-0 p-4">
           <Close />
-        </button>
+        </button> }
       </div>
     </div>
   );
