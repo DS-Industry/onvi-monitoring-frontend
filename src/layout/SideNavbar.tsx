@@ -439,12 +439,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           )}
           <div className="flex items-center justify-between">
             <div className="py-5 flex items-center">
-              <button
+              {!isMobile && (<button
                 onClick={toggleNavbar}
                 className="p-2 bg-white border border-primary02 text-primary02 rounded"
               >
                 {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-              </button>
+              </button>)}
               <div className="ms-3 lg:ms-12 flex flex-col items-start">
                 {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
                 <div className="flex items-center mb-3">
