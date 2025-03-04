@@ -300,7 +300,7 @@ const OverflowTable: React.FC<Props> = ({
                         : column.render ? column.render(row, handleChange)
                           : renderCell ? renderCell(column, row)
                             : column.key.toLocaleLowerCase().includes('status') ? (
-                              <div className={`flex items-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
+                              <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
                              ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT") || row[column.key] === t("analysis.DONE")) ? "text-[#00A355]" :
                                   row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
                              ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}

@@ -22,6 +22,7 @@ import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import EZ from "@icons/EZ.svg?react";
 import moment from "moment";
+import Icon from "feather-icons-react";
 
 type Props = {
   children: React.ReactNode;
@@ -39,6 +40,18 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useUser();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
 
   const userPermissions = useAuthStore((state) => state.permissions);
 
@@ -143,7 +156,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   };
 
   return (
-    <div className="flex">
+    <div className="relative">
       {hoveredNavItem && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
@@ -151,9 +164,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         ></div>
       )}
       <div
-        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${isOpen ? "translate-x-0" : "translate-x-0 w-20"
-          } transition-width duration-300 ease-in-out ${isOpen ? "w-64" : "w-20"
-          }`}
+        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform transition-all duration-300 ease-in-out
+      ${isOpen ? "w-64 translate-x-0" : "w-20"}
+      ${isOpen && "md:w-64"}
+      ${isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : ""}`}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
@@ -317,17 +331,22 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {user.avatar ? <img
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
-                className="rounded-full w-12 h-12 object-cover"
+                className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
               /> : <EZ />}
               {isOpen && (
-                <div className="text-text02 flex items-center">
-                  <p>{user.name}</p>
-                </div>
+                <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>
               )}
             </div>
           </div>
         </div>
       </div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 left-4 md:hidden p-2 bg-stone-900 text-white rounded-md"
+        style={{ marginLeft: isOpen ? "260px" : "24px" }} // Adjust left spacing based on sidebar state
+      >
+        {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+      </button>
       <div
         className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
           }`}

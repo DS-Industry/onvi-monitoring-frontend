@@ -87,7 +87,7 @@ const PosConnection: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex space-x-2 items-center">
                 <SearchDropdownInput
                     title={t("equipment.user")}
                     options={workers}

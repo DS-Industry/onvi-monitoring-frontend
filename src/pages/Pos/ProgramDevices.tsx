@@ -153,7 +153,7 @@ const ProgramDevices: React.FC = () => {
                     devicePrograms.length > 0 ? (
                         <div className="mt-8 space-y-6">
                             <div className="flex space-x-2 w-full">
-                                <div className="w-1/2 h-80 shadow-card rounded-2xl p-4">
+                                <div className="w-1/2 h-[340px] shadow-card rounded-2xl p-4">
                                     <Bar
                                         data={{
                                             labels: devicePrograms.flatMap(program =>
@@ -180,7 +180,8 @@ const ProgramDevices: React.FC = () => {
                                                     display: true,
                                                     text: t("routes.programs"),
                                                     font: { size: 20 },
-                                                    color: "black"
+                                                    color: "black",
+                                                    align: "start"
                                                 }
                                             },
                                             scales: {
@@ -189,9 +190,9 @@ const ProgramDevices: React.FC = () => {
                                             },
                                         }}
                                     />
-                                    <div className="flex items-center justify-center ml-20 text-text01">{t("pos.no")}</div>
+                                    <div className="flex items-center justify-center text-text01">{t("pos.no")}</div>
                                 </div>
-                                <div className="w-1/2 h-80 shadow-card rounded-2xl p-4">
+                                <div className="w-1/2 h-[340px] shadow-card rounded-2xl p-4">
                                     <Bar
                                         data={{
                                             labels: devicePrograms.flatMap(program =>
@@ -218,7 +219,8 @@ const ProgramDevices: React.FC = () => {
                                                     display: true,
                                                     text: "Выручка по программам",
                                                     font: { size: 20 },
-                                                    color: "black"
+                                                    color: "black",
+                                                    align: "start"
                                                 }
                                             },
                                             scales: {
