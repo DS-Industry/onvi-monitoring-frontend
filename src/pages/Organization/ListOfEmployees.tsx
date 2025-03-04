@@ -122,7 +122,7 @@ const ListOfEmployees: React.FC = () => {
                             </NoDataUI>
                         )}
                 {openModal && selectedWorker && (
-                    <Modal isOpen={openModal} classname="w-[552px]">
+                    <Modal isOpen={openModal} classname="w-[552px] h-[300px]">
                         <div className="flex items-center justify-between">
                             <div></div>
                             <Close onClick={() => setOpenModal(false)} className="cursor-pointer text-text01" />
