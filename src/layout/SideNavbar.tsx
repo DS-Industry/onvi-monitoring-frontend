@@ -501,7 +501,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </Can>
             </div>
           </div>
-          <div className={isMobile ? "-ml-20" : ""}>
+          <div className={isMobile ? isOpen ? "-ml-64" :"-ml-20" : ""}>
             {children}
           </div>
         </div>
