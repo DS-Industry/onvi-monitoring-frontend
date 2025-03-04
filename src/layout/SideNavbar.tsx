@@ -32,6 +32,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
   const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
+  const [openSubNav, setOpenSubNav] = useState<string | null>(null);
+  const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
   // const [notificationVisible, setNotificationVisible] = useState(true);
   const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
@@ -163,6 +165,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           aria-hidden="true"
         ></div>
       )}
+      {isOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)} // Close sidebar when clicking outside
+        ></div>
+      )}
       <div
         className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform transition-all duration-300 ease-in-out
       ${isOpen ? "w-64 translate-x-0" : "w-20"}
@@ -186,15 +194,15 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                       allowed && (
                         <div
                           key={item.name}
-                          onMouseEnter={() => handleMouseEnter(item.name)}
-                          onMouseLeave={handleMouseLeave}
+                          onMouseEnter={!isMobile ? () => handleMouseEnter(item.name) : undefined}
+                          onMouseLeave={!isMobile ? handleMouseLeave : undefined}
                         >
                           <NavLink
                             to={item.subMenu ? '#' : item.path}
                             onClick={(e) => {
                               if (item.subMenu) {
-                                e.preventDefault(); // Prevent default navigation
-                                // Optionally, toggle visibility of sub-items if required
+                                e.preventDefault();
+                                setOpenSubNav(openSubNav === item.name ? null : item.name);
                               }
                             }}
                             className={({ isActive }) =>
@@ -220,6 +228,83 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                               <ArrowRight className="ml-auto" />
                             )}
                           </NavLink>
+                          {isMobile && openSubNav === item.name && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+                              <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg p-5">
+                                <button className="text-xl p-2" onClick={() => setOpenSubNav(null)}>✕</button>
+                                {item.subNav && item.subNav.map((subItem) => (
+                                  <Can
+                                    key={subItem.name}
+                                    requiredPermissions={subItem.permissions}
+                                    userPermissions={userPermissions}
+                                  >
+                                    {(allowed) =>
+                                      allowed && subItem.isSidebar && (
+                                        <div key={subItem.name}>
+                                          <NavLink
+                                            to={subItem.subMenu ? "#" : subItem.path}
+                                            onClick={(e) => {
+                                              if (subItem.subMenu) {
+                                                e.preventDefault();
+                                                setOpenSubNavItem(openSubNavItem === subItem.name ? null : subItem.name);
+                                              } else {
+                                                setOpenSubNav(null); // Close when navigating
+                                                setOpenSubNavItem(null);
+                                              }
+                                            }}
+                                            className={({ isActive }) =>
+                                              subItem.subMenu
+                                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                        ${isParentActive(subItem.subNav) ? 'bg-opacity01/30 text-text01' : 'text-text02'}
+                        hover:bg-opacity01/30 hover:text-text01`
+                                                : isActive
+                                                  ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                                                  : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
+                          hover:bg-opacity01/30 hover:text-text01 text-text02`
+                                            }
+                                          >
+                                            {t(`routes.${subItem.name}`)}
+                                            {subItem.subMenu && <ArrowRight className="ml-auto" />}
+                                          </NavLink>
+                                          {openSubNavItem === subItem.name && subItem.subNav && (
+                                            <div className="ml-5 mt-2 border-l pl-3">
+                                              {subItem.subNav.map((subSubItem) => (
+                                                <Can
+                                                  key={subSubItem.name}
+                                                  requiredPermissions={subSubItem.permissions}
+                                                  userPermissions={userPermissions}
+                                                >
+                                                  {(allowed) =>
+                                                    allowed && (
+                                                      subSubItem.isSidebar && <NavLink
+                                                        to={subSubItem.path}
+                                                        className={({ isActive }) =>
+                                                          isActive
+                                                            ? `block py-1.5 px-2 rounded bg-opacity01/30 text-text01`
+                                                            : `block py-1.5 px-2 rounded transition duration-200 
+                                    hover:bg-opacity01/30 hover:text-text01 text-text02`
+                                                        }
+                                                        onClick={() => {
+                                                          setOpenSubNav(null);
+                                                          setOpenSubNavItem(null);
+                                                        }}
+                                                      >
+                                                        {t(`routes.${subSubItem.name}`)}
+                                                      </NavLink>
+                                                    )
+                                                  }
+                                                </Can>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )
+                                    }
+                                  </Can>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           {hoveredNavItem === item.name && item.subNav && (
                             <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
                               {item.subNavHeading !== "" && <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
@@ -229,8 +314,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 subItem.isSidebar &&
                                 <div
                                   key={subItem.name}
-                                  onMouseEnter={() => handleSubNavMouseEnter(subItem.name)}
-                                  onMouseLeave={handleSubNavMouseLeave}
+                                  onMouseEnter={!isMobile ? () => handleSubNavMouseEnter(subItem.name) : undefined}
+                                  onMouseLeave={!isMobile ? handleSubNavMouseLeave : undefined}
                                 >
                                   {subItem.titleName &&
                                     <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
@@ -249,8 +334,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           to={subItem.path}
                                           onClick={(e) => {
                                             if (subItem.subMenu) {
-                                              e.preventDefault(); // Prevent default navigation
-                                              // Optionally, toggle visibility of sub-items if required
+                                              e.preventDefault();
                                             }
                                           }}
                                           className={({ isActive }) =>
@@ -273,8 +357,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                             <ArrowRight className="ml-auto" />
                                           )}
                                         </NavLink>
-                                      )
-                                    }
+                                      )}
                                   </Can>
                                   {subItem.isHr && <hr className="my-3" />}
                                   {hoveredSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
@@ -300,8 +383,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                                 >
                                                   {t(`routes.${subSubItem.name}`)}
                                                 </NavLink>
-                                              )
-                                            }
+                                              )}
                                           </Can>
                                         </div>
                                       ))}
