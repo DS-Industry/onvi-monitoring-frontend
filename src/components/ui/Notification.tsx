@@ -25,25 +25,37 @@ const Notification: React.FC<NotificationProps> = ({
   showEmp,
   onClose,
 }) => {
-
   const navigate = useNavigate();
 
   return (
-    <div className={`relative w-full text-text04 bg-[#21254F] p-4 mb-8 rounded-lg flex`}>
-      <div className="w-9/12">
+    <div className="relative w-full text-text04 bg-[#21254F] p-4 mb-8 rounded-lg flex flex-col md:flex-row items-center md:items-start">
+      <div className="w-full md:w-9/12 text-center md:text-left">
         <p className="font-semibold text-lg mb-2.5">{title}</p>
         <p className="text-sm">{message}</p>
         <p className="text-sm">{message2}</p>
-        <span className="text-[#BFFA00] font-semibold text-base cursor-pointer mt-2" onClick={() => {linkUrl && navigate(linkUrl)}}>{link}</span>     
+        {link && (
+          <span 
+            className="text-[#BFFA00] font-semibold text-base cursor-pointer mt-2 inline-block"
+            onClick={() => linkUrl && navigate(linkUrl)}
+          >
+            {link}
+          </span>
+        )}
       </div>
-      <div className="w-3/12">
-        {/* <SalyIamge className="h-[50%] w-40" /> */}
-        {showBonus && <img src={ShareBonus} className="w-40 m-auto" />}
-        {showEmp && <img src={Employees} className="w-40 m-auto absolute bottom-0" />}
-        {onClose && <button onClick={onClose} className="absolute right-0 top-0 p-4">
+      
+      <div className="w-full md:w-3/12 flex justify-center relative mt-4 md:mt-0">
+        {showBonus && <img src={ShareBonus} className="w-32 md:w-40 lg:w-48 bottom-0" />}
+        {showEmp && <img src={Employees} className="w-32 md:w-40 lg:w-48 bottom-0" />}
+      </div>
+
+      {onClose && (
+        <button 
+          onClick={onClose} 
+          className="absolute top-2 right-2 md:top-4 md:right-4 p-2"
+        >
           <Close />
-        </button> }
-      </div>
+        </button>
+      )}
     </div>
   );
 };

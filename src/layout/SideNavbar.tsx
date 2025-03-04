@@ -422,17 +422,16 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           </div>
         </div>
       </div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 md:hidden p-2 bg-stone-900 text-white rounded-md"
-        style={{ marginLeft: isOpen ? "260px" : "24px" }} // Adjust left spacing based on sidebar state
-      >
-        {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
-      </button>
       <div
         className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
           }`}
       >
+        {isMobile && (<button
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed top-4 left-4 p-2 bg-stone-900 text-white rounded-md"
+        >
+          {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+        </button>)}
         <div className={`px-6 relative min-h-screen bg-background02 z-10`}>
           {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
@@ -502,7 +501,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               </Can>
             </div>
           </div>
-          {children}
+          <div className={isMobile ? "-ml-20" : ""}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

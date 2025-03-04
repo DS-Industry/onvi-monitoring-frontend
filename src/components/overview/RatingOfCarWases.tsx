@@ -82,11 +82,12 @@ const RatingOfCarWases = () => {
 
   return (
     <>
-      <div className="mt-4 grid gap-8 p-3 lg:p-8 bg-white shadow-card rounded-lg">
-        <p className="text-background01 font-semibold text-2xl">
+      <div className="mt-4 grid gap-4 sm:gap-6 md:gap-8 p-4 sm:p-5 md:p-6 lg:p-8 bg-white shadow-card rounded-lg w-full min-w-[320px]">
+        <p className="text-background01 font-semibold text-xl sm:text-2xl">
           {t("indicators.carWash")}
         </p>
-        <div className="lg:flex justify-between px-3 lg:px-8">
+
+        <div className="flex flex-col lg:flex-row justify-between gap-4 px-3 lg:px-8">
           <DropdownInput
             inputType="primary"
             label="Все автомойки"
@@ -94,31 +95,34 @@ const RatingOfCarWases = () => {
             value={selectedValue}
             onChange={setSelectedValue}
             isSelectable={true}
-            classname="mt-3"
+            classname="w-full lg:w-auto min-w-[200px] mt-3"
           />
-          <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
+
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
             {durations.map((duration) => (
               <button
                 key={duration.label}
                 onClick={() => handleDurationClick(duration.value)}
-                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
+                className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
               >
                 {duration.label}
               </button>
             ))}
-            {/* Pass the handler to DatePickerComponent */}
-            <DatePickerComponent
-              onDateChange={(range) =>
-                handleDateChange({
-                  startDate: range.startDate, // Assuming DatePicker returns an array
-                  endDate: range.endDate,
-                })
-              }
-            />
+            <div className="w-full md:w-auto">
+              <DatePickerComponent
+                onDateChange={(range) =>
+                  handleDateChange({
+                    startDate: range.startDate,
+                    endDate: range.endDate,
+                  })
+                }
+              />
+            </div>
           </div>
+
         </div>
 
-        <div className="w-64 md:container">
+        <div className="w-full min-w-[320px] sm:min-w-[400px] md:min-w-[500px] max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-full overflow-x-auto">
           <BarChart data={ratingData} />
         </div>
       </div>
