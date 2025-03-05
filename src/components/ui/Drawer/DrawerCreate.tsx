@@ -1,5 +1,5 @@
 import React from "react";
-import {useButtonCreate} from "@/components/context/useContext.tsx";
+import { useButtonCreate } from "@/components/context/useContext.tsx";
 
 type DrawerCreateProps = {
     children: React.ReactNode;
@@ -9,7 +9,7 @@ type DrawerCreateProps = {
 const DrawerCreate: React.FC<DrawerCreateProps> = ({ children, classname }: DrawerCreateProps) => {
     const { buttonOn, setButtonOn } = useButtonCreate();
 
-    return(
+    return (
         <div className="drawer drawer-end w-full">
             <input
                 id="my-drawer-4"
@@ -22,7 +22,7 @@ const DrawerCreate: React.FC<DrawerCreateProps> = ({ children, classname }: Draw
             />
             <div className="drawer-side">
                 <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-                <ul className={`menu bg-background02 text-base-content min-h-full w-1/2 ${classname} p-4`}>
+                <ul className={`menu bg-background02 text-base-content min-h-full w-full sm:w-3/4 md:w-1/2 ${classname} p-4`}>
                     {children}
                 </ul>
             </div>

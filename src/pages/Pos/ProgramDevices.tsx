@@ -96,7 +96,7 @@ const ProgramDevices: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if(newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
     };
 
     useEffect(() => {
@@ -134,143 +134,138 @@ const ProgramDevices: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
             />
-            {
-                isTableLoading || filterLoading ? (
-                    <div className="mt-8 space-y-6">
-                        {/* Skeleton for Bar Chart Cards */}
-                        <div className="mt-8 space-y-6">
-                            <div className="flex space-x-2 w-full">
-                                <div className="w-1/2 h-80">
-                                    <CardSkeleton cardHeight="320px" cardWidth="100%" />
-                                </div>
-                                <div className="w-1/2 h-80">
-                                    <CardSkeleton cardHeight="320px" cardWidth="100%" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Skeleton for Table Card */}
-                        <div>
-                            <TableSkeleton columnCount={columnsProgramsPos.length} />
+            {isTableLoading || filterLoading ? (
+                <div className="mt-8 space-y-6">
+                    {/* Skeleton for Bar Chart Cards */}
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <CardSkeleton cardHeight="320px" cardWidth="100%" />
+                            <CardSkeleton cardHeight="320px" cardWidth="100%" />
                         </div>
                     </div>
-                )
-                    :
-                    devicePrograms.length > 0 ? (
-                        <div className="mt-8 space-y-6">
-                            <div className="flex space-x-2 w-full">
-                                <div className="w-1/2 h-[340px] shadow-card rounded-2xl p-4">
-                                    <Bar
-                                        data={{
-                                            labels: devicePrograms.flatMap(program =>
-                                                program.programsInfo.flatMap(info => [info.programName, ""]) // Adding empty labels as gaps
-                                            ),
-                                            datasets: [
-                                                {
-                                                    label: "Кол-во авто",
-                                                    data: devicePrograms.flatMap(program =>
-                                                        program.programsInfo.flatMap(info => [info.counter, NaN]) // NaN creates the gap
-                                                    ),
-                                                    backgroundColor: devicePrograms.flatMap(program =>
-                                                        program.programsInfo.flatMap((_info, index) => [getRandomColor(index), "rgba(0,0,0,0)"]) // Unique color + transparent gap
-                                                    ),
-                                                },
-                                            ],
-                                        }}
-                                        options={{
-                                            indexAxis: "y" as const,
-                                            responsive: true,
-                                            plugins: {
-                                                legend: { display: false },
-                                                title: {
-                                                    display: true,
-                                                    text: t("routes.programs"),
-                                                    font: { size: 20 },
-                                                    color: "black",
-                                                    align: "start"
-                                                }
+
+                    {/* Skeleton for Table Card */}
+                    <div>
+                        <TableSkeleton columnCount={columnsProgramsPos.length} />
+                    </div>
+                </div>)
+                : devicePrograms.length > 0 ? (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="h-[340px] shadow-card rounded-2xl p-4 pb-6">
+                                <Bar
+                                    data={{
+                                        labels: devicePrograms.flatMap(program =>
+                                            program.programsInfo.flatMap(info => [info.programName, ""]) // Adding empty labels as gaps
+                                        ),
+                                        datasets: [
+                                            {
+                                                label: "Кол-во авто",
+                                                data: devicePrograms.flatMap(program =>
+                                                    program.programsInfo.flatMap(info => [info.counter, NaN]) // NaN creates the gap
+                                                ),
+                                                backgroundColor: devicePrograms.flatMap(program =>
+                                                    program.programsInfo.flatMap((_info, index) => [getRandomColor(index), "rgba(0,0,0,0)"]) // Unique color + transparent gap
+                                                ),
                                             },
-                                            scales: {
-                                                x: { beginAtZero: true },
-                                                y: { ticks: { font: { size: 12 } } },
+                                        ],
+                                    }}
+                                    options={{
+                                        maintainAspectRatio: false,
+                                        indexAxis: "y" as const,
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { display: false },
+                                            title: {
+                                                display: true,
+                                                text: t("routes.programs"),
+                                                font: { size: 20 },
+                                                color: "black",
+                                                align: "start"
+                                            }
+                                        },
+                                        scales: {
+                                            x: { beginAtZero: true },
+                                            y: { ticks: { font: { size: 12 } } },
+                                        },
+                                    }}
+                                />
+                                <div className="flex items-center justify-center text-text01">{t("pos.no")}</div>
+                            </div>
+                            <div className="h-[340px] shadow-card rounded-2xl p-4 pb-6">
+                                <Bar
+                                    data={{
+                                        labels: devicePrograms.flatMap(program =>
+                                            program.programsInfo.map(info => info.programName) // No empty labels
+                                        ),
+                                        datasets: [
+                                            {
+                                                label: "Кол-во авто",
+                                                data: devicePrograms.flatMap(program =>
+                                                    program.programsInfo.map(info => info.totalTime) // No NaN values
+                                                ),
+                                                backgroundColor: devicePrograms.flatMap(program =>
+                                                    program.programsInfo.map((_info, index) => getRandomColor(index))
+                                                ),
                                             },
-                                        }}
-                                    />
-                                    <div className="flex items-center justify-center text-text01">{t("pos.no")}</div>
-                                </div>
-                                <div className="w-1/2 h-[340px] shadow-card rounded-2xl p-4">
-                                    <Bar
-                                        data={{
-                                            labels: devicePrograms.flatMap(program =>
-                                                program.programsInfo.map(info => info.programName) // No empty labels
-                                            ),
-                                            datasets: [
-                                                {
-                                                    label: "Кол-во авто",
-                                                    data: devicePrograms.flatMap(program =>
-                                                        program.programsInfo.map(info => info.totalTime) // No NaN values
-                                                    ),
-                                                    backgroundColor: devicePrograms.flatMap(program =>
-                                                        program.programsInfo.map((_info, index) => getRandomColor(index))
-                                                    ),
-                                                },
-                                            ],
-                                        }}
-                                        options={{
-                                            indexAxis: "x" as const,
-                                            responsive: true,
-                                            plugins: {
-                                                legend: { display: false },
-                                                title: {
-                                                    display: true,
-                                                    text: "Выручка по программам",
-                                                    font: { size: 20 },
-                                                    color: "black",
-                                                    align: "start"
-                                                }
-                                            },
-                                            scales: {
-                                                y: { beginAtZero: true },
-                                                x: {
-                                                    ticks: {
-                                                        autoSkip: false,
-                                                        font: { size: 12 },
-                                                        maxRotation: 90,
-                                                        minRotation: 90,
-                                                        color: function (context) {
-                                                            return getRandomColor(context.index);
-                                                        }
+                                        ],
+                                    }}
+                                    options={{
+                                        maintainAspectRatio: false,
+                                        indexAxis: "x" as const,
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { display: false },
+                                            title: {
+                                                display: true,
+                                                text: t("pos.revBy"),
+                                                font: { size: 20 },
+                                                color: "black",
+                                                align: "start"
+                                            }
+                                        },
+                                        scales: {
+                                            y: { beginAtZero: true },
+                                            x: {
+                                                ticks: {
+                                                    autoSkip: false,
+                                                    font: { size: 12 },
+                                                    maxRotation: 90,
+                                                    minRotation: 90,
+                                                    color: function (context) {
+                                                        return getRandomColor(context.index);
                                                     }
                                                 }
-                                            },
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div className="shadow-card rounded-2xl p-4 space-y-6">
-                                <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
-                                {devicePrograms.map((deviceProgram) =>
-                                    <OverflowTable
-                                        title={deviceProgram.name}
-                                        urlTitleId={deviceProgram.id}
-                                        nameUrlTitle={"/station/programs/devices"}
-                                        tableData={deviceProgram.programsInfo}
-                                        columns={columnsProgramsPos}
-                                    />
-                                )
-                                }
+                                            }
+                                        },
+                                    }}
+                                />
                             </div>
                         </div>
-                    ) : (
-                        <>
-                            <NoDataUI
-                                title={t("pos.this")}
-                                description={t("pos.you")}
-                            >
-                                <SalyIamge className="mx-auto" />
-                            </NoDataUI>
-                        </>
-                    )}
+                        <div className="shadow-card rounded-2xl p-4 space-y-6">
+                            <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
+                            {devicePrograms.map((deviceProgram) =>
+                                <OverflowTable
+                                    title={deviceProgram.name}
+                                    urlTitleId={deviceProgram.id}
+                                    nameUrlTitle={"/station/programs/devices"}
+                                    tableData={deviceProgram.programsInfo}
+                                    columns={columnsProgramsPos}
+                                />
+                            )
+                            }
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <NoDataUI
+                            title={t("pos.this")}
+                            description={t("pos.you")}
+                        >
+                            <SalyIamge className="mx-auto" />
+                        </NoDataUI>
+                    </>
+                )}
         </>
     )
 }

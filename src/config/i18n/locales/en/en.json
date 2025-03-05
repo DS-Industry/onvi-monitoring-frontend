@@ -169,7 +169,8 @@
     "this": "This section presents programs",
     "you": "You don't have any programs yet",
     "rev": "Revenue report",
-    "no": "Number of cars"
+    "no": "Number of cars",
+    "revBy": "Revenue by programs"
   },
   "profile": {
     "basic": "Basic Details",

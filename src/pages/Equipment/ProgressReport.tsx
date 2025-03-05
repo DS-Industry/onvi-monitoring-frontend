@@ -52,7 +52,7 @@ const ProgressReport: React.FC = () => {
                     <DropdownInput
                         title={t("equipment.carWash")}
                         value={searchPosId}
-                        classname={"ml-2"}
+                        classname={"w-full sm:w-80"}
                         options={poses}
                         onChange={(value) => setSearchPosId(value)}
                     />

@@ -100,11 +100,11 @@ const Filter: React.FC<Props> = ({
       ref={contentRef}
       className={`transition-all duration-500 ease-in-out max-h-0`}
     >
-      <div className="flex">
+      <div className="flex flex-wrap gap-4">
         {!hideSearch && <SearchInput
           value={search}
           onChange={handleSearchChange}
-          classname="w-80"
+          classname="w-full sm:w-80"
           searchType="outlined"
           title="Поиск"
         />}
@@ -112,14 +112,14 @@ const Filter: React.FC<Props> = ({
           title={"Город"}
           value={address}
           options={cities}
-          classname="ml-2"
+          classname="w-full sm:w-80"
           onChange={handleAddressChange}
         />}
         {children}
         {!hidePage && <DropdownInput
           title={"Строк на стр."}
           value={pageNumber}
-          classname="ml-2 w-24"
+          classname="w-24"
           options={[
             { name: 15, value: 15 },
             { name: 50, value: 50 },
@@ -141,7 +141,7 @@ const Filter: React.FC<Props> = ({
         </div>
       ) :
         <div className="h-5"></div>}
-      <div className="flex items-center gap-6">
+      <div className="flex flex-wrap items-center gap-4 mt-4">
         <Button title="Сбросить" handleClick={handleReset} type="outline" />
         <Button title="Применить" handleClick={handleApply} />
         <p className="font-semibold">Найдено: {count}</p>
