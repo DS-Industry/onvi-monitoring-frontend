@@ -198,7 +198,7 @@ const Organization: React.FC = () => {
                     <SearchInput
                         title="Имя"
                         placeholder="Filter by name..."
-                        classname="w-64 ml-2"
+                        classname="w-64"
                         searchType="outlined"
                         value={searchTerm}
                         onChange={handleSearchChange}
@@ -206,142 +206,167 @@ const Organization: React.FC = () => {
                 </div>
             </Filter>
             <DrawerCreate>
-                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("organizations.update") : t("organizations.new")}</span>
-                    <DropdownInput
-                        title={t("organizations.typeLegal")}
-                        options={[
-                            { name: t("organizations.legalEntity"), value: "LegalEntity" },
-                            { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
-                        ]}
-                        inputType="secondary"
-                        classname="w-64"
-                        {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}
-                        value={formData.organizationType}
-                        onChange={(value) => handleInputChange('organizationType', value)}
-                        error={!!errors.organizationType}
-                        helperText={errors.organizationType?.message}
-                    />
-                    <DropdownInput
-                        title={t("organizations.vatRate")}
-                        label={t("organizations.selectBet")}
-                        type={"typeOrg"}
-                        options={[
-                            { name: t("organizations.withoutVat"), value: "WithoutVAT" },
-                            { name: "10%", value: "Vat10" },
-                            { name: "18%", value: "Vat18" },
-                            { name: "20%", value: "Vat20" }
-                        ]}
-                        inputType="primary"
-                        classname="w-64"
-                        {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
-                        value={formData.rateVat}
-                        onChange={(value) => handleInputChange('rateVat', value)}
-                        error={!!errors.rateVat}
-                        helperText={errors.rateVat?.message}
-                    />
+                <form className="space-y-6 w-full max-w-2xl mx-auto p-4" onSubmit={handleSubmit(onSubmit)}>
+                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
+                        {isEditMode ? t("organizations.update") : t("organizations.new")}
+                    </span>
+
+                    {/* Dropdown Inputs */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <DropdownInput
+                            title={t("organizations.typeLegal")}
+                            options={[
+                                { name: t("organizations.legalEntity"), value: "LegalEntity" },
+                                { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
+                            ]}
+                            inputType="secondary"
+                            classname="w-80"
+                            {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}
+                            value={formData.organizationType}
+                            onChange={(value) => handleInputChange('organizationType', value)}
+                            error={!!errors.organizationType}
+                            helperText={errors.organizationType?.message}
+                        />
+
+                        <DropdownInput
+                            title={t("organizations.vatRate")}
+                            label={t("organizations.selectBet")}
+                            options={[
+                                { name: t("organizations.withoutVat"), value: "WithoutVAT" },
+                                { name: "10%", value: "Vat10" },
+                                { name: "18%", value: "Vat18" },
+                                { name: "20%", value: "Vat20" }
+                            ]}
+                            inputType="primary"
+                            classname="w-80"
+                            {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
+                            value={formData.rateVat}
+                            onChange={(value) => handleInputChange('rateVat', value)}
+                            error={!!errors.rateVat}
+                            helperText={errors.rateVat?.message}
+                        />
+                    </div>
+
                     <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.legalDetails")}</div>
-                    <Input
-                        title={t("organizations.tin")}
-                        type="text"
-                        classname="w-96"
-                        {...register('inn', { required: !isEditMode && 'Inn is required' })}
-                        value={formData.inn}
-                        changeValue={(e) => handleInputChange('inn', e.target.value)}
-                        error={!!errors.inn}
-                        helperText={errors.inn?.message}
-                    />
-                    <Input
-                        title={t("organizations.fullName")}
-                        type={'text'}
-                        classname="w-96"
-                        {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
-                        value={formData.fullName}
-                        changeValue={(e) => handleInputChange('fullName', e.target.value)}
-                        error={!!errors.fullName}
-                        helperText={errors.fullName?.message}
-                    />
-                    <Input
-                        title={t("organizations.okpo")}
-                        type="text"
-                        classname="w-96"
-                        {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
-                        value={formData.okpo}
-                        changeValue={(e) => handleInputChange('okpo', e.target.value)}
-                        error={!!errors.okpo}
-                        helperText={errors.okpo?.message}
-                    />
-                    <Input
-                        title={t("organizations.kpp")}
-                        type="text"
-                        classname="w-96"
-                        {...register('kpp')}
-                        value={formData.kpp}
-                        changeValue={(e) => handleInputChange('kpp', e.target.value)}
-                    />
+
+                    {/* Input Fields */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <Input
+                            title={t("organizations.tin")}
+                            type="text"
+                            classname="w-80"
+                            {...register('inn', { required: !isEditMode && 'Inn is required' })}
+                            value={formData.inn}
+                            changeValue={(e) => handleInputChange('inn', e.target.value)}
+                            error={!!errors.inn}
+                            helperText={errors.inn?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.fullName")}
+                            type="text"
+                            classname="w-80"
+                            {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
+                            value={formData.fullName}
+                            changeValue={(e) => handleInputChange('fullName', e.target.value)}
+                            error={!!errors.fullName}
+                            helperText={errors.fullName?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.okpo")}
+                            type="text"
+                            classname="w-80"
+                            {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
+                            value={formData.okpo}
+                            changeValue={(e) => handleInputChange('okpo', e.target.value)}
+                            error={!!errors.okpo}
+                            helperText={errors.okpo?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.kpp")}
+                            type="text"
+                            classname="w-80"
+                            {...register('kpp')}
+                            value={formData.kpp}
+                            changeValue={(e) => handleInputChange('kpp', e.target.value)}
+                        />
+                    </div>
+
                     <MultilineInput
                         title={t("organizations.address")}
-                        classname="w-96"
+                        classname="w-80 sm:w-96"
                         {...register('addressRegistration', { required: !isEditMode && 'Registration Address is required' })}
                         value={formData.addressRegistration}
                         changeValue={(e) => handleInputChange('addressRegistration', e.target.value)}
                         error={!!errors.addressRegistration}
                         helperText={errors.addressRegistration?.message}
                     />
+
                     <Input
                         title={t("organizations.ogrn")}
                         type="text"
-                        classname="w-96"
+                        classname="w-80"
                         {...register('ogrn', { required: !isEditMode && 'OGRN is required' })}
                         value={formData.ogrn}
                         changeValue={(e) => handleInputChange('ogrn', e.target.value)}
                         error={!!errors.ogrn}
                         helperText={errors.ogrn?.message}
                     />
+
                     <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.bankDetails")}</div>
-                    <Input
-                        title={t("organizations.bik")}
-                        type="text"
-                        classname="w-96"
-                        {...register('bik', { required: !isEditMode && 'BIK is required' })}
-                        value={formData.bik}
-                        changeValue={(e) => handleInputChange('bik', e.target.value)}
-                        error={!!errors.bik}
-                        helperText={errors.bik?.message}
-                    />
-                    <Input
-                        title={t("organizations.corres")}
-                        type="text"
-                        classname="w-96"
-                        {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
-                        value={formData.correspondentAccount}
-                        changeValue={(e) => handleInputChange('correspondentAccount', e.target.value)}
-                        error={!!errors.correspondentAccount}
-                        helperText={errors.correspondentAccount?.message}
-                    />
-                    <Input
-                        title={t("organizations.bank")}
-                        type="text"
-                        classname="w-96"
-                        {...register('bank', { required: !isEditMode && 'Bank is required' })}
-                        value={formData.bank}
-                        changeValue={(e) => handleInputChange('bank', e.target.value)}
-                        error={!!errors.bank}
-                        helperText={errors.bank?.message}
-                    />
-                    <Input
-                        title={t("organizations.current")}
-                        type="text"
-                        classname="w-96"
-                        {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
-                        value={formData.settlementAccount}
-                        changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
-                        error={!!errors.settlementAccount}
-                        helperText={errors.settlementAccount?.message}
-                    />
+
+                    {/* Bank Details */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <Input
+                            title={t("organizations.bik")}
+                            type="text"
+                            classname="w-80"
+                            {...register('bik', { required: !isEditMode && 'BIK is required' })}
+                            value={formData.bik}
+                            changeValue={(e) => handleInputChange('bik', e.target.value)}
+                            error={!!errors.bik}
+                            helperText={errors.bik?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.corres")}
+                            type="text"
+                            classname="w-80"
+                            {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
+                            value={formData.correspondentAccount}
+                            changeValue={(e) => handleInputChange('correspondentAccount', e.target.value)}
+                            error={!!errors.correspondentAccount}
+                            helperText={errors.correspondentAccount?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.bank")}
+                            type="text"
+                            classname="w-80"
+                            {...register('bank', { required: !isEditMode && 'Bank is required' })}
+                            value={formData.bank}
+                            changeValue={(e) => handleInputChange('bank', e.target.value)}
+                            error={!!errors.bank}
+                            helperText={errors.bank?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.current")}
+                            type="text"
+                            classname="w-80"
+                            {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
+                            value={formData.settlementAccount}
+                            changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
+                            error={!!errors.settlementAccount}
+                            helperText={errors.settlementAccount?.message}
+                        />
+                    </div>
+
                     <MultilineInput
                         title={t("organizations.add")}
-                        classname="w-96"
+                        classname="w-80 sm:w-96"
                         {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
                         value={formData.addressBank}
                         changeValue={(e) => handleInputChange('addressBank', e.target.value)}
@@ -349,18 +374,13 @@ const Organization: React.FC = () => {
                         helperText={errors.addressBank?.message}
                     />
 
-                    <div className="flex justify-end space-x-4">
-                        <Button
-                            title={t("organizations.cancel")}
-                            type='outline'
-                            handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
-                        <Button
-                            title={t("organizations.save")}
-                            form={true}
-                            isLoading={isMutating}
-                            handleClick={() => { }} />
+                    {/* Buttons */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+                        <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
+                        <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
                     </div>
                 </form>
+
             </DrawerCreate>
 
             {

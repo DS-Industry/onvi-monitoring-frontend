@@ -428,27 +428,45 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       >
         {isMobile && (<button
           onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-4 left-4 p-2 bg-stone-900 text-white rounded-md"
+          className="fixed top-5 left-4 p-2 bg-opacity01 text-white rounded-md"
         >
           {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
         </button>)}
-        <div className={`px-6 relative min-h-screen bg-background02 z-10`}>
+        <div className={`px-4 sm:px-6 relative min-h-screen bg-background02 z-10`}>
           {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
-          <div className="flex items-center justify-between">
-            <div className="py-5 flex items-center">
-              {!isMobile && (<button
-                onClick={toggleNavbar}
-                className="p-2 bg-white border border-primary02 text-primary02 rounded"
-              >
-                {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-              </button>)}
-              <div className="ms-3 lg:ms-12 flex flex-col items-start">
-                {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
-                <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{location.pathname === "/finance/timesheet/view" ? `${location.state.name} : ${location.state.date.slice(0, 10)}` : location.pathname === "/equipment/routine/work/progress/item" ? location.state.name : activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
-                  {location.pathname !== "/equipment/routine/work/progress/item" && (activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />)}
+
+          <div className="flex flex-wrap items-center justify-between py-3">
+            {/* Left Section: Toggle Button & Page Title */}
+            <div className="flex items-center">
+              {!isMobile && (
+                <button
+                  onClick={toggleNavbar}
+                  className="p-2 bg-white border border-primary02 text-primary02 rounded"
+                >
+                  {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
+                </button>
+              )}
+              <div className="ml-3 lg:ml-12 flex flex-col items-start">
+                {activePageName === "bonus" && (
+                  <span className="text-sm text-text02">{t("routes.share")}</span>
+                )}
+                <div className="flex items-center mb-2">
+                  <span className="text-xl sm:text-3xl font-normal text-text01">
+                    {location.pathname === "/finance/timesheet/view"
+                      ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
+                      : location.pathname === "/equipment/routine/work/progress/item"
+                        ? location.state.name
+                        : activePageName === "createDo"
+                          ? t(`routes.${document}`)
+                          : t(`routes.${activePageName}`)}
+                  </span>
+                  {location.pathname !== "/equipment/routine/work/progress/item" && (
+                    activePageName === "bonus"
+                      ? <EditIcon className="text-text02 ml-2" />
+                      : <QuestionmarkIcon className="text-2xl ml-2" />
+                  )}
                 </div>
                 {activePage?.filter && (
                   <button
@@ -457,17 +475,22 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
                       }`}
                   >
-                    {filterOpen ? t("routes.filter") : t("routes.expand")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {filterOpen ? t("routes.filter") : t("routes.expand")}
+                    {filterOpen ? <ArrowUp /> : <ArrowDown />}
                   </button>
                 )}
               </div>
             </div>
-            <div className="flex">
+
+            {/* Right Section: Buttons */}
+            <div className="flex flex-wrap justify-end mt-3 sm:mt-0">
               {location.pathname === "/equipment/routine/work/progress/item" && (
-                <div className="flex space-x-4 text-text01 text-2xl">
+                <div className="flex space-x-2 sm:space-x-4 text-text01 text-lg sm:text-2xl">
                   <div>{location.state.type}</div>
                   {location.state.endDate && <div>-</div>}
-                  {location.state.endDate && <div>{moment(location.state.endDate).format('DD.MM.YYYY')}</div>}
+                  {location.state.endDate && (
+                    <div>{moment(location.state.endDate).format('DD.MM.YYYY')}</div>
+                  )}
                 </div>
               )}
               {activePage?.name === "nomenclature" && (
@@ -491,17 +514,23 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                 userPermissions={userPermissions}
               >
-                {(allowed) => allowed && activePage?.addButton && location?.state?.status !== t("tables.SENT") && (
-                  <Button
-                    title={t(`routes.${activePage?.addButtonText}`)}
-                    iconPlus={true}
-                    handleClick={handleClickButtonCreate}
-                  />
-                )}
+                {(allowed) =>
+                  allowed &&
+                  activePage?.addButton &&
+                  location?.state?.status !== t("tables.SENT") && (
+                    <Button
+                      title={t(`routes.${activePage?.addButtonText}`)}
+                      iconPlus={true}
+                      handleClick={handleClickButtonCreate}
+                    />
+                  )
+                }
               </Can>
             </div>
           </div>
-          <div className={isMobile ? isOpen ? "-ml-64" :"-ml-20" : ""}>
+
+          {/* Content Section - Responsive Margins */}
+          <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
             {children}
           </div>
         </div>

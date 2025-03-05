@@ -121,71 +121,83 @@ const FilterMonitoring: React.FC<Props> = ({
             ref={contentRef}
             className={`overflow-hidden transition-all duration-500 ease-in-out max-h-0`}
         >
-            <div className="flex">
-                {!hideSearch && <SearchInput
-                    value={""}
-                    onChange={() => { }}
-                    classname="w-80"
-                    searchType="outlined"
-                    title="Поиск"
-                />}
-                {!hideCity && <DropdownInput
-                    title={"Город"}
-                    value={city}
-                    classname="ml-2 w-80"
-                    options={cities}
-                    onChange={(value) => setCity(value)}
-                />}
-                {organizationsSelect && (<DropdownInput
-                    title={"Организация"}
-                    type={"string"}
-                    label={'Выберите организацию'}
-                    classname="ml-2 w-80"
-                    options={organizationsSelect}
-                    value={organizationId}
-                    onChange={setOrganizationId}
-                />)}
-                {posesSelect && (<DropdownInput
-                    title={"Объект"}
-                    type={"string"}
-                    label={'Выберите объект'}
-                    classname="ml-2 w-80"
-                    options={posesSelect}
-                    value={posId}
-                    onChange={setPosId}
-                />)}
-                {usersSelect && (<DropdownInput
-                    title={"Пользователь"}
-                    type={"string"}
-                    label={'Выберите объект'}
-                    classname="ml-2 w-80"
-                    options={usersSelect}
-                    value={undefined}
-                />)}
+            <div className="flex flex-wrap gap-4">
+                {!hideSearch && (
+                    <SearchInput
+                        value={""}
+                        onChange={() => { }}
+                        classname="w-full sm:w-80"
+                        searchType="outlined"
+                        title="Поиск"
+                    />
+                )}
+                {!hideCity && (
+                    <DropdownInput
+                        title={"Город"}
+                        value={city}
+                        classname="w-full sm:w-80"
+                        options={cities}
+                        onChange={(value) => setCity(value)}
+                    />
+                )}
+                {organizationsSelect && (
+                    <DropdownInput
+                        title={"Организация"}
+                        type={"string"}
+                        label={'Выберите организацию'}
+                        classname="w-full sm:w-80"
+                        options={organizationsSelect}
+                        value={organizationId}
+                        onChange={setOrganizationId}
+                    />
+                )}
+                {posesSelect && (
+                    <DropdownInput
+                        title={"Объект"}
+                        type={"string"}
+                        label={'Выберите объект'}
+                        classname="w-full sm:w-80"
+                        options={posesSelect}
+                        value={posId}
+                        onChange={setPosId}
+                    />
+                )}
+                {usersSelect && (
+                    <DropdownInput
+                        title={"Пользователь"}
+                        type={"string"}
+                        label={'Выберите объект'}
+                        classname="w-full sm:w-80"
+                        options={usersSelect}
+                        value={undefined}
+                    />
+                )}
                 {devicesSelect && (
                     <DropdownInput
                         title={"Устройство"}
                         type={"string"}
                         label={'Выберите устройство'}
-                        classname="ml-2 w-80"
+                        classname="w-full sm:w-80"
                         options={devicesSelect}
                         value={deviceId}
                         onChange={setDeviceId}
                     />
                 )}
-                {wareHousesSelect && (<DropdownInput
-                    title={"Склад"}
-                    type={"string"}
-                    label={'Введите название склада'}
-                    classname="ml-2 w-80"
-                    options={wareHousesSelect}
-                    value={warehouseId}
-                    onChange={setWarehouseId}
-                />)}
+                {wareHousesSelect && (
+                    <DropdownInput
+                        title={"Склад"}
+                        type={"string"}
+                        label={'Введите название склада'}
+                        classname="w-full sm:w-80"
+                        options={wareHousesSelect}
+                        value={warehouseId}
+                        onChange={setWarehouseId}
+                    />
+                )}
                 <DropdownInput
                     title={"Строк на стр."}
                     value={pageNumber}
-                    classname="ml-2 w-24"
+                    classname="w-24"
                     options={[
                         { name: 15, value: 15 },
                         { name: 50, value: 50 },
@@ -196,14 +208,17 @@ const FilterMonitoring: React.FC<Props> = ({
                     onChange={(value) => setPageNumber(value)}
                 />
             </div>
-            <InputDateGap
-                onStartDateChange={handleStartDateChange}
-                onEndDateChange={handleEndDateChange}
-                defaultDateStart={startDate}
-                defaultDateEnd={endDate}
-            />
 
-            <div className="flex items-center gap-6">
+            <div className="mt-4">
+                <InputDateGap
+                    onStartDateChange={handleStartDateChange}
+                    onEndDateChange={handleEndDateChange}
+                    defaultDateStart={startDate}
+                    defaultDateEnd={endDate}
+                />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 mt-4">
                 <Button
                     title='Сбросить'
                     type='outline'
@@ -227,7 +242,6 @@ const FilterMonitoring: React.FC<Props> = ({
                     handleClick={() => setFilterOn(!filterOn)}
                 />
                 <p className="font-semibold">Найдено: {count}</p>
-                {/* <Button title={"Дополнительно"} classname="ml-96" type="outline" iconDown={true} /> */}
             </div>
         </div>
     );

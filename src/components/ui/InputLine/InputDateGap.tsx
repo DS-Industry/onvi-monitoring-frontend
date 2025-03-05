@@ -73,9 +73,9 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     return (
         <div className="my-5">
             <p className="text-sm text-text02 mb-1.5">Период</p>
-            <div className="w-1/2 flex gap-2.5 text-text02">
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 text-text02">
                 {/* Start Date and Time */}
-                <div className="flex gap-2.5 items-center">
+                <div className="flex flex-wrap gap-2.5 items-center">
                     <span>с</span>
                     <Input
                         type="date"
@@ -91,7 +91,7 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
                     />
                 </div>
                 {/* End Date and Time */}
-                <div className="flex gap-2.5 items-center">
+                <div className="flex flex-wrap gap-2.5 items-center">
                     <span>по</span>
                     <Input
                         type="date"

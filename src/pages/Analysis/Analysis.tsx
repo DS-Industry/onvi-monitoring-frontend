@@ -87,7 +87,7 @@ const Analysis: React.FC = () => {
                 <DropdownInput
                     title={t("warehouse.category")}
                     value={cat}
-                    classname="w-64 ml-2"
+                    classname="w-64"
                     options={[
                         { name: "POS", value: "POS" }
                     ]}
