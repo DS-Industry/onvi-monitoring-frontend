@@ -5,7 +5,7 @@ import NoCollection from "@/assets/NoCollection.png";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import useSWR from "swr";
 import { getPoses } from "@/services/api/equipment";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from "@/hooks/useAuthStore";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity } from "@/hooks/useAuthStore";
 
 interface FilterCollection {
     dateStart: string;
@@ -23,6 +23,7 @@ const Period: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const city = useCity();
 
     const initialFilter = {
         dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
@@ -40,7 +41,7 @@ const Period: React.FC = () => {
     };
 
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

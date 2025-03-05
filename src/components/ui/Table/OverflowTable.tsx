@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Edit from "@icons/edit.svg?react";
-import moment from 'moment';
 import UpdateIcon from "@icons/PencilIcon.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../Modal/Modal.tsx";
@@ -71,6 +70,7 @@ const OverflowTable: React.FC<Props> = ({
   const rowsPerPage = usePageNumber();
   const totalCount = usePageSize();
   const { t } = useTranslation();
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
   const totalPages = Math.ceil(totalCount / rowsPerPage);
@@ -91,7 +91,7 @@ const OverflowTable: React.FC<Props> = ({
 
   const formatNumber = (num: number): string => {
     if (isNaN(num)) return num.toString();
-    return new Intl.NumberFormat("en-IN").format(num);
+    return new Intl.NumberFormat("en-US").format(num);
   };
 
   const getActivePage = () => {
@@ -196,6 +196,11 @@ const OverflowTable: React.FC<Props> = ({
         { action: "manage", subject: "CashCollection" },
         { action: "update", subject: "CashCollection" },
       ];
+    if (path.includes("analysis"))
+      return [
+        { action: "manage", subject: "ShiftReport" },
+        { action: "update", subject: "ShiftReport" },
+      ];
     // Add cases for other components as needed
     else
       return [];
@@ -212,7 +217,7 @@ const OverflowTable: React.FC<Props> = ({
   return (
     <>
       <div className="w-full overflow-auto">
-        <div className="overflow-x-auto">
+        <div className="max-w-7xl overflow-x-auto">
           {title && (
             <span
               className="cursor-pointer"
@@ -283,7 +288,7 @@ const OverflowTable: React.FC<Props> = ({
                       {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
                         <span
                           className="cursor-pointer"
-                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
+                          onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
                           <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
                             {row[column.key]}
@@ -295,12 +300,12 @@ const OverflowTable: React.FC<Props> = ({
                         : column.render ? column.render(row, handleChange)
                           : renderCell ? renderCell(column, row)
                             : column.key.toLocaleLowerCase().includes('status') ? (
-                              <div className={`flex items-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
-                             ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT")) ? "text-[#00A355]" :
-                                  row[column.key] === t("tables.OVERDUE") ? "text-errorFill" : row[column.key] === t("tables.SAVED") ? "text-[#FF9066]" : "text-text01"} 
-                             ${row[column.key] === t("tables.SENT") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
+                              <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
+                             ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT") || row[column.key] === t("analysis.DONE")) ? "text-[#00A355]" :
+                                  row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
+                             ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
                              ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
-                                {row[column.key] === t("tables.SENT") && (
+                                {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
                                   <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
                                 )}
                                 {row[column.key] === t("tables.SAVED") && (
@@ -311,7 +316,17 @@ const OverflowTable: React.FC<Props> = ({
                             ) : (
                               <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                                 {column.type === 'date' ? (
-                                  row[column.key] ? moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') : '-'
+                                  row[column.key]
+                                    ? new Date(row[column.key]).toLocaleString("ru-RU", {
+                                      timeZone: userTimezone,
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      second: "2-digit",
+                                    })
+                                    : '-'
                                 ) : column.type === "period" ? (
                                   row[column.key] ? formatPeriodType(row[column.key]) : '-'
                                 ) : typeof row[column.key] === 'object' ? (

@@ -16,7 +16,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 
 
 interface Incident {
@@ -40,7 +40,8 @@ interface Incident {
 interface FilterIncidentPos {
     dateStart: string;
     dateEnd: string;
-    posId?: number;
+    posId: number;
+    placementId: number;
 }
 
 const EquipmentFailure: React.FC = () => {
@@ -58,11 +59,14 @@ const EquipmentFailure: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const city = useCity();
+    const setCity = useSetCity();
 
     const initialFilter = {
         dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
         dateEnd: endDate.toString().slice(0, 10) || `${formattedDate}`,
         posId: posType || 1,
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterIncidentPos>(initialFilter);
@@ -73,14 +77,16 @@ const EquipmentFailure: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
+        if(newFilterData.placementId) setCity(newFilterData.placementId);
     };
     const { data, isLoading: incidentLoading, mutate: incidentMutate } = useSWR([`get-incident`], () => getIncident({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: dataFilter.posId
+        posId: dataFilter.posId,
+        placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -438,7 +444,6 @@ const EquipmentFailure: React.FC = () => {
                 count={incidents.length}
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}
-                hideCity={true}
                 hideSearch={true}
             />
             {isTableLoading || incidentLoading ? (

@@ -17,6 +17,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsInventory } from "@/utils/OverFlowTableData";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
+import { useCity } from "@/hooks/useAuthStore";
 
 type INVENTORY = {
     name: string;
@@ -37,6 +38,7 @@ const InventoryCreation: React.FC = () => {
     const [category, setCategory] = useState(0);
     const [name, setName] = useState("");
     const [orgId, setOrgId] = useState(1);
+    const city = useCity();
 
     const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category, orgId], () => getNomenclature(orgId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
@@ -44,7 +46,7 @@ const InventoryCreation: React.FC = () => {
 
     const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const inventories = inventoryData?.map((item) => item.props)
         ?.filter((item: { categoryId: number }) => category === 0 || item.categoryId === category)

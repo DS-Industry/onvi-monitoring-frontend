@@ -14,7 +14,7 @@ import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
-import { useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
+import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
 
 interface PosMonitoring {
   id: number;
@@ -48,11 +48,11 @@ interface Statistic {
 //     { value: "last_year", name: "Последний год" },
 //   ];
 
-  const durations: { label: string; value: "today" | "week" | "month" }[] = [
-    { label: "Today", value: "today" },
-    { label: "For a week", value: "week" },
-    { label: "For a month", value: "month" },
-  ];
+const durations: { label: string; value: "today" | "week" | "month" }[] = [
+  { label: "Today", value: "today" },
+  { label: "For a week", value: "week" },
+  { label: "For a month", value: "month" },
+];
 
 // const tableHeader: string[] = [
 //   "id",
@@ -77,15 +77,17 @@ const Indicators: React.FC = () => {
     dateEnd: endDate,
   });
   const { t } = useTranslation();
+  const city = useCity();
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
   const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
-    posId: selectedValue
-}));
+    posId: selectedValue,
+    placementId: city
+  }));
 
-  const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;
@@ -165,13 +167,14 @@ const Indicators: React.FC = () => {
         />
       )}
       <div className="grid gap-4">
-        <div className="lg:flex space-y-6 lg:space-y-0 lg:space-x-6">
+        {/* Cards Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((item) => (
             <div
-              className="p-2 lg:p-4 bg-white shadow-card rounded-[18px] "
+              className="p-2 lg:p-4 bg-white shadow-card rounded-[18px]"
               key={item.title}
             >
-              <div className="flex justify-between lg:justify-normal lg:space-x-4 mb-5">
+              <div className="flex justify-between items-center space-x-4 mb-5">
                 <div>
                   <p className="text-sm lg:text-base font-semibold">
                     {t(`indicators.${item.title}`)}
@@ -182,28 +185,16 @@ const Indicators: React.FC = () => {
                 </div>
                 <item.icon />
               </div>
-              {/*
-              <p className="text-sm lg:text-base text-text03 flex">
-                {item.isPositive ? <TrendingUpIcon /> : <TrendingDownIcon />}
-                <span
-                  className={`mx-2 ${
-                    item.isPositive ? "text-successFill" : "text-errorFill"
-                  }`}
-                >
-                  {item.percentage}%
-                </span>
-                {item.day}
-              </p>
-              */}
             </div>
           ))}
         </div>
 
+        {/* Revenue Section */}
         <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revenue")}
           </p>
-          <div className="lg:flex justify-between px-3 lg:px-8">
+          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
             <DropdownInput
               inputType="primary"
               label="Все автомойки"
@@ -213,11 +204,11 @@ const Indicators: React.FC = () => {
               isSelectable={true}
               classname="mt-3"
             />
-            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
               {durations.map((duration) => (
                 <button
                   key={duration.label}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
                 >
                   {duration.label}
                 </button>
@@ -225,96 +216,17 @@ const Indicators: React.FC = () => {
               <DatePickerComponent />
             </div>
           </div>
-          <div className="w-full h-64 lg:h-96 overflow-x-hidden overflow-y-hidden px-3 lg:px-8">
+          <div className="w-full h-64 lg:h-96 overflow-auto px-3 lg:px-8">
             <LineChart />
           </div>
         </div>
-        {/*
-        <div className="mt-4 py-8 bg-white shadow-card rounded-lg">
-          <p className="text-background01 font-semibold text-2xl mb-8 px-3 lg:px-8">
-            Отчет по выручке
-          </p>
-          <div className="lg:flex justify-between mb-8 px-3 lg:px-8">
-            <select
-              id="countries"
-              className="bg-[#F7F9FC] border border-text03/30 text-text01 text-sm rounded-md focus:ring-text03 focus:border-text03 block md:w-64 p-2.5 outline-none"
-            >
-              <option selected>Choose a country</option>
-              {selectOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
 
-            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
-              {durations.map((duration) => (
-                <button className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-1 mx-2">
-                  {duration.label}
-                </button>
-              ))}
-              <DatePickerComponent />
-            </div>
-          </div>
-           <table className="w-full text-sm border-b">
-            <thead>
-              <tr className="">
-                {tableHeader.map((header) => (
-                  <th
-                    key={header}
-                    className="border border-white py-5 px-2 bg-background06"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="py-5 px-2">00001</td>
-                <td className="py-5 px-2">Мойка_1</td>
-                <td className="py-5 px-2">Ростов-на-Дону</td>
-                <td className="py-5 px-2">Ул. Ленина 312</td>
-                <td className="py-5 px-2 text-right">0</td>
-                <td className="py-5 px-2 text-right">315 000</td>
-                <td className="py-5 px-2 text-right">30</td>
-                <td className="py-5 px-2 text-right">20</td>
-              </tr>
-            </tbody>
-          </table>
-          <button className="text-primary02 py-2.5 font-semibold text-sm">
-            Настройки таблицы
-          </button>
-
-          <div className="mt-8">
-            <OverflowTable
-              tableData={tableUserData}
-              columns={columnsUser}
-              selectedColumns={selectedColumns}
-            />
-          </div>
-          <button
-            onClick={openModal}
-            className="text-primary02 text-sm font-semibold flex items-center gap-2 mt-1.5 py-2 px-8"
-          >
-            Настройки таблицы <Edit />
-          </button>
-
-          <Modal isOpen={isModalOpen} onClose={closeModal}>
-            <TableSettings
-              columns={columnsUser}
-              selectedColumns={selectedColumns}
-              onColumnToggle={handleColumnToggle}
-              onIsModalOpen={closeModal}
-            />
-          </Modal>
-        </div>
-        */}
+        {/* Revenue Report Section */}
         <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revReport")}
           </p>
-          <div className="lg:flex justify-between px-3 lg:px-8">
+          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
             <DropdownInput
               inputType="primary"
               label="Все автомойки"
@@ -324,12 +236,12 @@ const Indicators: React.FC = () => {
               isSelectable={true}
               classname="mt-3"
             />
-            <div className="flex md:flex-row flex-col space-y-3 md:space-y-0 mt-3 md:mt-3">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
               {durations.map((duration) => (
                 <button
                   key={duration.label}
                   onClick={() => handleDurationClick(duration.value)}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2 mx-2"
+                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
                 >
                   {duration.label}
                 </button>
@@ -337,22 +249,24 @@ const Indicators: React.FC = () => {
               <DatePickerComponent
                 onDateChange={(range) =>
                   handleDateChange({
-                    startDate: range.startDate, // Assuming DatePicker returns an array
+                    startDate: range.startDate,
                     endDate: range.endDate,
                   })
                 }
-               />
+              />
             </div>
           </div>
-          <div>
-            {filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
-              :
+          <div className="overflow-x-auto">
+            {filterLoading ? (
+              <TableSkeleton columnCount={columnsMonitoringPos.length} />
+            ) : (
               <OverflowTable
                 tableData={posMonitoring}
                 columns={columnsMonitoringPos}
                 isDisplayEdit={true}
                 nameUrl={"/station/enrollments/devices"}
-              />}
+              />
+            )}
           </div>
         </div>
       </div>

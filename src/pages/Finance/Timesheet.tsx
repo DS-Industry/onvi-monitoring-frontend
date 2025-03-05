@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -91,7 +91,9 @@ const Timesheet: React.FC = () => {
             setTotalCount(filter?.totalCount)
     }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const city = useCity();
+
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

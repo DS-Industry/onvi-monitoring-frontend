@@ -36,47 +36,42 @@ const News: React.FC = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
+        <div className="w-full bg-background05 px-4 md:px-6 py-5 md:py-6 rounded-[18px]">
           <p className="text-sm text-text02 font-semibold">{t("news.daysLeft")}</p>
-          <p className="font-semibold text-2xl">
-            {t("news.maximumTariff")}
-          </p>
-          <div className="relative flex">
+          <p className="font-semibold text-2xl">{t("news.maximumTariff")}</p>
+          <div className="relative flex flex-wrap items-center">
             <p className="mt-2">{t("news.upToDate")}</p>
             <FactoryLetterS className="ml-auto" />
           </div>
-
-          {/*
-            <button className="text-primary02 flex items-center gap-2 py-2.5 font-semibold text-sm">
-              К тарифу <ArrowRight/>
-            </button>
-            */}
         </div>
 
-        <div className={`w-full bg-background05 px-4 py-5 rounded-[18px]`}>
+        <div className="w-full bg-background05 px-4 md:px-6 py-5 md:py-6 rounded-[18px]">
           <p className="text-sm text-text02 font-semibold">{t("news.critical")}</p>
-          <p className="font-semibold text-2xl">
-            {t("news.chemistry")}
-          </p>
-          <div className="relative flex">
+          <p className="font-semibold text-2xl">{t("news.chemistry")}</p>
+          <div className="relative flex flex-wrap items-center">
             <p className="mt-2">{t("news.chemistryText")}</p>
             <Attention className="ml-auto" />
           </div>
         </div>
-        {news.map((item) => (
-          <Toast
-            key={item.id}
-            id={item.id}
-            textColor="black"
-            bgColor="background05"
-            onClose={handleClose}
-          >
-            <div className="font-semibold">{t(`news.${item.title}`)}</div>
-            <div>{t(`news.${item.text}`)}</div>
-          </Toast>
-        ))}
+
+        <div className="col-span-1 md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {news.map((item) => (
+              <Toast
+                key={item.id}
+                id={item.id}
+                textColor="black"
+                bgColor="background05"
+                onClose={handleClose}
+              >
+                <div className="font-semibold">{t(`news.${item.title}`)}</div>
+                <div>{t(`news.${item.text}`)}</div>
+              </Toast>
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );

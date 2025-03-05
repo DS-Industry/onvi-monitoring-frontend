@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useDocumentType, useEndDate, usePosType, useSetDocumentType, useSetEndDate, useSetStartDate, useSetWareHouseId, useStartDate, useWareHouseId } from "@/hooks/useAuthStore";
+import { useCity, useDocumentType, useEndDate, usePosType, useSetCity, useSetDocumentType, useSetEndDate, useSetStartDate, useSetWareHouseId, useStartDate, useWareHouseId } from "@/hooks/useAuthStore";
 import useSWR from "swr";
 import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/warehouse";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
@@ -20,7 +20,8 @@ import { getWorkers } from "@/services/api/equipment";
 type DocumentParams = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId?: number;
+    warehouseId: number;
+    placementId: number;
 }
 enum WarehouseDocumentType {
     WRITEOFF = 'WRITEOFF',
@@ -44,9 +45,11 @@ const Documents: React.FC = () => {
     const setWareHouseId = useSetWareHouseId();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const city = useCity();
     const document = useDocumentType();
     const [documentType, setDocumentType] = useState(document);
     const setDocument = useSetDocumentType();
+    const setCity = useSetCity();
     const navigate = useNavigate();
 
     const getDocumentType = (document: string) => {
@@ -75,7 +78,8 @@ const Documents: React.FC = () => {
     const initialFilter = {
         dateStart: new Date(startDate.toString().slice(0, 10) || "2024-01-01"),
         dateEnd: new Date(endDate.toString().slice(0, 10) || `${formattedDate}`),
-        warehouseId: wareHouseId || 3
+        warehouseId: wareHouseId || 3,
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<DocumentParams>(initialFilter);
@@ -86,12 +90,14 @@ const Documents: React.FC = () => {
         if (newFilterData.warehouseId) setWareHouseId(newFilterData.warehouseId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
+        if(newFilterData.placementId) setCity(newFilterData.placementId);
     };
 
     const { data: allDocuments, isLoading: documentsLoading, mutate: documentsMutating } = useSWR([`get-all-documents`], () => getAllDocuments({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        warehouseId: dataFilter.warehouseId
+        warehouseId: dataFilter.warehouseId,
+        placementId: dataFilter.placementId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     useEffect(() => {

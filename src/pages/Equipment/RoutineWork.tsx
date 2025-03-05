@@ -16,7 +16,7 @@ import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 
 type TechTasks = {
     id: number;
@@ -27,6 +27,7 @@ type TechTasks = {
     period: string;
     nextCreateDate?: Date;
     startDate: Date;
+    endSpecifiedDate?: Date;
     items: {
         id: number;
         title: string;
@@ -43,6 +44,7 @@ type TechTaskBody = {
     type: string;
     period: string;
     startDate: string;
+    endSpecifiedDate?: string;
     techTaskItem: number[];
 }
 
@@ -61,10 +63,11 @@ const RoutineWork: React.FC = () => {
     const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
+    const city = useCity();
 
     const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine], () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -76,6 +79,7 @@ const RoutineWork: React.FC = () => {
         type: '',
         period: '',
         startDate: '',
+        endSpecifiedDate: '',
         techTaskItem: []
     }
 
@@ -89,6 +93,7 @@ const RoutineWork: React.FC = () => {
         type: formData.type,
         period: formData.period,
         startDate: new Date(formData.startDate),
+        endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
         techTaskItem: formData.techTaskItem
     }));
 
@@ -96,11 +101,12 @@ const RoutineWork: React.FC = () => {
         techTaskId: editTechTaskId,
         name: formData.name,
         type: formData.type,
+        endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
         period: formData.period,
         techTaskItem: formData.techTaskItem
     }));
 
-    type FieldType = "name" | "posId" | "type" | "period" | "startDate";
+    type FieldType = "name" | "posId" | "type" | "period" | "startDate" | "endSpecifiedDate";
 
     const handleInputChange = (field: FieldType, value: string) => {
         const numericFields = ['posId'];
@@ -128,6 +134,7 @@ const RoutineWork: React.FC = () => {
                 type: techTaskToEdit.type,
                 period: techTaskToEdit.period,
                 startDate: techTaskToEdit.startDate.toString().substring(0, 10),
+                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate.toString().substring(0, 10),
                 techTaskItem: techTaskItemNumber
             });
         }
@@ -340,6 +347,15 @@ const RoutineWork: React.FC = () => {
                         {...register('startDate', { required: !isEditMode && 'Start Date is required' })}
                         helperText={errors.startDate?.message || ''}
                         disabled={isEditMode}
+                    />
+                    <Input
+                        type={"date"}
+                        title={`${t("equipment.end")}`}
+                        classname="w-40"
+                        value={formData.endSpecifiedDate}
+                        changeValue={(e) => handleInputChange('endSpecifiedDate', e.target.value)}
+                        error={!!errors.endSpecifiedDate}
+                        {...register('endSpecifiedDate')}
                     />
                     {/* <div className="font-semibold text-2xl text-text01">{t("routine.checklist")}</div>
                     {taskCount > 0 && (

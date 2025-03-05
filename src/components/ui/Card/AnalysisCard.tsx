@@ -3,16 +3,30 @@ import Icon from 'feather-icons-react';
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+enum CategoryReportTemplate {
+    POS = "POS"
+}
+
+type Reports = {
+    id: number;
+    name: string;
+    category: CategoryReportTemplate;
+    description?: string;
+    params: JSON;
+}
+
 type Props = {
     iconText: string;
     firstText: string;
     secondText: string;
+    reports?: Reports;
 }
 
 const AnalysisCard: React.FC<Props> = ({
     iconText,
     firstText,
-    secondText
+    secondText,
+    reports
 }: Props) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -29,7 +43,7 @@ const AnalysisCard: React.FC<Props> = ({
                 <hr />
                 <div className="text-text02 w-64">{secondText}</div>
             </div>
-            <div className="font-semibold text-primary02 mt-auto cursor-pointer" onClick={() => navigate("/analysis/report")}>{t("analysis.to")}</div>
+            <div className="font-semibold text-primary02 mt-auto cursor-pointer" onClick={() => navigate("/analysis/report",{ state: { ownerId: reports?.id }})}>{t("analysis.to")}</div>
         </div>
     )
 }

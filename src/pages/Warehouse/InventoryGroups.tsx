@@ -8,7 +8,7 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import useSWR, { mutate } from "swr";
-import { createCategory, getCategory } from "@/services/api/warehouse";
+import { createCategory, getCategory, updateCategory } from "@/services/api/warehouse";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -79,6 +79,11 @@ const InventoryGroups: React.FC = () => {
         ownerCategoryId: formData.ownerCategoryId
     }));
 
+    const { trigger: updateCat, isMutating: updatingCat } = useSWRMutation(['update-inventory'], async () => updateCategory({
+        name: formData.name,
+        description: formData.description,
+    }, editInventoryId));
+
     type FieldType = "name" | "description" | "ownerCategoryId";
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -118,14 +123,25 @@ const InventoryGroups: React.FC = () => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
         try {
-
-            const result = await createCat();
-            if (result) {
-                console.log('API Response:', result);
-                mutate([`get-category`]);
-                resetForm();
+            if (editInventoryId) {
+                const result = await updateCat();
+                console.log(result);
+                if (result) {
+                    console.log(result);
+                    mutate([`get-category`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
             } else {
-                throw new Error('Invalid response from API');
+                const result = await createCat();
+                if (result) {
+                    console.log('API Response:', result);
+                    mutate([`get-category`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
@@ -166,17 +182,18 @@ const InventoryGroups: React.FC = () => {
                         value={formData.name}
                         changeValue={(e) => handleInputChange('name', e.target.value)}
                         error={!!errors.name}
-                        {...register('name', { required: 'Name is required' })}
+                        {...register('name', { required: !isEditMode && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                     />
                     <DropdownInput
                         title={`${t("warehouse.included")}`}
-                        label={t("warehouse.notSel")}
+                        // label={t("warehouse.notSel")}
                         options={categories}
                         classname="w-64"
                         {...register('ownerCategoryId')}
                         value={formData.ownerCategoryId}
                         onChange={(value) => handleInputChange('ownerCategoryId', value)}
+                        isDisabled={isEditMode}
                     />
                     <MultilineInput
                         title={t("warehouse.desc")}
@@ -197,7 +214,7 @@ const InventoryGroups: React.FC = () => {
                         <Button
                             title={t("routes.create")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingCat : isMutating}
                             handleClick={() => { }}
                         />
                     </div>

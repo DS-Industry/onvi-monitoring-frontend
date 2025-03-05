@@ -2,6 +2,7 @@ import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import ScheduleTable from "@/components/ui/Table/ScheduleTable";
+import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
 import { createShift, getShiftById } from "@/services/api/finance";
@@ -26,8 +27,9 @@ type TimeSheet = {
 
 const TimeSheetCreation: React.FC = () => {
     const { t } = useTranslation();
+    const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

@@ -23,7 +23,8 @@ enum TECHTASKS {
 type IncidentParam = {
     dateStart: string;
     dateEnd: string;
-    posId?: number;
+    posId: number;
+    placementId: number;
 }
 
 type IncidentResponse = {
@@ -200,6 +201,7 @@ type TechTasksResponse = {
     status: string;
     period: string;
     nextCreateDate?: Date;
+    endSpecifiedDate?: Date;
     startDate: Date;
     items: {
         id: number;
@@ -217,6 +219,7 @@ type TechTaskBody = {
     type: string;
     period: string;
     startDate: Date;
+    endSpecifiedDate?: Date;
     techTaskItem: number[];
 }
 
@@ -226,6 +229,7 @@ type UpdateTechTaskBody = {
     type?: string;
     status?: string;
     period?: string;
+    endSpecifiedDate?: Date;
     techTaskItem?: number[];
 }
 
@@ -238,6 +242,7 @@ type TechTaskResponse = {
         status: string;
         period: string;
         nextCreateDate?: Date;
+        endSpecifiedDate?: Date;
         startDate: Date;
         startWorkDate?: Date;
         sendWorkDate?: Date;
@@ -255,6 +260,7 @@ type ReadTechTasksResponse = {
     posId: number;
     type: string;
     status: string;
+    endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
@@ -276,6 +282,7 @@ type TechTaskShapeResponse = {
     posId: number;
     type: string;
     status: string;
+    endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
@@ -339,6 +346,10 @@ type ConsumptionRateCoeffPatchResponse = {
     }
 }
 
+type PosParams = {
+    placementId: number;
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -359,8 +370,8 @@ export async function updateIncident(body: UpdateIncidentBody): Promise<PostInci
     return response.data;
 }
 
-export async function getPoses(): Promise<POSRESPONSE[]> {
-    const response: AxiosResponse<POSRESPONSE[]> = await api.get(EQUIPMENT.GET_POS);
+export async function getPoses(params: PosParams): Promise<POSRESPONSE[]> {
+    const response: AxiosResponse<POSRESPONSE[]> = await api.get(EQUIPMENT.GET_POS, { params });
 
     return response.data;
 }

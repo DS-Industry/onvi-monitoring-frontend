@@ -8,7 +8,7 @@ import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore'; 
 import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
@@ -103,7 +103,10 @@ const Deposit: React.FC = () => {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
-    const { data, error } = useSWR([`get-pos`], () => getPoses())
+
+    const city = useCity();
+
+    const { data, error } = useSWR([`get-pos`], () => getPoses({ placementId: city }))
 
     useEffect(() => {
         console.log(JSON.stringify(error, null, 2));

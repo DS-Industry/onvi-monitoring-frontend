@@ -73,6 +73,11 @@ type CATEGORY_REQUEST = {
     ownerCategoryId?: number;
 }
 
+type UPDATE_CATEGORY_REQUEST = {
+    name?: string;
+    description?: string;
+}
+
 type CATEGORY_RESPONSE = {
     props: {
         id: number;
@@ -157,7 +162,8 @@ type DocumentResponse = {
 type DOCUMENT_PARAMS = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId?: number;
+    warehouseId: number;
+    placementId: number;
 }
 
 type DOCUMENTS_RESPONSE = {
@@ -206,8 +212,9 @@ type INVENTORY_RESPONSE = {
 }
 
 type STOCK_PARAMS = {
-    categoryId?: number;
-    warehouseId?: number;
+    categoryId: number;
+    warehouseId: number;
+    placementId: number;
 }
 
 type STOCK_RESPONSE = {
@@ -248,6 +255,13 @@ export async function updateNomenclature(body: NOMENCLATURE_UPDATE_REQUEST): Pro
 export async function createCategory(body: CATEGORY_REQUEST): Promise<CATEGORY_RESPONSE> {
     console.log(body);
     const response: AxiosResponse<CATEGORY_RESPONSE> = await api.post(WAREHOUSE.CREATE_CATEGORY, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function updateCategory(body: UPDATE_CATEGORY_REQUEST, id: number): Promise<CATEGORY_RESPONSE> {
+    console.log(body);
+    const response: AxiosResponse<CATEGORY_RESPONSE> = await api.patch(WAREHOUSE.CREATE_CATEGORY + `/${id}`, body);
     console.log(response.data);
     return response.data;
 }

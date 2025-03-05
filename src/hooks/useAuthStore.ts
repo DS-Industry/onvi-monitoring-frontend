@@ -65,6 +65,10 @@ export const usePageSize = () => {
   return useAuthStore((state) => state.pageSize);
 }
 
+export const useCity = () => {
+  return useAuthStore((state) => state.city);
+}
+
 export const useSetPermissions = () => {
   return useAuthStore((state) => state.setPermissions);
 }
@@ -95,4 +99,8 @@ export const useSetCurrentPage = () => {
 
 export const useSetPageSize = () => {
   return useAuthStore((state) => state.setPageSize);
+}
+
+export const useSetCity = () => {
+  return useAuthStore((state) => state.setCity);
 }

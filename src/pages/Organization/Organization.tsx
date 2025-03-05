@@ -19,6 +19,7 @@ import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@/hooks/useUserStore";
+import { useCity, useSetCity } from "@/hooks/useAuthStore";
 
 type OrganizationResponse = {
     id: number;
@@ -35,18 +36,20 @@ type OrganizationResponse = {
 const Organization: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization());
+    const address = useCity();
+    const setAddress = useSetCity();
+    const { data, isLoading: loadingOrg } = useSWR([`get-org`, address], () => getOrganization({
+        placementId: address
+    }));
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const [address, setAddress] = useState("");
     const user = useUser();
 
     useSWR(editOrgId !== 0 ? [`get-org-doc`] : null, () => getOrganizationDocument(editOrgId));
 
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        ?.filter((item: { address: string }) => item.address.toLowerCase().includes(address.toLowerCase()))
         .map((item: OrganizationResponse) => ({
             ...item,
             ownerName: user.name,
@@ -165,7 +168,7 @@ const Organization: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-org`]);
+                    mutate([`get-org`, address]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -174,7 +177,7 @@ const Organization: React.FC = () => {
                 const result = await createOrganization();
                 if (result) {
                     console.log(result);
-                    mutate([`get-org`]);
+                    mutate([`get-org`, address]);
                 } else {
                     throw new Error('Invalid org data. Please try again.');
                 }
