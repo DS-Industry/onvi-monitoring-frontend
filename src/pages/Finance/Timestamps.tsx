@@ -2,7 +2,7 @@ import Button from "@/components/ui/Button/Button";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 import { getPoses } from "@/services/api/equipment";
 import { getTimestamp, postTimestamp } from "@/services/api/finance";
 import React, { useState } from "react";
@@ -27,8 +27,9 @@ const Timestamps: React.FC = () => {
 
     const [posId, setPosId] = useState(posType);
     const [disabledButtons, setDisabledButtons] = useState<{ [key: number]: boolean }>({});
+    const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

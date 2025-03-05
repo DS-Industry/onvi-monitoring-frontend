@@ -8,7 +8,7 @@ import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
@@ -68,7 +68,10 @@ const Programs: React.FC = () => {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd,
     }));
-    const { data } = useSWR([`get-pos`], () => getPoses())
+
+    const city = useCity();
+
+    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }))
 
 
     useEffect(() => {

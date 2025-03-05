@@ -10,18 +10,20 @@ import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
 
 type StockParams = {
-    categoryId?: number;
-    warehouseId?: number;
+    categoryId: number;
+    warehouseId: number;
+    placementId: number;
 }
 
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const [orgId, setOrgId] = useState(1);
     const [categoryId, setCategoryId] = useState(0);
-    const [warehouseId, setWarehouseId] = useState(0);
+    const warehouseId = useWareHouseId();
+    const setWarehouseId = useSetWareHouseId();
     const [isTableLoading, setIsTableLoading] = useState(false);
     const { filterOn } = useFilterOn();
 
@@ -45,12 +47,14 @@ const OverheadCosts: React.FC = () => {
     ], []);
 
     const posType = usePosType();
+    const city = useCity();
+    const setCity = useSetCity();
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -60,7 +64,8 @@ const OverheadCosts: React.FC = () => {
 
     const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR([`get-all-stock-levels`, orgId], () => getAllStockLevels(orgId, {
         warehouseId: dataFilter.warehouseId,
-        categoryId: dataFilter.categoryId
+        categoryId: dataFilter.categoryId,
+        placementId: dataFilter.placementId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const stockLevels = useMemo(() => allStockLevels || [], [allStockLevels]);
@@ -95,7 +100,8 @@ const OverheadCosts: React.FC = () => {
 
     const initialFilter = {
         categoryId: categoryId,
-        warehouseId: warehouseId
+        warehouseId: warehouseId,
+        placementId: city
     }
 
     const [dataFilter, setDataFilter] = useState<StockParams>(initialFilter);
@@ -105,12 +111,14 @@ const OverheadCosts: React.FC = () => {
         setIsTableLoading(true);
         if (newFilterData.warehouseId) setWarehouseId(newFilterData.warehouseId);
         if (newFilterData.categoryId) setCategoryId(newFilterData.categoryId);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
     }
 
     useEffect(() => {
         handleDataFilter({
             categoryId: categoryId,
-            warehouseId: warehouseId
+            warehouseId: warehouseId,
+            placementId: city
         })
     }, [filterOn])
 
@@ -121,11 +129,12 @@ const OverheadCosts: React.FC = () => {
     const handleClear = () => {
         setWarehouseId(0);
         setCategoryId(0);
+        setCity(city);
     }
 
     return (
         <>
-            <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+            <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} address={city} setAddress={setCity} hideSearch={true}>
                 <DropdownInput
                     title={t("warehouse.organization")}
                     value={orgId}

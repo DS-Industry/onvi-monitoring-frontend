@@ -8,13 +8,14 @@ import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
     posId: number;
+    placementId: number;
 }
 
 interface DevicesMonitoring {
@@ -76,11 +77,13 @@ const DepositDevices: React.FC = () => {
     const location = useLocation();
 
     const posType = usePosType();
+    const city = useCity();
     const startDate = useStartDate();
     const endDate = useEndDate();
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const setCity = useSetCity();
 
     const [isTableLoading, setIsTableLoading] = useState(false);
     
@@ -88,6 +91,7 @@ const DepositDevices: React.FC = () => {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
+        placementId: city || 1
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
@@ -98,13 +102,14 @@ const DepositDevices: React.FC = () => {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId,
+            placementId: dataFilter?.placementId
         }), 
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
     const { data, error } = useSWR(
         [`get-pos`], 
-        () => getPoses(), 
+        () => getPoses({ placementId: city }), 
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
@@ -115,6 +120,7 @@ const DepositDevices: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
+        if(newFilterData.placementId) setCity(newFilterData.placementId);
     };
 
     useEffect(() => {
@@ -143,7 +149,6 @@ const DepositDevices: React.FC = () => {
                 count={devicesMonitoring.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
-                hideCity={true}
                 hideSearch={true}
             />
             {

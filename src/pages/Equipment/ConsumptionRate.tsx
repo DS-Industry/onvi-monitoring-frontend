@@ -11,14 +11,15 @@ import { useTranslation } from "react-i18next";
 import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import SalyImage from "@/assets/NoEquipment.png"
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
     const posType = usePosType();
     const [searchPosId, setSearchPosId] = useState(posType);
+    const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR([`get-consumption-rate`, searchPosId], () => getConsumptionRate(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

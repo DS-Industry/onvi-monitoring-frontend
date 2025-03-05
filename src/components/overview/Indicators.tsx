@@ -14,7 +14,7 @@ import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
-import { useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
+import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
 
 interface PosMonitoring {
   id: number;
@@ -77,15 +77,17 @@ const Indicators: React.FC = () => {
     dateEnd: endDate,
   });
   const { t } = useTranslation();
+  const city = useCity();
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
   const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
-    posId: selectedValue
+    posId: selectedValue,
+    placementId: city
   }));
 
-  const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
   const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
     return item;

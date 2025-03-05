@@ -7,7 +7,7 @@ import { getChemicalReport, getPoses } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsChemicalConsumption } from "@/utils/OverFlowTableData";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore'; 
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 
 interface TechRateInfo {
@@ -73,6 +73,7 @@ const ChemicalConsumption: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const city = useCity();
 
     const initialFilter = {
         dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
@@ -85,7 +86,7 @@ const ChemicalConsumption: React.FC = () => {
     const handleDataFilter = (newFilterData: Partial<FilterChemicalPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
-        if(newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
@@ -96,12 +97,12 @@ const ChemicalConsumption: React.FC = () => {
         posId: dataFilter.posId
     }, dataFilter.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     useEffect(() => {
         chemicalMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, chemicalMutate]);
-    
+
     const data: TechTask[] = chemicalReports || [];
     const tableRows = transformDataToTableRows(data);
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
@@ -110,7 +111,7 @@ const ChemicalConsumption: React.FC = () => {
 
     return (
         <>
-        <FilterMonitoring
+            <FilterMonitoring
                 count={tableRows.length}
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}

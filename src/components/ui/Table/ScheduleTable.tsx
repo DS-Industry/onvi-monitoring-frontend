@@ -20,7 +20,7 @@ import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/services/api/finance";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 
 interface Employee {
     id: number;
@@ -128,6 +128,7 @@ const ScheduleTable: React.FC<Props> = ({
     const location = useLocation();
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date>(new Date());
+    const city = useCity();
 
     useEffect(() => {
         if (shift?.props?.startDate && shift?.props?.endDate) {
@@ -136,7 +137,7 @@ const ScheduleTable: React.FC<Props> = ({
         }
     }, [shift]);
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

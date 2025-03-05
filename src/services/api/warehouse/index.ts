@@ -162,7 +162,8 @@ type DocumentResponse = {
 type DOCUMENT_PARAMS = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId?: number;
+    warehouseId: number;
+    placementId: number;
 }
 
 type DOCUMENTS_RESPONSE = {
@@ -211,8 +212,9 @@ type INVENTORY_RESPONSE = {
 }
 
 type STOCK_PARAMS = {
-    categoryId?: number;
-    warehouseId?: number;
+    categoryId: number;
+    warehouseId: number;
+    placementId: number;
 }
 
 type STOCK_RESPONSE = {

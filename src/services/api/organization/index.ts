@@ -158,9 +158,13 @@ type UpdateRoleResponse = {
     }
 }
 
-export async function getOrganization(): Promise<Organization[]> {
+type AddressParams = {
+    placementId: number
+}
+
+export async function getOrganization(params: AddressParams): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
-    const response: AxiosResponse<Organization[]> = await api.get(url);
+    const response: AxiosResponse<Organization[]> = await api.get(url, { params });
 
     //console.log(JSON.stringify(response, null, 2));
     return response.data;

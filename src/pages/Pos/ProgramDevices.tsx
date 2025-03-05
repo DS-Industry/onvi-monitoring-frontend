@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate } from '@/hooks/useAuthStore';
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { Bar } from "react-chartjs-2";
 import {
@@ -30,6 +30,7 @@ interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
     posId: number;
+    placementId: number;
 }
 
 interface PosPrograms {
@@ -61,14 +62,17 @@ const ProgramDevices: React.FC = () => {
     const posType = usePosType();
     const startDate = useStartDate();
     const endDate = useEndDate();
+    const city = useCity();
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const setCity = useSetCity();
 
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
@@ -78,9 +82,11 @@ const ProgramDevices: React.FC = () => {
         {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
-            posId: dataFilter?.posId
+            posId: dataFilter?.posId,
+            placementId: dataFilter?.placementId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { data } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+
+    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
@@ -90,6 +96,7 @@ const ProgramDevices: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
+        if(newFilterData.placementId) setCity(newFilterData.placementId);
     };
 
     useEffect(() => {
@@ -125,7 +132,6 @@ const ProgramDevices: React.FC = () => {
                 count={devicePrograms.length}
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
-                hideCity={true}
                 hideSearch={true}
             />
             {

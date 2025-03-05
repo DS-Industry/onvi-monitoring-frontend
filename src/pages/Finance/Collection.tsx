@@ -7,7 +7,7 @@ import useSWR from "swr";
 import { getPoses } from "@/services/api/equipment";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
 import { getCollections } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
@@ -38,6 +38,7 @@ const Collection: React.FC = () => {
     const setCurrentPage = useSetCurrentPage();
     const setTotalCount = useSetPageSize();
     const [isTableLoading, setIsTableLoading] = useState(false);
+    const city = useCity();
 
     const initialFilter = {
         dateStart: startDate,
@@ -87,7 +88,7 @@ const Collection: React.FC = () => {
             setTotalCount(filter?.totalCount)
     }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

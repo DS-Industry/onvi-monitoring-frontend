@@ -16,7 +16,7 @@ import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 
 type TechTasks = {
     id: number;
@@ -63,10 +63,11 @@ const RoutineWork: React.FC = () => {
     const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
+    const city = useCity();
 
     const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine], () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

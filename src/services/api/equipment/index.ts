@@ -23,7 +23,8 @@ enum TECHTASKS {
 type IncidentParam = {
     dateStart: string;
     dateEnd: string;
-    posId?: number;
+    posId: number;
+    placementId: number;
 }
 
 type IncidentResponse = {
@@ -345,6 +346,10 @@ type ConsumptionRateCoeffPatchResponse = {
     }
 }
 
+type PosParams = {
+    placementId: number;
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -365,8 +370,8 @@ export async function updateIncident(body: UpdateIncidentBody): Promise<PostInci
     return response.data;
 }
 
-export async function getPoses(): Promise<POSRESPONSE[]> {
-    const response: AxiosResponse<POSRESPONSE[]> = await api.get(EQUIPMENT.GET_POS);
+export async function getPoses(params: PosParams): Promise<POSRESPONSE[]> {
+    const response: AxiosResponse<POSRESPONSE[]> = await api.get(EQUIPMENT.GET_POS, { params });
 
     return response.data;
 }

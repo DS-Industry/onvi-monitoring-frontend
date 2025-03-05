@@ -8,7 +8,7 @@ import { applyReport, getReportById } from "@/services/api/reports";
 import Input from "@/components/ui/Input/Input";
 import useSWRMutation from "swr/mutation";
 import Button from "@/components/ui/Button/Button";
-import { usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType } from "@/hooks/useAuthStore";
 import { getWarehouses } from "@/services/api/warehouse";
 import { getOrganization } from "@/services/api/organization";
 import { useTranslation } from "react-i18next";
@@ -18,8 +18,9 @@ const IncomeReport: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const posType = usePosType();
+    const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), {
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         keepPreviousData: true
@@ -29,7 +30,7 @@ const IncomeReport: React.FC = () => {
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: reportData } = useSWR([`get-report`], () => getReportById(location.state.ownerId), {
         revalidateOnFocus: false,

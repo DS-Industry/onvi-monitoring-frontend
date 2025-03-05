@@ -6,6 +6,7 @@ import DropdownInput from "@ui/Input/DropdownInput";
 import { useState } from "react";
 import DatePickerComponent from "@ui/DatePickerComponent";
 import { getPoses } from "@/services/api/equipment";
+import { useCity } from "@/hooks/useAuthStore";
 
 type Rating = {
   posName: string;
@@ -33,6 +34,7 @@ const RatingOfCarWases = () => {
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
   const { t } = useTranslation();
+  const city = useCity();
 
   const [selectedValue, setSelectedValue] = useState("");
   const [dateRange, setDateRange] = useState({
@@ -45,7 +47,7 @@ const RatingOfCarWases = () => {
     getRating(dateRange)
   );
 
-  const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
   const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

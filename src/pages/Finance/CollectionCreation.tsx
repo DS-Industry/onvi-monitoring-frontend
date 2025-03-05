@@ -14,6 +14,7 @@ import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
 import moment from "moment";
+import { useCity } from "@/hooks/useAuthStore";
 
 type TableRow = {
     id: number;
@@ -77,8 +78,9 @@ const CollectionCreation: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
+    const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: collections } = useSWR(location?.state?.ownerId ? [`get-collection`] : null, () => getCollectionById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

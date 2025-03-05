@@ -3,8 +3,10 @@ import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/contex
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
+import useSWR from "swr";
+import { getPlacement } from "@/services/api/device/index.ts";
 
 type Optional = {
     name: string;
@@ -42,7 +44,6 @@ const FilterMonitoring: React.FC<Props> = ({
     const storeStartDate = useStartDate();
     const storeEndDate = useEndDate();
     // const { buttonOn, setButtonOn } = useButtonCreate();
-    const [city, setCity] = useState("");
     // const [linesPerPage, setLinesPerPage] = useState(10);
     const { filterOn, setFilterOn } = useFilterOn();
     const { filterOpen } = useFilterOpen();
@@ -54,6 +55,8 @@ const FilterMonitoring: React.FC<Props> = ({
     const [posId, setPosId] = useState(posType);
     const [warehouseId, setWarehouseId] = useState(wareHouseId);
     const [deviceId, setDeviceId] = useState('');
+    const city = useCity();
+    const setCity = useSetCity();
 
     const setPosType = useSetPosType();
     const setWareHouseId = useSetWareHouseId();
@@ -71,6 +74,11 @@ const FilterMonitoring: React.FC<Props> = ({
     const handleEndDateChange = (combinedDateTime: Date) => {
         setEndDate(combinedDateTime);
     };
+
+    const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
+
 
 
     useEffect(() => {
@@ -91,7 +99,8 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             posId: posId,
             page: currentPage,
-            size: pageNumber
+            size: pageNumber,
+            placementId: city
         });
         devicesSelect && handleDataFilter({
             dateStart: startDate,
@@ -124,7 +133,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     title={"Город"}
                     value={city}
                     classname="ml-2 w-80"
-                    options={[]}
+                    options={cities}
                     onChange={(value) => setCity(value)}
                 />}
                 {organizationsSelect && (<DropdownInput
