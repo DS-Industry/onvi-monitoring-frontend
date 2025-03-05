@@ -108,95 +108,70 @@ const GoodsTable: React.FC<Props> = ({
     const { total, vat } = calculateSummary();
 
     return (
-        <div className="py-4 bg-white rounded-lg font-sans">
-            {/* Tabs */}
-            {/* <div className="flex">
-                <button
-                    onClick={() => setActiveTab("tab1")}
-                    className={`p-2 px-6 transition font-semibold rounded-t-lg ${activeTab === "tab1"
-                        ? "text-text01 shadow"
-                        : "text-text02 bg-background07"
-                        }`}
-                >
-                    Основные Данные
-                </button>
-                <button
-                    onClick={() => setActiveTab("tab2")}
-                    className={`p-2 px-6 transition font-semibold rounded-t-lg ${activeTab === "tab2"
-                        ? "text-text01 shadow"
-                        : "text-text02 bg-background07"
-                        }`}
-                >
-                    Дополнительно
-                </button>
-            </div> */}
-
+        <div className="py-4 px-2 sm:px-4 bg-white rounded-lg font-sans">
             {activeTab === "tab1" && (
                 <div className="shadow-card rounded-2xl">
-                    <div className="flex justify-between p-4">
+                    <div className="flex flex-wrap justify-between p-2 sm:p-4 gap-2">
                         <div className="space-x-2">
-                            <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addProduct}>
+                            <button className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addProduct}>
                                 Добавить товар
                             </button>
-                            <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addRow}>
+                            <button className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addRow}>
                                 Отправить
                             </button>
                         </div>
                         <div className="space-x-2">
-                            <button className="px-1.5 py-1 bg-background07/50 rounded">
+                            <button className="px-2 py-1 bg-background07/50 rounded">
                                 <img src={ArrowUp} />
                             </button>
-                            <button className="px-1.5 py-1 bg-background07/50 rounded">
+                            <button className="px-2 py-1 bg-background07/50 rounded">
                                 <img src={ArrowDown} />
                             </button>
                         </div>
                     </div>
 
-                    {/* Table */}
-                    <table className="w-full">
-                        <thead>
-                            <tr>
-                                {columns?.map((column) => (
-                                    <th
-                                        key={column.key}
-                                        className={`border-b border-x-2 border-background02 bg-background06 px-1 py-1.5 text-sm text-start font-semibold text-text01 uppercase tracking-wider ${column.key === "check" ? "w-8" : ""}`}
-                                    >
-                                        {column.label}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tableData?.map((row: any) => (
-                                <tr
-                                    key={row.id}
-                                >
+                    {/* Table Wrapper for Scrollable Table */}
+                    <div className="w-full overflow-auto">
+                        <table className="w-full min-w-max">
+                            <thead>
+                                <tr>
                                     {columns?.map((column) => (
-                                        <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-1.5 px-1 whitespace-nowrap text-sm font-normal first:text-primary02 text-text01 overflow-x-visible">
-                                            {column.type === "checkbox" ? (
-                                                <input
-                                                    type="checkbox"
-                                                    checked={row[column.key]}
-                                                    onChange={() =>
-                                                        handleInputChange(row.id, column.key, !row[column.key])
-                                                    }
-                                                />
-                                            )
-                                                : column.render ? column.render(row, handleChange)
-                                                    : column.type === 'number' ? (
-                                                        row[column.key] ? formatNumber(row[column.key]) : '-'
-                                                    ) : (
-                                                        row[column.key]
-                                                    )}
-                                        </td>
+                                        <th key={column.key}
+                                            className={`border-b border-x-2 border-background02 bg-background06 px-1 py-1.5 text-sm text-start font-semibold text-text01 uppercase tracking-wider ${column.key === "check" ? "w-8" : ""}`}>
+                                            {column.label}
+                                        </th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {tableData?.map((row: any) => (
+                                    <tr key={row.id}>
+                                        {columns?.map((column) => (
+                                            <td key={column.key}
+                                                className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-1.5 px-1 whitespace-nowrap text-sm font-normal first:text-primary02 text-text01 overflow-x-visible">
+                                                {column.type === "checkbox" ? (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={row[column.key]}
+                                                        onChange={() => handleInputChange(row.id, column.key, !row[column.key])}
+                                                    />
+                                                )
+                                                    : column.render ? column.render(row, handleChange)
+                                                        : column.type === 'number' ? (
+                                                            row[column.key] ? formatNumber(row[column.key]) : '-'
+                                                        ) : (
+                                                            row[column.key]
+                                                        )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
                     {/* Summary */}
-                    <div className="flex gap-10 justify-end mt-10 p-4">
+                    <div className="flex flex-wrap gap-4 sm:gap-10 justify-end mt-6 p-2 sm:p-4">
                         <div className="flex">
                             <span className="font-semibold text-sm text-text02 flex justify-center items-center">Всего: </span>
                             <div className="border border-opacity01 rounded-md px-1 py-1.5 font-normal text-sm text-text02">{total.toFixed(2)}</div>
@@ -208,23 +183,25 @@ const GoodsTable: React.FC<Props> = ({
                     </div>
                 </div>
             )}
+
             {activeTab === "tab2" && (
-                <div className="shadow-card rounded-2xl space-y-6 p-10">
+                <div className="shadow-card rounded-2xl space-y-6 p-4 sm:p-10">
                     <Input
                         type={"number"}
                         changeValue={() => { }}
-                        classname="w-64"
+                        classname="w-full sm:w-64"
                         title="Ответственный *"
                         label="Выберите ответственное лицо"
                     />
                     <MultilineInput
                         changeValue={() => { }}
-                        classname="w-80"
+                        classname="w-full sm:w-80"
                         title="Комментарий"
                     />
                 </div>
             )}
         </div>
+
     );
 };
 

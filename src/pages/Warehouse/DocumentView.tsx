@@ -103,36 +103,36 @@ const DocumentView: React.FC = () => {
         return !!metaData && 'warehouseReceirId' in metaData;
     }
 
-    const tableData: { 
-        id: number; 
-        responsibleId: number; 
-        nomenclatureId: number; 
-        quantity: number; 
-        comment?: string; 
-        oldQuantity?: number; 
-        deviation?: number; 
+    const tableData: {
+        id: number;
+        responsibleId: number;
+        nomenclatureId: number;
+        quantity: number;
+        comment?: string;
+        oldQuantity?: number;
+        deviation?: number;
     }[] = documentType === "INVENTORY"
-        ? (document?.details || []).map((doc) => ({
-            id: doc.props.id,
-            responsibleId: document?.document.props.responsibleId ?? 0, 
-            nomenclatureId: doc.props.nomenclatureId,
-            quantity: doc.props.quantity,
-            comment: doc.props.comment,
-            oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
-            deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
-        }))
-        : (document?.details || []).map((doc) => ({
-            id: doc.props.id,
-            responsibleId: document?.document.props.responsibleId ?? 0, 
-            nomenclatureId: doc.props.nomenclatureId,
-            quantity: doc.props.quantity,
-            comment: doc.props.comment
-        }));    
+            ? (document?.details || []).map((doc) => ({
+                id: doc.props.id,
+                responsibleId: document?.document.props.responsibleId ?? 0,
+                nomenclatureId: doc.props.nomenclatureId,
+                quantity: doc.props.quantity,
+                comment: doc.props.comment,
+                oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
+                deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
+            }))
+            : (document?.details || []).map((doc) => ({
+                id: doc.props.id,
+                responsibleId: document?.document.props.responsibleId ?? 0,
+                nomenclatureId: doc.props.nomenclatureId,
+                quantity: doc.props.quantity,
+                comment: doc.props.comment
+            }));
 
     useEffect(() => {
-        if(buttonOn)
-            navigate("/warehouse/documents/creation", {state: { ownerId: location.state.ownerId } })
-    },[buttonOn, location.state.ownerId, navigate])
+        if (buttonOn)
+            navigate("/warehouse/documents/creation", { state: { ownerId: location.state.ownerId } })
+    }, [buttonOn, location.state.ownerId, navigate])
 
     return (
         <div className="ml-20">
@@ -142,43 +142,47 @@ const DocumentView: React.FC = () => {
                         <div>{document?.document.props.name}</div>
                         <div>{moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}</div>
                     </div>
-                    <div className="flex py-4 justify-between">
-                        <div className="flex">
-                            <div className="mr-10 text-text01 font-normal text-sm">
-                                <div>{t("warehouse.no")}</div>
-                                <div>{t("warehouse.overhead")}</div>
+                    <div className="flex flex-col sm:flex-row gap-4 py-4">
+                        <div className="flex flex-wrap gap-4">
+                            <div className="flex">
+                                <div className="mr-10 text-text01 font-normal text-sm">
+                                    <div>{t("warehouse.no")}</div>
+                                    <div>{t("warehouse.overhead")}</div>
+                                </div>
+                                <Input
+                                    type={""}
+                                    value={document?.document.props.name}
+                                    changeValue={() => { }}
+                                    disabled={true}
+                                />
                             </div>
-                            <Input
-                                type={""}
-                                value={document?.document.props.name}
-                                changeValue={() => { }}
-                                disabled={true}
-                            />
-                            <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                            <Input
-                                type={"date"}
-                                value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
-                                changeValue={() => { }}
-                                disabled={true}
-                            />
+                            <div className="flex">
+                                <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
+                                <Input
+                                    type={"date"}
+                                    value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
+                                    changeValue={() => { }}
+                                    disabled={true}
+                                />
+                            </div>
                         </div>
                         <div className="flex flex-col space-y-6">
-                            <div className="flex">
-                                <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                            <div className="flex space-x-2">
+                                <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
                                 <DropdownInput
                                     value={document?.document.props.warehouseId}
                                     options={warehouses}
-                                    classname="w-80"
+                                    classname="w-48 sm:w-80"
                                     onChange={() => { }}
                                     isDisabled={true}
                                 />
                             </div>
-                            {documentType === "MOVING" && <div className="flex">
-                                <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
+                            {documentType === "MOVING" && <div className="flex space-x-2">
+                                <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
                                 <DropdownInput
                                     value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
                                     options={warehouses}
-                                    classname="w-80"
+                                    classname="w-48 sm:w-80"
                                     onChange={() => { }}
                                     isDisabled={true}
                                 />

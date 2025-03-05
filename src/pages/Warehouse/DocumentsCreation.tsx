@@ -35,8 +35,8 @@ const DocumentsCreation: React.FC = () => {
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
     const [selectedDate, setSelectedDate] = useState<string | null>(() => {
-        const today = new Date(); 
-        return today.toISOString().split("T")[0]; 
+        const today = new Date();
+        return today.toISOString().split("T")[0];
     });
     const navigate = useNavigate();
     const location = useLocation();
@@ -185,7 +185,7 @@ const DocumentsCreation: React.FC = () => {
 
     const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })) || [];
 
-    const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({nomenclatureId: item.nomenclatureId, quantity: item.quantity})) || [];
+    const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
 
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
@@ -199,7 +199,7 @@ const DocumentsCreation: React.FC = () => {
                             deviation:
                                 key === "quantity" || key === "oldQuantity"
                                     ? (key === "quantity" ? Number(value) : item.quantity) -
-                                      (key === "oldQuantity" ? Number(value) : item.oldQuantity)
+                                    (key === "oldQuantity" ? Number(value) : item.oldQuantity)
                                     : item.deviation
                         };
                     }
@@ -208,8 +208,8 @@ const DocumentsCreation: React.FC = () => {
                 return item;
             })
         );
-    };    
-    
+    };
+
     const updateRow = () => {
         if (documentType === "INVENTORY")
             setTableData((prevData) => [
@@ -630,44 +630,48 @@ const DocumentsCreation: React.FC = () => {
                 {loadingDocument ?
                     <TableSkeleton columnCount={10} /> :
                     <div>
-                        <div className="flex p-4 justify-between">
-                            <div className="flex">
-                                <div className="mr-10 text-text01 font-normal text-sm">
-                                    <div>{t("warehouse.no")}</div>
-                                    <div>{t("warehouse.overhead")}</div>
+                        <div className="flex flex-col sm:flex-row gap-y-4 py-4">
+                            <div className="flex flex-wrap gap-4">
+                                <div className="flex">
+                                    <div className="mr-10 text-text01 font-normal text-sm">
+                                        <div>{t("warehouse.no")}</div>
+                                        <div>{t("warehouse.overhead")}</div>
+                                    </div>
+                                    <Input
+                                        type={""}
+                                        value={noOverhead}
+                                        changeValue={(e) => setNoOverHead(e.target.value)}
+                                        disabled={true}
+                                    />
                                 </div>
-                                <Input
-                                    type={""}
-                                    value={noOverhead}
-                                    changeValue={(e) => setNoOverHead(e.target.value)}
-                                    disabled={true}
-                                />
-                                <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                                <Input
-                                    type={"date"}
-                                    value={selectedDate}
-                                    changeValue={(e) => setSelectedDate(e.target.value)}
-                                />
+                                <div className="flex">
+                                    <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
+                                    <Input
+                                        type={"date"}
+                                        value={selectedDate}
+                                        changeValue={(e) => setSelectedDate(e.target.value)}
+                                    />
+                                </div>
                             </div>
                             <div className="flex flex-col space-y-6">
-                                <div className="flex">
-                                    <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                                <div className="flex space-x-2">
+                                    <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
                                     <DropdownInput
                                         value={warehouseId}
                                         options={warehouses}
                                         label={t("warehouse.enterWare")}
-                                        classname="w-80"
+                                        classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseId(value)}
                                         error={errors.warehouse}
                                     />
                                 </div>
-                                {documentType === "MOVING" && <div className="flex">
-                                    <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
+                                {documentType === "MOVING" && <div className="flex space-x-2">
+                                    <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
                                     <DropdownInput
                                         value={warehouseRecId}
                                         options={warehouses}
                                         label={t("warehouse.enterWare")}
-                                        classname="w-80"
+                                        classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseRecId(value)}
                                         error={errors.warehouseRec}
                                     />
