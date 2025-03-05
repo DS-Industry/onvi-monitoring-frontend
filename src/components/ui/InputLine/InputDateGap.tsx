@@ -73,41 +73,21 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     return (
         <div className="my-5">
             <p className="text-sm text-text02 mb-1.5">Период</p>
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 text-text02">
-                {/* Start Date and Time */}
-                <div className="flex flex-wrap gap-2.5 items-center">
+            <div className="w-full flex flex-wrap gap-x-2 gap-y-4 text-text02">
+                <div className="flex flex-wrap gap-2 items-center w-fit">
                     <span>с</span>
-                    <Input
-                        type="date"
-                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
-                        value={dateStart}
-                        changeValue={handleStartDateChange}
-                    />
-                    <Input
-                        type="time"
-                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
-                        value={timeStart}
-                        changeValue={handleStartTimeChange}
-                    />
+                    <Input type="date" value={dateStart} changeValue={handleStartDateChange} />
+                    <Input type="time" value={timeStart} changeValue={handleStartTimeChange} />
                 </div>
-                {/* End Date and Time */}
-                <div className="flex flex-wrap gap-2.5 items-center">
+                <div className="flex flex-wrap gap-2 items-center w-fit">
                     <span>по</span>
-                    <Input
-                        type="date"
-                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
-                        value={dateEnd}
-                        changeValue={handleEndDateChange}
-                    />
-                    <Input
-                        type="time"
-                        // className="rounded-md py-2 px-4 border border-opacity01/30 bg-[#F7F9FC] w-40"
-                        value={timeEnd}
-                        changeValue={handleEndTimeChange}
-                    />
+                    <Input type="date" value={dateEnd} changeValue={handleEndDateChange} />
+                    <Input type="time" value={timeEnd} changeValue={handleEndTimeChange} />
                 </div>
             </div>
+
         </div>
+
     );
 };
 
