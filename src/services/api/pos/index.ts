@@ -8,6 +8,12 @@ enum POS {
     GET_PROGRAMS = '/user/pos/program'
 }
 
+enum CarWashPosType {
+    SelfService = "SelfService",
+    Portal = "Portal",
+    SelfServiceAndPortal = "SelfServiceAndPortal"
+}
+
 type Pos = {
     id: number;
     name: string;
@@ -103,13 +109,16 @@ type DepositDeviceResponse = {
 type Program = {
     id: number;
     name: string;
+    posType?: CarWashPosType;
     programsInfo:
     {
         programName: string;
         counter: number;
         totalTime: number;
         averageTime: string;
-        lastOper: Date;
+        totalProfit?: number;
+        averageProfit?: number;
+        lastOper?: Date;
     }[]
 }
 

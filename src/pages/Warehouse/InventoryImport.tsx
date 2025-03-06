@@ -60,87 +60,91 @@ const InventoryImport: React.FC = () => {
 
     return (
         <>
-            <div>
-                {notificationVisible && <Notification
-                    title={t("warehouse.loading")}
-                    message={t("warehouse.importing")}
-                    onClose={() => setNotificationVisible(false)}
-                />}
-                <div className="font-semibold text-2xl mt-5 text-primary02">{t("warehouse.fileSel")}</div>
-                <div className="flex mt-5">
-                    <div onClick={() => { setButtonOn(!buttonOn); }} className={`w-80 h-40 flex flex-col justify-center text-center cursor-pointer ${buttonOn ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}>
-                        <div className={`flex justify-center text-center ${buttonOn ? "text-primary02" : "text-text01"}`}>
+            <div className="p-4 sm:p-6">
+                {notificationVisible && (
+                    <Notification
+                        title={t("warehouse.loading")}
+                        message={t("warehouse.importing")}
+                        onClose={() => setNotificationVisible(false)}
+                    />
+                )}
+                <div className="font-semibold text-xl sm:text-2xl mt-5 text-primary02">
+                    {t("warehouse.fileSel")}
+                </div>
+                <div className="flex flex-col sm:flex-row mt-5 gap-4">
+                    <div
+                        onClick={() => setButtonOn(!buttonOn)}
+                        className={`w-full sm:w-80 h-40 flex flex-col justify-center items-center cursor-pointer ${buttonOn ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}
+                    >
+                        <div className={`flex items-center space-x-2 ${buttonOn ? "text-primary02" : "text-text01"}`}>
                             <Icon icon="file" />
-                            <div className="ml-2 font-semibold text-lg">{t("warehouse.use")}</div>
+                            <div className="font-semibold text-lg">{t("warehouse.use")}</div>
                         </div>
-                        <div className={`mt-2 ml-5 text-base ${buttonOn ? "text-text01" : "text-text02"} font-normal`}>{t("warehouse.download")}</div>
+                        <div
+                            className={`mt-2 ml-5 text-base ${buttonOn ? "text-text01" : "text-text02"} font-normal`}
+                        >
+                            {t("warehouse.download")}
+                        </div>
                     </div>
                 </div>
-                <div className="mt-14 w-[720px]">
-                    <div className="flex items-center justify-between">
-                        <div className=" text-text02 text-base font-normal">{t("warehouse.fileDown")}</div>
-                        <div className="justify-end text-text02 text-base font-normal">{t("warehouse.xls")}</div>
+                <div className="mt-10 w-full max-w-3xl">
+                    <div className="flex flex-col sm:flex-row justify-between text-text02 text-base font-normal">
+                        <div>{t("warehouse.fileDown")}</div>
+                        <div>{t("warehouse.xls")}</div>
                     </div>
-                    <div className="border rounded-lg h-24 flex justify-center text-center flex-col">
-                        {!selectedFile && (<div className={`flex m-auto`}>
-                            <label htmlFor="file-upload" className="flex text-primary02 cursor-pointer space-x-2">
-                                <Icon icon="download" />
-                                <div>{t("warehouse.select")}</div>
-                            </label>
-                            <input
-                                id="file-upload"
-                                type="file"
-                                accept=".xlsx, .xls"
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                            <div className="ml-2 text-text01">{t("warehouse.or")}</div>
-                        </div>)}
-                        {selectedFile && (
-                            <div>
-                                <div
-                                    className="flex items-center justify-between space-x-3 p-2"
-                                >
-                                    <div className="flex">
-                                        <div className="text-primary02">{selectedFile.name}</div>
-                                        <div className="text-text01">({(selectedFile.size / 1024).toFixed(2)} kB)</div>
-                                    </div>
-                                    <button
-                                        className="text-text02 justify-end"
-                                        onClick={handleFileRemove}
-                                    >
-                                        <Icon icon="x" />
-                                    </button>
+                    <div className="border rounded-lg h-24 flex justify-center items-center text-center mt-4">
+                        {!selectedFile ? (
+                            <div className="flex flex-wrap justify-center items-center gap-2">
+                                <label htmlFor="file-upload" className="flex items-center text-primary02 cursor-pointer space-x-2">
+                                    <Icon icon="download" />
+                                    <div>{t("warehouse.select")}</div>
+                                </label>
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept=".xlsx, .xls"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                                <div className="text-text01">{t("warehouse.or")}</div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between space-x-3 p-2 w-full">
+                                <div className="flex items-center truncate">
+                                    <div className="text-primary02 truncate">{selectedFile.name}</div>
+                                    <div className="text-text01 ml-2">({(selectedFile.size / 1024).toFixed(2)} kB)</div>
                                 </div>
+                                <button className="text-text02" onClick={handleFileRemove}>
+                                    <Icon icon="x" />
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>
-                <div className="flex space-x-4 mt-10">
-                    <Button
-                        title={t("warehouse.reset")}
-                        type='outline'
-                        handleClick={() => { }}
-                    />
-                    <Button
-                        title={t("pos.download")}
-                        form={true}
-                        handleClick={handleSubmit}
-                        isLoading={isMutating}
-                    />
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                    <Button title={t("warehouse.reset")} type="outline" handleClick={() => { }} />
+                    <Button title={t("pos.download")} form handleClick={handleSubmit} isLoading={isMutating} />
                 </div>
-                <DrawerCreate classname="w-[444px]">
+                <DrawerCreate classname="w-full max-w-lg">
                     <div className="space-y-6">
-                        <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.fileReq")}</div>
+                        <div className="font-semibold text-xl sm:text-2xl mb-5 text-text01">
+                            {t("warehouse.fileReq")}
+                        </div>
                         <div className="font-normal text-base text-text01">{t("warehouse.toAvoid")}</div>
                         <div className="font-normal text-base text-text01">{t("warehouse.useCorr")}</div>
                         <div className="font-normal text-base text-text01">{t("warehouse.supp")}</div>
-                        <Button
-                            title={t("warehouse.down")}
-                            type="outline"
-                            iconDownload={true}
-                            handleClick={handleDownload}
-                        />
+                        <div className="flex space-x-2">
+                            <Button
+                                title={t("organizations.cancel")}
+                                handleClick={() => setButtonOn(false)}
+                            />
+                            <Button
+                                title={t("warehouse.down")}
+                                type="outline"
+                                iconDownload={true}
+                                handleClick={handleDownload}
+                            />
+                        </div>
                     </div>
                 </DrawerCreate>
             </div>

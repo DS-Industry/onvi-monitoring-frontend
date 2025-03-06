@@ -22,7 +22,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
       
       {/* Modal Content */}
       <div 
-        className={`bg-white p-5 rounded-2xl shadow-lg z-10 max-h-[90vh] overflow-auto w-full sm:w-3/4 md:w-1/2 lg:w-1/3 ${classname}`}
+        className={`bg-white p-5 rounded-2xl shadow-lg z-10 max-h-[90vh] overflow-auto w-full sm:w-3/4 md:w-1/2 ${classname}`}
       >
         {children}
         {/* Buttons */}

@@ -495,7 +495,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               )}
               {activePage?.name === "nomenclature" && (
                 <Button
-                  title={t("warehouse.import")}
+                  title={isMobile ? "" : t("warehouse.import")}
                   iconPlus={true}
                   type="outline"
                   classname="mr-2"
@@ -504,7 +504,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               )}
               {activePage?.name === "clients" && (
                 <Button
-                  title={t("routes.importClients")}
+                  title={isMobile ? "" : t("routes.importClients")}
                   type="outline"
                   classname="mr-2"
                   handleClick={() => navigate('/marketing/clients/import')}
