@@ -78,7 +78,8 @@
     "timestamp": "Timestamps",
     "income": "Income report",
     "my": "My reports",
-    "pos": "Adding branches"
+    "pos": "Adding branches",
+    "ware": "Warehouse"
   },
   "dashboard": {
     "news": "News",
@@ -390,7 +391,9 @@
     "supName": "Name*",
     "enterSup": "Enter supplier name",
     "enterPhone": "Enter employee phone number",
-    "noStock": "You don't have any products on stock"
+    "noStock": "You don't have any products on stock",
+    "noWare": "You don't have warehouse in the program",
+    "manager": "Manager"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",

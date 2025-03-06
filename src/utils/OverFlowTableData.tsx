@@ -1154,3 +1154,22 @@ export const columnsTransactions = [
     type: "date"
   }
 ]
+
+export const columnsWarehouses = [
+  {
+    label: "Наименование",
+    key: "name"
+  },
+  {
+    label: "Расположение",
+    key: "location"
+  },
+  {
+    label: "Менеджер",
+    key: "manager"
+  },
+  {
+    label: "Автомойка/ Филиал",
+    key: "posName"
+  }
+]
