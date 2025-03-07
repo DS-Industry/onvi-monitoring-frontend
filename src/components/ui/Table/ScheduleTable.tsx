@@ -568,50 +568,56 @@ const ScheduleTable: React.FC<Props> = ({
                 <Icon icon="plus" className="w-5 h-5" />
                 <div>{t("finance.addE")}</div>
             </div>}
-            {id !== 0 && <div className="mt-5">
-                <div className="flex justify-center space-x-10">
-                    <div className="flex space-x-2 items-center">
-                        <RedDot />
-                        <div className="text-text01">{t("finance.GROSS_VIOLATION")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <OrangeDot />
-                        <div className="text-text01">{t("finance.MINOR_VIOLATION")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <GreenDot />
-                        <div className="text-text01">{t("finance.ONE_REMARK")}</div>
-                    </div>
-                </div>
-            </div>}
-            {id !== 0 && <div className="mt-5">
-                <div className="flex justify-center space-x-10">
-                    <div className="flex space-x-2 items-center">
-                        <div className="w-4 h-4 bg-[#DDF5FF]"></div>
-                        <div className="text-text01">{t("finance.WORKING")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <div className="w-4 h-4 border border-borderFill"></div>
-                        <div className="text-text01">{t("finance.WEEKEND")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <BN />
-                        <div className="text-text01">{t("finance.MEDICAL")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <OTN />
-                        <div className="text-text01">{t("finance.VACATION")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <O />
-                        <div className="text-text01">{t("finance.TIMEOFF")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <NP />
-                        <div className="text-text01">{t("finance.TRUANCY")}</div>
+            {id !== 0 && (
+                <div className="mt-5">
+                    {/* First Row */}
+                    <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
+                        <div className="flex space-x-2 items-center">
+                            <RedDot />
+                            <div className="text-text01">{t("finance.GROSS_VIOLATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <OrangeDot />
+                            <div className="text-text01">{t("finance.MINOR_VIOLATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <GreenDot />
+                            <div className="text-text01">{t("finance.ONE_REMARK")}</div>
+                        </div>
                     </div>
                 </div>
-            </div>}
+            )}
+            {id !== 0 && (
+                <div className="mt-5">
+                    {/* Second Row */}
+                    <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
+                        <div className="flex space-x-2 items-center">
+                            <div className="w-4 h-4 bg-[#DDF5FF]"></div>
+                            <div className="text-text01">{t("finance.WORKING")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <div className="w-4 h-4 border border-borderFill"></div>
+                            <div className="text-text01">{t("finance.WEEKEND")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <BN />
+                            <div className="text-text01">{t("finance.MEDICAL")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <OTN />
+                            <div className="text-text01">{t("finance.VACATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <O />
+                            <div className="text-text01">{t("finance.TIMEOFF")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <NP />
+                            <div className="text-text01">{t("finance.TRUANCY")}</div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {selectedEmployee && selectedDate && (
                 <Modal isOpen={openModals[`${selectedEmployee.userId}-${selectedDate}`]} classname="max-h-[650px] px-8 py-8 overflow-y-auto">
                     <div className="flex flex-row items-center justify-between mb-4">
@@ -699,7 +705,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 { name: t("finance.TIMEOFF"), value: "TIMEOFF" },
                                 { name: t("finance.TRUANCY"), value: "TRUANCY" }
                             ]}
-                            classname="w-96 mb-4"
+                            classname="w-80 sm:w-96 mb-4"
                             onChange={(value) => setValue("typeWorkDay", value)}
                             isDisabled={status === "SENT"}
                         />
@@ -827,7 +833,7 @@ const ScheduleTable: React.FC<Props> = ({
                                     { name: t("finance.MINOR_VIOLATION"), value: "MINOR_VIOLATION" },
                                     { name: t("finance.ONE_REMARK"), value: "ONE_REMARK" }
                                 ]}
-                                classname="w-96"
+                                classname="w-80 sm:w-96"
                                 onChange={(value) => setValue("estimation", value)}
                                 isDisabled={status === "SENT"}
                             />
@@ -836,7 +842,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 {...register("comment")}
                                 value={comment}
                                 changeValue={(e) => setValue("comment", e.target.value)}
-                                classname="w-96"
+                                classname="w-80 sm:w-96"
                                 // label={t("finance.desc")}
                                 inputType="secondary"
                                 disabled={status === "SENT"}

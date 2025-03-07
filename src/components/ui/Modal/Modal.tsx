@@ -16,29 +16,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div
-        className="fixed inset-0 bg-black opacity-60"
-        onClick={onClose}
-      ></div>
-      <div className={`bg-white p-5 rounded-2xl shadow-lg z-10 ${classname}`}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 sm:p-6">
+      {/* Overlay */}
+      <div className="fixed inset-0 bg-black opacity-60" onClick={onClose}></div>
+      
+      {/* Modal Content */}
+      <div 
+        className={`bg-white p-5 rounded-2xl shadow-lg z-10 max-h-[90vh] overflow-auto w-full sm:w-3/4 md:w-1/2 ${classname}`}
+      >
         {children}
+        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-5">
-          {onClose && <Button
-            title={"Сбросить"}
-            handleClick={onClose}
-            type="outline"
-          />}
-          {handleClick && <Button
-            title={"Сохранить"}
-            handleClick={handleClick}
-            isLoading={loading}
-          />}
+          {onClose && (
+            <Button title={"Сбросить"} handleClick={onClose} type="outline" />
+          )}
+          {handleClick && (
+            <Button title={"Сохранить"} handleClick={handleClick} isLoading={loading} />
+          )}
         </div>
       </div>
     </div>,
     document.body
   );
 };
+
 
 export default Modal;

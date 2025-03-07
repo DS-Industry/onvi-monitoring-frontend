@@ -377,12 +377,12 @@ export const columnsProgramsPos = [
     type: "number"
   },
   {
-    label: "Общее время мин.",
+    label: "Общее время (мин)",
     key: "totalTime",
     type: "number"
   },
   {
-    label: "Среднее время мин.",
+    label: "Среднее время (мин)",
     key: "averageTime",
     type: "number"
   },
@@ -391,6 +391,38 @@ export const columnsProgramsPos = [
     key: "lastOper",
     type: "date",
   },
+]
+
+export const columnsProgramsPosPortal = [
+  {
+    label: "Программа",
+    key: "programName",
+  },
+  {
+    label: "Кол-во программ",
+    key: "counter",
+    type: "number"
+  },
+  {
+    label: "Общее время (мин)",
+    key: "totalTime",
+    type: "number"
+  },
+  {
+    label: "Среднее время (мин)",
+    key: "averageTime",
+    type: "number"
+  },
+  {
+    label: "Выручка по программам",
+    key: "totalProfit",
+    type: "number"
+  },
+  {
+    label: "Средний чек",
+    key: "averageProfit",
+    type: "number"
+  }
 ]
 
 export const columnsProgramDevice = [
@@ -1120,5 +1152,24 @@ export const columnsTransactions = [
     label: "Дата окончания создания",
     key: "endTemplateAt",
     type: "date"
+  }
+]
+
+export const columnsWarehouses = [
+  {
+    label: "Наименование",
+    key: "name"
+  },
+  {
+    label: "Расположение",
+    key: "location"
+  },
+  {
+    label: "Менеджер",
+    key: "manager"
+  },
+  {
+    label: "Автомойка/ Филиал",
+    key: "posName"
   }
 ]

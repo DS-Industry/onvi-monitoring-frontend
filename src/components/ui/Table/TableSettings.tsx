@@ -34,21 +34,25 @@ const TableSettings: React.FC<Props> = ({
   };
   return (
     <>
-      <div className="flex flex-row items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold text-text01">Колонки в таблице</h2>
-        <div className="flex items-center gap-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-3">
+        <h2 className="text-xl sm:text-2xl font-semibold text-text01">Колонки в таблице</h2>
+        <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
           <SearchInput
             placeholder="Поиск"
             value={searchTerm}
             onChange={handleSearchChange}
             searchType="outlined"
+            classname="w-full sm:w-auto"
           />
           <Close onClick={onIsModalOpen} className="cursor-pointer" />
         </div>
       </div>
 
-      <div className="flex">
-        <div className="w-1/3 pr-4 space-y-1">
+      {/* Content Section */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Left Column - List of Column Labels */}
+        <div className="w-full lg:w-1/3 space-y-1">
           {colums.map((column) => (
             <div key={column.key} className="text-base text-text01">
               {column.label}
@@ -56,11 +60,12 @@ const TableSettings: React.FC<Props> = ({
           ))}
         </div>
 
-        <div className="w-2/3 bg-disabledFill p-5 rounded-2xl">
+        {/* Right Column - Grouped Checkboxes */}
+        <div className="w-full lg:w-2/3 bg-disabledFill p-5 rounded-2xl">
           {Object.keys(columnGroups).map((groupName) => (
             <div key={groupName} className="mb-6">
               <h3 className="text-lg font-semibold mb-2 text-text01">{groupName}</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {columnGroups[groupName].map((column) => (
                   <label key={column.key} className="flex items-center text-base text-text01">
                     <input

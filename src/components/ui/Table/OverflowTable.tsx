@@ -352,7 +352,7 @@ const OverflowTable: React.FC<Props> = ({
                   </Can>
                 </tr>
               ))}
-              {currentData.length > 0 && showTotal && (
+              {currentData?.length > 0 && showTotal && (
                 <tr className="h-11 px-3 bg-background05 text-sm font-semibold text-text01">
                   <td className="p-2 text-left" colSpan={3}>{t("finance.total")}</td>
                   {displayedColumns.slice(3).map((column) => (
@@ -364,7 +364,7 @@ const OverflowTable: React.FC<Props> = ({
                   ))}
                 </tr>
               )}
-              {currentData.length > 0 && showTotalClean && (
+              {currentData?.length > 0 && showTotalClean && (
                 <tr className="h-11 px-3 bg-background05 text-sm font-semibold text-text01">
                   <td className="p-2 text-left" colSpan={2}>{t("finance.total")}</td>
                   {displayedColumns.slice(2).map((column) => (

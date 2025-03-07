@@ -9,7 +9,8 @@ enum WAREHOUSE {
     GET_WAREHOUSE_POS = 'user/warehouse/pos',
     CREATE_DOCUMENT = 'user/warehouse/document',
     GET_INVENTORY_ITEM = 'user/warehouse/inventory-item/inventory',
-    GET_STOCK_LEVEL = 'user/warehouse/inventory-item'
+    GET_STOCK_LEVEL = 'user/warehouse/inventory-item',
+    CREATE_WAREHOUSE = 'user/warehouse'
 }
 
 enum WarehouseDocumentType {
@@ -229,6 +230,13 @@ type STOCK_RESPONSE = {
     }[]
 }
 
+type WAREHOUSE_BODY = {
+    name: string;
+    location: string;
+    managerId: number;
+    posId: number;
+}
+
 export async function createNomenclature(body: NOMENCLATURE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
     console.log(body);
     const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.post(WAREHOUSE.CREATE_NOMENCLATURE, body);
@@ -339,5 +347,12 @@ export async function getDocument(documentId: number): Promise<GET_DOCUMENT_RESP
 export async function getAllStockLevels(orgId: number, params: STOCK_PARAMS): Promise<STOCK_RESPONSE[]> {
     const response: AxiosResponse<STOCK_RESPONSE[]> = await api.get(WAREHOUSE.GET_STOCK_LEVEL + `/${orgId}`, { params });
     console.log(response);
+    return response.data;
+}
+
+export async function createWarehouse(body: WAREHOUSE_BODY): Promise<WAREHOUSE_RESPONSE> {
+    console.log(body);
+    const response: AxiosResponse<WAREHOUSE_RESPONSE> = await api.post(WAREHOUSE.CREATE_WAREHOUSE, body);
+    console.log(response.data);
     return response.data;
 }

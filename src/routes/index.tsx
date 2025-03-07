@@ -65,6 +65,7 @@ import ListOfEmployees from "@/pages/Organization/ListOfEmployees";
 import ListOfRoles from "@/pages/Organization/ListOfRoles";
 import Transactions from "@/pages/Analysis/Transactions";
 import PosConnection from "@/pages/Organization/PosConnection";
+import Warehouse from "@/pages/Warehouse/Warehouse";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -243,6 +244,7 @@ const routes = [
     isSidebar: true,
     subNavHeading: "",
     subNav: [
+      { name: "ware", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/create", component: Warehouse, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false, isImport: true },
       { name: "nomenclature", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventory", component: InventoryCreation, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false, isImport: true },
       { name: "import", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/warehouse/inventory/import", component: InventoryImport, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "groups", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/warehouse/inventoryGroups", component: InventoryGroups, permissions: [{ action: "manage", subject: "Warehouse"},{ action: "read", subject: "Warehouse"},{ action: "create", subject: "Warehouse"},{ action: "update", subject: "Warehouse"},{ action: "delete", subject: "Warehouse"}], isSidebar: true, subNav: [], subMenu: false },

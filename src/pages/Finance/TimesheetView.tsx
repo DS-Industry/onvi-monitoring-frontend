@@ -176,8 +176,9 @@ const TimesheetView: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex space-x-4">
-                <div className="w-[400px] h-[148px] rounded-2xl shadow-card p-4 space-y-2">
+            <div className="flex flex-col sm:flex-row gap-4">
+                {/* First Card */}
+                <div className="w-full sm:w-[400px] h-auto sm:h-[148px] rounded-2xl shadow-card p-4 space-y-2">
                     <div className="flex justify-between">
                         <div className="space-y-2">
                             <div className="text-text01 font-semibold">{t("finance.shiftOver")}</div>
@@ -191,7 +192,7 @@ const TimesheetView: React.FC = () => {
                                                 const hours = date.getUTCHours();
                                                 const minutes = date.getUTCMinutes().toString().padStart(2, '0');
                                                 const period = hours >= 12 ? 'PM' : 'AM';
-                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0'); // Convert 24h to 12h format
+                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0');
                                                 return `${formattedHours}:${minutes} ${period}`;
                                             })()
                                             : "09:00 AM"}
@@ -204,7 +205,7 @@ const TimesheetView: React.FC = () => {
                                                 const hours = date.getUTCHours();
                                                 const minutes = date.getUTCMinutes().toString().padStart(2, '0');
                                                 const period = hours >= 12 ? 'PM' : 'AM';
-                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0'); // Convert 24h to 12h format
+                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0');
                                                 return `${formattedHours}:${minutes} ${period}`;
                                             })()
                                             : "05:30 PM"}
@@ -212,33 +213,36 @@ const TimesheetView: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-16 h-16 rounded-full bg-[#dbeafe] flex items-center justify-center">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#dbeafe] flex items-center justify-center">
                             <ClockImage />
                         </div>
                     </div>
-                    <div className="w-[373px] h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
+                    <div className="w-full h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
                         <Icon icon="mail" className="w-[22px] h-[18px]" />
                         <div>{t("finance.status")}</div>
                         <div className="font-bold">{location.state?.status ? t(`tables.${location.state.status}`) : ""}</div>
                     </div>
                 </div>
-                <div className="w-72 h-[148px] rounded-2xl shadow-card p-4">
+
+                {/* Second Card */}
+                <div className="w-full sm:w-72 h-auto sm:h-[148px] rounded-2xl shadow-card p-4 space-y-2">
                     <div className="flex justify-between">
                         <div className="text-text01 font-semibold">{t("finance.grade")}</div>
-                        <div className="w-16 h-16 rounded-full bg-[#fef9c3] flex items-center justify-center">
-                            <Icon icon="star" className="text-[#ff9066] w-8 h-8" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#fef9c3] flex items-center justify-center">
+                            <Icon icon="star" className="text-[#ff9066] w-6 h-6 sm:w-8 sm:h-8" />
                         </div>
                     </div>
-                    <div className={`w-[182px] h-14 ${dayShiftData?.estimation === "GROSS_VIOLATION" ? "bg-[#fef2f2] text-[#dc2626]" : dayShiftData?.estimation === "MINOR_VIOLATION" ? "bg-[#fff7ed] text-[#ea580c]" : dayShiftData?.estimation === "ONE_REMARK" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-background05"} rounded-lg flex items-center justify-center text-sm px-2`}>
+                    <div className={`w-full sm:w-[182px] h-14 ${dayShiftData?.estimation === "GROSS_VIOLATION" ? "bg-[#fef2f2] text-[#dc2626]" : dayShiftData?.estimation === "MINOR_VIOLATION" ? "bg-[#fff7ed] text-[#ea580c]" : dayShiftData?.estimation === "ONE_REMARK" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-background05"} rounded-lg flex items-center justify-center text-sm px-2`}>
                         <div className="font-extrabold">{dayShiftData?.estimation ? t(`finance.${dayShiftData?.estimation}`) : ""}</div>
                     </div>
                 </div>
             </div>
-            <div className="flex space-x-4 border-b mb-6 w-full">
+
+            <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-full overflow-x-auto">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
-                        className={`pb-2 w-60 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
+                        className={`pb-2 flex-1 min-w-[120px] sm:w-60 text-center ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
                         onClick={() => setActiveTab(tab.id)}
                     >
                         {tab.name}
@@ -248,124 +252,131 @@ const TimesheetView: React.FC = () => {
             <div className="flex space-x-10">
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.change") && (
                     <div className="flex flex-col">
-                        <div className="space-y-3">
-                            <div className="flex space-x-3">
-                                {/* <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                <div className="text-text01 font-bold text-3xl">{dayShiftData?.prize} ₽</div>
-                                <div className="text-text02/70">{t("finance.salary")}</div>
-                            </div> */}
-                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                    <div className="text-text01 font-bold text-3xl">{dayShiftData?.timeWorkedOut || "-"}</div>
+                        <div className="flex flex-wrap gap-3 sm:gap-5">
+                            <div className="flex flex-wrap gap-3">
+                                <div className="h-28 w-full max-w-xs sm:max-w-sm md:max-w-md px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-text01 font-bold text-xl sm:text-2xl md:text-3xl">{dayShiftData?.timeWorkedOut || "-"}</div>
                                     <div className="text-text02/70">{t("finance.time")}</div>
                                 </div>
-                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                    <div className="text-successFill font-bold text-3xl">{dayShiftData?.prize ? `+${dayShiftData?.prize} ₽` : ""}</div>
+                                <div className="h-28 w-full max-w-xs sm:max-w-sm md:max-w-md px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-successFill font-bold text-xl sm:text-2xl md:text-3xl">{dayShiftData?.prize ? `+${dayShiftData?.prize} ₽` : ""}</div>
                                     <div className="text-text02/70">{t("finance.prize")}</div>
                                 </div>
                             </div>
-                            <div className="flex space-x-3">
-                                <div className="h-28 w-64 px-5 py-4 rounded-lg bg-background05 space-y-3">
-                                    <div className="text-errorFill font-bold text-3xl">{dayShiftData?.fine ? `-${dayShiftData?.fine} ₽` : ""}</div>
+                            <div className="flex flex-wrap gap-3">
+                                <div className="h-28 w-full max-w-xs sm:max-w-sm md:max-w-md px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                    <div className="text-errorFill font-bold text-xl sm:text-2xl md:text-3xl">{dayShiftData?.fine ? `-${dayShiftData?.fine} ₽` : ""}</div>
                                     <div className="text-text02/70">{t("finance.fine")}</div>
                                 </div>
-                                <div className="h-28 w-[440px] px-5 py-4 rounded-lg bg-background05 space-y-3">
+                                <div className="h-28 w-full max-w-xs sm:max-w-sm md:max-w-lg px-5 py-4 rounded-lg bg-background05 space-y-3">
                                     <div className="text-text01">{dayShiftData?.comment || "-"}</div>
                                     <div className="text-text02/70">{t("equipment.comment")}</div>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex space-x-4 mt-10">
-                            {location.state.status === "SENT" && <Button
-                                title={t("finance.refund")}
-                                type="outline"
-                                handleClick={handleReturn}
-                                isLoading={loadingReturnCash}
-                            />}
-                            {location.state.status !== "SENT" && <Button
-                                title={t("finance.send")}
-                                handleClick={handleSend}
-                                isLoading={loadingSendCash}
-                            />}
+                        <div className="flex flex-wrap justify-start gap-3 sm:gap-4 mt-6 sm:mt-10">
+                            {location.state.status === "SENT" && (
+                                <Button
+                                    title={t("finance.refund")}
+                                    type="outline"
+                                    handleClick={handleReturn}
+                                    isLoading={loadingReturnCash}
+                                />
+                            )}
+                            {location.state.status !== "SENT" && (
+                                <Button
+                                    title={t("finance.send")}
+                                    handleClick={handleSend}
+                                    isLoading={loadingSendCash}
+                                />
+                            )}
                         </div>
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.exchange") && (
-                    <div>
-                        <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 space-y-2 mt-5">
-                            {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpen(true)}>
-                                {t("routes.add")}
-                            </button>}
-                            {loadingCashOper ?
+                    <div className="w-full flex flex-col items-center">
+                        <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card px-3 sm:px-4 py-4 space-y-2 mt-5">
+                            {location.state.status !== "SENT" && (
+                                <button
+                                    className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
+                                    onClick={() => setIsModalOpen(true)}
+                                >
+                                    {t("routes.add")}
+                                </button>
+                            )}
+                            {loadingCashOper ? (
                                 <TableSkeleton columnCount={columnsDataCashOper.length} />
-                                : cashOperArray.length > 0 ?
-                                    <OverflowTable
-                                        tableData={cashOperArray}
-                                        columns={columnsDataCashOper}
-                                    /> : (
-                                        <div className="flex flex-col justify-center items-center">
-                                            <NoDataUI
-                                                title={t("finance.data")}
-                                                description={t("finance.atThe")}
-                                            >
-                                                <img src={NoTimeSheet} className="mx-auto" />
-                                            </NoDataUI>
-                                        </div>
-                                    )
-                            }
+                            ) : cashOperArray.length > 0 ? (
+                                <OverflowTable tableData={cashOperArray} columns={columnsDataCashOper} />
+                            ) : (
+                                <div className="flex flex-col justify-center items-center">
+                                    <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
+                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" />
+                                    </NoDataUI>
+                                </div>
+                            )}
                         </div>
+                        {/* Modal */}
                         <Modal isOpen={isModalOpen}>
                             <div className="flex flex-row items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
-                                <Close onClick={() => { resetForm(); setIsModalOpen(false); }} className="cursor-pointer text-text01" />
+                                <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("finance.adding")}</h2>
+                                <Close
+                                    onClick={() => { resetForm(); setIsModalOpen(false); }}
+                                    className="cursor-pointer text-text01"
+                                />
                             </div>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
-                                <DropdownInput
-                                    title={t("finance.operType")}
-                                    options={[
-                                        { name: t("finance.REFUND"), value: "REFUND" },
-                                        { name: t("finance.REPLENISHMENT"), value: "REPLENISHMENT" }
-                                    ]}
-                                    classname="w-96"
-                                    {...register('type', { required: "Type is Required." })}
-                                    value={formData.type}
-                                    onChange={(value) => handleInputChange('type', value)}
-                                    error={!!errors.type}
-                                    helperText={errors.type?.message || ''}
-                                />
-                                <Input
-                                    type="number"
-                                    title={t("finance.sum")}
-                                    classname="w-80"
-                                    value={formData.sum}
-                                    changeValue={(e) => handleInputChange('sum', e.target.value)}
-                                    error={!!errors.sum}
-                                    {...register('sum', { required: 'Sum is required' })}
-                                    helperText={errors.sum?.message || ''}
-                                />
-                                <DropdownInput
-                                    title={t("equipment.device")}
-                                    options={devices}
-                                    classname="w-96"
-                                    {...register('carWashDeviceId')}
-                                    value={formData.carWashDeviceId}
-                                    onChange={(value) => handleInputChange('carWashDeviceId', value)}
-                                />
-                                <Input
-                                    type="datetime-local"
-                                    title={t("finance.date")}
-                                    classname="w-52"
-                                    {...register('eventData')}
-                                    value={formData.eventData}
-                                    changeValue={(e) => handleInputChange('eventData', e.target.value)}
-                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <DropdownInput
+                                        title={t("finance.operType")}
+                                        options={[
+                                            { name: t("finance.REFUND"), value: "REFUND" },
+                                            { name: t("finance.REPLENISHMENT"), value: "REPLENISHMENT" }
+                                        ]}
+                                        classname="w-full"
+                                        {...register('type', { required: "Type is Required." })}
+                                        value={formData.type}
+                                        onChange={(value) => handleInputChange('type', value)}
+                                        error={!!errors.type}
+                                        helperText={errors.type?.message || ''}
+                                    />
+                                    <Input
+                                        type="number"
+                                        title={t("finance.sum")}
+                                        classname="w-full"
+                                        value={formData.sum}
+                                        changeValue={(e) => handleInputChange('sum', e.target.value)}
+                                        error={!!errors.sum}
+                                        {...register('sum', { required: 'Sum is required' })}
+                                        helperText={errors.sum?.message || ''}
+                                    />
+                                    <DropdownInput
+                                        title={t("equipment.device")}
+                                        options={devices}
+                                        classname="w-full"
+                                        {...register('carWashDeviceId')}
+                                        value={formData.carWashDeviceId}
+                                        onChange={(value) => handleInputChange('carWashDeviceId', value)}
+                                    />
+                                    <Input
+                                        type="datetime-local"
+                                        title={t("finance.date")}
+                                        classname="w-full"
+                                        {...register('eventData')}
+                                        value={formData.eventData}
+                                        changeValue={(e) => handleInputChange('eventData', e.target.value)}
+                                    />
+                                </div>
+
                                 <MultilineInput
                                     title={t("equipment.comment")}
-                                    classname="w-96"
+                                    classname="w-full"
                                     {...register('comment')}
                                     value={formData.comment}
                                     changeValue={(e) => handleInputChange('comment', e.target.value)}
                                 />
-                                <div className="flex justify-end gap-3 mt-5">
+
+                                <div className="flex flex-wrap justify-end gap-3 mt-5">
                                     <Button
                                         title={"Сбросить"}
                                         handleClick={() => { resetForm(); setIsModalOpen(false); }}
@@ -382,61 +393,68 @@ const TimesheetView: React.FC = () => {
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.returns") && (
-                    <div>
-                        <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
-                            {location.state.status !== "SENT" && <button className="px-1.5 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={() => setIsModalOpenReturn(true)}>
-                                {t("routes.add")}
-                            </button>}
-                            {loadingCashOperReturn ?
+                    <div className="w-full flex flex-col items-center">
+                        <div className="w-full max-w-full sm:max-w-[80%] lg:max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
+                            {location.state.status !== "SENT" && (
+                                <button
+                                    className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
+                                    onClick={() => setIsModalOpenReturn(true)}
+                                >
+                                    {t("routes.add")}
+                                </button>
+                            )}
+                            {loadingCashOperReturn ? (
                                 <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
-                                : cashOperReturnArray.length > 0 ?
-                                    <OverflowTable
-                                        tableData={cashOperReturnArray}
-                                        columns={columnsDataCashOperRefund}
-                                    /> : (
-                                        <div className="flex flex-col justify-center items-center">
-                                            <NoDataUI
-                                                title={t("finance.data")}
-                                                description={t("finance.atThe")}
-                                            >
-                                                <img src={NoTimeSheet} className="mx-auto" />
-                                            </NoDataUI>
-                                        </div>
-                                    )
-                            }
+                            ) : cashOperReturnArray.length > 0 ? (
+                                <OverflowTable tableData={cashOperReturnArray} columns={columnsDataCashOperRefund} />
+                            ) : (
+                                <div className="flex flex-col justify-center items-center">
+                                    <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
+                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" />
+                                    </NoDataUI>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Modal */}
                         <Modal isOpen={isModalOpenReturn}>
                             <div className="flex flex-row items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-text01">{t("finance.adding")}</h2>
-                                <Close onClick={() => { resetForm(); setIsModalOpenReturn(false); }} className="cursor-pointer text-text01" />
+                                <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("finance.adding")}</h2>
+                                <Close
+                                    onClick={() => { resetForm(); setIsModalOpenReturn(false); }}
+                                    className="cursor-pointer text-text01"
+                                />
                             </div>
+
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
-                                <Input
-                                    type="number"
-                                    title={t("finance.sum")}
-                                    classname="w-80"
-                                    value={formData.sum}
-                                    changeValue={(e) => handleInputChange('sum', e.target.value)}
-                                    error={!!errors.sum}
-                                    {...register('sum', { required: 'Sum is required' })}
-                                    helperText={errors.sum?.message || ''}
-                                />
-                                <Input
-                                    type="datetime-local"
-                                    title={t("finance.date")}
-                                    classname="w-52"
-                                    {...register('eventData')}
-                                    value={formData.eventData}
-                                    changeValue={(e) => handleInputChange('eventData', e.target.value)}
-                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <Input
+                                        type="number"
+                                        title={t("finance.sum")}
+                                        classname="w-full"
+                                        value={formData.sum}
+                                        changeValue={(e) => handleInputChange('sum', e.target.value)}
+                                        error={!!errors.sum}
+                                        {...register('sum', { required: 'Sum is required' })}
+                                        helperText={errors.sum?.message || ''}
+                                    />
+                                    <Input
+                                        type="datetime-local"
+                                        title={t("finance.date")}
+                                        classname="w-full"
+                                        {...register('eventData')}
+                                        value={formData.eventData}
+                                        changeValue={(e) => handleInputChange('eventData', e.target.value)}
+                                    />
+                                </div>
                                 <MultilineInput
                                     title={t("equipment.comment")}
-                                    classname="w-96"
+                                    classname="w-full"
                                     {...register('comment')}
                                     value={formData.comment}
                                     changeValue={(e) => handleInputChange('comment', e.target.value)}
                                 />
-                                <div className="flex gap-3 mt-5">
+                                <div className="flex flex-wrap justify-end gap-3 mt-5">
                                     <Button
                                         title={"Сбросить"}
                                         handleClick={() => { resetForm(); setIsModalOpenReturn(false); }}
@@ -453,29 +471,26 @@ const TimesheetView: React.FC = () => {
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("routes.cleaning") && (
-                    <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5">
-                        {loadingCashOperClean ?
+                    <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 mx-auto">
+                        {loadingCashOperClean ? (
                             <TableSkeleton columnCount={columnsDataCashOperCleaning.length} />
-                            : cashOperCleanArray.length > 0 ?
-                                <OverflowTable
-                                    tableData={cashOperCleanArray}
-                                    columns={columnsDataCashOperCleaning}
-                                    showTotalClean={true}
-                                /> : (
-                                    <div className="flex flex-col justify-center items-center">
-                                        <NoDataUI
-                                            title={t("finance.data")}
-                                            description={t("finance.atThe")}
-                                        >
-                                            <img src={NoTimeSheet} className="mx-auto" />
-                                        </NoDataUI>
-                                    </div>
-                                )
-                        }
+                        ) : cashOperCleanArray.length > 0 ? (
+                            <OverflowTable
+                                tableData={cashOperCleanArray}
+                                columns={columnsDataCashOperCleaning}
+                                showTotalClean={true}
+                            />
+                        ) : (
+                            <div className="flex flex-col justify-center items-center text-center p-4">
+                                <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
+                                    <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" />
+                                </NoDataUI>
+                            </div>
+                        )}
                     </div>
                 )}
                 {tabs.find((tab) => tab.id === activeTab)?.name === t("finance.susp") && (
-                    <div className="w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5">
+                    <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 mx-auto">
                         {loadingCashOperSusp ?
                             <TableSkeleton columnCount={columnsDataCashOperSuspiciously.length} />
                             : cashOperSubsArray.length > 0 ?
@@ -483,12 +498,12 @@ const TimesheetView: React.FC = () => {
                                     tableData={cashOperSubsArray}
                                     columns={columnsDataCashOperSuspiciously}
                                 /> : (
-                                    <div className="flex flex-col justify-center items-center">
+                                    <div className="flex flex-col justify-center items-center text-center p-4">
                                         <NoDataUI
                                             title={t("finance.data")}
                                             description={t("finance.atThe")}
                                         >
-                                            <img src={NoTimeSheet} className="mx-auto" />
+                                            <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" />
                                         </NoDataUI>
                                     </div>
                                 )

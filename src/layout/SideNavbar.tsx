@@ -437,7 +437,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
 
-          <div className="flex flex-wrap items-center justify-between py-3">
+          <div className="flex flex-wrap items-start sm:items-center justify-between pt-6">
             {/* Left Section: Toggle Button & Page Title */}
             <div className="flex items-center">
               {!isMobile && (
@@ -483,7 +483,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             </div>
 
             {/* Right Section: Buttons */}
-            <div className="flex flex-wrap justify-end mt-3 sm:mt-0">
+            <div className="flex flex-wrap justify-end">
               {location.pathname === "/equipment/routine/work/progress/item" && (
                 <div className="flex space-x-2 sm:space-x-4 text-text01 text-lg sm:text-2xl">
                   <div>{location.state.type}</div>
@@ -495,7 +495,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               )}
               {activePage?.name === "nomenclature" && (
                 <Button
-                  title={t("warehouse.import")}
+                  title={isMobile ? "" : t("warehouse.import")}
                   iconPlus={true}
                   type="outline"
                   classname="mr-2"
@@ -504,7 +504,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               )}
               {activePage?.name === "clients" && (
                 <Button
-                  title={t("routes.importClients")}
+                  title={isMobile ? "" : t("routes.importClients")}
                   type="outline"
                   classname="mr-2"
                   handleClick={() => navigate('/marketing/clients/import')}
@@ -519,7 +519,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   activePage?.addButton &&
                   location?.state?.status !== t("tables.SENT") && (
                     <Button
-                      title={t(`routes.${activePage?.addButtonText}`)}
+                      title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
                       iconPlus={true}
                       handleClick={handleClickButtonCreate}
                     />
