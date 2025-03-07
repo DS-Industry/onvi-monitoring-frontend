@@ -15,9 +15,10 @@ type ButtonCreateProps = {
     iconDown?: boolean;
     iconDownload?: boolean;
     iconUp?: boolean;
+    iconUpload?: boolean;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false, iconDownload = false, iconUp = false}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false, iconDownload = false, iconUp = false, iconUpload = false}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: `bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center`,
@@ -37,6 +38,7 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
         >
             {iconPlus && <Icon icon="plus" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
             {iconDownload && <Icon icon="download" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
+            {iconUpload && <Icon icon="upload" size={20} className={`mr-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
             {isLoading ? <Spinner className={`animate-spin ${type == 'basic' ? "text-white" : "text-primary02"}`} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}/> : title}
             {iconRight && <Icon icon="chevron-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
             {iconDown && <Icon icon="chevron-down" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }

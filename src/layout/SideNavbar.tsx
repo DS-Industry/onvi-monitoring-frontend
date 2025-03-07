@@ -428,7 +428,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       >
         {isMobile && (<button
           onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-5 left-4 p-2 bg-opacity01 text-white rounded-md"
+          className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md"
         >
           {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
         </button>)}
@@ -437,7 +437,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div className="absolute z-10 inset-0 bg-background01/65"></div>
           )}
 
-          <div className="flex flex-wrap items-start sm:items-center justify-between pt-6">
+          <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
             {/* Left Section: Toggle Button & Page Title */}
             <div className="flex items-center">
               {!isMobile && (
@@ -496,7 +496,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {activePage?.name === "nomenclature" && (
                 <Button
                   title={isMobile ? "" : t("warehouse.import")}
-                  iconPlus={true}
+                  iconUpload={true}
                   type="outline"
                   classname="mr-2"
                   handleClick={() => navigate('/warehouse/inventory/import')}

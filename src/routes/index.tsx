@@ -66,6 +66,8 @@ import ListOfRoles from "@/pages/Organization/ListOfRoles";
 import Transactions from "@/pages/Analysis/Transactions";
 import PosConnection from "@/pages/Organization/PosConnection";
 import Warehouse from "@/pages/Warehouse/Warehouse";
+import PlanAct from "@/pages/Pos/PlanAct";
+import InviteUser from "@/pages/Onboarding/InviteUser";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -96,7 +98,7 @@ const routes = [
       { name: "subscriptions", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [
         { name: "listOf", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights/employees", component: ListOfEmployees, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-        { name: "listRoles", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/roles", component: ListOfRoles, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+        { name: "listRoles", filter: false, addButton: true, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/roles", component: ListOfRoles, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
         { name: "pos", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/pos/connection", component: PosConnection, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
       ], subMenu: true },
       { name: "legalEntities", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
@@ -122,7 +124,7 @@ const routes = [
       { name: "programs", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "programDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
       { name: "programDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
-      { name: "planAct", filter: true, addButton: false, addButtonText: "", isVisible: true, path: "/station/plan/act", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "planAct", filter: true, addButton: false, addButtonText: "", isVisible: true, path: "/station/plan/act", component: PlanAct, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "cleaning", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/cleaning", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "simpleBoxes", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
     ],
@@ -279,6 +281,15 @@ const routes = [
     path: "/forgotPassword",
     subMenu: false,
     component: ForgotPassword,
+    isSidebar: false,
+    isPublicRoute: true,
+    permissions: []
+  },
+  {
+    name: "Invite User",
+    path: "/inviteUser",
+    subMenu: false,
+    component: InviteUser,
     isSidebar: false,
     isPublicRoute: true,
     permissions: []

@@ -9,7 +9,8 @@ enum ORGANIZATION {
     GET_ORGANIZATION_DOC = 'user/organization/document',
     GET_ROLES = 'user/permission/roles',
     POS_PERMISSION = 'user/permission/pos',
-    UPDATE_ROLE = 'user/permission'
+    UPDATE_ROLE = 'user/permission',
+    ADD_ROLE = 'user/auth/organization/worker'
 }
 
 type Organization = {
@@ -162,6 +163,25 @@ type AddressParams = {
     placementId: number
 }
 
+type RoleRequestBody = {
+    name: string;
+    surname?: string;
+    middlename?: string;
+    birthday: Date;
+    phone: string;
+    email: string;
+    organizationId: number;
+    roleId: number;
+    position: string;
+}
+
+type RoleResponse = {
+    statusMail: {
+        message: string,
+        to: string,
+    }
+}
+
 export async function getOrganization(params: AddressParams): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
     const response: AxiosResponse<Organization[]> = await api.get(url, { params });
@@ -224,6 +244,13 @@ export async function connectPosPermission(body: ConnectionPosBody, userId: numb
 
 export async function updateRole(body: UpdateRoleRequest): Promise<UpdateRoleResponse> {
     const response: AxiosResponse<UpdateRoleResponse> = await api.patch(ORGANIZATION.UPDATE_ROLE, body);
+    return response.data;
+}
+
+export async function addRole(body: RoleRequestBody): Promise<RoleResponse> {
+    console.log(body);
+    const response: AxiosResponse<RoleResponse> = await api.post(ORGANIZATION.ADD_ROLE, body);
+
     return response.data;
 }
 

@@ -79,7 +79,11 @@
     "income": "Income report",
     "my": "My reports",
     "pos": "Adding branches",
-    "ware": "Warehouse"
+    "ware": "Warehouse",
+    "lan": "Language Selector",
+    "listOf": "List of employees",
+    "addR": "Add a role",
+    "listRoles": "List of roles"
   },
   "dashboard": {
     "news": "News",
@@ -171,7 +175,9 @@
     "you": "You don't have any programs yet",
     "rev": "Revenue report",
     "no": "Number of cars",
-    "revBy": "Revenue by programs"
+    "revBy": "Revenue by programs",
+    "thisSeg": "This section presents the transactions that are recorded by the bill acceptor.",
+    "youDo": "You don't have any transactions with the bill acceptor yet."
   },
   "profile": {
     "basic": "Basic Details",
@@ -227,7 +233,8 @@
     "passwordRecovery": "Password Recovery",
     "enter": "Enter your Email registered on the site and we will send a code to recover your password",
     "send": "Send the verification code again",
-    "please": "Please create a new password that only you will know."
+    "please": "Please create a new password that only you will know.",
+    "set": "Set User Password"
   },
   "default": {
     "default": "Page under construction",
@@ -693,9 +700,6 @@
     "date": "Date and time",
     "adding": "Adding an operation",
     "send": "Send",
-    "listOf": "List of employees",
-    "listRoles": "List of roles",
-    "addR": "Add a role",
     "openR": "Open Report"
   },
   "analysis": {
@@ -736,6 +740,8 @@
     "acc": "Access to the program",
     "noServ": "The organization currently has no employees",
     "crea": "Send an invitation by email",
-    "role": "Role Change"
+    "role": "Role Change",
+    "position": "Position",
+    "rol": "Role"
   }
 }

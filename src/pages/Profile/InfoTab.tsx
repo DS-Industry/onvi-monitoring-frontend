@@ -9,6 +9,7 @@ import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hooks/useAuthStore';
+import LanguageSelector from '@/components/LanguageSelector';
 
 
 const InfoTab: React.FC = () => {
@@ -121,7 +122,7 @@ const InfoTab: React.FC = () => {
 
   const logout = () => {
     localStorage.clear();
-    
+
     setClearUser();
     setClearToken();
     setClearPermissions();
@@ -134,127 +135,131 @@ const InfoTab: React.FC = () => {
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
-          <div className="flex flex-col space-y-6 w-full md:w-2/3">
-            <div>
-              <Input
-                type="text"
-                title={t("profile.name")}
-                label={t("profile.name")}
-                value={formData?.name}
-                changeValue={(e) => handleInputChange('name', e.target.value)}
-                {...register('name', { required: 'Имя is required' })}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                title={t("profile.middlename")}
-                label={t("profile.middlename")}
-                value={formData.middlename}
-                changeValue={(e) => handleInputChange('middlename', e.target.value)}
-                {...register('middlename')}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.middlename}
-                helperText={errors.middlename?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                title={t("profile.surname")}
-                label={t("profile.surname")}
-                value={formData.surname}
-                changeValue={(e) => handleInputChange('surname', e.target.value)}
-                {...register('surname', { required: 'Отчество is required' })}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.surname}
-                helperText={errors.surname?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                label={t("profile.telephone")}
-                title={t("profile.telephone")}
-                value={formData.phone}
-                changeValue={(e) => handleInputChange('phone', e.target.value)}
-                {...register('phone')}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.phone}
-                helperText={errors.phone?.message}
-              />
-            </div>
-            <div className='flex'>
-              <div>
-                <Input
-                  type="email"
-                  title="E-mail *"
-                  value={formData.email}
-                  changeValue={(e) => handleInputChange('email', e.target.value)}
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Invalid email format'
-                    }
-                  })}
-                  disabled={true}
-                  inputType="primary"
-                  classname='w-80'
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              </div>
-              {/* <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div> */}
-            </div>
-            <div className='flex'>
-              <input type='checkbox' />
-              <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
-            </div>
-            <div className="flex">
-              <Button form={false} title={t("profile.logout")} classname='mt-2' handleClick={logout} />
-            </div>
+        <div className="flex flex-col space-y-6 w-full md:w-2/3">
+          <div>
+            <Input
+              type="text"
+              title={t("profile.name")}
+              label={t("profile.name")}
+              value={formData?.name}
+              changeValue={(e) => handleInputChange('name', e.target.value)}
+              {...register('name', { required: 'Имя is required' })}
+              disabled={false}
+              inputType="primary"
+              classname='w-80'
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
           </div>
-          <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
-            <div>{t("profile.photo")}</div>
-            <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="Profile"
-                  className="rounded-full w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-4xl font-bold text-black">{initials}</span>
-              )}
-            </div>
-            <div className="mt-2">
-              <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
-                {t("profile.changePh")}
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
+          <div>
+            <Input
+              type="text"
+              title={t("profile.middlename")}
+              label={t("profile.middlename")}
+              value={formData.middlename}
+              changeValue={(e) => handleInputChange('middlename', e.target.value)}
+              {...register('middlename')}
+              disabled={false}
+              inputType="primary"
+              classname='w-80'
+              error={!!errors.middlename}
+              helperText={errors.middlename?.message}
+            />
+          </div>
+          <div>
+            <Input
+              type="text"
+              title={t("profile.surname")}
+              label={t("profile.surname")}
+              value={formData.surname}
+              changeValue={(e) => handleInputChange('surname', e.target.value)}
+              {...register('surname', { required: 'Отчество is required' })}
+              disabled={false}
+              inputType="primary"
+              classname='w-80'
+              error={!!errors.surname}
+              helperText={errors.surname?.message}
+            />
+          </div>
+          <div>
+            <Input
+              type="text"
+              label={t("profile.telephone")}
+              title={t("profile.telephone")}
+              value={formData.phone}
+              changeValue={(e) => handleInputChange('phone', e.target.value)}
+              {...register('phone')}
+              disabled={false}
+              inputType="primary"
+              classname='w-80'
+              error={!!errors.phone}
+              helperText={errors.phone?.message}
+            />
+          </div>
+          <div className='flex'>
+            <div>
+              <Input
+                type="email"
+                title="E-mail *"
+                value={formData.email}
+                changeValue={(e) => handleInputChange('email', e.target.value)}
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Invalid email format'
+                  }
+                })}
+                disabled={true}
+                inputType="primary"
+                classname='w-80'
+                error={!!errors.email}
+                helperText={errors.email?.message}
               />
             </div>
-            <div className="flex">
-              <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
-            </div>
+            {/* <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div> */}
           </div>
+          <div className='flex'>
+            <input type='checkbox' />
+            <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
+          </div>
+          <div>
+            <div className='text-text02'>{t("routes.lan")}</div>
+            <LanguageSelector />
+          </div>
+          <div className="flex">
+            <Button form={false} title={t("profile.logout")} classname='mt-2' handleClick={logout} />
+          </div>
+        </div>
+        <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
+          <div>{t("profile.photo")}</div>
+          <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="Profile"
+                className="rounded-full w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-4xl font-bold text-black">{initials}</span>
+            )}
+          </div>
+          <div className="mt-2">
+            <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
+              {t("profile.changePh")}
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+          <div className="flex">
+            <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
+          </div>
+        </div>
       </form>
     </div>
   );
