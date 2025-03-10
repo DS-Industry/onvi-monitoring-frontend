@@ -8,7 +8,7 @@ import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
-import { getPos, postPosData } from "@/services/api/pos/index.ts";
+import { postPosData } from "@/services/api/pos/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
@@ -18,8 +18,8 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getOrganization } from "@/services/api/organization";
 import SearchInput from "@/components/ui/Input/SearchInput";
-import { getWorkers } from "@/services/api/equipment";
-import { useCity } from "@/hooks/useAuthStore";
+import { getPoses, getWorkers } from "@/services/api/equipment";
+import { useCity, useSetCity } from "@/hooks/useAuthStore";
 
 type Pos = {
     id: number;
@@ -74,7 +74,10 @@ const Pos: React.FC = () => {
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const address = useCity();
-    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const setCity = useSetCity();
+    const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
+        placementId: address
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
     const { data: organizationData } = useSWR([`get-org`, address], () => getOrganization({
         placementId: address
     }));
@@ -163,7 +166,7 @@ const Pos: React.FC = () => {
             const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-pos`]);
+                mutate([`get-pos`, address]);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -190,7 +193,7 @@ const Pos: React.FC = () => {
 
     return (
         <>
-            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setCity} hideSearch={true}>
                 <div className="flex">
                     <SearchInput
                         title={t("equipment.carWash")}
