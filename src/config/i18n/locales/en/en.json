@@ -142,7 +142,9 @@
     "legalDetails": "Legal Details",
     "bankDetails": "Bank Details",
     "new": "New Legal Entity",
-    "update": "Update Legal Entity"
+    "update": "Update Legal Entity",
+    "token": "The token is sent to your respective Email Id.",
+    "user": "The user token is expired."
   },
   "pos": {
     "companyName": "Company Name",
@@ -733,7 +735,7 @@
     "then": "«Change access rights», then specify the new rights you want to give the employee.",
     "the": "The platform cannot exist without an administrator. The first administrator is the user who registered the Onvi-BUSINESS portal",
     "job": "Job title",
-    "create": "Create a CRM role",
+    "create": "Add New",
     "name": "Name*",
     "enter": "Enter CRM role name",
     "desc": "Describe the user role",

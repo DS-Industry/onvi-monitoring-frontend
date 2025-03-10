@@ -10,6 +10,8 @@ import useSWRMutation from "swr/mutation";
 import OTPImage from '@/assets/OTPImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
 import useSWR from "swr";
+import NoDataUI from "@/components/ui/NoDataUI";
+import NoToken from "@/assets/NoToken.png";
 
 const InviteUser: React.FC = () => {
     const { t } = useTranslation();
@@ -36,8 +38,26 @@ const InviteUser: React.FC = () => {
         setValue(field, value);
     };
 
-    const { data: validUser } = useSWR([`valid-user`], () => getWorkerStatus(key), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
+    const { data: validUser } = useSWR(
+        [`valid-user`],
+        async () => {
+            try {
+                return await getWorkerStatus(key);
+            } catch (error: any) {
+                if (error.response?.status === 404) {
+                    return null; 
+                }
+                throw error; 
+            }
+        },
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true,
+            shouldRetryOnError: (error) => error.response?.status !== 404, // Do not retry on 404
+        }
+    );
+    
     const { trigger, isMutating } = useSWRMutation(['create-worker'], async () => createUserRole({
         password: formData.password
     }, key));
@@ -61,14 +81,24 @@ const InviteUser: React.FC = () => {
     };
 
     useEffect(() => {
-        if (validUser?.status !== "SUCCESS")
+        if (validUser?.status != "SUCCESS") {
             setIsError(true);
-    }, [validUser?.status]);
+        }
+    }, [validUser]);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
-            <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
-                {!isError ? (
+        <div>
+            {isError ? (
+                <div className="flex flex-col justify-center items-center">
+                    <NoDataUI
+                        title={t("organizations.user")}
+                        description={""}
+                    >
+                        <img src={NoToken} className="mx-auto" />
+                    </NoDataUI>
+                </div>
+            ) : (<div className="flex min-h-screen items-center justify-center bg-background02 p-4">
+                <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
                     <div className="lg:w-5/12 p-8 lg:ml-40">
                         <div className='flex mb-5'>
                             <img src={OnviBlue} className='h-7 w-14' />
@@ -112,15 +142,14 @@ const InviteUser: React.FC = () => {
                             <Button type="basic" title={t('forgot.set')} form={true} classname='w-full' isLoading={isMutating} />
                         </form>
                     </div>
-                ) : (
-                    <div>The user token is invalid.</div>
-                )}
-                <div className="hidden lg:flex lg:w-8/12 rounded-r-lg items-center justify-center lg:ml-20">
-                    <div className="p-8">
-                        <img src={OTPImage} alt="Rocket illustration" key={"forgot-password"} className="object-cover w-11/12 h-11/12" />
+
+                    <div className="hidden lg:flex lg:w-8/12 rounded-r-lg items-center justify-center lg:ml-20">
+                        <div className="p-8">
+                            <img src={OTPImage} alt="Rocket illustration" key={"forgot-password"} className="object-cover w-11/12 h-11/12" />
+                        </div>
                     </div>
                 </div>
-            </div>
+            </div>)}
         </div>
     )
 }

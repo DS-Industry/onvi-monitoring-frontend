@@ -10,7 +10,7 @@ enum ORGANIZATION {
     GET_ROLES = 'user/permission/roles',
     POS_PERMISSION = 'user/permission/pos',
     UPDATE_ROLE = 'user/permission',
-    ADD_ROLE = 'user/auth/organization/worker'
+    ADD_ROLE = 'user/organization/worker'
 }
 
 type Organization = {
