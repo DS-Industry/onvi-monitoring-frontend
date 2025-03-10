@@ -744,6 +744,7 @@
     "crea": "Send an invitation by email",
     "role": "Role Change",
     "position": "Position",
-    "rol": "Role"
+    "rol": "Role",
+    "pass": "The user password is set successfully."
   }
 }
