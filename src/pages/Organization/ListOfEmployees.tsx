@@ -129,7 +129,7 @@ const ListOfEmployees: React.FC = () => {
             if (result) {
                 console.log(result);
                 showSnackbar(t("organizations.token"), "success");
-                setIsModalOpen(false);
+                resetForm();
             }
         } catch (error) {
             console.log("Register error:", error);
