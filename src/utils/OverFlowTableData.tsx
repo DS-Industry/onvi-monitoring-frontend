@@ -1173,3 +1173,49 @@ export const columnsWarehouses = [
     key: "posName"
   }
 ]
+
+export const columnsPlanFact = [
+  {
+    label: "ID",
+    key: "posId"
+  },
+  {
+    label: "Название",
+    key: "posName"
+  },
+  {
+    label: "План за указанный период",
+    key: "plan",
+    type: "number"
+  },
+  {
+    label: "Наличные",
+    key: "cashFact",
+    type: "number"
+  },
+  {
+    label: "Безналичные",
+    key: "virtualSumFact",
+    type: "number"
+  },
+  {
+    label: "Яндекс зачисления",
+    key: "yandexSumFact",
+    type: "number"
+  },
+  {
+    label: "Факт итог",
+    key: "sumFact",
+    type: "number"
+  },
+  {
+    label: "Выполнен план",
+    key: "completedPercent",
+    type: "percent"
+  },
+  {
+    label: "Не выполнен план",
+    key: "notCompletedPercent",
+    type: "percent"
+  }
+]

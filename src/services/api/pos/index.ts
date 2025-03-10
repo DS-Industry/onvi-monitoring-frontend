@@ -148,6 +148,17 @@ type DeviceParams = {
     size?: number;
 }
 
+type PlanFactResponse = {
+    posId: number;
+    plan: number;
+    cashFact: number;
+    virtualSumFact: number;
+    yandexSumFact: number;
+    sumFact: number;
+    completedPercent: number;
+    notCompletedPercent: number;
+}
+
 export async function getPos(userId: number): Promise<Pos[]> {
     const url = POS.GET_POSES + `/${userId}`;
     const response: AxiosResponse<Pos[]> = await api.get(url);
@@ -205,4 +216,12 @@ export async function getProgramDevice(deviceId: number, params: DeviceParams): 
     //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
+
+export async function getPlanFact(params: DepositParam): Promise<PlanFactResponse[]> {
+    const response: AxiosResponse<PlanFactResponse[]> = await api.get(POS.POST_POS + "/plan-fact", { params });
+
+    //console.log(JSON.stringify(response, null, 2));
+    return response.data;
+}
+
 

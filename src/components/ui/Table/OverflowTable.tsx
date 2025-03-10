@@ -296,46 +296,49 @@ const OverflowTable: React.FC<Props> = ({
                         </span>
                       ) : column.type === 'number' ? (
                         row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key])}</div> : '-'
-                      )
-                        : column.render ? column.render(row, handleChange)
-                          : renderCell ? renderCell(column, row)
-                            : column.key.toLocaleLowerCase().includes('status') ? (
-                              <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
+                      ) :
+                        column.type === 'percent' ? (
+                          row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${Number(formatNumber(row[column.key])).toFixed(2)}%`}</div> : '-'
+                        )
+                          : column.render ? column.render(row, handleChange)
+                            : renderCell ? renderCell(column, row)
+                              : column.key.toLocaleLowerCase().includes('status') ? (
+                                <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
                              ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT") || row[column.key] === t("analysis.DONE")) ? "text-[#00A355]" :
-                                  row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
+                                    row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
                              ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
                              ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
-                                {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
-                                  <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
-                                )}
-                                {row[column.key] === t("tables.SAVED") && (
-                                  <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
-                                )}
-                                {row[column.key]}
-                              </div>
-                            ) : (
-                              <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                                {column.type === 'date' ? (
-                                  row[column.key]
-                                    ? new Date(row[column.key]).toLocaleString("ru-RU", {
-                                      timeZone: userTimezone,
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      second: "2-digit",
-                                    })
-                                    : '-'
-                                ) : column.type === "period" ? (
-                                  row[column.key] ? formatPeriodType(row[column.key]) : '-'
-                                ) : typeof row[column.key] === 'object' ? (
-                                  `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                                ) : (
-                                  row[column.key]
-                                )}
-                              </div>
-                            )}
+                                  {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
+                                    <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
+                                  )}
+                                  {row[column.key] === t("tables.SAVED") && (
+                                    <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
+                                  )}
+                                  {row[column.key]}
+                                </div>
+                              ) : (
+                                <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                                  {column.type === 'date' ? (
+                                    row[column.key]
+                                      ? new Date(row[column.key]).toLocaleString("ru-RU", {
+                                        timeZone: userTimezone,
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        second: "2-digit",
+                                      })
+                                      : '-'
+                                  ) : column.type === "period" ? (
+                                    row[column.key] ? formatPeriodType(row[column.key]) : '-'
+                                  ) : typeof row[column.key] === 'object' ? (
+                                    `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
+                                  ) : (
+                                    row[column.key]
+                                  )}
+                                </div>
+                              )}
                     </td>
                   ))}
                   <Can

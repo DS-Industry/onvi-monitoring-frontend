@@ -12,7 +12,7 @@ import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, u
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
 
-interface FilterDepositPos {
+type FilterDepositPos = {
     dateStart: Date;
     dateEnd: Date;
     posId: number;
@@ -25,7 +25,7 @@ enum CarWashPosType {
     SelfServiceAndPortal = "SelfServiceAndPortal"
 }
 
-interface PosPrograms {
+type PosPrograms = {
     id: number;
     name: string;
     posType?: CarWashPosType;
@@ -41,7 +41,7 @@ interface PosPrograms {
     }[]
 }
 
-interface PosMonitoring {
+type PosMonitoring = {
     id: number;
     name: string;
 }
@@ -72,7 +72,6 @@ const ProgramDevices: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
-
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-programs-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getProgramPos(
         {
             dateStart: dataFilter.dateStart,
@@ -81,8 +80,7 @@ const ProgramDevices: React.FC = () => {
             placementId: dataFilter?.placementId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
-
+    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -97,6 +95,7 @@ const ProgramDevices: React.FC = () => {
     useEffect(() => {
         console.log(JSON.stringify(filterErtot, null, 2));
     }, [filterErtot]);
+
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
@@ -113,8 +112,6 @@ const ProgramDevices: React.FC = () => {
         (item) => ({ name: item.name, value: item.id.toString() })
     );
 
-    // const portalPrograms = devicePrograms.filter(program => program.posType === "Portal");
-
     return (
         <>
             <FilterMonitoring
@@ -125,7 +122,6 @@ const ProgramDevices: React.FC = () => {
             />
             {isTableLoading || filterLoading ? (
                 <div className="mt-8 space-y-6">
-                    {/* Skeleton for Table Card */}
                     <div>
                         <TableSkeleton columnCount={columnsProgramsPos.length} />
                     </div>
