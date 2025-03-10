@@ -298,7 +298,7 @@ const OverflowTable: React.FC<Props> = ({
                         row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key])}</div> : '-'
                       ) :
                         column.type === 'percent' ? (
-                          row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${Number(formatNumber(row[column.key])).toFixed(2)}%`}</div> : '-'
+                          row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${formatNumber(row[column.key])}%`}</div> : '-'
                         )
                           : column.render ? column.render(row, handleChange)
                             : renderCell ? renderCell(column, row)
