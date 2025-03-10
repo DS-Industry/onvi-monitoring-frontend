@@ -81,12 +81,12 @@ const InviteUser: React.FC = () => {
     };
 
     useEffect(() => {
-        if (validUser && validUser.status !== "SUCCESS") {
+        if (!validUser || !validUser.status || validUser.status !== "SUCCESS") {
             setIsError(true);
-        } else if (validUser?.status === "SUCCESS") {
-            setIsError(false); 
+        } else {
+            setIsError(false);
         }
-    }, [validUser]);
+    }, [validUser]);    
     
     return (
         <div>
