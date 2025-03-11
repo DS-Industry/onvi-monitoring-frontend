@@ -120,6 +120,14 @@ export const columnsPos = [
     key: "address",
   },
   {
+    label: "Страна",
+    key: "country",
+  },
+  {
+    label: "Город",
+    key: "city",
+  },
+  {
     label: "Организация",
     key: "organizationName"
   },

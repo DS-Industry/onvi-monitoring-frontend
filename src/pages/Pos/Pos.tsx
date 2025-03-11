@@ -20,6 +20,7 @@ import { getContactById, getOrganization, getOrganizationContactById } from "@/s
 import SearchInput from "@/components/ui/Input/SearchInput";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
+import { getPlacement } from "@/services/api/device";
 
 type Pos = {
     id: number;
@@ -87,6 +88,10 @@ const Pos: React.FC = () => {
     const { data: organizationData } = useSWR(buttonOn ? [`get-org`, address] : null, () => getOrganization({
         placementId: address
     }));
+
+    const { data: placementData } = useSWR([`get-placement`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const placements: { country: string; city: string; value: number; }[] = placementData?.map((item) => ({ country: item.country, city: item.city, value: item.id })) || [];
 
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
@@ -223,7 +228,9 @@ const Pos: React.FC = () => {
             organizationName: orgContacts?.[item.organizationId]?.name || "-",
             status: t(`tables.${item.posStatus}`),
             createdByName: `${createContacts?.[item.createdById]?.name || ""} ${createContacts?.[item.createdById]?.surname || ""}` || "-",
-            updatedByName: `${updateContacts?.[item.updatedById]?.name || ""} ${updateContacts?.[item.updatedById]?.surname || ""}` || "-"
+            updatedByName: `${updateContacts?.[item.updatedById]?.name || ""} ${updateContacts?.[item.updatedById]?.surname || ""}` || "-",
+            city: placements.find((place) => place.value === item.placementId)?.city || "",
+            country: placements.find((place) => place.value === item.placementId)?.country || ""
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
