@@ -194,28 +194,6 @@ const Indicators: React.FC = () => {
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revenue")}
           </p>
-          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
-            <DropdownInput
-              inputType="primary"
-              label="Все автомойки"
-              options={poses}
-              value={selectedValue}
-              onChange={setSelectedValue}
-              isSelectable={true}
-              classname="mt-3"
-            />
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
-              {durations.map((duration) => (
-                <button
-                  key={duration.label}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
-                >
-                  {duration.label}
-                </button>
-              ))}
-              <DatePickerComponent />
-            </div>
-          </div>
           <div className="w-full h-64 lg:h-96 overflow-auto px-3 lg:px-8">
             <LineChart />
           </div>
@@ -226,7 +204,16 @@ const Indicators: React.FC = () => {
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revReport")}
           </p>
-          <div className="flex flex-col lg:flex-row justify-end px-3 lg:px-8 gap-4">
+          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
+            <DropdownInput
+              inputType="primary"
+              label="Все автомойки"
+              options={poses}
+              value={selectedValue}
+              onChange={setSelectedValue}
+              isSelectable={true}
+              classname="mt-3"
+            />
             <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
               {durations.map((duration) => (
                 <button
