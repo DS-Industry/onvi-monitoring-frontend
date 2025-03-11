@@ -83,7 +83,7 @@ const Indicators: React.FC = () => {
 
   const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
-    posId: selectedValue,
+    posId: posType,
     placementId: city
   }));
 
@@ -226,16 +226,7 @@ const Indicators: React.FC = () => {
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revReport")}
           </p>
-          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
-            <DropdownInput
-              inputType="primary"
-              label="Все автомойки"
-              options={poses}
-              value={selectedValue}
-              onChange={setSelectedValue}
-              isSelectable={true}
-              classname="mt-3"
-            />
+          <div className="flex flex-col lg:flex-row justify-end px-3 lg:px-8 gap-4">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
               {durations.map((duration) => (
                 <button

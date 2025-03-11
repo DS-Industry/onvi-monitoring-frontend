@@ -16,7 +16,7 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 interface FilterCollection {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
     page?: number;
     size?: number;
 }

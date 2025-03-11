@@ -32,7 +32,7 @@ interface TableRow {
 interface FilterChemicalPos {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
 }
 
 const transformDataToTableRows = (data: TechTask[]): TableRow[] => {

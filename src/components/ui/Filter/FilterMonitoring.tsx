@@ -225,11 +225,11 @@ const FilterMonitoring: React.FC<Props> = ({
                     handleClick={() => {
                         setStartDate(new Date(`${formattedDate} 00:00`));
                         setEndDate(new Date(`${formattedDate} 23:59`));
-                        setPosId(66);
+                        setPosId("*");
                         setWarehouseId(0);
                         setOrganizationId('');
                         setDeviceId('');
-                        setPosType(66);
+                        setPosType("*");
                         setWareHouseId(0);
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));

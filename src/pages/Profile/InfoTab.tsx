@@ -7,9 +7,9 @@ import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hooks/useAuthStore';
 import LanguageSelector from '@/components/LanguageSelector';
+import useAuthStore from '@/config/store/authSlice';
 
 
 const InfoTab: React.FC = () => {
@@ -23,7 +23,7 @@ const InfoTab: React.FC = () => {
   const setClearToken = useClearJwtToken();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
@@ -121,14 +121,27 @@ const InfoTab: React.FC = () => {
   };
 
   const logout = () => {
+    // Clear local storage completely
     localStorage.clear();
 
-    setClearUser();
-    setClearToken();
-    setClearPermissions();
-    setPermissions([]);
-    navigate('/login');
-  }
+    // Clear session storage (if used)
+    sessionStorage.clear();
+
+    // Clear all user-related states
+    setClearUser();         // Reset user info state
+    setClearToken();        // Reset auth token
+    setClearPermissions();  // Reset stored permissions
+    setPermissions([]);     // Ensure empty permissions array
+
+    useAuthStore.getState().reset();
+
+    // Force a hard reload to clear any in-memory state (optional)
+    window.location.href = ""; 
+
+    // OR use navigate if you want a soft redirect
+    // navigate("/login");
+};
+
 
   console.log("Image Preview: ", imagePreview);
 

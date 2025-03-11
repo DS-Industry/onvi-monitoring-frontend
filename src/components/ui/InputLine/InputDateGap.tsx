@@ -35,40 +35,72 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
     const [dateEnd, setDateEnd] = useState(formatDate(endDate));
     const [timeEnd, setTimeEnd] = useState(formatTime(endDate));
 
-    // Handle date and time changes for start
     const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDateStart(event.target.value);
-        const updatedDateTime = new Date(`${event.target.value}T${timeStart}`);
-        onStartDateChange(updatedDateTime);
-    };
-
+        const newDate = event.target.value;
+        setDateStart(newDate);  // Allow free typing
+    
+        // Only update when a complete date (YYYY-MM-DD) is entered
+        if (/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+            const updatedDateTime = new Date(`${newDate}T${timeStart}`);
+            if (!isNaN(updatedDateTime.getTime())) {
+                onStartDateChange(updatedDateTime);
+            }
+        }
+    };    
+    
     const handleStartTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTimeStart(event.target.value);
-        const updatedDateTime = new Date(`${dateStart}T${event.target.value}`);
-        onStartDateChange(updatedDateTime);
+        const newTime = event.target.value;
+        setTimeStart(newTime);
+    
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStart) && newTime) {
+            const updatedDateTime = new Date(`${dateStart}T${newTime}`);
+            if (!isNaN(updatedDateTime.getTime())) {
+                onStartDateChange(updatedDateTime);
+            }
+        }
     };
-
+    
     const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDateEnd(event.target.value);
-        const updatedDateTime = new Date(`${event.target.value}T${timeEnd}`);
-        onEndDateChange(updatedDateTime);
+        const newDate = event.target.value;
+        setDateEnd(newDate);
+    
+        if (/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+            const updatedDateTime = new Date(`${newDate}T${timeEnd}`);
+            if (!isNaN(updatedDateTime.getTime())) {
+                onEndDateChange(updatedDateTime);
+            }
+        }
     };
-
+    
     const handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTimeEnd(event.target.value);
-        const updatedDateTime = new Date(`${dateEnd}T${event.target.value}`);
-        onEndDateChange(updatedDateTime);
+        const newTime = event.target.value;
+        setTimeEnd(newTime);
+    
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateEnd) && newTime) {
+            const updatedDateTime = new Date(`${dateEnd}T${newTime}`);
+            if (!isNaN(updatedDateTime.getTime())) {
+                onEndDateChange(updatedDateTime);
+            }
+        }
     };
 
     useEffect(() => {
         const updatedStartDate = typeof defaultDateStart === "string" ? new Date(defaultDateStart) : defaultDateStart;
         const updatedEndDate = typeof defaultDateEnd === "string" ? new Date(defaultDateEnd) : defaultDateEnd;
-
-        setDateStart(formatDate(updatedStartDate));
-        setTimeStart(formatTime(updatedStartDate));
-        setDateEnd(formatDate(updatedEndDate));
-        setTimeEnd(formatTime(updatedEndDate));
-    }, [defaultDateStart, defaultDateEnd]);
+    
+        // Prevent updates when user is typing an incomplete date
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStart) || !/^\d{4}-\d{2}-\d{2}$/.test(dateEnd)) return;
+    
+        if (!isNaN(updatedStartDate.getTime()) && formatDate(updatedStartDate) !== dateStart) {
+            setDateStart(formatDate(updatedStartDate));
+            setTimeStart(formatTime(updatedStartDate));
+        }
+    
+        if (!isNaN(updatedEndDate.getTime()) && formatDate(updatedEndDate) !== dateEnd) {
+            setDateEnd(formatDate(updatedEndDate));
+            setTimeEnd(formatTime(updatedEndDate));
+        }
+    }, [defaultDateStart, defaultDateEnd]);         
 
     return (
         <div className="my-5">

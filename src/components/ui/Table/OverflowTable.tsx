@@ -91,7 +91,12 @@ const OverflowTable: React.FC<Props> = ({
 
   const formatNumber = (num: number): string => {
     if (isNaN(num)) return num.toString();
-    return new Intl.NumberFormat("en-US").format(num);
+
+    return new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: true
+    }).format(num / 100);
   };
 
   const getActivePage = () => {
@@ -217,7 +222,7 @@ const OverflowTable: React.FC<Props> = ({
   return (
     <>
       <div className="w-full overflow-auto">
-        <div className="max-w-7xl overflow-x-auto">
+        <div className="max-w-full overflow-x-auto">
           {title && (
             <span
               className="cursor-pointer"

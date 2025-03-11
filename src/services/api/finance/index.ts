@@ -310,13 +310,13 @@ export async function getCollectionById(id: number): Promise<CollectionResponse>
     return response.data;
 }
 
-export async function getCollections(posId: number, params: CashCollectionParams): Promise<CashCollectionsResponse> {
+export async function getCollections(posId: number | string, params: CashCollectionParams): Promise<CashCollectionsResponse> {
     const response: AxiosResponse<CashCollectionsResponse> = await api.get(FINANCE.POST_CASH_COLLECTION + `s/${posId}`, { params });
     console.log(response.data);
     return response.data;
 }
 
-export async function getTimestamp(posId: number): Promise<TimestampResponse[]> {
+export async function getTimestamp(posId: number | string): Promise<TimestampResponse[]> {
     const response: AxiosResponse<TimestampResponse[]> = await api.get(FINANCE.TIME_STAMP + `/${posId}`);
     console.log(response.data);
     return response.data;
@@ -343,7 +343,7 @@ export async function addWorker(body: ShiftWorkerBody, id: number): Promise<Shif
     return response.data;
 }
 
-export async function getShifts(posId: number, params: CashCollectionParams): Promise<ShiftParamsResponse> {
+export async function getShifts(posId: number | string, params: CashCollectionParams): Promise<ShiftParamsResponse> {
     const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s/${posId}`, { params });
     console.log(response.data);
     return response.data;

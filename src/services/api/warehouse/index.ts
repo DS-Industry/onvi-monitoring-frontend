@@ -299,7 +299,7 @@ export async function getNomenclature(orgId: number): Promise<NOMENCLATURE_RESPO
     return response.data;
 }
 
-export async function getWarehouses(posId: number): Promise<WAREHOUSE_RESPONSE[]> {
+export async function getWarehouses(posId: number | string): Promise<WAREHOUSE_RESPONSE[]> {
     const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.GET_WAREHOUSE_POS + `/${posId}`);
     console.log(response);
     return response.data;

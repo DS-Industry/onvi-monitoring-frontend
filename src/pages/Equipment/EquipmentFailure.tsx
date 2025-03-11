@@ -40,7 +40,7 @@ interface Incident {
 interface FilterIncidentPos {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
     placementId: number;
 }
 

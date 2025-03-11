@@ -23,7 +23,7 @@ enum TECHTASKS {
 type IncidentParam = {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
     placementId: number;
 }
 
@@ -304,7 +304,7 @@ type TechTaskShapeBody = {
 }
 
 type ChemicalParams = {
-    posId: number;
+    posId: number | string;
     dateStart: string;
     dateEnd: string;
 }
@@ -382,13 +382,13 @@ export async function getWorkers(): Promise<WorkerResponse[]> {
     return response.data;
 }
 
-export async function getDevices(posId: number): Promise<DeviceResponse[]> {
+export async function getDevices(posId: number | string): Promise<DeviceResponse[]> {
     const response: AxiosResponse<DeviceResponse[]> = await api.get(EQUIPMENT.GET_POS_DEVICE + `/${posId}`);
 
     return response.data;
 }
 
-export async function getEquipmentKnots(posId: number): Promise<EquipmentKnotResponse[]> {
+export async function getEquipmentKnots(posId: number | string): Promise<EquipmentKnotResponse[]> {
     const response: AxiosResponse<EquipmentKnotResponse[]> = await api.get(EQUIPMENT.GET_EQUIPMENT + `/${posId}`);
 
     return response.data;
@@ -406,7 +406,7 @@ export async function getPrograms(): Promise<AllProgramsResponse[]> {
     return response.data;
 }
 
-export async function getTechTasks(posId: number): Promise<TechTasksResponse[]> {
+export async function getTechTasks(posId: number | string): Promise<TechTasksResponse[]> {
     const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS + `/${posId}`);
 
     return response.data;
@@ -426,7 +426,7 @@ export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTask
     return response.data;
 }
 
-export async function readTechTasks(posId: number): Promise<ReadTechTasksResponse[]> {
+export async function readTechTasks(posId: string | number): Promise<ReadTechTasksResponse[]> {
     const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS + `/${posId}`);
 
     return response.data;
@@ -451,19 +451,19 @@ export async function createTechTaskShape(id: number, body: TechTaskShapeBody): 
     return response.data;
 }
 
-export async function getChemicalReport(params: ChemicalParams, posId: number): Promise<ChemicalResponse[]> {
+export async function getChemicalReport(params: ChemicalParams, posId: number | string): Promise<ChemicalResponse[]> {
     const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION + `/${posId}`, { params });
 
     return response.data;
 }
 
-export async function getConsumptionRate(posId: number): Promise<ConsumptionRateResponse[]> {
+export async function getConsumptionRate(posId: number | string): Promise<ConsumptionRateResponse[]> {
     const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(TECHTASKS.GET_CONSUMPTION_RATE + `/${posId}`);
 
     return response.data;
 }
 
-export async function patchProgramCoefficient(id: number, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
+export async function patchProgramCoefficient(id: number | string, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
     console.log(body);
     const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
     console.log(response.data);

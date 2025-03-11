@@ -15,7 +15,7 @@ type Permission = {
 interface AuthState {
   tokens: Tokens | null;
   permissions: Permission[];
-  posType: number;
+  posType: number | string;
   startDate: Date;
   endDate: Date;
   deviceId: number;
@@ -28,7 +28,7 @@ interface AuthState {
   setTokens: (tokens: { tokens: Tokens }) => void;
   clearTokens: () => void;
   setPermissions: (permissions: Permission[]) => void;
-  setPosType: (posType: number) => void;
+  setPosType: (posType: number | string) => void;
   setStartDate: (startDate: Date) => void;
   setEndDate: (endDate: Date) => void;
   setDeviceId: (deviceId: number) => void;
@@ -39,6 +39,7 @@ interface AuthState {
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
   setCity: (city: number) => void;
+  reset: () => void;
 }
 
 const today = new Date();
@@ -46,37 +47,41 @@ const formattedDate = today.toISOString().slice(0, 10);
 const startDate = new Date(`${formattedDate} 00:00`);
 const endDate = new Date(`${formattedDate} 23:59`);
 
-const createAuthStore: StateCreator<AuthState> = (set) => ({
-  tokens: null,
-  permissions: [],
-  posType: 66,
-  startDate: startDate,
-  endDate: endDate,
-  deviceId: 0,
-  documentType: "",
-  wareHouseId: 3,
-  pageNumber: 15,
-  currentPage: 1,
-  pageSize: 10,
-  city: 1,
-  setTokens: (tokens) =>
-    set(() => ({
-      tokens: tokens.tokens,
-    })),
-  clearTokens: () => set(() => ({ tokens: null })),
-  setPermissions: (permissions) => set({ permissions }),
-  setPosType: (posType) => set({ posType }),
-  setStartDate: (startDate) => set({ startDate }),
-  setEndDate: (endDate) => set({ endDate }),
-  setDeviceId: (deviceId) => set({ deviceId }),
-  setDocumentType: (documentType) => set({ documentType }),
-  setWareHouseId: (wareHouseId) => set({ wareHouseId }),
-  setPageNumber: (pageNumber) => set({ pageNumber }),
-  clearPermissions: () => set(() => ({ permissions: [] })),
-  setCurrentPage: (currentPage) => set({ currentPage }),
-  setPageSize: (pageSize) => set({ pageSize }),
-  setCity: (city) => set({ city })
-});
+const createAuthStore: StateCreator<AuthState> = (set) => {
+  const initialState: AuthState = {
+    tokens: null,
+    permissions: [],
+    posType: "*",
+    startDate: startDate,
+    endDate: endDate,
+    deviceId: 0,
+    documentType: "",
+    wareHouseId: 3,
+    pageNumber: 15,
+    currentPage: 1,
+    pageSize: 10,
+    city: 1,
+    setTokens: (tokens) => set(() => ({ tokens: tokens.tokens })),
+    clearTokens: () => set(() => ({ tokens: null })),
+    setPermissions: (permissions) => set({ permissions }),
+    setPosType: (posType) => set({ posType }),
+    setStartDate: (startDate) => set({ startDate }),
+    setEndDate: (endDate) => set({ endDate }),
+    setDeviceId: (deviceId) => set({ deviceId }),
+    setDocumentType: (documentType) => set({ documentType }),
+    setWareHouseId: (wareHouseId) => set({ wareHouseId }),
+    setPageNumber: (pageNumber) => set({ pageNumber }),
+    clearPermissions: () => set(() => ({ permissions: [] })),
+    setCurrentPage: (currentPage) => set({ currentPage }),
+    setPageSize: (pageSize) => set({ pageSize }),
+    setCity: (city) => set({ city }),
+    
+    // Reset function
+    reset: () => set(initialState),
+  };
+
+  return initialState;
+};
 
 const useAuthStore = create<AuthState>()(
   devtools(
