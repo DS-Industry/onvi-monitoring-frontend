@@ -16,45 +16,24 @@ import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-import { getOrganization } from "@/services/api/organization";
+import { getContactById, getOrganization, getOrganizationContactById } from "@/services/api/organization";
 import SearchInput from "@/components/ui/Input/SearchInput";
-import { getPoses, getWorkers } from "@/services/api/equipment";
+import { getPoses } from "@/services/api/equipment";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 
 type Pos = {
     id: number;
     name: string;
     slug: string;
-    monthlyPlan: number;
-    timeWork: string;
+    address: string;
     organizationId: number;
-    posMetaData: string;
+    placementId: number;
     timezone: number;
-    image: string;
-    rating: number;
-    status: string;
+    posStatus: string;
     createdAt: Date;
     updatedAt: Date;
     createdById: number;
     updatedById: number;
-    address:
-    {
-        id: number;
-        city: string;
-        location: string;
-        lat: number;
-        lon: number;
-    };
-    posType:
-    {
-        id: number;
-        name: string;
-        slug: string;
-        carWashPosType: string;
-        minSumOrder: number;
-        maxSumOrder: number;
-        stepSumOrder: number;
-    };
 }
 
 type OrganizationResponse = {
@@ -69,6 +48,31 @@ type OrganizationResponse = {
     ownerId: number;
 }
 
+type OrgContactResponse = {
+    name: string;
+    address: string;
+    status: string;
+    type: string;
+}
+
+type ContactResponse = {
+    name: string;
+    surname: string;
+    middlename: string;
+    email: string;
+    position: string;
+}
+
+const fetchOrgContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getOrganizationContactById(id);
+};
+
+const fetchContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getContactById(id);
+};
+
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
@@ -77,21 +81,19 @@ const Pos: React.FC = () => {
     const setCity = useSetCity();
     const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
         placementId: address
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const { data: organizationData } = useSWR([`get-org`, address], () => getOrganization({
         placementId: address
     }));
+
     const { setButtonOn } = useButtonCreate();
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
 
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
     const organizations: OrganizationResponse[] = organizationData
         ?.map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
-
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const organization: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -176,13 +178,52 @@ const Pos: React.FC = () => {
         }
     };
 
+    const organizationIds = Array.from(new Set(data?.map((item) => item.organizationId)));
+
+    const createIds = Array.from(new Set(data?.map((item) => item.createdById)));
+
+    const updateIds = Array.from(new Set(data?.map((item) => item.updatedById)));
+
+    const { data: orgContacts } = useSWR(
+        organizationIds.length ? ["organizationContacts", organizationIds] : null,
+        async () => {
+            const responses = await Promise.all(organizationIds.map(fetchOrgContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[organizationIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, OrgContactResponse>);
+        }
+    );
+
+    const { data: createContacts } = useSWR(
+        organizationIds.length ? ["createContacts", createIds] : null,
+        async () => {
+            const responses = await Promise.all(createIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[createIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
+    const { data: updateContacts } = useSWR(
+        organizationIds.length ? ["updateContacts", updateIds] : null,
+        async () => {
+            const responses = await Promise.all(updateIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[updateIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
     const poses: Pos[] = data
         ?.map((item: Pos) => ({
             ...item,
-            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-",
-            status: t(`tables.${item.status}`),
-            createdByName: workers.find((work) => work.value === item.createdById)?.name || "-",
-            updatedByName: workers.find((work) => work.value === item.updatedById)?.name || "-"
+            organizationName: orgContacts?.[item.organizationId]?.name || "-",
+            status: t(`tables.${item.posStatus}`),
+            createdByName: createContacts?.[item.createdById]?.name || "-",
+            updatedByName: updateContacts?.[item.updatedById]?.name || "-"
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];

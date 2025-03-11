@@ -10,7 +10,8 @@ enum ORGANIZATION {
     GET_ROLES = 'user/permission/roles',
     POS_PERMISSION = 'user/permission/pos',
     UPDATE_ROLE = 'user/permission',
-    ADD_ROLE = 'user/organization/worker'
+    ADD_ROLE = 'user/organization/worker',
+    GET_CONTACT = 'user/contact'
 }
 
 type Organization = {
@@ -182,6 +183,21 @@ type RoleResponse = {
     }
 }
 
+type OrgContactResponse = {
+    name: string;
+    address: string;
+    status: string;
+    type: string;
+}
+
+type ContactResponse = {
+    name: string;
+    surname: string;
+    middlename: string;
+    email: string;
+    position: string;
+}
+
 export async function getOrganization(params: AddressParams): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
     const response: AxiosResponse<Organization[]> = await api.get(url, { params });
@@ -254,5 +270,20 @@ export async function addRole(body: RoleRequestBody): Promise<RoleResponse> {
     return response.data;
 }
 
+export async function getOrganizationContactById(id: number): Promise<OrgContactResponse> {
+    const url = ORGANIZATION.UPDATE_ORGANIZATION + `/contact/${id}`;
+    const response: AxiosResponse<OrgContactResponse> = await api.get(url);
+
+    //console.log(JSON.stringify(response, null, 2));
+    return response.data;
+}
+
+export async function getContactById(id: number): Promise<ContactResponse> {
+    const url = ORGANIZATION.GET_CONTACT + `/${id}`;
+    const response: AxiosResponse<ContactResponse> = await api.get(url);
+
+    //console.log(JSON.stringify(response, null, 2));
+    return response.data;
+}
 
 

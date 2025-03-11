@@ -626,7 +626,9 @@
     "LITER": "LITER",
     "METER": "METER",
     "Download": "Download",
-    "FIRED": "FIRED"
+    "FIRED": "FIRED",
+    "OFFLINE": "OFFLINE",
+    "DELETED": "DELETED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
