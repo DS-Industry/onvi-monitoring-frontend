@@ -256,7 +256,7 @@ const Programs: React.FC = () => {
                                 <OverflowTable
                                     title={deviceProgram.name}
                                     urlTitleId={deviceProgram.id}
-                                    nameUrlTitle={"/station/programs/devices"}
+                                    nameUrlTitle={"/station/programs/device"}
                                     tableData={deviceProgram.programsInfo}
                                     columns={portalPrograms.length > 0 ? columnsProgramsPosPortal : columnsProgramsPos}
                                 />
