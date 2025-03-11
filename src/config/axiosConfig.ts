@@ -1,8 +1,9 @@
 import axios from "axios";
 import useAuthStore from "@/config/store/authSlice";
-import i18n from "@/config/i18n"; 
+import i18n from "@/config/i18n";
 
 let showSnackbar: (message: string, type: "success" | "error" | "info" | "warning") => void;
+const errorEndpoints = new Set<string>(); // Store failed API endpoints
 
 export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
   showSnackbar = snackbarFunction;
@@ -10,7 +11,7 @@ export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
 
 const api = axios.create({
   baseURL: 'https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net',
-  withCredentials: true
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -27,21 +28,38 @@ api.interceptors.request.use(
 const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // ✅ Remove endpoint from failed list if request is successful
+    if (response.config.url) {
+      errorEndpoints.delete(response.config.url);
+    }
+    return response;
+  },
   (error) => {
     if (!showSnackbar) {
       console.error("Snackbar function is not initialized.");
       return Promise.reject(error);
     }
 
-    if (error.response) {
-      const errorCode = error.response.data?.code;
-      const errorMessage = errorCode ? getTranslatedError(errorCode) : "An error occurred. Please try again.";
-      showSnackbar(errorMessage, "error");
-    } else if (error.request) {
-      showSnackbar("No response from the server. Check your internet connection.", "error");
-    } else {
+    const endpoint = error.config?.url;
+    if (!endpoint) {
       showSnackbar("Unexpected error occurred. Please try again.", "error");
+      return Promise.reject(error);
+    }
+
+    // ✅ Show snackbar ONLY if this endpoint is failing for the first time
+    if (!errorEndpoints.has(endpoint)) {
+      errorEndpoints.add(endpoint); // Mark this endpoint as failed
+
+      if (error.response) {
+        const errorCode = error.response.data?.code;
+        const errorMessage = errorCode ? getTranslatedError(errorCode) : "An error occurred. Please try again.";
+        showSnackbar(errorMessage, "error");
+      } else if (error.request) {
+        showSnackbar("No response from the server. Check your internet connection.", "error");
+      } else {
+        showSnackbar("Unexpected error occurred. Please try again.", "error");
+      }
     }
 
     return Promise.reject(error);
