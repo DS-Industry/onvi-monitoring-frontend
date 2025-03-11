@@ -79,15 +79,15 @@ const Pos: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const address = useCity();
     const setCity = useSetCity();
+    const { buttonOn, setButtonOn } = useButtonCreate();
     const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
         placementId: address
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-org`, address], () => getOrganization({
+    const { data: organizationData } = useSWR(buttonOn ? [`get-org`, address] : null, () => getOrganization({
         placementId: address
     }));
 
-    const { setButtonOn } = useButtonCreate();
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
 
@@ -222,8 +222,8 @@ const Pos: React.FC = () => {
             ...item,
             organizationName: orgContacts?.[item.organizationId]?.name || "-",
             status: t(`tables.${item.posStatus}`),
-            createdByName: createContacts?.[item.createdById]?.name || "-",
-            updatedByName: updateContacts?.[item.updatedById]?.name || "-"
+            createdByName: `${createContacts?.[item.createdById]?.name || ""} ${createContacts?.[item.createdById]?.surname || ""}` || "-",
+            updatedByName: `${updateContacts?.[item.updatedById]?.name || ""} ${updateContacts?.[item.updatedById]?.surname || ""}` || "-"
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];

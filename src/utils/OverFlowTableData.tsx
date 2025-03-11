@@ -120,21 +120,8 @@ export const columnsPos = [
     key: "address",
   },
   {
-    label: "Месячный план",
-    key: "monthlyPlan",
-    type: "number"
-  },
-  {
     label: "Организация",
     key: "organizationName"
-  },
-  {
-    label: "Название организации",
-    key: "posType",
-  },
-  {
-    label: "Временная зона",
-    key: "timezone",
   },
   {
     label: "Статус",
