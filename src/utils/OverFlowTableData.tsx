@@ -116,16 +116,16 @@ export const columnsPos = [
     key: "name",
   },
   {
-    label: "Адресс",
-    key: "address",
-  },
-  {
     label: "Страна",
     key: "country",
   },
   {
     label: "Город",
     key: "city",
+  },
+  {
+    label: "Адрес",
+    key: "address",
   },
   {
     label: "Организация",
