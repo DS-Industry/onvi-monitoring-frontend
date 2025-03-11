@@ -139,7 +139,7 @@ const DepositDevices: React.FC = () => {
                             tableData={devicesMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
-                            nameUrl={"/station/enrollments/devices"}
+                            nameUrl={posType !== "*" ? "/station/enrollments/devices" : "/station/enrollments"}
                         />
                     </div>
                 ) : (

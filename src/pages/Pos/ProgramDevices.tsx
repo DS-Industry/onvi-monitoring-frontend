@@ -132,7 +132,7 @@ const ProgramDevices: React.FC = () => {
                             <OverflowTable
                                 title={deviceProgram.name}
                                 urlTitleId={deviceProgram.id}
-                                nameUrlTitle={"/station/programs/devices"}
+                                nameUrlTitle={posType !== "*" ? "/station/programs/devices" : "/station/programs"}
                                 tableData={deviceProgram.programsInfo}
                                 columns={columnsProgramsPos}
                             />
