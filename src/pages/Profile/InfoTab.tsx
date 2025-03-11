@@ -23,7 +23,6 @@ const InfoTab: React.FC = () => {
   const setClearToken = useClearJwtToken();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
-  // const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
@@ -121,25 +120,17 @@ const InfoTab: React.FC = () => {
   };
 
   const logout = () => {
-    // Clear local storage completely
     localStorage.clear();
-
-    // Clear session storage (if used)
     sessionStorage.clear();
 
-    // Clear all user-related states
-    setClearUser();         // Reset user info state
-    setClearToken();        // Reset auth token
-    setClearPermissions();  // Reset stored permissions
-    setPermissions([]);     // Ensure empty permissions array
+    setClearUser();         
+    setClearToken();        
+    setClearPermissions(); 
+    setPermissions([]);     
 
     useAuthStore.getState().reset();
 
-    // Force a hard reload to clear any in-memory state (optional)
     window.location.href = ""; 
-
-    // OR use navigate if you want a soft redirect
-    // navigate("/login");
 };
 
 
