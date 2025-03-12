@@ -60,7 +60,7 @@ const ProgramDevice: React.FC = () => {
 
     useEffect(() => {
         if (location.state?.ownerId) {
-            setDeviceId(location.state.ownerId); 
+            setDeviceId(location.state.ownerId);
         }
     }, [location.state?.ownerId, setDeviceId]);
 
@@ -89,6 +89,20 @@ const ProgramDevice: React.FC = () => {
         page: dataFilter.page,
         size: dataFilter.size
     }));
+
+    const totalRecords = filter?.totalCount || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
+
     const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
