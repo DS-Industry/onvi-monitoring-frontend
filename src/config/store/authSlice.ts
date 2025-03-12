@@ -18,7 +18,7 @@ interface AuthState {
   posType: number | string;
   startDate: Date;
   endDate: Date;
-  deviceId: number;
+  deviceId: number | undefined;
   documentType: string;
   wareHouseId: number;
   pageNumber: number;
@@ -31,7 +31,7 @@ interface AuthState {
   setPosType: (posType: number | string) => void;
   setStartDate: (startDate: Date) => void;
   setEndDate: (endDate: Date) => void;
-  setDeviceId: (deviceId: number) => void;
+  setDeviceId: (deviceId: number | undefined) => void;
   setDocumentType: (documentType: string) => void;
   setWareHouseId: (wareHouseId: number) => void;
   setPageNumber: (pageNumber: number) => void;
@@ -54,7 +54,7 @@ const createAuthStore: StateCreator<AuthState> = (set) => {
     posType: "*",
     startDate: startDate,
     endDate: endDate,
-    deviceId: 0,
+    deviceId: undefined,
     documentType: "",
     wareHouseId: 3,
     pageNumber: 15,

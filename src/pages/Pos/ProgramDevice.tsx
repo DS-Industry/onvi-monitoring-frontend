@@ -56,28 +56,34 @@ const ProgramDevice: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
     const posType = usePosType();
-
     const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setDeviceId(location.state.ownerId); 
+        }
+    }, [location.state?.ownerId, setDeviceId]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         page: currentPage,
         size: pageSize,
-        deviceId: deviceId || location.state?.ownerId,
+        deviceId: deviceId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({ 
-            ...prevFilter, 
-            page: 1 
-        }));  
-    }, [location, setCurrentPage]);  
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getProgramDevice(
-        dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR(deviceId ? [`get-pos-program-pos-devices`, deviceId] : null, () => getProgramDevice(
+        deviceId ? deviceId : 0, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         page: dataFilter.page,
@@ -116,8 +122,8 @@ const ProgramDevice: React.FC = () => {
         return item;
     }).sort((a, b) => a.props.id - b.props.id) || [];
 
-    const deviceOptional: { name: string; value: string }[] = deviceData.map(
-        (item) => ({ name: item.props.name, value: item.props.id.toString() })
+    const deviceOptional: { name: string; value: number; }[] = deviceData.map(
+        (item) => ({ name: item.props.name, value: item.props.id })
     );
 
     return (

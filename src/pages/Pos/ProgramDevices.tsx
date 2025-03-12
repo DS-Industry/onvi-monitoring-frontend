@@ -108,8 +108,8 @@ const ProgramDevices: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id.toString() })
+    const posOptional: { name: string; value: number }[] = posData.map(
+        (item) => ({ name: item.name, value: item.id })
     );
 
     return (
@@ -132,7 +132,7 @@ const ProgramDevices: React.FC = () => {
                             <OverflowTable
                                 title={deviceProgram.name}
                                 urlTitleId={deviceProgram.id}
-                                nameUrlTitle={posType !== "*" ? "/station/programs/devices" : "/station/programs"}
+                                nameUrlTitle={"/station/programs/devices"}
                                 tableData={deviceProgram.programsInfo}
                                 columns={columnsProgramsPos}
                             />

@@ -118,8 +118,8 @@ const DepositDevices: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id.toString() })
+    const posOptional: { name: string; value: number }[] = posData.map(
+        (item) => ({ name: item.name, value: item.id })
     );
 
     return (
@@ -139,7 +139,7 @@ const DepositDevices: React.FC = () => {
                             tableData={devicesMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
-                            nameUrl={posType !== "*" ? "/station/enrollments/devices" : "/station/enrollments"}
+                            nameUrl={"/station/enrollments/devices"}
                         />
                     </div>
                 ) : (

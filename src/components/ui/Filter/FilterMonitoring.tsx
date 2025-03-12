@@ -3,7 +3,7 @@ import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/contex
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
 import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity } from "@/hooks/useAuthStore.ts";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity, useDeviceId, useSetDeviceId } from "@/hooks/useAuthStore.ts";
 import SearchInput from "../Input/SearchInput.tsx";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
@@ -52,9 +52,11 @@ const FilterMonitoring: React.FC<Props> = ({
     const [startDate, setStartDate] = useState(storeStartDate);
     const [endDate, setEndDate] = useState(storeEndDate);
     const [organizationId, setOrganizationId] = useState('');
-    const [posId, setPosId] = useState(posType);
+    const posId = posType;
+    const setPosId = useSetPosType();
     const [warehouseId, setWarehouseId] = useState(wareHouseId);
-    const [deviceId, setDeviceId] = useState('');
+    const deviceId = useDeviceId();
+    const setDeviceId = useSetDeviceId();
     const city = useCity();
     const setCity = useSetCity();
 
@@ -228,7 +230,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         setPosId("*");
                         setWarehouseId(0);
                         setOrganizationId('');
-                        setDeviceId('');
+                        setDeviceId(undefined);
                         setPosType("*");
                         setWareHouseId(0);
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));

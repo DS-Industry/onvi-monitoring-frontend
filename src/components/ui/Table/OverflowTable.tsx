@@ -96,7 +96,7 @@ const OverflowTable: React.FC<Props> = ({
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
       useGrouping: true
-    }).format(num / 100);
+    }).format(num);
   };
 
   const getActivePage = () => {

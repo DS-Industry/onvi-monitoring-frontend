@@ -8,13 +8,13 @@ import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore'; 
+import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
+    posId: number | string;
 }
 
 interface PosMonitoring {
@@ -49,8 +49,6 @@ interface DepositMonitoring {
 }
 
 const Deposit: React.FC = () => {
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
     const location = useLocation();
 
     const posType = usePosType();
@@ -60,11 +58,17 @@ const Deposit: React.FC = () => {
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
 
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setPosType(location.state.ownerId);
+        }
+    }, [location.state?.ownerId, setPosType]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
-        dateStart: startDate || `2024-10-01 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId,
+        dateStart: startDate,
+        dateEnd: endDate,
+        posId: posType,
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
@@ -73,12 +77,13 @@ const Deposit: React.FC = () => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
 
-        if(newFilterData.posId) setPosType(newFilterData.posId);
+        if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
 
-    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-deposits'], () => getDeposit(dataFilter.posId ? dataFilter.posId : location.state.ownerId, {
+    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
+        posType ? ['get-pos-deposits', posType] : null, () => getDeposit(posType, {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
@@ -103,9 +108,8 @@ const Deposit: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = [
-        { name: 'Все объекты', value: '0' },
-        ...posData.map((item) => ({ name: item.name, value: item.id.toString() }))
+    const posOptional: { name: string; value: number }[] = [
+        ...posData.map((item) => ({ name: item.name, value: item.id }))
     ];
 
     return (
@@ -117,7 +121,7 @@ const Deposit: React.FC = () => {
                 hideCity={true}
                 hideSearch={true}
             />
-            { isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
+            {isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
                 :
                 posMonitoring.length > 0 ? (
                     <div className="mt-8">

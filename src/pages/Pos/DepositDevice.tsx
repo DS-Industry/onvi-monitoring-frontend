@@ -61,35 +61,41 @@ const DepositDevice: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
     const posType = usePosType();
-
     const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setDeviceId(location.state.ownerId);
+        }
+    }, [location.state?.ownerId, setDeviceId]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
         dateStart: startDate || `2024-10-01 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         page: currentPage,
         size: pageSize,
-        deviceId: location.state?.ownerId || deviceId,
+        deviceId: deviceId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({ 
-            ...prevFilter, 
-            page: 1 
-        }));  
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
     }, [location, setCurrentPage]);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-deposits-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getDepositDevice(
-        dataFilter.deviceId ? dataFilter.deviceId : location.state.ownerId, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR(deviceId ? [`get-pos-deposits-pos-devices`, deviceId] : null, () => getDepositDevice(
+        deviceId ? deviceId : 0, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         page: dataFilter.page,
         size: dataFilter.size
     }));
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
+    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType));
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -123,8 +129,8 @@ const DepositDevice: React.FC = () => {
         return item;
     }).sort((a, b) => a.props.id - b.props.id) || [];
 
-    const deviceOptional: { name: string; value: string }[] = deviceData.map(
-        (item) => ({ name: item.props.name, value: item.props.id.toString() })
+    const deviceOptional: { name: string; value: number; }[] = deviceData.map(
+        (item) => ({ name: item.props.name, value: item.props.id })
     );
 
     return (

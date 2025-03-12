@@ -8,7 +8,7 @@ import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
+import { useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, usePosType } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { Bar } from "react-chartjs-2";
 import {
@@ -28,7 +28,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
+    posId: number | string;
 }
 
 enum CarWashPosType {
@@ -60,21 +60,25 @@ interface PosMonitoring {
 
 const Programs: React.FC = () => {
     const { t } = useTranslation();
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
     const location = useLocation();
-    const posType = usePosType();
     const startDate = useStartDate();
     const endDate = useEndDate();
+    const posType = usePosType();
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
 
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setPosType(location.state.ownerId);
+        }
+    }, [location.state?.ownerId, setPosType]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
-        dateStart: startDate || `${formattedDate} 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId,
+        dateStart: startDate,
+        dateEnd: endDate,
+        posId: posType,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
@@ -87,10 +91,14 @@ const Programs: React.FC = () => {
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
     };
 
-    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(['get-pos-programs'], () => getPrograms(dataFilter.posId ? dataFilter.posId : location.state?.ownerId, {
-        dateStart: dataFilter?.dateStart,
-        dateEnd: dataFilter?.dateEnd,
-    }));
+    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(
+        posType ? ['get-pos-programs', posType] : null, 
+        () => getPrograms(posType, {
+            dateStart: dataFilter?.dateStart,
+            dateEnd: dataFilter?.dateEnd,
+        }),
+        { revalidateOnFocus: false } 
+    );
 
     const city = useCity();
 
@@ -113,20 +121,42 @@ const Programs: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = [
-        { name: 'Все объекты', value: '0' },
-        ...posData.map((item) => ({ name: item.name, value: item.id.toString() }))
+    const posOptional: { name: string; value: number }[] = [
+        ...posData.map((item) => ({ name: item.name, value: item.id }))
     ];
 
     const getRandomColor = (index: number) => {
         const colors = [
-            "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#8E44AD",
-            "#1ABC9C", "#D35400", "#7F8C8D", "#27AE60", "#C0392B"
+            "#5E5FCD", "#6ECD5E", "#A95ECD", "#CD5E5E"
         ];
         return colors[index % colors.length]; // Cycle through colors if needed
     };
 
     const portalPrograms = posPrograms.filter(program => program.posType === "Portal");
+
+    const aggregateProgramsData = (portalPrograms: PosPrograms[]) => {
+        const programMap = new Map();
+    
+        portalPrograms.forEach(program => {
+            program.programsInfo?.forEach(info => {
+                if (!programMap.has(info.programName)) {
+                    programMap.set(info.programName, { 
+                        programName: info.programName, 
+                        counter: 0, 
+                        totalProfit: 0 
+                    });
+                }
+                const existing = programMap.get(info.programName);
+                existing.counter += info.counter ?? 0;
+                existing.totalProfit += info.totalProfit ?? 0;
+                programMap.set(info.programName, existing);
+            });
+        });
+    
+        return Array.from(programMap.values());
+    };
+
+    const aggregatedData = aggregateProgramsData(portalPrograms);
 
     return (
         <>
@@ -160,18 +190,12 @@ const Programs: React.FC = () => {
                                 <div className="h-[340px] shadow-card rounded-2xl p-4 pb-6">
                                     <Bar
                                         data={{
-                                            labels: portalPrograms.flatMap(program =>
-                                                program.programsInfo?.flatMap(info => [info.programName, ""]) // Adding empty labels as gaps
-                                            ),
+                                            labels: aggregatedData.map(info => info.programName),
                                             datasets: [
                                                 {
                                                     label: "Кол-во авто",
-                                                    data: portalPrograms.flatMap(program =>
-                                                        program.programsInfo?.flatMap(info => [info.counter, NaN]) // NaN creates the gap
-                                                    ),
-                                                    backgroundColor: portalPrograms.flatMap(program =>
-                                                        program.programsInfo?.flatMap((_info, index) => [getRandomColor(index), "rgba(0,0,0,0)"]) // Unique color + transparent gap
-                                                    ),
+                                                    data: aggregatedData.map(info => info.counter),
+                                                    backgroundColor: aggregatedData.map((_info, index) => getRandomColor(index)),
                                                 },
                                             ],
                                         }}
@@ -200,18 +224,12 @@ const Programs: React.FC = () => {
                                 <div className="h-[340px] shadow-card rounded-2xl p-4 pb-6">
                                     <Bar
                                         data={{
-                                            labels: portalPrograms.flatMap(program =>
-                                                program.programsInfo?.map(info => info.programName) // No empty labels
-                                            ),
+                                            labels: aggregatedData.map(info => info.programName),
                                             datasets: [
                                                 {
-                                                    label: "Кол-во авто",
-                                                    data: portalPrograms.flatMap(program =>
-                                                        program.programsInfo?.map(info => info.totalProfit) // No NaN values
-                                                    ),
-                                                    backgroundColor: portalPrograms.flatMap(program =>
-                                                        program.programsInfo?.map((_info, index) => getRandomColor(index))
-                                                    ),
+                                                    label: "Доход",
+                                                    data: aggregatedData.map(info => info.totalProfit),
+                                                    backgroundColor: aggregatedData.map((_info, index) => getRandomColor(index)),
                                                 },
                                             ],
                                         }}
