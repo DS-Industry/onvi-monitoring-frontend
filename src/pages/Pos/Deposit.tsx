@@ -122,6 +122,7 @@ const Deposit: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideCity={true}
                 hideSearch={true}
+                hideReset={true}
             />
             {isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
                 :

@@ -168,6 +168,7 @@ const Programs: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideCity={true}
                 hideSearch={true}
+                hideReset={true}
             />
             {isTableLoading || filterLoading ? (
                 <div className="mt-8 space-y-6">

@@ -23,6 +23,7 @@ type Props = {
     handleDataFilter?: any;
     hideCity?: boolean;
     hideSearch?: boolean;
+    hideReset?: boolean;
 };
 const FilterMonitoring: React.FC<Props> = ({
     count,
@@ -33,7 +34,8 @@ const FilterMonitoring: React.FC<Props> = ({
     usersSelect,
     handleDataFilter,
     hideCity = false,
-    hideSearch = false
+    hideSearch = false,
+    hideReset = false
 }: Props) => {
 
     const today = new Date();
@@ -221,7 +223,7 @@ const FilterMonitoring: React.FC<Props> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-4 mt-4">
-                <Button
+                {!hideReset && (<Button
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
@@ -237,7 +239,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);
                     }}
-                />
+                />)}
                 <Button
                     title='Применить'
                     form={true}

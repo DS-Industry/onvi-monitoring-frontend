@@ -134,6 +134,7 @@ const ProgramDevice: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideCity={true}
                 hideSearch={true}
+                hideReset={true}
             />
             {
                 isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
