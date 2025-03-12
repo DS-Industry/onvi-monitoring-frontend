@@ -237,6 +237,7 @@ const OverflowTable: React.FC<Props> = ({
                 title={title}
                 type="outline"
                 classname="mb-2"
+                iconArrowDiognal={true}
               />
             </span>
           )}

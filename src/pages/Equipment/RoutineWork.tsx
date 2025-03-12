@@ -65,7 +65,10 @@ const RoutineWork: React.FC = () => {
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
 
-    const { data, isLoading: techTasksLoading } = useSWR( searchPosId !== "*" ? [`get-tech-tasks`, searchPosId, searchRoutine] : null, () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine, city], () => getTechTasks({
+        posId: searchPosId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -159,7 +162,7 @@ const RoutineWork: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
+                    mutate([`get-tech-tasks`, searchPosId, searchRoutine, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -168,7 +171,7 @@ const RoutineWork: React.FC = () => {
                 const result = await createTech();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
+                    mutate([`get-tech-tasks`, searchPosId, searchRoutine, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');

@@ -283,9 +283,10 @@ type TechTaskShapeBody = {
 }
 
 type ChemicalParams = {
-    posId: number | string;
     dateStart: string;
     dateEnd: string;
+    posId: number | string;
+    placementId: number | string;
 }
 
 type ChemicalResponse = {
@@ -326,6 +327,11 @@ type ConsumptionRateCoeffPatchResponse = {
 }
 
 type PosParams = {
+    placementId: number | string;
+}
+
+type TechTaskParams = {
+    posId: number | string;
     placementId: number | string;
 }
 
@@ -385,8 +391,8 @@ export async function getPrograms(): Promise<AllProgramsResponse[]> {
     return response.data;
 }
 
-export async function getTechTasks(posId: number | string): Promise<TechTasksResponse[]> {
-    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS + `/${posId}`);
+export async function getTechTasks(params: TechTaskParams): Promise<TechTasksResponse[]> {
+    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS,{ params });
 
     return response.data;
 }
@@ -405,8 +411,8 @@ export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTask
     return response.data;
 }
 
-export async function readTechTasks(posId: string | number): Promise<ReadTechTasksResponse[]> {
-    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS + `/${posId}`);
+export async function readTechTasks(params: TechTaskParams): Promise<ReadTechTasksResponse[]> {
+    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS,{ params });
 
     return response.data;
 }
@@ -430,8 +436,8 @@ export async function createTechTaskShape(id: number, body: TechTaskShapeBody): 
     return response.data;
 }
 
-export async function getChemicalReport(params: ChemicalParams, posId: number | string): Promise<ChemicalResponse[]> {
-    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION + `/${posId}`, { params });
+export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalResponse[]> {
+    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
 
     return response.data;
 }

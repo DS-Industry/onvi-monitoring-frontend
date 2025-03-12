@@ -33,6 +33,7 @@ interface FilterChemicalPos {
     dateStart: string;
     dateEnd: string;
     posId: number | string;
+    placementId: number | string;
 }
 
 const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
@@ -77,6 +78,7 @@ const ChemicalConsumption: React.FC = () => {
         dateStart: startDate.toString().slice(0, 10),
         dateEnd: endDate.toString().slice(0, 10),
         posId: posType,
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterChemicalPos>(initialFilter);
@@ -92,8 +94,9 @@ const ChemicalConsumption: React.FC = () => {
     const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR(posType !== "*" ? [`get-chemical-consumption`] : null, () => getChemicalReport({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: posType
-    }, posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+        posId: posType, 
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

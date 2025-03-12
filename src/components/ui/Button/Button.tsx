@@ -16,9 +16,10 @@ type ButtonCreateProps = {
     iconDownload?: boolean;
     iconUp?: boolean;
     iconUpload?: boolean;
+    iconArrowDiognal?: boolean;
 }
 
-const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false, iconDownload = false, iconUp = false, iconUpload = false}: ButtonCreateProps) => {
+const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic', iconPlus = false, iconRight = false, form = false, handleClick, isLoading = false, disabled = false, classname, iconDown = false, iconDownload = false, iconUp = false, iconUpload = false, iconArrowDiognal = false}: ButtonCreateProps) => {
 
     const typeButton = {
         basic: `bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center`,
@@ -43,6 +44,7 @@ const Button: React.FC<ButtonCreateProps> = ({title = "Default", type = 'basic',
             {iconRight && <Icon icon="chevron-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
             {iconDown && <Icon icon="chevron-down" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
             {iconUp && <Icon icon="chevron-up" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
+            {iconArrowDiognal && <Icon icon="arrow-up-right" size={20} className={`ml-2 ${ type == 'basic' ? "text-white" : "text-primary02 hover:text-primary02_Hover"}`} /> }
         </button>
     );
 };

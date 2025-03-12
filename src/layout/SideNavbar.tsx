@@ -186,7 +186,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               {isMobile && (
                 <button
                   onClick={toggleNavbar}
-                  className="p-2 bg-white border border-primary02 text-primary02 rounded h-10 w-10"
+                  className="p-2 border border-primary01 text-primary01 rounded h-10 w-10"
                 >
                   {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
                 </button>
