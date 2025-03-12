@@ -19,8 +19,8 @@ type Props = {
   search?: string;
   setSearch?: (value: string) => void;
   handleClear?: () => void;
-  address?: number;
-  setAddress?: (value: number) => void;
+  address?: number | string;
+  setAddress?: (value: number | string) => void;
   hidePage?: boolean;
 };
 

@@ -20,11 +20,11 @@ interface AuthState {
   endDate: Date;
   deviceId: number | undefined;
   documentType: string;
-  wareHouseId: number;
+  wareHouseId: number | string;
   pageNumber: number;
   currentPage: number;
   pageSize: number;
-  city: number;
+  city: number | string;
   setTokens: (tokens: { tokens: Tokens }) => void;
   clearTokens: () => void;
   setPermissions: (permissions: Permission[]) => void;
@@ -33,12 +33,12 @@ interface AuthState {
   setEndDate: (endDate: Date) => void;
   setDeviceId: (deviceId: number | undefined) => void;
   setDocumentType: (documentType: string) => void;
-  setWareHouseId: (wareHouseId: number) => void;
+  setWareHouseId: (wareHouseId: number | string) => void;
   setPageNumber: (pageNumber: number) => void;
   clearPermissions: () => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
-  setCity: (city: number) => void;
+  setCity: (city: number | string) => void;
   reset: () => void;
 }
 
@@ -56,11 +56,11 @@ const createAuthStore: StateCreator<AuthState> = (set) => {
     endDate: endDate,
     deviceId: undefined,
     documentType: "",
-    wareHouseId: 3,
+    wareHouseId: "*",
     pageNumber: 15,
     currentPage: 1,
     pageSize: 10,
-    city: 1,
+    city: "*",
     setTokens: (tokens) => set(() => ({ tokens: tokens.tokens })),
     clearTokens: () => set(() => ({ tokens: null })),
     setPermissions: (permissions) => set({ permissions }),

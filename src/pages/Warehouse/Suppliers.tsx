@@ -73,7 +73,7 @@ const Suppliers: React.FC = () => {
 
     return (
         <>
-            <Filter children={undefined} count={supplier.length} hideDateTime={true} search={searchName} setSearch={setSearchName}>
+            <Filter children={undefined} count={supplier.length} hideDateTime={true} hideCity={true} hidePage={true} search={searchName} setSearch={setSearchName}>
 
             </Filter>
             {loadingSupplier ? (

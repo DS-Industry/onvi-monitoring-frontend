@@ -161,7 +161,7 @@ type UpdateRoleResponse = {
 }
 
 type AddressParams = {
-    placementId: number
+    placementId: number | string;
 }
 
 type RoleRequestBody = {

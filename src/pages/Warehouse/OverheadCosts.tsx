@@ -13,15 +13,15 @@ import { getOrganization } from "@/services/api/organization";
 import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
 
 type StockParams = {
-    categoryId: number;
-    warehouseId: number;
-    placementId: number;
+    categoryId: number | string;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const [orgId, setOrgId] = useState(1);
-    const [categoryId, setCategoryId] = useState(0);
+    const [categoryId, setCategoryId] = useState<string | number>("*");
     const warehouseId = useWareHouseId();
     const setWarehouseId = useSetWareHouseId();
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -52,7 +52,10 @@ const OverheadCosts: React.FC = () => {
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -127,8 +130,8 @@ const OverheadCosts: React.FC = () => {
     }, [dataFilter, stocksMutating]);
 
     const handleClear = () => {
-        setWarehouseId(0);
-        setCategoryId(0);
+        setWarehouseId("*");
+        setCategoryId("*");
         setCity(city);
     }
 

@@ -24,7 +24,7 @@ type IncidentParam = {
     dateStart: string;
     dateEnd: string;
     posId: number | string;
-    placementId: number;
+    placementId: number | string;
 }
 
 type IncidentResponse = {
@@ -326,7 +326,7 @@ type ConsumptionRateCoeffPatchResponse = {
 }
 
 type PosParams = {
-    placementId: number;
+    placementId: number | string;
 }
 
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {

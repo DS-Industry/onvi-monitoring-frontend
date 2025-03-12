@@ -74,7 +74,7 @@ type DepositParam = {
     dateStart: Date;
     dateEnd: Date;
     posId: string | number;
-    placementId: number;
+    placementId: number | string;
 }
 
 type DepositResponse = {

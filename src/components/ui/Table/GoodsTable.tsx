@@ -131,7 +131,7 @@ const GoodsTable: React.FC<Props> = ({
                     </div>
 
                     {/* Table Wrapper for Scrollable Table */}
-                    <div className="w-full overflow-auto">
+                    <div className="w-full overflow-x-auto sm:overflow-visible">
                         <table className="w-full min-w-max">
                             <thead>
                                 <tr>

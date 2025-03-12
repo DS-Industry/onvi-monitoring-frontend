@@ -14,8 +14,8 @@ import { getPoses } from "@/services/api/equipment";
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 interface DevicesMonitoring {
@@ -70,7 +70,7 @@ const DepositDevices: React.FC = () => {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
-        placementId: city || 1
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);

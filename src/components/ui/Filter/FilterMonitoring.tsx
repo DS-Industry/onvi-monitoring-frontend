@@ -230,11 +230,11 @@ const FilterMonitoring: React.FC<Props> = ({
                         setStartDate(new Date(`${formattedDate} 00:00`));
                         setEndDate(new Date(`${formattedDate} 23:59`));
                         setPosId("*");
-                        setWarehouseId(0);
+                        setWarehouseId("*");
                         setOrganizationId('');
                         setDeviceId(undefined);
                         setPosType("*");
-                        setWareHouseId(0);
+                        setWareHouseId("*");
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);

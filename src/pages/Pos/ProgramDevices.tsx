@@ -15,8 +15,8 @@ import { useTranslation } from "react-i18next";
 type FilterDepositPos = {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 enum CarWashPosType {

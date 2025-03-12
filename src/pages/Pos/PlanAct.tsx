@@ -15,8 +15,8 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 type PlanFactParams = {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 type PlanFactResponse = {

@@ -41,7 +41,7 @@ interface FilterIncidentPos {
     dateStart: string;
     dateEnd: string;
     posId: number | string;
-    placementId: number;
+    placementId: number | string;
 }
 
 const EquipmentFailure: React.FC = () => {

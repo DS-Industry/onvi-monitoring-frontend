@@ -7,7 +7,7 @@ import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
+import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
 import { getWorkers } from "@/services/api/equipment";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
 import { columnsInventoryItems } from "@/utils/OverFlowTableData";
@@ -166,6 +166,7 @@ const DocumentsCreation: React.FC = () => {
     ]
 
     const posType = usePosType();
+    const city = useCity();
 
     const [tableData, setTableData] = useState(mockData);
 
@@ -173,7 +174,10 @@ const DocumentsCreation: React.FC = () => {
 
     const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 3), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

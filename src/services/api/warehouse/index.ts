@@ -163,8 +163,8 @@ type DocumentResponse = {
 type DOCUMENT_PARAMS = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId: number;
-    placementId: number;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 type DOCUMENTS_RESPONSE = {
@@ -213,9 +213,9 @@ type INVENTORY_RESPONSE = {
 }
 
 type STOCK_PARAMS = {
-    categoryId: number;
-    warehouseId: number;
-    placementId: number;
+    categoryId: number | string;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 type STOCK_RESPONSE = {
@@ -235,6 +235,11 @@ type WAREHOUSE_BODY = {
     location: string;
     managerId: number;
     posId: number;
+}
+
+type WarehouseParams = {
+    posId: number | string;
+    placementId: number | string;
 }
 
 export async function createNomenclature(body: NOMENCLATURE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
@@ -299,8 +304,8 @@ export async function getNomenclature(orgId: number): Promise<NOMENCLATURE_RESPO
     return response.data;
 }
 
-export async function getWarehouses(posId: number | string): Promise<WAREHOUSE_RESPONSE[]> {
-    const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.GET_WAREHOUSE_POS + `/${posId}`);
+export async function getWarehouses(params: WarehouseParams): Promise<WAREHOUSE_RESPONSE[]> {
+    const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_WAREHOUSE, { params });
     console.log(response);
     return response.data;
 }

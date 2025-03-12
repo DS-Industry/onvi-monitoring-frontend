@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
-import { useCity, usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType, useSetCity } from "@/hooks/useAuthStore";
 import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsWarehouses } from "@/utils/OverFlowTableData";
@@ -28,6 +28,7 @@ type WAREHOUSE = {
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
     const city = useCity();
+    const setCity = useSetCity();
     const posType = usePosType();
     const [posId, setPosId] = useState(posType);
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -36,7 +37,10 @@ const Warehouse: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData, isLoading: warehouseLoading } = useSWR([`get-warehouse`, posId], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData, isLoading: warehouseLoading } = useSWR([`get-warehouse`, posId, city], () => getWarehouses({
+        posId: posId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -101,7 +105,7 @@ const Warehouse: React.FC = () => {
 
     return (
         <div>
-            <Filter count={warehouses.length} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true}>
+            <Filter count={warehouses.length} address={city} setAddress={setCity}  hideDateTime={true} hidePage={true} hideSearch={true}>
                 <DropdownInput
                     title={t("marketing.carWash")}
                     value={posId}
