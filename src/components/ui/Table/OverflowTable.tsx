@@ -298,7 +298,7 @@ const OverflowTable: React.FC<Props> = ({
                   </Can>
                   {displayedColumns.map((column) => (
                     <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm text-text01 overflow-hidden overflow-x-visible">
-                      {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
+                      {(column.key === 'name' || (column.key === 'posName' && !row.name)) && nameUrl ? (
                         <span
                           className="cursor-pointer"
                           onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
