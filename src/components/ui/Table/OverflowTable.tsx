@@ -228,7 +228,7 @@ const OverflowTable: React.FC<Props> = ({
               className="cursor-pointer"
               onClick={() => navigate(`${nameUrlTitle}`, { state: { ownerId: urlTitleId } })}
             >
-              <div className=" text-xl md:text-2xl text-primary02">
+              <div className=" text-xl md:text-2xl text-primary02 hover:text-primary02_Hover">
                 {title}
               </div>
             </span>
