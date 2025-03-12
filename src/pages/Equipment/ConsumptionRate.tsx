@@ -21,7 +21,7 @@ const ConsumptionRate: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR([`get-consumption-rate`, searchPosId], () => getConsumptionRate(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(searchPosId !== "*" ? [`get-consumption-rate`, searchPosId] : null, () => getConsumptionRate(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff', searchPosId],
         async (_, { arg }: { arg: { valueData: { programTechRateId: number; literRate: number; concentration: number; }[] } }) => {

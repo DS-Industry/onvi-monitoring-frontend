@@ -90,9 +90,9 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: deviceData } = useSWR([`get-device`], () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR(posType !== "*" ? [`get-device`] : null, () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: equipmentKnotData } = useSWR([`get-equipment-knot`], () => getEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: equipmentKnotData } = useSWR(posType !== "*" ? [`get-equipment-knot`] : null, () => getEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: incidentEquipmentKnotData } = useSWR(equipmentKnotData ? [`get-incident-equipment-knot`] : null, () => getIncidentEquipmentKnots(equipmentKnotData ? equipmentKnotData[0].props.id : 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

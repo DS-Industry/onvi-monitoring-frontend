@@ -64,8 +64,6 @@ const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
 
 const ChemicalConsumption: React.FC = () => {
     const { t } = useTranslation();
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
     const [isTableLoading, setIsTableLoading] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
@@ -76,9 +74,9 @@ const ChemicalConsumption: React.FC = () => {
     const city = useCity();
 
     const initialFilter = {
-        dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
-        dateEnd: endDate.toString().slice(0, 10) || `${formattedDate}`,
-        posId: posType || 1,
+        dateStart: startDate.toString().slice(0, 10),
+        dateEnd: endDate.toString().slice(0, 10),
+        posId: posType,
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterChemicalPos>(initialFilter);
@@ -91,11 +89,11 @@ const ChemicalConsumption: React.FC = () => {
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
 
-    const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR([`get-chemical-consumption`], () => getChemicalReport({
+    const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR(posType !== "*" ? [`get-chemical-consumption`] : null, () => getChemicalReport({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: dataFilter.posId
-    }, dataFilter.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+        posId: posType
+    }, posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

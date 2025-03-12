@@ -65,7 +65,7 @@ const RoutineWork: React.FC = () => {
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine], () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR( searchPosId !== "*" ? [`get-tech-tasks`, searchPosId, searchRoutine] : null, () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
