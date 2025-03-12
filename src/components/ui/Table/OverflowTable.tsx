@@ -13,6 +13,7 @@ import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
 import { useTranslation } from "react-i18next";
+import Button from "../Button/Button.tsx";
 
 interface TableColumn {
   label: string;
@@ -225,12 +226,18 @@ const OverflowTable: React.FC<Props> = ({
         <div className="max-w-full overflow-x-auto">
           {title && (
             <span
-              className="cursor-pointer"
+              className="cursor-pointer  flex justify-start sm:justify-end"
               onClick={() => navigate(`${nameUrlTitle}`, { state: { ownerId: urlTitleId } })}
             >
-              <div className=" text-xl md:text-2xl text-primary02 hover:text-primary02_Hover">
+              {/* <div className=" text-xl md:text-2xl flex space-x-2 items-center text-primary02 hover:text-primary02_Hover hover:underline">
                 {title}
-              </div>
+                <Icon icon="arrow-up-right" className="w-6 h-6"/>
+              </div> */}
+              <Button
+                title={title}
+                type="outline"
+                classname="mb-2"
+              />
             </span>
           )}
           <table className="w-full">
@@ -289,14 +296,15 @@ const OverflowTable: React.FC<Props> = ({
                     )}
                   </Can>
                   {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm text-text01 overflow-hidden overflow-x-visible">
                       {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
                         <span
                           className="cursor-pointer"
                           onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
-                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
+                          <div className="whitespace-nowrap flex items-center space-x-2 text-ellipsis overflow-hidden text-primary02 hover:text-primary02_Hover hover:underline">
                             {row[column.key]}
+                            <Icon icon="arrow-up-right" className="w-4 h-4"/>
                           </div>
                         </span>
                       ) : column.type === 'number' ? (
