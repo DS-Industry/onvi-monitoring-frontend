@@ -67,10 +67,12 @@ const Programs: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         if (location.state?.ownerId) {
             setPosType(location.state.ownerId);
+            setIsReady(true);
         }
     }, [location.state?.ownerId, setPosType]);
 
@@ -92,7 +94,7 @@ const Programs: React.FC = () => {
     };
 
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        posType ? ['get-pos-programs', posType] : null, 
+        isReady ? ['get-pos-programs'] : null, 
         () => getPrograms(posType, {
             dateStart: dataFilter?.dateStart,
             dateEnd: dataFilter?.dateEnd,

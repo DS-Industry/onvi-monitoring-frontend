@@ -57,10 +57,12 @@ const Deposit: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         if (location.state?.ownerId) {
             setPosType(location.state.ownerId);
+            setIsReady(true);
         }
     }, [location.state?.ownerId, setPosType]);
 
@@ -83,7 +85,7 @@ const Deposit: React.FC = () => {
     };
 
     const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        posType ? ['get-pos-deposits', posType] : null, () => getDeposit(posType, {
+        isReady ? ['get-pos-deposits'] : null, () => getDeposit(posType, {
         dateStart: dataFilter?.dateStart,
         dateEnd: dataFilter?.dateEnd
     }));
