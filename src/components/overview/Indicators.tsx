@@ -215,7 +215,7 @@ const Indicators: React.FC = () => {
               classname="mt-3"
             />
             <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
-              {durations.map((duration) => (
+              {durations?.map((duration) => (
                 <button
                   key={duration.label}
                   onClick={() => handleDurationClick(duration.value)}
@@ -224,14 +224,14 @@ const Indicators: React.FC = () => {
                   {duration.label}
                 </button>
               ))}
-              <DatePickerComponent
+              {/* <DatePickerComponent
                 onDateChange={(range) =>
                   handleDateChange({
-                    startDate: range.startDate,
-                    endDate: range.endDate,
+                    startDate: range?.startDate,
+                    endDate: range?.endDate,
                   })
                 }
-              />
+              /> */}
             </div>
           </div>
           <div className="overflow-x-auto">

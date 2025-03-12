@@ -111,14 +111,14 @@ const RatingOfCarWases = () => {
               </button>
             ))}
             <div className="w-full md:w-auto">
-              <DatePickerComponent
+              {/* <DatePickerComponent
                 onDateChange={(range) =>
                   handleDateChange({
                     startDate: range.startDate,
                     endDate: range.endDate,
                   })
                 }
-              />
+              /> */}
             </div>
           </div>
 
