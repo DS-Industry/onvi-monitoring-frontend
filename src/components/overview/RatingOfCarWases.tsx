@@ -2,11 +2,7 @@ import BarChart from "@ui/BarChart";
 import useSWR from "swr";
 import { getRating } from "@/services/api/organization";
 import { useTranslation } from "react-i18next";
-import DropdownInput from "@ui/Input/DropdownInput";
 import { useState } from "react";
-import DatePickerComponent from "@ui/DatePickerComponent";
-import { getPoses } from "@/services/api/equipment";
-import { useCity } from "@/hooks/useAuthStore";
 
 type Rating = {
   posName: string;
@@ -34,9 +30,7 @@ const RatingOfCarWases = () => {
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
   const { t } = useTranslation();
-  const city = useCity();
 
-  const [selectedValue, setSelectedValue] = useState("");
   const [dateRange, setDateRange] = useState({
     dateStart: new Date("2023-01-01T00:00:00"),
     dateEnd: new Date(`${formattedDate}T23:59:59`),
@@ -47,19 +41,16 @@ const RatingOfCarWases = () => {
     getRating(dateRange)
   );
 
-  const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-  const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
   const ratingData: Rating[] = data?.map((item: Rating) => item) || [];
 
   // Handle date range change
-  const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
-    setDateRange({
-      dateStart: newDateRange.startDate || new Date(),
-      dateEnd: newDateRange.endDate || new Date(),
-    });
-  };
+  // const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
+  //   setDateRange({
+  //     dateStart: newDateRange.startDate || new Date(),
+  //     dateEnd: newDateRange.endDate || new Date(),
+  //   });
+  // };
 
   // Handle duration click
   const handleDurationClick = (duration: "today" | "week" | "month") => {
@@ -90,15 +81,6 @@ const RatingOfCarWases = () => {
         </p>
 
         <div className="flex flex-col lg:flex-row justify-between gap-4 px-3 lg:px-8">
-          <DropdownInput
-            inputType="primary"
-            label="Все автомойки"
-            options={poses}
-            value={selectedValue}
-            onChange={setSelectedValue}
-            isSelectable={true}
-            classname="w-full lg:w-auto min-w-[200px] mt-3"
-          />
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
             {durations.map((duration) => (
