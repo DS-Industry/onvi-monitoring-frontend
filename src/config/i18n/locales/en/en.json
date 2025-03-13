@@ -747,6 +747,8 @@
     "role": "Role Change",
     "position": "Position",
     "rol": "Role",
-    "pass": "The user password is set successfully."
+    "pass": "The user password is set successfully.",
+    "addPro": "Add product",
+    "addSel": "Add selected products to document"
   }
 }

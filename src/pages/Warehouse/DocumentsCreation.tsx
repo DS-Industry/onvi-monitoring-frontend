@@ -8,9 +8,8 @@ import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
-import { getWorkers } from "@/services/api/equipment";
+import { useUser } from "@/hooks/useUserStore";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
-import { columnsInventoryItems } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -41,6 +40,17 @@ const DocumentsCreation: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const setEndDate = useSetEndDate();
+    const user = useUser();
+    const [searchNomen, setSearchNomen] = useState("");
+
+    const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
+
+    const handleCheckboxChange = (id: number) => {
+        setSelectedItems(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
 
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -93,7 +103,7 @@ const DocumentsCreation: React.FC = () => {
                     ? [{
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
-                        responsibleId: 0,
+                        responsibleId: user.id,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: "",
@@ -103,7 +113,7 @@ const DocumentsCreation: React.FC = () => {
                     : [{
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
-                        responsibleId: 0,
+                        responsibleId: user.id,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: ""
@@ -111,7 +121,7 @@ const DocumentsCreation: React.FC = () => {
                 setTableData(tableData);
             }
         }
-    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId, loadingDocument]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId, loadingDocument, user.id]);
 
 
     const [errors, setErrors] = useState({
@@ -160,17 +170,15 @@ const DocumentsCreation: React.FC = () => {
         });
 
     const mockData = documentType === "INVENTORY" ? [
-        { id: 1, check: false, responsibleId: 0, nomenclatureId: 0, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
+        { id: 1, check: false, responsibleId: user.id, nomenclatureId: 0, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
     ] : [
-        { id: 1, check: false, responsibleId: 0, nomenclatureId: 0, quantity: 0, comment: "" }
+        { id: 1, check: false, responsibleId: user.id, nomenclatureId: 0, quantity: 0, comment: "" }
     ]
 
     const posType = usePosType();
     const city = useCity();
 
     const [tableData, setTableData] = useState(mockData);
-
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -181,13 +189,13 @@ const DocumentsCreation: React.FC = () => {
 
     const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 3), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })) || [];
+    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
+
+    const inventoryItems = inventoryItemData?.filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
 
     const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
 
@@ -221,7 +229,7 @@ const DocumentsCreation: React.FC = () => {
                 {
                     id: prevData.length + 1,
                     check: false,
-                    responsibleId: 0,
+                    responsibleId: user.id,
                     nomenclatureId: 0,
                     quantity: 0,
                     comment: "",
@@ -235,7 +243,7 @@ const DocumentsCreation: React.FC = () => {
                 {
                     id: prevData.length + 1,
                     check: false,
-                    responsibleId: 0,
+                    responsibleId: user.id,
                     nomenclatureId: 0,
                     quantity: 0,
                     comment: "",
@@ -464,15 +472,7 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId",
-            render: (row: { responsibleId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
-                    value={row.responsibleId}
-                    onChange={(value) => handleChange(row.id, "responsibleId", value)}
-                    options={workers}
-                    error={errors.responsible}
-                />
-            ),
+            key: "responsibleId"
         },
         {
             label: "Номенклатура",
@@ -483,6 +483,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors.nomenclature}
+                    classname="w-[500px]"
                 />
             ),
         },
@@ -554,15 +555,7 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId",
-            render: (row: { responsibleId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
-                    value={row.responsibleId}
-                    onChange={(value) => handleChange(row.id, "responsibleId", value)}
-                    options={workers}
-                    error={errors.responsible}
-                />
-            ),
+            key: "responsibleId"
         },
         {
             label: "Номенклатура",
@@ -573,6 +566,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors.nomenclature}
+                    classname="w-[500px]"
                 />
             ),
         },
@@ -601,15 +595,65 @@ const DocumentsCreation: React.FC = () => {
         }
     ]
 
+    const columnsInventoryItems = [
+        {
+            label: "",
+            key: "check",
+            render: (row: { nomenclatureId: number; }) => (
+                <input
+                    type="checkbox"
+                    checked={!!selectedItems[row.nomenclatureId]}  // Use selectedItems state
+                    className="w-[18px] h-[18px]"
+                    onChange={() => handleCheckboxChange(row.nomenclatureId)}
+                />
+            ),
+        },
+        {
+            label: "Код",
+            key: "nomenclatureId"
+        },
+        {
+            label: "Наименование товара",
+            key: "nomenclatureName"
+        }
+    ]
+
+    const addProductItem = () => {
+        console.log("Add product Item.");
+    
+        // Ensure data is not undefined before filtering
+        const dataSource = documentType === "RECEIPT" ? nomenclatureItems : inventoryItems;
+        
+        if (!dataSource || !selectedItems) {
+            console.warn("Data source or selected items are undefined");
+            return;
+        }
+    
+        const selectedData = dataSource
+            .filter(item => selectedItems?.[item.nomenclatureId])  
+            .map(item => ({
+                id: item.nomenclatureId,
+                check: true,
+                responsibleId: user.id,
+                nomenclatureId: item.nomenclatureId,
+                quantity: 0,
+                comment: "",
+                ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
+            }));
+    
+        setTableData(prevData => [...prevData, ...selectedData]);  
+        setIsModalOpen(false);
+    };    
+
     return (
         <>
             <div>
-                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={addProductItem}>
                     <div className="w-[1000px] h-full flex">
                         <div className="w-1/3">
                             <SearchInput
-                                value={""}
-                                onChange={() => { }}
+                                value={searchNomen}
+                                onChange={(value) => setSearchNomen(value)}
                                 classname="w-64"
                                 searchType="outlined"
                             />
@@ -624,7 +668,7 @@ const DocumentsCreation: React.FC = () => {
                                 </div> :
                                 <div className="mt-8">
                                     <OverflowTable
-                                        tableData={inventoryItemData}
+                                        tableData={inventoryItems}
                                         columns={columnsInventoryItems}
                                     />
                                 </div>}

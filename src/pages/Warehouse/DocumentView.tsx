@@ -1,4 +1,4 @@
-import { getDocument, getWarehouses } from "@/services/api/warehouse";
+import { getDocument, getNomenclature, getWarehouses } from "@/services/api/warehouse";
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
@@ -10,6 +10,7 @@ import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
 import GoodsTable from "@/components/ui/Table/GoodsTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
+import { useUser } from "@/hooks/useUserStore";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -28,8 +29,13 @@ const DocumentView: React.FC = () => {
     const navigate = useNavigate();
     const posType = usePosType();
     const city = useCity();
+    const user = useUser();
 
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
         posId: posType,
@@ -40,21 +46,16 @@ const DocumentView: React.FC = () => {
 
     const columnsDocumentView = documentType === "INVENTORY" ? [
         {
-            label: "",
-            key: "check",
-            type: "checkbox"
-        },
-        {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -74,20 +75,16 @@ const DocumentView: React.FC = () => {
         }
     ] : [
         {
-            label: "",
-            key: "check"
-        },
-        {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -109,8 +106,8 @@ const DocumentView: React.FC = () => {
 
     const tableData: {
         id: number;
-        responsibleId: number;
-        nomenclatureId: number;
+        responsibleName: string;
+        nomenclatureName: string;
         quantity: number;
         comment?: string;
         oldQuantity?: number;
@@ -118,8 +115,8 @@ const DocumentView: React.FC = () => {
     }[] = documentType === "INVENTORY"
             ? (document?.details || []).map((doc) => ({
                 id: doc.props.id,
-                responsibleId: document?.document.props.responsibleId ?? 0,
-                nomenclatureId: doc.props.nomenclatureId,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
                 quantity: doc.props.quantity,
                 comment: doc.props.comment,
                 oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
@@ -127,8 +124,8 @@ const DocumentView: React.FC = () => {
             }))
             : (document?.details || []).map((doc) => ({
                 id: doc.props.id,
-                responsibleId: document?.document.props.responsibleId ?? 0,
-                nomenclatureId: doc.props.nomenclatureId,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
                 quantity: doc.props.quantity,
                 comment: doc.props.comment
             }));

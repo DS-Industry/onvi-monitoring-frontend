@@ -269,7 +269,7 @@ const EquipmentFailure: React.FC = () => {
                                 (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
-                        onChange={(value) => handleInputChange('posId', value)}
+                        onChange={(value) => { handleInputChange('posId', value); setPosType(value); }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
                         isDisabled={isEditMode}

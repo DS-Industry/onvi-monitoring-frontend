@@ -33,13 +33,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, children
                 {children}
                 <div className="flex gap-3 mt-5">
                     <Button
-                        title={"Создать товар"}
+                        title={t("organizations.cancel")}
                         handleClick={onClose}
                         type="outline"
-                        iconPlus={true}
                     />
                     <Button
-                        title={"Добавить выбранные товары в документ"}
+                        title={t("roles.addSel")}
                         handleClick={handleClick}
                         iconPlus={true}
                     />
