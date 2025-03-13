@@ -93,6 +93,8 @@ type ReturnCollectionResponse = {
 type CashCollectionParams = {
     dateStart: Date;
     dateEnd: Date;
+    placementId: number | string;
+    posId: number | string;
     page?: number;
     size?: number;
 }
@@ -185,6 +187,7 @@ type ShiftParamsResponse = {
     shiftReportsData: {
         id: number;
         period: string;
+        posId: number;
         createdAt: Date;
         updatedAt: Date;
         createdById: number;
@@ -310,8 +313,8 @@ export async function getCollectionById(id: number): Promise<CollectionResponse>
     return response.data;
 }
 
-export async function getCollections(posId: number | string, params: CashCollectionParams): Promise<CashCollectionsResponse> {
-    const response: AxiosResponse<CashCollectionsResponse> = await api.get(FINANCE.POST_CASH_COLLECTION + `s/${posId}`, { params });
+export async function getCollections(params: CashCollectionParams): Promise<CashCollectionsResponse> {
+    const response: AxiosResponse<CashCollectionsResponse> = await api.get(FINANCE.POST_CASH_COLLECTION + `s`, { params });
     console.log(response.data);
     return response.data;
 }
@@ -343,8 +346,8 @@ export async function addWorker(body: ShiftWorkerBody, id: number): Promise<Shif
     return response.data;
 }
 
-export async function getShifts(posId: number | string, params: CashCollectionParams): Promise<ShiftParamsResponse> {
-    const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s/${posId}`, { params });
+export async function getShifts(params: CashCollectionParams): Promise<ShiftParamsResponse> {
+    const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s`, { params });
     console.log(response.data);
     return response.data;
 }

@@ -235,6 +235,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         setDeviceId(undefined);
                         setPosType("*");
                         setWareHouseId("*");
+                        setCity("*");
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);

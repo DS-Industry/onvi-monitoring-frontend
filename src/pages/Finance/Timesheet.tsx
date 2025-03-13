@@ -61,10 +61,11 @@ const Timesheet: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-shifts-${dataFilter.posId ? dataFilter.posId : 66}`], () => getShifts(
-        dataFilter.posId ? dataFilter.posId : 66, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-shifts`], () => getShifts({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
+        posId: dataFilter.posId,
+        placementId: city,
         page: dataFilter.page,
         size: dataFilter.size
     }));
@@ -108,7 +109,7 @@ const Timesheet: React.FC = () => {
 
     const shifts = filter?.shiftReportsData.map((item) => ({
         ...item,
-        posName: poses.find((pos) => pos.value === posType)?.name || "-",
+        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
         createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
     })) || [];
 
@@ -118,7 +119,6 @@ const Timesheet: React.FC = () => {
                 count={shifts.length}
                 posesSelect={poses}
                 hideSearch={true}
-                hideCity={true}
                 handleDataFilter={handleDataFilter}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsShifts.length} />)

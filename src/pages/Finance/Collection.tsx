@@ -58,10 +58,11 @@ const Collection: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId ? dataFilter.posId : 66}`], () => getCollections(
-        dataFilter.posId ? dataFilter.posId : 66, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId ? dataFilter.posId : 66}`], () => getCollections({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
+        posId: dataFilter.posId,
+        placementId: city,
         page: dataFilter.page,
         size: dataFilter.size
     }));
@@ -184,7 +185,6 @@ const Collection: React.FC = () => {
                 count={collectionsData.length}
                 posesSelect={poses}
                 hideSearch={true}
-                hideCity={true}
                 handleDataFilter={handleDataFilter}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columns.length} />)
