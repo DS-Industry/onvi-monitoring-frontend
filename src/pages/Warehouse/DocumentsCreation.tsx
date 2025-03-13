@@ -9,6 +9,7 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
 import { useUser } from "@/hooks/useUserStore";
+import { getOrganization } from "@/services/api/organization";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -181,14 +182,20 @@ const DocumentsCreation: React.FC = () => {
 
     const [tableData, setTableData] = useState(mockData);
 
-    const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
+        placementId: city
+    }));
+
+    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations[0].value), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
         posId: posType,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 3), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseID), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 

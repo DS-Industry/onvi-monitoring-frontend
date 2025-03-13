@@ -44,6 +44,23 @@ interface FilterIncidentPos {
     placementId: number | string;
 }
 
+type IncidentBody = {
+    posId: number;
+    workerId: number;
+    appearanceDate: string;
+    startDate: string;
+    finishDate: string;
+    objectName: string;
+    equipmentKnotId?: number;
+    incidentNameId?: number;
+    incidentReasonId?: number;
+    incidentSolutionId?: number;
+    downtime: number;
+    comment: string;
+    carWashDeviceProgramsTypeId?: number;
+}
+
+
 const EquipmentFailure: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -125,20 +142,20 @@ const EquipmentFailure: React.FC = () => {
 
     const programs: { name: string; value: number; }[] = allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const defaultValues = {
+    const defaultValues: IncidentBody = {
         posId: 0,
         workerId: 0,
         appearanceDate: '',
         startDate: '',
         finishDate: '',
         objectName: '',
-        equipmentKnotId: 0,
-        incidentNameId: 0,
-        incidentReasonId: 0,
-        incidentSolutionId: 0,
+        equipmentKnotId: undefined,
+        incidentNameId: undefined,
+        incidentReasonId: undefined,
+        incidentSolutionId: undefined,
         downtime: 2,
         comment: '',
-        carWashDeviceProgramsTypeId: 0,
+        carWashDeviceProgramsTypeId: undefined,
     };
 
     const [formData, setFormData] = useState(defaultValues);

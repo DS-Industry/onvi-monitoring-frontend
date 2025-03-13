@@ -87,11 +87,11 @@ const PosConnection: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex space-x-2 items-center">
+            <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 items-center">
                 <SearchDropdownInput
                     title={t("equipment.user")}
                     options={workers}
-                    classname="w-72"
+                    classname="w-full sm:w-72"
                     value={workerId}
                     onChange={(value) => setWorkerId(value)}
                 />
@@ -99,23 +99,23 @@ const PosConnection: React.FC = () => {
                     title={t("organizations.save")}
                     isLoading={isMutating}
                     handleClick={handleConnection}
-                    classname="h-10 mt-5"
+                    classname="h-10 mt-2 sm:mt-5 w-full sm:w-auto"
                 />
             </div>
-            <div className="flex flex-row space-x-4">
+
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 {/* Available Items List */}
-                <div className="border rounded w-96">
+                <div className="border rounded w-full md:w-1/3">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
                         <div className="font-normal text-text01 p-2">{t("analysis.branch")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
                     </div>
-                    <div className="border-b-[1px] h-96 overflow-y-auto w-96">
+                    <div className="border-b-[1px] h-64 md:h-96 overflow-y-auto w-full">
                         {availableItems.map((item) => (
                             <div
                                 key={item.id}
                                 onClick={() => toggleSelection(item.id)}
-                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
-                                    }`}
+                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"}`}
                             >
                                 <div className="font-light text-[11px]">{item.name}</div>
                             </div>
@@ -124,9 +124,9 @@ const PosConnection: React.FC = () => {
                 </div>
 
                 {/* Buttons in the center */}
-                <div className="flex flex-col max-w-96 justify-center items-center my-2">
+                <div className="flex flex-row md:flex-col max-w-full md:max-w-96 justify-center items-center my-2 space-x-2 md:space-x-0 md:space-y-2">
                     <button
-                        className="border border-b-0 bg-white text-black cursor-pointer"
+                        className="border border-b-0 bg-white text-black cursor-pointer p-2"
                         onClick={handleTransferToSelected}
                         disabled={selected.length === 0}
                         title={"→"}
@@ -134,28 +134,27 @@ const PosConnection: React.FC = () => {
                         <Icon icon="chevrons-right" />
                     </button>
                     <button
-                        className="border border-t-0 bg-white text-black cursor-pointer"
+                        className="border border-t-0 bg-white text-black cursor-pointer p-2"
                         onClick={handleTransferToAvailable}
                         disabled={selected.length === 0}
-                        title={"→"}
+                        title={"←"}
                     >
                         <Icon icon="chevrons-left" />
                     </button>
                 </div>
 
                 {/* Selected Items List */}
-                <div className="border rounded w-96">
+                <div className="border rounded w-full md:w-1/3">
                     <div className="flex border-b-[1px] bg-background05 text-xs">
                         <div className="font-normal text-text01 p-2">{t("analysis.added")}</div>
                         <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
                     </div>
-                    <div className="border-b-[1px] h-96 w-96 overflow-y-auto">
+                    <div className="border-b-[1px] h-64 md:h-96 overflow-y-auto w-full">
                         {selectedItems.map((item) => (
                             <div
                                 key={item.id}
                                 onClick={() => toggleSelection(item.id)}
-                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
-                                    }`}
+                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"}`}
                             >
                                 <div className="text-[11px] font-light">{item.name}</div>
                             </div>
@@ -164,6 +163,7 @@ const PosConnection: React.FC = () => {
                 </div>
             </div>
         </div>
+
     )
 }
 

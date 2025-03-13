@@ -77,7 +77,7 @@ const ConsumptionRate: React.FC = () => {
 
     return (
         <div>
-            <Filter count={tableData?.length !== undefined ? tableData?.length : 0}>
+            <Filter count={tableData?.length !== undefined ? tableData?.length : 0} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true}>
                 <DropdownInput
                     title={t("equipment.carWash")}
                     value={searchPosId}
