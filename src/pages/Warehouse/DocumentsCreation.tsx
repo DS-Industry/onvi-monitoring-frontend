@@ -29,7 +29,9 @@ const DocumentsCreation: React.FC = () => {
 
     const documentType = useDocumentType();
     const { t } = useTranslation();
-    const [warehouseId, setWarehouseId] = useState<number | null>(0);
+    const location = useLocation();
+    const warehouseID = location.state.wareHouseId;
+    const [warehouseId, setWarehouseId] = useState<number | null>(warehouseID);
     const [warehouseRecId, setWarehouseRecId] = useState(0);
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
@@ -38,7 +40,6 @@ const DocumentsCreation: React.FC = () => {
         return today.toISOString().split("T")[0];
     });
     const navigate = useNavigate();
-    const location = useLocation();
     const setEndDate = useSetEndDate();
     const user = useUser();
     const [searchNomen, setSearchNomen] = useState("");
@@ -93,7 +94,7 @@ const DocumentsCreation: React.FC = () => {
                     }));
                 setTableData(tableData);
             } else {
-                setWarehouseId(location?.state?.warehouseId || null);
+                setWarehouseId(location?.state?.wareHouseId || null);
                 setNoOverHead(location?.state?.name || '');
                 const validDate = new Date(location?.state?.carryingAt ?? '');
                 setSelectedDate(!isNaN(validDate.getTime()) ? validDate.toISOString().split("T")[0] : null);
@@ -121,7 +122,7 @@ const DocumentsCreation: React.FC = () => {
                 setTableData(tableData);
             }
         }
-    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId, loadingDocument, user.id]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.wareHouseId, loadingDocument, user.id]);
 
 
     const [errors, setErrors] = useState({
@@ -620,17 +621,17 @@ const DocumentsCreation: React.FC = () => {
 
     const addProductItem = () => {
         console.log("Add product Item.");
-    
+
         // Ensure data is not undefined before filtering
         const dataSource = documentType === "RECEIPT" ? nomenclatureItems : inventoryItems;
-        
+
         if (!dataSource || !selectedItems) {
             console.warn("Data source or selected items are undefined");
             return;
         }
-    
+
         const selectedData = dataSource
-            .filter(item => selectedItems?.[item.nomenclatureId])  
+            .filter(item => selectedItems?.[item.nomenclatureId])
             .map(item => ({
                 id: item.nomenclatureId,
                 check: true,
@@ -640,41 +641,37 @@ const DocumentsCreation: React.FC = () => {
                 comment: "",
                 ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
             }));
-    
-        setTableData(prevData => [...prevData, ...selectedData]);  
+
+        setTableData(prevData => [...prevData, ...selectedData]);
         setIsModalOpen(false);
-    };    
+    };
 
     return (
         <>
             <div>
                 <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={addProductItem}>
-                    <div className="w-[1000px] h-full flex">
-                        <div className="w-1/3">
+                    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-full max-h-[90vh] overflow-y-auto flex flex-col space-y-5 p-4">
+                        {/* Search Input */}
+                        <div className="flex">
                             <SearchInput
                                 value={searchNomen}
                                 onChange={(value) => setSearchNomen(value)}
-                                classname="w-64"
+                                classname="w-full sm:w-64"
                                 searchType="outlined"
                             />
                         </div>
-                        <div className="w-2/3">
-                            {documentType === "RECEIPT" ?
-                                <div className="mt-8">
-                                    <OverflowTable
-                                        tableData={nomenclatureItems}
-                                        columns={columnsInventoryItems}
-                                    />
-                                </div> :
-                                <div className="mt-8">
-                                    <OverflowTable
-                                        tableData={inventoryItems}
-                                        columns={columnsInventoryItems}
-                                    />
-                                </div>}
+
+                        {/* Table Content */}
+                        <div className="mt-4 overflow-x-auto">
+                            {documentType === "RECEIPT" ? (
+                                <OverflowTable tableData={nomenclatureItems} columns={columnsInventoryItems} />
+                            ) : (
+                                <OverflowTable tableData={inventoryItems} columns={columnsInventoryItems} />
+                            )}
                         </div>
                     </div>
                 </DocumentModal>
+
                 {loadingDocument ?
                     <TableSkeleton columnCount={10} /> :
                     <div>
