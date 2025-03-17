@@ -94,7 +94,7 @@ const EquipmentFailure: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-        if(newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
     };
     const { data, isLoading: incidentLoading, mutate: incidentMutate } = useSWR([`get-incident`], () => getIncident({
         dateStart: dataFilter.dateStart,
@@ -126,19 +126,19 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: deviceData } = useSWR(formData.posId !== 0 ? [`get-device`] : null, () => getDevices(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR(formData.posId !== 0 ? [`get-device`, formData.posId] : null, () => getDevices(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: equipmentKnotData } = useSWR(formData.posId !== 0 ? [`get-equipment-knot`] : null, () => getEquipmentKnots(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: equipmentKnotData } = useSWR(formData.posId !== 0 ? [`get-equipment-knot`, formData.posId] : null, () => getEquipmentKnots(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: incidentEquipmentKnotData } = useSWR(equipmentKnotData ? [`get-incident-equipment-knot`] : null, () => getIncidentEquipmentKnots(equipmentKnotData ? equipmentKnotData[0].props.id : 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: allProgramsData } = useSWR(formData.posId !== 0 ? [`get-all-programs`, formData.posId] : null, () => getPrograms({ posId: formData.posId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const programs: { name: string; value: number; }[] = allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const programs: { name: string; value: number; }[] = formData.posId === 0 ? [] : allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const incidents: Incident[] = data
         ?.map((item: Incident) => ({
@@ -153,15 +153,15 @@ const EquipmentFailure: React.FC = () => {
         incidentMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, incidentMutate]);
 
-    const devices: { name: string; value: string; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
+    const devices: { name: string; value: string; }[] = formData.posId === 0 ? [] : deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
 
-    const equipmentKnots: { name: string; value: number; }[] = equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const equipmentKnots: { name: string; value: number; }[] = formData.posId === 0 ? [] : equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const problemNames: { name: string; value: number; }[] = incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
+    const problemNames: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
 
-    const reasons: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
+    const reasons: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
 
-    const solutions: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
+    const solutions: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 

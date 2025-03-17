@@ -335,6 +335,10 @@ type TechTaskParams = {
     placementId: number | string;
 }
 
+type ProgramParams = {
+    posId: number | string;
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -385,8 +389,8 @@ export async function getIncidentEquipmentKnots(id: number): Promise<IncidentEqu
     return response.data;
 }
 
-export async function getPrograms(): Promise<AllProgramsResponse[]> {
-    const response: AxiosResponse<AllProgramsResponse[]> = await api.get(EQUIPMENT.GET_PROGRAMS);
+export async function getPrograms(params: ProgramParams): Promise<AllProgramsResponse[]> {
+    const response: AxiosResponse<AllProgramsResponse[]> = await api.get(EQUIPMENT.GET_PROGRAMS, { params });
 
     return response.data;
 }
