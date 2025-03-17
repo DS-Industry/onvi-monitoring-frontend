@@ -139,10 +139,6 @@ const DocumentView: React.FC = () => {
         <div className="ml-20">
             {loadingDocument ? <TableSkeleton columnCount={10} /> :
                 <div>
-                    <div className="flex space-x-3 text-text02">
-                        <div>{document?.document.props.name}</div>
-                        <div>{moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}</div>
-                    </div>
                     <div className="flex flex-col sm:flex-row gap-4 py-4">
                         <div className="flex flex-wrap gap-4">
                             <div className="flex">
@@ -193,6 +189,9 @@ const DocumentView: React.FC = () => {
                     <GoodsTable
                         tableData={tableData}
                         columns={columnsDocumentView}
+                        showDocument={true}
+                        documentName={document?.document.props.name}
+                        documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
                     />
                 </div>
             }

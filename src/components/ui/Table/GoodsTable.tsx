@@ -71,6 +71,9 @@ type Props = {
     handleChange?: (id: number, key: string, value: string | number) => void;
     addRow?: () => void;
     addProduct?: () => void;
+    showDocument?: boolean;
+    documentName?: string;
+    documentTime?: string;
 }
 
 const GoodsTable: React.FC<Props> = ({
@@ -78,7 +81,10 @@ const GoodsTable: React.FC<Props> = ({
     columns,
     handleChange,
     addRow,
-    addProduct
+    addProduct,
+    showDocument,
+    documentName,
+    documentTime
 }: Props) => {
     const { t } = useTranslation();
     const [activeTab] = useState("tab1");
@@ -113,7 +119,7 @@ const GoodsTable: React.FC<Props> = ({
         <div className="py-4 px-2 sm:px-4 bg-white rounded-lg font-sans">
             {activeTab === "tab1" && (
                 <div className="shadow-card rounded-2xl pb-10">
-                    <div className="flex flex-wrap justify-between p-2 sm:p-4 gap-2">
+                    {!showDocument ? (<div className="flex flex-wrap justify-between p-2 sm:p-4 gap-2">
                         <div className="space-x-2">
                             <button className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addProduct}>
                                 {t("roles.addPro")}
@@ -130,7 +136,12 @@ const GoodsTable: React.FC<Props> = ({
                                 <img src={ArrowDown} />
                             </button>
                         </div>
-                    </div>
+                    </div>) : (
+                        <div className="flex space-x-3 text-text02 p-2 sm:p-4">
+                            <div>{documentName}</div>
+                            <div>{documentTime}</div>
+                        </div>
+                    )}
 
                     {/* Table Wrapper for Scrollable Table */}
                     <div className="w-full overflow-x-auto sm:overflow-visible">
@@ -139,7 +150,8 @@ const GoodsTable: React.FC<Props> = ({
                                 <tr>
                                     {columns?.map((column) => (
                                         <th key={column.key}
-                                            className={`border-b border-x-2 border-background02 bg-background06 px-1 py-1.5 text-sm text-start font-semibold text-text01 uppercase tracking-wider ${column.key === "check" ? "w-8" : ""}`}>
+                                            className={`border-b border-x-2 border-background02 bg-background06 px-1 py-1.5 text-sm text-start font-semibold text-text01 uppercase tracking-wider ${column.key === "check" ? "w-8" : ""}
+                                            ${column.key === "nomenclatureId" ? "w-auto whitespace-nowrap" : ""}`}>
                                             {column.label}
                                         </th>
                                     ))}
@@ -150,7 +162,7 @@ const GoodsTable: React.FC<Props> = ({
                                     <tr key={row.id}>
                                         {columns?.map((column) => (
                                             <td key={column.key}
-                                                className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-1.5 px-1 whitespace-nowrap text-sm font-normal first:text-primary02 text-text01 overflow-x-visible">
+                                                className={`border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-1.5 px-1 whitespace-nowrap text-sm font-normal first:text-primary02 text-text01 overflow-x-visible ${column.key === "nomenclatureId" ? "w-auto whitespace-nowrap" : ""}`}>
                                                 {column.type === "checkbox" ? (
                                                     <input
                                                         type="checkbox"

@@ -1,7 +1,6 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
 import SearchInput from "@/components/ui/Input/SearchInput";
 import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import GoodsTable from "@/components/ui/Table/GoodsTable";
@@ -79,6 +78,7 @@ const DocumentsCreation: React.FC = () => {
                         id: doc.props.id,
                         check: false, // Add the 'check' property
                         responsibleId: document.document.props.responsibleId,
+                        responsibleName: user.name,
                         nomenclatureId: doc.props.nomenclatureId,
                         quantity: doc.props.quantity,
                         comment: doc.props.comment || "",
@@ -89,6 +89,7 @@ const DocumentsCreation: React.FC = () => {
                         id: doc.props.id,
                         check: false, // Add the 'check' property
                         responsibleId: document.document.props.responsibleId,
+                        responsibleName: user.name,
                         nomenclatureId: doc.props.nomenclatureId,
                         quantity: doc.props.quantity,
                         comment: doc.props.comment || ""
@@ -106,6 +107,7 @@ const DocumentsCreation: React.FC = () => {
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
                         responsibleId: user.id,
+                        responsibleName: user.name,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: "",
@@ -116,6 +118,7 @@ const DocumentsCreation: React.FC = () => {
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
                         responsibleId: user.id,
+                        responsibleName: user.name,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: ""
@@ -123,7 +126,7 @@ const DocumentsCreation: React.FC = () => {
                 setTableData(tableData);
             }
         }
-    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.wareHouseId, loadingDocument, user.id]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.wareHouseId, loadingDocument, user.id, user.name]);
 
 
     const [errors, setErrors] = useState({
@@ -172,9 +175,9 @@ const DocumentsCreation: React.FC = () => {
         });
 
     const mockData = documentType === "INVENTORY" ? [
-        { id: 1, check: false, responsibleId: user.id, nomenclatureId: 0, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
+        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: 0, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
     ] : [
-        { id: 1, check: false, responsibleId: user.id, nomenclatureId: 0, quantity: 0, comment: "" }
+        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: 0, quantity: 0, comment: "" }
     ]
 
     const posType = usePosType();
@@ -195,15 +198,15 @@ const DocumentsCreation: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseID), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseId || 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
+    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; sku: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name, sku: item.props.sku })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
 
-    const inventoryItems = inventoryItemData?.filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
+    const inventoryItems: { nomenclatureId: number; nomenclatureName: string; sku: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, nomenclatureName: item.nomenclatureName, sku: item.quantity })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
 
     const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
 
@@ -238,6 +241,7 @@ const DocumentsCreation: React.FC = () => {
                     id: prevData.length + 1,
                     check: false,
                     responsibleId: user.id,
+                    responsibleName: user.name,
                     nomenclatureId: 0,
                     quantity: 0,
                     comment: "",
@@ -252,6 +256,7 @@ const DocumentsCreation: React.FC = () => {
                     id: prevData.length + 1,
                     check: false,
                     responsibleId: user.id,
+                    responsibleName: user.name,
                     nomenclatureId: 0,
                     quantity: 0,
                     comment: "",
@@ -261,29 +266,32 @@ const DocumentsCreation: React.FC = () => {
 
     const handleSubmit = async () => {
         console.log("Final document creation values: ", tableData);
-        if (warehouseId === 0) {
+
+        let hasErrors = false;
+
+        if (warehouseId === 0 || warehouseID === "*") {
             setErrors((prev) => ({
                 ...prev,
                 warehouse: true
             }));
+            hasErrors = true;
         }
 
         tableData?.map((data) => {
-            if (data.responsibleId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    responsible: true
-                }));
-            if (data.nomenclatureId === 0)
+            if (data.nomenclatureId === 0) {
                 setErrors((prev) => ({
                     ...prev,
                     nomenclature: true
                 }));
-            if (data.quantity <= 0)
+                hasErrors = true;
+            }
+            if (data.quantity <= 0) {
                 setErrors((prev) => ({
                     ...prev,
                     quantity: true
                 }));
+                hasErrors = true;
+            }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
@@ -292,14 +300,21 @@ const DocumentsCreation: React.FC = () => {
                 warehouseRec: true,
                 warehouse: true
             }));
+            hasErrors = true;
         }
+
+        if (hasErrors) {
+            return;
+        }
+
+        const filteredTableData = tableData.filter((data) => data.check === true);
 
         const detailsValues: {
             nomenclatureId: number;
             responsibleId: number;
             quantity: number;
             comment?: string;
-        }[] = tableData?.map((data) => ({
+        }[] = filteredTableData?.map((data) => ({
             nomenclatureId: data.nomenclatureId,
             responsibleId: data.responsibleId,
             quantity: Number(data.quantity),
@@ -315,7 +330,7 @@ const DocumentsCreation: React.FC = () => {
                 oldQuantity?: number;
                 deviation?: number;
             };
-        }[] = tableData?.map((data) => {
+        }[] = filteredTableData?.map((data) => {
             const base = {
                 nomenclatureId: data.nomenclatureId,
                 quantity: Number(data.quantity),
@@ -361,29 +376,32 @@ const DocumentsCreation: React.FC = () => {
 
     const handleSubmitSend = async () => {
         console.log("Final document creation values: ", tableData);
-        if (warehouseId === 0) {
+
+        let hasErrors = false;
+
+        if (warehouseId === 0 || warehouseID === "*") {
             setErrors((prev) => ({
                 ...prev,
                 warehouse: true
             }));
+            hasErrors = true;
         }
 
         tableData?.map((data) => {
-            if (data.responsibleId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    responsible: true
-                }));
-            if (data.nomenclatureId === 0)
+            if (data.nomenclatureId === 0) {
                 setErrors((prev) => ({
                     ...prev,
                     nomenclature: true
                 }));
-            if (data.quantity <= 0)
+                hasErrors = true;
+            }
+            if (data.quantity <= 0) {
                 setErrors((prev) => ({
                     ...prev,
                     quantity: true
                 }));
+                hasErrors = true;
+            }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
@@ -392,14 +410,21 @@ const DocumentsCreation: React.FC = () => {
                 warehouseRec: true,
                 warehouse: true
             }));
+            hasErrors = true;
         }
+
+        if(hasErrors) {
+            return;
+        }
+
+        const filteredTableData = tableData.filter((data) => data.check === true);
 
         const detailsValues: {
             nomenclatureId: number;
             responsibleId: number;
             quantity: number;
             comment?: string;
-        }[] = tableData?.map((data) => ({
+        }[] = filteredTableData?.map((data) => ({
             nomenclatureId: data.nomenclatureId,
             responsibleId: data.responsibleId,
             quantity: Number(data.quantity),
@@ -415,7 +440,7 @@ const DocumentsCreation: React.FC = () => {
                 oldQuantity?: number;
                 deviation?: number;
             };
-        }[] = tableData?.map((data) => {
+        }[] = filteredTableData?.map((data) => {
             const base = {
                 nomenclatureId: data.nomenclatureId,
                 quantity: Number(data.quantity),
@@ -480,7 +505,7 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
@@ -488,10 +513,10 @@ const DocumentsCreation: React.FC = () => {
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
                 <DropdownInput
                     value={row.nomenclatureId}
+                    label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors.nomenclature}
-                    classname="w-[500px]"
                 />
             ),
         },
@@ -511,9 +536,8 @@ const DocumentsCreation: React.FC = () => {
             label: "Комментарий",
             key: "comment",
             render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <MultilineInput
+                <Input
                     value={row.comment}
-                    rows={1}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
                 />
             ),
@@ -563,7 +587,7 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
@@ -571,10 +595,10 @@ const DocumentsCreation: React.FC = () => {
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
                 <DropdownInput
                     value={row.nomenclatureId}
+                    label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors.nomenclature}
-                    classname="w-[500px]"
                 />
             ),
         },
@@ -594,9 +618,8 @@ const DocumentsCreation: React.FC = () => {
             label: "Комментарий",
             key: "comment",
             render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <MultilineInput
+                <Input
                     value={row.comment}
-                    rows={1}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
                 />
             ),
@@ -618,7 +641,7 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Код",
-            key: "nomenclatureId"
+            key: "sku"
         },
         {
             label: "Наименование товара",
@@ -643,6 +666,7 @@ const DocumentsCreation: React.FC = () => {
                 id: item.nomenclatureId,
                 check: true,
                 responsibleId: user.id,
+                responsibleName: user.name,
                 nomenclatureId: item.nomenclatureId,
                 quantity: 0,
                 comment: "",

@@ -205,7 +205,7 @@ const Organization: React.FC = () => {
                     />
                 </div>
             </Filter>
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6 w-full max-w-2xl mx-auto p-4" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
                         {isEditMode ? t("organizations.update") : t("organizations.new")}

@@ -22,6 +22,7 @@ type Props = {
   address?: number | string;
   setAddress?: (value: number | string) => void;
   hidePage?: boolean;
+  hideCancel?: boolean;
 };
 
 const Filter: React.FC<Props> = ({
@@ -37,7 +38,8 @@ const Filter: React.FC<Props> = ({
   handleClear,
   address = 0,
   setAddress,
-  hidePage = false
+  hidePage = false,
+  hideCancel
 }: Props) => {
   const { filterOpen } = useFilterOpen();
   const { buttonOn } = useButtonCreate();
@@ -142,7 +144,7 @@ const Filter: React.FC<Props> = ({
       ) :
         <div className="h-5"></div>}
       <div className="flex flex-wrap items-center gap-4 mt-4">
-        <Button title="Сбросить" handleClick={handleReset} type="outline" />
+        {!hideCancel && <Button title="Сбросить" handleClick={handleReset} type="outline" />}
         <Button title="Применить" handleClick={handleApply} />
         <p className="font-semibold">Найдено: {count}</p>
         {/* <Button

@@ -103,44 +103,6 @@ const EquipmentFailure: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: deviceData } = useSWR(posType !== "*" ? [`get-device`] : null, () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: equipmentKnotData } = useSWR(posType !== "*" ? [`get-equipment-knot`] : null, () => getEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: incidentEquipmentKnotData } = useSWR(equipmentKnotData ? [`get-incident-equipment-knot`] : null, () => getIncidentEquipmentKnots(equipmentKnotData ? equipmentKnotData[0].props.id : 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const incidents: Incident[] = data
-        ?.map((item: Incident) => ({
-            ...item,
-            posName: poses.find((pos) => pos.value === item.posId)?.name
-        }))
-        .sort((a, b) => a.id - b.id) || [];
-
-    useEffect(() => {
-        incidentMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, incidentMutate]);
-
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const devices: { name: string; value: string; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
-
-    const equipmentKnots: { name: string; value: number; }[] = equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
-
-    const problemNames: { name: string; value: number; }[] = incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
-
-    const reasons: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
-
-    const solutions: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
-
-    const programs: { name: string; value: number; }[] = allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const defaultValues: IncidentBody = {
         posId: 0,
@@ -159,6 +121,47 @@ const EquipmentFailure: React.FC = () => {
     };
 
     const [formData, setFormData] = useState(defaultValues);
+
+    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: deviceData } = useSWR(formData.posId !== 0 ? [`get-device`] : null, () => getDevices(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: equipmentKnotData } = useSWR(formData.posId !== 0 ? [`get-equipment-knot`] : null, () => getEquipmentKnots(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: incidentEquipmentKnotData } = useSWR(equipmentKnotData ? [`get-incident-equipment-knot`] : null, () => getIncidentEquipmentKnots(equipmentKnotData ? equipmentKnotData[0].props.id : 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const programs: { name: string; value: number; }[] = allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const incidents: Incident[] = data
+        ?.map((item: Incident) => ({
+            ...item,
+            posName: poses.find((pos) => pos.value === item.posId)?.name,
+            workerName: workers.find((work) => work.value === item.workerId)?.name,
+            programName: programs.find((prog) => prog.value === item.programId)?.name
+        }))
+        .sort((a, b) => a.id - b.id) || [];
+
+    useEffect(() => {
+        incidentMutate().then(() => setIsTableLoading(false));
+    }, [dataFilter, incidentMutate]);
+
+    const devices: { name: string; value: string; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
+
+    const equipmentKnots: { name: string; value: number; }[] = equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const problemNames: { name: string; value: number; }[] = incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
+
+    const reasons: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
+
+    const solutions: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
@@ -273,11 +276,12 @@ const EquipmentFailure: React.FC = () => {
 
     return (
         <>
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("equipment.break")}</span>
                     <DropdownInput
                         title={t("equipment.carWash")}
+                        label={poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={poses}
                         classname="w-72"
                         {...register('posId', {
@@ -293,6 +297,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.employee")}
+                        label={workers.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={workers}
                         classname="w-72"
                         {...register('workerId', {
@@ -349,6 +354,7 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                     <DropdownInput
                         title={t("equipment.device")}
+                        label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={devices}
                         classname="w-72"
                         {...register('objectName', { required: !isEditMode && 'Device is required' })}
@@ -360,6 +366,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.knot")}
+                        label={equipmentKnots.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={equipmentKnots}
                         classname="w-72"
                         {...register('equipmentKnotId')}
@@ -368,6 +375,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.name")}
+                        label={problemNames.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={problemNames}
                         classname="w-72"
                         {...register('incidentNameId')}
@@ -376,6 +384,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.cause")}
+                        label={reasons.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={reasons}
                         classname="w-72"
                         {...register('incidentReasonId')}
@@ -384,6 +393,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.measures")}
+                        label={solutions.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={solutions}
                         classname="w-72"
                         {...register('incidentSolutionId')}
@@ -424,6 +434,7 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                     <DropdownInput
                         title={t("equipment.program")}
+                        label={programs.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={programs}
                         classname="w-72"
                         {...register('carWashDeviceProgramsTypeId')}

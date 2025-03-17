@@ -274,7 +274,7 @@ const RoutineWork: React.FC = () => {
     console.log("Techtasks test:", techTask);
     return (
         <>
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
                     <div className="mb-5 flex">
@@ -295,6 +295,7 @@ const RoutineWork: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.carWash")}
+                        label={poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={poses}
                         classname="w-64"
                         {...register('posId', {
@@ -310,6 +311,7 @@ const RoutineWork: React.FC = () => {
                     <DropdownInput
                         title={`${t("routine.type")} *`}
                         type={""}
+                        label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
                             { name: t("routine.routine"), value: "Routine" },
@@ -326,6 +328,7 @@ const RoutineWork: React.FC = () => {
                     <DropdownInput
                         title={`${t("routine.frequency")} *`}
                         type={""}
+                        label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
                             { name: t("routine.daily"), value: "Daily" },

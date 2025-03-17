@@ -43,20 +43,41 @@ const ConsumptionRate: React.FC = () => {
 
     useEffect(() => {
         if (consumptionRateData) {
-            setTableData(consumptionRateData); // Update state once data is fetched
+            const sortedData = [...consumptionRateData].sort((a, b) =>
+                a.programTypeName.localeCompare(b.programTypeName)
+            );
+            setTableData(sortedData);
         }
     }, [consumptionRateData]);
 
+    useEffect(() => {
+        if (consumptionRateData) {
+            const sortedData = [...consumptionRateData].sort((a, b) =>
+                a.programTypeName.localeCompare(b.programTypeName)
+            );
+            setTableData(sortedData); // Update state with sorted data
+        }
+    }, [consumptionRateData]);
+    
     const handleTableChange = (id: number, key: string, value: string | number) => {
-        setTableData((prevData) =>
-            prevData?.map((item) =>
+        setTableData((prevData) => {
+            const updatedData = prevData?.map((item) =>
                 item.id === id ? { ...item, [key]: value } : item
-            )
-        );
+            );
+
+            return updatedData?.sort((a, b) => a.programTypeName.localeCompare(b.programTypeName));
+        });
     };
+    
 
     const handleSubmit = async () => {
         console.log("Final Task Values:", tableData);
+
+        const hasNegativeValues = tableData && tableData.some((data) => data.literRate < 0 || data.concentration < 0);
+
+        if (hasNegativeValues) {
+            return; // Stop execution if there are negative values
+        }
 
         const programCoeff: { programTechRateId: number; literRate: number; concentration: number; }[] = tableData?.map((data) => ({
             programTechRateId: data.id,
@@ -77,7 +98,7 @@ const ConsumptionRate: React.FC = () => {
 
     return (
         <div>
-            <Filter count={tableData?.length !== undefined ? tableData?.length : 0} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true}>
+            <Filter count={tableData?.length !== undefined ? tableData?.length : 0} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true} hideCancel={true}>
                 <DropdownInput
                     title={t("equipment.carWash")}
                     value={searchPosId}
@@ -90,19 +111,19 @@ const ConsumptionRate: React.FC = () => {
                 <TableSkeleton columnCount={columnsConsumptionRate.length} />
             ) :
                 tableData && tableData.length > 0 ?
-                <div className="mt-8">
-                    <OverflowTable
-                        tableData={tableData}
-                        columns={columnsConsumptionRate}
-                        handleChange={handleTableChange}
-                    />
-                </div> :
-                <NoDataUI
-                title={t("chemical.noText")}
-                description={t("chemical.dont")}
-            >
-                <img src={SalyImage} className="mx-auto" />
-            </NoDataUI>
+                    <div className="mt-8">
+                        <OverflowTable
+                            tableData={tableData}
+                            columns={columnsConsumptionRate}
+                            handleChange={handleTableChange}
+                        />
+                    </div> :
+                    <NoDataUI
+                        title={t("chemical.noText")}
+                        description={t("chemical.dont")}
+                    >
+                        <img src={SalyImage} className="mx-auto" />
+                    </NoDataUI>
             }
             {tableData && tableData.length > 0 && <div className="flex mt-4 space-x-4">
                 <Button
@@ -116,7 +137,7 @@ const ConsumptionRate: React.FC = () => {
                     isLoading={isMutating}
                     handleClick={handleSubmit}
                 />
-            </div> }
+            </div>}
         </div>
     )
 }

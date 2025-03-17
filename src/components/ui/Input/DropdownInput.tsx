@@ -56,7 +56,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
 
-    const isLabelFloating = isFocused || value !== undefined;
+    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== '' && value !== 0);
     const handleToggleDropdown = () => {
         if (!isDisabled && !isLoading) {
             const rect = dropdownRef.current?.getBoundingClientRect();
@@ -131,8 +131,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating) ? "text-base invisible" : "text-text02 visible")} 
-                        ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
+                        ${isDisabled ? "text-text03 invisible"
+                            : isLabelFloating && inputType == 'primary'
+                                ? "text-text02 text-[10px] font-normal"
+                                : (inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating
+                                    ? "text-base invisible"
+                                    : "text-text02 visible"}
+                                                ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >
                     {label}

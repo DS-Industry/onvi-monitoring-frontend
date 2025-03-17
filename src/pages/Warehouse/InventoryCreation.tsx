@@ -188,7 +188,6 @@ const InventoryCreation: React.FC = () => {
                     <OverflowTable
                         tableData={inventoriesDisplay}
                         columns={columnsInventory}
-                        isDisplayEdit={true}
                         isUpdateLeft={true}
                         onUpdate={handleUpdate}
                     />
@@ -202,9 +201,9 @@ const InventoryCreation: React.FC = () => {
                     </NoDataUI>
                 </div>
             }
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.add")}</div>
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("warehouse.edit") : t("warehouse.add")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>
                     <div className="font-semibold text-2xl mb-5 text-text01">{t("warehouse.basic")}</div>
                     <Input
@@ -220,7 +219,7 @@ const InventoryCreation: React.FC = () => {
                     />
                     <DropdownInput
                         title={`${t("warehouse.category")} *`}
-                        label={t("warehouse.notSel")}
+                        label={categories.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={categories}
                         classname="w-64"
                         {...register('categoryId', {
@@ -235,7 +234,7 @@ const InventoryCreation: React.FC = () => {
                     />
                     <DropdownInput
                         title={`${t("routes.suppliers")}`}
-                        label={t("warehouse.notSel")}
+                        label={suppliers.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={suppliers}
                         classname="w-64"
                         {...register('supplierId')}
@@ -244,7 +243,7 @@ const InventoryCreation: React.FC = () => {
                     />
                     <DropdownInput
                         title={`${t("warehouse.organization")} *`}
-                        label={isEditMode ? "" : t("warehouse.notSel")}
+                        label={organizations.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={organizations}
                         classname="w-64"
                         {...register('organizationId', {
@@ -262,10 +261,10 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("warehouse.unit")} *`}
                         label={t("warehouse.notSel")}
                         options={[
-                            { name: t("warehouse.piece"), value: "PIECE" },
-                            { name: t("warehouse.grams"), value: "KILOGRAM" },
-                            { name: t("warehouse.liter"), value: "LITER" },
-                            { name: t("warehouse.meter"), value: "METER" }
+                            { name: t("tables.PIECE"), value: "PIECE" },
+                            { name: t("tables.KILOGRAM"), value: "KILOGRAM" },
+                            { name: t("tables.LITER"), value: "LITER" },
+                            { name: t("tables.METER"), value: "METER" }
                         ]}
                         classname="w-64"
                         {...register('measurement', {
@@ -301,7 +300,7 @@ const InventoryCreation: React.FC = () => {
                         inputType="secondary"
                         changeValue={() => { }}
                     />
-                    <div>
+                    {/* <div>
                         <div>{t("warehouse.productPh")}</div>
                         <div>{t("pos.maxNumber")}</div>
                         <Button
@@ -310,7 +309,7 @@ const InventoryCreation: React.FC = () => {
                             type="outline"
                             title={t("pos.download")}
                         />
-                    </div>
+                    </div> */}
                     <div className="font-semibold text-2xl mb-5 text-text01">{t("warehouse.product")}</div>
                     <Input
                         title={t("warehouse.weight")}

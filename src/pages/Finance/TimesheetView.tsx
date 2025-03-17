@@ -329,6 +329,7 @@ const TimesheetView: React.FC = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <DropdownInput
                                         title={t("finance.operType")}
+                                        label={t("warehouse.notSel")}
                                         options={[
                                             { name: t("finance.REFUND"), value: "REFUND" },
                                             { name: t("finance.REPLENISHMENT"), value: "REPLENISHMENT" }
@@ -352,6 +353,7 @@ const TimesheetView: React.FC = () => {
                                     />
                                     <DropdownInput
                                         title={t("equipment.device")}
+                                        label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                                         options={devices}
                                         classname="w-full"
                                         {...register('carWashDeviceId')}

@@ -466,10 +466,10 @@ export const columnsEquipmentFailure = [
   },
   {
     label: "Сотрудник",
-    key: "workerId"
+    key: "workerName"
   },
   {
-    label: "Дата вызова",
+    label: "Дата поломки",
     key: "appearanceDate",
     type: "date"
   },
@@ -504,7 +504,7 @@ export const columnsEquipmentFailure = [
     key: "incidentSolution"
   },
   {
-    label: "Замена",
+    label: "Время исправления",
     key: "repair"
   },
   {
@@ -512,32 +512,12 @@ export const columnsEquipmentFailure = [
     key: "downtime"
   },
   {
-    label: "Авто/час",
-    key: "autoHour"
-  },
-  {
     label: "Комментарий",
     key: "comment"
   },
   {
-    label: "Цена минуты",
-    key: "pricePerMinute"
-  },
-  {
-    label: "Проверка простоя",
-    key: "idleCheck"
-  },
-  {
-    label: "Стоимость простоя",
-    key: "downtimeCost"
-  },
-  {
-    label: "Авто на устройстве",
-    key: "autoOnDevice"
-  },
-  {
     label: "Программа",
-    key: "programId"
+    key: "programName"
   }
 ]
 
@@ -691,11 +671,11 @@ export const columnsConsumptionRate = [
     label: "Расход литр/минута",
     key: "literRate",
     render: (row: { literRate: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-gray-300 p-2 w-full"
         value={row.literRate}
-        onChange={(e) => handleChange(row.id, "literRate", e.target.value)}
+        changeValue={(e) => handleChange(row.id, "literRate", e.target.value)}
+        error={row.literRate < 0}
       />
     ),
   },
@@ -703,11 +683,11 @@ export const columnsConsumptionRate = [
     label: "Концентрация 1/х",
     key: "concentration",
     render: (row: { concentration: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-gray-300 p-2 w-full"
         value={row.concentration}
-        onChange={(e) => handleChange(row.id, "concentration", e.target.value)}
+        changeValue={(e) => handleChange(row.id, "concentration", e.target.value)}
+        error={row.concentration < 0}
       />
     ),
   },
