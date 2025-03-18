@@ -753,6 +753,7 @@
     "addPro": "Group add",
     "addSel": "Add selected products to document",
     "select": "Select columns to display",
-    "cols": "Columns in a table"
+    "cols": "Columns in a table",
+    "invent": "Inventory is empty. You can't add any item for the moment."
   }
 }
