@@ -8,7 +8,7 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useSWR, { mutate } from "swr";
-import { createNomenclature, getCategory, getNomenclature, getSupplier, updateNomenclature } from "@/services/api/warehouse";
+import { createNomenclature, deleteNomenclature, getCategory, getNomenclature, getSupplier, updateNomenclature } from "@/services/api/warehouse";
 import { getOrganization } from "@/services/api/organization";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
@@ -19,6 +19,11 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import { useCity } from "@/hooks/useAuthStore";
 
+enum PurposeType {
+    SALE = "SALE",
+    INTERNAL_USE = "INTERNAL_USE"
+}
+
 type INVENTORY = {
     name: string;
     sku: string;
@@ -26,12 +31,16 @@ type INVENTORY = {
     categoryId: number;
     supplierId?: number;
     measurement: string;
+    description?: string;
+    weight?: number;
+    height?: number;
+    width?: number;
+    length?: number;
+    purpose?: PurposeType;
 }
 
 const InventoryCreation: React.FC = () => {
     const { t } = useTranslation();
-    const [forSale, setForSale] = useState(false);
-    const [writeOff, setWriteOff] = useState(false);
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
@@ -55,7 +64,7 @@ const InventoryCreation: React.FC = () => {
 
     const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const inventoriesDisplay: { id: number; sku: string; name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id,sku: item.sku, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
+    const inventoriesDisplay: { id: number; sku: string; name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, sku: item.sku, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
 
     const suppliers: { name: string; value: number; }[] = supplierData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -67,7 +76,13 @@ const InventoryCreation: React.FC = () => {
         organizationId: 0,
         categoryId: 0,
         supplierId: undefined,
-        measurement: ''
+        measurement: '',
+        description: undefined,
+        weight: undefined,
+        length: undefined,
+        height: undefined,
+        width: undefined,
+        purpose: undefined
     }
 
     const [formData, setFormData] = useState(defaultValues);
@@ -80,7 +95,15 @@ const InventoryCreation: React.FC = () => {
         organizationId: formData.organizationId,
         categoryId: formData.categoryId,
         supplierId: formData.supplierId,
-        measurement: formData.measurement
+        measurement: formData.measurement,
+        metaData: {
+            description: formData.description,
+            weight: formData.weight,
+            height: formData.height,
+            width: formData.width,
+            length: formData.length,
+            purpose: formData.purpose
+        }
     }));
 
     const { trigger: updateInventory, isMutating: updatingInventory } = useSWRMutation(['update-inventory'], async () => updateNomenclature({
@@ -88,13 +111,21 @@ const InventoryCreation: React.FC = () => {
         name: formData.name,
         categoryId: formData.categoryId,
         supplierId: formData.supplierId,
-        measurement: formData.measurement
+        measurement: formData.measurement,
+        metaData: {
+            description: formData.description,
+            weight: formData.weight,
+            height: formData.height,
+            width: formData.width,
+            length: formData.length,
+            purpose: formData.purpose
+        }
     }));
 
-    type FieldType = "name" | "sku" | "organizationId" | "categoryId" | "supplierId" | "measurement";
+    type FieldType = "organizationId" | "categoryId" | "supplierId" | "weight" | "height" | "length" | "width" | "name" | "sku" | "measurement" | "description" | "purpose";
 
     const handleInputChange = (field: FieldType, value: string) => {
-        const numericFields = ['organizationId', 'categoryId', 'supplierId'];
+        const numericFields = ['organizationId', 'categoryId', 'supplierId', 'weight', 'height', 'length', 'width'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
@@ -115,8 +146,33 @@ const InventoryCreation: React.FC = () => {
                 organizationId: inventoryToEdit.organizationId,
                 categoryId: inventoryToEdit.categoryId,
                 measurement: inventoryToEdit.measurement,
-                supplierId: inventoryToEdit.supplierId
+                supplierId: inventoryToEdit.supplierId,
+                description: inventoryToEdit.metaData.description,
+                width: inventoryToEdit.metaData.width,
+                length: inventoryToEdit.metaData.length,
+                height: inventoryToEdit.metaData.height,
+                purpose: inventoryToEdit.metaData.purpose,
+                weight: inventoryToEdit.metaData.weight
             });
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            const result = await mutate(
+                [`delete-nomenclature`, editInventoryId],
+                () => deleteNomenclature(editInventoryId),
+                false
+            );
+
+            console.log("Nomenclature deleted successfully", result);
+
+            if (result) {
+                setButtonOn(!buttonOn);
+                mutate([`get-inventory`, category, orgId]);
+            }
+        } catch (error) {
+            console.error("Error deleting nomenclature:", error);
         }
     };
 
@@ -287,18 +343,14 @@ const InventoryCreation: React.FC = () => {
                         helperText={errors.sku?.message || ''}
                         disabled={isEditMode}
                     />
-                    <Input
-                        title={t("warehouse.vat")}
-                        type={"number"}
-                        classname="w-20"
-                        changeValue={() => { }}
-                    />
                     <MultilineInput
                         title={t("warehouse.desc")}
                         label={t("warehouse.about")}
                         classname="w-80"
                         inputType="secondary"
-                        changeValue={() => { }}
+                        value={formData.description}
+                        changeValue={(e) => handleInputChange('description', e.target.value)}
+                        {...register('description')}
                     />
                     {/* <div>
                         <div>{t("warehouse.productPh")}</div>
@@ -314,38 +366,46 @@ const InventoryCreation: React.FC = () => {
                     <Input
                         title={t("warehouse.weight")}
                         label={t("warehouse.enterWgt")}
-                        type={"text"}
+                        type={"number"}
                         classname="w-80"
-                        changeValue={() => { }}
+                        value={formData.weight}
+                        changeValue={(e) => handleInputChange('weight', e.target.value)}
+                        {...register('weight')}
                     />
                     <Input
                         title={t("warehouse.sizeW")}
                         type={"number"}
                         classname="w-20"
-                        changeValue={() => { }}
+                        value={formData.width}
+                        changeValue={(e) => handleInputChange('width', e.target.value)}
+                        {...register('width')}
                     />
                     <Input
                         title={t("warehouse.sizeG")}
                         type={"number"}
                         classname="w-20"
-                        changeValue={() => { }}
+                        value={formData.length}
+                        changeValue={(e) => handleInputChange('length', e.target.value)}
+                        {...register('length')}
                     />
                     <Input
                         title={t("warehouse.sizeB")}
                         type={"number"}
                         classname="w-20"
-                        changeValue={() => { }}
+                        value={formData.height}
+                        changeValue={(e) => handleInputChange('height', e.target.value)}
+                        {...register('height')}
                     />
                     <div className="font-semibold text-2xl mb-5 text-text01">{t("warehouse.purpose")}</div>
                     <div className="flex">
                         <div className="flex-1 flex flex-col">
                             <div className="flex">
                                 <input
-                                    type="checkbox"
-                                    checked={forSale}
-                                    onChange={(e) => {
-                                        setForSale(e.target.checked);
-                                    }}
+                                    type="radio"
+                                    value={PurposeType.SALE}
+                                    checked={formData.purpose === PurposeType.SALE}
+                                    {...register("purpose")}
+                                    onChange={(e) => { handleInputChange("purpose", e.target.value); }}
                                 />
                                 <div className="text-text02 ml-2">{t("warehouse.sale")}</div>
                             </div>
@@ -353,11 +413,11 @@ const InventoryCreation: React.FC = () => {
                         <div className="flex-1 flex flex-col">
                             <div className="flex">
                                 <input
-                                    type="checkbox"
-                                    checked={writeOff}
-                                    onChange={(e) => {
-                                        setWriteOff(e.target.checked);
-                                    }}
+                                    type="radio"
+                                    value={PurposeType.INTERNAL_USE}
+                                    checked={formData.purpose === PurposeType.INTERNAL_USE}
+                                    {...register("purpose")}
+                                    onChange={(e) => { handleInputChange("purpose", e.target.value); }}
                                 />
                                 <div className="text-text02 ml-2">{t("warehouse.write")}</div>
                             </div>
@@ -371,12 +431,11 @@ const InventoryCreation: React.FC = () => {
                                 resetForm();
                             }}
                         />
-                        <Button
+                        {isEditMode && (<Button
                             title={t("warehouse.deletePos")}
-                            form={true}
-                            handleClick={() => { }}
+                            handleClick={handleDelete}
                             classname="bg-red-600 hover:bg-red-300"
-                        />
+                        />)}
                         <Button
                             title={t("organizations.save")}
                             form={true}

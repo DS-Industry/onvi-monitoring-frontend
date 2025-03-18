@@ -129,13 +129,13 @@ const DocumentsCreation: React.FC = () => {
     }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.wareHouseId, loadingDocument, user.id, user.name]);
 
 
-    const [errors, setErrors] = useState({
+    const [globalErrors, setGlobalErrors] = useState({
         warehouse: false,
-        responsible: false,
-        nomenclature: false,
-        quantity: false,
-        warehouseRec: false
+        warehouseRec: false,
     });
+
+    const [errors, setErrors] = useState<Record<number, { nomenclature: boolean; quantity: boolean }>>({});
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const addProduct = () => {
@@ -234,34 +234,27 @@ const DocumentsCreation: React.FC = () => {
     };
 
     const updateRow = () => {
-        if (documentType === "INVENTORY")
-            setTableData((prevData) => [
-                ...prevData,
-                {
-                    id: prevData.length + 1,
-                    check: false,
-                    responsibleId: user.id,
-                    responsibleName: user.name,
-                    nomenclatureId: 0,
-                    quantity: 0,
-                    comment: "",
-                    oldQuantity: 0,
-                    deviation: 0
-                },
-            ]);
-        else
-            setTableData((prevData) => [
-                ...prevData,
-                {
-                    id: prevData.length + 1,
-                    check: false,
-                    responsibleId: user.id,
-                    responsibleName: user.name,
-                    nomenclatureId: 0,
-                    quantity: 0,
-                    comment: "",
-                },
-            ]);
+        setTableData((prevData) => {
+            const maxId = prevData.length > 0 ? Math.max(...prevData.map(row => row.id)) : 0;
+
+            const newRow = {
+                id: maxId + 1,
+                check: false,
+                responsibleId: user.id,
+                responsibleName: user.name,
+                nomenclatureId: 0,
+                quantity: 0,
+                comment: "",
+                ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
+            };
+
+            return [...prevData, newRow];
+        });
+    };
+
+
+    const deleteRow = () => {
+        setTableData((prevData) => prevData.filter((row) => !row.check));
     };
 
     const handleSubmit = async () => {
@@ -269,39 +262,46 @@ const DocumentsCreation: React.FC = () => {
 
         let hasErrors = false;
 
-        if (warehouseId === 0 || warehouseID === "*") {
-            setErrors((prev) => ({
-                ...prev,
-                warehouse: true
-            }));
+        const newErrors: Record<number, { nomenclature: boolean; quantity: boolean }> = {};
+        tableData.forEach((data) => {
+            newErrors[data.id] = { nomenclature: false, quantity: false };
+        });
+
+        const newGlobalErrors = { warehouse: false, warehouseRec: false };
+
+        if (warehouseId === 0) {
+            newGlobalErrors.warehouse = true;
+            hasErrors = true;
+        }
+
+        if (documentType === "MOVING" && warehouseId === warehouseRecId) {
+            newGlobalErrors.warehouseRec = true;
+            newGlobalErrors.warehouse = true;
             hasErrors = true;
         }
 
         tableData?.map((data) => {
             if (data.nomenclatureId === 0) {
-                setErrors((prev) => ({
-                    ...prev,
-                    nomenclature: true
-                }));
+                newErrors[data.id].nomenclature = true;
                 hasErrors = true;
             }
             if (data.quantity <= 0) {
-                setErrors((prev) => ({
-                    ...prev,
-                    quantity: true
-                }));
+                newErrors[data.id].quantity = true;
                 hasErrors = true;
             }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
-            setErrors((prev) => ({
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouseRec: true,
                 warehouse: true
             }));
             hasErrors = true;
         }
+
+        setErrors(newErrors);
+        setGlobalErrors(newGlobalErrors);
 
         if (hasErrors) {
             return;
@@ -377,10 +377,15 @@ const DocumentsCreation: React.FC = () => {
     const handleSubmitSend = async () => {
         console.log("Final document creation values: ", tableData);
 
+        const newErrors: { nomenclature: boolean; quantity: boolean }[] = tableData.map(() => ({
+            nomenclature: false,
+            quantity: false
+        }));
+
         let hasErrors = false;
 
-        if (warehouseId === 0 || warehouseID === "*") {
-            setErrors((prev) => ({
+        if (warehouseId === 0) {
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouse: true
             }));
@@ -389,23 +394,17 @@ const DocumentsCreation: React.FC = () => {
 
         tableData?.map((data) => {
             if (data.nomenclatureId === 0) {
-                setErrors((prev) => ({
-                    ...prev,
-                    nomenclature: true
-                }));
+                newErrors[data.id].nomenclature = true;
                 hasErrors = true;
             }
             if (data.quantity <= 0) {
-                setErrors((prev) => ({
-                    ...prev,
-                    quantity: true
-                }));
+                newErrors[data.id].quantity = true;
                 hasErrors = true;
             }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
-            setErrors((prev) => ({
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouseRec: true,
                 warehouse: true
@@ -413,7 +412,9 @@ const DocumentsCreation: React.FC = () => {
             hasErrors = true;
         }
 
-        if(hasErrors) {
+        setErrors(newErrors);
+
+        if (hasErrors) {
             return;
         }
 
@@ -516,7 +517,7 @@ const DocumentsCreation: React.FC = () => {
                     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
-                    error={errors.nomenclature}
+                    error={errors[row.id]?.nomenclature || false}
                 />
             ),
         },
@@ -528,7 +529,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.quantity}
                     changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors.quantity}
+                    error={errors[row.id]?.quantity || false}
                 />
             ),
         },
@@ -598,7 +599,7 @@ const DocumentsCreation: React.FC = () => {
                     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
-                    error={errors.nomenclature}
+                    error={errors[row.id]?.nomenclature || false}
                 />
             ),
         },
@@ -610,7 +611,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.quantity}
                     changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors.quantity}
+                    error={errors[row.id]?.quantity || false}
                 />
             ),
         },
@@ -738,7 +739,7 @@ const DocumentsCreation: React.FC = () => {
                                         label={t("warehouse.enterWare")}
                                         classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseId(value)}
-                                        error={errors.warehouse}
+                                        error={globalErrors.warehouse}
                                     />
                                 </div>
                                 {documentType === "MOVING" && <div className="flex space-x-2">
@@ -749,7 +750,7 @@ const DocumentsCreation: React.FC = () => {
                                         label={t("warehouse.enterWare")}
                                         classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseRecId(value)}
-                                        error={errors.warehouseRec}
+                                        error={globalErrors.warehouseRec}
                                     />
                                 </div>}
                             </div>
@@ -760,6 +761,7 @@ const DocumentsCreation: React.FC = () => {
                             handleChange={handleTableChange}
                             addRow={updateRow}
                             addProduct={addProduct}
+                            deleteRow={deleteRow}
                         />
                         <div className="flex space-x-3">
                             <Button

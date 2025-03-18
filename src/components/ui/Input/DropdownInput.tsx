@@ -183,7 +183,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                     className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-10`}
                 >
                     {isEmptyState ? (
-                        <div className="p-4 text-center text-primary02">
+                        <div className="p-2 text-primary02">
                             Не найдено
                         </div>
                     ) : (

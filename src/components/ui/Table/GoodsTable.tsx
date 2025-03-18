@@ -74,6 +74,7 @@ type Props = {
     showDocument?: boolean;
     documentName?: string;
     documentTime?: string;
+    deleteRow?: () => void;
 }
 
 const GoodsTable: React.FC<Props> = ({
@@ -84,7 +85,8 @@ const GoodsTable: React.FC<Props> = ({
     addProduct,
     showDocument,
     documentName,
-    documentTime
+    documentTime,
+    deleteRow
 }: Props) => {
     const { t } = useTranslation();
     const [activeTab] = useState("tab1");
@@ -127,6 +129,9 @@ const GoodsTable: React.FC<Props> = ({
                             <button className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={addRow}>
                                 {t("routes.add")}
                             </button>
+                            <button className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal" onClick={deleteRow}>
+                                {t("marketing.delete")}
+                            </button>
                         </div>
                         <div className="space-x-2">
                             <button className="px-2 py-1 bg-background07/50 rounded">
@@ -137,7 +142,7 @@ const GoodsTable: React.FC<Props> = ({
                             </button>
                         </div>
                     </div>) : (
-                        <div className="flex space-x-3 text-text02 p-2 sm:p-4">
+                        <div className="flex space-x-3 text-text02 font-semibold p-2 sm:p-4">
                             <div>{documentName}</div>
                             <div>{documentTime}</div>
                         </div>

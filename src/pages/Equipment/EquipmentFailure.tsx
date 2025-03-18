@@ -134,11 +134,11 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: allProgramsData } = useSWR(formData.posId !== 0 ? [`get-all-programs`, formData.posId] : null, () => getPrograms({ posId: formData.posId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const workers: { name: string; value: number; }[] = (workerData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const programs: { name: string; value: number; }[] = formData.posId === 0 ? [] : allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const programs: { name: string; value: number; }[] = formData.posId === 0 ? [] : (allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const incidents: Incident[] = data
         ?.map((item: Incident) => ({
@@ -153,15 +153,15 @@ const EquipmentFailure: React.FC = () => {
         incidentMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, incidentMutate]);
 
-    const devices: { name: string; value: string; }[] = formData.posId === 0 ? [] : deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
+    const devices: { name: string; value: string; }[] = formData.posId === 0 ? [] : (deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const equipmentKnots: { name: string; value: number; }[] = formData.posId === 0 ? [] : equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const equipmentKnots: { name: string; value: number; }[] = formData.posId === 0 ? [] : (equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const problemNames: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
+    const problemNames: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const reasons: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
+    const reasons: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const solutions: { name: string; value: number; }[] = formData.posId === 0 ? [] : incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
+    const solutions: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
@@ -356,6 +356,7 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.device")}
                         label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={devices}
+                        isEmptyState={devices.length === 0}
                         classname="w-72"
                         {...register('objectName', { required: !isEditMode && 'Device is required' })}
                         value={formData.objectName}
@@ -369,6 +370,7 @@ const EquipmentFailure: React.FC = () => {
                         label={equipmentKnots.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={equipmentKnots}
                         classname="w-72"
+                        isEmptyState={equipmentKnots.length === 0}
                         {...register('equipmentKnotId')}
                         value={formData.equipmentKnotId}
                         onChange={(value) => handleInputChange('equipmentKnotId', value)}
@@ -377,6 +379,7 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.name")}
                         label={problemNames.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={problemNames}
+                        isEmptyState={problemNames.length === 0}
                         classname="w-72"
                         {...register('incidentNameId')}
                         value={formData.incidentNameId}
@@ -387,6 +390,7 @@ const EquipmentFailure: React.FC = () => {
                         label={reasons.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={reasons}
                         classname="w-72"
+                        isEmptyState={reasons.length === 0}
                         {...register('incidentReasonId')}
                         value={formData.incidentReasonId}
                         onChange={(value) => handleInputChange('incidentReasonId', value)}
@@ -395,6 +399,7 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.measures")}
                         label={solutions.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={solutions}
+                        isEmptyState={solutions.length === 0}
                         classname="w-72"
                         {...register('incidentSolutionId')}
                         value={formData.incidentSolutionId}
@@ -435,6 +440,7 @@ const EquipmentFailure: React.FC = () => {
                     <DropdownInput
                         title={t("equipment.program")}
                         label={programs.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                        isEmptyState={programs.length === 0}
                         options={programs}
                         classname="w-72"
                         {...register('carWashDeviceProgramsTypeId')}

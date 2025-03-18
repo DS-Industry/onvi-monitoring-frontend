@@ -27,6 +27,16 @@ enum WarehouseDocumentStatus {
     SENT = "SENT"
 }
 
+enum PurposeType {
+    SALE = "SALE",
+    INTERNAL_USE = "INTERNAL_USE"
+}
+
+enum NomeclatureStatus {
+    ACTIVE = "ACTIVE",
+    DELETED = "DELETED"
+}
+
 type NOMENCLATURE_REQUEST = {
     name: string;
     sku: string;
@@ -34,6 +44,14 @@ type NOMENCLATURE_REQUEST = {
     categoryId: number;
     supplierId?: number;
     measurement: string;
+    metaData: {
+        description?: string;
+        weight?: number;
+        height?: number;
+        width?: number;
+        length?: number;
+        purpose?: PurposeType;
+    }
 }
 
 type NOMENCLATURE_RESPONSE = {
@@ -45,6 +63,16 @@ type NOMENCLATURE_RESPONSE = {
         categoryId: number;
         supplierId?: number;
         measurement: string;
+        image?: string;
+        metaData: {
+            description?: string;
+            weight?: number;
+            height?: number;
+            width?: number;
+            length?: number;
+            purpose?: PurposeType;
+        }
+        status: NomeclatureStatus;
         createdAt: Date;
         updatedAt: Date;
         createdById: number;
@@ -66,6 +94,14 @@ type NOMENCLATURE_UPDATE_REQUEST = {
     categoryId?: number;
     supplierId?: number;
     measurement?: string;
+    metaData: {
+        description?: string;
+        weight?: number;
+        height?: number;
+        width?: number;
+        length?: number;
+        purpose?: PurposeType;
+    }
 }
 
 type CATEGORY_REQUEST = {
@@ -261,6 +297,12 @@ export async function createNomenclatureFile(body: NOMENCLATURE_FILE_REQUEST): P
 export async function updateNomenclature(body: NOMENCLATURE_UPDATE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
     console.log(body);
     const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.patch(WAREHOUSE.CREATE_NOMENCLATURE, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function deleteNomenclature(id: number): Promise<NOMENCLATURE_RESPONSE> {
+    const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.delete(WAREHOUSE.CREATE_NOMENCLATURE + `/${id}`);
     console.log(response.data);
     return response.data;
 }

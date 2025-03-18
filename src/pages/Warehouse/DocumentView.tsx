@@ -136,7 +136,7 @@ const DocumentView: React.FC = () => {
     }, [buttonOn, location.state.ownerId, navigate])
 
     return (
-        <div className="ml-20">
+        <div>
             {loadingDocument ? <TableSkeleton columnCount={10} /> :
                 <div>
                     <div className="flex flex-col sm:flex-row gap-4 py-4">
