@@ -147,12 +147,12 @@ const InventoryCreation: React.FC = () => {
                 categoryId: inventoryToEdit.categoryId,
                 measurement: inventoryToEdit.measurement,
                 supplierId: inventoryToEdit.supplierId,
-                description: inventoryToEdit.metaData.description,
-                width: inventoryToEdit.metaData.width,
-                length: inventoryToEdit.metaData.length,
-                height: inventoryToEdit.metaData.height,
-                purpose: inventoryToEdit.metaData.purpose,
-                weight: inventoryToEdit.metaData.weight
+                description: inventoryToEdit.metaData ? inventoryToEdit.metaData.description : undefined,
+                width: inventoryToEdit.metaData ? inventoryToEdit.metaData.width : undefined,
+                length: inventoryToEdit.metaData ? inventoryToEdit.metaData.length : undefined,
+                height: inventoryToEdit.metaData ? inventoryToEdit.metaData.height : undefined,
+                purpose: inventoryToEdit.metaData ? inventoryToEdit.metaData.purpose : undefined,
+                weight: inventoryToEdit.metaData ? inventoryToEdit.metaData.weight : undefined
             });
         }
     };
@@ -277,6 +277,7 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("warehouse.category")} *`}
                         label={categories.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={categories}
+                        isEmptyState={categories.length === 0}
                         classname="w-64"
                         {...register('categoryId', {
                             required: !isEditMode && 'Category Id is required',
@@ -292,6 +293,7 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("routes.suppliers")}`}
                         label={suppliers.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={suppliers}
+                        isEmptyState={suppliers.length === 0}
                         classname="w-64"
                         {...register('supplierId')}
                         value={formData.supplierId}
@@ -301,6 +303,7 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("warehouse.organization")} *`}
                         label={organizations.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={organizations}
+                        isEmptyState={organizations.length === 0}
                         classname="w-64"
                         {...register('organizationId', {
                             required: !isEditMode && 'Organization Id is required',

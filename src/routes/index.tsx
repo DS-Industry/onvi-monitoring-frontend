@@ -68,6 +68,11 @@ import PosConnection from "@/pages/Organization/PosConnection";
 import Warehouse from "@/pages/Warehouse/Warehouse";
 import PlanAct from "@/pages/Pos/PlanAct";
 import InviteUser from "@/pages/Onboarding/InviteUser";
+import Employees from "@/pages/Hr/Employees";
+import Positions from "@/pages/Hr/Positions";
+import SalaryCalculation from "@/pages/Hr/SalaryCalculation";
+import EmployeeAdvance from "@/pages/Hr/EmployeeAdvance";
+import EmployeeProfile from "@/pages/Hr/EmployeeProfile";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -134,14 +139,22 @@ const routes = [
   {
     name: "hr",
     path: "/Hr",
-    subMenu: false,
+    subMenu: true,
     filter: false,
     addButton: false,
     addButtonText: "",
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "HR" }]
+    permissions: [],
+    subNavHeading: "directories",
+    subNav: [
+      { name: "employees", filter: true, addButton: true, addButtonText: "addE", isVisible: true, path: "/hr/employees", component: Employees, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "sid", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/hr/employees/profile", component: EmployeeProfile, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "positions", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/positions", component: Positions, permissions: [], isSidebar: true, isHr: true, titleName: "", subNav: [], subMenu: false },
+      { name: "salary", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/salary", component: SalaryCalculation, permissions: [], isSidebar: true, isHr: false, titleName: "reports", subNav: [], subMenu: false },
+      { name: "empAdv", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance", component: EmployeeAdvance, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
+    ]
   },
   {
     name: "finance",

@@ -1190,3 +1190,14 @@ export const columnsPlanFact = [
     type: "percent"
   }
 ]
+
+export const columnsEmployee = [
+  {
+    label: "ФИО Сотрудника",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "job"
+  }
+]
