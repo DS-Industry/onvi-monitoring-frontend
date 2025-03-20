@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button/Button";
 import { useButtonCreate } from "@/components/context/useContext";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsEmployee } from "@/utils/OverFlowTableData";
+import useFormHook from "@/hooks/useFormHook";
 
 const Employees: React.FC = () => {
     const { t } = useTranslation();
@@ -20,6 +21,47 @@ const Employees: React.FC = () => {
     const tableData = [
         { name: "Steve", job: "Manager" }
     ];
+
+    const defaultValues = {
+        fullName: "",
+        job: "",
+        date: "",
+        telephone: "",
+        email: "",
+        comment: "",
+        monthly: 0,
+        daily: 0,
+        percent: 0,
+        floor: "",
+        citizen: "",
+        passport: "",
+        tin: "",
+        insurance: ""
+    }
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
+
+    type FieldType = "fullName" | "job" | "date" | "telephone" | "email" | "comment" | "monthly" | "daily" | "percent" | "floor" | "citizen" | "passport" | "tin" | "insurance";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        const numericFields = ["monthly", "daily", "percent"];
+        const updatedValue = numericFields.includes(field) ? Number(value) : value;
+        setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+        setValue(field, value);
+    };
+
+    const resetForm = () => {
+        setFormData(defaultValues);
+        reset();
+        setButtonOn(!buttonOn);
+    };
+
+    const onSubmit = async (data: unknown) => {
+        console.log("Errors: ", errors);
+        console.log('Form data:', data);
+    };
 
     return (
         <div>
@@ -43,8 +85,8 @@ const Employees: React.FC = () => {
                     />
                 </div>
             </div>
-            <DrawerCreate>
-                <form className="space-y-4">
+            <DrawerCreate onClose={resetForm}>
+                <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.addE")}</div>
                     {notificationVisibleForm && (
                         <Notification
@@ -65,55 +107,35 @@ const Employees: React.FC = () => {
                         label={t("hr.enter")}
                         type={"text"}
                         classname="w-80"
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
+                        value={formData.fullName}
+                        changeValue={(e) => handleInputChange('fullName', e.target.value)}
+                        error={!!errors.fullName}
+                        {...register('fullName', { required: 'fullName is required' })}
+                        helperText={errors.fullName?.message || ''}
                     />
                     <DropdownInput
                         title={`${t("roles.job")}*`}
                         label={t("hr.selectPos")}
-                        value={undefined}
-                        options={[]}
+                        options={[
+                            { name: t("hr.accountant"), value: "Accountant" },
+                            { name: t("hr.washer"), value: "Washer" },
+                            { name: t("hr.lineOperator"), value: "LineOperator" }
+                        ]}
                         classname="w-64"
-                    />
-                    <div className="flex space-x-2">
-                        <input type="checkbox" className="w-[18px] h-[18px]" />
-                        <div className="text-text01">{t("hr.access")}</div>
-                    </div>
-                    <Input
-                        title={`${t("login.password")}*`}
-                        label={t("login.password")}
-                        type={"password"}
-                        classname="w-80"
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
-                    />
-                    <Input
-                        title={`${t("hr.confirm")}*`}
-                        label={t("login.password")}
-                        type={"password"}
-                        classname="w-80"
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
+                        {...register('job', { required: 'job is required' })}
+                        value={formData.job}
+                        onChange={(value) => handleInputChange('job', value)}
+                        error={!!errors.job}
+                        helperText={errors.job?.message || ''}
                     />
                     <div>
                         <div className="text-sm text-text02">{t("hr.date")}</div>
                         <Input
                             type={"date"}
                             classname="w-40"
-                        // value={formData.name}
-                        // changeValue={(e) => handleInputChange('name', e.target.value)}
-                        // error={!!errors.name}
-                        // {...register('name', { required: !isEditMode && 'Name is required' })}
-                        // helperText={errors.name?.message || ''}
+                            value={formData.date}
+                            changeValue={(e) => handleInputChange('date', e.target.value)}
+                            {...register('date')}
                         />
                     </div>
                     <Input
@@ -121,27 +143,34 @@ const Employees: React.FC = () => {
                         title={t("profile.telephone")}
                         label={t("warehouse.enterPhone")}
                         classname="w-80"
-                    // value={formData.telephone}
-                    // changeValue={(e) => handleInputChange('telephone', e.target.value)}
-                    // {...register('telephone')}
+                        value={formData.telephone}
+                        changeValue={(e) => handleInputChange('telephone', e.target.value)}
+                        {...register('telephone', {
+                            pattern: {
+                                value: /^\+79\d{9}$/,
+                                message: 'Phone number must start with +79 and be 11 digits long'
+                            }
+                        })}
+                        error={!!errors.telephone}
+                        helperText={errors.telephone?.message || ""}
                     />
                     <Input
                         type=""
                         title={"E-mail"}
                         label={t("marketing.enterEmail")}
                         classname="w-80"
-                    // value={formData.email}
-                    // changeValue={(e) => handleInputChange('email', e.target.value)}
-                    // {...register('email')}
+                        value={formData.email}
+                        changeValue={(e) => handleInputChange('email', e.target.value)}
+                        {...register('email')}
                     />
                     <MultilineInput
                         title={t("warehouse.desc")}
                         label={t("warehouse.about")}
                         classname="w-80"
                         inputType="secondary"
-                        // value={formData.description}
-                        changeValue={() => { }}
-                    // {...register('description')}
+                        value={formData.comment}
+                        changeValue={(e) => handleInputChange('comment', e.target.value)}
+                        {...register('comment')}
                     />
                     <div>
                         <div className="text-sm text-text02">{t("profile.photo")}</div>
@@ -153,79 +182,81 @@ const Employees: React.FC = () => {
                     <div className="text-text01 font-semibold text-2xl">{t("hr.salary")}</div>
                     <Input
                         title={`${t("hr.month")}*`}
-                        type={"text"}
+                        type={"number"}
                         classname="w-44"
                         showIcon={true}
                         IconComponent={<div className="text-text02 text-xl">₽</div>}
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
+                        value={formData.monthly}
+                        changeValue={(e) => handleInputChange('monthly', e.target.value)}
+                        error={!!errors.monthly}
+                        {...register('monthly', { required: 'monthly is required' })}
+                        helperText={errors.monthly?.message || ''}
                     />
                     <Input
                         title={`${t("hr.daily")}*`}
                         type={"number"}
                         classname="w-44"
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
+                        value={formData.daily}
+                        changeValue={(e) => handleInputChange('daily', e.target.value)}
+                        error={!!errors.daily}
+                        {...register('daily', { required: 'daily is required' })}
+                        helperText={errors.daily?.message || ''}
                     />
                     <Input
                         title={`${t("marketing.per")}*`}
                         type={"number"}
                         classname="w-44"
-                    // value={formData.name}
-                    // changeValue={(e) => handleInputChange('name', e.target.value)}
-                    // error={!!errors.name}
-                    // {...register('name', { required: !isEditMode && 'Name is required' })}
-                    // helperText={errors.name?.message || ''}
+                        value={formData.percent}
+                        changeValue={(e) => handleInputChange('percent', e.target.value)}
+                        error={!!errors.percent}
+                        {...register('percent', { required: 'percent is required' })}
+                        helperText={errors.percent?.message || ''}
                     />
                     <div className="text-text01 font-semibold text-2xl">{t("hr.add")}</div>
                     <DropdownInput
                         title={`${t("marketing.floor")}`}
                         label={t("warehouse.notSel")}
-                        value={undefined}
                         options={[]}
                         classname="w-64"
+                        {...register('floor')}
+                        value={formData.floor}
+                        onChange={(value) => handleInputChange('floor', value)}
                     />
                     <Input
                         type=""
                         title={t("hr.citi")}
                         label={t("hr.enterCiti")}
                         classname="w-80"
-                    // value={formData.telephone}
-                    // changeValue={(e) => handleInputChange('telephone', e.target.value)}
-                    // {...register('telephone')}
+                        value={formData.citizen}
+                        changeValue={(e) => handleInputChange('citizen', e.target.value)}
+                        {...register('citizen')}
                     />
                     <MultilineInput
                         title={t("hr.pass")}
                         label={t("hr.enterPass")}
                         classname="w-80"
                         inputType="secondary"
-                        // value={formData.description}
-                        changeValue={() => { }}
-                    // {...register('description')}
+                        value={formData.passport}
+                        changeValue={(e) => handleInputChange('passport', e.target.value)}
+                        {...register('passport')}
                     />
                     <Input
                         type=""
                         title={t("organizations.tin")}
                         label={t("hr.enterTin")}
                         classname="w-80"
-                    // value={formData.telephone}
-                    // changeValue={(e) => handleInputChange('telephone', e.target.value)}
-                    // {...register('telephone')}
+                        value={formData.tin}
+                        changeValue={(e) => handleInputChange('tin', e.target.value)}
+                        {...register('tin')}
                     />
                     <Input
                         type=""
                         title={t("hr.insu")}
                         label={t("hr.enterInsu")}
                         classname="w-80"
-                    // value={formData.telephone}
-                    // changeValue={(e) => handleInputChange('telephone', e.target.value)}
-                    // {...register('telephone')}
+                        value={formData.insurance}
+                        changeValue={(e) => handleInputChange('insurance', e.target.value)}
+                        {...register('insurance')}
                     />
                     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button
@@ -233,7 +264,7 @@ const Employees: React.FC = () => {
                             type="outline"
                             handleClick={() => {
                                 setButtonOn(!buttonOn);
-                                // resetForm();
+                                resetForm();
                             }}
                         />
                         <Button

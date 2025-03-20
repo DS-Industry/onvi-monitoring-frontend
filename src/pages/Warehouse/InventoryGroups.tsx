@@ -170,7 +170,7 @@ const InventoryGroups: React.FC = () => {
                     <img src={InventoryEmpty} className="mx-auto" />
                 </NoDataUI>
             }
-            <DrawerCreate classname="w-[440px]">
+            <DrawerCreate classname="w-[440px]" onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.groupCreate")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>

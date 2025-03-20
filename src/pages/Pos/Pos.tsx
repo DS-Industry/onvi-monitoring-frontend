@@ -290,7 +290,7 @@ const Pos: React.FC = () => {
                     )}
 
 
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 {notificationVisible && organizations.length === 0 && (
                     <Notification
                         title={t("organizations.legalEntity")}

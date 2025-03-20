@@ -90,6 +90,7 @@
     "salary": "Salary calculation",
     "empAdv": "Employee advance",
     "addE": "Add an employee",
+    "save": "Save",
     "sid": "Sidorov Egor Andreevich"
   },
   "dashboard": {
@@ -791,6 +792,7 @@
     "washer": "Washer",
     "lineOperator": "Line Operator",
     "info": "Information",
-    "addi": "Add. Information"
+    "addi": "Add. Information",
+    "auto": "Autofill Graph Template"
   }
 }

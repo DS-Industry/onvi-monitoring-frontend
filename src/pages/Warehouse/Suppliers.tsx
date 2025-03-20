@@ -94,7 +94,7 @@ const Suppliers: React.FC = () => {
                     </NoDataUI>
                 </div>
             }
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.suppliers")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>
