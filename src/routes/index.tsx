@@ -146,7 +146,7 @@ const routes = [
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
-    permissions: [],
+    permissions: [{ action: "manage", subject: "HR"}],
     subNavHeading: "directories",
     subNav: [
       { name: "employees", filter: true, addButton: true, addButtonText: "addE", isVisible: true, path: "/hr/employees", component: Employees, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
