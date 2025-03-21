@@ -1255,3 +1255,35 @@ export const columnsSalaryCalcCreation = [
     type: "number"
   }
 ]
+
+export const columnsClients = [
+  {
+    label: "Тип клиента",
+    key: "type"
+  },
+  {
+    label: "Имя клиента",
+    key: "name"
+  },
+  {
+    label: "Город",
+    key: "city"
+  },
+  {
+    label: "Телефон",
+    key: "phone"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Теги",
+    key: "tags",
+    type: "tags"
+  },
+  {
+    label: "Комментарий",
+    key: "comment"
+  }
+]

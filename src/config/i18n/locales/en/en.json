@@ -424,7 +424,7 @@
     "phys": "Phys. face",
     "name": "Client name",
     "enterName": "Enter client name",
-    "floor": "Floor",
+    "floor": "Gender",
     "enterEmail": "Enter employee email",
     "disc": "Personal discount amount",
     "about": "About the client",
@@ -573,7 +573,14 @@
     "high": "Highlighted",
     "delete": "Delete",
     "addA": "Add a tag",
-    "remove": "Remove tag"
+    "remove": "Remove tag",
+    "physical": "Physical",
+    "legal": "Legal",
+    "man": "Man",
+    "woman": "Woman",
+    "inn": "INN",
+    "limit": "Card Limit",
+    "gen": "Generate number automatically"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

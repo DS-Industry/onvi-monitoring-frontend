@@ -4,50 +4,51 @@ import Check from "@/assets/icons/CheckCircle.png";
 
 interface Option {
     id: number;
-    label: string;
+    name: string;
     color: string;
 }
 
 interface MultiInputProps {
     options: Option[];
-    value?: Option[]; // Add value prop
+    value?: number[]; // Add value prop
     placeholder?: string;
     onChange: (selectedOptions: Option[]) => void;
 }
 
 const MultiInput: React.FC<MultiInputProps> = ({
     options,
-    value = [], // Default to an empty array if value is not provided
+    value = [], 
     placeholder = "Название тега",
     onChange,
 }) => {
-    const [selectedOptions, setSelectedOptions] = useState<Option[]>(value); // Use value for initial state
+    const [selectedOptions, setSelectedOptions] = useState<Option[]>(
+        options.filter((opt) => value.includes(opt.id))
+    ); 
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Update local state if the value prop changes
     useEffect(() => {
-        setSelectedOptions(value);
-    }, [value]);
+        setSelectedOptions(options.filter((opt) => value.includes(opt.id)));
+    }, [options, value]);
 
     const handleSelect = (option: Option) => {
         if (!selectedOptions.some((opt) => opt.id === option.id)) {
             const updatedOptions = [...selectedOptions, option];
-            setSelectedOptions(updatedOptions); // Update local state
-            onChange(updatedOptions); // Notify parent
+            setSelectedOptions(updatedOptions); 
+            onChange(updatedOptions); 
         }
-        setSearchQuery(""); // Clear the search query after selection
+        setSearchQuery(""); 
     };
 
     const handleRemove = (id: number) => {
         const updatedOptions = selectedOptions.filter((opt) => opt.id !== id);
-        setSelectedOptions(updatedOptions); // Update local state
-        onChange(updatedOptions); // Notify parent
+        setSelectedOptions(updatedOptions); 
+        onChange(updatedOptions); 
     };
 
     const filteredOptions = options.filter((opt) =>
-        opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+        opt.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     useEffect(() => {
@@ -73,7 +74,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         className={`flex items-center gap-2 p-2.5 text-sm font-semibold rounded`}
                         style={{ backgroundColor: option.color, color: "#fff" }}
                     >
-                        {option.label}
+                        {option.name}
                         <button
                             className="text-white"
                             onClick={(e) => {
@@ -115,7 +116,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                                         className="p-1 rounded"
                                     >
                                         <span className="text-sm font-semibold text-white">
-                                            {option.label}
+                                            {option.name}
                                         </span>
                                     </div>
                                     {/* Align check icon at the end of the option */}
