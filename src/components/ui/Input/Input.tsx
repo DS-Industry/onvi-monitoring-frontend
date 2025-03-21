@@ -33,20 +33,25 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     useEffect(() => {
         if (id) {
             const inputElement = document.getElementById(id) as HTMLInputElement;
+    
             if (inputElement) {
-                const observer = new MutationObserver(() => {
-                    if (inputElement.value && inputElement.value !== "") {
+                const checkAutofill = () => {
+                    if (inputElement.matches(":-webkit-autofill") || inputElement.value) {
                         setIsPreFilled(true);
+                    } else {
+                        setIsPreFilled(false);
                     }
-                });
-
-                observer.observe(inputElement, { attributes: true, attributeFilter: ["value"] });
-
-                // Cleanup observer
+                };
+    
+                checkAutofill(); 
+    
+                const observer = new MutationObserver(() => checkAutofill());
+                observer.observe(inputElement, { attributes: true, childList: true, subtree: true });
+    
                 return () => observer.disconnect();
             }
         }
-    }, [id]);
+    }, [id]);    
     
     const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
