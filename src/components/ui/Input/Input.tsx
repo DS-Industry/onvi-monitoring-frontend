@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from 'feather-icons-react';
 
 type InputProps = {
@@ -22,8 +22,15 @@ type InputProps = {
 const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'forth', showIcon = false, IconComponent, classname, title, id, placeholder }: InputProps, defaultValue) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isPreFilled, setIsPreFilled] = useState(false);
 
-    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== '' && defaultValue !== ''  && defaultValue !== undefined);
+    useEffect(() => {
+        if (value || defaultValue) {
+            setIsPreFilled(true);
+        }
+    }, [value, defaultValue]);
+
+    const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
         if (!disabled) {
             setShowPassword(!showPassword);
@@ -34,7 +41,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
 
     return (
         <div className={`relative ${classname}`}>
-            {title && title[title?.length - 1] === "*" ?<label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label>  : <label className="text-sm text-text02">{title}</label>}
+            {title && title[title?.length - 1] === "*" ? <label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label> : <label className="text-sm text-text02">{title}</label>}
             <div className="relative">
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
