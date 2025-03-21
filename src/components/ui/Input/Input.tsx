@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import Icon from 'feather-icons-react';
 
 type InputProps = {
@@ -19,7 +19,7 @@ type InputProps = {
     placeholder?: string;
 }
 
-const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'forth', showIcon = false, IconComponent, classname, title, id, placeholder }: InputProps, defaultValue) => {
+const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, error = false, label, helperText, disabled = false, inputType = 'forth', showIcon = false, IconComponent, classname, title, id = "my-input", placeholder }: InputProps, defaultValue) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isPreFilled, setIsPreFilled] = useState(false);
@@ -30,6 +30,24 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
         }
     }, [value]);
 
+    useEffect(() => {
+        if (id) {
+            const inputElement = document.getElementById(id) as HTMLInputElement;
+            if (inputElement) {
+                const observer = new MutationObserver(() => {
+                    if (inputElement.value && inputElement.value !== "") {
+                        setIsPreFilled(true);
+                    }
+                });
+
+                observer.observe(inputElement, { attributes: true, attributeFilter: ["value"] });
+
+                // Cleanup observer
+                return () => observer.disconnect();
+            }
+        }
+    }, [id]);
+    
     const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
         if (!disabled) {
