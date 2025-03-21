@@ -36,7 +36,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     
             if (inputElement) {
                 const checkAutofill = () => {
-                    if (inputElement.matches(":-webkit-autofill") || inputElement.value) {
+                    if (inputElement.value.trim() !== "") {
                         setIsPreFilled(true);
                     } else {
                         setIsPreFilled(false);
@@ -44,14 +44,14 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                 };
     
                 checkAutofill(); 
-    
+
                 const observer = new MutationObserver(() => checkAutofill());
-                observer.observe(inputElement, { attributes: true, childList: true, subtree: true });
+                observer.observe(inputElement, { attributes: true, attributeFilter: ["value"] });
     
                 return () => observer.disconnect();
             }
         }
-    }, [id]);    
+    }, [id]);        
     
     const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
@@ -86,6 +86,11 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                     onBlur={() => setIsFocused(false)}
                     id={id}
                     placeholder={placeholder}
+                    onAnimationStart={(e) => {
+                        if (e.animationName === "onAutoFill") {
+                            setIsPreFilled(true);
+                        }
+                    }}
                 />
                 {type === "password" && (
                     <div

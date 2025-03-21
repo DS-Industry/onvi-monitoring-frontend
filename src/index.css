@@ -7,6 +7,16 @@
     background-color: white !important;
 }
 
+@keyframes onAutoFill {
+    from {}
+    to {}
+}
+
+input:-webkit-autofill {
+    animation-name: onAutoFill;
+    animation-duration: 1ms;
+}
+
 /* body {
     background-color: white; 
     color: black; 
