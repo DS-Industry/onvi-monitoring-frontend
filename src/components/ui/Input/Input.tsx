@@ -25,10 +25,10 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     const [isPreFilled, setIsPreFilled] = useState(false);
 
     useEffect(() => {
-        if (value || defaultValue) {
+        if (value) {
             setIsPreFilled(true);
         }
-    }, [value, defaultValue]);
+    }, [value]);
 
     const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
