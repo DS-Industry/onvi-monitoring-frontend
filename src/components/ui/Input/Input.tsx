@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import Icon from 'feather-icons-react';
 
 type InputProps = {
@@ -24,8 +24,8 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     const [showPassword, setShowPassword] = useState(false);
     const [isPreFilled, setIsPreFilled] = useState(false);
 
-    useEffect(() => {
-        if (value) {
+    useLayoutEffect(() => {
+        if (value && value !== "") {
             setIsPreFilled(true);
         }
     }, [value]);
