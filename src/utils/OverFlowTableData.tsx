@@ -1201,3 +1201,57 @@ export const columnsEmployee = [
     key: "job"
   }
 ]
+
+export const columnsPositions = [
+  {
+    label: "Должность",
+    key: "jobTitle"
+  },
+  {
+    label: "Роль CRM",
+    key: "role"
+  },
+  {
+    label: "Доступ к программе",
+    key: "access"
+  },
+  {
+    label: "Описание",
+    key: "description"
+  }
+]
+
+export const columnsSalaryCalcCreation = [
+  {
+    label: "Мойка/Филиал",
+    key: "posName"
+  },
+  {
+    label: "ФИО Сотрудника",
+    key: "fullName"
+  },
+  {
+    label: "Должность",
+    key: "jobTitle"
+  },
+  {
+    label: "Оклад",
+    key: "salary",
+    type: "number"
+  },
+  {
+    label: "Посменное начисление",
+    key: "shift",
+    type: "number"
+  },
+  {
+    label: "Процент",
+    key: "percent",
+    type: "number"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "shifts",
+    type: "number"
+  }
+]
