@@ -517,6 +517,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   title={isMobile ? "" : t("routes.importClients")}
                   type="outline"
                   classname="mr-2"
+                  iconPlus={true}
                   handleClick={() => navigate('/marketing/clients/import')}
                 />
               )}

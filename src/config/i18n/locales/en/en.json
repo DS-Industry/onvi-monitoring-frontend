@@ -580,7 +580,9 @@
     "woman": "Woman",
     "inn": "INN",
     "limit": "Card Limit",
-    "gen": "Generate number automatically"
+    "gen": "Generate number automatically",
+    "loy": "Loyalty Level",
+    "reg": "Registration date"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

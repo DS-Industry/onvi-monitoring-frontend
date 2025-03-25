@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Icon from "feather-icons-react";
 import Check from "@/assets/icons/CheckCircle.png";
+import { useTranslation } from "react-i18next";
 
 interface Option {
     id: number;
@@ -21,6 +22,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
     placeholder = "Название тега",
     onChange,
 }) => {
+    const { t } = useTranslation();
     const [selectedOptions, setSelectedOptions] = useState<Option[]>(
         options.filter((opt) => value.includes(opt.id))
     ); 
@@ -29,8 +31,12 @@ const MultiInput: React.FC<MultiInputProps> = ({
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setSelectedOptions(options.filter((opt) => value.includes(opt.id)));
-    }, [options, value]);
+        const newSelectedOptions = options.filter((opt) => value.includes(opt.id));
+        if (JSON.stringify(newSelectedOptions) !== JSON.stringify(selectedOptions)) {
+            setSelectedOptions(newSelectedOptions);
+        }
+    }, [options, selectedOptions, value]);
+    
 
     const handleSelect = (option: Option) => {
         if (!selectedOptions.some((opt) => opt.id === option.id)) {
@@ -65,9 +71,10 @@ const MultiInput: React.FC<MultiInputProps> = ({
     }, []);
 
     return (
-        <div className="relative w-full" ref={dropdownRef}>
+        <div className="relative w-80" ref={dropdownRef}>
             {/* Input Box */}
-            <div className="border rounded-md px-3 py-2 w-80 flex items-center gap-2 flex-wrap bg-white">
+            <div className="text-text02 text-sm">{t("marketing.tags")}</div>
+            <div className="border rounded-md px-3 py-3 w-80 flex items-center gap-2 flex-wrap bg-white">
                 {selectedOptions.map((option) => (
                     <div
                         key={option.id}
@@ -86,7 +93,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         </button>
                     </div>
                 ))}
-
                 <input
                     type="text"
                     placeholder={selectedOptions.length === 0 ? placeholder : ""}
@@ -99,7 +105,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
 
             {/* Dropdown */}
             {isOpen && (
-                <ul className="absolute left-0 right-0 max-h-48 overflow-auto bg-white border shadow-lg w-80 z-10 mt-1 rounded-md">
+                <ul className="absolute left-0 right-0 max-h-48 overflow-auto bg-white border shadow-lg w-80 z-10 mt-1 p-2 space-y-2 rounded-md">
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => (
                             <li

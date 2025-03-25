@@ -74,7 +74,7 @@ type ClientUpdate = {
     comment?: string;
     placementId?: number;
     monthlyLimit?: number;
-    tagIds: number[];
+    tagIds?: number[];
 }
 
 type ClientsParams = {

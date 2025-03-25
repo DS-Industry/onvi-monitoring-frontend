@@ -1,5 +1,5 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClientEmpty from "@/assets/NoMarketing.png";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -8,19 +8,30 @@ import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Icon from "feather-icons-react";
 import Button from "@/components/ui/Button/Button";
 import MultiInput from "@/components/ui/Input/MultiInput";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
-import { columnsClients } from "@/utils/OverFlowTableData";
+// import OverflowTable from "@/components/ui/Table/OverflowTable";
+// import { columnsClients } from "@/utils/OverFlowTableData";
 // import { Tooltip } from "@material-tailwind/react";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
-import SearchInput from "@/components/ui/Input/SearchInput";
+import { useButtonCreate, useFilterOn } from "@/components/context/useContext";
+// import SearchInput from "@/components/ui/Input/SearchInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getPlacement } from "@/services/api/device";
-import { createClient, getClients, getTags } from "@/services/api/marketing";
+import { createClient, getClientById, getClients, getTags, updateClient } from "@/services/api/marketing";
 import useSWRMutation from "swr/mutation";
-import { useCity } from "@/hooks/useAuthStore";
+import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetPageNumber } from "@/hooks/useAuthStore";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+// import ClientTable from "@/components/ui/Table/ClientsTable";
+import { Tag } from "antd";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import Filter from "@/components/ui/Filter/Filter";
+
+enum StatusUser {
+    VERIFICATE = "VERIFICATE",
+    ACTIVE = "ACTIVE",
+    BLOCKED = "BLOCKED",
+    DELETED = "DELETED",
+}
 
 enum UserType {
     PHYSICAL = "PHYSICAL",
@@ -43,29 +54,102 @@ type Client = {
     tagIds: number[];
 }
 
+type ClientsParams = {
+    placementId: number | string;
+    type: UserType | string;
+    tagIds?: number[];
+    phone?: string;
+    page?: number;
+    size?: number;
+}
+
 const Clients: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const [openTag, setOpenTag] = useState(false);
-    const [hoveredTag, setHoveredTag] = useState("del");
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
-    const [searchQuery, setSearchQuery] = useState("");
+    // const [openTag, setOpenTag] = useState(false);
+    // const [hoveredTag, setHoveredTag] = useState("del");
+    // const dropdownRef = useRef<HTMLDivElement | null>(null);
+    // const [searchQuery, setSearchQuery] = useState("");
     const [viewLoyalty, setViewLoyalty] = useState(false);
+    const [userType, setUserType] = useState("*");
+    const [cardNo, setCardNo] = useState("");
+    const [phone, setPhone] = useState<string | undefined>(undefined);
+    const [tagIds, setTagIds] = useState<number[] | undefined>(undefined);
+    const [status, setStatus] = useState("");
+    const [loyLevel, setLoyLevel] = useState("");
+    const [regDate, setRegDate] = useState("");
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editClientId, setEditClientId] = useState<number>(0);
+    const city = useCity();
+    const setCity = useSetCity();
+    const [isTableLoading, setIsTableLoading] = useState(false);
+    const { filterOn } = useFilterOn();
+    const pageNumber = usePageNumber();
+    const setPageNumber = useSetPageNumber();
+    const currentPage = useCurrentPage();
+
 
     // const tableData = [
     //     { type: "Физ.лицо", name: "Testing Profile" }
     // ];
 
-    const city = useCity();
-
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: clientsData, isLoading: loadingClients } = useSWR([`get-clients`], () => getClients({
-        placementId: city,
-        type: "PHYSICAL"
+    const { data: clientsData, isLoading: loadingClients, mutate: clientsMutating } = useSWR([`get-clients`], () => getClients({
+        placementId: dataFilter.placementId,
+        type: dataFilter.type,
+        tagIds: dataFilter.tagIds,
+        phone: dataFilter.phone,
+        page: dataFilter.page,
+        size: dataFilter.size
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: clientData } = useSWR(editClientId !== 0 ? [`get-client-by-id`] : null, () => getClientById(editClientId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const clients = clientsData || [];
+
+    const initialFilter = {
+        placementId: city,
+        type: userType,
+        tagIds: tagIds,
+        phone: phone,
+        page: currentPage,
+        size: pageNumber
+    }
+
+    const [dataFilter, setDataFilter] = useState<ClientsParams>(initialFilter);
+
+    const handleDataFilter = (newFilterData: Partial<ClientsParams>) => {
+        setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.type) setUserType(newFilterData.type);
+        if (newFilterData.tagIds) setTagIds(newFilterData.tagIds);
+        if (newFilterData.phone) setPhone(newFilterData.phone);
+        if (newFilterData.size) setPageNumber(newFilterData.size);
+    }
+
+    useEffect(() => {
+        handleDataFilter({
+            placementId: city,
+            type: userType,
+            tagIds: tagIds,
+            phone: phone,
+            page: currentPage,
+            size: pageNumber
+        })
+    }, [filterOn])
+
+    useEffect(() => {
+        clientsMutating().then(() => setIsTableLoading(false));
+    }, [dataFilter, clientsMutating]);
+
+    const handleClear = () => {
+        setCity(city);
+        setUserType("*");
+        setTagIds(undefined);
+        setPhone(undefined);
+    }
 
     const { data: tagsData } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -73,14 +157,21 @@ const Clients: React.FC = () => {
 
     const options = tagsData ? tagsData.map((tag) => tag.props) : [];
 
-    const filteredOptions = options.filter((opt) =>
-        opt.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // const filteredOptions = options.filter((opt) =>
+    //     opt.name.toLowerCase().includes(searchQuery.toLowerCase())
+    // );
 
     const handleSelectionChange = (selected: typeof options) => {
         console.log("Selected Options:", selected);
         const selectedIds = selected.map((sel) => sel.id);
         handleInputChange("tagIds", selectedIds);
+    };
+
+
+    const handleSelectionTagChange = (selected: typeof options) => {
+        console.log("Selected Options:", selected);
+        const selectedIds = selected.map((sel) => sel.id);
+        setTagIds(selectedIds);
     };
 
     const defaultValues: Client = {
@@ -119,6 +210,17 @@ const Clients: React.FC = () => {
         monthlyLimit: formData.monthlyLimit
     }));
 
+    const { trigger: updateCl, isMutating: updatingClient } = useSWRMutation(['update-client'], async () => updateClient({
+        clientId: editClientId,
+        name: formData.name,
+        type: formData.type,
+        inn: formData.inn,
+        comment: formData.comment,
+        placementId: formData.placementId,
+        monthlyLimit: formData.monthlyLimit,
+        tagIds: formData.tagIds
+    }));
+
     type FieldType = "number" | "name" | "type" | "email" | "birthday" | "phone" | "gender" | "inn" | "comment" | "placementId" | "devNumber" | "monthlyLimit" | "tagIds" | `tagIds.${number}`;
 
     const handleInputChange = (field: FieldType, value: any) => {
@@ -128,9 +230,48 @@ const Clients: React.FC = () => {
         setValue(field, value);
     };
 
+    const handleUpdate = (id: number) => {
+        setEditClientId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+        
+        console.log(id);
+        console.log(isEditMode);
+        const clientToEdit = clients.find((client) => client.id === id);
+        console.log(clientToEdit);
+        if (clientToEdit) {
+            setFormData({
+                type: clientToEdit.type,
+                name: clientToEdit.name,
+                phone: clientToEdit.phone,
+                comment: clientToEdit.comment,
+                tagIds: clientToEdit.tags.map((tag) => tag.id),
+                placementId: clientToEdit.placementId
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (clientData) {
+            console.log("Birthday: ", clientData.birthday);
+            setFormData((prevData) => ({
+                ...prevData,
+                birthday: clientData.birthday ? clientData.birthday.split("T")[0] : undefined, 
+                email: clientData.email,
+                inn: clientData.inn,
+                gender: clientData.gender,
+                devNumber: clientData.card?.devNumber,
+                number: clientData.card?.number,
+                monthlyLimit: clientData.card?.monthlyLimit,
+            }));
+        }
+    }, [clientData]); 
+
     const resetForm = () => {
         setFormData(defaultValues);
+        setIsEditMode(false);
         reset();
+        setEditClientId(0);
         setButtonOn(!buttonOn);
     };
 
@@ -138,51 +279,171 @@ const Clients: React.FC = () => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
 
-        const result = await createCl();
-        if (result) {
-            console.log('API Response:', result);
-            // setCategory(result.props.categoryId)
-            // mutate([`get-inventory`, result.props.categoryId, orgId]);
-            resetForm();
-        } else {
-            throw new Error('Invalid response from API');
+        try {
+            if (editClientId) {
+                const result = await updateCl();
+                console.log(result);
+                if (result) {
+                    console.log(result);
+                    // setCategory(result.props.categoryId)
+                    mutate([`get-clients`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
+            } else {
+                const result = await createCl();
+                if (result) {
+                    console.log('API Response:', result);
+                    // setCategory(result.props.categoryId)
+                    mutate([`get-clients`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
         }
     };
 
-    const tagOptions = [
-        { value: "del", name: t("marketing.delete") },
-        { value: "add", name: t("marketing.addA") },
-        { value: "remove", name: t("marketing.remove") }
+    // const tagOptions = [
+    //     { value: "del", name: t("marketing.delete") },
+    //     { value: "add", name: t("marketing.addA") },
+    //     { value: "remove", name: t("marketing.remove") }
+    // ];
+
+    // useEffect(() => {
+    //     const handleClickOutside = (event: MouseEvent) => {
+    //         if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    //             setOpenTag(false);
+    //         }
+    //     };
+
+    //     document.addEventListener("mousedown", handleClickOutside);
+
+    //     return () => {
+    //         document.removeEventListener("mousedown", handleClickOutside);
+    //     };
+    // }, []);
+
+    const columnsClients = [
+        {
+            title: "Тип клиента",
+            dataIndex: "type",
+            key: "type",
+            render: (type: UserType) => <span className="font-medium text-gray-700">{type}</span>,
+        },
+        {
+            title: "Имя клиента",
+            dataIndex: "name",
+            key: "name",
+        },
+        {
+            title: "Телефон",
+            dataIndex: "phone",
+            key: "phone",
+        },
+        {
+            title: "Статус",
+            dataIndex: "status",
+            key: "status",
+            render: (status: StatusUser) => {
+                const color = status === StatusUser.ACTIVE ? "green" : status === StatusUser.BLOCKED ? "volcano" : "red";
+                return <Tag color={color}>{status}</Tag>;
+            },
+        },
+        {
+            title: "Теги",
+            dataIndex: "tags",
+            key: "tags",
+            render: (tags: { id: number; name: string; color: string }[]) =>
+                tags.length > 0 ? (
+                    <>
+                        {tags.map((tag) => (
+                            <Tag key={tag.id} color={tag.color}>
+                                {tag.name}
+                            </Tag>
+                        ))}
+                    </>
+                ) : (
+                    "—"
+                ),
+        },
+        {
+            title: "Комментарий",
+            dataIndex: "comment",
+            key: "comment",
+        }
     ];
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setOpenTag(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
 
     return (
         <>
-            {loadingClients ?
+            <Filter count={clients.length} hideDateTime={true} address={city} setAddress={setCity} handleClear={handleClear} hideSearch={true}>
+                <DropdownInput
+                    title={`${t("marketing.type")}`}
+                    label={t("marketing.phys")}
+                    classname="w-80"
+                    value={userType}
+                    options={[
+                        { name: t("marketing.physical"), value: "PHYSICAL" },
+                        { name: t("marketing.legal"), value: "LEGAL" }
+                    ]}
+                    onChange={(value) => setUserType(value)}
+                />
+                <Input
+                    type=""
+                    title={t("profile.telephone")}
+                    label={t("warehouse.enterPhone")}
+                    classname="w-96"
+                    value={phone}
+                    changeValue={(e) => setPhone(e.target.value)}
+                />
+                <MultiInput
+                    options={options}
+                    value={tagIds}
+                    onChange={handleSelectionTagChange}
+                />
+                <Input
+                    type="number"
+                    title={`${t("marketing.card")}`}
+                    label={t("marketing.enterName")}
+                    classname="w-80"
+                    value={cardNo}
+                    changeValue={(e) => setCardNo(e.target.value)}
+                />
+                <Input
+                    title={`${t("finance.status")}`}
+                    classname="w-80"
+                    value={status}
+                    changeValue={(e) => setStatus(e.target.value)}
+                />
+                <Input
+                    title={`${t("marketing.loy")}`}
+                    classname="w-80"
+                    value={loyLevel}
+                    changeValue={(e) => setLoyLevel(e.target.value)}
+                />
+                <Input
+                    type="date"
+                    title={`${t("marketing.reg")}`}
+                    classname="w-44"
+                    value={regDate}
+                    changeValue={(e) => setRegDate(e.target.value)}
+                />
+            </Filter>
+            {loadingClients || isTableLoading ?
                 <TableSkeleton columnCount={columnsClients.length} />
                 :
                 clients.length > 0 ?
                     <div className="mt-8 flex flex-col min-h-screen">
-                        <OverflowTable
-                            tableData={clients}
+                        <DynamicTable<Client>
                             columns={columnsClients}
-                            isDisplayEdit={true}
-                            nameUrl="/marketing/clients/profile"
+                            data={clients}
+                            onEdit={handleUpdate}
+                            navigableFields={[{ key: "name", getPath: () => "/marketing/clients/profile" }]}
                         />
-                        <div className="mt-auto border-t border-opacity01 py-8 flex space-x-10 items-center">
+                        {/* <div className="mt-auto border-t border-opacity01 py-8 flex space-x-10 items-center">
                             <div className="text-text01 font-semibold">{t("marketing.high")}:2</div>
                             <div
                                 className="relative flex flex-col"
@@ -231,7 +492,7 @@ const Clients: React.FC = () => {
                                     handleClick={() => setOpenTag(!openTag)}
                                 />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     :
                     <div className="flex flex-col justify-center items-center">
@@ -257,7 +518,7 @@ const Clients: React.FC = () => {
                             { name: t("marketing.physical"), value: "PHYSICAL" },
                             { name: t("marketing.legal"), value: "LEGAL" }
                         ]}
-                        {...register('type', { required: 'type is required' })}
+                        {...register('type', { required: !isEditMode && 'type is required' })}
                         onChange={(value) => handleInputChange('type', value)}
                         error={!!errors.type}
                         helperText={errors.type?.message || ''}
@@ -270,7 +531,7 @@ const Clients: React.FC = () => {
                         value={formData.name}
                         changeValue={(e) => handleInputChange('name', e.target.value)}
                         error={!!errors.name}
-                        {...register('name', { required: 'Name is required' })}
+                        {...register('name', { required: !isEditMode && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                     />
                     <DropdownInput
@@ -422,7 +683,7 @@ const Clients: React.FC = () => {
                         <Button
                             title={t("organizations.save")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingClient : isMutating}
                             handleClick={() => { }}
                         />
                     </div>

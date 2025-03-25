@@ -12,9 +12,10 @@ import { createCategory, getCategory, updateCategory } from "@/services/api/ware
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
-import TreeTable from "@/components/ui/Table/TreeTable";
+// import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsCategory } from "@/utils/OverFlowTableData";
+import DynamicTreeTable from "@/components/ui/Table/DynamicTreeTable";
 
 type TreeData = {
     id: number;
@@ -156,7 +157,7 @@ const InventoryGroups: React.FC = () => {
                 <TableSkeleton columnCount={columnsCategory.length} />
             ) : treeData.length > 0 ?
                 <div className="mt-8">
-                    <TreeTable
+                    <DynamicTreeTable
                         treeData={treeData}
                         columns={columnsCategory}
                         isUpdate={true}
