@@ -7,10 +7,11 @@ import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
-import GoodsTable from "@/components/ui/Table/GoodsTable";
+// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useUser } from "@/hooks/useUserStore";
+import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -186,7 +187,7 @@ const DocumentView: React.FC = () => {
                             </div>}
                         </div>
                     </div>
-                    <GoodsTable
+                    <GoodsAntTable
                         tableData={tableData}
                         columns={columnsDocumentView}
                         showDocument={true}

@@ -36,7 +36,7 @@ const DynamicTable = <T extends { id: number }>({
                     render: (value: any, record: T) => (
                         <span
                             className="text-primary02 cursor-pointer hover:underline"
-                            onClick={() => navigate(navigableField.getPath(record))}
+                            onClick={() => navigate(navigableField.getPath(record),{ state: { ownerId: record.id }})}
                         >
                             {value}
                         </span>

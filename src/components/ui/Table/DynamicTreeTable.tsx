@@ -1,6 +1,6 @@
 import React, { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import { Table, Button } from "antd";
-import { PlusCircleOutlined, MinusCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import type { ColumnsType } from "antd/es/table";
@@ -47,10 +47,37 @@ const DynamicTreeTable: React.FC<Props> = ({
     };
 
     const generateColumns = (): ColumnsType<TreeData> => {
+        // Expand/Collapse Column (First Column)
+        const expandColumn = {
+            title: "", // Empty title for cleaner UI
+            dataIndex: "expand",
+            key: "expand",
+            width: 50, // Small width to keep it compact
+            render: (_: any, record: TreeData) => (
+                record.children && record.children.length > 0 ? (
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={expandedRowKeys.includes(record.id) ? <MinusCircleOutlined /> : <PlusCircleOutlined />}
+                        onClick={() => handleExpand(record.id)}
+                    />
+                ) : null
+            ),
+        };
+
+        // Data Columns (Middle Columns)
+        const dataColumns = columns.map((col) => ({
+            title: col.label,
+            dataIndex: col.key,
+            key: col.key,
+        }));
+
+        // Actions Column (Last Column)
         const actionColumn = {
-            title: "Actions",
+            title: "",
             dataIndex: "actions",
             key: "actions",
+            width: 80, // Ensure it's at the end
             render: (_: any, record: TreeData) => (
                 <Can
                     requiredPermissions={[
@@ -64,51 +91,40 @@ const DynamicTreeTable: React.FC<Props> = ({
                         isUpdate && (
                             <Button type="link"
                                 icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
-                                onClick={() => onUpdate && onUpdate(record.id)}>
-                            </Button>
+                                onClick={() => onUpdate && onUpdate(record.id)}
+                            />
                         )
                     }
                 </Can>
             ),
         };
 
-        return isUpdate
-            ? [actionColumn, ...columns.map((col) => ({ title: col.label, dataIndex: col.key, key: col.key }))]
-            : columns.map((col) => ({ title: col.label, dataIndex: col.key, key: col.key }));
+        return [expandColumn, ...dataColumns, actionColumn]; // Order: Expand Button → Data Columns → Edit Button
     };
 
-    const formatData = (data: TreeData[], level: number = 0): (TreeData & { displayName: JSX.Element })[] => {
-        return data.map((item) => ({
-            ...item,
-            key: item.id,
-            children: item.children ? formatData(item.children, level + 1) : undefined,
-            expanded: expandedRowKeys.includes(item.id),
-            name: item.name,
-            displayName: (
-                <div style={{ paddingLeft: `${level * 20}px`, display: "flex", alignItems: "center" }}>
-                    {item.children && item.children.length > 0 && (
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={expandedRowKeys.includes(item.id) ? <MinusCircleOutlined /> : <PlusCircleOutlined />}
-                            onClick={() => handleExpand(item.id)}
-                        />
-                    )}
-                    {item.name}
-                </div>
-            ),
-        }));
-    };    
+    // Function to format data and include expanded state
+    const formatData = (data: TreeData[], level: number = 0): TreeData[] => {
+        return data.reduce<TreeData[]>((acc, item) => {
+            acc.push({
+                ...item,
+                key: item.id,
+            });
+
+            // Add children only if this row is expanded
+            if (expandedRowKeys.includes(item.id) && item.children) {
+                acc.push(...formatData(item.children, level + 1));
+            }
+
+            return acc;
+        }, []);
+    };
 
     return (
         <Table
             columns={generateColumns()}
             dataSource={formatData(treeData)}
             pagination={false}
-            expandable={{
-                expandedRowKeys,
-                onExpand: (_expanded, record) => handleExpand(record.id),
-            }}
+            expandable={{ expandIcon: () => null }}
             components={{
                 header: {
                     cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (

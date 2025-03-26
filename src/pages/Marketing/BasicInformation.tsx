@@ -5,6 +5,9 @@ import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import PieChart from "@icons/PieChart.png";
 import Check from "@/assets/icons/CheckCircle.png";
+import { useLocation } from "react-router-dom";
+import useSWR from "swr";
+import { getClientById } from "@/services/api/marketing";
 
 type Props = {
     isEditing: boolean;
@@ -12,13 +15,10 @@ type Props = {
 
 const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
     const { t } = useTranslation();
+    const location = useLocation();
+    const editClientId = location.state.ownerId;
 
-    const options = [
-        { id: 1, label: "Red Option", color: "#EF4444" },
-        { id: 2, label: "Blue Option", color: "#3B82F6" },
-        { id: 3, label: "Green Option", color: "#10B981" },
-        { id: 4, label: "Yellow Option", color: "#F59E0B" },
-    ];
+    const { data: clientData } = useSWR(editClientId !== 0 ? [`get-client-by-id`] : null, () => getClientById(editClientId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     return (
         <div className="max-w-6xl">
@@ -33,7 +33,7 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                         <div>
                             <div className="text-text02">{t("marketing.type")}</div>
                             <div className="border border-opacity01 w-64 rounded-md px-3 py-1 text-text01">
-                                Физ. лицо
+                                {clientData?.type}
                             </div>
                         </div>
                     )}
@@ -45,7 +45,7 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                         <div>
                             <div className="text-text02">{t("marketing.name")}</div>
                             <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                Олег Сидоров
+                                {clientData?.name}
                             </div>
                         </div>
                     )}
@@ -57,7 +57,7 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                         <div>
                             <div className="text-text02">{t("marketing.floor")}</div>
                             <div className="border border-opacity01 w-14 rounded-md px-3 py-1 text-text01">
-                                Муж
+                                {clientData?.gender || ""}
                             </div>
                         </div>
                     )}
@@ -82,7 +82,7 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                         <div>
                             <div className="text-text02">{t("profile.telephone")}</div>
                             <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                +7 (988) 000-00-00
+                                {clientData?.phone}
                             </div>
                         </div>
                     )}
@@ -94,7 +94,7 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                         <div>
                             <div className="text-text02">{"E-mail"}</div>
                             <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                Oleg@mail.ru
+                                {clientData?.email}
                             </div>
                         </div>
                     )}
@@ -107,21 +107,21 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
                     /> : (
                         <div>
                             <div className="text-text02">{t("equipment.comment")}</div>
-                            <div className="border border-opacity01 w-96 h-20 rounded-md px-3 py-1 text-text03 bg-disabledFill">
-                                {t("marketing.about")}
+                            <div className="border border-opacity01 w-96 h-20 rounded-md px-3 py-1 text-text01">
+                                {clientData?.comment}
                             </div>
                         </div>
                     )}
                     <div>
                         <div className="text-sm text-text02">{t("marketing.tags")}</div>
                         <div className="rounded-md w-96 flex items-center gap-2 flex-wrap bg-white">
-                            {options.map((option) => (
+                            {clientData?.tags.map((option) => (
                                 <div
                                     key={option.id}
                                     className={`flex items-center gap-2 p-2.5 text-sm font-semibold rounded`}
                                     style={{ backgroundColor: option.color, color: "#fff" }}
                                 >
-                                    {option.label}
+                                    {option.name}
                                     <button
                                         className="text-white"
                                     >

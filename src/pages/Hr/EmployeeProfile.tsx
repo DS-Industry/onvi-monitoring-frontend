@@ -10,6 +10,8 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import CalendarComponent from "@/components/ui/Calendar/CalendarComponent";
 import { useButtonCreate } from "@/components/context/useContext";
+import type { DatePickerProps } from 'antd';
+import { DatePicker } from 'antd';
 
 const EmployeeProfile: React.FC = () => {
     const { t } = useTranslation();
@@ -61,7 +63,23 @@ const EmployeeProfile: React.FC = () => {
         insurance: ""
     }
 
+    const scheduleValues = {
+        sch: 0,
+        repeat: 0,
+        openingHour: 0,
+        openingMin: 0,
+        closingHour: 0,
+        closingMinute: 0,
+        date: ''
+    }
+
     const [formData, setFormData] = useState(defaultValues);
+
+    const [scheduleData, setScheduleData] = useState(scheduleValues);
+
+    const onChange: DatePickerProps['onChange'] = (_date, dateString) => {
+        setScheduleData((prev) => ({ ...prev, date: dateString.toString() }))
+    };
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -128,6 +146,10 @@ const EmployeeProfile: React.FC = () => {
             handleSubmit(onSubmit)();
         }
     }, [buttonOn]);
+
+    const saveScheduleData = () => {
+        console.log("Schedule data: ", scheduleData);
+    }
 
     return (
         <div className="mt-2">
@@ -334,7 +356,7 @@ const EmployeeProfile: React.FC = () => {
                                 />
                             </div>)}
                             {activeTab === "sch" && (<div className="space-y-4">
-                                <div className="h-80 w-[457px] rounded-lg bg-background05 p-4 space-y-5">
+                                <div className="h-72 w-[457px] rounded-lg bg-background05 p-4 space-y-6">
                                     <div className="text-text01 font-semibold">{t("hr.auto")}</div>
                                     <div className="flex space-x-3 items-center">
                                         <div className="text-sm text-text01 font-semibold">{t("finance.sch")}</div>
@@ -342,12 +364,16 @@ const EmployeeProfile: React.FC = () => {
                                             type="number"
                                             inputType="secondary"
                                             classname="w-24"
+                                            value={scheduleData.sch}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, sch: Number(e.target.value) }))}
                                         />
                                         <div className="text-sm text-text02">{t("finance.thr")}</div>
                                         <Input
                                             type="number"
                                             inputType="secondary"
                                             classname="w-24"
+                                            value={scheduleData.repeat}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, repeat: Number(e.target.value) }))}
                                         />
                                     </div>
                                     <div className="flex space-x-3 items-center">
@@ -356,6 +382,7 @@ const EmployeeProfile: React.FC = () => {
                                             <div className="text-sm font-semibold">{t("finance.sel")}</div>
                                             <Icon icon="chevron-down" className="w-5 h-5" />
                                         </div>
+                                        <DatePicker onChange={onChange} />
                                     </div>
                                     <div className="flex space-x-2 items-center">
                                         <div className="text-text01 font-semibold text-sm">{t("finance.open")}</div>
@@ -364,12 +391,16 @@ const EmployeeProfile: React.FC = () => {
                                             inputType="secondary"
                                             label="09 ч"
                                             classname="w-[68px]"
+                                            value={scheduleData.openingHour}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, openingHour: Number(e.target.value) }))}
                                         />
                                         <Input
                                             type="number"
                                             inputType="secondary"
                                             label="00 м"
                                             classname="w-[68px]"
+                                            value={scheduleData.openingMin}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, openingMin: Number(e.target.value) }))}
                                         />
                                         <div className="text-sm text-text02">-</div>
                                         <Input
@@ -377,15 +408,19 @@ const EmployeeProfile: React.FC = () => {
                                             inputType="secondary"
                                             label="09 ч"
                                             classname="w-[68px]"
+                                            value={scheduleData.closingHour}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, closingHour: Number(e.target.value) }))}
                                         />
                                         <Input
                                             type="number"
                                             inputType="secondary"
                                             label="00 м"
                                             classname="w-[68px]"
+                                            value={scheduleData.closingMinute}
+                                            changeValue={(e) => setScheduleData((prev) => ({ ...prev, closingMinute: Number(e.target.value) }))}
                                         />
                                     </div>
-                                    <div className="flex space-x-3 items-center">
+                                    {/* <div className="flex space-x-3 items-center">
                                         <div className="text-sm text-text01 font-semibold">{t("finance.ex")}</div>
                                         <Input
                                             type="number"
@@ -393,9 +428,10 @@ const EmployeeProfile: React.FC = () => {
                                             classname="w-24"
                                         />
                                         <div className="text-sm text-text02">{t("finance.a")}</div>
-                                    </div>
+                                    </div> */}
                                     <Button
                                         title={t("finance.fill")}
+                                        handleClick={saveScheduleData}
                                     />
                                 </div>
                                 <div className="flex items-center justify-center w-full md:w-[800px] space-x-4">
@@ -430,7 +466,15 @@ const EmployeeProfile: React.FC = () => {
                                                 <div className="w-56 text-center font-semibold text-text01">
                                                     {month.name} {year}
                                                 </div>
-                                                <CalendarComponent month={month.en} year={year} />
+                                                <CalendarComponent
+                                                    month={month.en}
+                                                    year={year}
+                                                    schedule={{
+                                                        sch: scheduleData.sch,
+                                                        repeat: scheduleData.repeat,
+                                                        date: scheduleData.date
+                                                    }}
+                                                />
                                                 <div className="text-text01 text-center w-56 mt-2">
                                                     <div className="flex justify-center">Рабочие дни: <div className="font-semibold">15</div></div>
                                                     <div className="flex justify-center">Выходные дни: <div className="font-semibold">16</div></div>

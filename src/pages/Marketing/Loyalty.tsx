@@ -3,9 +3,17 @@ import { useTranslation } from "react-i18next";
 import Clock from "@icons/Clock.png";
 import Button from "@/components/ui/Button/Button";
 import Flame from "@icons/Flame.png";
+import { useLocation } from "react-router-dom";
+import useSWR from "swr";
+import { getClientById } from "@/services/api/marketing";
 
 const Loyalty: React.FC = () => {
     const { t } = useTranslation();
+    const location = useLocation();
+    const editClientId = location.state.ownerId;
+
+    const { data: clientData } = useSWR(editClientId !== 0 ? [`get-client-by-id`] : null, () => getClientById(editClientId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
 
     return (
         <div className="flex space-x-6">
@@ -13,11 +21,11 @@ const Loyalty: React.FC = () => {
                 <div className="font-semibold text-2xl mb-5 text-text01">{t("marketing.loyalty")}</div>
                 <div>
                     <div className="text-text02 text-sm">{t("marketing.card")}</div>
-                    <div className="w-80 border border-borderFill rounded-md text-text01 px-2">000000000001</div>
+                    <div className="w-80 border border-borderFill rounded-md text-text01 px-2">{clientData?.card.devNumber}</div>
                 </div>
                 <div>
                     <div className="text-text02 text-sm">{t("marketing.un")}</div>
-                    <div className="w-80 border border-borderFill rounded-md text-text01 px-2">000000000001</div>
+                    <div className="w-80 border border-borderFill rounded-md text-text01 px-2">{clientData?.card.number}</div>
                 </div>
                 <div>
                     <div className="text-text02 text-sm">{t("equipment.start")}</div>

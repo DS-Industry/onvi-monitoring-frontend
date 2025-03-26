@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input/Input";
 import SearchInput from "@/components/ui/Input/SearchInput";
 import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import NoDataUI from "@/components/ui/NoDataUI";
-import GoodsTable from "@/components/ui/Table/GoodsTable";
+// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
@@ -17,6 +17,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import InventoryEmpty from "@/assets/NoInventory.png"
+import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -266,6 +267,14 @@ const DocumentsCreation: React.FC = () => {
 
     const deleteRow = () => {
         setTableData((prevData) => prevData.filter((row) => !row.check));
+    };
+
+    const sortAscending = () => {
+        setTableData(prevData => [...prevData].sort((a, b) => a.id - b.id));
+    };
+    
+    const sortDescending = () => {
+        setTableData(prevData => [...prevData].sort((a, b) => b.id - a.id));
     };
 
     const handleSubmit = async () => {
@@ -800,13 +809,15 @@ const DocumentsCreation: React.FC = () => {
                                 </div>}
                             </div>
                         </div>
-                        <GoodsTable
+                        <GoodsAntTable
                             tableData={tableData}
                             columns={columnsDocumentCreation}
                             handleChange={handleTableChange}
                             addRow={updateRow}
                             addProduct={addProduct}
                             deleteRow={deleteRow}
+                            sortAscending={sortAscending}
+                            sortDescending={sortDescending}
                         />
                         <div className="flex space-x-3">
                             <Button

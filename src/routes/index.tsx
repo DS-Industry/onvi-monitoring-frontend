@@ -147,14 +147,14 @@ const routes = [
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "HR"}],
+    permissions: [{ action: "manage", subject: "HR" }],
     subNavHeading: "directories",
     subNav: [
       { name: "employees", filter: true, addButton: true, addButtonText: "addE", isVisible: true, path: "/hr/employees", component: Employees, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "sid", filter: false, addButton: true, addButtonText: "save", isVisible: true, path: "/hr/employees/profile", component: EmployeeProfile, permissions: [], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "positions", filter: false, addButton: true, addButtonText: "new", isVisible: true, path: "/hr/positions", component: Positions, permissions: [], isSidebar: true, isHr: true, titleName: "", subNav: [], subMenu: false },
       { name: "salary", filter: true, addButton: true, addButtonText: "calc", isVisible: true, path: "/hr/salary", component: SalaryCalculation, permissions: [], isSidebar: true, isHr: false, titleName: "reports", subNav: [], subMenu: false },
-      { name: "sal", filter: false, addButton: false, addButtonText: "calc", isVisible: true, path: "/hr/salary/creation", component: SalaryCalculationCreation, permissions: [], isSidebar: true, isHr: false, titleName: "reports", subNav: [], subMenu: false },
+      { name: "sal", filter: false, addButton: false, addButtonText: "calc", isVisible: true, path: "/hr/salary/creation", component: SalaryCalculationCreation, permissions: [], isSidebar: false, isHr: false, titleName: "reports", subNav: [], subMenu: false },
       { name: "empAdv", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance", component: EmployeeAdvance, permissions: [], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
     ]
   },
