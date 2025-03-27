@@ -6,10 +6,10 @@ import useSWR from "swr";
 import { getPoses, readTechTasks } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type ReadTechTasks = {
     id: number;
@@ -67,12 +67,12 @@ const ProgressReport: React.FC = () => {
                 techTasks.length > 0 ?
                     <>
                         <div className="mt-8">
-                            <OverflowTable
-                                tableData={techTasks}
+                            <DynamicTable
+                                data={techTasks}
                                 columns={columnsTechTasksRead}
-                                isDisplayEdit={true}
+                                // isDisplayEdit={true}
                                 isCheck={true}
-                                nameUrl="/equipment/routine/work/progress/item"
+                                navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/progress/item" }]}
                             />
                         </div>
                     </>

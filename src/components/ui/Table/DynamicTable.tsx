@@ -1,21 +1,48 @@
-import { Table, Button, Tooltip } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Table, Button, Tooltip, Tag } from "antd";
+import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { ClassAttributes, ThHTMLAttributes } from "react";
 import { JSX } from "react/jsx-runtime";
 import { usePageNumber } from "@/hooks/useAuthStore";
+import { useTranslation } from "react-i18next";
+
+interface TableColumn {
+    label: string;
+    key: string;
+    type?: "date" | "string" | "number" | string;
+    render?: any;
+}
+
+interface EnhancedTableColumn {
+    title: string;
+    dataIndex: string;
+    key: string;
+    type?: "date" | "string" | "number" | string;
+    render?: any;
+}
 
 type Props<T> = {
     data: T[];
-    columns: any[];
+    columns: TableColumn[];
     tableTitle?: string;
     rowKey?: keyof T;
     onEdit?: (id: number) => void;
     navigableFields?: { key: keyof T; getPath: (record: T) => string }[];
     headerBgColor?: string; // New prop for header background color
+    isCheck?: boolean;
 };
 
-const DynamicTable = <T extends { id: number }>({
+type TableRow = {
+    id: number;
+    name?: string;
+    status?: string;
+    type?: string;
+    startWorkDate?: string | Date;
+    endSpecifiedDate?: string | Date;
+};
+
+
+const DynamicTable = <T extends TableRow>({
     data,
     columns,
     tableTitle,
@@ -23,44 +50,89 @@ const DynamicTable = <T extends { id: number }>({
     onEdit,
     navigableFields = [],
     headerBgColor = "#E4F0FF", // Default header background color
+    isCheck = false
 }: Props<T>) => {
     const navigate = useNavigate();
     const pageNumber = usePageNumber();
+    const { t } = useTranslation();
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const enhancedColumns = [
-        ...columns.map((col) => {
-            const navigableField = navigableFields.find((nf) => nf.key === col.dataIndex);
-            if (navigableField) {
-                return {
-                    ...col,
-                    render: (value: any, record: T) => (
-                        <span
-                            className="text-primary02 cursor-pointer hover:underline"
-                            onClick={() => navigate(navigableField.getPath(record),{ state: { ownerId: record.id }})}
-                        >
-                            {value}
-                        </span>
-                    ),
-                };
-            }
-            return col;
-        }),
-        onEdit
-            ? {
-                title: "",
-                key: "actions",
-                render: (_: any, record: T) => (
-                    <Tooltip title="Редактировать">
-                        <Button
-                            type="text"
-                            icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
-                            onClick={() => onEdit(record.id)}
-                        />
-                    </Tooltip>
-                ),
-            }
-            : null,
-    ].filter(Boolean);
+    const getStatusTag = (status: string) => {
+        if (status === t("tables.FINISHED") || status === t("tables.ACTIVE"))
+            return <Tag color="green">{status}</Tag>;
+        if (status === t("tables.OVERDUE"))
+            return <Tag color="red">{status}</Tag>;
+        if (status === t("tables.SAVED"))
+            return <Tag color="orange">{status}</Tag>;
+        else return <Tag color="default">{status}</Tag>;
+    };
+
+    const enhancedColumns: EnhancedTableColumn[] = columns.map(({ label, key, type, render }) => {
+        const navigableField = navigableFields.find((nf) => nf.key === key);
+
+        return {
+            title: label,
+            dataIndex: key,
+            key,
+            type,
+            render: (value: any, record: T) => {
+                // If column is 'status', show tags
+                if (key === "status") {
+                    return getStatusTag(value);
+                }
+
+                if(type === "date") {
+                    return new Date(value).toLocaleString("ru-RU", {
+                        timeZone: userTimezone,
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })
+                }
+
+                return navigableField ? (
+                    <span
+                        className="text-primary02 cursor-pointer hover:underline"
+                        onClick={() => navigate(navigableField.getPath(record), { state: { ownerId: record.id, name: record.name, status: record.status, type: record.type, workDate: record.startWorkDate, endDate: record.endSpecifiedDate } })}
+                    >
+                        {value}
+                    </span>
+                ) : render ? render(value, record) : value;
+            },
+        };
+    });
+
+    if (onEdit) {
+        enhancedColumns.push({
+            title: "",
+            dataIndex: "actions",
+            key: "actions",
+            render: (_: any, record: T) => (
+                <Tooltip title="Редактировать">
+                    <Button
+                        type="text"
+                        icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                        onClick={() => onEdit(record.id)}
+                    />
+                </Tooltip>
+            ),
+        });
+    }
+
+    if (isCheck) {
+        enhancedColumns.unshift({
+            title: "",
+            dataIndex: "statusCheck",
+            key: "statusCheck",
+            render: (_: any, record: T) =>
+                record.status === t("tables.FINISHED") ? (
+                    <CheckCircleOutlined className="text-green-500 text-lg" />
+                ) : null, // Show nothing if status is not "FINISHED"
+        });
+    }
 
     return (
         <div>

@@ -60,12 +60,11 @@ const RoutineWork: React.FC = () => {
     const posType = usePosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchPosId, setSearchPosId] = useState(posType);
-    const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine, city], () => getTechTasks({
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => getTechTasks({
         posId: searchPosId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
@@ -162,7 +161,7 @@ const RoutineWork: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine, city]);
+                    mutate([`get-tech-tasks`, searchPosId, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -171,7 +170,7 @@ const RoutineWork: React.FC = () => {
                 const result = await createTech();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine, city]);
+                    mutate([`get-tech-tasks`, searchPosId, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -184,7 +183,6 @@ const RoutineWork: React.FC = () => {
 
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.filter((item: { period?: string }) => item.period && item.period.toLowerCase().includes(searchRoutine.toLowerCase()))
         ?.map((item: TechTasks) => ({
             ...item,
             period: t(`tables.${item.period}`),
@@ -269,7 +267,6 @@ const RoutineWork: React.FC = () => {
 
     const handleClear = () => {
         setSearchPosId(posType);
-        setSearchRoutine("");
     }
     console.log("Techtasks test:", techTask);
     return (
@@ -479,17 +476,6 @@ const RoutineWork: React.FC = () => {
                             classname="ml-2"
                             options={poses}
                             onChange={(value) => setSearchPosId(value)}
-                        />
-                        <DropdownInput
-                            title={`${t("routine.frequency")}`}
-                            value={searchRoutine}
-                            classname="ml-2"
-                            options={[
-                                { name: t("routine.daily"), value: "Daily" },
-                                { name: t("routine.weekly"), value: "Weekly" },
-                                { name: t("routine.monthly"), value: "Monthly" },
-                            ]}
-                            onChange={(value) => setSearchRoutine(value)}
                         />
                     </div>
                 </Filter>

@@ -329,24 +329,20 @@ const Clients: React.FC = () => {
 
     const columnsClients = [
         {
-            title: "Тип клиента",
-            dataIndex: "type",
+            label: "Тип клиента",
             key: "type",
             render: (type: UserType) => <span className="font-medium text-gray-700">{type}</span>,
         },
         {
-            title: "Имя клиента",
-            dataIndex: "name",
+            label: "Имя клиента",
             key: "name",
         },
         {
-            title: "Телефон",
-            dataIndex: "phone",
+            label: "Телефон",
             key: "phone",
         },
         {
-            title: "Статус",
-            dataIndex: "status",
+            label: "Статус",
             key: "status",
             render: (status: StatusUser) => {
                 const color = status === StatusUser.ACTIVE ? "green" : status === StatusUser.BLOCKED ? "volcano" : "red";
@@ -354,8 +350,7 @@ const Clients: React.FC = () => {
             },
         },
         {
-            title: "Теги",
-            dataIndex: "tags",
+            label: "Теги",
             key: "tags",
             render: (tags: { id: number; name: string; color: string }[]) =>
                 tags.length > 0 ? (
@@ -371,8 +366,7 @@ const Clients: React.FC = () => {
                 ),
         },
         {
-            title: "Комментарий",
-            dataIndex: "comment",
+            label: "Комментарий",
             key: "comment",
         }
     ];
@@ -437,7 +431,7 @@ const Clients: React.FC = () => {
                 :
                 clients.length > 0 ?
                     <div className="mt-8 flex flex-col min-h-screen">
-                        <DynamicTable<Client>
+                        <DynamicTable
                             columns={columnsClients}
                             data={clients}
                             onEdit={handleUpdate}

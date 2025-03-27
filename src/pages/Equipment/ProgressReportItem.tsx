@@ -10,9 +10,11 @@ import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { TFunction } from "i18next";
 import Icon from 'feather-icons-react';
-import { Card, List } from "antd";
+import { Card, List, Descriptions, Upload, message } from "antd";
+import type { DescriptionsProps } from 'antd';
+import moment from "moment";
+import { PlusOutlined } from "@ant-design/icons";
 
-// Define interfaces
 interface TechTaskItem {
     id: number;
     title: string;
@@ -98,6 +100,46 @@ const ProgressReportItem: React.FC = () => {
     const navigate = useNavigate();
     const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
 
+    const items: DescriptionsProps['items'] = [
+        {
+            key: '1',
+            label: 'Name',
+            children: location.state.name,
+        },
+        {
+            key: '2',
+            label: 'Type',
+            children: location.state.type,
+        },
+        {
+            key: '3',
+            label: 'End Work Date',
+            children: moment(location.state.endDate).format("DD.MM.YYYY"),
+        },
+        // {
+        //   key: '4',
+        //   label: 'Remark',
+        //   children: 'empty',
+        // },
+        // {
+        //   key: '5',
+        //   label: 'Address',
+        //   children: 'No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China',
+        // },
+    ];
+
+    const handleUpload = ({ file, onSuccess }: any) => {
+        setTimeout(() => {
+            message.success(`${file.name} uploaded successfully.`);
+            onSuccess("ok");
+        }, 1000);
+    };
+
+    const uploadProps = {
+        customRequest: handleUpload,
+        showUploadList: false,
+    };
+
     const { data: techTaskData, isLoading: techTaskLoading } = useSWR(
         [`get-tech-task`],
         () => getTechTaskShapeItem(location.state?.ownerId),
@@ -177,7 +219,7 @@ const ProgressReportItem: React.FC = () => {
 
     return (
         <>
-            <div className="text-text01 font-semibold text-lg">{t("routine.checklist")}</div>
+            <Descriptions items={items} />
             {
                 techTaskLoading ? (
                     <TableSkeleton columnCount={5} />
@@ -222,9 +264,12 @@ const ProgressReportItem: React.FC = () => {
 
                                                         {/* Right Section: Button & Photos */}
                                                         <div className="flex-1 min-w-[250px] max-w-full mt-4 md:mt-10">
-                                                            <div className="text-sm">{t("pos.photos")}</div>
-                                                            <div className="text-sm">{t("pos.maxNumber")}</div>
-                                                            <Button iconPlus={true} title={t("pos.download")} classname="w-full md:w-auto" />
+                                                            <Upload {...uploadProps} accept="image/*">
+                                                                <div className="w-[120px] h-[120px] border border-dashed flex items-center justify-center cursor-pointer rounded-md hover:border-primary flex-col transition">
+                                                                    <PlusOutlined className="text-2xl text-gray-500" />
+                                                                    <div>Upload</div>
+                                                                </div>
+                                                            </Upload>
                                                         </div>
                                                     </div>
                                                 </List.Item>

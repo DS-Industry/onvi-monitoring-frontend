@@ -21,7 +21,6 @@ import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import EZ from "@icons/EZ.svg?react";
-import moment from "moment";
 import Icon from "feather-icons-react";
 
 type Props = {
@@ -466,17 +465,15 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   <span className="text-xl sm:text-3xl font-normal text-text01">
                     {location.pathname === "/finance/timesheet/view"
                       ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
-                      : location.pathname === "/equipment/routine/work/progress/item"
-                        ? location.state.name
                         : activePageName === "createDo"
                           ? t(`routes.${document}`)
                           : t(`routes.${activePageName}`)}
                   </span>
-                  {location.pathname !== "/equipment/routine/work/progress/item" && (
+                  {
                     activePageName === "bonus"
                       ? <EditIcon className="text-text02 ml-2" />
                       : <QuestionmarkIcon className="text-2xl ml-2" />
-                  )}
+                  }
                 </div>
                 {activePage?.filter && (
                   <button
@@ -494,15 +491,6 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
             {/* Right Section: Buttons */}
             <div className="flex flex-wrap justify-end">
-              {location.pathname === "/equipment/routine/work/progress/item" && (
-                <div className="flex space-x-2 sm:space-x-4 text-text01 text-lg sm:text-2xl">
-                  <div>{location.state.type}</div>
-                  {location.state.endDate && <div>-</div>}
-                  {location.state.endDate && (
-                    <div>{moment(location.state.endDate).format('DD.MM.YYYY')}</div>
-                  )}
-                </div>
-              )}
               {activePage?.name === "nomenclature" && (
                 <Button
                   title={isMobile ? "" : t("warehouse.import")}
