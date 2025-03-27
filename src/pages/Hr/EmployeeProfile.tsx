@@ -378,10 +378,10 @@ const EmployeeProfile: React.FC = () => {
                                     </div>
                                     <div className="flex space-x-3 items-center">
                                         <div className="text-sm text-text01 font-semibold">{t("finance.sta")}</div>
-                                        <div className="flex space-x-1 text-primary02_Hover items-center cursor-pointer">
+                                        {/* <div className="flex space-x-1 text-primary02_Hover items-center cursor-pointer">
                                             <div className="text-sm font-semibold">{t("finance.sel")}</div>
                                             <Icon icon="chevron-down" className="w-5 h-5" />
-                                        </div>
+                                        </div> */}
                                         <DatePicker onChange={onChange} />
                                     </div>
                                     <div className="flex space-x-2 items-center">
@@ -475,10 +475,6 @@ const EmployeeProfile: React.FC = () => {
                                                         date: scheduleData.date
                                                     }}
                                                 />
-                                                <div className="text-text01 text-center w-56 mt-2">
-                                                    <div className="flex justify-center">Рабочие дни: <div className="font-semibold">15</div></div>
-                                                    <div className="flex justify-center">Выходные дни: <div className="font-semibold">16</div></div>
-                                                </div>
                                             </div>
                                         ))}
                                     </div>

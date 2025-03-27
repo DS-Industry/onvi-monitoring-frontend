@@ -16,6 +16,8 @@ const CalendarComponent: React.FC<Props> = ({
     schedule
 }: Props) => {
     const [days, setDays] = useState<JSX.Element[]>([]);
+    const [workingDays, setWorkingDays] = useState<number>(0);
+    const [nonWorkingDays, setNonWorkingDays] = useState<number>(0);
 
     const generateCalendar = () => {
         const firstDay = new Date(year, getMonthIndex(month), 1).getDay();
@@ -24,7 +26,11 @@ const CalendarComponent: React.FC<Props> = ({
         const calendarDays = [];
         const emptyDays = firstDay === 0 ? 6 : firstDay - 1;
 
-        const activeDays = calculateActiveDays(schedule, daysInMonth);
+        const monthIndex = getMonthIndex(month);
+        const activeDays = calculateActiveDays(schedule, daysInMonth, year, monthIndex);
+
+        setWorkingDays(activeDays.length);
+        setNonWorkingDays(daysInMonth - activeDays.length);
 
         for (let i = 0; i < emptyDays; i++) {
             calendarDays.push(<div key={`empty-${i}`} className="border border-borderFill"></div>);
@@ -35,9 +41,8 @@ const CalendarComponent: React.FC<Props> = ({
             calendarDays.push(
                 <div
                     key={day}
-                    className={`text-text01 border border-borderFill flex items-center justify-center ${
-                        isActive ? "bg-green-300 font-bold" : ""
-                    }`}>
+                    className={`text-text01 border border-borderFill flex items-center justify-center ${isActive ? "bg-background06" : ""
+                        }`}>
                     {day}
                 </div>
             );
@@ -53,24 +58,52 @@ const CalendarComponent: React.FC<Props> = ({
         setDays(calendarDays);
     };
 
-    const calculateActiveDays = (schedule: Props["schedule"], daysInMonth: number) => {
+    const calculateActiveDays = (
+        schedule: Props["schedule"],
+        daysInMonth: number,
+        year: number,
+        monthIndex: number
+    ) => {
         const { sch, repeat, date } = schedule;
-        const startDay = parseInt(date.split("-")[2], 10);
-        const activeDays: number[] = [];
+        const [startYear, startMonth, startDay] = date.split("-").map(Number);
     
-        let currentDay = startDay;
-        
+        // If schedule starts in a future month/year, return empty
+        if (startYear > year || (startYear === year && startMonth - 1 > monthIndex)) {
+            return [];
+        }
+    
+        const activeDays: number[] = [];
+        let currentDay: number;
+    
+        if (startYear === year && startMonth - 1 === monthIndex) {
+            // First month of schedule: Start from the given date
+            currentDay = startDay;
+        } else {
+            // Find the last active day from the previous month
+            const previousMonthDays = new Date(year, monthIndex, 0).getDate();
+            const elapsedDays = (previousMonthDays - startDay) % (sch + repeat);
+            currentDay = elapsedDays === 0 ? 1 : (sch + repeat) - elapsedDays;
+    
+            // If the first cycle starts past the month, adjust
+            if (currentDay > daysInMonth) {
+                return [];
+            }
+        }
+    
+        // Loop to mark active days
         while (currentDay <= daysInMonth) {
             for (let i = 0; i < sch && currentDay + i <= daysInMonth; i++) {
                 activeDays.push(currentDay + i);
             }
     
             currentDay += sch + repeat;
+    
+            // Ensure we don't add more active days than available in the month
+            if (currentDay > daysInMonth) break;
         }
     
         return activeDays;
-    };
-    
+    };    
 
     useEffect(() => {
         generateCalendar();
@@ -83,15 +116,21 @@ const CalendarComponent: React.FC<Props> = ({
     };
 
     return (
-        <div className="h-56 w-56 grid grid-cols-7 text-center">
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Пн</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Вт</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Ср</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Чт</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Пт</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Сб</div>
-            <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Вс</div>
-            {days}
+        <div>
+            <div className="h-56 w-56 grid grid-cols-7 text-center">
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Пн</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Вт</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Ср</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Чт</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Пт</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Сб</div>
+                <div className="font-semibold bg-opacity01 text-text02 flex items-center justify-center">Вс</div>
+                {days}
+            </div>
+            <div className="text-text01 text-center w-56 mt-2">
+                <div className="flex justify-center">Рабочие дни: <div className="font-semibold">{workingDays}</div></div>
+                <div className="flex justify-center">Выходные дни: <div className="font-semibold">{nonWorkingDays}</div></div>
+            </div>
         </div>
     );
 };
