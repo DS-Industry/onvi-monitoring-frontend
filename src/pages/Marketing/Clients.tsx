@@ -234,7 +234,7 @@ const Clients: React.FC = () => {
         setEditClientId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        
+
         console.log(id);
         console.log(isEditMode);
         const clientToEdit = clients.find((client) => client.id === id);
@@ -256,7 +256,7 @@ const Clients: React.FC = () => {
             console.log("Birthday: ", clientData.birthday);
             setFormData((prevData) => ({
                 ...prevData,
-                birthday: clientData.birthday ? clientData.birthday.split("T")[0] : undefined, 
+                birthday: clientData.birthday ? clientData.birthday.split("T")[0] : undefined,
                 email: clientData.email,
                 inn: clientData.inn,
                 gender: clientData.gender,
@@ -265,7 +265,7 @@ const Clients: React.FC = () => {
                 monthlyLimit: clientData.card?.monthlyLimit,
             }));
         }
-    }, [clientData]); 
+    }, [clientData]);
 
     const resetForm = () => {
         setFormData(defaultValues);
@@ -518,7 +518,7 @@ const Clients: React.FC = () => {
                             { name: t("marketing.physical"), value: "PHYSICAL" },
                             { name: t("marketing.legal"), value: "LEGAL" }
                         ]}
-                        {...register('type', { required: !isEditMode && 'type is required' })}
+                        {...register('type', { required: !isEditMode && 'Type is required' })}
                         onChange={(value) => handleInputChange('type', value)}
                         error={!!errors.type}
                         helperText={errors.type?.message || ''}
@@ -561,7 +561,15 @@ const Clients: React.FC = () => {
                         classname="w-96"
                         value={formData.phone}
                         changeValue={(e) => handleInputChange('phone', e.target.value)}
-                        {...register('phone')}
+                        error={!!errors.phone}
+                        {...register('phone', {
+                            required: !isEditMode && 'Phone is required',
+                            pattern: {
+                                value: /^\+79\d{9}$/,
+                                message: 'Phone number must start with +79 and be 11 digits long'
+                            }
+                        })}
+                        helperText={errors.phone?.message || ''}
                     />
                     <Input
                         type=""

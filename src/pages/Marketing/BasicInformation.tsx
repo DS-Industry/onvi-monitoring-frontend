@@ -1,19 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import Icon from 'feather-icons-react';
-import Input from "@/components/ui/Input/Input";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
 import PieChart from "@icons/PieChart.png";
 import Check from "@/assets/icons/CheckCircle.png";
 import { useLocation } from "react-router-dom";
 import useSWR from "swr";
 import { getClientById } from "@/services/api/marketing";
 
-type Props = {
-    isEditing: boolean;
-}
 
-const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
+const BasicInformation: React.FC = () => {
     const { t } = useTranslation();
     const location = useLocation();
     const editClientId = location.state.ownerId;
@@ -25,93 +20,48 @@ const BasicInformation: React.FC<Props> = ({ isEditing }: Props) => {
             <form className="flex flex-col md:flex-row gap-6 mb-5">
                 <div className="flex flex-col space-y-6 w-full">
                     <div className="font-semibold text-2xl text-text01">{t("warehouse.basic")}</div>
-                    {isEditing ? <Input
-                        title={t("marketing.type")}
-                        inputType="secondary"
-                        classname="w-64"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("marketing.type")}</div>
-                            <div className="border border-opacity01 w-64 rounded-md px-3 py-1 text-text01">
-                                {clientData?.type}
-                            </div>
+                    <div>
+                        <div className="text-text02">{t("marketing.type")}</div>
+                        <div className="border border-opacity01 w-64 rounded-md px-3 py-1 text-text01">
+                            {clientData?.type}
                         </div>
-                    )}
-                    {isEditing ? <Input
-                        title={t("marketing.name")}
-                        inputType="secondary"
-                        classname="w-96"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("marketing.name")}</div>
-                            <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                {clientData?.name}
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{t("marketing.name")}</div>
+                        <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
+                            {clientData?.name}
                         </div>
-                    )}
-                    {isEditing ? <Input
-                        title={t("marketing.floor")}
-                        inputType="secondary"
-                        classname="w-14"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("marketing.floor")}</div>
-                            <div className="border border-opacity01 w-14 rounded-md px-3 py-1 text-text01">
-                                {clientData?.gender || ""}
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{t("marketing.floor")}</div>
+                        <div className="border border-opacity01 w-14 rounded-md px-3 py-1 text-text01">
+                            {clientData?.gender || ""}
                         </div>
-                    )}
-                    {isEditing ? <Input
-                        type="date"
-                        title={t("register.date")}
-                        inputType="secondary"
-                        classname="w-36"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("register.date")}</div>
-                            <div className="border border-opacity01 w-36 rounded-md px-3 py-1 text-text01">
-                                01.06.1984
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{t("register.date")}</div>
+                        <div className="border border-opacity01 w-36 rounded-md px-3 py-1 text-text01">
+                            01.06.1984
                         </div>
-                    )}
-                    {isEditing ? <Input
-                        title={t("profile.telephone")}
-                        inputType="secondary"
-                        classname="w-96"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("profile.telephone")}</div>
-                            <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                {clientData?.phone}
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{t("profile.telephone")}</div>
+                        <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
+                            {clientData?.phone}
                         </div>
-                    )}
-                    {isEditing ? <Input
-                        title={"E-mail"}
-                        inputType="secondary"
-                        classname="w-96"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{"E-mail"}</div>
-                            <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
-                                {clientData?.email}
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{"E-mail"}</div>
+                        <div className="border border-opacity01 w-96 rounded-md px-3 py-1 text-text01">
+                            {clientData?.email}
                         </div>
-                    )}
-                    {isEditing ? <MultilineInput
-                        changeValue={() => { }}
-                        title={t("equipment.comment")}
-                        label={t("marketing.about")}
-                        inputType="secondary"
-                        classname="w-96"
-                    /> : (
-                        <div>
-                            <div className="text-text02">{t("equipment.comment")}</div>
-                            <div className="border border-opacity01 w-96 h-20 rounded-md px-3 py-1 text-text01">
-                                {clientData?.comment}
-                            </div>
+                    </div>
+                    <div>
+                        <div className="text-text02">{t("equipment.comment")}</div>
+                        <div className="border border-opacity01 w-96 h-20 rounded-md px-3 py-1 text-text01">
+                            {clientData?.comment}
                         </div>
-                    )}
+                    </div>
                     <div>
                         <div className="text-sm text-text02">{t("marketing.tags")}</div>
                         <div className="rounded-md w-96 flex items-center gap-2 flex-wrap bg-white">
