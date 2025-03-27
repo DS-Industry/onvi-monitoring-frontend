@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
@@ -10,6 +10,7 @@ import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { TFunction } from "i18next";
 import Icon from 'feather-icons-react';
+import { Card, List } from "antd";
 
 // Define interfaces
 interface TechTaskItem {
@@ -18,18 +19,23 @@ interface TechTaskItem {
     type: string;
     group: string;
     code: string;
-    value?: string | number | boolean;
+    value?: string | number | boolean | null;
 }
 
 interface DynamicInputProps {
     type: string;
-    value?: string | number | boolean;
-    onChange: (value: string | number | boolean) => void;
+    value?: string | number | boolean | null;
+    onChange: (value: string | number | boolean | null) => void;
     location: any;
     t: TFunction<"translation", undefined>;
 }
 
-// DynamicInput Component
+const selectOptions = [
+    { name: "Ниже нормы", value: "belowNormal" },
+    { name: "Норма", value: "normal" },
+    { name: "Выше нормы", value: "aboveNormal" },
+];
+
 const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location, t }) => {
     switch (type) {
         case "Text":
@@ -37,8 +43,8 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                 <Input
                     type="text"
                     title={t("chemical.enter")}
-                    value={value == null ? "" : value as string}
-                    changeValue={(e) => onChange(e.target.value)}
+                    value={value}
+                    changeValue={(e) => onChange(e.target.value || "")}
                     classname="w-80"
                     disabled={location.state?.status === "FINISHED"}
                 />
@@ -49,8 +55,11 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                 <Input
                     type="number"
                     title={t("chemical.enter")}
-                    value={value as number}
-                    changeValue={(e) => onChange(e.target.value)}
+                    value={value}
+                    changeValue={(e) => {
+                        const newValue = e.target.value ? e.target.value : 0;
+                        onChange(newValue);
+                    }}
                     classname="w-80"
                     disabled={location.state?.status === "FINISHED"}
                 />
@@ -60,13 +69,9 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
             return (
                 <DropdownInput
                     title={t("chemical.select")}
-                    value={value as string}
-                    options={[
-                        { name: "Ниже нормы", value: "belowNormal" },
-                        { name: "Норма", value: "normal" },
-                        { name: "Выше нормы", value: "aboveNormal" },
-                    ]}
-                    onChange={(value) => onChange(value)}
+                    value={value}
+                    options={selectOptions}
+                    onChange={(selectedValue) => onChange(selectedValue)}
                     classname="w-80"
                     isDisabled={location.state?.status === "FINISHED"}
                 />
@@ -76,7 +81,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
             return (
                 <input
                     type="checkbox"
-                    checked={value as boolean}
+                    checked={Boolean(value)}
                     onChange={(e) => onChange(e.target.checked)}
                     className="w-5 h-5"
                 />
@@ -90,6 +95,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
 const ProgressReportItem: React.FC = () => {
     const { t } = useTranslation();
     const location = useLocation();
+    const navigate = useNavigate();
     const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
 
     const { data: techTaskData, isLoading: techTaskLoading } = useSWR(
@@ -125,8 +131,8 @@ const ProgressReportItem: React.FC = () => {
             return acc;
         }, {} as Record<string, TechTaskItem[]>);
     }, [techTaskItems]);
-    
-    const [taskValues, setTaskValues] = useState<TechTaskItem[]>([]);
+
+    const [taskValues, setTaskValues] = useState<Record<number, string | number | boolean | null>>({});
 
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
         ['create-tech-task'],
@@ -137,23 +143,26 @@ const ProgressReportItem: React.FC = () => {
 
     useEffect(() => {
         if (techTaskItems.length > 0) {
-            setTaskValues(techTaskItems);
+            const initialValues = techTaskItems.reduce((acc, item) => {
+                acc[item.id] = item.value ?? ""; // Default to an empty string
+                return acc;
+            }, {} as Record<number, string | number | boolean | null>);
+            setTaskValues(initialValues);
         }
     }, [techTaskItems]);
 
-    const handleChange = (id: number, value: string | number | boolean) => {
-        setTaskValues((prevValues) =>
-            prevValues.map((item) =>
-                item.id === id ? { ...item, value } : item
-            )
-        );
+
+    const handleChange = (id: number, value: string | number | boolean | null) => {
+        setTaskValues((prev) => ({
+            ...prev,
+            [id]: value, // Update only the specific field
+        }));
     };
 
     const handleSubmit = async () => {
-
-        const techTaskValue: { itemValueId: number; value: string }[] = taskValues.map((task) => ({
-            itemValueId: task.id,
-            value: task.value as string,
+        const techTaskValue = Object.entries(taskValues).map(([itemValueId, value]) => ({
+            itemValueId: Number(itemValueId),
+            value: value as string,
         }));
 
         const result = await createTechTasks({
@@ -162,61 +171,76 @@ const ProgressReportItem: React.FC = () => {
 
         if (result) {
             mutate([`get-tech-task`]);
+            navigate(-1);
         }
     };
-
 
     return (
         <>
             <div className="text-text01 font-semibold text-lg">{t("routine.checklist")}</div>
             {
-                techTaskLoading ? (<TableSkeleton columnCount={5} />)
-                    :
-                    <div>
-                        {Object.entries(groupedTechTaskItems).map(([groupName, items]) => (
-                            <div key={groupName} className="mb-6">
-                                <div className="flex items-center space-x-2">
-                                    <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => toggleGroup(groupName)}>
-                                        {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
-                                    </div>
-                                    <div className="text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
-                                </div>
-                                <div className="ml-8">
-                                    {openSettings[groupName] && items.map((techItem) => (
-                                        <div key={techItem.id} className="flex w-full gap-4 my-4 items-center">
-                                            <div className="flex-1">
-                                                <div className="text-text01">{techItem.title}</div>
-                                                <div className="text-sm text-text02 w-96">Task description s simply dummy text of the printing and typesetting industry. Lorem Ipsum has been.</div>
-                                                <DynamicInput
-                                                    type={techItem.type}
-                                                    value={techItem.value}
-                                                    onChange={(value) => handleChange(techItem.id, value)}
-                                                    location={location}
-                                                    t={t}
-                                                />
-                                            </div>
-                                            <div className="flex-1 mt-10">
-                                                <div className="text-sm">{t("pos.photos")}</div>
-                                                <div className="text-sm">{t("pos.maxNumber")}</div>
-                                                <Button
-                                                    form={false}
-                                                    iconPlus={true}
-                                                    type="outline"
-                                                    title={t("pos.download")}
-                                                />
-                                            </div>
+                techTaskLoading ? (
+                    <TableSkeleton columnCount={5} />
+                ) : (
+                    <List
+                        dataSource={Object.entries(groupedTechTaskItems)}
+                        renderItem={([groupName, items]) => (
+                            <List.Item className="w-full">
+                                <Card className="w-full">
+                                    {/* Group Header */}
+                                    <div className="flex items-center space-x-2 mb-4">
+                                        <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center"
+                                            onClick={() => toggleGroup(groupName)}>
+                                            {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-            }
-            <div className="flex justify-start space-x-4">
+                                        <div className="text-lg md:text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
+                                    </div>
+
+                                    {/* Group Items */}
+                                    {openSettings[groupName] && (
+                                        <List
+                                            dataSource={items}
+                                            renderItem={(techItem) => (
+                                                <List.Item className="w-full">
+                                                    <div className="flex flex-wrap w-full gap-4 my-4 items-start md:items-center">
+                                                        {/* Left Section: Title & Input */}
+                                                        <div className="flex-1 min-w-[250px] max-w-full">
+                                                            <div className="text-text01">{techItem.title}</div>
+                                                            <div className="text-sm text-text02 max-w-sm">
+                                                                Task description is simply dummy text of the printing and typesetting industry.
+                                                            </div>
+                                                            {location.state.status === "FINISHED" ?
+                                                                <div>{techItem.type === "SelectList" ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name : taskValues[techItem.id]}</div>
+                                                                : <DynamicInput
+                                                                    type={techItem.type}
+                                                                    value={taskValues[techItem.id]}
+                                                                    onChange={(value) => handleChange(techItem.id, value)}
+                                                                    location={location}
+                                                                    t={t}
+                                                                />}
+                                                        </div>
+
+                                                        {/* Right Section: Button & Photos */}
+                                                        <div className="flex-1 min-w-[250px] max-w-full mt-4 md:mt-10">
+                                                            <div className="text-sm">{t("pos.photos")}</div>
+                                                            <div className="text-sm">{t("pos.maxNumber")}</div>
+                                                            <Button iconPlus={true} title={t("pos.download")} classname="w-full md:w-auto" />
+                                                        </div>
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )}
+                                </Card>
+                            </List.Item>
+                        )}
+                    />
+                )}
+            {location.state.status !== "FINISHED" && (<div className="flex justify-start space-x-4">
                 <Button
                     title={t("organizations.cancel")}
                     type="outline"
-                    handleClick={() => setTaskValues(techTaskItems)} // Reset to original values
+                    handleClick={() => setTaskValues({})}
                 />
                 <Button
                     title={t("routine.done")}
@@ -224,7 +248,7 @@ const ProgressReportItem: React.FC = () => {
                     isLoading={isMutating}
                     handleClick={handleSubmit}
                 />
-            </div>
+            </div>)}
         </>
     );
 };

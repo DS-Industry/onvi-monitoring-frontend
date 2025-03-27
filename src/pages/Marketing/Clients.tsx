@@ -689,6 +689,11 @@ const Clients: React.FC = () => {
                             }}
                         />
                         <Button
+                            title={t("marketing.delete")}
+                            // handleClick={handleDelete}
+                            classname="bg-red-600 hover:bg-red-300"
+                        />
+                        <Button
                             title={t("organizations.save")}
                             form={true}
                             isLoading={isEditMode ? updatingClient : isMutating}

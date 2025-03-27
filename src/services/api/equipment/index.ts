@@ -271,7 +271,7 @@ type TechTaskShapeResponse = {
         type: string;
         group: string;
         code: string;
-        value?: string;
+        value?: string | null;
     }[];
 }
 
