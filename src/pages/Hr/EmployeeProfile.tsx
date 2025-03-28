@@ -79,6 +79,11 @@ const EmployeeProfile: React.FC = () => {
 
     const onChange: DatePickerProps['onChange'] = (_date, dateString) => {
         setScheduleData((prev) => ({ ...prev, date: dateString.toString() }))
+        const year = Number(dateString.toString().split("-")[0]);
+        const startIndex = Number(dateString.toString().split("-")[1]);
+        console.log("Date string: ", dateString.toString(), year, startIndex);
+        setYear(year);
+        setStartIndex(startIndex - 1);
     };
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
