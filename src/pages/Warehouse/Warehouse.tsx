@@ -8,7 +8,6 @@ import { useCity, usePosType, useSetCity } from "@/hooks/useAuthStore";
 import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsWarehouses } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -17,6 +16,7 @@ import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type WAREHOUSE = {
     name: string;
@@ -117,8 +117,8 @@ const Warehouse: React.FC = () => {
                 <TableSkeleton columnCount={columnsWarehouses.length} />
             ) : warehouses.length > 0 ? (
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={warehouses}
+                    <DynamicTable
+                        data={warehouses}
                         columns={columnsWarehouses}
                     />
                 </div>

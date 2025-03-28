@@ -12,8 +12,8 @@ import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsSupplier } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 const Suppliers: React.FC = () => {
     const { t } = useTranslation();
@@ -80,8 +80,8 @@ const Suppliers: React.FC = () => {
                 <TableSkeleton columnCount={columnsSupplier.length} />
             ) : supplier.length > 0 ?
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={supplier}
+                    <DynamicTable
+                        data={supplier}
                         columns={columnsSupplier}
                     />
                 </div> :

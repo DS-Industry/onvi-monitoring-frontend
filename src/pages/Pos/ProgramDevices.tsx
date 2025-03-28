@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
@@ -11,6 +10,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type FilterDepositPos = {
     dateStart: Date;
@@ -129,11 +129,11 @@ const ProgramDevices: React.FC = () => {
                 : devicePrograms.length > 0 ? (
                     <div className="mt-8 space-y-6">
                         {devicePrograms.map((deviceProgram) =>
-                            <OverflowTable
+                            <DynamicTable
                                 title={deviceProgram.name}
                                 urlTitleId={deviceProgram.id}
                                 nameUrlTitle={"/station/programs/devices"}
-                                tableData={deviceProgram.programsInfo}
+                                data={deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p }))} 
                                 columns={columnsProgramsPos}
                             />
                         )}

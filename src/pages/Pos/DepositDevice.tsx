@@ -4,7 +4,6 @@ import { getDepositDevice } from "@/services/api/pos";
 import {
     columnsMonitoringDevice,
 } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import { getDeviceByPosId } from "@/services/api/device";
@@ -12,6 +11,7 @@ import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type DeviceMonitoring = {
     props: {
@@ -161,8 +161,8 @@ const DepositDevice: React.FC = () => {
                 :
                 deviceMonitoring.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={deviceMonitoring}
+                        <DynamicTable
+                            data={deviceMonitoring}
                             columns={columnsMonitoringDevice}
                             isDisplayEdit={true}
                             showPagination={true}

@@ -4,7 +4,6 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
 import { useButtonCreate } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
@@ -21,6 +20,7 @@ import SearchInput from "@/components/ui/Input/SearchInput";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 import { getPlacement } from "@/services/api/device";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type Pos = {
     id: number;
@@ -260,12 +260,12 @@ const Pos: React.FC = () => {
                     poses.length > 0 ? (
                         <>
                             <div className="mt-8">
-                                <OverflowTable
-                                    tableData={poses}
+                                <DynamicTable
+                                    data={poses}
                                     columns={columnsPos}
                                     isDisplayEdit={true}
-                                    isUpdate={false}
-                                    nameUrl={'/station/enrollments/devices'}
+                                    // isUpdate={false}
+                                    navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
                                 />
                             </div>
                         </>

@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
 import { getCollections } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterCollection {
     dateStart: Date;
@@ -191,12 +191,12 @@ const Collection: React.FC = () => {
                 :
                 transformedData.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={transformedData}
+                        <DynamicTable
+                            data={transformedData}
                             columns={columns}
                             isDisplayEdit={true}
                             showPagination={true}
-                            nameUrl="/finance/collection/creation"
+                            navigableFields={[{ key: "posName", getPath: () => "/finance/collection/creation" }]}
                         />
                     </div>
                 ) : (

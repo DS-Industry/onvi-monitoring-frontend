@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Notification from "@ui/Notification.tsx";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsEmployees } from "@/utils/OverFlowTableData";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
@@ -19,6 +18,7 @@ import useFormHook from "@/hooks/useFormHook";
 import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
 import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type Role = {
     name: string;
@@ -200,11 +200,10 @@ const ListOfEmployees: React.FC = () => {
                 {loadingWorkers ?
                     <TableSkeleton columnCount={columnsEmployees.length} />
                     : workers.length > 0 ?
-                        (<OverflowTable
-                            tableData={workers}
+                        (<DynamicTable
+                            data={workers}
                             columns={columnsEmployees}
-                            isUpdate={true}
-                            onUpdate={handleUpdate}
+                            onEdit={handleUpdate}
                         />) : (
                             <NoDataUI
                                 title={t("organizations.noLegal")}

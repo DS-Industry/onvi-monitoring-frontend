@@ -15,6 +15,7 @@ import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
 import moment from "moment";
 import { useCity } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type TableRow = {
     id: number;
@@ -309,8 +310,8 @@ const CollectionCreation: React.FC = () => {
         {
             label: "Купюры",
             key: "sumPaperDeviceType",
-            render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
+            render: (row: { sumPaperDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+                row.key === "total" ? "" : <Input
                     type="number"
                     // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
                     placeholder="00,00"
@@ -325,8 +326,8 @@ const CollectionCreation: React.FC = () => {
         {
             label: "Монеты",
             key: "sumCoinDeviceType",
-            render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
+            render: (row: { sumCoinDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+                row.key === "total" ? "" : <Input
                     type="number"
                     // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
                     placeholder="00,00"
@@ -452,8 +453,8 @@ const CollectionCreation: React.FC = () => {
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
-                            {openCashColl && <OverflowTable
-                                tableData={tableData.sort((a, b) => a.id - b.id)}
+                            {openCashColl && <DynamicTable
+                                data={tableData.sort((a, b) => a.id - b.id)}
                                 columns={columnsCollections}
                                 handleChange={handleTableChange}
                                 showTotal={true}
@@ -474,11 +475,11 @@ const CollectionCreation: React.FC = () => {
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.collDev")}</div>
                             </div>
-                            {openCollDevice && <OverflowTable
-                                tableData={deviceData}
+                            {openCollDevice && <DynamicTable
+                                data={deviceData}
                                 columns={columnsDeviceData}
-                                isUpdateLeft={true}
-                                onUpdate={handleUpdate}
+                                // isUpdateLeft={true}
+                                onEdit={handleUpdate}
                                 renderCell={(column, row) => {
                                     if (column.type === "date") {
                                         if (editingRow === row.id && column.key === "tookMoneyTime") {

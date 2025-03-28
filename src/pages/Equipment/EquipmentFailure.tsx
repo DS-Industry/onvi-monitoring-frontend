@@ -8,7 +8,6 @@ import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import { useButtonCreate } from "@/components/context/useContext";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsEquipmentFailure } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
 import { createIncident, getDevices, getEquipmentKnots, getIncident, getIncidentEquipmentKnots, getPoses, getPrograms, getWorkers, updateIncident } from "@/services/api/equipment";
@@ -17,6 +16,7 @@ import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 
 interface Incident {
@@ -276,6 +276,31 @@ const EquipmentFailure: React.FC = () => {
 
     return (
         <>
+            <FilterMonitoring
+                count={incidents.length}
+                posesSelect={poses}
+                handleDataFilter={handleDataFilter}
+                hideSearch={true}
+            />
+            {isTableLoading || incidentLoading ? (
+                <TableSkeleton columnCount={columnsEquipmentFailure.length} />
+            ) :
+                incidents.length > 0 ?
+                    <div className="mt-8">
+                        <DynamicTable
+                            data={incidents}
+                            columns={columnsEquipmentFailure}
+                            isDisplayEdit={true}
+                            onEdit={handleUpdate}
+                        />
+                    </div> :
+                    <NoDataUI
+                        title={t("equipment.nodata")}
+                        description={t("equipment.noBreakdown")}
+                    >
+                        <img src={SalyImage} className="mx-auto" />
+                    </NoDataUI>
+            }
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("equipment.break")}</span>
@@ -356,7 +381,6 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.device")}
                         label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={devices}
-                        isEmptyState={devices.length === 0}
                         classname="w-72"
                         {...register('objectName', { required: !isEditMode && 'Device is required' })}
                         value={formData.objectName}
@@ -370,7 +394,6 @@ const EquipmentFailure: React.FC = () => {
                         label={equipmentKnots.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={equipmentKnots}
                         classname="w-72"
-                        isEmptyState={equipmentKnots.length === 0}
                         {...register('equipmentKnotId')}
                         value={formData.equipmentKnotId}
                         onChange={(value) => handleInputChange('equipmentKnotId', value)}
@@ -379,7 +402,6 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.name")}
                         label={problemNames.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={problemNames}
-                        isEmptyState={problemNames.length === 0}
                         classname="w-72"
                         {...register('incidentNameId')}
                         value={formData.incidentNameId}
@@ -390,7 +412,6 @@ const EquipmentFailure: React.FC = () => {
                         label={reasons.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={reasons}
                         classname="w-72"
-                        isEmptyState={reasons.length === 0}
                         {...register('incidentReasonId')}
                         value={formData.incidentReasonId}
                         onChange={(value) => handleInputChange('incidentReasonId', value)}
@@ -399,7 +420,6 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.measures")}
                         label={solutions.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={solutions}
-                        isEmptyState={solutions.length === 0}
                         classname="w-72"
                         {...register('incidentSolutionId')}
                         value={formData.incidentSolutionId}
@@ -440,7 +460,6 @@ const EquipmentFailure: React.FC = () => {
                     <DropdownInput
                         title={t("equipment.program")}
                         label={programs.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                        isEmptyState={programs.length === 0}
                         options={programs}
                         classname="w-72"
                         {...register('carWashDeviceProgramsTypeId')}
@@ -474,32 +493,6 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                 </form>
             </DrawerCreate>
-            <FilterMonitoring
-                count={incidents.length}
-                posesSelect={poses}
-                handleDataFilter={handleDataFilter}
-                hideSearch={true}
-            />
-            {isTableLoading || incidentLoading ? (
-                <TableSkeleton columnCount={columnsEquipmentFailure.length} />
-            ) :
-                incidents.length > 0 ?
-                    <div className="mt-8">
-                        <OverflowTable
-                            tableData={incidents}
-                            columns={columnsEquipmentFailure}
-                            isDisplayEdit={true}
-                            isUpdate={true}
-                            onUpdate={handleUpdate}
-                        />
-                    </div> :
-                    <NoDataUI
-                        title={t("equipment.nodata")}
-                        description={t("equipment.noBreakdown")}
-                    >
-                        <img src={SalyImage} className="mx-auto" />
-                    </NoDataUI>
-            }
         </>
     )
 }

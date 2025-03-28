@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
@@ -10,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterDepositPos {
     dateStart: Date;
@@ -128,11 +128,11 @@ const Deposit: React.FC = () => {
                 :
                 posMonitoring.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={posMonitoring}
+                        <DynamicTable
+                            data={posMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
-                            nameUrl={"/station/enrollments/device"}
+                            navigableFields={[{ key: "name", getPath: () => '/station/enrollments/device' }]}
                         />
                     </div>
                 ) : (

@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getShifts } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsShifts } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterCollection {
     dateStart: string;
@@ -125,12 +125,12 @@ const Timesheet: React.FC = () => {
                 :
                 shifts.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={shifts}
+                        <DynamicTable
+                            data={shifts}
                             columns={columnsShifts}
                             isDisplayEdit={true}
                             showPagination={true}
-                            nameUrl="/finance/timesheet/creation"
+                            navigableFields={[{ key: "posName", getPath: () => "/finance/timesheet/creation" }]}
                         />
                     </div>
                 ) : (

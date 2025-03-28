@@ -10,7 +10,7 @@ import { getPoses } from "@/services/api/equipment";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsPlanFact } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type PlanFactParams = {
     dateStart: Date;
@@ -110,8 +110,8 @@ const PlanAct: React.FC = () => {
                 </div>)
                 : planFacts.length > 0 ? (
                     <div className="mt-8 space-y-6">
-                        <OverflowTable
-                            tableData={planFacts}
+                        <DynamicTable
+                            data={planFacts.map((p, index) => ({ id: index, ...p }))}
                             columns={columnsPlanFact}
                         />
                     </div>

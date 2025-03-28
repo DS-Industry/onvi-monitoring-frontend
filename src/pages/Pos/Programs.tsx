@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { getPrograms } from "@/services/api/pos";
 import { columnsProgramsPos, columnsProgramsPosPortal } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
@@ -22,6 +21,7 @@ import {
 } from "chart.js";
 import { useTranslation } from "react-i18next";
 import CardSkeleton from "@/components/ui/Card/CardSkeleton";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -274,11 +274,11 @@ const Programs: React.FC = () => {
                         <div className="shadow-card rounded-2xl p-4 space-y-6">
                             <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
                             {posPrograms.map((deviceProgram) =>
-                                <OverflowTable
+                                <DynamicTable
                                     title={deviceProgram.name}
                                     urlTitleId={deviceProgram.id}
                                     nameUrlTitle={"/station/programs/device"}
-                                    tableData={deviceProgram.programsInfo}
+                                    data={deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p })) : []}
                                     columns={portalPrograms.length > 0 ? columnsProgramsPosPortal : columnsProgramsPos}
                                 />
                             )}

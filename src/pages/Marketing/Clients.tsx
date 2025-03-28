@@ -22,16 +22,16 @@ import useSWRMutation from "swr/mutation";
 import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetPageNumber } from "@/hooks/useAuthStore";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 // import ClientTable from "@/components/ui/Table/ClientsTable";
-import { Tag } from "antd";
+// import { Tag } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import Filter from "@/components/ui/Filter/Filter";
 
-enum StatusUser {
-    VERIFICATE = "VERIFICATE",
-    ACTIVE = "ACTIVE",
-    BLOCKED = "BLOCKED",
-    DELETED = "DELETED",
-}
+// enum StatusUser {
+//     VERIFICATE = "VERIFICATE",
+//     ACTIVE = "ACTIVE",
+//     BLOCKED = "BLOCKED",
+//     DELETED = "DELETED",
+// }
 
 enum UserType {
     PHYSICAL = "PHYSICAL",
@@ -223,7 +223,7 @@ const Clients: React.FC = () => {
 
     type FieldType = "number" | "name" | "type" | "email" | "birthday" | "phone" | "gender" | "inn" | "comment" | "placementId" | "devNumber" | "monthlyLimit" | "tagIds" | `tagIds.${number}`;
 
-    const handleInputChange = (field: FieldType, value: any) => {
+    const handleInputChange = (field: FieldType, value: string | number[]) => {
         const numericFields = ['number', 'devNumber', 'placementId', 'monthlyLimit'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
@@ -331,7 +331,6 @@ const Clients: React.FC = () => {
         {
             label: "Тип клиента",
             key: "type",
-            render: (type: UserType) => <span className="font-medium text-gray-700">{type}</span>,
         },
         {
             label: "Имя клиента",
@@ -343,27 +342,12 @@ const Clients: React.FC = () => {
         },
         {
             label: "Статус",
-            key: "status",
-            render: (status: StatusUser) => {
-                const color = status === StatusUser.ACTIVE ? "green" : status === StatusUser.BLOCKED ? "volcano" : "red";
-                return <Tag color={color}>{status}</Tag>;
-            },
+            key: "status"
         },
         {
             label: "Теги",
             key: "tags",
-            render: (tags: { id: number; name: string; color: string }[]) =>
-                tags.length > 0 ? (
-                    <>
-                        {tags.map((tag) => (
-                            <Tag key={tag.id} color={tag.color}>
-                                {tag.name}
-                            </Tag>
-                        ))}
-                    </>
-                ) : (
-                    "—"
-                ),
+            type: "tags"                
         },
         {
             label: "Комментарий",

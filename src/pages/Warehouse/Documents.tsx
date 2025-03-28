@@ -11,11 +11,11 @@ import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/w
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsAllDocuments } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import NoDataUI from "@/components/ui/NoDataUI";
 import OverheadsEmpty from "@/assets/NoOverhead.png"
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type DocumentParams = {
     dateStart: Date;
@@ -191,12 +191,12 @@ const Documents: React.FC = () => {
             ) :
                 data.length > 0 ?
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={data}
+                        <DynamicTable
+                            data={data}
                             columns={columnsAllDocuments}
                             isDisplayEdit={true}
                             isStatus={true}
-                            nameUrl={'/warehouse/documents/view'}
+                            navigableFields={[{ key: "name", getPath: () => '/warehouse/documents/view' }]}
                         />
                     </div> :
                     <NoDataUI

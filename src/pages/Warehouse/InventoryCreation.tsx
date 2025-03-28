@@ -15,9 +15,9 @@ import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsInventory } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import { useCity } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 enum PurposeType {
     SALE = "SALE",
@@ -241,11 +241,10 @@ const InventoryCreation: React.FC = () => {
                 <TableSkeleton columnCount={columnsInventory.length} />
             ) : inventoriesDisplay.length > 0 ?
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={inventoriesDisplay}
+                    <DynamicTable
+                        data={inventoriesDisplay}
                         columns={columnsInventory}
-                        isUpdateLeft={true}
-                        onUpdate={handleUpdate}
+                        onEdit={handleUpdate}
                     />
                 </div> :
                 <div className="flex flex-col justify-center items-center">
@@ -277,7 +276,6 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("warehouse.category")} *`}
                         label={categories.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={categories}
-                        isEmptyState={categories.length === 0}
                         classname="w-64"
                         {...register('categoryId', {
                             required: !isEditMode && 'Category Id is required',
@@ -293,7 +291,6 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("routes.suppliers")}`}
                         label={suppliers.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={suppliers}
-                        isEmptyState={suppliers.length === 0}
                         classname="w-64"
                         {...register('supplierId')}
                         value={formData.supplierId}
@@ -303,7 +300,6 @@ const InventoryCreation: React.FC = () => {
                         title={`${t("warehouse.organization")} *`}
                         label={organizations.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={organizations}
-                        isEmptyState={organizations.length === 0}
                         classname="w-64"
                         {...register('organizationId', {
                             required: !isEditMode && 'Organization Id is required',

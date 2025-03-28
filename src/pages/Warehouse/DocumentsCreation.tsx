@@ -535,7 +535,6 @@ const DocumentsCreation: React.FC = () => {
                 <DropdownInput
                     value={row.nomenclatureId}
                     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                    isEmptyState={nomenclatures.length === 0}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
@@ -618,7 +617,6 @@ const DocumentsCreation: React.FC = () => {
                 <DropdownInput
                     value={row.nomenclatureId}
                     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                    isEmptyState={nomenclatures.length === 0}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
@@ -788,7 +786,6 @@ const DocumentsCreation: React.FC = () => {
                                     <DropdownInput
                                         value={warehouseId}
                                         options={warehouses}
-                                        isEmptyState={warehouses.length === 0}
                                         label={t("warehouse.enterWare")}
                                         classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseId(value)}
@@ -800,7 +797,6 @@ const DocumentsCreation: React.FC = () => {
                                     <DropdownInput
                                         value={warehouseRecId}
                                         options={warehouses}
-                                        isEmptyState={warehouses.length === 0}
                                         label={t("warehouse.enterWare")}
                                         classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseRecId(value)}

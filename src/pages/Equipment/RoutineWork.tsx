@@ -10,13 +10,13 @@ import { createTechTask, getPoses, getTechTaskItem, getTechTasks, updateTechTask
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasks } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type TechTasks = {
     id: number;
@@ -268,9 +268,43 @@ const RoutineWork: React.FC = () => {
     const handleClear = () => {
         setSearchPosId(posType);
     }
-    console.log("Techtasks test:", techTask);
+
     return (
         <>
+            <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+                <div className="flex">
+                    <DropdownInput
+                        title={t("equipment.carWash")}
+                        value={searchPosId}
+                        classname="ml-2"
+                        options={poses}
+                        onChange={(value) => setSearchPosId(value)}
+                    />
+                </div>
+            </Filter>
+            {techTasksLoading ? (
+                <TableSkeleton columnCount={columnsTechTasks.length} />
+            ) :
+                techTasks.length > 0 ?
+                    <>
+                        <div className="mt-8">
+                            <DynamicTable
+                                data={techTasks}
+                                columns={columnsTechTasks}
+                                isDisplayEdit={true}
+                                onEdit={handleUpdate}
+                            />
+                        </div>
+                    </>
+                    :
+                    <NoDataUI
+                        title={t("routine.display")}
+                        description={""}
+                    >
+                        <img src={SalyImage} className="mx-auto" />
+                    </NoDataUI>
+            }
+
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
@@ -467,42 +501,6 @@ const RoutineWork: React.FC = () => {
                     </div>
                 </form>
             </DrawerCreate>
-            <>
-                <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
-                    <div className="flex">
-                        <DropdownInput
-                            title={t("equipment.carWash")}
-                            value={searchPosId}
-                            classname="ml-2"
-                            options={poses}
-                            onChange={(value) => setSearchPosId(value)}
-                        />
-                    </div>
-                </Filter>
-                {techTasksLoading ? (
-                    <TableSkeleton columnCount={columnsTechTasks.length} />
-                ) :
-                    techTasks.length > 0 ?
-                        <>
-                            <div className="mt-8">
-                                <OverflowTable
-                                    tableData={techTasks}
-                                    columns={columnsTechTasks}
-                                    isDisplayEdit={true}
-                                    isUpdate={true}
-                                    onUpdate={handleUpdate}
-                                />
-                            </div>
-                        </>
-                        :
-                        <NoDataUI
-                            title={t("routine.display")}
-                            description={""}
-                        >
-                            <img src={SalyImage} className="mx-auto" />
-                        </NoDataUI>
-                }
-            </>
         </>
     )
 }

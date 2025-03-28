@@ -5,12 +5,12 @@ import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
 import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type StockParams = {
     categoryId: number | string;
@@ -164,8 +164,8 @@ const OverheadCosts: React.FC = () => {
                 <TableSkeleton columnCount={columns.length} />
             ) : transformedData.length > 0 ?
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={transformedData}
+                    <DynamicTable
+                        data={transformedData.map((tra, index) => ({ ...tra, id: index }))}
                         columns={columns}
                     />
                 </div> :

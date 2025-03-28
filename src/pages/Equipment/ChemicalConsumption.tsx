@@ -6,9 +6,9 @@ import useSWR from "swr";
 import { getChemicalReport, getPoses } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsChemicalConsumption } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface TechRateInfo {
     code: string;
@@ -94,7 +94,7 @@ const ChemicalConsumption: React.FC = () => {
     const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR(posType !== "*" ? [`get-chemical-consumption`] : null, () => getChemicalReport({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: posType, 
+        posId: posType,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -122,8 +122,8 @@ const ChemicalConsumption: React.FC = () => {
             ) :
                 tableRows.length > 0 ?
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={tableRows}
+                        <DynamicTable
+                            data={tableRows.map((row, index) => ({ ...row, id: index }))}
                             columns={columnsChemicalConsumption}
                             isDisplayEdit={true}
                         />

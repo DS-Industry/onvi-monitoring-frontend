@@ -2,7 +2,6 @@ import Button from "@/components/ui/Button/Button";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import NoDataUI from "@/components/ui/NoDataUI";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { getConsumptionRate, getPoses, patchProgramCoefficient } from "@/services/api/equipment";
 import { columnsConsumptionRate } from "@/utils/OverFlowTableData";
@@ -12,6 +11,7 @@ import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import SalyImage from "@/assets/NoEquipment.png"
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
@@ -112,8 +112,8 @@ const ConsumptionRate: React.FC = () => {
             ) :
                 tableData && tableData.length > 0 ?
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={tableData}
+                        <DynamicTable
+                            data={tableData}
                             columns={columnsConsumptionRate}
                             handleChange={handleTableChange}
                         />

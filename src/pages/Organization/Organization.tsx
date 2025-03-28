@@ -4,7 +4,6 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import { useButtonCreate } from "@/components/context/useContext.tsx";
 import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
 import { getOrganization, getOrganizationDocument, postUpdateOrganization } from "@/services/api/organization/index.ts";
@@ -20,6 +19,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@/hooks/useUserStore";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type OrganizationResponse = {
     id: number;
@@ -205,6 +205,28 @@ const Organization: React.FC = () => {
                     />
                 </div>
             </Filter>
+            {
+                loadingOrg ? (<TableSkeleton columnCount={columnsOrg.length} />)
+                    :
+                    organizations.length > 0 ? (
+                        <>
+                            <div className="mt-8">
+                                <DynamicTable
+                                    data={organizations}
+                                    columns={columnsOrg}
+                                    isDisplayEdit={true}
+                                    onEdit={handleUpdate}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <NoDataUI
+                            title={t("organizations.noLegal")}
+                            description={t("organizations.addLegal")}
+                        >
+                            <img src={SalyIamge} className="mx-auto" />
+                        </NoDataUI>
+                    )}
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6 w-full max-w-2xl mx-auto p-4" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
@@ -380,32 +402,7 @@ const Organization: React.FC = () => {
                         <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
                     </div>
                 </form>
-
             </DrawerCreate>
-
-            {
-                loadingOrg ? (<TableSkeleton columnCount={columnsOrg.length} />)
-                    :
-                    organizations.length > 0 ? (
-                        <>
-                            <div className="mt-8">
-                                <OverflowTable
-                                    tableData={organizations}
-                                    columns={columnsOrg}
-                                    isDisplayEdit={true}
-                                    isUpdate={true}
-                                    onUpdate={handleUpdate}
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <NoDataUI
-                            title={t("organizations.noLegal")}
-                            description={t("organizations.addLegal")}
-                        >
-                            <img src={SalyIamge} className="mx-auto" />
-                        </NoDataUI>
-                    )}
         </>
     );
 };
