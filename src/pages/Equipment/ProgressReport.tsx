@@ -7,9 +7,9 @@ import { getPoses, readTechTasks } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
 import Filter from "@/components/ui/Filter/Filter";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type ReadTechTasks = {
     id: number;
@@ -52,13 +52,15 @@ const ProgressReport: React.FC = () => {
         <>
             <Filter count={techTasks.length} hideDateTime={true} hideCity={true} hideSearch={true}>
                 <div className="flex">
-                    <DropdownInput
-                        title={t("equipment.carWash")}
-                        value={searchPosId}
-                        classname={"w-full sm:w-80"}
-                        options={poses}
-                        onChange={(value) => setSearchPosId(value)}
-                    />
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                            value={searchPosId}
+                            onChange={(value) => setSearchPosId(value)}
+                        />
+                    </div>
                 </div>
             </Filter>
             {techTasksLoading ? (

@@ -1,4 +1,4 @@
-import DropdownInput from "@ui/Input/DropdownInput";
+// import DropdownInput from "@ui/Input/DropdownInput";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AnalysisCard from "@ui/Card/AnalysisCard";
@@ -9,6 +9,7 @@ import { useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPa
 import { useFilterOn } from "@/components/context/useContext";
 import Icon from 'feather-icons-react';
 import CardSkeleton from "@/components/ui/Card/CardSkeleton";
+import { Select } from "antd";
 
 enum CategoryReportTemplate {
     POS = "POS"
@@ -84,7 +85,7 @@ const Analysis: React.FC = () => {
     return (
         <div>
             <Filter count={reportsData.length} hideDateTime={true} hideCity={true} search={searchReport} setSearch={setSearchReport}>
-                <DropdownInput
+                {/* <DropdownInput
                     title={t("warehouse.category")}
                     value={cat}
                     classname="w-64"
@@ -92,7 +93,23 @@ const Analysis: React.FC = () => {
                         { name: "POS", value: "POS" }
                     ]}
                     onChange={(value) => setCat(value)}
-                />
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        value={cat}
+                        onChange={(value) => setCat(value)}
+                        options={[
+                            { label: "POS", value: "POS" }
+                        ]}
+                        dropdownRender={(menu) => (
+                            <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                {menu}
+                            </div>
+                        )}
+                    />
+                </div>
             </Filter>
             <hr className="my-4" />
             <div className="space-y-3">

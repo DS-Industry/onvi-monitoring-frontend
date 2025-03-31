@@ -538,6 +538,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
+                    classnameOptions="max-h-20"
                 />
             ),
         },
@@ -620,6 +621,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
+                    classnameOptions="max-h-20"
                 />
             ),
         },

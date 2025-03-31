@@ -9,12 +9,12 @@ import { columnsMonitoringPos } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
 import { getStatistic } from "@/services/api/organization";
 import { getDepositPos } from "@/services/api/pos";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
+import DynamicTable from "../ui/Table/DynamicTable";
 
 interface PosMonitoring {
   id: number;
@@ -238,11 +238,11 @@ const Indicators: React.FC = () => {
             {filterLoading ? (
               <TableSkeleton columnCount={columnsMonitoringPos.length} />
             ) : (
-              <OverflowTable
-                tableData={posMonitoring}
+              <DynamicTable
+                data={posMonitoring}
                 columns={columnsMonitoringPos}
                 isDisplayEdit={true}
-                nameUrl={"/station/enrollments/devices"}
+                navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
               />
             )}
           </div>

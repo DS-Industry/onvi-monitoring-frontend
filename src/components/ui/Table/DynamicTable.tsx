@@ -1,5 +1,5 @@
 import { Table, Tooltip, Tag, Button as AntDButton } from "antd";
-import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import { JSX } from "react/jsx-runtime";
@@ -108,9 +108,9 @@ const DynamicTable = <T extends TableRow>({
     };
 
     const getStatusTag = (status: string) => {
-        if (status === t("tables.FINISHED") || status === t("tables.ACTIVE") || status === t("tables.SENT"))
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT"))
             return <Tag color="green">{status}</Tag>;
-        if (status === t("tables.OVERDUE"))
+        if (status === t("tables.OVERDUE") || status === t("tables.FINISHED"))
             return <Tag color="red">{status}</Tag>;
         if (status === t("tables.SAVED"))
             return <Tag color="orange">{status}</Tag>;
@@ -292,6 +292,7 @@ const DynamicTable = <T extends TableRow>({
                         onClick={() => { navigate(navigableField.getPath(record), { state: { ownerId: record.id, name: record.name, status: record.status, type: record.type, workDate: record.startWorkDate, endDate: record.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === record.type)?.value || ""); }}
                     >
                         {value}
+                        <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
                 ) : col.render ? col.render(record, handleChange) :
                     value;

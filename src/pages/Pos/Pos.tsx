@@ -16,11 +16,14 @@ import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getContactById, getOrganization, getOrganizationContactById } from "@/services/api/organization";
-import SearchInput from "@/components/ui/Input/SearchInput";
+// import SearchInput from "@/components/ui/Input/SearchInput";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 import { getPlacement } from "@/services/api/device";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Input as SearchInp } from "antd";
+
+const { Search } = SearchInp;
 
 type Pos = {
     id: number;
@@ -243,13 +246,23 @@ const Pos: React.FC = () => {
         <>
             <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setCity} hideSearch={true}>
                 <div className="flex">
-                    <SearchInput
+                    {/* <SearchInput
                         title={t("equipment.carWash")}
                         value={searchTerm}
                         searchType="outlined"
                         classname="ml-2"
                         onChange={(value) => setSearchTerm(value)}
-                    />
+                    /> */}
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Search
+                            placeholder="Поиск"
+                            className="w-full sm:w-80 ml-2"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onSearch={(value) => setSearchTerm(value)}
+                        />
+                    </div>
                 </div>
             </Filter>
             {
@@ -272,13 +285,15 @@ const Pos: React.FC = () => {
                     ) : (
                         <>
                             {notificationVisible && organizations.length === 0 && (
-                                <Notification
-                                    title={t("pos.companyName")}
-                                    message={t("pos.createObject")}
-                                    link={t("pos.goto")}
-                                    linkUrl="/administration/legalRights"
-                                    onClose={() => setNotificationVisible(false)}
-                                />
+                                <div className="mt-2">
+                                    <Notification
+                                        title={t("pos.companyName")}
+                                        message={t("pos.createObject")}
+                                        link={t("pos.goto")}
+                                        linkUrl="/administration/legalRights"
+                                        onClose={() => setNotificationVisible(false)}
+                                    />
+                                </div>
                             )}
                             <NoDataUI
                                 title={t("pos.noObject")}

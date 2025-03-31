@@ -2,11 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap";
 import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
-import SearchInput from "../Input/SearchInput";
-import DropdownInput from "../Input/DropdownInput";
+// import SearchInput from "../Input/SearchInput";
+// import DropdownInput from "../Input/DropdownInput";
 import Button from "../Button/Button";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device";
+import { Select, Input } from "antd";
+import { useTranslation } from "react-i18next";
+
 
 type Props = {
   children: React.ReactNode;
@@ -25,6 +28,8 @@ type Props = {
   hideCancel?: boolean;
 };
 
+const { Search } = Input;
+
 const Filter: React.FC<Props> = ({
   children,
   count,
@@ -41,6 +46,7 @@ const Filter: React.FC<Props> = ({
   hidePage = false,
   hideCancel
 }: Props) => {
+  const { t } = useTranslation();
   const { filterOpen } = useFilterOpen();
   const { buttonOn } = useButtonCreate();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -55,7 +61,7 @@ const Filter: React.FC<Props> = ({
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-  const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
+  const cities: { label: string; value: number; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || [];
 
   useEffect(() => {
     if (filterOpen && !buttonOn) {
@@ -69,7 +75,7 @@ const Filter: React.FC<Props> = ({
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
-    if (setAddress) setAddress(0);
+    if (setAddress) setAddress("*");
     if (setSearch) setSearch("");
     if (handleClear) handleClear();
     setFilterOn(!filterOn);
@@ -93,7 +99,7 @@ const Filter: React.FC<Props> = ({
     if (setSearch) setSearch(value);
   };
 
-  const handleAddressChange = (value: number) => {
+  const handleAddressChange = (value: number | string) => {
     if (setAddress) setAddress(value);
   }
 
@@ -103,34 +109,63 @@ const Filter: React.FC<Props> = ({
       className={`transition-all duration-500 ease-in-out max-h-0`}
     >
       <div className="flex flex-wrap gap-4">
-        {!hideSearch && <SearchInput
-          value={search}
-          onChange={handleSearchChange}
-          classname="w-full sm:w-80"
-          searchType="outlined"
-          title="Поиск"
-        />}
-        {!hideCity && <DropdownInput
-          title={"Город"}
-          value={address}
-          options={cities}
-          classname="w-full sm:w-80"
-          onChange={handleAddressChange}
-        />}
+        {!hideSearch &&
+          // <SearchInput
+          //   value={search}
+          //   onChange={handleSearchChange}
+          //   classname="w-full sm:w-80"
+          //   searchType="outlined"
+          //   title="Поиск"
+          // />
+          <div>
+            <div className="text-sm text-text02">{t("analysis.search")}</div>
+            <Search
+              placeholder="Поиск"
+              className="w-full sm:w-80"
+              value={search}
+              onSearch={handleSearchChange}
+              onChange={(e) => {
+                if (setSearch)
+                  setSearch(e.target.value);
+              }}
+            />
+          </div>
+        }
+        {!hideCity &&
+          // <DropdownInput
+          //   title={"Город"}
+          //   value={address}
+          //   options={cities}
+          //   classname="w-full sm:w-80"
+          //   onChange={handleAddressChange}
+          // />
+          <div>
+            <div className="text-sm text-text02">{t("pos.city")}</div>
+            <Select
+              className="w-full sm:w-80"
+              placeholder="Город"
+              options={cities}
+              value={address}
+              onChange={handleAddressChange}
+            />
+          </div>
+        }
         {children}
-        {!hidePage && <DropdownInput
-          title={"Строк на стр."}
-          value={pageNumber}
-          classname="w-24"
-          options={[
-            { name: 15, value: 15 },
-            { name: 50, value: 50 },
-            { name: 100, value: 100 },
-            { name: 120, value: 120 },
-            { name: 150, value: 150 }
-          ]}
-          onChange={(value) => setPageNumber(value)}
-        />}
+        {!hidePage && (<div>
+          <div className="text-sm text-text02">{t("tables.lines")}</div>
+          <Select
+            className="w-24"
+            options={[{ label: 15, value: 15 }, { label: 50, value: 50 }, { label: 100, value: 100 }, { label: 120, value: 120 }]}
+            value={pageNumber}
+            onChange={setPageNumber}
+            dropdownRender={(menu) => (
+              <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                {menu}
+              </div>
+            )}
+          />
+        </div>
+        )}
       </div>
       {!hideDateTime ? (
         <div>

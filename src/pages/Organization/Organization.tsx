@@ -14,12 +14,15 @@ import useFormHook from "@/hooks/useFormHook.ts";
 import useSWRMutation from "swr/mutation";
 import { createUserOrganization } from "@/services/api/organization/index.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
-import SearchInput from "@/components/ui/Input/SearchInput.tsx";
+// import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@/hooks/useUserStore";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Input as SearchInp } from "antd";
+
+const { Search } = SearchInp;
 
 type OrganizationResponse = {
     id: number;
@@ -195,14 +198,24 @@ const Organization: React.FC = () => {
         <>
             <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress} hideSearch={true}>
                 <div className="flex">
-                    <SearchInput
+                    {/* <SearchInput
                         title="Имя"
                         placeholder="Filter by name..."
                         classname="w-64"
                         searchType="outlined"
                         value={searchTerm}
                         onChange={handleSearchChange}
-                    />
+                    /> */}
+                    <div>
+                        <div className="text-sm text-text02">{"Имя"}</div>
+                        <Search
+                            placeholder="Поиск"
+                            className="w-full sm:w-80 ml-2"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onSearch={handleSearchChange}
+                        />
+                    </div>
                 </div>
             </Filter>
             {

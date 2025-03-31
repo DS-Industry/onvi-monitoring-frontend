@@ -116,6 +116,7 @@ const ChemicalConsumption: React.FC = () => {
                 count={tableRows.length}
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}
+                hideSearch={true}
             />
             {isTableLoading || chemicalLoading ? (
                 <TableSkeleton columnCount={columnsChemicalConsumption.length} />

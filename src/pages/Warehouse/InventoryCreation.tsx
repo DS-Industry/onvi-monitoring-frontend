@@ -18,6 +18,7 @@ import { columnsInventory } from "@/utils/OverFlowTableData";
 import Filter from "@/components/ui/Filter/Filter";
 import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 enum PurposeType {
     SALE = "SALE",
@@ -44,7 +45,7 @@ const InventoryCreation: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
-    const [category, setCategory] = useState(0);
+    const [category, setCategory] = useState<number | string>("*");
     const [name, setName] = useState("");
     const [orgId, setOrgId] = useState(1);
     const city = useCity();
@@ -58,7 +59,7 @@ const InventoryCreation: React.FC = () => {
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const inventories = inventoryData?.map((item) => item.props)
-        ?.filter((item: { categoryId: number }) => category === 0 || item.categoryId === category)
+        ?.filter((item: { categoryId: number }) => category === "*" || item.categoryId === category)
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))
         ?.map((item) => item) || [];
 
@@ -216,26 +217,30 @@ const InventoryCreation: React.FC = () => {
     };
 
     const handleClear = () => {
-        setCategory(0);
+        setCategory("*");
     }
 
     return (
         <>
             <Filter count={inventoriesDisplay.length} hideDateTime={true} handleClear={handleClear} hideCity={true} search={name} setSearch={setName}>
-                <DropdownInput
-                    title={t("warehouse.organization")}
-                    value={orgId}
-                    options={organizations}
-                    onChange={(value) => setOrgId(value)}
-                    classname="ml-2"
-                />
-                <DropdownInput
-                    title={t("warehouse.category")}
-                    value={category}
-                    classname="ml-2"
-                    options={categories}
-                    onChange={(value) => setCategory(value)}
-                />
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={organizations.map((item) => ({ label: item.name, value: item.value }))}
+                        value={orgId}
+                        onChange={(value) => setOrgId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={categories.map((item) => ({ label: item.name, value: item.value }))}
+                        value={category}
+                        onChange={(value) => setCategory(value)}
+                    />
+                </div>
             </Filter>
             {inventoryLoading ? (
                 <TableSkeleton columnCount={columnsInventory.length} />

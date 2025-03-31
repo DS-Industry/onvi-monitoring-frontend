@@ -185,6 +185,7 @@ const Documents: React.FC = () => {
                 count={data.length}
                 wareHousesSelect={warehouses}
                 handleDataFilter={handleDataFilter}
+                hideSearch={true}
             />
             {isTableLoading || documentsLoading ? (
                 <TableSkeleton columnCount={columnsAllDocuments.length} />

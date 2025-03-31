@@ -6,11 +6,11 @@ import useSWR from "swr";
 import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import Filter from "@/components/ui/Filter/Filter";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
 import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type StockParams = {
     categoryId: number | string;
@@ -138,27 +138,33 @@ const OverheadCosts: React.FC = () => {
     return (
         <>
             <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} address={city} setAddress={setCity} hideSearch={true}>
-                <DropdownInput
-                    title={t("warehouse.organization")}
-                    value={orgId}
-                    options={organizations}
-                    onChange={(value) => setOrgId(value)}
-                    classname="ml-2"
-                />
-                <DropdownInput
-                    title={t("warehouse.category")}
-                    value={categoryId}
-                    options={categories}
-                    onChange={(value) => setCategoryId(value)}
-                    classname="ml-2"
-                />
-                <DropdownInput
-                    title={t("warehouse.ware")}
-                    value={warehouseId}
-                    options={warehouses}
-                    onChange={(value) => setWarehouseId(value)}
-                    classname="ml-2"
-                />
+            <div>
+                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={organizations.map((item) => ({ label: item.name, value: item.value }))}
+                        value={orgId}
+                        onChange={(value) => setOrgId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={categories.map((item) => ({ label: item.name, value: item.value }))}
+                        value={categoryId}
+                        onChange={(value) => setCategoryId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.ware")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={warehouses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={warehouseId}
+                        onChange={(value) => setWarehouseId(value)}
+                    />
+                </div>
             </Filter>
             {isTableLoading || stocksLoading ? (
                 <TableSkeleton columnCount={columns.length} />

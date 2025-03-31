@@ -1,6 +1,5 @@
 import Button from "@/components/ui/Button/Button";
 import Filter from "@/components/ui/Filter/Filter";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import NoDataUI from "@/components/ui/NoDataUI";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { getConsumptionRate, getPoses, patchProgramCoefficient } from "@/services/api/equipment";
@@ -12,6 +11,7 @@ import useSWRMutation from "swr/mutation";
 import SalyImage from "@/assets/NoEquipment.png"
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
@@ -58,7 +58,7 @@ const ConsumptionRate: React.FC = () => {
             setTableData(sortedData); // Update state with sorted data
         }
     }, [consumptionRateData]);
-    
+
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) => {
             const updatedData = prevData?.map((item) =>
@@ -68,7 +68,7 @@ const ConsumptionRate: React.FC = () => {
             return updatedData?.sort((a, b) => a.programTypeName.localeCompare(b.programTypeName));
         });
     };
-    
+
 
     const handleSubmit = async () => {
         console.log("Final Task Values:", tableData);
@@ -99,13 +99,15 @@ const ConsumptionRate: React.FC = () => {
     return (
         <div>
             <Filter count={tableData?.length !== undefined ? tableData?.length : 0} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true} hideCancel={true}>
-                <DropdownInput
-                    title={t("equipment.carWash")}
-                    value={searchPosId}
-                    classname="w-full sm:w-80"
-                    options={poses}
-                    onChange={(value) => setSearchPosId(value)}
-                />
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={searchPosId}
+                        onChange={(value) => setSearchPosId(value)}
+                    />
+                </div>
             </Filter>
             {programCoeffsLoading ? (
                 <TableSkeleton columnCount={columnsConsumptionRate.length} />

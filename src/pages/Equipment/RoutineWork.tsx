@@ -17,6 +17,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type TechTasks = {
     id: number;
@@ -273,13 +274,15 @@ const RoutineWork: React.FC = () => {
         <>
             <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
                 <div className="flex">
-                    <DropdownInput
-                        title={t("equipment.carWash")}
-                        value={searchPosId}
-                        classname="ml-2"
-                        options={poses}
-                        onChange={(value) => setSearchPosId(value)}
-                    />
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                            value={searchPosId}
+                            onChange={(value) => setSearchPosId(value)}
+                        />
+                    </div>
                 </div>
             </Filter>
             {techTasksLoading ? (

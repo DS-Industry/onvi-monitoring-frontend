@@ -650,7 +650,8 @@
     "Download": "Download",
     "FIRED": "FIRED",
     "OFFLINE": "OFFLINE",
-    "DELETED": "DELETED"
+    "DELETED": "DELETED",
+    "lines": "Lines per page"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -743,8 +744,8 @@
     "ERROR": "ERROR",
     "repo": "Report parameters",
     "add": "Add report",
-    "startDate": "startDate",
-    "endDate": "endDate",
+    "startDate": "Period from",
+    "endDate": "By",
     "posId": "POS",
     "deviceId": "Device",
     "warehouseId": "Warehouse",

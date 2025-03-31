@@ -25,6 +25,8 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 // import { Tag } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import Filter from "@/components/ui/Filter/Filter";
+import { Select, Input as AntInput, InputNumber, DatePicker } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 
 // enum StatusUser {
 //     VERIFICATE = "VERIFICATE",
@@ -72,12 +74,12 @@ const Clients: React.FC = () => {
     // const [searchQuery, setSearchQuery] = useState("");
     const [viewLoyalty, setViewLoyalty] = useState(false);
     const [userType, setUserType] = useState("*");
-    const [cardNo, setCardNo] = useState("");
+    const [cardNo, setCardNo] = useState<number | null>(null);
     const [phone, setPhone] = useState<string | undefined>(undefined);
     const [tagIds, setTagIds] = useState<number[] | undefined>(undefined);
     const [status, setStatus] = useState("");
     const [loyLevel, setLoyLevel] = useState("");
-    const [regDate, setRegDate] = useState("");
+    const [regDate, setRegDate] = useState<string>("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editClientId, setEditClientId] = useState<number>(0);
     const city = useCity();
@@ -347,7 +349,7 @@ const Clients: React.FC = () => {
         {
             label: "Теги",
             key: "tags",
-            type: "tags"                
+            type: "tags"
         },
         {
             label: "Комментарий",
@@ -355,10 +357,17 @@ const Clients: React.FC = () => {
         }
     ];
 
+    const handleDateChange = (_date: Dayjs | null, dateString: string | string[]) => {
+        if (typeof dateString === "string") {
+            setRegDate(dateString); 
+        }
+        console.log("Date string: ", dateString);
+    };
+
     return (
         <>
             <Filter count={clients.length} hideDateTime={true} address={city} setAddress={setCity} handleClear={handleClear} hideSearch={true}>
-                <DropdownInput
+                {/* <DropdownInput
                     title={`${t("marketing.type")}`}
                     label={t("marketing.phys")}
                     classname="w-80"
@@ -368,47 +377,109 @@ const Clients: React.FC = () => {
                         { name: t("marketing.legal"), value: "LEGAL" }
                     ]}
                     onChange={(value) => setUserType(value)}
-                />
-                <Input
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("marketing.type")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        placeholder={t("marketing.phys")}
+                        options={[
+                            { label: t("marketing.physical"), value: "PHYSICAL" },
+                            { label: t("marketing.legal"), value: "LEGAL" }
+                        ]}
+                        value={userType}
+                        onChange={(value) => setUserType(value)}
+                        dropdownRender={(menu) => (
+                            <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                {menu}
+                            </div>
+                        )}
+                    />
+                </div>
+                {/* <Input
                     type=""
                     title={t("profile.telephone")}
                     label={t("warehouse.enterPhone")}
                     classname="w-96"
                     value={phone}
                     changeValue={(e) => setPhone(e.target.value)}
-                />
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("profile.telephone")}</div>
+                    <AntInput
+                        className="w-full sm:w-80"
+                        placeholder={t("warehouse.enterPhone")}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                    />
+                </div>
                 <MultiInput
                     options={options}
                     value={tagIds}
                     onChange={handleSelectionTagChange}
                 />
-                <Input
+                {/* <Input
                     type="number"
                     title={`${t("marketing.card")}`}
                     label={t("marketing.enterName")}
                     classname="w-80"
                     value={cardNo}
                     changeValue={(e) => setCardNo(e.target.value)}
-                />
-                <Input
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("marketing.card")}</div>
+                    <InputNumber
+                        className="w-full sm:w-80"
+                        placeholder={t("marketing.enterName")}
+                        value={cardNo}
+                        onChange={(value) => setCardNo(value)}
+                    />
+                </div>
+                {/* <Input
                     title={`${t("finance.status")}`}
                     classname="w-80"
                     value={status}
                     changeValue={(e) => setStatus(e.target.value)}
-                />
-                <Input
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("finance.status")}</div>
+                    <AntInput
+                        className="w-full sm:w-80"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                    />
+                </div>
+                {/* <Input
                     title={`${t("marketing.loy")}`}
                     classname="w-80"
                     value={loyLevel}
                     changeValue={(e) => setLoyLevel(e.target.value)}
-                />
-                <Input
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("marketing.loy")}</div>
+                    <AntInput
+                        className="w-full sm:w-80"
+                        value={loyLevel}
+                        onChange={(e) => setLoyLevel(e.target.value)}
+                    />
+                </div>
+                {/* <Input
                     type="date"
                     title={`${t("marketing.reg")}`}
                     classname="w-44"
                     value={regDate}
                     changeValue={(e) => setRegDate(e.target.value)}
-                />
+                /> */}
+                <div>
+                    <div className="text-sm text-text02">{t("marketing.reg")}</div>
+                    <DatePicker
+                        className="w-44"
+                        value={regDate ? dayjs(regDate) : null} 
+                        onChange={handleDateChange}
+                        format="YYYY-MM-DD"
+                        placeholder={t("marketing.reg")}
+                    />
+                </div>
             </Filter>
             {loadingClients || isTableLoading ?
                 <TableSkeleton columnCount={columnsClients.length} />

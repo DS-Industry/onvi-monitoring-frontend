@@ -17,6 +17,7 @@ import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type WAREHOUSE = {
     name: string;
@@ -105,13 +106,16 @@ const Warehouse: React.FC = () => {
 
     return (
         <div>
-            <Filter count={warehouses.length} address={city} setAddress={setCity}  hideDateTime={true} hidePage={true} hideSearch={true}>
-                <DropdownInput
-                    title={t("marketing.carWash")}
-                    value={posId}
-                    options={poses}
-                    onChange={(value) => setPosId(value)}
-                />
+            <Filter count={warehouses.length} address={city} setAddress={setCity} hideDateTime={true} hidePage={true} hideSearch={true} handleClear={() => { setPosId("*") }}>
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={posId}
+                        onChange={(value) => setPosId(value)}
+                    />
+                </div>
             </Filter>
             {warehouseLoading ? (
                 <TableSkeleton columnCount={columnsWarehouses.length} />

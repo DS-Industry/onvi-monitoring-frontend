@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import DropdownIcon from '@/assets/icons/dropdown.svg?react';
 import { Spinner } from '@material-tailwind/react';
 import Check from 'feather-icons-react';
-import { Empty } from 'antd';
-
+import { SmileOutlined } from "@ant-design/icons";
 
 type Option = {
     name: any;
@@ -28,6 +27,7 @@ type DropdownInputProps = {
     error?: boolean;
     helperText?: string;
     renderOption?: (option: Option) => JSX.Element;
+    classnameOptions?: string;
 };
 
 const DropdownInput: React.FC<DropdownInputProps> = ({
@@ -46,7 +46,8 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     classname,
     error = false,
     helperText,
-    renderOption
+    renderOption,
+    classnameOptions
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -182,14 +183,12 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                     className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-10`}
                 >
                     {options.length === 0 ? (
-                        <div className="p-2">
-                            <Empty
-                                description="Не найдено"
-                                image={Empty.PRESENTED_IMAGE_DEFAULT}
-                            />
+                        <div className="p-2 flex flex-col items-center justify-center">
+                            <SmileOutlined style={{ fontSize: "24px" }} />
+                            <div>Не найдено</div>
                         </div>
                     ) : (
-                        <ul className="py-1 max-h-32 overflow-y-auto">
+                        <ul className={`py-1 max-h-32 overflow-y-auto ${classnameOptions}`}>
                             {options.map(option => (
                                 <li
                                     key={option.value}
