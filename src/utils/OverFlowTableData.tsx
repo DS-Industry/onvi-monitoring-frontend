@@ -1305,3 +1305,23 @@ export const columnsClients = [
     key: "comment"
   }
 ]
+
+export const columnsLoyaltyPrograms = [
+  {
+    label: "Название программы",
+    key: "name"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Организация",
+    key: "organizationName"
+  },
+  {
+    label: "Дата запуска",
+    key: "startDate",
+    type: "date"
+  }
+]

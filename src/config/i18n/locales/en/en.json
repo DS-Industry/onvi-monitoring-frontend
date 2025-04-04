@@ -94,7 +94,8 @@
     "sid": "Sidorov Egor Andreevich",
     "new": "New Position",
     "calc": "Calculate Salary",
-    "sal": "Salary calculation (Creation)"
+    "sal": "Salary calculation (Creation)",
+    "notifications": "Notifications"
   },
   "dashboard": {
     "news": "News",
@@ -822,5 +823,17 @@
     "secti": "Access to work schedule",
     "here": "Here you can see the data for the report Wages calculation",
     "you": "You currently have no generated reports."
+  },
+  "notifications": {
+    "fav": "Favorite",
+    "basket": "Trash",
+    "read": "Read",
+    "non": "Non-Sports",
+    "you": "You currently have no notifications.",
+    "new": "New Shortcut",
+    "enter": "Enter the name of the shortcut",
+    "label": "Label color",
+    "add": "Add color",
+    "labelCol": "Label Color Preview"
   }
 }

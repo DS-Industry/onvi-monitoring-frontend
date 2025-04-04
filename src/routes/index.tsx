@@ -74,6 +74,7 @@ import SalaryCalculation from "@/pages/Hr/SalaryCalculation";
 import EmployeeAdvance from "@/pages/Hr/EmployeeAdvance";
 import EmployeeProfile from "@/pages/Hr/EmployeeProfile";
 import SalaryCalculationCreation from "@/pages/Hr/SalaryCalculationCreation";
+import Notifications from "@/pages/Notifications/Notifications";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -214,7 +215,7 @@ const routes = [
       { name: "segments", filter: true, addButton: true, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments", component: Segments, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "createSeg", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments/new", component: NewSegment, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "loyalty", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/loyalty", component: LoyaltyPrograms, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
-      { name: "share", filter: true, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/share/constructor", component: ShareConstructor, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "share", filter: false, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/share/constructor", component: ShareConstructor, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/share/constructor/bonus", component: BonusProgram, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "marketRes", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: MarketResearch, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
     ],
@@ -314,6 +315,14 @@ const routes = [
     path: "/profile",
     subMenu: false,
     component: ProfileForm,
+    isSidebar: false,
+    permissions: []
+  },
+  {
+    name: "notifications",
+    path: "/notifications",
+    subMenu: false,
+    component: Notifications,
     isSidebar: false,
     permissions: []
   }

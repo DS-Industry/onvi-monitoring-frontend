@@ -80,6 +80,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     navigate('/profile');
   };
 
+  const handleNotificationsNavigate = () => {
+    navigate('/notifications');
+  };
+
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
   const document = useDocumentType();
@@ -414,9 +418,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div
               className={`flex items-center ${!isOpen && "justify-center"
                 } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+                onClick={handleNotificationsNavigate}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
-              {isOpen && <span>Notification</span>}
+              {isOpen && <span>{t("routes.notifications")}</span>}
             </div>
             <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               {user.avatar ? <img
