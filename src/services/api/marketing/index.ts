@@ -131,7 +131,8 @@ type DeleteTagResponse = {
 
 type LoyaltyProgramsRequest = {
     name: string;
-    organizationId: number;
+    organizationIds: number[];
+    lifetimeDays?: number;
 }
 
 type LoyaltyProgramsResponse = {
@@ -140,8 +141,17 @@ type LoyaltyProgramsResponse = {
         name: string;
         status: LoyaltyProgramStatus;
         startDate: Date;
-        organizationId: number;
+        lifetimeDays?: number;
     }
+}
+
+type LoyaltyProgramsByIdResponse = {
+    id: number;
+    name: string;
+    status: LoyaltyProgramStatus;
+    organizationIds: number[];
+    startDate: Date;
+    lifetimeDays?: number;
 }
 
 type TierRequest = {
@@ -168,14 +178,12 @@ type UpdateTierRequest = {
 }
 
 type TierByIdResponse = {
-    props: {
-        id: number;
-        name: string;
-        description?: string;
-        loyaltyProgramId: number;
-        limitBenefit: number;
-        benefitId: number[];
-    }
+    id: number;
+    name: string;
+    description?: string;
+    loyaltyProgramId: number;
+    limitBenefit: number;
+    benefitIds: number[];
 }
 
 type BenefitRequest = {
@@ -270,8 +278,8 @@ export async function getLoyaltyPrograms(): Promise<LoyaltyProgramsResponse[]> {
     return response.data;
 }
 
-export async function getLoyaltyProgramById(id: number): Promise<LoyaltyProgramsResponse> {
-    const response: AxiosResponse<LoyaltyProgramsResponse> = await api.get(MARKETING.LOYALTY + `/program/${id}`);
+export async function getLoyaltyProgramById(id: number): Promise<LoyaltyProgramsByIdResponse> {
+    const response: AxiosResponse<LoyaltyProgramsByIdResponse> = await api.get(MARKETING.LOYALTY + `/program/${id}`);
 
     return response.data;
 }
@@ -291,7 +299,7 @@ export async function updateTier(body: UpdateTierRequest): Promise<TierResponse>
 }
 
 export async function getTiers(params: AllTiersRequest): Promise<TierResponse[]> {
-    const response: AxiosResponse<TierResponse[]> = await api.get(MARKETING.LOYALTY + '/tiers',{ params });
+    const response: AxiosResponse<TierResponse[]> = await api.get(MARKETING.LOYALTY + '/tiers', { params });
 
     return response.data;
 }

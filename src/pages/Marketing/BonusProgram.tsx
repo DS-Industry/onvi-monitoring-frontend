@@ -15,7 +15,7 @@ const BonusProgram: React.FC = () => {
     ];
 
     return (
-        <div className="max-w-5xl mx-auto bg-white">
+        <div className="max-w-5xl ml-10 bg-white">
             <div className="flex space-x-4 border-b mb-6 w-fit">
                 {tabs.map((tab) => (
                     <button

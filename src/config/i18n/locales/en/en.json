@@ -583,7 +583,11 @@
     "limit": "Card Limit",
     "gen": "Generate number automatically",
     "loy": "Loyalty Level",
-    "reg": "Registration date"
+    "reg": "Registration date",
+    "addLevel": "Add Level",
+    "levelsAre": "Levels are arranged automatically in ascending order depending on the condition of the amount of transformation of services and purchases",
+    "maxNo": "Maximum number of bonuses",
+    "updateLevel": "Update Level"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

@@ -1316,10 +1316,6 @@ export const columnsLoyaltyPrograms = [
     key: "status"
   },
   {
-    label: "Организация",
-    key: "organizationName"
-  },
-  {
     label: "Дата запуска",
     key: "startDate",
     type: "date"
