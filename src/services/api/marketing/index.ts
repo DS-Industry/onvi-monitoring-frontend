@@ -26,6 +26,7 @@ enum LoyaltyProgramStatus {
 
 enum BenefitType {
     CASHBACK = "CASHBACK",
+    DISCOUNT = "DISCOUNT",
     GIFT_POINTS = "GIFT_POINTS"
 }
 
@@ -220,6 +221,13 @@ type AllTiersRequest = {
     programId: number | '*';
 }
 
+type UpdateBenefitBody = {
+    benefitId: number;
+    name?: string;
+    bonus?: number;
+    benefitType?: BenefitType;
+}
+
 export async function createClient(body: ClientRequestBody): Promise<ClientResponseBody> {
     console.log(body);
     const response: AxiosResponse<ClientResponseBody> = await api.post(MARKETING.GET_LOYALTY, body);
@@ -333,5 +341,18 @@ export async function createBenefitAction(body: BenefitActionRequest): Promise<B
 export async function getBenefitActions(): Promise<BenefitActionResponse[]> {
     const response: AxiosResponse<BenefitActionResponse[]> = await api.get(MARKETING.LOYALTY + `/benefit-actions`);
 
+    return response.data;
+}
+
+export async function getBenefitById(id: number): Promise<BenefitResponse> {
+    const response: AxiosResponse<BenefitResponse> = await api.get(MARKETING.LOYALTY + `/benefit/${id}`);
+
+    return response.data;
+}
+
+export async function updateBenefit(body: UpdateBenefitBody): Promise<BenefitResponse> {
+    console.log(body);
+    const response: AxiosResponse<BenefitResponse> = await api.patch(MARKETING.LOYALTY + '/benefit', body);
+    console.log(response.data);
     return response.data;
 }

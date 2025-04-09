@@ -588,7 +588,11 @@
     "levelsAre": "Levels are arranged automatically in ascending order depending on the condition of the amount of transformation of services and purchases",
     "maxNo": "Maximum number of bonuses",
     "updateLevel": "Update Level",
-    "limitBenefit": "Limit Benefit"
+    "limitBenefit": "Limit Benefit",
+    "addBen": "Add Benefit",
+    "bonu": "Bonus",
+    "ty": "Type",
+    "updateBen": "Update Benefit"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

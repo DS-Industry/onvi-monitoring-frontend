@@ -35,8 +35,6 @@ type TierUpdate = {
 
 type TierType = {
     id: number;
-    firstText: string;
-    secondText: string;
     name: string;
     description?: string;
     loyaltyProgramId: number;
@@ -91,8 +89,6 @@ const Levels: React.FC = () => {
         if (tiersArray.length > 0) {
             const tiers: TierType[] = tiersArray.map((item) => ({
                 id: item.id,
-                firstText: t("marketing.newbie"),
-                secondText: "от 0 ₽ | Бонусы",
                 name: item.name,
                 description: item.description,
                 loyaltyProgramId: item.loyaltyProgramId,
