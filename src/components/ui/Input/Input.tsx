@@ -33,7 +33,7 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
     useEffect(() => {
         if (id) {
             const inputElement = document.getElementById(id) as HTMLInputElement;
-    
+
             if (inputElement) {
                 const checkAutofill = () => {
                     if (inputElement.value.trim() !== "") {
@@ -42,17 +42,17 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         setIsPreFilled(false);
                     }
                 };
-    
-                checkAutofill(); 
+
+                checkAutofill();
 
                 const observer = new MutationObserver(() => checkAutofill());
                 observer.observe(inputElement, { attributes: true, attributeFilter: ["value"] });
-    
+
                 return () => observer.disconnect();
             }
         }
-    }, [id]);        
-    
+    }, [id]);
+
     const isLabelFloating = isFocused || isPreFilled || (value !== undefined && value !== null && value !== '');
     const handlePasswordToggle = () => {
         if (!disabled) {
@@ -104,13 +104,6 @@ const Input: React.FC<InputProps> = ({ type = "text", value = "", changeValue, e
                         )}
                     </div>
                 )}
-                {/* {type === "date" && (
-                    <div
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" // Ensuring icon is purely decorative
-                    >
-                        <Icon icon="calendar" size={20} className={`${disabled ? "text-text03" : "text-text02"}`} />
-                    </div>
-                )} */}
                 {(showIcon && type !== "date" && type !== "password") && (
                     <div
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"

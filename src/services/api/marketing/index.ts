@@ -298,8 +298,8 @@ export async function updateTier(body: UpdateTierRequest): Promise<TierResponse>
     return response.data;
 }
 
-export async function getTiers(params: AllTiersRequest): Promise<TierResponse[]> {
-    const response: AxiosResponse<TierResponse[]> = await api.get(MARKETING.LOYALTY + '/tiers', { params });
+export async function getTiers(params: AllTiersRequest): Promise<TierByIdResponse[]> {
+    const response: AxiosResponse<TierByIdResponse[]> = await api.get(MARKETING.LOYALTY + '/tiers', { params });
 
     return response.data;
 }

@@ -139,7 +139,7 @@ const Settings: React.FC = () => {
                 organizationIds: loyaltyById.organizationIds,
                 lifetimeDays: loyaltyById.lifetimeDays,
             });
-            if(loyaltyById.lifetimeDays !== undefined)
+            if (loyaltyById.lifetimeDays !== undefined)
                 setSelectedOption("fromThe");
         }
     }, [loyaltyById]);
@@ -147,7 +147,7 @@ const Settings: React.FC = () => {
     return (
         <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
             <ExpandedCard firstText={t("marketing.basic")} secondText={t("marketing.setup")} Component={BonusImage}>
-                <div className="mt-5 pl-14">
+                <div className="pl-14 mt-5">
                     {/* Expanded content goes here */}
                     <div className="text-2xl font-semibold text-text01">{t("marketing.branch")}</div>
                     <div className="text-text02">
@@ -286,18 +286,32 @@ const Settings: React.FC = () => {
                         </div>
                     </div> */}
 
-                    <div className="text-2xl text-text01 font-semibold">{t("marketing.write")}</div>
-                    <div className="bg-Bonus-Image bg-blend-multiply h-40 rounded-lg w-full sm:w-80 bg-[#0a0a0b]/70 px-4 py-8 space-y-6">
-                        <div className="text-background02 font-semibold text-3xl">{t("marketing.ex")}</div>
-                        <div className="flex items-center justify-center space-x-4 flex-wrap">
-                            <DiamondOne />
-                            <TwoArrow />
+                    <div className="text-2xl text-text01 font-semibold mb-4">
+                        {t("marketing.write")}
+                    </div>
+
+                    <div className="bg-Bonus-Image bg-blend-multiply h-auto min-h-40 rounded-lg w-full sm:w-96 bg-[#0a0a0b]/70 px-4 py-6 space-y-6">
+                        <div className="text-background02 font-semibold text-2xl sm:text-3xl">
+                            {t("marketing.ex")}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                            <div className="flex justify-center sm:justify-start">
+                                <DiamondOne />
+                            </div>
+
+                            <div className="flex justify-center sm:justify-start">
+                                <TwoArrow />
+                            </div>
+
                             <Input
                                 label={t("marketing.1")}
                                 inputType="primary"
                                 showIcon={true}
                                 classname="w-full sm:w-48"
-                                IconComponent={<div className="text-3xl font-semibold text-text01">₽</div>}
+                                IconComponent={
+                                    <div className="text-3xl font-semibold text-text01">₽</div>
+                                }
                             />
                         </div>
                     </div>

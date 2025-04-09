@@ -464,7 +464,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               )}
               <div className="ml-3 lg:ml-12 flex flex-col items-start">
                 {activePageName === "bonus" && (
-                  <span className="text-sm text-text02">{t("routes.share")}</span>
+                  <span className="text-sm text-text02">{t("routes.loyalty")}</span>
                 )}
                 <div className="flex items-center mb-2">
                   <span className="text-xl sm:text-3xl font-normal text-text01">

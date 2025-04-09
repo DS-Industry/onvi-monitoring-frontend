@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import Profile from "@icons/ProfileIcon.svg?react";
 import ExpandedCard from "@ui/Card/ExpandedCard";
 import Input from "@/components/ui/Input/Input";
-import PercentageIcon from "@icons/Percentage.svg?react";
-import DiamondIcon from "@icons/Diamond.svg?react";
+// import PercentageIcon from "@icons/Percentage.svg?react";
+// import DiamondIcon from "@icons/Diamond.svg?react";
 import Icon from 'feather-icons-react';
 import { useLocation } from "react-router-dom";
 import useFormHook from "@/hooks/useFormHook";
@@ -15,7 +15,10 @@ import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useSWR, { mutate } from "swr";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
-import { Transfer } from "antd";
+import { Transfer, List, Typography, Badge } from "antd";
+import { GiftOutlined } from "@ant-design/icons";
+
+const { Text } = Typography;
 
 type Tier = {
     name: string;
@@ -38,13 +41,14 @@ type TierType = {
     description?: string;
     loyaltyProgramId: number;
     limitBenefit: number;
+    benefitIds: number[];
 }
 
 const Levels: React.FC = () => {
     const { t } = useTranslation();
 
-    const [isDiscount, setIsDiscount] = useState(false);
-    const [isBonus, setIsBonus] = useState(false);
+    // const [isDiscount, setIsDiscount] = useState(false);
+    // const [isBonus, setIsBonus] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
     const [tiers, setTiers] = useState<TierType[]>([]);
@@ -70,8 +74,10 @@ const Levels: React.FC = () => {
             value: ben.props.id
         })) || [];
 
+    const benefitsDisplay: { name: string; benefitType: string; value: number; }[] = benefitsData?.map((ben) => ({ name: ben.props.name, benefitType: ben.props.benefitType, value: ben.props.id })) || [];
+
     useEffect(() => {
-        if(tierByIdData?.id) {
+        if (tierByIdData?.id) {
             setUpdateData({
                 loyaltyTierId: tierByIdData.id,
                 description: tierByIdData.description,
@@ -81,7 +87,7 @@ const Levels: React.FC = () => {
     }, [tierByIdData])
 
     useEffect(() => {
-        const tiersArray = tiersData?.map((tier) => tier.props) || [];
+        const tiersArray = tiersData || [];
         if (tiersArray.length > 0) {
             const tiers: TierType[] = tiersArray.map((item) => ({
                 id: item.id,
@@ -90,17 +96,18 @@ const Levels: React.FC = () => {
                 name: item.name,
                 description: item.description,
                 loyaltyProgramId: item.loyaltyProgramId,
-                limitBenefit: item.limitBenefit
+                limitBenefit: item.limitBenefit,
+                benefitIds: item.benefitIds
             }));
             setTiers(tiers);
         }
     }, [t, tiersData])
 
-    const [selectedOption, setSelectedOption] = useState<string>("percent");
+    // const [selectedOption, setSelectedOption] = useState<string>("percent");
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedOption(event.target.value);
-    };
+    // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     setSelectedOption(event.target.value);
+    // };
 
     const defaultValues: Tier = {
         name: '',
@@ -266,34 +273,39 @@ const Levels: React.FC = () => {
             </Modal>
             <Modal isOpen={isModalOpenUpdate}>
                 <div className="flex flex-row items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("marketing.updateLevel")}</h2>
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{tiers.find((item) => item.id === tierId)?.name || ""}</h2>
                     <Close
                         onClick={() => { setIsModalOpenUpdate(false); }}
                         className="cursor-pointer text-text01"
                     />
                 </div>
                 <form onSubmit={handleSubmitUpdate(onSubmitUpdate)} className="space-y-4 text-text02">
-                    <div className="grid grid-cols-1 gap-4">
-                        <MultilineInput
-                            title={t("warehouse.desc")}
-                            classname="w-80"
-                            inputType="secondary"
-                            value={updateData.description}
-                            changeValue={(e) => handleUpdateChange('description', e.target.value)}
-                            {...updateRegister('description')}
-                        />
+                    <div className="w-full max-w-[540px] space-y-4">
+                        <div className="w-full">
+                            <MultilineInput
+                                title={t("warehouse.desc")}
+                                classname="w-full"
+                                inputType="secondary"
+                                value={updateData.description}
+                                changeValue={(e) => handleUpdateChange('description', e.target.value)}
+                                {...updateRegister('description')}
+                            />
+                        </div>
+
                         <Transfer
                             dataSource={benefits}
-                            targetKeys={updateData.benefitIds.map(String)} // Convert number[] to string[] for Transfer
+                            targetKeys={updateData.benefitIds.map(String)}
                             onChange={handleTransfer}
                             render={(item) => item.title}
                             showSearch
                             listStyle={{
-                                width: 250,
+                                width: 'calc(50% - 8px)',
                                 height: 300,
                             }}
+                            style={{ width: '100%' }}
                         />
                     </div>
+
                     <div className="flex flex-wrap gap-3 mt-5">
                         <Button
                             title={"Сбросить"}
@@ -319,96 +331,56 @@ const Levels: React.FC = () => {
                         firstText={tier.name}
                         secondText={tier.description || ""}
                         Component={Profile}
-                        handleClick={() => { setIsModalOpenUpdate(true); setTierId(tier.id); }}
+                        handleClick={() => {
+                            setIsModalOpenUpdate(true);
+                            setTierId(tier.id);
+                        }}
                         buttonText={t("marketing.updateLevel")}
                     >
-                        <div className="pl-14 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                            <div className="flex text-text01 space-x-1">
-                                <div>{t("marketing.you")}</div>
-                                <div className="font-semibold">{t("marketing.only")}</div>
-                                <div>{t("marketing.disco")}</div>
-                            </div>
-                            <div className="flex space-x-4">
-                                <div className={`rounded-2xl h-36 w-[360px] ${isDiscount ? "bg-white border-2 border-primary02" : "bg-disabledFill"} py-9 px-5 cursor-pointer`} onClick={() => { setIsDiscount(!isDiscount); setIsBonus(false); }}>
-                                    <div className={`flex items-center justify-center space-x-2 ${isDiscount ? "text-primary02" : "text-text01"}`}>
-                                        <PercentageIcon />
-                                        <div className="font-semibold text-lg">{t("marketing.dis")}</div>
-                                    </div>
-                                    <div className="flex items-center justify-center text-center">
-                                        <div className={`${isDiscount ? "text-text01" : "text-text02"}`}>{t("marketing.retain")}</div>
-                                    </div>
-                                </div>
-                                <div className={`rounded-2xl h-36 w-[360px] ${isBonus ? "bg-white border-2 border-primary02" : "bg-disabledFill"} py-9 px-10 cursor-pointer`} onClick={() => { setIsBonus(!isBonus); setIsDiscount(false); }}>
-                                    <div className={`flex items-center justify-center space-x-2 ${isBonus ? "text-primary02" : "text-text01"}`}>
-                                        <DiamondIcon />
-                                        <div className="font-semibold text-lg">{t("marketing.bon")}</div>
-                                    </div>
-                                    <div className="flex items-center justify-center text-center">
-                                        <div className={`${isBonus ? "text-text01" : "text-text02"}`}>{t("marketing.award")}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {isDiscount && (
-                                <Input
-                                    label={t("marketing.enterDisc")}
-                                    inputType="primary"
-                                    classname="w-80"
-                                    value={"3"}
-                                    showIcon={true}
-                                    IconComponent={<Icon icon="percent" />}
+                        <div className="pl-0 sm:pl-14 space-y-6">
+                            <div className="flex items-center justify-start gap-3">
+                                <span className="text-base font-medium text-text01">{t("marketing.limitBenefit")}</span>
+                                <Badge
+                                    count={tier.limitBenefit}
+                                    style={{
+                                        backgroundColor: '#1890ff',
+                                        boxShadow: '0 0 0 1px #fff inset',
+                                        padding: '0 10px',
+                                    }}
                                 />
-                            )}
-                            {isBonus && (
-                                <div className="space-y-3">
-                                    <div className="font-semibold text-2xl text-text01">{t("marketing.ac")}</div>
-                                    <div>
-                                        <div className="flex space-x-2">
-                                            <input
-                                                type="radio"
-                                                name="marketing"
-                                                value="percent"
-                                                checked={selectedOption === "percent"}
-                                                onChange={handleChange}
+                            </div>
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={tier.benefitIds}
+                                renderItem={(ben) => {
+                                    const benefitItem = benefitsDisplay.find((item) => item.value === ben);
+                                    return (
+                                        <List.Item>
+                                            <List.Item.Meta
+                                                avatar={
+                                                    <div className="h-10 w-5 flex items-center justify-center text-primary02 text-2xl">
+                                                        <GiftOutlined />
+                                                    </div>
+                                                }
+                                                title={
+                                                    <Text className="font-medium text-text01">
+                                                        {benefitItem?.name || "—"}
+                                                    </Text>
+                                                }
+                                                description={
+                                                    <Text type="secondary" className="text-text02">
+                                                        {benefitItem?.benefitType || "—"}
+                                                    </Text>
+                                                }
                                             />
-                                            <div className={`${selectedOption === "percent" ? "text-primary02" : "text-text02"}`}>{t("marketing.per")}</div>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <input
-                                                type="radio"
-                                                name="marketing"
-                                                value="fixed"
-                                                checked={selectedOption === "fixed"}
-                                                onChange={handleChange}
-                                            />
-                                            <div className={`${selectedOption === "fixed" ? "text-primary02" : "text-text02"}`}>{t("marketing.fix")}</div>
-                                        </div>
-                                    </div>
-                                    {selectedOption === "percent" && (
-                                        <Input
-                                            label={t("marketing.enterPer")}
-                                            inputType="primary"
-                                            classname="w-80"
-                                            value={"3"}
-                                            showIcon={true}
-                                            IconComponent={<Icon icon="percent" />}
-                                        />
-                                    )}
-                                    {selectedOption === "fixed" && (
-                                        <Input
-                                            label={t("marketing.enterBon")}
-                                            inputType="primary"
-                                            classname="w-80"
-                                            value={"10"}
-                                            showIcon={true}
-                                            IconComponent={<div className="text-text02 text-lg">₽</div>}
-                                        />
-                                    )}
-
-                                </div>
-                            )}
+                                        </List.Item>
+                                    );
+                                }}
+                            />
                         </div>
                     </ExpandedCard>
                 ))}
+
                 <div className="flex flex-col md:flex-row space-x-2">
                     <div className="flex space-x-2 items-center text-primary02 cursor-pointer w-28" onClick={addTier}>
                         <Icon icon="plus" />
