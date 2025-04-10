@@ -592,7 +592,10 @@
     "addBen": "Add Benefit",
     "bonu": "Bonus",
     "ty": "Type",
-    "updateBen": "Update Benefit"
+    "updateBen": "Update Benefit",
+    "CASHBACK": "Cashback",
+    "DISCOUNT": "Discount",
+    "GIFT_POINTS": "Gift Points"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -661,7 +664,8 @@
     "FIRED": "FIRED",
     "OFFLINE": "OFFLINE",
     "DELETED": "DELETED",
-    "lines": "Lines per page"
+    "lines": "Lines per page",
+    "PAUSE": "PAUSE"
   },
   "finance": {
     "details": "Details are displayed here for each collection",

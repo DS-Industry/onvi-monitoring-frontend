@@ -136,6 +136,12 @@ type LoyaltyProgramsRequest = {
     lifetimeDays?: number;
 }
 
+type UpdateLoyaltyRequest = {
+    loyaltyProgramId: number;
+    name?: string;
+    organizationIds?: number[];
+}
+
 type LoyaltyProgramsResponse = {
     props: {
         id: number;
@@ -276,6 +282,13 @@ export async function deleteTag(id: number): Promise<DeleteTagResponse> {
 export async function createLoyaltyProgram(body: LoyaltyProgramsRequest): Promise<LoyaltyProgramsResponse> {
     console.log(body);
     const response: AxiosResponse<LoyaltyProgramsResponse> = await api.post(MARKETING.LOYALTY + '/program', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function updateLoyaltyProgram(body: UpdateLoyaltyRequest): Promise<LoyaltyProgramsResponse> {
+    console.log(body);
+    const response: AxiosResponse<LoyaltyProgramsResponse> = await api.patch(MARKETING.LOYALTY + '/program', body);
     console.log(response.data);
     return response.data;
 }

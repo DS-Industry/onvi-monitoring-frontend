@@ -16,7 +16,7 @@ import useSWRMutation from "swr/mutation";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import Button from "@/components/ui/Button/Button";
-import { Descriptions, Tag } from "antd";
+import { Descriptions, Tag, Skeleton } from "antd";
 
 enum BenefitType {
     CASHBACK = "CASHBACK",
@@ -68,7 +68,7 @@ const Events: React.FC = () => {
 
     const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: benefitByIdData } = useSWR(benefitId !== 0 ? [`get-benefit-by-id`, benefitId] : null, () => getBenefitById(benefitId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: benefitByIdData, isLoading: loadingBenefit } = useSWR(benefitId !== 0 ? [`get-benefit-by-id`, benefitId] : null, () => getBenefitById(benefitId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: benefitsActionData } = useSWR([`get-benefits-actions`], () => getBenefitActions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -220,9 +220,9 @@ const Events: React.FC = () => {
                             title={`${t("marketing.ty")} *`}
                             label={t("warehouse.notSel")}
                             options={[
-                                { name: "CASHBACK", value: "CASHBACK" },
-                                { name: "DISCOUNT", value: "DISCOUNT" },
-                                { name: "GIFT_POINTS", value: "GIFT_POINTS" }
+                                { name: t("marketing.CASHBACK"), value: "CASHBACK" },
+                                { name: t("marketing.DISCOUNT"), value: "DISCOUNT" },
+                                { name: t("marketing.GIFT_POINTS"), value: "GIFT_POINTS" }
                             ]}
                             classname="w-80"
                             {...register('type', {
@@ -279,7 +279,17 @@ const Events: React.FC = () => {
                         className="cursor-pointer text-text01"
                     />
                 </div>
-                <form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
+                {loadingBenefit ? (
+                    <div className="w-80 space-y-4">
+                        <Skeleton.Input active style={{ width: 320 }} size="default" />
+                        <Skeleton.Input active style={{ width: 320 }} size="default" />
+                        <Skeleton.Input active style={{ width: 320 }} size="default" />
+                        <div className="flex gap-3 mt-5">
+                            <Skeleton.Button active />
+                            <Skeleton.Button active />
+                        </div>
+                    </div>
+                ) : (<form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
                     <div className="grid grid-cols-1 gap-4">
                         <Input
                             title={t("equipment.name")}
@@ -302,9 +312,9 @@ const Events: React.FC = () => {
                             title={`${t("marketing.ty")}`}
                             label={t("warehouse.notSel")}
                             options={[
-                                { name: "CASHBACK", value: "CASHBACK" },
-                                { name: "DISCOUNT", value: "DISCOUNT" },
-                                { name: "GIFT_POINTS", value: "GIFT_POINTS" }
+                                { name: t("marketing.CASHBACK"), value: "CASHBACK" },
+                                { name: t("marketing.DISCOUNT"), value: "DISCOUNT" },
+                                { name: t("marketing.GIFT_POINTS"), value: "GIFT_POINTS" }
                             ]}
                             classname="w-80"
                             {...updateRegister('benefitType')}
@@ -324,7 +334,7 @@ const Events: React.FC = () => {
                             isLoading={updatingBenefit}
                         />
                     </div>
-                </form>
+                </form>)}
             </Modal>
             <div className="space-y-3">
                 <div className="text-text02">
@@ -502,10 +512,10 @@ const Events: React.FC = () => {
                         />
                     </div>
                 </ExpandedCard> */}
-                {benefit.map((ben) => (
+                {benefit.sort((a, b) => a.name.localeCompare(b.name)).map((ben) => (
                     <ExpandedCard
                         firstText={ben.name}
-                        secondText={ben.benefitType}
+                        secondText={t(`marketing.${ben.benefitType}`)}
                         Component={PresentIcon}
                         handleClick={() => {
                             setIsModalOpenUpdate(true);
@@ -521,7 +531,7 @@ const Events: React.FC = () => {
                                 contentStyle={{ color: "#1F1F1F" }}
                             >
                                 <Descriptions.Item label={t("marketing.ty")}>
-                                    <Tag color="blue">{ben.benefitType}</Tag>
+                                    <Tag color="blue">{t(`marketing.${ben.benefitType}`)}</Tag>
                                 </Descriptions.Item>
                                 <Descriptions.Item label={t("marketing.bonu")}>
                                     <Tag color="gold">{`${ben.bonus} ₽`}</Tag>
@@ -530,7 +540,7 @@ const Events: React.FC = () => {
                         </div>
                     </ExpandedCard>
                 ))}
-                <div className="flex space-x-2 items-center text-primary02 cursor-pointer w-28" onClick={addBenefit}>
+                <div className="flex space-x-2 items-center text-primary02 cursor-pointer" onClick={addBenefit}>
                     <Icon icon="plus" />
                     <div>{t("marketing.addBen")}</div>
                 </div>

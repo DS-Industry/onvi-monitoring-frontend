@@ -15,7 +15,7 @@ import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useSWR, { mutate } from "swr";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
-import { Transfer, List, Typography, Badge } from "antd";
+import { Transfer, List, Typography, Tag, Skeleton, message } from "antd";
 import { GiftOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -42,7 +42,11 @@ type TierType = {
     benefitIds: number[];
 }
 
-const Levels: React.FC = () => {
+type Props = {
+    prevStep?: () => void;
+}
+
+const Levels: React.FC<Props> = ({ prevStep }) => {
     const { t } = useTranslation();
 
     // const [isDiscount, setIsDiscount] = useState(false);
@@ -57,11 +61,11 @@ const Levels: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const { data: tiersData } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
+    const { data: tiersData, isValidating: loadingTiers } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
         programId: location.state.ownerId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: tierByIdData } = useSWR(tierId !== 0 ? [`get-tier-by-id`, tierId] : null, () => getTierById(tierId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: tierByIdData, isLoading: loadingTier } = useSWR(tierId !== 0 ? [`get-tier-by-id`, tierId] : null, () => getTierById(tierId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -159,6 +163,12 @@ const Levels: React.FC = () => {
 
     const handleTransfer = (nextTargetKeys: string[]) => {
         const numericKeys = nextTargetKeys.map((key) => Number(key));
+
+        if (tierByIdData && numericKeys.length > tierByIdData.limitBenefit) {
+            message.error(`You can only select up to ${tierByIdData.limitBenefit} benefits.`);
+            return;
+        }
+
         setUpdateData((prev) => ({ ...prev, benefitIds: numericKeys }));
         setUpdate("benefitIds", numericKeys);
     };
@@ -176,7 +186,7 @@ const Levels: React.FC = () => {
             const result = await createTi();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-tiers`]);
+                mutate([`get-tiers`, location.state.ownerId]);
                 resetForm();
                 setIsModalOpen(false);
             } else {
@@ -196,7 +206,7 @@ const Levels: React.FC = () => {
             const result = await updateTi();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-tiers`]);
+                mutate([`get-tiers`, location.state.ownerId]);
                 resetForm();
                 setIsModalOpenUpdate(false);
             } else {
@@ -275,7 +285,16 @@ const Levels: React.FC = () => {
                         className="cursor-pointer text-text01"
                     />
                 </div>
-                <form onSubmit={handleSubmitUpdate(onSubmitUpdate)} className="space-y-4 text-text02">
+                {loadingTier ? (
+                    <div className="w-full max-w-[540px] space-y-4 flex flex-col">
+                        <Skeleton.Input active style={{ width: '100%', height: 120 }} />
+                        <Skeleton.Input active style={{ width: '100%', height: 300 }} />
+                        <div className="flex gap-3 mt-5">
+                            <Skeleton.Button active />
+                            <Skeleton.Button active />
+                        </div>
+                    </div>
+                ) : (<form onSubmit={handleSubmitUpdate(onSubmitUpdate)} className="space-y-4 text-text02">
                     <div className="w-full max-w-[540px] space-y-4">
                         <div className="w-full">
                             <MultilineInput
@@ -314,14 +333,14 @@ const Levels: React.FC = () => {
                             isLoading={updatingTier}
                         />
                     </div>
-                </form>
+                </form>)}
             </Modal>
             <div className="space-y-3">
                 <div className="text-text02">
                     <div>{t("marketing.create")}</div>
                     <div>{t("marketing.toMan")}</div>
                 </div>
-                {tiers.map((tier) => (
+                {tiers.sort((a, b) => a.name.localeCompare(b.name)).map((tier) => (
                     <ExpandedCard
                         key={tier.id}
                         firstText={tier.name}
@@ -336,54 +355,59 @@ const Levels: React.FC = () => {
                         <div className="pl-0 sm:pl-14 space-y-6">
                             <div className="flex items-center justify-start gap-3">
                                 <span className="text-base font-medium text-text01">{t("marketing.limitBenefit")}</span>
-                                <Badge
-                                    count={tier.limitBenefit}
-                                    style={{
-                                        backgroundColor: '#1890ff',
-                                        boxShadow: '0 0 0 1px #fff inset',
-                                        padding: '0 10px',
-                                    }}
-                                />
+                                <Tag color="red">{tier.limitBenefit}</Tag>
                             </div>
-                            <List
+                            {loadingTiers ? (
+                                <Skeleton
+                                    active
+                                    paragraph={{ rows: 3 }}
+                                    title={false}
+                                    className="w-full max-w-[400px]"
+                                />
+                            ) : (<List
                                 itemLayout="horizontal"
-                                dataSource={tier.benefitIds}
-                                renderItem={(ben) => {
-                                    const benefitItem = benefitsDisplay.find((item) => item.value === ben);
-                                    return (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                avatar={
-                                                    <div className="h-10 w-5 flex items-center justify-center text-primary02 text-2xl">
-                                                        <GiftOutlined />
-                                                    </div>
-                                                }
-                                                title={
-                                                    <Text className="font-medium text-text01">
-                                                        {benefitItem?.name || "—"}
-                                                    </Text>
-                                                }
-                                                description={
-                                                    <Text type="secondary" className="text-text02">
-                                                        {benefitItem?.benefitType || "—"}
-                                                    </Text>
-                                                }
-                                            />
-                                        </List.Item>
-                                    );
-                                }}
-                            />
+                                dataSource={
+                                    tier.benefitIds
+                                        .map((ben) => benefitsDisplay.find((item) => item.value === ben))
+                                        .filter((item): item is { name: string; benefitType: string; value: number } => item !== undefined)
+                                        .sort((a, b) => a.name.localeCompare(b.name))
+                                }
+                                renderItem={(benefitItem) => (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            avatar={
+                                                <div className="h-10 w-5 flex items-center justify-center text-primary02 text-2xl">
+                                                    <GiftOutlined />
+                                                </div>
+                                            }
+                                            title={
+                                                <Text className="font-medium text-text01">
+                                                    {benefitItem?.name || "—"}
+                                                </Text>
+                                            }
+                                            description={
+                                                <Text type="secondary" className="text-text02">
+                                                    {t(`marketing.${benefitItem?.benefitType}`) || "—"}
+                                                </Text>
+                                            }
+                                        />
+                                    </List.Item>
+                                )}
+                            />)}
                         </div>
                     </ExpandedCard>
                 ))}
 
                 <div className="flex flex-col md:flex-row space-x-2">
-                    <div className="flex space-x-2 items-center text-primary02 cursor-pointer w-28" onClick={addTier}>
+                    <div className="flex space-x-2 items-center text-primary02 cursor-pointer" onClick={addTier}>
                         <Icon icon="plus" />
                         <div>{t("marketing.addLevel")}</div>
                     </div>
-                    <div className="text-text02">{t("marketing.levelsAre")}</div>
                 </div>
+                {location.state.ownerId === 0 && (<Button
+                    title="Назад"
+                    handleClick={prevStep}
+                />)}
             </div>
         </div>
     )

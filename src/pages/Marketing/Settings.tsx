@@ -11,15 +11,15 @@ import Input from "@/components/ui/Input/Input";
 import Alert from "@icons/AlertTriangle.svg?react";
 import DiamondOne from "@/assets/DiamondOne.svg?react";
 import TwoArrow from "@/assets/TwoArrow.svg?react";
-import { Select } from 'antd';
-import useSWR from "swr";
+import { Select, Skeleton } from 'antd';
+import useSWR, { mutate } from "swr";
 import { getPlacement } from "@/services/api/device";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 import { getOrganization } from "@/services/api/organization";
 import useFormHook from "@/hooks/useFormHook";
 import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
-import { createLoyaltyProgram, getLoyaltyProgramById } from "@/services/api/marketing";
+import { createLoyaltyProgram, getLoyaltyProgramById, updateLoyaltyProgram } from "@/services/api/marketing";
 import { useLocation } from "react-router-dom";
 
 const { Option } = Select;
@@ -30,8 +30,19 @@ type LoyaltyPrograms = {
     lifetimeDays?: number;
 }
 
-const Settings: React.FC = () => {
+type UpdateLoyalty = {
+    loyaltyProgramId: number;
+    name?: string;
+    organizationIds?: number[];
+}
+
+type Props = {
+    nextStep?: () => void;
+}
+
+const Settings: React.FC<Props> = ({ nextStep }) => {
     const { t } = useTranslation();
+    const [isEditMode, setIsEditMode] = useState(false);
     // const [isToggled, setIsToggled] = useState(false);
     // const [isToggledTwo, setIsToggledTwo] = useState(false);
     // const [isToggledThree, setIsToggledThree] = useState(false);
@@ -56,7 +67,7 @@ const Settings: React.FC = () => {
 
     const location = useLocation();
 
-    const { data: loyaltyData } = useSWR(location.state.ownerId !== 0 ? [`get-loyalty-program-by-id`] : null, () => getLoyaltyProgramById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(location.state.ownerId !== 0 ? [`get-loyalty-program-by-id`] : null, () => getLoyaltyProgramById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const loyaltyById = loyaltyData;
 
@@ -92,6 +103,17 @@ const Settings: React.FC = () => {
         lifetimeDays: formData.lifetimeDays
     }));
 
+    const payload: UpdateLoyalty = {
+        loyaltyProgramId: location.state.ownerId,
+        name: formData.name,
+    };
+
+    if (formData.organizationIds !== loyaltyById?.organizationIds) {
+        payload.organizationIds = formData.organizationIds;
+    }
+
+    const { trigger: updateLoyalty } = useSWRMutation(['update-loyalty-program'], async () => updateLoyaltyProgram(payload));
+
     type FieldType = "name" | "organizationIds" | "lifetimeDays" | `organizationIds.${number}`;
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -121,6 +143,8 @@ const Settings: React.FC = () => {
             const result = await createLoyalty();
             if (result) {
                 console.log('API Response:', result);
+                location.state.ownerId = result.props.id;
+                nextStep;
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -134,6 +158,7 @@ const Settings: React.FC = () => {
     useEffect(() => {
         console.log("Loyalty by id: ", loyaltyById);
         if (loyaltyById?.id) {
+            setIsEditMode(true);
             setFormData({
                 name: loyaltyById.name,
                 organizationIds: loyaltyById.organizationIds,
@@ -144,71 +169,101 @@ const Settings: React.FC = () => {
         }
     }, [loyaltyById]);
 
+    const handleUpdate = async () => {
+        try {
+
+            const result = await updateLoyalty();
+            if (result) {
+                console.log('API Response:', result);
+                mutate([`get-loyalty-program-by-id`]);
+            } else {
+                throw new Error('Invalid response from API');
+            }
+
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
+    }
+
     return (
         <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
-            <ExpandedCard firstText={t("marketing.basic")} secondText={t("marketing.setup")} Component={BonusImage}>
+            <ExpandedCard firstText={t("marketing.basic")} secondText={t("marketing.setup")} Component={BonusImage} handleClick={location.state.ownerId !== 0 ? handleUpdate : undefined}>
                 <div className="pl-14 mt-5">
-                    {/* Expanded content goes here */}
-                    <div className="text-2xl font-semibold text-text01">{t("marketing.branch")}</div>
-                    <div className="text-text02">
-                        <div>{t("marketing.setUpBranch")}</div>
-                        <div>{t("marketing.branchCan")}</div>
-                    </div>
-                    <Input
-                        title={t("equipment.name")}
-                        classname="w-80"
-                        inputType="secondary"
-                        value={formData.name}
-                        changeValue={(e) => handleInputChange('name', e.target.value)}
-                        error={!!errors.name}
-                        {...register('name', { required: 'Name is required' })}
-                        helperText={errors.name?.message || ''}
-                        disabled={location.state.ownerId !== 0}
-                    />
-                    <div className="flex flex-col sm:flex-row gap-4 mt-5">
-                        <DropdownInput
-                            title={t("marketing.cities")}
-                            value={placementId}
-                            options={cities}
-                            classname="w-64"
+                    {loadingPrograms ? (
+                        <div className="space-y-6">
+                            <Skeleton active paragraph={{ rows: 3 }} />
+                            <Skeleton.Input active size="large" style={{ width: 320 }} />
+                            <div className="flex flex-col sm:flex-row gap-4 mt-5">
+                                <Skeleton.Input active size="large" style={{ width: 320 }} />
+                                <Skeleton.Input active size="large" style={{ width: 320 }} />
+                            </div>
+                        </div>
+                    ) : (<div>
+                        {/* Expanded content goes here */}
+                        <div className="text-2xl font-semibold text-text01">{t("marketing.branch")}</div>
+                        <div className="text-text02">
+                            <div>{t("marketing.setUpBranch")}</div>
+                            <div>{t("marketing.branchCan")}</div>
+                        </div>
+                        <Input
+                            title={t("equipment.name")}
+                            classname="w-80"
                             inputType="secondary"
-                            onChange={(value) => setPlacementId(value)}
+                            value={formData.name}
+                            changeValue={(e) => handleInputChange('name', e.target.value)}
+                            error={!!errors.name}
+                            {...register('name', { required: !isEditMode && 'Name is required' })}
+                            helperText={errors.name?.message || ''}
                         />
-                        {/* <DropdownInput
+                        <div className="flex flex-col sm:flex-row gap-4 mt-5">
+                            <DropdownInput
+                                title={t("marketing.cities")}
+                                value={placementId}
+                                options={cities}
+                                classname="w-64"
+                                inputType="secondary"
+                                onChange={(value) => setPlacementId(value)}
+                            />
+                            {/* <DropdownInput
                             title={t("marketing.carWash")}
                             value={undefined}
                             options={[]}
                             classname="w-64"
                         /> */}
-                        <div>
-                            <div className="text-sm text-text02 mb-1">{t("warehouse.organization")}</div>
-                            <Select
-                                mode="tags"
-                                allowClear
-                                placeholder="Select organizations"
-                                dropdownStyle={{ zIndex: 9999 }}
-                                style={{ width: '320px' }}
-                                {...register('organizationIds', { required: 'Organizations is required' })}
-                                onChange={handleChangeTags}
-                                value={formData.organizationIds}
-                                disabled={location.state.ownerId !== 0}
-                            >
-                                {organizations.map((tag) => (
-                                    <Option key={tag.value} value={tag.value}>
-                                        {tag.label}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
-                        {/* <DropdownInput
+                            <div>
+                                <div className="text-sm text-text02 mb-1">{t("warehouse.organization")}</div>
+                                <Select
+                                    mode="tags"
+                                    allowClear
+                                    placeholder="Select organizations"
+                                    dropdownStyle={{ zIndex: 9999 }}
+                                    style={{ width: '320px' }}
+                                    status={errors.organizationIds ? 'error' : undefined}
+                                    {...register('organizationIds', { required: !isEditMode && 'Organizations is required' })}
+                                    onChange={handleChangeTags}
+                                    value={formData.organizationIds}
+                                >
+                                    {organizations.map((tag) => (
+                                        <Option key={tag.value} value={tag.value}>
+                                            {tag.label}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                {!!errors.organizationIds && (
+                                    <div className={`text-[11px] font-normal ${errors.organizationIds ? 'text-errorFill' : 'text-text02'}`}>
+                                        {errors.organizationIds.message || ''}
+                                    </div>
+                                )}
+                            </div>
+                            {/* <DropdownInput
                             title={t("routes.segments")}
                             value={undefined}
                             options={[]}
                             classname="w-64"
                         /> */}
-                    </div>
+                        </div>
 
-                    {/* <div className="mt-8">
+                        {/* <div className="mt-8">
                         <div className="text-2xl font-semibold text-text01">{t("marketing.price")}</div>
                         <div className="text-text02">
                             <div>{t("marketing.amount")}</div>
@@ -233,6 +288,7 @@ const Settings: React.FC = () => {
                             </div>
                         </label>
                     </div> */}
+                    </div>)}
                 </div>
             </ExpandedCard>
             <ExpandedCard firstText={t("marketing.bonus")} secondText={t("marketing.setUpAcc")} Component={DiamondImage}>
@@ -363,6 +419,7 @@ const Settings: React.FC = () => {
                                     value={option}
                                     checked={selectedOption === option}
                                     onChange={handleChange}
+                                    disabled={location.state.ownerId !== 0}
                                 />
                                 <div className={selectedOption === option ? "text-primary02" : "text-text01"}>
                                     {t(`marketing.${option}`)}

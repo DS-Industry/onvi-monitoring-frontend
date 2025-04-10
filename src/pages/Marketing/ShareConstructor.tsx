@@ -14,16 +14,22 @@ const ShareConstructor: React.FC = () => {
     const [notificationVisible, setNotificationVisible] = useState(true);
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    useEffect(() => {
+        setRefreshKey(Date.now()); 
+    }, []);
 
     useEffect(() => {
         if (buttonOn)
-            navigate("/marketing/loyalty/bonus",{ state: { ownerId: 0 }})
+            navigate("/marketing/loyalty/rewards", { state: { ownerId: 0 } })
     }, [navigate, buttonOn]);
 
-    const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } = useSWR([`get-loyalty-programs`], () => getLoyaltyPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } = useSWR([`get-loyalty-programs`, refreshKey], () => getLoyaltyPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const loyaltyPrograms = loyaltyProgramsData?.map((item) => ({
-        ...item.props
+        ...item.props,
+        status: t(`tables.${item.props.status}`)
     })) || [];
 
     return (
@@ -40,7 +46,7 @@ const ShareConstructor: React.FC = () => {
                 {loyaltyProgramsLoading ?
                     <TableSkeleton columnCount={columnsLoyaltyPrograms.length} />
                     : <DynamicTable
-                        data={loyaltyPrograms}
+                        data={loyaltyPrograms.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())}
                         columns={columnsLoyaltyPrograms}
                         navigableFields={[{ key: "name", getPath: () => '/marketing/loyalty/bonus' }]}
                     />}

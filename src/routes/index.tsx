@@ -75,6 +75,7 @@ import EmployeeAdvance from "@/pages/Hr/EmployeeAdvance";
 import EmployeeProfile from "@/pages/Hr/EmployeeProfile";
 import SalaryCalculationCreation from "@/pages/Hr/SalaryCalculationCreation";
 import Notifications from "@/pages/Notifications/Notifications";
+import RewardsCreation from "@/pages/Marketing/RewardsCreation";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -216,6 +217,7 @@ const routes = [
       { name: "createSeg", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments/new", component: NewSegment, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "share", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/share/constructor", component: LoyaltyPrograms, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "loyalty", filter: false, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty", component: ShareConstructor, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/rewards", component: RewardsCreation, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/bonus", component: BonusProgram, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "marketRes", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: MarketResearch, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
     ],

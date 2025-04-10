@@ -108,7 +108,10 @@ const Clients: React.FC = () => {
 
     const { data: clientData } = useSWR(editClientId !== 0 ? [`get-client-by-id`] : null, () => getClientById(editClientId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const clients = clientsData || [];
+    const clients = clientsData?.map((client) => ({
+        ...client,
+        status: t(`tables.${client.status}`)
+    })) || [];
 
     const initialFilter = {
         placementId: city,
