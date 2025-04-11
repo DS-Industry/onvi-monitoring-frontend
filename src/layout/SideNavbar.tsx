@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Layout } from "antd";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
@@ -14,7 +15,6 @@ import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/contex
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
@@ -22,6 +22,8 @@ import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import EZ from "@icons/EZ.svg?react";
 import Icon from "feather-icons-react";
+
+const { Sider, Content } = Layout;
 
 type Props = {
   children: React.ReactNode;
@@ -33,7 +35,6 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
   const [openSubNav, setOpenSubNav] = useState<string | null>(null);
   const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
-  // const [notificationVisible, setNotificationVisible] = useState(true);
   const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
@@ -155,13 +156,12 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         { action: "manage", subject: "ShiftReport" },
         { action: "create", subject: "ShiftReport" },
       ];
-    // Add cases for other components as needed
     else
       return [];
   };
 
   return (
-    <div className="relative">
+    <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
       {hoveredNavItem && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
@@ -174,18 +174,26 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           onClick={() => setIsOpen(false)} // Close sidebar when clicking outside
         ></div>
       )}
-      <div
-        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform transition-all duration-300 ease-in-out
-      ${isOpen ? "w-64 translate-x-0" : "w-20"}
-      ${isOpen && "md:w-64"}
-      ${isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : ""}`}
+      
+      <Sider
+        theme="dark"
+        trigger={null}
+        collapsible
+        collapsed={!isOpen}
+        width={256}
+        collapsedWidth={80}
+        className="fixed h-full z-50"
+        style={{ 
+          background: "#1c1917", 
+          height: "100%",
+          left: isMobile ? (isOpen ? 0 : -80) : 0,
+          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
+        }}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
-            <div className="flex items-center">
-              <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-                {isOpen ? <img src={onvi} alt="" /> : <img src={onvi_small} alt="" />}
-              </div>
+            <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
+              {isOpen ? <img src={onvi} alt="" /> : <img src={onvi_small} alt="" />}
               {isMobile && (
                 <button
                   onClick={toggleNavbar}
@@ -435,111 +443,112 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
-          }`}
-      >
-        {isMobile && (<button
-          onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md"
-        >
-          {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
-        </button>)}
-        <div className={`px-4 sm:px-6 relative min-h-screen bg-background02 z-10`}>
-          {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
-            <div className="absolute z-10 inset-0 bg-background01/65"></div>
-          )}
+      </Sider>
+      
+      <Layout style={{ marginLeft: isMobile ? 80 : (isOpen ? 256 : 80), transition: "all 0.3s" }}>
+        <Content className="min-h-screen bg-white">
+          {isMobile && (<button
+            onClick={() => setIsOpen(!isOpen)}
+            className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md z-40"
+          >
+            {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+          </button>)}
+          
+          <div className="px-4 sm:px-6 relative min-h-screen z-10">
+            {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
+              <div className="absolute z-10 inset-0 bg-background01/65"></div>
+            )}
 
-          <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
-            {/* Left Section: Toggle Button & Page Title */}
-            <div className="flex items-center">
-              {!isMobile && (
-                <button
-                  onClick={toggleNavbar}
-                  className="p-2 bg-white border border-primary02 text-primary02 rounded"
-                >
-                  {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-                </button>
-              )}
-              <div className="ml-3 lg:ml-12 flex flex-col items-start">
-                {activePageName === "bonus" && (
-                  <span className="text-sm text-text02">{t("routes.loyalty")}</span>
-                )}
-                <div className="flex items-center mb-2">
-                  <span className="text-xl sm:text-3xl font-normal text-text01">
-                    {location.pathname === "/finance/timesheet/view"
-                      ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
-                        : activePageName === "createDo"
-                          ? t(`routes.${document}`)
-                          : t(`routes.${activePageName}`)}
-                  </span>
-                  {
-                    activePageName === "bonus"
-                      ? <EditIcon className="text-text02 ml-2" />
-                      : <QuestionmarkIcon className="text-2xl ml-2" />
-                  }
-                </div>
-                {activePage?.filter && (
+            <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
+              {/* Left Section: Toggle Button & Page Title */}
+              <div className="flex items-center">
+                {!isMobile && (
                   <button
-                    disabled={!isData}
-                    onClick={() => setFilterOpen(!filterOpen)}
-                    className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
-                      }`}
+                    onClick={toggleNavbar}
+                    className="p-2 bg-white border border-primary02 text-primary02 rounded"
                   >
-                    {filterOpen ? t("routes.filter") : t("routes.expand")}
-                    {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
                   </button>
                 )}
+                <div className="ml-3 lg:ml-12 flex flex-col items-start">
+                  {activePageName === "bonus" && (
+                    <span className="text-sm text-text02">{t("routes.loyalty")}</span>
+                  )}
+                  <div className="flex items-center mb-2">
+                    <span className="text-xl sm:text-3xl font-normal text-text01">
+                      {location.pathname === "/finance/timesheet/view"
+                        ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
+                          : activePageName === "createDo"
+                            ? t(`routes.${document}`)
+                            : t(`routes.${activePageName}`)}
+                    </span>
+                    {
+                      activePageName === "bonus"
+                        ? <EditIcon className="text-text02 ml-2" />
+                        : <QuestionmarkIcon className="text-2xl ml-2" />
+                    }
+                  </div>
+                  {activePage?.filter && (
+                    <button
+                      disabled={!isData}
+                      onClick={() => setFilterOpen(!filterOpen)}
+                      className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
+                        }`}
+                    >
+                      {filterOpen ? t("routes.filter") : t("routes.expand")}
+                      {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Section: Buttons */}
+              <div className="flex flex-wrap justify-end">
+                {activePage?.name === "nomenclature" && (
+                  <Button
+                    title={isMobile ? "" : t("warehouse.import")}
+                    iconUpload={true}
+                    type="outline"
+                    classname="mr-2"
+                    handleClick={() => navigate('/warehouse/inventory/import')}
+                  />
+                )}
+                {activePage?.name === "clients" && (
+                  <Button
+                    title={isMobile ? "" : t("routes.importClients")}
+                    type="outline"
+                    classname="mr-2"
+                    iconPlus={true}
+                    handleClick={() => navigate('/marketing/clients/import')}
+                  />
+                )}
+                <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) =>
+                    allowed &&
+                    activePage?.addButton &&
+                    location?.state?.status !== t("tables.SENT") && (
+                      <Button
+                        title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
+                        iconPlus={true}
+                        handleClick={handleClickButtonCreate}
+                      />
+                    )
+                  }
+                </Can>
               </div>
             </div>
 
-            {/* Right Section: Buttons */}
-            <div className="flex flex-wrap justify-end">
-              {activePage?.name === "nomenclature" && (
-                <Button
-                  title={isMobile ? "" : t("warehouse.import")}
-                  iconUpload={true}
-                  type="outline"
-                  classname="mr-2"
-                  handleClick={() => navigate('/warehouse/inventory/import')}
-                />
-              )}
-              {activePage?.name === "clients" && (
-                <Button
-                  title={isMobile ? "" : t("routes.importClients")}
-                  type="outline"
-                  classname="mr-2"
-                  iconPlus={true}
-                  handleClick={() => navigate('/marketing/clients/import')}
-                />
-              )}
-              <Can
-                requiredPermissions={getRequiredPermissions(activePage?.path || "")}
-                userPermissions={userPermissions}
-              >
-                {(allowed) =>
-                  allowed &&
-                  activePage?.addButton &&
-                  location?.state?.status !== t("tables.SENT") && (
-                    <Button
-                      title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
-                      iconPlus={true}
-                      handleClick={handleClickButtonCreate}
-                    />
-                  )
-                }
-              </Can>
+            {/* Content Section */}
+            <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
+              {children}
             </div>
           </div>
-
-          {/* Content Section - Responsive Margins */}
-          <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 
