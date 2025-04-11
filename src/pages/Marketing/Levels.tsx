@@ -341,7 +341,11 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
                     <div>{t("marketing.toMan")}</div>
                 </div>
                 {tiers.sort((a, b) => a.name.localeCompare(b.name)).map((tier) => (
-                    <ExpandedCard
+                    loadingTiers ? (
+                        <div className="flex flex-col space-y-4">
+                            <Skeleton.Input active style={{ height: 150, width: '100%' }} />
+                        </div>
+                    ) : (<ExpandedCard
                         key={tier.id}
                         firstText={tier.name}
                         secondText={tier.description || ""}
@@ -396,7 +400,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
                             />)}
                         </div>
                     </ExpandedCard>
-                ))}
+                    )))}
 
                 <div className="flex flex-col md:flex-row space-x-2">
                     <div className="flex space-x-2 items-center text-primary02 cursor-pointer" onClick={addTier}>
