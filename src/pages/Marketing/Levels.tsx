@@ -56,16 +56,26 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     const [tiers, setTiers] = useState<TierType[]>([]);
     const [tierId, setTierId] = useState(0);
     const location = useLocation();
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const addTier = () => {
         setIsModalOpen(true);
     };
 
-    const { data: tiersData, isValidating, isLoading } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
+    const { data: tiersData, isLoading, isValidating } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
         programId: location.state.ownerId
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    }), {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true,
+        onSuccess: () => {
+            setIsInitialLoading(false);
+        }
+    });
 
-    const loadingTiers = isLoading || isValidating;
+    const loadingTiers = isLoading || isValidating || isInitialLoading;
+
+    console.log("Checking validation: ", isInitialLoading, isLoading, isValidating, loadingTiers);
 
     const { data: tierByIdData, isLoading: loadingTier } = useSWR(tierId !== 0 ? [`get-tier-by-id`, tierId] : null, () => getTierById(tierId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -342,12 +352,12 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
                     <div>{t("marketing.create")}</div>
                     <div>{t("marketing.toMan")}</div>
                 </div>
-                {tiers.sort((a, b) => a.name.localeCompare(b.name)).map((tier) => (
-                    loadingTiers ? (
-                        <div className="flex flex-col space-y-4">
-                            <Skeleton.Input active style={{ height: 150, width: '100%' }} />
-                        </div>
-                    ) : (<ExpandedCard
+                {loadingTiers ? (
+                    <div className="flex flex-col space-y-4">
+                        <Skeleton.Input active style={{ height: 150, width: '100%' }} />
+                    </div>
+                ) : tiers.sort((a, b) => a.name.localeCompare(b.name)).map((tier) => (
+                    (<ExpandedCard
                         key={tier.id}
                         firstText={tier.name}
                         secondText={tier.description || ""}

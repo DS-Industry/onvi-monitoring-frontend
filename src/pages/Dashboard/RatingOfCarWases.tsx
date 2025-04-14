@@ -82,6 +82,7 @@ const RatingOfCarWashes = () => {
     <Card 
       className="mt-4 w-full min-w-64"
       bodyStyle={{ padding: '24px' }}
+      variant='borderless'
     >
       <Title level={4} style={{ marginBottom: '24px' }}>
         {t("indicators.carWash")}
