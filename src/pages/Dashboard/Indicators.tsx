@@ -85,7 +85,7 @@ const Indicators: React.FC = () => {
 
   const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
-    posId: posType,
+    posId: selectedValue,
     placementId: city
   }));
 
