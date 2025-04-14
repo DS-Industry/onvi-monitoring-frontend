@@ -43,17 +43,17 @@ import Documents from "@/pages/Warehouse/Documents";
 import DocumentsCreation from "@/pages/Warehouse/DocumentsCreation";
 import DocumentView from "@/pages/Warehouse/DocumentView";
 import Clients from "@/pages/Marketing/Clients";
-import Segments from "@/pages/Marketing/Segments";
-import LoyaltyPrograms from "@/pages/Marketing/LoyaltyPrograms";
+// import Segments from "@/pages/Marketing/Segments";
+// import LoyaltyPrograms from "@/pages/Marketing/LoyaltyPrograms";
 import ShareConstructor from "@/pages/Marketing/ShareConstructor";
-import MarketResearch from "@/pages/Marketing/MarketResearch";
+// import MarketResearch from "@/pages/Marketing/MarketResearch";
 import ClientsImport from "@/pages/Marketing/ClientsImport";
 import Marketing from "@/pages/Marketing/Marketing";
 import ClientsProfile from "@/pages/Marketing/ClientsProfile";
 import BonusProgram from "@/pages/Marketing/BonusProgram";
 import NewSegment from "@/pages/Marketing/NewSegment";
 import Collection from "@/pages/Finance/Collection";
-import Period from "@/pages/Finance/Period";
+// import Period from "@/pages/Finance/Period";
 import CollectionCreation from "@/pages/Finance/CollectionCreation";
 import TimesheetCreation from "@/pages/Finance/TimeSheetCreation";
 import Timesheet from "@/pages/Finance/Timesheet";
@@ -176,7 +176,7 @@ const routes = [
       { name: "collection", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/finance/collection", component: Collection, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "collection", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/collection/creation", component: CollectionCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "timestamp", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/timestamp", component: Timestamps, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "period", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/period", component: Period, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "period", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/period", component: Default, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/timesheet", component: Timesheet, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "employee", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/creation", component: TimesheetCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "abcd", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/view", component: TimesheetView, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
@@ -213,13 +213,13 @@ const routes = [
       { name: "clients", filter: true, addButton: true, addButtonText: "addClient", isVisible: true, path: "/marketing/clients", component: Clients, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "importClients", filter: true, addButton: false, addButtonText: "addClient", isVisible: true, path: "/marketing/clients/import", component: ClientsImport, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "clientProfile", filter: false, addButton: false, addButtonText: "edit", isVisible: true, path: "/marketing/clients/profile", component: ClientsProfile, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "segments", filter: true, addButton: true, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments", component: Segments, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "segments", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "createSeg", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments/new", component: NewSegment, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "share", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/share/constructor", component: LoyaltyPrograms, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "share", filter: false, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/share/constructor", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "loyalty", filter: false, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty", component: ShareConstructor, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
       { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/rewards", component: RewardsCreation, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
       { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/bonus", component: BonusProgram, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
-      { name: "marketRes", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: MarketResearch, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "marketRes", filter: false, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
     ],
     component: Marketing,
     isSidebar: true,
@@ -246,7 +246,7 @@ const routes = [
       },
       { name: "consumption", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/consumption/rate", component: ConsumptionRate, permissions: [], isSidebar: true, subNav: [], isHr: true },
       { titleName: "from", name: "equipmentFailure", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/failure", component: EquipmentFailure, permissions: [{ action: "manage", subject: "Incident" },{ action: "create", subject: "Incident" },{ action: "read", subject: "Incident" },{ action: "update", subject: "Incident" },{ action: "delete", subject: "Incident" }], isSidebar: true, subNav: [], isHr: true },
-      { titleName: "settings", name: "replacing", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
+      { titleName: "settings", name: "replacing", filter: false, addButton: false, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
     ],
     component: Default,
     isSidebar: true,
