@@ -61,9 +61,11 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
         setIsModalOpen(true);
     };
 
-    const { data: tiersData, isValidating: loadingTiers } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
+    const { data: tiersData, isValidating, isLoading } = useSWR([`get-tiers`, location.state.ownerId], () => getTiers({
         programId: location.state.ownerId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const loadingTiers = isLoading || isValidating;
 
     const { data: tierByIdData, isLoading: loadingTier } = useSWR(tierId !== 0 ? [`get-tier-by-id`, tierId] : null, () => getTierById(tierId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

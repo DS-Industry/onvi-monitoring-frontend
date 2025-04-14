@@ -534,7 +534,7 @@ const Events: React.FC = () => {
                                     <Tag color="blue">{t(`marketing.${ben.benefitType}`)}</Tag>
                                 </Descriptions.Item>
                                 <Descriptions.Item label={t("marketing.bonu")}>
-                                    <Tag color="gold">{`${ben.bonus} %`}</Tag>
+                                    <Tag color="gold">{`${ben.bonus} ${ben.benefitType !== "DISCOUNT" ? "" : "%"}`}</Tag>
                                 </Descriptions.Item>
                             </Descriptions>
                         </div>

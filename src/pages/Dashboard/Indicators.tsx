@@ -10,11 +10,13 @@ import useSWR from "swr";
 import { getStatistic } from "@/services/api/organization";
 import { getDepositPos } from "@/services/api/pos";
 import DropdownInput from "@ui/Input/DropdownInput";
-import TableSkeleton from "../ui/Table/TableSkeleton";
+import TableSkeleton from "../../components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
-import DynamicTable from "../ui/Table/DynamicTable";
+import DynamicTable from "../../components/ui/Table/DynamicTable";
+import { Card, Row, Col, Typography } from "antd";
+const { Text, Title } = Typography;
 
 interface PosMonitoring {
   id: number;
@@ -127,12 +129,12 @@ const Indicators: React.FC = () => {
     },
   ];
 
-  const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
-    setDateRange({
-      dateStart: newDateRange.startDate || new Date(),
-      dateEnd: newDateRange.endDate || new Date(),
-    });
-  };
+  // const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
+  //   setDateRange({
+  //     dateStart: newDateRange.startDate || new Date(),
+  //     dateEnd: newDateRange.endDate || new Date(),
+  //   });
+  // };
 
   // Handle duration click
   const handleDurationClick = (duration: "today" | "week" | "month") => {
@@ -168,26 +170,33 @@ const Indicators: React.FC = () => {
       )}
       <div className="grid gap-4">
         {/* Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Row gutter={[24, 24]}>
           {cards.map((item) => (
-            <div
-              className="p-2 lg:p-4 bg-white shadow-card rounded-[18px]"
-              key={item.title}
-            >
-              <div className="flex justify-between items-center space-x-4 mb-5">
-                <div>
-                  <p className="text-sm lg:text-base font-semibold">
-                    {t(`indicators.${item.title}`)}
-                  </p>
-                  <p className="text-xl lg:text-3xl font-bold text-[#202224]">
-                    {item.number} {item.unit}
-                  </p>
+            <Col xs={24} md={12} lg={8} key={item.title}>
+              <Card
+                variant="borderless"
+                styles={{
+                  body: {
+                    padding: 24,
+                    borderRadius: 24,
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)", // mimic `shadow-card`
+                  },
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                  <div>
+                    <Text strong style={{ fontSize: 18 }}>{t(`indicators.${item.title}`)}</Text>
+                    <Title level={2} style={{ margin: 0, color: "#202224" }}>
+                      {item.number} {item.unit}
+                    </Title>
+                  </div>
+                  <item.icon />
                 </div>
-                <item.icon />
-              </div>
-            </div>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
 
         {/* Revenue Section */}
         <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
