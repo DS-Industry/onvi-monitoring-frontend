@@ -227,6 +227,11 @@ const DynamicTable = <T extends TableRow>({
                 { action: "manage", subject: "ShiftReport" },
                 { action: "update", subject: "ShiftReport" },
             ];
+        if (path.includes("hr"))
+            return [
+                { action: "manage", subject: "Hr" },
+                { action: "update", subject: "Hr" },
+            ];
         // Add cases for other components as needed
         else
             return [];
@@ -363,7 +368,7 @@ const DynamicTable = <T extends TableRow>({
         }
         : null;
 
-        const totalClean = showTotalClean
+    const totalClean = showTotalClean
         ? {
             key: "total", // Ensure unique key for the row
             [displayedColumns[0].key]: t("finance.total"),

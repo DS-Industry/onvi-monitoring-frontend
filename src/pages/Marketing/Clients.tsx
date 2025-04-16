@@ -494,6 +494,7 @@ const Clients: React.FC = () => {
                             data={clients}
                             onEdit={handleUpdate}
                             navigableFields={[{ key: "name", getPath: () => "/marketing/clients/profile" }]}
+                            showPagination={true}
                         />
                         {/* <div className="mt-auto border-t border-opacity01 py-8 flex space-x-10 items-center">
                             <div className="text-text01 font-semibold">{t("marketing.high")}:2</div>

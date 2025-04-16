@@ -5,129 +5,163 @@ import PositionEmpty from "@/assets/NoPosition.png";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useFormHook from "@/hooks/useFormHook";
 import { useButtonCreate } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsPositions } from "@/utils/OverFlowTableData";
+import useSWR, { mutate } from "swr";
+import { createPosition, getPositions, updatePosition } from "@/services/api/hr";
+import useSWRMutation from "swr/mutation";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+
+type PositionRequest = {
+    name: string;
+    description?: string;
+}
 
 const Positions: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editPositionId, setEditPositionId] = useState<number>(0);
 
-    const positions: { name: string, value: string, render: JSX.Element }[] = [
-        {
-            name: t("hr.admin"),
-            value: "Admin",
-            render: (
-                <div className="flex flex-col items-start">
-                    <div>{t("hr.admin")}</div>
-                    <div className="text-text02">{t("hr.accessTo")}</div>
-                </div>
-            )
-        },
-        {
-            name: t("hr.accountant"),
-            value: "Accountant",
-            render: (
-                <div className="flex flex-col items-start">
-                    <div>{t("hr.accountant")}</div>
-                    <div className="text-text02">{t("hr.sec")}</div>
-                </div>
-            )
-        },
-        {
-            name: t("hr.lineOperator"),
-            value: "lineOperator",
-            render: (
-                <div className="flex flex-col items-start">
-                    <div>{t("hr.lineOperator")}</div>
-                    <div className="text-text02">{t("hr.sec")}</div>
-                </div>
-            )
-        },
-        {
-            name: t("hr.washer"),
-            value: "washer",
-            render: (
-                <div className="flex flex-col items-start">
-                    <div>{t("hr.washer")}</div>
-                    <div className="text-text02">{t("hr.secti")}</div>
-                </div>
-            )
-        }
-    ];
+    const { data: positionData, isLoading: positionLoading } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const defaultValues = {
-        jobTitle: "",
-        description: "",
-        access: "No",
-        role: ""
+    // const positions: { name: string, value: string, render: JSX.Element }[] = [
+    //     {
+    //         name: t("hr.admin"),
+    //         value: "Admin",
+    //         render: (
+    //             <div className="flex flex-col items-start">
+    //                 <div>{t("hr.admin")}</div>
+    //                 <div className="text-text02">{t("hr.accessTo")}</div>
+    //             </div>
+    //         )
+    //     },
+    //     {
+    //         name: t("hr.accountant"),
+    //         value: "Accountant",
+    //         render: (
+    //             <div className="flex flex-col items-start">
+    //                 <div>{t("hr.accountant")}</div>
+    //                 <div className="text-text02">{t("hr.sec")}</div>
+    //             </div>
+    //         )
+    //     },
+    //     {
+    //         name: t("hr.lineOperator"),
+    //         value: "lineOperator",
+    //         render: (
+    //             <div className="flex flex-col items-start">
+    //                 <div>{t("hr.lineOperator")}</div>
+    //                 <div className="text-text02">{t("hr.sec")}</div>
+    //             </div>
+    //         )
+    //     },
+    //     {
+    //         name: t("hr.washer"),
+    //         value: "washer",
+    //         render: (
+    //             <div className="flex flex-col items-start">
+    //                 <div>{t("hr.washer")}</div>
+    //                 <div className="text-text02">{t("hr.secti")}</div>
+    //             </div>
+    //         )
+    //     }
+    // ];
+
+    const defaultValues: PositionRequest = {
+        name: "",
+        description: undefined,
     };
 
     const [formData, setFormData] = useState(defaultValues);
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    type FieldType = "jobTitle" | "description" | "access" | "role";
+    const { trigger: createPos, isMutating } = useSWRMutation(['create-position'], async () => createPosition({
+        name: formData.name,
+        description: formData.description
+    }));
+
+    const { trigger: updatePos, isMutating: updatingPosition } = useSWRMutation(['update-position'], async () => updatePosition({
+        positionId: editPositionId,
+        description: formData.description
+    }));
+
+    type FieldType = "name" | "description";
 
     const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
 
+    const handleUpdate = (id: number) => {
+        setEditPositionId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+        console.log(id);
+        console.log(isEditMode);
+        const positionToEdit = positionsData.find((pos) => pos.id === id);
+        console.log(positionToEdit);
+        if (positionToEdit) {
+            setFormData({
+                name: positionToEdit.name,
+                description: positionToEdit.description
+            });
+        }
+    };
+
     const resetForm = () => {
         setFormData(defaultValues);
-        // setIsEditMode(false);
+        setIsEditMode(false);
         reset();
-        // setEditInventoryId(0);
+        setEditPositionId(0);
         setButtonOn(!buttonOn);
     };
 
     const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
-        // try {
-        //     if (editInventoryId) {
-        //         const result = await updateInventory();
-        //         console.log(result);
-        //         if (result) {
-        //             console.log(result);
-        //             setCategory(result.props.categoryId)
-        //             mutate([`get-inventory`, result.props.categoryId, orgId]);
-        //             resetForm();
-        //         } else {
-        //             throw new Error('Invalid update data.');
-        //         }
-        //     } else {
-        //         const result = await createInventory();
-        //         if (result) {
-        //             console.log('API Response:', result);
-        //             setCategory(result.props.categoryId)
-        //             mutate([`get-inventory`, result.props.categoryId, orgId]);
-        //             resetForm();
-        //         } else {
-        //             throw new Error('Invalid response from API');
-        //         }
-        //     }
-        // } catch (error) {
-        //     console.error("Error during form submission: ", error);
-        // }
+        try {
+            if (editPositionId) {
+                const result = await updatePos();
+                console.log(result);
+                if (result) {
+                    console.log(result);
+                    mutate([`get-positions`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
+            } else {
+                const result = await createPos();
+                if (result) {
+                    console.log('API Response:', result);
+                    mutate([`get-positions`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
     };
 
-    const positionsData = [
-        { jobTitle: "abcd", access: "Yes", description: "checking table", role: t("hr.washer") }
-    ]
+    const positionsData = positionData?.map((pos) => pos.props) || [];
 
     return (
         <div>
-            {positions.length > 0 ? (
+            {positionLoading ? (
+                <TableSkeleton columnCount={columnsPositions.length} />
+            ) : positionsData.length > 0 ? (
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={positionsData}
-                        columns={columnsPositions} 
-                        isUpdate={true}
+                    <DynamicTable
+                        data={positionsData}
+                        columns={columnsPositions}
+                        onEdit={handleUpdate}
                     />
                 </div>
             ) : (
@@ -150,14 +184,14 @@ const Positions: React.FC = () => {
                     </div>
                     <Input
                         title={`${t("hr.name")}*`}
-                        label={t("hr.enterJob")}
                         type={"text"}
                         classname="w-80"
-                        value={formData.jobTitle}
-                        changeValue={(e) => handleInputChange('jobTitle', e.target.value)}
-                        error={!!errors.jobTitle}
-                        {...register('jobTitle', { required: 'jobTitle is required' })}
-                        helperText={errors.jobTitle?.message || ''}
+                        value={formData.name}
+                        changeValue={(e) => handleInputChange('name', e.target.value)}
+                        error={!!errors.name}
+                        {...register('name', { required: !isEditMode && 'Name is required' })}
+                        helperText={errors.name?.message || ''}
+                        disabled={isEditMode}
                     />
                     <MultilineInput
                         title={t("warehouse.desc")}
@@ -168,7 +202,7 @@ const Positions: React.FC = () => {
                         changeValue={(e) => handleInputChange('description', e.target.value)}
                         {...register('description')}
                     />
-                    <div className="flex space-x-2 items-center">
+                    {/* <div className="flex space-x-2 items-center">
                         <input
                             type="checkbox"
                             className="w-[18px] h-[18px]"
@@ -188,7 +222,7 @@ const Positions: React.FC = () => {
                         onChange={(value) => handleInputChange('role', value)}
                         error={!!errors.role}
                         helperText={errors.role?.message || ''}
-                    />
+                    /> */}
                     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
@@ -198,9 +232,9 @@ const Positions: React.FC = () => {
                             }}
                         />
                         <Button
-                            title={t("hr.pos")}
+                            title={isEditMode ? t("hr.update") : t("hr.pos")}
                             form={true}
-                            // isLoading={isMutating}
+                            isLoading={isEditMode ? updatingPosition : isMutating}
                             handleClick={() => { }}
                         />
                     </div>

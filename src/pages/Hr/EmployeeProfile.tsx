@@ -2,7 +2,7 @@ import SearchInput from "@/components/ui/Input/SearchInput";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Icon from 'feather-icons-react';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
 import Input from "@/components/ui/Input/Input";
@@ -12,6 +12,30 @@ import CalendarComponent from "@/components/ui/Calendar/CalendarComponent";
 import { useButtonCreate } from "@/components/context/useContext";
 import type { DatePickerProps } from 'antd';
 import { DatePicker } from 'antd';
+import useSWR, { mutate } from "swr";
+import { getPositions, getWorkerById, updateWorker } from "@/services/api/hr";
+import useSWRMutation from "swr/mutation";
+
+type UpdateWorkerRequest = {
+    workerId: number;
+    hrPositionId?: number;
+    placementId?: number;
+    startWorkDate?: Date;
+    phone?: string;
+    email?: string;
+    description?: string;
+    monthlySalary?: number;
+    dailySalary?: number;
+    percentageSalary?: number;
+    gender?: string;
+    citizenship?: string;
+    passportSeries?: string;
+    passportNumber?: string;
+    passportExtradition?: string;
+    passportDateIssue?: Date;
+    inn?: string;
+    snils?: string;
+}
 
 const EmployeeProfile: React.FC = () => {
     const { t } = useTranslation();
@@ -19,6 +43,11 @@ const EmployeeProfile: React.FC = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('info');
     const { buttonOn } = useButtonCreate();
+    const location = useLocation();
+
+    const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
 
     const getInitials = (fullName: string) => {
         const words = fullName.trim().split(" ");
@@ -46,21 +75,29 @@ const EmployeeProfile: React.FC = () => {
         { id: 'sch', name: t("finance.sch") }
     ];
 
-    const defaultValues = {
-        fullName: "",
-        job: "",
-        date: "",
-        telephone: "",
-        email: "",
-        comment: "",
-        monthly: 0,
-        daily: 0,
-        percent: 0,
-        floor: "",
-        citizen: "",
-        passport: "",
-        tin: "",
-        insurance: ""
+    const { data: employeeData } = useSWR(location.state.ownerId !== 0 ? [`get-employee-by-id`] : null, () => getWorkerById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const employee = employeeData?.props;
+
+    const defaultValues: UpdateWorkerRequest = {
+        workerId: location.state.ownerId,
+        hrPositionId: 0,
+        placementId: 0,
+        startWorkDate: undefined,
+        phone: undefined,
+        email: undefined,
+        description: undefined,
+        monthlySalary: 0,
+        dailySalary: 0,
+        percentageSalary: 0,
+        gender: undefined,
+        citizenship: undefined,
+        passportSeries: undefined,
+        passportNumber: undefined,
+        passportExtradition: undefined,
+        passportDateIssue: undefined,
+        inn: undefined,
+        snils: undefined
     }
 
     const scheduleValues = {
@@ -86,12 +123,48 @@ const EmployeeProfile: React.FC = () => {
         setStartIndex(startIndex - 1);
     };
 
+    useEffect(() => {
+        if (employee)
+            setFormData({
+                ...employee,
+                workerId: employee.id,
+                inn: employee.inn === null ? undefined : employee.inn,
+                snils: employee.snils === null ? undefined : employee.snils,
+                passportSeries: employee.passportSeries === null ? undefined : employee.passportSeries,
+                passportExtradition: employee.passportExtradition === null ? undefined : employee.passportExtradition,
+                passportNumber: employee.passportNumber === null ? undefined : employee.passportNumber,
+                startWorkDate: employee.startWorkDate ? employee.startWorkDate.slice(0, 10) : undefined,
+                passportDateIssue: employee.passportDateIssue ? employee.passportDateIssue.slice(0, 10) : undefined,
+            });
+    }, [employee]);
+
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-    type FieldType = "fullName" | "job" | "date" | "telephone" | "email" | "comment" | "monthly" | "daily" | "percent" | "floor" | "citizen" | "passport" | "tin" | "insurance";
+    const { trigger: updateEmp } = useSWRMutation(['update-employee'], async () => updateWorker({
+        workerId: formData.workerId,
+        hrPositionId: formData.hrPositionId,
+        placementId: formData.placementId,
+        startWorkDate: formData.startWorkDate,
+        phone: formData.phone,
+        email: formData.email,
+        description: formData.description,
+        monthlySalary: formData.monthlySalary,
+        dailySalary: formData.dailySalary,
+        percentageSalary: formData.percentageSalary,
+        gender: formData.gender,
+        citizenship: formData.citizenship,
+        passportSeries: formData.passportSeries,
+        passportNumber: formData.passportNumber,
+        passportExtradition: formData.passportExtradition,
+        passportDateIssue: formData.passportDateIssue,
+        inn: formData.inn,
+        snils: formData.snils
+    }));
+
+    type FieldType = "workerId" | "description" | "hrPositionId" | "placementId" | "startWorkDate" | "phone" | "email" | "monthlySalary" | "dailySalary" | "percentageSalary" | "gender" | "citizenship" | "passportSeries" | "passportNumber" | "passportExtradition" | "passportDateIssue" | "inn" | "snils";
 
     const handleInputChange = (field: FieldType, value: string) => {
-        const numericFields = ["monthly", "daily", "percent"];
+        const numericFields = ["monthlySalary", "dailySalary", "percentageSalary"];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
@@ -100,6 +173,18 @@ const EmployeeProfile: React.FC = () => {
     const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
+
+        try {
+            const result = await updateEmp();
+            if (result) {
+                console.log('API Response:', result);
+                mutate([`get-employee-by-id`]);
+            } else {
+                throw new Error('Invalid response from API');
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
     };
 
     const months = [
@@ -214,28 +299,14 @@ const EmployeeProfile: React.FC = () => {
                                             {t("tables.ACTIVE")}
                                         </div>
                                     </div>
-                                    <Input
-                                        title={`${t("hr.full")}`}
-                                        label={t("hr.enter")}
-                                        type={"text"}
-                                        classname="w-full md:w-80"
-                                        value={formData.fullName}
-                                        changeValue={(e) => handleInputChange('fullName', e.target.value)}
-                                        {...register('fullName')}
-                                        inputType="secondary"
-                                    />
                                     <DropdownInput
                                         title={`${t("roles.job")}`}
                                         label={t("hr.selectPos")}
-                                        options={[
-                                            { name: t("hr.accountant"), value: "Accountant" },
-                                            { name: t("hr.washer"), value: "Washer" },
-                                            { name: t("hr.lineOperator"), value: "LineOperator" }
-                                        ]}
+                                        options={positions}
                                         classname="w-full md:w-64"
-                                        {...register('job')}
-                                        value={formData.job}
-                                        onChange={(value) => handleInputChange('job', value)}
+                                        {...register('hrPositionId')}
+                                        value={formData.hrPositionId}
+                                        onChange={(value) => handleInputChange('hrPositionId', value)}
                                         inputType="secondary"
                                     />
                                     <div>
@@ -243,9 +314,9 @@ const EmployeeProfile: React.FC = () => {
                                         <Input
                                             type={"date"}
                                             classname="w-full md:w-40"
-                                            value={formData.date}
-                                            changeValue={(e) => handleInputChange('date', e.target.value)}
-                                            {...register('date')}
+                                            value={formData.startWorkDate}
+                                            changeValue={(e) => handleInputChange('startWorkDate', e.target.value)}
+                                            {...register('startWorkDate')}
                                             inputType="secondary"
                                         />
                                     </div>
@@ -254,9 +325,9 @@ const EmployeeProfile: React.FC = () => {
                                         title={t("profile.telephone")}
                                         label={t("warehouse.enterPhone")}
                                         classname="w-full md:w-80"
-                                        value={formData.telephone}
-                                        changeValue={(e) => handleInputChange('telephone', e.target.value)}
-                                        {...register('telephone')}
+                                        value={formData.phone}
+                                        changeValue={(e) => handleInputChange('phone', e.target.value)}
+                                        {...register('phone')}
                                         inputType="secondary"
                                     />
                                     <Input
@@ -274,54 +345,87 @@ const EmployeeProfile: React.FC = () => {
                                         label={t("warehouse.about")}
                                         classname="w-full md:w-80"
                                         inputType="secondary"
-                                        value={formData.comment}
-                                        changeValue={(e) => handleInputChange('comment', e.target.value)}
-                                        {...register('comment')}
+                                        value={formData.description}
+                                        changeValue={(e) => handleInputChange('description', e.target.value)}
+                                        {...register('description')}
                                     />
                                     <div>
                                         <div className="text-sm text-text02">{t("profile.photo")}</div>
-                                        <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">FN</div>
+                                        <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">{getInitials(employee?.name || "")}</div>
                                     </div>
                                 </div>
                             )}
                             {activeTab === "addi" && (<div className="space-y-4">
+                                <DropdownInput
+                                    title={`${t("marketing.floor")}`}
+                                    label={t("warehouse.notSel")}
+                                    options={[
+                                        { name: t("marketing.man"), value: "Man" },
+                                        { name: t("marketing.woman"), value: "Woman" }
+                                    ]} classname="w-64"
+                                    {...register('gender')}
+                                    value={formData.gender}
+                                    onChange={(value) => handleInputChange('gender', value)}
+                                />
                                 <Input
                                     type=""
                                     title={t("hr.citi")}
                                     label={t("hr.enterCiti")}
                                     classname="w-full md:w-80"
-                                    value={formData.citizen}
-                                    changeValue={(e) => handleInputChange('citizen', e.target.value)}
-                                    {...register('citizen')}
-                                    inputType="secondary"
-                                />
-                                <MultilineInput
-                                    title={t("hr.pass")}
-                                    label={t("hr.enterPass")}
-                                    classname="w-full md:w-80"
-                                    inputType="secondary"
-                                    value={formData.passport}
-                                    changeValue={(e) => handleInputChange('passport', e.target.value)}
-                                    {...register('passport')}
-                                />
-                                <Input
-                                    type=""
-                                    title={t("organizations.tin")}
-                                    label={t("hr.enterTin")}
-                                    classname="w-full md:w-80"
-                                    value={formData.tin}
-                                    changeValue={(e) => handleInputChange('tin', e.target.value)}
-                                    {...register('tin')}
+                                    value={formData.citizenship}
+                                    changeValue={(e) => handleInputChange('citizenship', e.target.value)}
+                                    {...register('citizenship')}
                                     inputType="secondary"
                                 />
                                 <Input
+                                    title={t("hr.passportSeries")}
+                                    classname="w-80"
+                                    inputType="secondary"
+                                    value={formData.passportSeries}
+                                    changeValue={(e) => handleInputChange('passportSeries', e.target.value)}
+                                    {...register('passportSeries')}
+                                />
+                                <Input
+                                    title={t("hr.passportNumber")}
+                                    classname="w-80"
+                                    inputType="secondary"
+                                    value={formData.passportNumber}
+                                    changeValue={(e) => handleInputChange('passportNumber', e.target.value)}
+                                    {...register('passportNumber')}
+                                />
+                                <Input
+                                    title={t("hr.passportExtradition")}
+                                    classname="w-80"
+                                    inputType="secondary"
+                                    value={formData.passportExtradition}
+                                    changeValue={(e) => handleInputChange('passportExtradition', e.target.value)}
+                                    {...register('passportExtradition')}
+                                />
+                                <Input
+                                    type="date"
+                                    title={t("hr.passportDateIssue")}
+                                    classname="w-40"
+                                    inputType="secondary"
+                                    value={formData.passportDateIssue}
+                                    changeValue={(e) => handleInputChange('passportDateIssue', e.target.value)}
+                                    {...register('passportDateIssue')}
+                                />
+                                <Input
                                     type=""
-                                    title={t("hr.insu")}
-                                    label={t("hr.enterInsu")}
+                                    title={t("marketing.inn")}
                                     classname="w-full md:w-80"
-                                    value={formData.insurance}
-                                    changeValue={(e) => handleInputChange('insurance', e.target.value)}
-                                    {...register('insurance')}
+                                    value={formData.inn}
+                                    changeValue={(e) => handleInputChange('inn', e.target.value)}
+                                    {...register('inn')}
+                                    inputType="secondary"
+                                />
+                                <Input
+                                    type=""
+                                    title={t("hr.snils")}
+                                    classname="w-full md:w-80"
+                                    value={formData.snils}
+                                    changeValue={(e) => handleInputChange('snils', e.target.value)}
+                                    {...register('snils')}
                                     inputType="secondary"
                                 />
                             </div>)}
@@ -332,18 +436,18 @@ const EmployeeProfile: React.FC = () => {
                                     classname="w-full md:w-44"
                                     showIcon={true}
                                     IconComponent={<div className="text-text02 text-xl">₽</div>}
-                                    value={formData.monthly}
-                                    changeValue={(e) => handleInputChange('monthly', e.target.value)}
-                                    {...register('monthly')}
+                                    value={formData.monthlySalary}
+                                    changeValue={(e) => handleInputChange('monthlySalary', e.target.value)}
+                                    {...register('monthlySalary')}
                                     inputType="secondary"
                                 />
                                 <Input
                                     title={`${t("hr.daily")}`}
                                     type={"number"}
                                     classname="w-full md:w-44"
-                                    value={formData.daily}
-                                    changeValue={(e) => handleInputChange('daily', e.target.value)}
-                                    {...register('daily')}
+                                    value={formData.dailySalary}
+                                    changeValue={(e) => handleInputChange('dailySalary', e.target.value)}
+                                    {...register('dailySalary')}
                                     inputType="secondary"
                                     showIcon={true}
                                     IconComponent={<div className="text-text02 text-xl">₽</div>}
@@ -352,9 +456,9 @@ const EmployeeProfile: React.FC = () => {
                                     title={`${t("marketing.per")}`}
                                     type={"number"}
                                     classname="w-full md:w-44"
-                                    value={formData.percent}
-                                    changeValue={(e) => handleInputChange('percent', e.target.value)}
-                                    {...register('percent')}
+                                    value={formData.percentageSalary}
+                                    changeValue={(e) => handleInputChange('percentageSalary', e.target.value)}
+                                    {...register('percentageSalary')}
                                     inputType="secondary"
                                     showIcon={true}
                                     IconComponent={<div className="text-text02 text-xl">%</div>}

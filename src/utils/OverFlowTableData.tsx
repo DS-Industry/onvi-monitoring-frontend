@@ -1215,23 +1215,38 @@ export const columnsEmployee = [
     key: "name"
   },
   {
+    label: "Город",
+    key: "placement"
+  },
+  {
+    label: "Организация",
+    key: "organization"
+  },
+  {
     label: "Должность",
-    key: "job"
+    key: "position"
+  },
+  {
+    label: "Месячный оклад",
+    key: "monthlySalary",
+    type: "number"
+  },
+  {
+    label: "Дневной оклад",
+    key: "dailySalary",
+    type: "number"
+  },
+  {
+    label: "Проценты",
+    key: "percentageSalary",
+    type: "number"
   }
 ]
 
 export const columnsPositions = [
   {
     label: "Должность",
-    key: "jobTitle"
-  },
-  {
-    label: "Роль CRM",
-    key: "role"
-  },
-  {
-    label: "Доступ к программе",
-    key: "access"
+    key: "name"
   },
   {
     label: "Описание",

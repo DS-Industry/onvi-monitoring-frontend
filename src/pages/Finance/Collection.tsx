@@ -58,7 +58,7 @@ const Collection: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId ? dataFilter.posId : 66}`], () => getCollections({
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId}`], () => getCollections({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
         posId: dataFilter.posId,

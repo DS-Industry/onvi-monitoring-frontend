@@ -835,7 +835,13 @@
     "sect": "Access to sections: Warehouse, Equipment",
     "secti": "Access to work schedule",
     "here": "Here you can see the data for the report Wages calculation",
-    "you": "You currently have no generated reports."
+    "you": "You currently have no generated reports.",
+    "passportSeries": "Passport Series",
+    "passportNumber": "Passport Number",
+    "passportExtradition": "Passport Extradition",
+    "passportDateIssue": "Passport Date Issue",
+    "snils": "SNILS",
+    "update": "Update a Position"
   },
   "notifications": {
     "fav": "Favorite",
