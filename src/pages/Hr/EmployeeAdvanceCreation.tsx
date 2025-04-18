@@ -260,7 +260,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
                         onChange={(value) => handleInputChange('hrPositionId', value)}
                     />
                 </div>
-                <div className="flex justify-between">
+                <div className="flex space-x-4">
+                    <Button
+                        type="outline"
+                        title={t("organizations.cancel")}
+                        handleClick={() => navigate(-1)}
+                    />
                     <Button
                         title={t("finance.form")}
                         isLoading={calculatingSal}
@@ -282,11 +287,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 />
                 <div className="mt-5">
                     <div className="flex space-x-4">
-                        <Button
-                            type="outline"
-                            title={t("organizations.cancel")}
-                            handleClick={() => navigate(-1)}
-                        />
                         <Button
                             title={t("organizations.save")}
                             isLoading={creatingSal}

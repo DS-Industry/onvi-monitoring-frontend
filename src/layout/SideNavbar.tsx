@@ -100,6 +100,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   };
 
   const toggleNavbar = () => {
+    setIsHovered(!isHovered);
     setIsOpen(!isOpen);
   };
 
