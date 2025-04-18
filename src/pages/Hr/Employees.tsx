@@ -23,16 +23,16 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 
 type Worker = {
     name: string;
-    hrPositionId: number;
-    placementId: number;
-    organizationId: number;
+    hrPositionId: string;
+    placementId: string;
+    organizationId: string;
     startWorkDate?: Date;
     phone?: string;
     email?: string;
     description?: string;
-    monthlySalary: number;
-    dailySalary: number;
-    percentageSalary: number;
+    monthlySalary: string;
+    dailySalary: string;
+    percentageSalary: string;
     gender?: string;
     citizenship?: string;
     passportSeries?: string;
@@ -60,6 +60,8 @@ const Employees: React.FC = () => {
     const [name, setName] = useState<string | undefined>(undefined);
     const [organizationId, setOrganizationId] = useState<number | "*">("*");
     const [positionId, setPositionId] = useState<number | "*">("*");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isTableLoading, setIsTableLoading] = useState(false);
     const city = useCity();
     const setCity = useSetCity();
@@ -141,16 +143,16 @@ const Employees: React.FC = () => {
 
     const defaultValues: Worker = {
         name: "",
-        hrPositionId: 0,
-        placementId: 0,
-        organizationId: 0,
+        hrPositionId: '',
+        placementId: '',
+        organizationId: '',
         startWorkDate: undefined,
         phone: undefined,
         email: undefined,
         description: undefined,
-        monthlySalary: 0,
-        dailySalary: 0,
-        percentageSalary: 0,
+        monthlySalary: '',
+        dailySalary: '',
+        percentageSalary: '',
         gender: undefined,
         citizenship: undefined,
         passportSeries: undefined,
@@ -185,7 +187,7 @@ const Employees: React.FC = () => {
         passportDateIssue: formData.passportDateIssue,
         inn: formData.inn,
         snils: formData.snils
-    }));
+    }, selectedFile));
 
     type FieldType = "name" | "description" | "hrPositionId" | "placementId" | "organizationId" | "startWorkDate" | "phone" | "email" | "monthlySalary" | "dailySalary" | "percentageSalary" | "gender" | "citizenship" | "passportSeries" | "passportNumber" | "passportExtradition" | "passportDateIssue" | "inn" | "snils";
 
@@ -194,6 +196,20 @@ const Employees: React.FC = () => {
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] || null;
+        setSelectedFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
     };
 
     const resetForm = () => {
@@ -319,7 +335,7 @@ const Employees: React.FC = () => {
                         {...register('hrPositionId', {
                             required: 'hrPositionId is required',
                             validate: (value) =>
-                                (value !== 0) || "Pos ID is required"
+                                (value !== '') || "Pos ID is required"
                         })}
                         value={formData.hrPositionId}
                         onChange={(value) => handleInputChange('hrPositionId', value)}
@@ -334,7 +350,7 @@ const Employees: React.FC = () => {
                         {...register('placementId', {
                             required: 'Placement Id is required',
                             validate: (value) =>
-                                (value !== 0) || "Organization ID is required"
+                                (value !== '') || "Organization ID is required"
                         })}
                         value={formData.placementId}
                         onChange={(value) => handleInputChange('placementId', value)}
@@ -349,7 +365,7 @@ const Employees: React.FC = () => {
                         {...register('organizationId', {
                             required: 'Organization Id is required',
                             validate: (value) =>
-                                (value !== 0) || "Organization ID is required"
+                                (value !== '') || "Organization ID is required"
                         })}
                         value={formData.organizationId}
                         onChange={(value) => handleInputChange('organizationId', value)}
@@ -402,10 +418,27 @@ const Employees: React.FC = () => {
                     />
                     <div>
                         <div className="text-sm text-text02">{t("profile.photo")}</div>
-                        <div className="flex space-x-2 items-center">
-                            <img src={ProfilePhoto} />
+
+                        <div
+                            className="flex space-x-2 items-center cursor-pointer"
+                            onClick={() => document.getElementById("photo-upload")?.click()}
+                        >
+                            <img
+                                src={imagePreview || ProfilePhoto}
+                                alt="Profile"
+                                className="w-16 h-16 object-cover rounded-full border border-gray-300"
+                            />
                             <div className="text-primary02 font-semibold">{t("hr.upload")}</div>
                         </div>
+
+                        {/* Hidden file input */}
+                        <input
+                            type="file"
+                            id="photo-upload"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={handleFileChange}
+                        />
                     </div>
                     <div className="text-text01 font-semibold text-2xl">{t("hr.salary")}</div>
                     <Input

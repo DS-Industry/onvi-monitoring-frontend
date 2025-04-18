@@ -3,21 +3,23 @@ import api from "@/config/axiosConfig";
 
 enum HR {
     GET_WORKERS = 'user/hr/worker',
-    GET_POSITIONS = 'user/hr/position'
+    GET_POSITIONS = 'user/hr/position',
+    PREPAYMENT = 'user/hr/prepayment',
+    PAYMENT = 'user/hr/payment'
 }
 
 type WorkerRequest = {
     name: string;
-    hrPositionId: number;
-    placementId: number;
-    organizationId: number;
+    hrPositionId: string;
+    placementId: string;
+    organizationId: string;
     startWorkDate?: Date;
     phone?: string;
     email?: string;
     description?: string;
-    monthlySalary: number;
-    dailySalary: number;
-    percentageSalary: number;
+    monthlySalary: string;
+    dailySalary: string;
+    percentageSalary: string;
     gender?: string;
     citizenship?: string;
     passportSeries?: string;
@@ -55,16 +57,16 @@ type WorkerResponse = {
 }
 
 type UpdateWorkerRequest = {
-    workerId: number;
-    hrPositionId?: number;
-    placementId?: number;
+    workerId: string;
+    hrPositionId?: string;
+    placementId?: string;
     startWorkDate?: Date;
     phone?: string;
     email?: string;
     description?: string;
-    monthlySalary?: number;
-    dailySalary?: number;
-    percentageSalary?: number;
+    monthlySalary?: string;
+    dailySalary?: string;
+    percentageSalary?: string;
     gender?: string;
     citizenship?: string;
     passportSeries?: string;
@@ -102,16 +104,149 @@ type UpdatePositionRequest = {
     description?: string;
 }
 
-export async function createWorker(body: WorkerRequest): Promise<WorkerResponse> {
+type PrepaymentCalculateBody = {
+    organizationId: number;
+    billingMonth: Date;
+    hrPositionId: number | '*';
+}
+
+type PrepaymentCalculateResponse = {
+    hrWorkerId: number;
+    name: string;
+    hrPositionId: number;
+    billingMonth: Date;
+    monthlySalary: number;
+    dailySalary: number;
+    percentageSalary: number;
+}
+
+type PrepaymentCreateRequest = {
+    payments: {
+        hrWorkerId: number;
+        paymentDate: Date;
+        billingMonth: Date;
+        countShifts: number;
+        sum: number;
+    }[]
+}
+
+type PrepaymentCreateResponse = {
+    status: 'SUCCESS'
+}
+
+type PrepaymentFilter = {
+    startPaymentDate: Date | '*';
+    endPaymentDate: Date | '*';
+    hrWorkerId: number | '*';
+    billingMonth: Date | '*';
+    page?: number;
+    size?: number;
+}
+
+type PrepaymentResponse = {
+    hrWorkerId: number;
+    name: string;
+    hrPositionId: number;
+    billingMonth: Date;
+    paymentDate: Date;
+    monthlySalary: number;
+    dailySalary: number;
+    percentageSalary: number;
+    countShifts: number;
+    sum: number;
+    createdAt: Date;
+    createdById: number;
+}
+
+type PaymentCalculateResponse = {
+    hrWorkerId: number;
+    name: string;
+    hrPositionId: number;
+    billingMonth: Date;
+    monthlySalary: number;
+    dailySalary: number;
+    percentageSalary: number;
+    prepaymentSum: number;
+    prepaymentCountShifts: number;
+}
+
+type PaymentCreateRequest = {
+    payments: {
+        hrWorkerId: number;
+        paymentDate: Date;
+        billingMonth: Date;
+        countShifts: number;
+        sum: number;
+        prize: number;
+        fine: number;
+    }[]
+}
+
+type PaymentsResponse = {
+    hrWorkerId: number;
+    name: string;
+    hrPositionId: number;
+    billingMonth: Date;
+    paymentDate: Date;
+    monthlySalary: number;
+    dailySalary: number;
+    percentageSalary: number;
+    countShifts: number;
+    prepaymentSum: number;
+    paymentSum: number;
+    prize: number;
+    fine: number;
+    totalPayment: number;
+    createdAt: Date;
+    createdById: number;
+}
+
+export async function createWorker(body: WorkerRequest, file?: File | null): Promise<WorkerResponse> {
     console.log(body);
-    const response: AxiosResponse<WorkerResponse> = await api.post(HR.GET_WORKERS, body);
+    const formData = new FormData();
+
+    for (const key in body) {
+        const value = body[key as keyof WorkerRequest];
+        if (value !== undefined) {
+            // Convert value to a string if it's a number
+            formData.append(key, value.toString());
+        }
+    }
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    const response: AxiosResponse<WorkerResponse> = await api.post(HR.GET_WORKERS, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     console.log(response.data);
     return response.data;
 }
 
-export async function updateWorker(body: UpdateWorkerRequest): Promise<WorkerResponse> {
+export async function updateWorker(body: UpdateWorkerRequest, file?: File | null): Promise<WorkerResponse> {
     console.log(body);
-    const response: AxiosResponse<WorkerResponse> = await api.patch(HR.GET_WORKERS, body);
+    const formData = new FormData();
+
+    for (const key in body) {
+        const value = body[key as keyof UpdateWorkerRequest];
+        if (value !== undefined) {
+            // Convert value to a string if it's a number
+            formData.append(key, value.toString());
+        }
+    }
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    const response: AxiosResponse<WorkerResponse> = await api.patch(HR.GET_WORKERS, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     console.log(response.data);
     return response.data;
 }
@@ -150,6 +285,46 @@ export async function getPositions(): Promise<PositionResponse[]> {
 
 export async function getPositionById(id: number): Promise<PositionResponse> {
     const response: AxiosResponse<PositionResponse> = await api.get(HR.GET_POSITIONS + `/${id}`);
+
+    return response.data;
+}
+
+export async function calculatePrepayment(body: PrepaymentCalculateBody): Promise<PrepaymentCalculateResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<PrepaymentCalculateResponse[]> = await api.post(HR.PREPAYMENT + '/calculate', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createPrepayment(body: PrepaymentCreateRequest): Promise<PrepaymentCreateResponse> {
+    console.log(body);
+    const response: AxiosResponse<PrepaymentCreateResponse> = await api.post(HR.PREPAYMENT, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getPrepayments(params: PrepaymentFilter): Promise<PrepaymentResponse[]> {
+    const response: AxiosResponse<PrepaymentResponse[]> = await api.get(HR.PREPAYMENT + 's', { params });
+
+    return response.data;
+}
+
+export async function calculatePayment(body: PrepaymentCalculateBody): Promise<PaymentCalculateResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<PaymentCalculateResponse[]> = await api.post(HR.PAYMENT + '/calculate', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createPayment(body: PaymentCreateRequest): Promise<PrepaymentCreateResponse> {
+    console.log(body);
+    const response: AxiosResponse<PrepaymentCreateResponse> = await api.post(HR.PAYMENT, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getPayments(params: PrepaymentFilter): Promise<PaymentsResponse[]> {
+    const response: AxiosResponse<PaymentsResponse[]> = await api.get(HR.PAYMENT + 's', { params });
 
     return response.data;
 }

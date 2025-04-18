@@ -31,8 +31,8 @@ type Props = {
 
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
-  const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
+  const [activeNavItem, setActiveNavItem] = useState<string | null>(null);
+  const [activeSubNavItem, setActiveSubNavItem] = useState<string | null>(null);
   const [openSubNav, setOpenSubNav] = useState<string | null>(null);
   const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
   const isData = true;
@@ -43,6 +43,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const navigate = useNavigate();
   const user = useUser();
   const [isMobile, setIsMobile] = useState(false);
+  // Add a new state to track hover state
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -87,7 +89,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
-  const document = useDocumentType();
+  const doc = useDocumentType();
 
   const isParentActive = (subMenu: any[] | undefined) =>
     subMenu && subMenu.some((child) => child.path === location.pathname);
@@ -101,27 +103,70 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     setIsOpen(!isOpen);
   };
 
-  const handleMouseEnter = (item: string) => {
-    setHoveredNavItem(item);
+  const handleNavItemClick = (item: string) => {
+    if (activeNavItem === item) {
+      setActiveNavItem(null);
+    } else {
+      setActiveNavItem(item);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleMouseLeave = () => {
-    setHoveredNavItem(null);
+  const handleSubNavItemClick = (subItem: string) => {
+    if (activeSubNavItem === subItem) {
+      setActiveSubNavItem(null);
+    } else {
+      setActiveSubNavItem(subItem);
+    }
   };
 
-  const handleSubNavMouseEnter = (subItem: string) => {
-    setHoveredSubNavItem(subItem);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (isMobile) return; // Skip for mobile
+    
+    const sideBar = document.getElementById('sidebar');
+    const sideNavs = document.querySelectorAll('.side-nav');
+    let isInsideSidebar = false;
+    
+    sideNavs.forEach(element => {
+      if (element.contains(e.target as Node)) {
+        isInsideSidebar = true;
+      }
+    });
+    
+    if (sideBar && !sideBar.contains(e.target as Node) && !isInsideSidebar) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleSubNavMouseLeave = () => {
-    setHoveredSubNavItem(null);
-  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile]);
+
+  // Close submenus when navigating to a new route
+  useEffect(() => {
+    if (!isMobile) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
+  }, [location.pathname, isMobile]);
 
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     setSnackbarFunction(showSnackbar);
   }, [showSnackbar]);
+
+  // Add effect to handle hover state changes
+  useEffect(() => {
+    if (!isMobile && isHovered && !isOpen) {
+      // Open sidebar when hovered
+      setIsOpen(true);
+    }
+  }, [isHovered, isMobile]);
 
   const getRequiredPermissions = (path: string) => {
     if (path.includes("administration"))
@@ -162,7 +207,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
-      {hoveredNavItem && (
+      {activeNavItem && !isMobile && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
           aria-hidden="true"
@@ -176,6 +221,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       )}
       
       <Sider
+        id="sidebar"
         theme="dark"
         trigger={null}
         collapsible
@@ -188,6 +234,21 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           height: "100%",
           left: isMobile ? (isOpen ? 0 : -80) : 0,
           transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
+        }}
+        // Add hover event handlers
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setIsHovered(false);
+            // Add delay before closing to improve UX
+            setTimeout(() => {
+              if (!isHovered) {
+                setIsOpen(false);
+                setActiveNavItem(null);
+                setActiveSubNavItem(null);
+              }
+            }, 300);
+          }
         }}
       >
         <div className="h-full flex flex-col justify-between relative">
@@ -215,15 +276,20 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                       allowed && (
                         <div
                           key={item.name}
-                          onMouseEnter={!isMobile ? () => handleMouseEnter(item.name) : undefined}
-                          onMouseLeave={!isMobile ? handleMouseLeave : undefined}
+                          className="side-nav"
+                          onMouseEnter={isMobile ? undefined : () => {}}
+                          onMouseLeave={isMobile ? undefined : () => {}}
                         >
                           <NavLink
                             to={item.subMenu ? '#' : item.path}
                             onClick={(e) => {
                               if (item.subMenu) {
                                 e.preventDefault();
-                                setOpenSubNav(openSubNav === item.name ? null : item.name);
+                                if (isMobile) {
+                                  setOpenSubNav(openSubNav === item.name ? null : item.name);
+                                } else {
+                                  handleNavItemClick(item.name);
+                                }
                               }
                             }}
                             className={({ isActive }) =>
@@ -231,7 +297,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
                               ${isParentActive(item.subNav)
                                   ? 'bg-opacity01/30 text-primary01'
-                                  : hoveredNavItem === item.name
+                                  : (!isMobile && activeNavItem === item.name)
                                     ? 'bg-opacity01/30 text-primary01'
                                     : 'text-text02'
                                 } hover:bg-opacity01/30 hover:text-primary01`
@@ -326,8 +392,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                               </div>
                             </div>
                           )}
-                          {hoveredNavItem === item.name && item.subNav && (
-                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
+                          {!isMobile && activeNavItem === item.name && item.subNav && (
+                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
                               {item.subNavHeading !== "" && <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
                                 {t(`routes.${item.subNavHeading}`)}
                               </div>}
@@ -335,8 +401,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 subItem.isSidebar &&
                                 <div
                                   key={subItem.name}
-                                  onMouseEnter={!isMobile ? () => handleSubNavMouseEnter(subItem.name) : undefined}
-                                  onMouseLeave={!isMobile ? handleSubNavMouseLeave : undefined}
+                                  className="side-nav"
                                 >
                                   {subItem.titleName &&
                                     <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
@@ -356,6 +421,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           onClick={(e) => {
                                             if (subItem.subMenu) {
                                               e.preventDefault();
+                                              handleSubNavItemClick(subItem.name);
                                             }
                                           }}
                                           className={({ isActive }) =>
@@ -381,8 +447,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                       )}
                                   </Can>
                                   {subItem.isHr && <hr className="my-3" />}
-                                  {hoveredSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
-                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01">
+                                  {!isMobile && activeSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
+                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01 side-nav">
                                       {subItem.subNav.map((subSubItem) => (
                                         subSubItem.isSidebar &&
                                         <div>
@@ -455,7 +521,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           </button>)}
           
           <div className="px-4 sm:px-6 relative min-h-screen z-10">
-            {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
+            {(!isMobile && activeNavItem === "Администрирование" || activeNavItem === "Мониторинг") && (
               <div className="absolute z-10 inset-0 bg-background01/65"></div>
             )}
 
@@ -479,7 +545,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                       {location.pathname === "/finance/timesheet/view"
                         ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
                           : activePageName === "createDo"
-                            ? t(`routes.${document}`)
+                            ? t(`routes.${doc}`)
                             : t(`routes.${activePageName}`)}
                     </span>
                     {
@@ -511,15 +577,6 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     type="outline"
                     classname="mr-2"
                     handleClick={() => navigate('/warehouse/inventory/import')}
-                  />
-                )}
-                {activePage?.name === "clients" && (
-                  <Button
-                    title={isMobile ? "" : t("routes.importClients")}
-                    type="outline"
-                    classname="mr-2"
-                    iconPlus={true}
-                    handleClick={() => navigate('/marketing/clients/import')}
                   />
                 )}
                 <Can

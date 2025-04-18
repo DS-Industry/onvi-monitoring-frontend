@@ -11,22 +11,22 @@ import MultilineInput from "@/components/ui/Input/MultilineInput";
 import CalendarComponent from "@/components/ui/Calendar/CalendarComponent";
 import { useButtonCreate } from "@/components/context/useContext";
 import type { DatePickerProps } from 'antd';
-import { DatePicker } from 'antd';
+import { DatePicker, Skeleton } from 'antd';
 import useSWR, { mutate } from "swr";
-import { getPositions, getWorkerById, updateWorker } from "@/services/api/hr";
+import { getPositions, getWorkerById, getWorkers, updateWorker } from "@/services/api/hr";
 import useSWRMutation from "swr/mutation";
 
 type UpdateWorkerRequest = {
-    workerId: number;
-    hrPositionId?: number;
-    placementId?: number;
+    workerId: string;
+    hrPositionId?: string;
+    placementId?: string;
     startWorkDate?: Date;
     phone?: string;
     email?: string;
     description?: string;
-    monthlySalary?: number;
-    dailySalary?: number;
-    percentageSalary?: number;
+    monthlySalary?: string;
+    dailySalary?: string;
+    percentageSalary?: string;
     gender?: string;
     citizenship?: string;
     passportSeries?: string;
@@ -44,6 +44,9 @@ const EmployeeProfile: React.FC = () => {
     const [activeTab, setActiveTab] = useState('info');
     const { buttonOn } = useButtonCreate();
     const location = useLocation();
+    const [workerId, setWorkerId] = useState(location.state.ownerId);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -57,39 +60,42 @@ const EmployeeProfile: React.FC = () => {
         return words.slice(0, 2).map(word => word[0].toUpperCase()).join("");
     }
 
-    const employeeDetails = [
-        { fullName: "Иванова Екатерина Валерьевна", job: t("hr.accountant") },
-        { fullName: "Сидоров Егор Андреевич", job: t("hr.washer") },
-        { fullName: "Попов Антон Владимирович", job: t("hr.washer") },
-        { fullName: "Антонов Антон Антонович", job: t("hr.washer") },
-        { fullName: "Иванов Константин Петрович", job: t("hr.lineOperator") },
-        { fullName: "Семенов Семен Аркадьевич ич", job: t("hr.lineOperator") },
-        { fullName: "Семенов Семен Аркадьевич ич", job: t("hr.lineOperator") },
-        { fullName: "Семенов Семен Аркадьевич ич", job: t("hr.lineOperator") }
-    ].filter((emp) => emp.fullName.toLowerCase().includes(searchEmp.toLowerCase()));
+
+    const { data: employeeData, isLoading: loadingEmployee, isValidating } = useSWR(workerId !== 0 ? [`get-employee-by-id`, workerId] : null, () => getWorkerById(workerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const employee = employeeData?.props;
+
+    const { data: workersData, isLoading: loadingWorkers, isValidating: validatingWorkers } = useSWR([`get-workers`, employee], () => getWorkers({
+        placementId: "*",
+        hrPositionId: "*",
+        organizationId: "*",
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const employeeDetails = workersData?.map((worker) => ({
+        fullName: worker.props.name,
+        job: positions.find((pos) => pos.value === worker.props.hrPositionId)?.name,
+        workerId: worker.props.id,
+        avatar: worker.props.avatar
+    })).filter((emp) => emp.fullName.toLowerCase().includes(searchEmp.toLowerCase())) || [];
 
     const tabs = [
         { id: 'info', name: t("hr.info") },
         { id: 'addi', name: t("hr.addi") },
         { id: 'salary', name: t("hr.salary") },
-        { id: 'sch', name: t("finance.sch") }
+        // { id: 'sch', name: t("finance.sch") }
     ];
-
-    const { data: employeeData } = useSWR(location.state.ownerId !== 0 ? [`get-employee-by-id`] : null, () => getWorkerById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const employee = employeeData?.props;
 
     const defaultValues: UpdateWorkerRequest = {
         workerId: location.state.ownerId,
-        hrPositionId: 0,
-        placementId: 0,
+        hrPositionId: '',
+        placementId: '',
         startWorkDate: undefined,
         phone: undefined,
         email: undefined,
         description: undefined,
-        monthlySalary: 0,
-        dailySalary: 0,
-        percentageSalary: 0,
+        monthlySalary: '',
+        dailySalary: '',
+        percentageSalary: '',
         gender: undefined,
         citizenship: undefined,
         passportSeries: undefined,
@@ -99,6 +105,13 @@ const EmployeeProfile: React.FC = () => {
         inn: undefined,
         snils: undefined
     }
+
+    useEffect(() => {
+        if (employee?.avatar)
+            setImagePreview("https://storage.yandexcloud.net/onvi-business/avatar/worker/" + employee.avatar);
+        else
+            setImagePreview(null);
+    }, [employee?.avatar])
 
     const scheduleValues = {
         sch: 0,
@@ -130,6 +143,10 @@ const EmployeeProfile: React.FC = () => {
                 workerId: employee.id,
                 inn: employee.inn === null ? undefined : employee.inn,
                 snils: employee.snils === null ? undefined : employee.snils,
+                phone: employee.phone === null ? undefined : employee.phone,
+                email: employee.email === null ? undefined : employee.email,
+                description: employee.description === null ? undefined : employee.description,
+                citizenship: employee.citizenship === null ? undefined : employee.citizenship,
                 passportSeries: employee.passportSeries === null ? undefined : employee.passportSeries,
                 passportExtradition: employee.passportExtradition === null ? undefined : employee.passportExtradition,
                 passportNumber: employee.passportNumber === null ? undefined : employee.passportNumber,
@@ -159,7 +176,7 @@ const EmployeeProfile: React.FC = () => {
         passportDateIssue: formData.passportDateIssue,
         inn: formData.inn,
         snils: formData.snils
-    }));
+    }, selectedFile));
 
     type FieldType = "workerId" | "description" | "hrPositionId" | "placementId" | "startWorkDate" | "phone" | "email" | "monthlySalary" | "dailySalary" | "percentageSalary" | "gender" | "citizenship" | "passportSeries" | "passportNumber" | "passportExtradition" | "passportDateIssue" | "inn" | "snils";
 
@@ -170,6 +187,20 @@ const EmployeeProfile: React.FC = () => {
         setValue(field, value);
     };
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] || null;
+        setSelectedFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
+    };
+
     const onSubmit = async (data: unknown) => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
@@ -178,7 +209,7 @@ const EmployeeProfile: React.FC = () => {
             const result = await updateEmp();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-employee-by-id`]);
+                mutate([`get-employee-by-id`, workerId]);
             } else {
                 throw new Error('Invalid response from API');
             }
@@ -257,11 +288,24 @@ const EmployeeProfile: React.FC = () => {
                         onChange={(value) => setSearchEmp(value)}
                     />
                     <div className="w-full md:w-60 max-h-[480px] overflow-y-auto">
-                        {employeeDetails.map((emp) => (
-                            <div className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer">
-                                <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
-                                    {getInitials(emp.fullName)}
+                        {loadingWorkers || validatingWorkers ? (
+                            [...Array(5)].map((_, index) => (
+                                <div key={index} className="flex flex-col space-y-4 mb-4">
+                                    <Skeleton.Input style={{ width: '20%' }} active={true} />
+                                    <Skeleton.Input style={{ width: '30%' }} active={true} />
                                 </div>
+                            ))
+                        ) : employeeDetails.map((emp) => (
+                            <div className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer" onClick={() => setWorkerId(emp.workerId)}>
+                                {emp.avatar ? (
+                                    <img
+                                        src={"https://storage.yandexcloud.net/onvi-business/avatar/worker/" + emp.avatar}
+                                        alt="Profile"
+                                        className="rounded-full w-10 h-10 object-cover"
+                                    />
+                                ) : <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
+                                    {getInitials(emp.fullName)}
+                                </div>}
                                 <div>
                                     <div className="text-text01 font-semibold max-w-44 truncate overflow-hidden whitespace-nowrap">{emp.fullName}</div>
                                     <div className="text-text02 text-sm">{emp.job}</div>
@@ -269,12 +313,6 @@ const EmployeeProfile: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    <Button
-                        title={t("routes.addE")}
-                        iconPlus={true}
-                        type="outline"
-                        classname="w-full"
-                    />
                 </div>
                 <div className="px-4 w-full">
                     <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-fit overflow-x-auto">
@@ -289,7 +327,16 @@ const EmployeeProfile: React.FC = () => {
                         ))}
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="mt-4">
+                        {loadingEmployee || isValidating ? (
+                            <div className="mt-4">
+                                {[...Array(5)].map((_, index) => (
+                                    <div key={index} className="flex flex-col space-y-4 mb-4">
+                                        <Skeleton.Input style={{ width: '20%' }} active={true} />
+                                        <Skeleton.Input style={{ width: '30%' }} active={true} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : <div className="mt-4">
                             {activeTab === 'info' && (
                                 <div className="space-y-4">
                                     <div>
@@ -351,7 +398,25 @@ const EmployeeProfile: React.FC = () => {
                                     />
                                     <div>
                                         <div className="text-sm text-text02">{t("profile.photo")}</div>
-                                        <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">{getInitials(employee?.name || "")}</div>
+                                        <label className="cursor-pointer">
+                                            {imagePreview ? (
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Profile"
+                                                    className="rounded-full w-10 h-10 object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
+                                                    {getInitials(employee?.name || "")}
+                                                </div>
+                                            )}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                            />
+                                        </label>
                                     </div>
                                 </div>
                             )}
@@ -598,7 +663,7 @@ const EmployeeProfile: React.FC = () => {
                                     </button>
                                 </div>
                             </div>)}
-                        </div>
+                        </div>}
                     </form>
                 </div>
             </div>

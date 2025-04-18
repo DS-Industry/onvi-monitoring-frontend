@@ -26,7 +26,7 @@ const Positions: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editPositionId, setEditPositionId] = useState<number>(0);
 
-    const { data: positionData, isLoading: positionLoading } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: positionData, isLoading: positionLoading, isValidating } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     // const positions: { name: string, value: string, render: JSX.Element }[] = [
     //     {
@@ -154,7 +154,7 @@ const Positions: React.FC = () => {
 
     return (
         <div>
-            {positionLoading ? (
+            {positionLoading || isValidating ? (
                 <TableSkeleton columnCount={columnsPositions.length} />
             ) : positionsData.length > 0 ? (
                 <div className="mt-8">
@@ -174,7 +174,7 @@ const Positions: React.FC = () => {
                     </NoDataUI>
                 </div>
             )}
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
                     <div className="flex">
@@ -184,6 +184,7 @@ const Positions: React.FC = () => {
                     </div>
                     <Input
                         title={`${t("hr.name")}*`}
+                        label={t("hr.enter")}
                         type={"text"}
                         classname="w-80"
                         value={formData.name}
