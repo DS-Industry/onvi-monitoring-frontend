@@ -145,6 +145,7 @@ const EmployeeProfile: React.FC = () => {
                 snils: employee.snils === null ? undefined : employee.snils,
                 phone: employee.phone === null ? undefined : employee.phone,
                 email: employee.email === null ? undefined : employee.email,
+                gender: employee.gender === null ? undefined : employee.gender,
                 description: employee.description === null ? undefined : employee.description,
                 citizenship: employee.citizenship === null ? undefined : employee.citizenship,
                 passportSeries: employee.passportSeries === null ? undefined : employee.passportSeries,

@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getOrganization } from "@/services/api/organization";
-import { calculatePayment, createPayment, getPositions } from "@/services/api/hr";
+import { calculatePrepayment, createPrepayment, getPositions } from "@/services/api/hr";
 import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
@@ -28,16 +28,12 @@ type PaymentsCreation = {
     monthlySalary: number;
     dailySalary: number;
     percentageSalary: number;
-    prepaymentSum: number;
-    prepaymentCountShifts: number;
     paymentDate: Date;
     countShifts: number;
     sum: number;
-    prize: number;
-    fine: number;
 }
 
-const SalaryCalculationCreation: React.FC = () => {
+const EmployeeAdvanceCreation: React.FC = () => {
     const { t } = useTranslation();
     const city = useCity();
     const navigate = useNavigate();
@@ -61,7 +57,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-    const { trigger: calculateSal, isMutating: calculatingSal } = useSWRMutation(['calculate-salary'], async () => calculatePayment({
+    const { trigger: calculateSal, isMutating: calculatingSal } = useSWRMutation(['calculate-salary'], async () => calculatePrepayment({
         organizationId: formData.organizationId,
         billingMonth: formData.billingMonth,
         hrPositionId: formData.hrPositionId
@@ -76,12 +72,10 @@ const SalaryCalculationCreation: React.FC = () => {
                     billingMonth: Date;
                     countShifts: number;
                     sum: number;
-                    prize: number;
-                    fine: number;
                 }[]
             }
         }) => {
-            return createPayment(arg);
+            return createPrepayment(arg);
         });
 
     type FieldType = "organizationId" | "billingMonth" | "hrPositionId";
@@ -136,16 +130,12 @@ const SalaryCalculationCreation: React.FC = () => {
             billingMonth: Date;
             countShifts: number;
             sum: number;
-            prize: number;
-            fine: number;
         }[] = paymentsData?.map((data) => ({
             hrWorkerId: data.hrWorkerId,
             paymentDate: data.paymentDate,
             billingMonth: data.billingMonth,
             countShifts: Number(data.countShifts),
-            sum: data.monthlySalary + data.dailySalary * data.countShifts - data.prepaymentSum,
-            prize: Number(data.prize),
-            fine: Number(data.fine)
+            sum: Number(data.sum)
         })) || [];
 
         console.log("Payload for API:", paymentCreate);
@@ -190,16 +180,6 @@ const SalaryCalculationCreation: React.FC = () => {
             type: "number"
         },
         {
-            label: "Выплачено аванс",
-            key: "prepaymentSum",
-            type: "number"
-        },
-        {
-            label: "Количество отработанных смен аванс",
-            key: "prepaymentCountShifts",
-            type: "number"
-        },
-        {
             label: "Количество отработанных смен",
             key: "countShifts",
             render: (row: { countShifts: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
@@ -212,43 +192,16 @@ const SalaryCalculationCreation: React.FC = () => {
             ),
         },
         {
-            label: "Количество отработанных смен итог",
-            key: "totalCountShifts",
-            type: "number"
-        },
-        {
             label: "Выплачено ЗП",
             key: "sum",
-            type: "number"
-        },
-        {
-            label: "Премия",
-            key: "prize",
-            render: (row: { prize: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+            render: (row: { sum: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     type="number"
                     placeholder="00,00"
-                    value={row.prize}
-                    changeValue={(e) => handleChange(row.id, "prize", e.target.value)}
+                    value={row.sum}
+                    changeValue={(e) => handleChange(row.id, "sum", e.target.value)}
                 />
             ),
-        },
-        {
-            label: "Штраф",
-            key: "fine",
-            render: (row: { fine: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    type="number"
-                    placeholder="00,00"
-                    value={row.fine}
-                    changeValue={(e) => handleChange(row.id, "fine", e.target.value)}
-                />
-            ),
-        },
-        {
-            label: "Выплачено итог",
-            key: "totalPayment",
-            type: "number"
         },
         {
             label: "Дата выдачи",
@@ -348,4 +301,4 @@ const SalaryCalculationCreation: React.FC = () => {
     )
 }
 
-export default SalaryCalculationCreation;
+export default EmployeeAdvanceCreation;

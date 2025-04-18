@@ -76,6 +76,7 @@ import EmployeeProfile from "@/pages/Hr/EmployeeProfile";
 import SalaryCalculationCreation from "@/pages/Hr/SalaryCalculationCreation";
 import Notifications from "@/pages/Notifications/Notifications";
 import RewardsCreation from "@/pages/Marketing/RewardsCreation";
+import EmployeeAdvanceCreation from "@/pages/Hr/EmployeeAdvanceCreation";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -157,7 +158,8 @@ const routes = [
       { name: "positions", filter: false, addButton: true, addButtonText: "new", isVisible: true, path: "/hr/positions", component: Positions, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: true, titleName: "", subNav: [], subMenu: false },
       { name: "salary", filter: true, addButton: true, addButtonText: "calc", isVisible: true, path: "/hr/salary", component: SalaryCalculation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "reports", subNav: [], subMenu: false },
       { name: "sal", filter: false, addButton: false, addButtonText: "calc", isVisible: true, path: "/hr/salary/creation", component: SalaryCalculationCreation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "reports", subNav: [], subMenu: false },
-      { name: "empAdv", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance", component: EmployeeAdvance, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
+      { name: "empAdv", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance", component: EmployeeAdvance, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "empAdv", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance/creation", component: EmployeeAdvanceCreation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
     ]
   },
   {

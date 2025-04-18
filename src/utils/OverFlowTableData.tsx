@@ -1336,3 +1336,202 @@ export const columnsLoyaltyPrograms = [
     type: "date"
   }
 ]
+
+export const columnsPayments = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Месяц расчёта",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "number"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "number"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "number"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    type: "number"
+  },
+  {
+    label: "Выплачено аванс",
+    key: "prepaymentSum",
+    type: "number"
+  },
+  {
+    label: "Выплачено ЗП",
+    key: "paymentSum",
+    type: "number"
+  },
+  {
+    label: "Премия",
+    key: "prize",
+    type: "number"
+  },
+  {
+    label: "Штраф",
+    key: "fine",
+    type: "number"
+  },
+  {
+    label: "Выплачено итог",
+    key: "totalPayment",
+    type: "number"
+  }
+]
+
+export const columnsPrePayments = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Расчетный месяц",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Дата выдачи",
+    key: "paymentDate",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "number"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "number"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "number"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    type: "number"
+  },
+  {
+    label: "Выплачено",
+    key: "sum",
+    type: "number"
+  }
+]
+
+export const columnsPaymentsCreation = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Месяц расчёта",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "number"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "number"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "number"
+  },
+  {
+    label: "Выплачено аванс",
+    key: "prepaymentSum",
+    type: "number"
+  },
+  {
+    label: "Количество отработанных смен аванс",
+    key: "prepaymentCountShifts",
+    type: "number"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    render: (row: { countShifts: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.countShifts}
+        changeValue={(e) => handleChange(row.id, "countShifts", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Количество отработанных смен итог",
+    key: "totalCountShifts",
+    type: "number"
+  },
+  {
+    label: "Выплачено ЗП",
+    key: "sum",
+    type: "number"
+  },
+  {
+    label: "Премия",
+    key: "prize",
+    render: (row: { prize: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.prize}
+        changeValue={(e) => handleChange(row.id, "prize", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Штраф",
+    key: "fine",
+    render: (row: { fine: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.fine}
+        changeValue={(e) => handleChange(row.id, "fine", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Выплачено итог",
+    key: "totalPayment",
+    type: "number"
+  }
+]

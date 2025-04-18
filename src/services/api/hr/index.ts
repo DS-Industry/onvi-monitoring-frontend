@@ -135,10 +135,10 @@ type PrepaymentCreateResponse = {
 }
 
 type PrepaymentFilter = {
-    startPaymentDate: Date | '*';
-    endPaymentDate: Date | '*';
-    hrWorkerId: number | '*';
-    billingMonth: Date | '*';
+    startPaymentDate: Date | string;
+    endPaymentDate: Date | string;
+    hrWorkerId: number | string;
+    billingMonth: Date | string;
     page?: number;
     size?: number;
 }

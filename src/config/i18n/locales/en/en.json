@@ -841,7 +841,9 @@
     "passportExtradition": "Passport Extradition",
     "passportDateIssue": "Passport Date Issue",
     "snils": "SNILS",
-    "update": "Update a Position"
+    "update": "Update a Position",
+    "startPaymentDate": "Date of Issue",
+    "billing": "Billing Month"
   },
   "notifications": {
     "fav": "Favorite",

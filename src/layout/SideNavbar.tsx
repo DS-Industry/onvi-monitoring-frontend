@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Layout } from "antd";
 import onvi from "../assets/onvi.png";
@@ -122,17 +122,17 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   const handleClickOutside = (e: MouseEvent) => {
     if (isMobile) return; // Skip for mobile
-    
+
     const sideBar = document.getElementById('sidebar');
     const sideNavs = document.querySelectorAll('.side-nav');
     let isInsideSidebar = false;
-    
+
     sideNavs.forEach(element => {
       if (element.contains(e.target as Node)) {
         isInsideSidebar = true;
       }
     });
-    
+
     if (sideBar && !sideBar.contains(e.target as Node) && !isInsideSidebar) {
       setActiveNavItem(null);
       setActiveSubNavItem(null);
@@ -160,13 +160,19 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     setSnackbarFunction(showSnackbar);
   }, [showSnackbar]);
 
+  const hoverRef = useRef(false);
+
+  useEffect(() => {
+    hoverRef.current = isHovered;
+  }, [isHovered]);
+
   // Add effect to handle hover state changes
   useEffect(() => {
     if (!isMobile && isHovered && !isOpen) {
       // Open sidebar when hovered
       setIsOpen(true);
     }
-  }, [isHovered, isMobile]);
+  }, [isHovered, isMobile, isOpen]);
 
   const getRequiredPermissions = (path: string) => {
     if (path.includes("administration"))
@@ -219,7 +225,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           onClick={() => setIsOpen(false)} // Close sidebar when clicking outside
         ></div>
       )}
-      
+
       <Sider
         id="sidebar"
         theme="dark"
@@ -229,8 +235,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         width={256}
         collapsedWidth={80}
         className="fixed h-full z-50"
-        style={{ 
-          background: "#1c1917", 
+        style={{
+          background: "#1c1917",
           height: "100%",
           left: isMobile ? (isOpen ? 0 : -80) : 0,
           transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
@@ -240,14 +246,13 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         onMouseLeave={() => {
           if (!isMobile) {
             setIsHovered(false);
-            // Add delay before closing to improve UX
             setTimeout(() => {
-              if (!isHovered) {
+              if (!hoverRef.current) {  
                 setIsOpen(false);
                 setActiveNavItem(null);
                 setActiveSubNavItem(null);
               }
-            }, 300);
+            }, 300); // Smooth UX delay
           }
         }}
       >
@@ -277,8 +282,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                         <div
                           key={item.name}
                           className="side-nav"
-                          onMouseEnter={isMobile ? undefined : () => {}}
-                          onMouseLeave={isMobile ? undefined : () => {}}
+                          onMouseEnter={isMobile ? undefined : () => { }}
+                          onMouseLeave={isMobile ? undefined : () => { }}
                         >
                           <NavLink
                             to={item.subMenu ? '#' : item.path}
@@ -492,7 +497,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div
               className={`flex items-center ${!isOpen && "justify-center"
                 } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
-                onClick={handleNotificationsNavigate}
+              onClick={handleNotificationsNavigate}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
               {isOpen && <span>{t("routes.notifications")}</span>}
@@ -510,7 +515,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           </div>
         </div>
       </Sider>
-      
+
       <Layout style={{ marginLeft: isMobile ? 80 : (isOpen ? 256 : 80), transition: "all 0.3s" }}>
         <Content className="min-h-screen bg-white">
           {isMobile && (<button
@@ -519,7 +524,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           >
             {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
           </button>)}
-          
+
           <div className="px-4 sm:px-6 relative min-h-screen z-10">
             {(!isMobile && activeNavItem === "Администрирование" || activeNavItem === "Мониторинг") && (
               <div className="absolute z-10 inset-0 bg-background01/65"></div>
@@ -544,9 +549,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     <span className="text-xl sm:text-3xl font-normal text-text01">
                       {location.pathname === "/finance/timesheet/view"
                         ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
-                          : activePageName === "createDo"
-                            ? t(`routes.${doc}`)
-                            : t(`routes.${activePageName}`)}
+                        : activePageName === "createDo"
+                          ? t(`routes.${doc}`)
+                          : t(`routes.${activePageName}`)}
                     </span>
                     {
                       activePageName === "bonus"

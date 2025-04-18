@@ -1,7 +1,6 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
