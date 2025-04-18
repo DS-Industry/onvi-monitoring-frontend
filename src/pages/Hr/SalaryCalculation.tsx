@@ -10,7 +10,7 @@ import { getPayments, getPositions, getWorkers } from "@/services/api/hr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsPayments } from "@/utils/OverFlowTableData";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { DatePicker, Select } from "antd";
+import { DatePicker, Select, TimePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useCurrentPage, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore";
 
@@ -30,12 +30,46 @@ const SalaryCalculation: React.FC = () => {
     const [startPaymentDate, setStartPaymentDate] = useState<Dayjs | null>(null);
     const [endPaymentDate, setEndPaymentDate] = useState<Dayjs | null>(null);
     const [workerId, setWorkerId] = useState<number | string>("*");
-    const [billingMonth, setBillingMonth] = useState<Dayjs | null>(null);
     const [isTableLoading, setIsTableLoading] = useState(false);
     const pageNumber = usePageNumber();
     const setPageNumber = useSetPageNumber();
     const currentPage = useCurrentPage();
     const { filterOn } = useFilterOn();
+
+    type DateField = 'startPaymentDate' | 'endPaymentDate';
+
+    const handleDateChange = (field: DateField, date: Dayjs | null) => {
+        if (!date) {
+            updateDateField(field, null);
+            return;
+        }
+
+        const existingValue = field === 'startPaymentDate' ? startPaymentDate : endPaymentDate;
+        const updated = existingValue
+            ? date.set('hour', existingValue.hour()).set('minute', existingValue.minute())
+            : date;
+
+        updateDateField(field, updated);
+    };
+
+    const handleTimeChange = (field: DateField, time: Dayjs | null) => {
+        if (!time) return;
+
+        const existingValue = field === 'startPaymentDate' ? startPaymentDate : endPaymentDate;
+        const updated = existingValue
+            ? existingValue.set('hour', time.hour()).set('minute', time.minute())
+            : dayjs().set('hour', time.hour()).set('minute', time.minute());
+
+        updateDateField(field, updated);
+    };
+
+    const updateDateField = (field: DateField, value: Dayjs | null) => {
+        if (field === 'startPaymentDate') {
+            setStartPaymentDate(value);
+        } else {
+            setEndPaymentDate(value);
+        }
+    };
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -57,7 +91,7 @@ const SalaryCalculation: React.FC = () => {
         startPaymentDate: startPaymentDate ? startPaymentDate.toDate() : "*",
         endPaymentDate: endPaymentDate ? endPaymentDate.toDate() : "*",
         hrWorkerId: workerId,
-        billingMonth: billingMonth ? billingMonth.toDate() : "*",
+        billingMonth: "*",
         page: currentPage,
         size: pageNumber
     }
@@ -86,14 +120,6 @@ const SalaryCalculation: React.FC = () => {
 
         if (newFilterData.hrWorkerId) setWorkerId(newFilterData.hrWorkerId);
 
-        if (newFilterData.billingMonth) {
-            setBillingMonth(
-                typeof newFilterData.billingMonth === "string"
-                    ? dayjs(newFilterData.billingMonth)
-                    : dayjs(newFilterData.billingMonth)
-            );
-        }
-
         if (newFilterData.size) setPageNumber(newFilterData.size);
     };
 
@@ -102,7 +128,7 @@ const SalaryCalculation: React.FC = () => {
             startPaymentDate: startPaymentDate?.toDate(),
             endPaymentDate: endPaymentDate?.toDate(),
             hrWorkerId: workerId,
-            billingMonth: billingMonth?.toDate(),
+            billingMonth: "*",
             page: currentPage,
             size: pageNumber
         })
@@ -116,7 +142,6 @@ const SalaryCalculation: React.FC = () => {
         setStartPaymentDate(null);
         setEndPaymentDate(null);
         setWorkerId("*");
-        setBillingMonth(null);
     }
 
     const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
@@ -125,7 +150,13 @@ const SalaryCalculation: React.FC = () => {
         organizationId: "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const workers: { label: string; value: number; }[] = workersData?.map((work) => ({ label: work.props.name, value: work.props.id })) || [];
+    const workers: { label: string; value: number | "*"; }[] = [
+        { label: t("hr.all"), value: "*" },
+        ...(workersData?.map((work) => ({
+            label: work.props.name,
+            value: work.props.id
+        })) || [])
+    ];
 
     useEffect(() => {
         if (buttonOn)
@@ -137,25 +168,42 @@ const SalaryCalculation: React.FC = () => {
             <Filter count={payments.length} hideDateTime={true} hideCity={true} hideSearch={true} handleClear={handleClear}>
                 <div className="flex flex-col">
                     <label className="text-sm text-text02">{t("hr.startPaymentDate")}</label>
-                    <DatePicker
-                        showTime
-                        value={startPaymentDate}
-                        onChange={(value) => setStartPaymentDate(value)}
-                        placeholder={"Select Date"}
-                        className="w-64"
-                        format="YYYY-MM-DD HH:mm"
-                    />
+                    <div className="flex space-x-2">
+                        <DatePicker
+                            value={startPaymentDate}
+                            onChange={(date) => handleDateChange('startPaymentDate', date)}
+                            placeholder="Select Date"
+                            className="w-40"
+                            format="YYYY-MM-DD"
+                        />
+                        <TimePicker
+                            value={startPaymentDate}
+                            onChange={(time) => handleTimeChange('startPaymentDate', time)}
+                            placeholder="Select Time"
+                            className="w-40"
+                            format="HH:mm"
+                        />
+                    </div>
                 </div>
+
                 <div className="flex flex-col">
-                    <label className="text-sm text-text02">{t("hr.startPaymentDate")}</label>
-                    <DatePicker
-                        showTime
-                        value={endPaymentDate}
-                        onChange={(value) => setEndPaymentDate(value)}
-                        placeholder={"Select Date"}
-                        className="w-64"
-                        format="YYYY-MM-DD HH:mm"
-                    />
+                    <label className="text-sm text-text02">{t("hr.endPaymentDate")}</label>
+                    <div className="flex space-x-2">
+                        <DatePicker
+                            value={endPaymentDate}
+                            onChange={(date) => handleDateChange('endPaymentDate', date)}
+                            placeholder="Select Date"
+                            className="w-40"
+                            format="YYYY-MM-DD"
+                        />
+                        <TimePicker
+                            value={endPaymentDate}
+                            onChange={(time) => handleTimeChange('endPaymentDate', time)}
+                            placeholder="Select Time"
+                            className="w-40"
+                            format="HH:mm"
+                        />
+                    </div>
                 </div>
                 <div>
                     <div className="text-sm text-text02">{t("routes.employees")}</div>
@@ -170,16 +218,6 @@ const SalaryCalculation: React.FC = () => {
                                 {menu}
                             </div>
                         )}
-                    />
-                </div>
-                <div className="flex flex-col">
-                    <label className="text-sm text-text02">{t("hr.billing")}</label>
-                    <DatePicker
-                        value={billingMonth}
-                        onChange={(value) => setBillingMonth(value)}
-                        placeholder={"Select Date"}
-                        className="w-49"
-                        format="YYYY-MM-DD"
                     />
                 </div>
             </Filter>

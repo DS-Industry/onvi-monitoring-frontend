@@ -843,7 +843,9 @@
     "snils": "СНИЛС",
     "update": "Обновить позицию",
     "startPaymentDate": "Дата выдачи",
-    "billing": "Расчётный месяц"
+    "billing": "Расчётный месяц",
+    "all": "Все сотрудники",
+    "endPaymentDate": "Дата завершения"
   },
   "notifications": {
     "fav": "Избранное",

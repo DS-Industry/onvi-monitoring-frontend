@@ -12,6 +12,7 @@ import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { useNavigate } from "react-router-dom";
+import { Button as AntDButton, message } from "antd";
 
 type PaymentCalculateBody = {
     organizationId: number;
@@ -20,6 +21,7 @@ type PaymentCalculateBody = {
 }
 
 type PaymentsCreation = {
+    check: boolean;
     id: number;
     hrWorkerId: number;
     name: string;
@@ -106,6 +108,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 setPaymentsData(result.map((res, index) => ({
                     ...res,
                     paymentDate: new Date(),
+                    check: false,
                     countShifts: 0,
                     prize: 0,
                     fine: 0,
@@ -123,6 +126,20 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
     const handlePaymentCreation = async () => {
         console.log("Final Task Values:", paymentsData);
+
+        for (let i = 0; i < paymentsData.length; i++) {
+            const item = paymentsData[i];
+            const errors = [];
+    
+            if (!item.paymentDate) errors.push("Дата выдачи");
+            if (item.countShifts == null || item.countShifts <= 0) errors.push("Количество отработанных смен");
+            if (item.sum == null || item.sum <= 0) errors.push("Выплачено ЗП");
+    
+            if (errors.length > 0) {
+                message.error(`Строка ${i + 1}: Заполните корректно поля: ${errors.join(", ")}`);
+                return;
+            }
+        }
 
         const paymentCreate: {
             hrWorkerId: number;
@@ -151,6 +168,20 @@ const EmployeeAdvanceCreation: React.FC = () => {
     };
 
     const columnsPaymentsCreation = [
+        {
+            label: "",
+            key: "check",
+            render: (row: { check: boolean | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: boolean) => void) => (
+                <input
+                    type="checkbox"
+                    checked={row.check}
+                    className="w-[18px] h-[18px]"
+                    onChange={() =>
+                        handleChange(row.id, "check", !row.check)
+                    }
+                />
+            ),
+        },
         {
             label: "ФИО",
             key: "name"
@@ -217,6 +248,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
         }
     ]
 
+    const deleteRow = () => {
+        setPaymentsData((prevData) => prevData.filter((row) => !row.check));
+    };
+
     return (
         <div>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -275,7 +310,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </form>
             {calculatingSal ? (
                 <TableSkeleton columnCount={columnsPaymentsCreation.length} />
-            ) : paymentsData.length > 0 ? (<div className="mt-8">
+            ) : paymentsData.length > 0 ? (<div className="mt-8 space-y-5">
+                <AntDButton onClick={deleteRow} danger>{t("marketing.delete")}</AntDButton>
                 <DynamicTable
                     data={paymentsData.map((item, index) => ({
                         ...item,
@@ -285,7 +321,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                     columns={columnsPaymentsCreation}
                     handleChange={handleTableChange}
                 />
-                <div className="mt-5">
+                <div>
                     <div className="flex space-x-4">
                         <Button
                             title={t("organizations.save")}
