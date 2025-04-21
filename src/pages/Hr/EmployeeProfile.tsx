@@ -87,15 +87,15 @@ const EmployeeProfile: React.FC = () => {
 
     const defaultValues: UpdateWorkerRequest = {
         workerId: location.state.ownerId,
-        hrPositionId: '',
-        placementId: '',
+        hrPositionId: undefined,
+        placementId: undefined,
         startWorkDate: undefined,
         phone: undefined,
         email: undefined,
         description: undefined,
-        monthlySalary: '',
-        dailySalary: '',
-        percentageSalary: '',
+        monthlySalary: undefined,
+        dailySalary: undefined,
+        percentageSalary: undefined,
         gender: undefined,
         citizenship: undefined,
         passportSeries: undefined,
@@ -498,7 +498,7 @@ const EmployeeProfile: React.FC = () => {
                             {activeTab === "salary" && (<div className="space-y-4">
                                 <Input
                                     title={`${t("hr.month")}`}
-                                    type={"number"}
+                                    type="number"
                                     classname="w-full md:w-44"
                                     showIcon={true}
                                     IconComponent={<div className="text-text02 text-xl">₽</div>}
@@ -509,7 +509,7 @@ const EmployeeProfile: React.FC = () => {
                                 />
                                 <Input
                                     title={`${t("hr.daily")}`}
-                                    type={"number"}
+                                    type="number"
                                     classname="w-full md:w-44"
                                     value={formData.dailySalary}
                                     changeValue={(e) => handleInputChange('dailySalary', e.target.value)}

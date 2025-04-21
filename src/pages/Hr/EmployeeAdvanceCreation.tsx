@@ -13,6 +13,10 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { useNavigate } from "react-router-dom";
 import { Button as AntDButton, message } from "antd";
+import ArrowUp from "@icons/ArrowUp.png";
+import ArrowDown from "@icons/ArrowDown.png";
+import NoDataUI from "@/components/ui/NoDataUI";
+import PositionEmpty from "@/assets/NoPosition.png";
 
 type PaymentCalculateBody = {
     organizationId: number;
@@ -47,8 +51,15 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
-
+    const positions: { label: string; value: number | "*"; name: string; }[] = [
+        { label: t("analysis.all"), value: "*", name: t("analysis.all") },
+        ...(positionData?.map((pos) => ({
+            label: pos.props.name,
+            value: pos.props.id,
+            name: pos.props.name
+        })) || [])
+    ];
+    
     const defaultValues: PaymentCalculateBody = {
         organizationId: 0,
         billingMonth: new Date(),
@@ -130,11 +141,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
         for (let i = 0; i < paymentsData.length; i++) {
             const item = paymentsData[i];
             const errors = [];
-    
+
             if (!item.paymentDate) errors.push("Дата выдачи");
             if (item.countShifts == null || item.countShifts <= 0) errors.push("Количество отработанных смен");
             if (item.sum == null || item.sum <= 0) errors.push("Выплачено ЗП");
-    
+
             if (errors.length > 0) {
                 message.error(`Строка ${i + 1}: Заполните корректно поля: ${errors.join(", ")}`);
                 return;
@@ -257,11 +268,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                     <DropdownInput
-                        title={t("finance.carWash")}
+                        title={t("warehouse.organization")}
                         options={organizations}
                         classname="w-64"
                         {...register('organizationId', {
-                            required: 'Pos ID is required',
+                            required: 'Organization Id is required',
                             validate: (value) =>
                                 (value !== 0) || "Organization Id is required"
                         })}
@@ -310,28 +321,59 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </form>
             {calculatingSal ? (
                 <TableSkeleton columnCount={columnsPaymentsCreation.length} />
-            ) : paymentsData.length > 0 ? (<div className="mt-8 space-y-5">
-                <AntDButton onClick={deleteRow} danger>{t("marketing.delete")}</AntDButton>
-                <DynamicTable
-                    data={paymentsData.map((item, index) => ({
-                        ...item,
-                        id: index,
-                        hrPosition: positions.find((pos) => pos.value === item.hrPositionId)?.name || ""
-                    }))}
-                    columns={columnsPaymentsCreation}
-                    handleChange={handleTableChange}
-                />
-                <div>
-                    <div className="flex space-x-4">
-                        <Button
-                            title={t("organizations.save")}
-                            isLoading={creatingSal}
-                            handleClick={handlePaymentCreation}
-                        />
+            ) : paymentsData.length > 0 ? (
+                <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
+                    <div className="flex flex-wrap justify-between gap-2">
+                        <AntDButton onClick={deleteRow} danger>{t("marketing.delete")}</AntDButton>
+                        <div className="space-x-2">
+                            <button
+                                className="px-2 py-1 bg-background07/50 rounded"
+                                onClick={() => {
+                                    const sortedData = [...paymentsData].sort((a, b) => a.id - b.id);
+                                    setPaymentsData(sortedData);
+                                }}
+                            >
+                                <img src={ArrowUp} />
+                            </button>
+                            <button
+                                className="px-2 py-1 bg-background07/50 rounded"
+                                onClick={() => {
+                                    const sortedData = [...paymentsData].sort((a, b) => b.id - a.id);
+                                    setPaymentsData(sortedData);
+                                }}
+                            >
+                                <img src={ArrowDown} />
+                            </button>
+                        </div>
+                    </div>
+                    <DynamicTable
+                        data={paymentsData.map((item, index) => ({
+                            ...item,
+                            id: index,
+                            hrPosition: positions.find((pos) => pos.value === item.hrPositionId)?.name || ""
+                        }))}
+                        columns={columnsPaymentsCreation}
+                        handleChange={handleTableChange}
+                    />
+                    <div>
+                        <div className="flex space-x-4">
+                            <Button
+                                title={t("organizations.save")}
+                                isLoading={creatingSal}
+                                handleClick={handlePaymentCreation}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>) : (
-                <></>
+            ) : (
+                <div className="flex flex-col justify-center items-center">
+                    <NoDataUI
+                        title={t("marketing.nodata")}
+                        description={""}
+                    >
+                        <img src={PositionEmpty} className="mx-auto" />
+                    </NoDataUI>
+                </div>
             )}
         </div>
     )
