@@ -106,7 +106,7 @@ type UpdatePositionRequest = {
 
 type PrepaymentCalculateBody = {
     organizationId: number;
-    billingMonth: Date;
+    billingMonth: string;
     hrPositionId: number | '*';
 }
 

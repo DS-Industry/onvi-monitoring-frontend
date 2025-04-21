@@ -20,7 +20,7 @@ import PositionEmpty from "@/assets/NoPosition.png";
 
 type PaymentCalculateBody = {
     organizationId: number;
-    billingMonth: Date;
+    billingMonth: string;
     hrPositionId: number | '*';
 }
 
@@ -66,7 +66,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
     const defaultValues: PaymentCalculateBody = {
         organizationId: 0,
-        billingMonth: new Date(),
+        billingMonth: "",
         hrPositionId: "*"
     };
 
@@ -99,7 +99,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
     type FieldType = "organizationId" | "billingMonth" | "hrPositionId";
 
-    const handleInputChange = (field: FieldType, value: Date | number | "*") => {
+    const handleInputChange = (field: FieldType, value: string | number | "*") => {
         const numericFields = ['organizationId', 'hrPositionId'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
@@ -330,21 +330,18 @@ const SalaryCalculationCreation: React.FC = () => {
                         helperText={errors.organizationId?.message}
                     />
                     <Input
-                        type="date"
+                        type="month"
                         title={t("hr.billing")}
                         classname="w-40"
-                        value={
-                            formData.billingMonth instanceof Date
-                                ? formData.billingMonth.toISOString().split("T")[0]
-                                : ""
-                        }
-                        changeValue={(e) => handleInputChange('billingMonth', new Date(e.target.value))}
+                        value={formData.billingMonth}
+                        changeValue={(e) => handleInputChange('billingMonth', e.target.value)}
                         error={!!errors.billingMonth}
                         {...register('billingMonth', {
                             required: 'Billing Month is required'
                         })}
                         helperText={errors.billingMonth?.message || ''}
                     />
+
                     <DropdownInput
                         title={t("routes.employees")}
                         options={positions}
