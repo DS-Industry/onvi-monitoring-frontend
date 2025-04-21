@@ -4,11 +4,10 @@ import { useTranslation } from "react-i18next";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
-import { useCity, usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType, useSetCity } from "@/hooks/useAuthStore";
 import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsWarehouses } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -17,6 +16,8 @@ import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type WAREHOUSE = {
     name: string;
@@ -28,6 +29,7 @@ type WAREHOUSE = {
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
     const city = useCity();
+    const setCity = useSetCity();
     const posType = usePosType();
     const [posId, setPosId] = useState(posType);
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -36,7 +38,10 @@ const Warehouse: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData, isLoading: warehouseLoading } = useSWR([`get-warehouse`, posId], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData, isLoading: warehouseLoading } = useSWR([`get-warehouse`, posId, city], () => getWarehouses({
+        posId: posId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -101,20 +106,23 @@ const Warehouse: React.FC = () => {
 
     return (
         <div>
-            <Filter count={warehouses.length} hideCity={true} hideDateTime={true} hidePage={true} hideSearch={true}>
-                <DropdownInput
-                    title={t("marketing.carWash")}
-                    value={posId}
-                    options={poses}
-                    onChange={(value) => setPosId(value)}
-                />
+            <Filter count={warehouses.length} address={city} setAddress={setCity} hideDateTime={true} hidePage={true} hideSearch={true} handleClear={() => { setPosId("*") }}>
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={posId}
+                        onChange={(value) => setPosId(value)}
+                    />
+                </div>
             </Filter>
             {warehouseLoading ? (
                 <TableSkeleton columnCount={columnsWarehouses.length} />
             ) : warehouses.length > 0 ? (
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={warehouses}
+                    <DynamicTable
+                        data={warehouses}
                         columns={columnsWarehouses}
                     />
                 </div>
@@ -127,7 +135,7 @@ const Warehouse: React.FC = () => {
                         <img src={InventoryEmpty} className="mx-auto" />
                     </NoDataUI>
                 </div>)}
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.ware")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>

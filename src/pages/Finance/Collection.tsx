@@ -10,12 +10,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
 import { getCollections } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterCollection {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
+    posId: number | string;
     page?: number;
     size?: number;
 }
@@ -58,10 +58,11 @@ const Collection: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId ? dataFilter.posId : 66}`], () => getCollections(
-        dataFilter.posId ? dataFilter.posId : 66, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId}`], () => getCollections({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
+        posId: dataFilter.posId,
+        placementId: city,
         page: dataFilter.page,
         size: dataFilter.size
     }));
@@ -184,19 +185,18 @@ const Collection: React.FC = () => {
                 count={collectionsData.length}
                 posesSelect={poses}
                 hideSearch={true}
-                hideCity={true}
                 handleDataFilter={handleDataFilter}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columns.length} />)
                 :
                 transformedData.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={transformedData}
+                        <DynamicTable
+                            data={transformedData}
                             columns={columns}
                             isDisplayEdit={true}
                             showPagination={true}
-                            nameUrl="/finance/collection/creation"
+                            navigableFields={[{ key: "posName", getPath: () => "/finance/collection/creation" }]}
                         />
                     </div>
                 ) : (

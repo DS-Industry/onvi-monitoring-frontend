@@ -4,7 +4,6 @@ import { getProgramDevice } from "@/services/api/pos";
 import {
     columnsProgramDevice,
 } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import SalyIamge from "@/assets/Saly-45.svg?react";
@@ -12,6 +11,7 @@ import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterDepositDevice {
     dateStart: Date;
@@ -56,33 +56,53 @@ const ProgramDevice: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
     const posType = usePosType();
-
     const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setDeviceId(location.state.ownerId);
+        }
+    }, [location.state?.ownerId, setDeviceId]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         page: currentPage,
         size: pageSize,
-        deviceId: deviceId || location.state?.ownerId,
+        deviceId: deviceId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({ 
-            ...prevFilter, 
-            page: 1 
-        }));  
-    }, [location, setCurrentPage]);  
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-program-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getProgramDevice(
-        dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR(deviceId ? [`get-pos-program-pos-devices`, deviceId] : null, () => getProgramDevice(
+        deviceId ? deviceId : 0, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         page: dataFilter.page,
         size: dataFilter.size
     }));
+
+    const totalRecords = filter?.totalCount || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
+
     const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
@@ -116,8 +136,8 @@ const ProgramDevice: React.FC = () => {
         return item;
     }).sort((a, b) => a.props.id - b.props.id) || [];
 
-    const deviceOptional: { name: string; value: string }[] = deviceData.map(
-        (item) => ({ name: item.props.name, value: item.props.id.toString() })
+    const deviceOptional: { name: string; value: number; }[] = deviceData.map(
+        (item) => ({ name: item.props.name, value: item.props.id })
     );
 
     return (
@@ -128,14 +148,15 @@ const ProgramDevice: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideCity={true}
                 hideSearch={true}
+                hideReset={true}
             />
             {
                 isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
                     :
                     deviceProgram.length > 0 ? (
                         <div className="mt-8 overflow-hidden">
-                            <OverflowTable
-                                tableData={deviceProgram}
+                            <DynamicTable
+                                data={deviceProgram}
                                 columns={columnsProgramDevice}
                                 showPagination={true}
                             />

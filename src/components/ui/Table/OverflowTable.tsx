@@ -13,6 +13,7 @@ import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
 import { useTranslation } from "react-i18next";
+import Button from "../Button/Button.tsx";
 
 interface TableColumn {
   label: string;
@@ -91,7 +92,12 @@ const OverflowTable: React.FC<Props> = ({
 
   const formatNumber = (num: number): string => {
     if (isNaN(num)) return num.toString();
-    return new Intl.NumberFormat("en-US").format(num);
+
+    return new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: true
+    }).format(num);
   };
 
   const getActivePage = () => {
@@ -217,15 +223,22 @@ const OverflowTable: React.FC<Props> = ({
   return (
     <>
       <div className="w-full overflow-auto">
-        <div className="max-w-7xl overflow-x-auto">
+        <div className="max-w-full overflow-x-auto">
           {title && (
             <span
-              className="cursor-pointer"
+              className="cursor-pointer  flex justify-start sm:justify-end"
               onClick={() => navigate(`${nameUrlTitle}`, { state: { ownerId: urlTitleId } })}
             >
-              <div className=" text-xl md:text-2xl text-primary02">
+              {/* <div className=" text-xl md:text-2xl flex space-x-2 items-center text-primary02 hover:text-primary02_Hover hover:underline">
                 {title}
-              </div>
+                <Icon icon="arrow-up-right" className="w-6 h-6"/>
+              </div> */}
+              <Button
+                title={title}
+                type="outline"
+                classname="mb-2"
+                iconArrowDiognal={true}
+              />
             </span>
           )}
           <table className="w-full">
@@ -284,58 +297,62 @@ const OverflowTable: React.FC<Props> = ({
                     )}
                   </Can>
                   {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible">
-                      {(column.key === 'name' || column.key === 'posName') && nameUrl ? (
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm text-text01 overflow-hidden overflow-x-visible">
+                      {(column.key === 'name' || (column.key === 'posName' && !row.name)) && nameUrl ? (
                         <span
                           className="cursor-pointer"
                           onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
-                          <div className="whitespace-nowrap text-ellipsis overflow-hidden text-primary02">
+                          <div className="whitespace-nowrap flex items-center space-x-2 text-ellipsis overflow-hidden text-primary02 hover:text-primary02_Hover hover:underline">
                             {row[column.key]}
+                            <Icon icon="arrow-up-right" className="w-4 h-4"/>
                           </div>
                         </span>
                       ) : column.type === 'number' ? (
                         row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key])}</div> : '-'
-                      )
-                        : column.render ? column.render(row, handleChange)
-                          : renderCell ? renderCell(column, row)
-                            : column.key.toLocaleLowerCase().includes('status') ? (
-                              <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
+                      ) :
+                        column.type === 'percent' ? (
+                          row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${formatNumber(row[column.key])}%`}</div> : '-'
+                        )
+                          : column.render ? column.render(row, handleChange)
+                            : renderCell ? renderCell(column, row)
+                              : column.key.toLocaleLowerCase().includes('status') ? (
+                                <div className={`flex items-center justify-center gap-2 whitespace-nowrap text-ellipsis overflow-hidden
                              ${(row[column.key] === t("tables.ACTIVE") || row[column.key] === t("tables.SENT") || row[column.key] === t("analysis.DONE")) ? "text-[#00A355]" :
-                                  row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
+                                    row[column.key] === t("tables.OVERDUE") || row[column.key] === t("analysis.ERROR") ? "text-errorFill" : row[column.key] === t("tables.SAVED") || row[column.key] === t("analysis.PROGRESS") ? "text-[#FF9066]" : "text-text01"} 
                              ${row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") ? "rounded-2xl px-2 py-1 bg-[#D1FFEA]" : ""}
                              ${row[column.key] === t("tables.SAVED") ? "rounded-2xl px-2 py-1 bg-[#FFE6C7]" : ""}`}>
-                                {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
-                                  <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
-                                )}
-                                {row[column.key] === t("tables.SAVED") && (
-                                  <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
-                                )}
-                                {row[column.key]}
-                              </div>
-                            ) : (
-                              <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                                {column.type === 'date' ? (
-                                  row[column.key]
-                                    ? new Date(row[column.key]).toLocaleString("ru-RU", {
-                                      timeZone: userTimezone,
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      second: "2-digit",
-                                    })
-                                    : '-'
-                                ) : column.type === "period" ? (
-                                  row[column.key] ? formatPeriodType(row[column.key]) : '-'
-                                ) : typeof row[column.key] === 'object' ? (
-                                  `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                                ) : (
-                                  row[column.key]
-                                )}
-                              </div>
-                            )}
+                                  {row[column.key] === t("tables.SENT") || row[column.key] === t("tables.ACTIVE") && (
+                                    <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
+                                  )}
+                                  {row[column.key] === t("tables.SAVED") && (
+                                    <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
+                                  )}
+                                  {row[column.key]}
+                                </div>
+                              ) : (
+                                <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                                  {column.type === 'date' ? (
+                                    row[column.key]
+                                      ? new Date(row[column.key]).toLocaleString("ru-RU", {
+                                        timeZone: userTimezone,
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        second: "2-digit",
+                                      })
+                                      : '-'
+                                  ) : column.type === "period" ? (
+                                    row[column.key] ? formatPeriodType(row[column.key]) : '-'
+                                  ) : typeof row[column.key] === 'object' ? (
+                                    `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
+                                  ) : (
+                                    row[column.key]
+                                  )}
+                                </div>
+                              )}
                     </td>
                   ))}
                   <Can

@@ -4,11 +4,10 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
 import { useButtonCreate } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
-import { getPos, postPosData } from "@/services/api/pos/index.ts";
+import { postPosData } from "@/services/api/pos/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
@@ -16,45 +15,29 @@ import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-import { getOrganization } from "@/services/api/organization";
-import SearchInput from "@/components/ui/Input/SearchInput";
-import { getWorkers } from "@/services/api/equipment";
-import { useCity } from "@/hooks/useAuthStore";
+import { getContactById, getOrganization, getOrganizationContactById } from "@/services/api/organization";
+// import SearchInput from "@/components/ui/Input/SearchInput";
+import { getPoses } from "@/services/api/equipment";
+import { useCity, useSetCity } from "@/hooks/useAuthStore";
+import { getPlacement } from "@/services/api/device";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Input as SearchInp } from "antd";
+
+const { Search } = SearchInp;
 
 type Pos = {
     id: number;
     name: string;
     slug: string;
-    monthlyPlan: number;
-    timeWork: string;
+    address: string;
     organizationId: number;
-    posMetaData: string;
+    placementId: number;
     timezone: number;
-    image: string;
-    rating: number;
-    status: string;
+    posStatus: string;
     createdAt: Date;
     updatedAt: Date;
     createdById: number;
     updatedById: number;
-    address:
-    {
-        id: number;
-        city: string;
-        location: string;
-        lat: number;
-        lon: number;
-    };
-    posType:
-    {
-        id: number;
-        name: string;
-        slug: string;
-        carWashPosType: string;
-        minSumOrder: number;
-        maxSumOrder: number;
-        stepSumOrder: number;
-    };
 }
 
 type OrganizationResponse = {
@@ -69,26 +52,56 @@ type OrganizationResponse = {
     ownerId: number;
 }
 
+type OrgContactResponse = {
+    name: string;
+    address: string;
+    status: string;
+    type: string;
+}
+
+type ContactResponse = {
+    name: string;
+    surname: string;
+    middlename: string;
+    email: string;
+    position: string;
+}
+
+const fetchOrgContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getOrganizationContactById(id);
+};
+
+const fetchContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getContactById(id);
+};
+
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const address = useCity();
-    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
-    const { data: organizationData } = useSWR([`get-org`, address], () => getOrganization({
+    const setCity = useSetCity();
+    const { buttonOn, setButtonOn } = useButtonCreate();
+    const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
+        placementId: address
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: organizationData } = useSWR(buttonOn ? [`get-org`, address] : null, () => getOrganization({
         placementId: address
     }));
-    const { setButtonOn } = useButtonCreate();
+
+    const { data: placementData } = useSWR([`get-placement`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const placements: { country: string; city: string; value: number; }[] = placementData?.map((item) => ({ country: item.country, city: item.city, value: item.id })) || [];
+
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
-
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const organizations: OrganizationResponse[] = organizationData
         ?.map((item: OrganizationResponse) => item)
         .sort((a, b) => a.id - b.id) || [];
-
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const organization: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -163,7 +176,7 @@ const Pos: React.FC = () => {
             const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-pos`]);
+                mutate([`get-pos`, address]);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -173,13 +186,54 @@ const Pos: React.FC = () => {
         }
     };
 
+    const organizationIds = Array.from(new Set(data?.map((item) => item.organizationId)));
+
+    const createIds = Array.from(new Set(data?.map((item) => item.createdById)));
+
+    const updateIds = Array.from(new Set(data?.map((item) => item.updatedById)));
+
+    const { data: orgContacts } = useSWR(
+        organizationIds.length ? ["organizationContacts", organizationIds] : null,
+        async () => {
+            const responses = await Promise.all(organizationIds.map(fetchOrgContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[organizationIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, OrgContactResponse>);
+        }
+    );
+
+    const { data: createContacts } = useSWR(
+        organizationIds.length ? ["createContacts", createIds] : null,
+        async () => {
+            const responses = await Promise.all(createIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[createIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
+    const { data: updateContacts } = useSWR(
+        organizationIds.length ? ["updateContacts", updateIds] : null,
+        async () => {
+            const responses = await Promise.all(updateIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[updateIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
     const poses: Pos[] = data
         ?.map((item: Pos) => ({
             ...item,
-            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-",
-            status: t(`tables.${item.status}`),
-            createdByName: workers.find((work) => work.value === item.createdById)?.name || "-",
-            updatedByName: workers.find((work) => work.value === item.updatedById)?.name || "-"
+            organizationName: orgContacts?.[item.organizationId]?.name || "-",
+            status: t(`tables.${item.posStatus}`),
+            createdByName: `${createContacts?.[item.createdById]?.name || ""} ${createContacts?.[item.createdById]?.surname || ""}` || "-",
+            updatedByName: `${updateContacts?.[item.updatedById]?.name || ""} ${updateContacts?.[item.updatedById]?.surname || ""}` || "-",
+            city: placements.find((place) => place.value === item.placementId)?.city || "",
+            country: placements.find((place) => place.value === item.placementId)?.country || ""
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
@@ -190,15 +244,25 @@ const Pos: React.FC = () => {
 
     return (
         <>
-            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setCity} hideSearch={true}>
                 <div className="flex">
-                    <SearchInput
+                    {/* <SearchInput
                         title={t("equipment.carWash")}
                         value={searchTerm}
                         searchType="outlined"
                         classname="ml-2"
                         onChange={(value) => setSearchTerm(value)}
-                    />
+                    /> */}
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Search
+                            placeholder="Поиск"
+                            className="w-full sm:w-80 ml-2"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onSearch={(value) => setSearchTerm(value)}
+                        />
+                    </div>
                 </div>
             </Filter>
             {
@@ -209,25 +273,27 @@ const Pos: React.FC = () => {
                     poses.length > 0 ? (
                         <>
                             <div className="mt-8">
-                                <OverflowTable
-                                    tableData={poses}
+                                <DynamicTable
+                                    data={poses}
                                     columns={columnsPos}
                                     isDisplayEdit={true}
-                                    isUpdate={false}
-                                    nameUrl={'/station/enrollments/devices'}
+                                    // isUpdate={false}
+                                    navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
                                 />
                             </div>
                         </>
                     ) : (
                         <>
                             {notificationVisible && organizations.length === 0 && (
-                                <Notification
-                                    title={t("pos.companyName")}
-                                    message={t("pos.createObject")}
-                                    link={t("pos.goto")}
-                                    linkUrl="/administration/legalRights"
-                                    onClose={() => setNotificationVisible(false)}
-                                />
+                                <div className="mt-2">
+                                    <Notification
+                                        title={t("pos.companyName")}
+                                        message={t("pos.createObject")}
+                                        link={t("pos.goto")}
+                                        linkUrl="/administration/legalRights"
+                                        onClose={() => setNotificationVisible(false)}
+                                    />
+                                </div>
                             )}
                             <NoDataUI
                                 title={t("pos.noObject")}
@@ -239,7 +305,7 @@ const Pos: React.FC = () => {
                     )}
 
 
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 {notificationVisible && organizations.length === 0 && (
                     <Notification
                         title={t("organizations.legalEntity")}

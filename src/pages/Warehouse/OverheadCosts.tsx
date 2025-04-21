@@ -5,23 +5,23 @@ import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/warehouse";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
 import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type StockParams = {
-    categoryId: number;
-    warehouseId: number;
-    placementId: number;
+    categoryId: number | string;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const [orgId, setOrgId] = useState(1);
-    const [categoryId, setCategoryId] = useState(0);
+    const [categoryId, setCategoryId] = useState<string | number>("*");
     const warehouseId = useWareHouseId();
     const setWarehouseId = useSetWareHouseId();
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -52,7 +52,10 @@ const OverheadCosts: React.FC = () => {
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -127,42 +130,48 @@ const OverheadCosts: React.FC = () => {
     }, [dataFilter, stocksMutating]);
 
     const handleClear = () => {
-        setWarehouseId(0);
-        setCategoryId(0);
+        setWarehouseId("*");
+        setCategoryId("*");
         setCity(city);
     }
 
     return (
         <>
             <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} address={city} setAddress={setCity} hideSearch={true}>
-                <DropdownInput
-                    title={t("warehouse.organization")}
-                    value={orgId}
-                    options={organizations}
-                    onChange={(value) => setOrgId(value)}
-                    classname="ml-2"
-                />
-                <DropdownInput
-                    title={t("warehouse.category")}
-                    value={categoryId}
-                    options={categories}
-                    onChange={(value) => setCategoryId(value)}
-                    classname="ml-2"
-                />
-                <DropdownInput
-                    title={t("warehouse.ware")}
-                    value={warehouseId}
-                    options={warehouses}
-                    onChange={(value) => setWarehouseId(value)}
-                    classname="ml-2"
-                />
+            <div>
+                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={organizations.map((item) => ({ label: item.name, value: item.value }))}
+                        value={orgId}
+                        onChange={(value) => setOrgId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={categories.map((item) => ({ label: item.name, value: item.value }))}
+                        value={categoryId}
+                        onChange={(value) => setCategoryId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.ware")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={warehouses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={warehouseId}
+                        onChange={(value) => setWarehouseId(value)}
+                    />
+                </div>
             </Filter>
             {isTableLoading || stocksLoading ? (
                 <TableSkeleton columnCount={columns.length} />
             ) : transformedData.length > 0 ?
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={transformedData}
+                    <DynamicTable
+                        data={transformedData.map((tra, index) => ({ ...tra, id: index }))}
                         columns={columns}
                     />
                 </div> :

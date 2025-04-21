@@ -6,10 +6,10 @@ import useSWR from "swr";
 import { getPoses, readTechTasks } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type ReadTechTasks = {
     id: number;
@@ -31,7 +31,10 @@ const ProgressReport: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId], () => readTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => readTechTasks({
+        posId: searchPosId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -49,13 +52,15 @@ const ProgressReport: React.FC = () => {
         <>
             <Filter count={techTasks.length} hideDateTime={true} hideCity={true} hideSearch={true}>
                 <div className="flex">
-                    <DropdownInput
-                        title={t("equipment.carWash")}
-                        value={searchPosId}
-                        classname={"w-full sm:w-80"}
-                        options={poses}
-                        onChange={(value) => setSearchPosId(value)}
-                    />
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                            value={searchPosId}
+                            onChange={(value) => setSearchPosId(value)}
+                        />
+                    </div>
                 </div>
             </Filter>
             {techTasksLoading ? (
@@ -64,12 +69,12 @@ const ProgressReport: React.FC = () => {
                 techTasks.length > 0 ?
                     <>
                         <div className="mt-8">
-                            <OverflowTable
-                                tableData={techTasks}
+                            <DynamicTable
+                                data={techTasks}
                                 columns={columnsTechTasksRead}
-                                isDisplayEdit={true}
+                                // isDisplayEdit={true}
                                 isCheck={true}
-                                nameUrl="/equipment/routine/work/progress/item"
+                                navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/progress/item" }]}
                             />
                         </div>
                     </>

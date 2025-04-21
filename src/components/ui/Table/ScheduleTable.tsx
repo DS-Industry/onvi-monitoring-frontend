@@ -863,7 +863,7 @@ const ScheduleTable: React.FC<Props> = ({
                     </form>
                 </Modal>
             )}
-            <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)}>
+            <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)} classname="h-72">
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01">{t("finance.addNew")}</h2>
                     <Close onClick={() => setOpenAddRow(false)} className="cursor-pointer text-text01" />

@@ -8,7 +8,6 @@ import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import { useButtonCreate } from "@/components/context/useContext";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsEquipmentFailure } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
 import { createIncident, getDevices, getEquipmentKnots, getIncident, getIncidentEquipmentKnots, getPoses, getPrograms, getWorkers, updateIncident } from "@/services/api/equipment";
@@ -17,6 +16,7 @@ import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 
 interface Incident {
@@ -40,9 +40,26 @@ interface Incident {
 interface FilterIncidentPos {
     dateStart: string;
     dateEnd: string;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
+
+type IncidentBody = {
+    posId: number;
+    workerId: number;
+    appearanceDate: string;
+    startDate: string;
+    finishDate: string;
+    objectName: string;
+    equipmentKnotId?: number;
+    incidentNameId?: number;
+    incidentReasonId?: number;
+    incidentSolutionId?: number;
+    downtime: number;
+    comment: string;
+    carWashDeviceProgramsTypeId?: number;
+}
+
 
 const EquipmentFailure: React.FC = () => {
     const { t } = useTranslation();
@@ -77,7 +94,7 @@ const EquipmentFailure: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-        if(newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
     };
     const { data, isLoading: incidentLoading, mutate: incidentMutate } = useSWR([`get-incident`], () => getIncident({
         dateStart: dataFilter.dateStart,
@@ -86,24 +103,49 @@ const EquipmentFailure: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
+
+    const defaultValues: IncidentBody = {
+        posId: 0,
+        workerId: 0,
+        appearanceDate: '',
+        startDate: '',
+        finishDate: '',
+        objectName: '',
+        equipmentKnotId: undefined,
+        incidentNameId: undefined,
+        incidentReasonId: undefined,
+        incidentSolutionId: undefined,
+        downtime: 2,
+        comment: '',
+        carWashDeviceProgramsTypeId: undefined,
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: deviceData } = useSWR([`get-device`], () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR(formData.posId !== 0 ? [`get-device`, formData.posId] : null, () => getDevices(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: equipmentKnotData } = useSWR([`get-equipment-knot`], () => getEquipmentKnots(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: equipmentKnotData } = useSWR(formData.posId !== 0 ? [`get-equipment-knot`, formData.posId] : null, () => getEquipmentKnots(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: incidentEquipmentKnotData } = useSWR(equipmentKnotData ? [`get-incident-equipment-knot`] : null, () => getIncidentEquipmentKnots(equipmentKnotData ? equipmentKnotData[0].props.id : 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: allProgramsData } = useSWR([`get-all-programs`], () => getPrograms(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: allProgramsData } = useSWR(formData.posId !== 0 ? [`get-all-programs`, formData.posId] : null, () => getPrograms({ posId: formData.posId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const workers: { name: string; value: number; }[] = (workerData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const programs: { name: string; value: number; }[] = formData.posId === 0 ? [] : (allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const incidents: Incident[] = data
         ?.map((item: Incident) => ({
             ...item,
-            posName: poses.find((pos) => pos.value === item.posId)?.name
+            posName: poses.find((pos) => pos.value === item.posId)?.name,
+            workerName: workers.find((work) => work.value === item.workerId)?.name,
+            programName: programs.find((prog) => prog.value === item.programId)?.name
         }))
         .sort((a, b) => a.id - b.id) || [];
 
@@ -111,37 +153,15 @@ const EquipmentFailure: React.FC = () => {
         incidentMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, incidentMutate]);
 
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const devices: { name: string; value: string; }[] = formData.posId === 0 ? [] : (deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const devices: { name: string; value: string; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
+    const equipmentKnots: { name: string; value: number; }[] = formData.posId === 0 ? [] : (equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const equipmentKnots: { name: string; value: number; }[] = equipmentKnotData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const problemNames: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const problemNames: { name: string; value: number; }[] = incidentEquipmentKnotData?.map((item) => ({ name: item.problemName, value: item.id })) || [];
+    const reasons: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const reasons: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.reason.map((reas) => ({ name: reas.infoName, value: reas.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
-
-    const solutions: { name: string; value: number; }[] = incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || [];
-
-    const programs: { name: string; value: number; }[] = allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
-
-    const defaultValues = {
-        posId: 0,
-        workerId: 0,
-        appearanceDate: '',
-        startDate: '',
-        finishDate: '',
-        objectName: '',
-        equipmentKnotId: 0,
-        incidentNameId: 0,
-        incidentReasonId: 0,
-        incidentSolutionId: 0,
-        downtime: 2,
-        comment: '',
-        carWashDeviceProgramsTypeId: 0,
-    };
-
-    const [formData, setFormData] = useState(defaultValues);
+    const solutions: { name: string; value: number; }[] = formData.posId === 0 ? [] : (incidentEquipmentKnotData?.flatMap((item) => (item.solution.map((sol) => ({ name: sol.infoName, value: sol.id })))).filter((reason, index, self) => index === self.findIndex((r) => r.value === reason.value)) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
@@ -256,11 +276,37 @@ const EquipmentFailure: React.FC = () => {
 
     return (
         <>
-            <DrawerCreate>
+            <FilterMonitoring
+                count={incidents.length}
+                posesSelect={poses}
+                handleDataFilter={handleDataFilter}
+                hideSearch={true}
+            />
+            {isTableLoading || incidentLoading ? (
+                <TableSkeleton columnCount={columnsEquipmentFailure.length} />
+            ) :
+                incidents.length > 0 ?
+                    <div className="mt-8">
+                        <DynamicTable
+                            data={incidents}
+                            columns={columnsEquipmentFailure}
+                            isDisplayEdit={true}
+                            onEdit={handleUpdate}
+                        />
+                    </div> :
+                    <NoDataUI
+                        title={t("equipment.nodata")}
+                        description={t("equipment.noBreakdown")}
+                    >
+                        <img src={SalyImage} className="mx-auto" />
+                    </NoDataUI>
+            }
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("equipment.break")}</span>
                     <DropdownInput
                         title={t("equipment.carWash")}
+                        label={poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={poses}
                         classname="w-72"
                         {...register('posId', {
@@ -269,13 +315,14 @@ const EquipmentFailure: React.FC = () => {
                                 (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
-                        onChange={(value) => handleInputChange('posId', value)}
+                        onChange={(value) => { handleInputChange('posId', value); setPosType(value); }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
                         isDisabled={isEditMode}
                     />
                     <DropdownInput
                         title={t("equipment.employee")}
+                        label={workers.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={workers}
                         classname="w-72"
                         {...register('workerId', {
@@ -332,6 +379,7 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                     <DropdownInput
                         title={t("equipment.device")}
+                        label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={devices}
                         classname="w-72"
                         {...register('objectName', { required: !isEditMode && 'Device is required' })}
@@ -343,6 +391,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.knot")}
+                        label={equipmentKnots.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={equipmentKnots}
                         classname="w-72"
                         {...register('equipmentKnotId')}
@@ -351,6 +400,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.name")}
+                        label={problemNames.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={problemNames}
                         classname="w-72"
                         {...register('incidentNameId')}
@@ -359,6 +409,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.cause")}
+                        label={reasons.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={reasons}
                         classname="w-72"
                         {...register('incidentReasonId')}
@@ -367,6 +418,7 @@ const EquipmentFailure: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.measures")}
+                        label={solutions.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={solutions}
                         classname="w-72"
                         {...register('incidentSolutionId')}
@@ -407,6 +459,7 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                     <DropdownInput
                         title={t("equipment.program")}
+                        label={programs.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={programs}
                         classname="w-72"
                         {...register('carWashDeviceProgramsTypeId')}
@@ -440,32 +493,6 @@ const EquipmentFailure: React.FC = () => {
                     </div>
                 </form>
             </DrawerCreate>
-            <FilterMonitoring
-                count={incidents.length}
-                posesSelect={poses}
-                handleDataFilter={handleDataFilter}
-                hideSearch={true}
-            />
-            {isTableLoading || incidentLoading ? (
-                <TableSkeleton columnCount={columnsEquipmentFailure.length} />
-            ) :
-                incidents.length > 0 ?
-                    <div className="mt-8">
-                        <OverflowTable
-                            tableData={incidents}
-                            columns={columnsEquipmentFailure}
-                            isDisplayEdit={true}
-                            isUpdate={true}
-                            onUpdate={handleUpdate}
-                        />
-                    </div> :
-                    <NoDataUI
-                        title={t("equipment.nodata")}
-                        description={t("equipment.noBreakdown")}
-                    >
-                        <img src={SalyImage} className="mx-auto" />
-                    </NoDataUI>
-            }
         </>
     )
 }

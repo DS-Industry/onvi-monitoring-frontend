@@ -43,17 +43,17 @@ import Documents from "@/pages/Warehouse/Documents";
 import DocumentsCreation from "@/pages/Warehouse/DocumentsCreation";
 import DocumentView from "@/pages/Warehouse/DocumentView";
 import Clients from "@/pages/Marketing/Clients";
-import Segments from "@/pages/Marketing/Segments";
-import LoyaltyPrograms from "@/pages/Marketing/LoyaltyPrograms";
+// import Segments from "@/pages/Marketing/Segments";
+// import LoyaltyPrograms from "@/pages/Marketing/LoyaltyPrograms";
 import ShareConstructor from "@/pages/Marketing/ShareConstructor";
-import MarketResearch from "@/pages/Marketing/MarketResearch";
+// import MarketResearch from "@/pages/Marketing/MarketResearch";
 import ClientsImport from "@/pages/Marketing/ClientsImport";
 import Marketing from "@/pages/Marketing/Marketing";
 import ClientsProfile from "@/pages/Marketing/ClientsProfile";
 import BonusProgram from "@/pages/Marketing/BonusProgram";
 import NewSegment from "@/pages/Marketing/NewSegment";
 import Collection from "@/pages/Finance/Collection";
-import Period from "@/pages/Finance/Period";
+// import Period from "@/pages/Finance/Period";
 import CollectionCreation from "@/pages/Finance/CollectionCreation";
 import TimesheetCreation from "@/pages/Finance/TimeSheetCreation";
 import Timesheet from "@/pages/Finance/Timesheet";
@@ -66,6 +66,17 @@ import ListOfRoles from "@/pages/Organization/ListOfRoles";
 import Transactions from "@/pages/Analysis/Transactions";
 import PosConnection from "@/pages/Organization/PosConnection";
 import Warehouse from "@/pages/Warehouse/Warehouse";
+import PlanAct from "@/pages/Pos/PlanAct";
+import InviteUser from "@/pages/Onboarding/InviteUser";
+import Employees from "@/pages/Hr/Employees";
+import Positions from "@/pages/Hr/Positions";
+import SalaryCalculation from "@/pages/Hr/SalaryCalculation";
+import EmployeeAdvance from "@/pages/Hr/EmployeeAdvance";
+import EmployeeProfile from "@/pages/Hr/EmployeeProfile";
+import SalaryCalculationCreation from "@/pages/Hr/SalaryCalculationCreation";
+import Notifications from "@/pages/Notifications/Notifications";
+import RewardsCreation from "@/pages/Marketing/RewardsCreation";
+import EmployeeAdvanceCreation from "@/pages/Hr/EmployeeAdvanceCreation";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -94,10 +105,10 @@ const routes = [
     permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }],
     subNav: [
       { name: "subscriptions", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/subscriptions", component: Default, permissions: [{ action: "manag", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [
-        { name: "listOf", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights/employees", component: ListOfEmployees, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-        { name: "listRoles", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/roles", component: ListOfRoles, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-        { name: "pos", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/pos/connection", component: PosConnection, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
+      { name: "accessRights", filter: false, addButton: false, addButtonText: '', isVisible: true, path: "/administration/accessRights", component: Default, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [
+        { name: "listOf", filter: false, addButton: true, addButtonText: 'add', isVisible: true, path: "/administration/accessRights/employees", component: ListOfEmployees, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+        { name: "listRoles", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/roles", component: ListOfRoles, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+        { name: "pos", filter: false, addButton: false, addButtonText: 'addR', isVisible: true, path: "/administration/accessRights/pos/connection", component: PosConnection, permissions: [{ action: "manage", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
       ], subMenu: true },
       { name: "legalEntities", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/administration/legalRights", component: Organization, permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
     ],
@@ -122,7 +133,7 @@ const routes = [
       { name: "programs", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs", component: ProgramDevices, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "programDevices", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/devices", component: Programs, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
       { name: "programDevice", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/programs/device", component: ProgramDevice, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: false },
-      { name: "planAct", filter: true, addButton: false, addButtonText: "", isVisible: true, path: "/station/plan/act", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "planAct", filter: true, addButton: false, addButtonText: "", isVisible: true, path: "/station/plan/act", component: PlanAct, permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "cleaning", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/cleaning", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "simpleBoxes", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/simpleBoxes", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
     ],
@@ -132,14 +143,24 @@ const routes = [
   {
     name: "hr",
     path: "/Hr",
-    subMenu: false,
+    subMenu: true,
     filter: false,
     addButton: false,
     addButtonText: "",
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "HR" }]
+    permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }],
+    subNavHeading: "directories",
+    subNav: [
+      { name: "employees", filter: true, addButton: true, addButtonText: "addE", isVisible: true, path: "/hr/employees", component: Employees, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "sid", filter: false, addButton: true, addButtonText: "save", isVisible: true, path: "/hr/employees/profile", component: EmployeeProfile, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "positions", filter: false, addButton: true, addButtonText: "new", isVisible: true, path: "/hr/positions", component: Positions, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: true, titleName: "", subNav: [], subMenu: false },
+      { name: "salary", filter: true, addButton: true, addButtonText: "calc", isVisible: true, path: "/hr/salary", component: SalaryCalculation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "reports", subNav: [], subMenu: false },
+      { name: "sal", filter: false, addButton: false, addButtonText: "calc", isVisible: true, path: "/hr/salary/creation", component: SalaryCalculationCreation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "reports", subNav: [], subMenu: false },
+      { name: "empAdv", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance", component: EmployeeAdvance, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "empAdv", filter: false, addButton: true, addButtonText: "create", isVisible: true, path: "/hr/employee/advance/creation", component: EmployeeAdvanceCreation, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
+    ]
   },
   {
     name: "finance",
@@ -157,7 +178,7 @@ const routes = [
       { name: "collection", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/finance/collection", component: Collection, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "collection", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/collection/creation", component: CollectionCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "timestamp", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/finance/timestamp", component: Timestamps, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-      { name: "period", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/period", component: Period, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+      { name: "period", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/period", component: Default, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "employee", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/timesheet", component: Timesheet, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "employee", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/creation", component: TimesheetCreation, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "abcd", filter: false, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/timesheet/view", component: TimesheetView, permissions: [{ action: "manage", subject: "CashCollection"},{ action: "read", subject: "CashCollection"},{ action: "create", subject: "CashCollection"},{ action: "update", subject: "CashCollection"},{ action: "delete", subject: "CashCollection"}], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false }
@@ -191,19 +212,20 @@ const routes = [
     icon: LoyaltyIcon,
     subNavHeading: "",
     subNav: [
-      { name: "clients", filter: true, addButton: true, addButtonText: "addClient", isVisible: true, path: "/marketing/clients", component: Clients, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "importClients", filter: true, addButton: false, addButtonText: "addClient", isVisible: true, path: "/marketing/clients/import", component: ClientsImport, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "clientProfile", filter: false, addButton: true, addButtonText: "edit", isVisible: true, path: "/marketing/clients/profile", component: ClientsProfile, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "segments", filter: true, addButton: true, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments", component: Segments, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "createSeg", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments/new", component: NewSegment, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "loyalty", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/loyalty", component: LoyaltyPrograms, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "share", filter: true, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/share/constructor", component: ShareConstructor, permissions: [], isSidebar: true, subNav: [], subMenu: false },
-      { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/share/constructor/bonus", component: BonusProgram, permissions: [], isSidebar: false, subNav: [], subMenu: false },
-      { name: "marketRes", filter: true, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: MarketResearch, permissions: [], isSidebar: true, subNav: [], subMenu: false },
+      { name: "clients", filter: true, addButton: true, addButtonText: "addClient", isVisible: true, path: "/marketing/clients", component: Clients, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "importClients", filter: true, addButton: false, addButtonText: "addClient", isVisible: true, path: "/marketing/clients/import", component: ClientsImport, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "clientProfile", filter: false, addButton: false, addButtonText: "edit", isVisible: true, path: "/marketing/clients/profile", component: ClientsProfile, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "segments", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "createSeg", filter: false, addButton: false, addButtonText: "addSeg", isVisible: true, path: "/marketing/segments/new", component: NewSegment, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "share", filter: false, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/share/constructor", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "loyalty", filter: false, addButton: true, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty", component: ShareConstructor, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
+      { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/rewards", component: RewardsCreation, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "bonus", filter: false, addButton: false, addButtonText: "newPromo", isVisible: true, path: "/marketing/loyalty/bonus", component: BonusProgram, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: false, subNav: [], subMenu: false },
+      { name: "marketRes", filter: false, addButton: false, addButtonText: "report", isVisible: true, path: "/marketing/market/research", component: Default, permissions: [{ action: "manage", subject: "LoyaltyProgram"}], isSidebar: true, subNav: [], subMenu: false },
     ],
     component: Marketing,
     isSidebar: true,
-    permissions: [{ action: "manage", subject: "Marketing" }]
+    permissions: [{ action: "manage", subject: "LoyaltyProgram"}]
   },
   {
     name: "equipment",
@@ -226,7 +248,7 @@ const routes = [
       },
       { name: "consumption", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/consumption/rate", component: ConsumptionRate, permissions: [], isSidebar: true, subNav: [], isHr: true },
       { titleName: "from", name: "equipmentFailure", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/failure", component: EquipmentFailure, permissions: [{ action: "manage", subject: "Incident" },{ action: "create", subject: "Incident" },{ action: "read", subject: "Incident" },{ action: "update", subject: "Incident" },{ action: "delete", subject: "Incident" }], isSidebar: true, subNav: [], isHr: true },
-      { titleName: "settings", name: "replacing", filter: true, addButton: true, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
+      { titleName: "settings", name: "replacing", filter: false, addButton: false, addButtonText: "fix", isVisible: true, path: "/equipment/replacing/programs", component: Default, permissions: [], isSidebar: true, subNav: [] },
     ],
     component: Default,
     isSidebar: true,
@@ -284,10 +306,27 @@ const routes = [
     permissions: []
   },
   {
+    name: "Invite User",
+    path: "/inviteUser",
+    subMenu: false,
+    component: InviteUser,
+    isSidebar: false,
+    isPublicRoute: true,
+    permissions: []
+  },
+  {
     name: "profile",
     path: "/profile",
     subMenu: false,
     component: ProfileForm,
+    isSidebar: false,
+    permissions: []
+  },
+  {
+    name: "notifications",
+    path: "/notifications",
+    subMenu: false,
+    component: Notifications,
     isSidebar: false,
     permissions: []
   }

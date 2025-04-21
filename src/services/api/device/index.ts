@@ -34,7 +34,7 @@ export async function getDevice(userId: number): Promise<Pos[]> {
     return response.data;
 }
 
-export async function getDeviceByPosId(posId: number): Promise<Pos[]> {
+export async function getDeviceByPosId(posId: number | string): Promise<Pos[]> {
     const url = DEVICE.GET_DEVICE_BY_POS + `/${posId}`;
     const response: AxiosResponse<Pos[]> = await api.get(url);
 

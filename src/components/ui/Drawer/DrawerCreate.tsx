@@ -4,9 +4,10 @@ import { useButtonCreate } from "@/components/context/useContext.tsx";
 type DrawerCreateProps = {
     children: React.ReactNode;
     classname?: string;
+    onClose?: () => void;
 }
 
-const DrawerCreate: React.FC<DrawerCreateProps> = ({ children, classname }: DrawerCreateProps) => {
+const DrawerCreate: React.FC<DrawerCreateProps> = ({ children, classname, onClose }: DrawerCreateProps) => {
     const { buttonOn, setButtonOn } = useButtonCreate();
 
     return (
@@ -16,8 +17,10 @@ const DrawerCreate: React.FC<DrawerCreateProps> = ({ children, classname }: Draw
                 type="checkbox"
                 className="drawer-toggle"
                 checked={buttonOn}
-                onChange={() =>
+                onChange={() => {
+                    if(onClose) onClose();
                     setButtonOn(!buttonOn)
+                }
                 }
             />
             <div className="drawer-side">

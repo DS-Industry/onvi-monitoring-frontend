@@ -10,7 +10,7 @@ import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, u
 interface FilterCollection {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
 }
 
 const Period: React.FC = () => {

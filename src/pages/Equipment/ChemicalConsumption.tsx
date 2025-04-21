@@ -6,9 +6,9 @@ import useSWR from "swr";
 import { getChemicalReport, getPoses } from "@/services/api/equipment";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsChemicalConsumption } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface TechRateInfo {
     code: string;
@@ -32,7 +32,8 @@ interface TableRow {
 interface FilterChemicalPos {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
@@ -64,8 +65,6 @@ const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
 
 const ChemicalConsumption: React.FC = () => {
     const { t } = useTranslation();
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
     const [isTableLoading, setIsTableLoading] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
@@ -76,9 +75,10 @@ const ChemicalConsumption: React.FC = () => {
     const city = useCity();
 
     const initialFilter = {
-        dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
-        dateEnd: endDate.toString().slice(0, 10) || `${formattedDate}`,
-        posId: posType || 1,
+        dateStart: startDate.toString().slice(0, 10),
+        dateEnd: endDate.toString().slice(0, 10),
+        posId: posType,
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterChemicalPos>(initialFilter);
@@ -91,11 +91,12 @@ const ChemicalConsumption: React.FC = () => {
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
 
-    const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR([`get-chemical-consumption`], () => getChemicalReport({
+    const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR(posType !== "*" ? [`get-chemical-consumption`] : null, () => getChemicalReport({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
-        posId: dataFilter.posId
-    }, dataFilter.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -115,14 +116,15 @@ const ChemicalConsumption: React.FC = () => {
                 count={tableRows.length}
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}
+                hideSearch={true}
             />
             {isTableLoading || chemicalLoading ? (
                 <TableSkeleton columnCount={columnsChemicalConsumption.length} />
             ) :
                 tableRows.length > 0 ?
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={tableRows}
+                        <DynamicTable
+                            data={tableRows.map((row, index) => ({ ...row, id: index }))}
                             columns={columnsChemicalConsumption}
                             isDisplayEdit={true}
                         />

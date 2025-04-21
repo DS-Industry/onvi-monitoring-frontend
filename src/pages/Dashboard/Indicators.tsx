@@ -4,17 +4,21 @@ import ProfitIcon from "@icons/profit.svg?react";
 import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
 import Notification from "@ui/Notification";
 import LineChart from "@ui/LineChart";
-import DatePickerComponent from "@ui/DatePickerComponent";
+// import DatePickerComponent from "@ui/DatePickerComponent";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
 import { getStatistic } from "@/services/api/organization";
 import { getDepositPos } from "@/services/api/pos";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
-import DropdownInput from "@ui/Input/DropdownInput";
-import TableSkeleton from "../ui/Table/TableSkeleton";
+// import DropdownInput from "@ui/Input/DropdownInput";
+import TableSkeleton from "../../components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
+import DynamicTable from "../../components/ui/Table/DynamicTable";
+import { Card, Row, Col, Typography, Space, Button, Select, DatePicker, Grid } from "antd";
+const { Text, Title } = Typography;
+import type { RangePickerProps } from 'antd/es/date-picker';
+import dayjs from 'dayjs';
 
 interface PosMonitoring {
   id: number;
@@ -67,6 +71,9 @@ const durations: { label: string; value: "today" | "week" | "month" }[] = [
 
 const Indicators: React.FC = () => {
   const posType = usePosType();
+  const { RangePicker } = DatePicker;
+  const { useBreakpoint } = Grid;
+  const screens = useBreakpoint();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState(posType);
@@ -78,6 +85,7 @@ const Indicators: React.FC = () => {
   });
   const { t } = useTranslation();
   const city = useCity();
+  const [activeDuration, setActiveDuration] = useState<"today" | "week" | "month" | null>(null);
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
@@ -127,12 +135,12 @@ const Indicators: React.FC = () => {
     },
   ];
 
-  const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
-    setDateRange({
-      dateStart: newDateRange.startDate || new Date(),
-      dateEnd: newDateRange.endDate || new Date(),
-    });
-  };
+  // const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
+  //   setDateRange({
+  //     dateStart: newDateRange.startDate || new Date(),
+  //     dateEnd: newDateRange.endDate || new Date(),
+  //   });
+  // };
 
   // Handle duration click
   const handleDurationClick = (duration: "today" | "week" | "month") => {
@@ -153,6 +161,19 @@ const Indicators: React.FC = () => {
       dateStart: newDateStart,
       dateEnd: now,
     });
+    setActiveDuration(duration);
+  };
+
+  const handleDateRangeChange: RangePickerProps['onChange'] = (dates, dateStrings) => {
+    if (dates) {
+      const [start, end] = dates;
+      setDateRange({
+        dateStart: start?.toDate() || new Date(),
+        dateEnd: end?.toDate() || new Date(),
+      });
+      // Clear active duration button selection when date range is manually selected
+      setActiveDuration(null);
+    }
   };
 
   return (
@@ -168,54 +189,39 @@ const Indicators: React.FC = () => {
       )}
       <div className="grid gap-4">
         {/* Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Row gutter={[24, 24]}>
           {cards.map((item) => (
-            <div
-              className="p-2 lg:p-4 bg-white shadow-card rounded-[18px]"
-              key={item.title}
-            >
-              <div className="flex justify-between items-center space-x-4 mb-5">
-                <div>
-                  <p className="text-sm lg:text-base font-semibold">
-                    {t(`indicators.${item.title}`)}
-                  </p>
-                  <p className="text-xl lg:text-3xl font-bold text-[#202224]">
-                    {item.number} {item.unit}
-                  </p>
+            <Col xs={24} md={12} lg={8} key={item.title}>
+              <Card
+                variant="borderless"
+                styles={{
+                  body: {
+                    padding: 24,
+                    borderRadius: 24,
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)", // mimic `shadow-card`
+                  },
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                  <div>
+                    <Text strong style={{ fontSize: 18 }}>{t(`indicators.${item.title}`)}</Text>
+                    <Title level={2} style={{ margin: 0, color: "#202224" }}>
+                      {item.number} {item.unit}
+                    </Title>
+                  </div>
+                  <item.icon />
                 </div>
-                <item.icon />
-              </div>
-            </div>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
 
         {/* Revenue Section */}
         <div className="mt-4 py-3 lg:py-8 grid gap-8 bg-white shadow-card rounded-lg">
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revenue")}
           </p>
-          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
-            <DropdownInput
-              inputType="primary"
-              label="Все автомойки"
-              options={poses}
-              value={selectedValue}
-              onChange={setSelectedValue}
-              isSelectable={true}
-              classname="mt-3"
-            />
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
-              {durations.map((duration) => (
-                <button
-                  key={duration.label}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
-                >
-                  {duration.label}
-                </button>
-              ))}
-              <DatePickerComponent />
-            </div>
-          </div>
           <div className="w-full h-64 lg:h-96 overflow-auto px-3 lg:px-8">
             <LineChart />
           </div>
@@ -226,45 +232,91 @@ const Indicators: React.FC = () => {
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revReport")}
           </p>
-          <div className="flex flex-col lg:flex-row justify-between px-3 lg:px-8 gap-4">
-            <DropdownInput
-              inputType="primary"
-              label="Все автомойки"
-              options={poses}
-              value={selectedValue}
-              onChange={setSelectedValue}
-              isSelectable={true}
-              classname="mt-3"
-            />
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 mt-3 md:mt-0">
-              {durations.map((duration) => (
-                <button
-                  key={duration.label}
-                  onClick={() => handleDurationClick(duration.value)}
-                  className="whitespace-nowrap text-text02 font-semibold focus:text-text04 bg-background05 focus:bg-primary02 text-sm rounded-full px-3 py-2"
-                >
-                  {duration.label}
-                </button>
-              ))}
-              <DatePickerComponent
-                onDateChange={(range) =>
-                  handleDateChange({
-                    startDate: range.startDate,
-                    endDate: range.endDate,
-                  })
-                }
-              />
-            </div>
-          </div>
+          <Row justify="space-between" align="middle" wrap gutter={[16, 16]} style={{ marginBottom: '4px', padding: "20px" }}>
+            <Col xs={24} lg={16}>
+              <Space wrap>
+                <div>
+                  <Select
+                    className="w-80"
+                    placeholder="Выберите объект"
+                    options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                    value={selectedValue}
+                    onChange={setSelectedValue}
+                    dropdownRender={(menu) => (
+                      <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                        {menu}
+                      </div>
+                    )}
+                  />
+                </div>
+                {durations.map((duration) => (
+                  <Button
+                    key={duration.value}
+                    type={activeDuration === duration.value ? "primary" : "default"}
+                    shape="round"
+                    onClick={() => handleDurationClick(duration.value)}
+                  >
+                    {duration.label}
+                  </Button>
+                ))}
+              </Space>
+            </Col>
+            <Col xs={24} lg={8}>
+              {screens.xs ? (
+                // Mobile view: Two separate DatePickers for better mobile experience
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <DatePicker
+                    placeholder="Start date"
+                    value={dayjs(dateRange.dateStart)}
+                    onChange={(date) => {
+                      if (date) {
+                        setDateRange({
+                          ...dateRange,
+                          dateStart: date.toDate(),
+                        });
+                        setActiveDuration(null);
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                  <DatePicker
+                    placeholder="End date"
+                    value={dayjs(dateRange.dateEnd)}
+                    onChange={(date) => {
+                      if (date) {
+                        setDateRange({
+                          ...dateRange,
+                          dateEnd: date.toDate(),
+                        });
+                        setActiveDuration(null);
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                </Space>
+              ) : (
+                // Desktop view: RangePicker
+                <RangePicker
+                  onChange={handleDateRangeChange}
+                  value={[
+                    dayjs(dateRange.dateStart),
+                    dayjs(dateRange.dateEnd)
+                  ]}
+                  allowClear={false}
+                  style={{ width: '100%' }}
+                />
+              )}
+            </Col>
+          </Row>
           <div className="overflow-x-auto">
             {filterLoading ? (
               <TableSkeleton columnCount={columnsMonitoringPos.length} />
             ) : (
-              <OverflowTable
-                tableData={posMonitoring}
+              <DynamicTable
+                data={posMonitoring}
                 columns={columnsMonitoringPos}
                 isDisplayEdit={true}
-                nameUrl={"/station/enrollments/devices"}
+                navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
               />
             )}
           </div>
