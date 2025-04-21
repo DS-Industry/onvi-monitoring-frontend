@@ -14,9 +14,13 @@ import { createPosition, getPositions, updatePosition } from "@/services/api/hr"
 import useSWRMutation from "swr/mutation";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useCity } from "@/hooks/useAuthStore";
+import { getOrganization } from "@/services/api/organization";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
 
 type PositionRequest = {
     name: string;
+    organizationId: number;
     description?: string;
 }
 
@@ -25,6 +29,11 @@ const Positions: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editPositionId, setEditPositionId] = useState<number>(0);
+    const city = useCity();
+
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const { data: positionData, isLoading: positionLoading, isValidating } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -73,6 +82,7 @@ const Positions: React.FC = () => {
 
     const defaultValues: PositionRequest = {
         name: "",
+        organizationId: 0,
         description: undefined,
     };
 
@@ -82,6 +92,7 @@ const Positions: React.FC = () => {
 
     const { trigger: createPos, isMutating } = useSWRMutation(['create-position'], async () => createPosition({
         name: formData.name,
+        organizationId: formData.organizationId,
         description: formData.description
     }));
 
@@ -90,7 +101,7 @@ const Positions: React.FC = () => {
         description: formData.description
     }));
 
-    type FieldType = "name" | "description";
+    type FieldType = "name" | "organizationId" | "description";
 
     const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -108,6 +119,7 @@ const Positions: React.FC = () => {
         if (positionToEdit) {
             setFormData({
                 name: positionToEdit.name,
+                organizationId: positionToEdit.organizationId,
                 description: positionToEdit.description
             });
         }
@@ -193,6 +205,21 @@ const Positions: React.FC = () => {
                         {...register('name', { required: !isEditMode && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                         disabled={isEditMode}
+                    />
+                    <DropdownInput
+                        title={t("warehouse.organization")}
+                        options={organizations}
+                        classname="w-64"
+                        {...register('organizationId', {
+                            required: 'Organization Id is required',
+                            validate: (value) =>
+                                (value !== 0) || "Organization Id is required"
+                        })}
+                        value={formData.organizationId}
+                        onChange={(value) => handleInputChange('organizationId', value)}
+                        error={!!errors.organizationId}
+                        helperText={errors.organizationId?.message}
+                        isDisabled={isEditMode}
                     />
                     <MultilineInput
                         title={t("warehouse.desc")}

@@ -173,7 +173,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
         setUpdate(field, value);
     };
 
-    const handleTransfer = (nextTargetKeys: string[]) => {
+    const handleTransfer = (nextTargetKeys: (string | number | bigint)[]) => {
         const numericKeys = nextTargetKeys.map((key) => Number(key));
 
         if (tierByIdData && numericKeys.length > tierByIdData.limitBenefit) {

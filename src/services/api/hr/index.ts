@@ -88,6 +88,7 @@ type WorkerParams = {
 
 type PositionRequest = {
     name: string;
+    organizationId: number;
     description?: string;
 }
 
@@ -95,6 +96,7 @@ type PositionResponse = {
     props: {
         id: number;
         name: string;
+        organizationId: number;
         description?: string;
     }
 }
@@ -199,6 +201,12 @@ type PaymentsResponse = {
     totalPayment: number;
     createdAt: Date;
     createdById: number;
+}
+
+type addWorkerRequest = {
+    organizationId: number;
+    billingMonth: string;
+    workerIds: number[];
 }
 
 export async function createWorker(body: WorkerRequest, file?: File | null): Promise<WorkerResponse> {
@@ -326,5 +334,19 @@ export async function createPayment(body: PaymentCreateRequest): Promise<Prepaym
 export async function getPayments(params: PrepaymentFilter): Promise<PaymentsResponse[]> {
     const response: AxiosResponse<PaymentsResponse[]> = await api.get(HR.PAYMENT + 's', { params });
 
+    return response.data;
+}
+
+export async function addWorkerPrePayment(body: addWorkerRequest): Promise<PrepaymentCalculateResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<PrepaymentCalculateResponse[]> = await api.post(HR.PREPAYMENT + '/calculate/workers', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function addWorkerPayment(body: addWorkerRequest): Promise<PaymentCalculateResponse[]> {
+    console.log(body);
+    const response: AxiosResponse<PaymentCalculateResponse[]> = await api.post(HR.PAYMENT + '/calculate/workers', body);
+    console.log(response.data);
     return response.data;
 }

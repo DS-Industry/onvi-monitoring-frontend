@@ -7,16 +7,18 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getOrganization } from "@/services/api/organization";
-import { calculatePayment, createPayment, getPositions } from "@/services/api/hr";
+import { addWorkerPayment, calculatePayment, createPayment, getPositions, getWorkers } from "@/services/api/hr";
 import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { useNavigate } from "react-router-dom";
-import { Button as AntDButton, message } from "antd";
+import { Button as AntDButton, message, Transfer } from "antd";
 import ArrowUp from "@icons/ArrowUp.png";
 import ArrowDown from "@icons/ArrowDown.png";
 import NoDataUI from "@/components/ui/NoDataUI";
 import PositionEmpty from "@/assets/NoPosition.png";
+import Modal from "@/components/ui/Modal/Modal";
+import Close from "@icons/close.svg?react";
 
 type PaymentCalculateBody = {
     organizationId: number;
@@ -43,17 +45,40 @@ type PaymentsCreation = {
     fine: number;
 }
 
+type AddWorker = {
+    organizationId: number;
+    billingMonth: string;
+    workerIds: number[];
+}
+
 const SalaryCalculationCreation: React.FC = () => {
     const { t } = useTranslation();
     const city = useCity();
     const navigate = useNavigate();
     const [paymentsData, setPaymentsData] = useState<PaymentsCreation[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showAddButton, setShowAddButton] = useState(false);
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
+        placementId: "*",
+        hrPositionId: "*",
+        organizationId: "*"
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const workers: { key: string; title: string; value: number | "*"; }[] = [
+        ...(workersData?.map((work) => ({
+            key: String(work.props.id),
+            title: work.props.name,
+            value: work.props.id
+        })) || [])
+    ];
 
     const positions: { label: string; value: number | "*"; name: string; }[] = [
         { label: t("analysis.all"), value: "*", name: t("analysis.all") },
@@ -74,11 +99,20 @@ const SalaryCalculationCreation: React.FC = () => {
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-    const { trigger: calculateSal, isMutating: calculatingSal } = useSWRMutation(['calculate-salary'], async () => calculatePayment({
-        organizationId: formData.organizationId,
-        billingMonth: formData.billingMonth,
-        hrPositionId: formData.hrPositionId
-    }));
+    const { trigger: calculateSal, isMutating: calculatingSal } = useSWRMutation(
+        ['calculate-salary'],
+        async () => {
+            const result = await calculatePayment({
+                organizationId: formData.organizationId,
+                billingMonth: formData.billingMonth,
+                hrPositionId: formData.hrPositionId
+            });
+
+            // On successful API call
+            setShowAddButton(true);
+            return result;
+        }
+    );
 
     const { trigger: createSal, isMutating: creatingSal } = useSWRMutation(['create-salary'],
         async (_, { arg }: {
@@ -311,8 +345,101 @@ const SalaryCalculationCreation: React.FC = () => {
         setPaymentsData((prevData) => prevData.filter((row) => !row.check));
     };
 
+    const defaultValuesWorker: AddWorker = {
+        organizationId: 0,
+        billingMonth: '',
+        workerIds: []
+    }
+
+    const [formDataWorker, setFormDataWorker] = useState(defaultValuesWorker);
+
+    const { handleSubmit: handleSubmitWorker, setValue: setValueWorker, reset: resetWorker } = useFormHook(formDataWorker);
+
+    const { trigger: addWork, isMutating: addingWorker } = useSWRMutation(['adding-worker'], async () => addWorkerPayment({
+        organizationId: formData.organizationId,
+        billingMonth: formData.billingMonth,
+        workerIds: formDataWorker.workerIds
+    }));
+
+    const handleTransfer = (nextTargetKeys: (string | number | bigint)[]) => {
+        const numericKeys = nextTargetKeys.map((key) => Number(key));
+        setFormDataWorker((prev) => ({ ...prev, workerIds: numericKeys }));
+        setValueWorker("workerIds", numericKeys);
+    };
+
+    const resetFormWorker = () => {
+        setFormDataWorker(defaultValuesWorker);
+        // setIsEditMode(false);
+        resetWorker();
+        // setEditInventoryId(0);
+        // setButtonOn(!buttonOn);
+    };
+
+    const onSubmitWorker = async (data: unknown) => {
+        console.log("Errors: ", errors);
+        console.log('Form data:', data);
+        try {
+            const result = await addWork();
+            if (result) {
+                console.log('API Response:', result);
+                setPaymentsData(result.map((res, index) => ({
+                    ...res,
+                    paymentDate: new Date(),
+                    check: false,
+                    countShifts: 0,
+                    prize: 0,
+                    fine: 0,
+                    sum: 0,
+                    id: index
+                })));
+                resetFormWorker();
+            } else {
+                throw new Error('Invalid response from API');
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
+    };
+
     return (
         <div>
+            <Modal isOpen={isModalOpen}>
+                <div className="flex flex-row items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("roles.create")}</h2>
+                    <Close
+                        onClick={() => { resetFormWorker(); setIsModalOpen(false); }}
+                        className="cursor-pointer text-text01"
+                    />
+                </div>
+                <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
+                    <div className="flex flex-col space-y-4 text-text02">
+                        <Transfer
+                            dataSource={workers}
+                            targetKeys={formDataWorker.workerIds.map(String)}
+                            onChange={handleTransfer}
+                            render={(item) => item.title}
+                            showSearch
+                            listStyle={{
+                                width: 'calc(50% - 8px)',
+                                height: 300,
+                            }}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-3 mt-5">
+                        <Button
+                            title={"Сбросить"}
+                            handleClick={() => setIsModalOpen(false)}
+                            type="outline"
+                        />
+                        <Button
+                            title={"Сохранить"}
+                            form={true}
+                            isLoading={addingWorker}
+                        />
+                    </div>
+                </form>
+            </Modal>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                     <DropdownInput
@@ -369,7 +496,15 @@ const SalaryCalculationCreation: React.FC = () => {
             ) : paymentsData.length > 0 ? (
                 <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
                     <div className="flex flex-wrap justify-between gap-2">
-                        <AntDButton onClick={deleteRow} danger>{t("marketing.delete")}</AntDButton>
+                        <div className="flex space-x-4">
+                            <AntDButton onClick={deleteRow} danger>{t("marketing.delete")}</AntDButton>
+                            <Button
+                                title={t("finance.addE")}
+                                type="outline"
+                                iconPlus={true}
+                                handleClick={() => setIsModalOpen(true)}
+                            />
+                        </div>
                         <div className="space-x-2">
                             <button
                                 className="px-2 py-1 bg-background07/50 rounded"
@@ -414,13 +549,19 @@ const SalaryCalculationCreation: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-col justify-center items-center space-y-4">
                     <NoDataUI
                         title={t("marketing.nodata")}
                         description={""}
                     >
                         <img src={PositionEmpty} className="mx-auto" />
                     </NoDataUI>
+                    {showAddButton && (<Button
+                        title={t("finance.addE")}
+                        type="outline"
+                        iconPlus={true}
+                        handleClick={() => setIsModalOpen(true)}
+                    />)}
                 </div>
             )}
         </div>
