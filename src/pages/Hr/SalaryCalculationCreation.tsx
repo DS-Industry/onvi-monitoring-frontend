@@ -549,21 +549,22 @@ const SalaryCalculationCreation: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-col justify-center items-center space-y-4">
-                    <NoDataUI
-                        title={t("marketing.nodata")}
-                        description={""}
-                    >
-                        <img src={PositionEmpty} className="mx-auto" />
-                    </NoDataUI>
-                    {showAddButton && (<Button
-                        title={t("finance.addE")}
-                        type="outline"
-                        iconPlus={true}
-                        handleClick={() => setIsModalOpen(true)}
-                    />)}
-                </div>
-            )}
+                showAddButton && (
+                    <div className="flex flex-col justify-center items-center space-y-4">
+                        <NoDataUI
+                            title={t("marketing.nodata")}
+                            description={""}
+                        >
+                            <img src={PositionEmpty} className="mx-auto" />
+                        </NoDataUI>
+                        <Button
+                            title={t("finance.addE")}
+                            type="outline"
+                            iconPlus={true}
+                            handleClick={() => setIsModalOpen(true)}
+                        />
+                    </div>
+                ))}
         </div>
     )
 }
