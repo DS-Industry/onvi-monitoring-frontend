@@ -1,0 +1,183 @@
+import { useEffect, useRef } from 'react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+
+type MenuBarProps = {
+    editor: Editor | null;
+}
+
+const MenuBar = ({ editor } : MenuBarProps) => {
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-2 p-2">
+      <button
+        type="button" // Explicitly set button type to prevent form submission
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('bold') ? 'text-primary' : 'text-text01'}`}
+        title="Bold"
+      >
+        <strong>B</strong>
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('italic') ? 'text-primary' : 'text-text01'}`}
+        title="Italic"
+      >
+        <i>I</i>
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('underline') ? 'text-primary' : 'text-text01'}`}
+        title="Underline"
+      >
+        <u>U</u>
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('strike') ? 'text-primary' : 'text-text01'}`}
+        title="Strikethrough"
+      >
+        <s>S</s>
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleTaskList().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('taskList') ? 'text-primary' : 'text-text01'}`}
+        title="Task List"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="5" width="6" height="6" rx="1" />
+          <path d="M3 17h6" />
+          <path d="M13 5h8" />
+          <path d="M13 9h5" />
+          <path d="M13 17h8" />
+          <path d="M13 21h5" />
+        </svg>
+      </button>
+      <span className="text-text01">...</span>
+      <div className="ml-auto flex gap-2">
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setContent('').run()}
+          className="p-2 hover:bg-background06 rounded text-text01"
+          title="Clear content"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M9 3v18" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().undo().run()}
+          className="p-2 hover:bg-background06 rounded text-text01"
+          title="Undo"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 7v6h6" />
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+type Props = {
+    value?: string;
+    onChange: (value: string) => void;
+}
+
+const TiptapEditor = ({ value, onChange } : Props) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<string>(value || '');
+  
+  // Track if we're currently editing 
+  const isEditingRef = useRef<boolean>(false);
+  
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
+    ],
+    content: value || '',
+    onUpdate: ({ editor }) => {
+      isEditingRef.current = true;
+      const html = editor.getHTML();
+      contentRef.current = html;
+      onChange(html);
+      setTimeout(() => {
+        isEditingRef.current = false;
+      }, 10);
+    },
+    editorProps: {
+      // Handle native DOM events inside the editor
+      handleKeyDown: (_view, event) => {
+        if (event.key === 'Enter') {
+          // Let the editor handle the enter key naturally but prevent form submission
+          event.stopPropagation();
+          // Don't call preventDefault() here - let Tiptap handle the Enter normally
+          // Just stop it from bubbling up to the form
+          return false; // Return false to let Tiptap process the key event
+        }
+        return false;
+      },
+    }
+  });
+  
+  // Only update content from props when it actually changed from outside
+  useEffect(() => {
+    if (editor && !isEditingRef.current && value !== contentRef.current) {
+      // Update content safely
+      contentRef.current = value || '';
+      editor.commands.setContent(contentRef.current);
+    }
+  }, [value, editor]);
+
+  // Handle keydown for the whole container
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.stopPropagation();
+      // Don't call preventDefault here to let the editor work properly
+    }
+  };
+
+  // Prevent form submissions from inside the editor
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  return (
+    <div 
+      ref={wrapperRef}
+      className="w-full border rounded overflow-hidden bg-white" 
+      onKeyDown={handleKeyDown}
+      onSubmit={handleSubmit}
+    >
+      <MenuBar editor={editor} />
+      <div className="border-t p-4">
+        <EditorContent 
+          editor={editor} 
+          className="min-h-64 focus:outline-none text-text01" 
+          placeholder="Комментарий по выполнению" 
+        />
+      </div>
+    </div>
+  );
+};
+
+export default TiptapEditor;

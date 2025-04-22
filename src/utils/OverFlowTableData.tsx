@@ -532,7 +532,12 @@ export const columnsTechTasks = [
   },
   {
     label: "Периодичность",
-    key: "period"
+    key: "period",
+    type: "number"
+  },
+  {
+    label: "Статус",
+    key: "status"
   },
   {
     label: "Тип работы",

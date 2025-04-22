@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Button from "@/components/ui/Button/Button";
-import { createTechTask, getPoses, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
+import { createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasks } from "@/utils/OverFlowTableData";
@@ -18,6 +18,13 @@ import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Select } from "antd";
+import MultiInput from "@/components/ui/Input/MultiInput";
+import { Tabs } from 'antd';
+import TiptapEditor from "@/components/ui/Input/TipTapEditor";
+import { Card, Tag, Button as AntDButton, Typography, Space, Row, Col } from 'antd';
+import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined } from '@ant-design/icons';
+
+const { Text, Title } = Typography;
 
 type TechTasks = {
     id: number;
@@ -25,10 +32,11 @@ type TechTasks = {
     posId: number;
     type: string;
     status: string;
-    period: string;
+    period?: number;
+    markdownDescription?: string;
     nextCreateDate?: Date;
-    startDate: Date;
     endSpecifiedDate?: Date;
+    startDate: Date;
     items: {
         id: number;
         title: string;
@@ -43,10 +51,12 @@ type TechTaskBody = {
     name: string;
     posId: number;
     type: string;
-    period: string;
+    period?: number;
+    markdownDescription?: string;
     startDate: string;
     endSpecifiedDate?: string;
     techTaskItem: number[];
+    tagIds: number[];
 }
 
 interface Item {
@@ -56,6 +66,7 @@ interface Item {
 }
 
 const RoutineWork: React.FC = () => {
+    const { TabPane } = Tabs;
     const { t } = useTranslation();
     // const [taskCount, setTaskCount] = useState(0);
     const posType = usePosType();
@@ -64,6 +75,7 @@ const RoutineWork: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
+    const [tagIds, setTagIds] = useState<number[]>([]);
 
     const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => getTechTasks({
         posId: searchPosId,
@@ -72,18 +84,28 @@ const RoutineWork: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: tagsData } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const options = tagsData ? tagsData.map((tag) => (({
+        id: tag.props.id,
+        name: tag.props.name,
+        color: "red"
+    }))) : [];
 
     const defaultValues: TechTaskBody = {
         name: '',
         posId: 0,
         type: '',
-        period: '',
+        period: 0,
         startDate: '',
-        endSpecifiedDate: '',
-        techTaskItem: []
+        endSpecifiedDate: undefined,
+        markdownDescription: undefined,
+        techTaskItem: [],
+        tagIds: []
     }
 
     const [formData, setFormData] = useState(defaultValues);
@@ -95,24 +117,25 @@ const RoutineWork: React.FC = () => {
         posId: formData.posId,
         type: formData.type,
         period: formData.period,
+        markdownDescription: formData.markdownDescription,
         startDate: new Date(formData.startDate),
         endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
-        techTaskItem: formData.techTaskItem
+        techTaskItem: formData.techTaskItem,
+        tagIds: tagIds
     }));
 
     const { trigger: updateTech, isMutating: updatingTechTask } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
         techTaskId: editTechTaskId,
         name: formData.name,
-        type: formData.type,
         endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
         period: formData.period,
         techTaskItem: formData.techTaskItem
     }));
 
-    type FieldType = "name" | "posId" | "type" | "period" | "startDate" | "endSpecifiedDate";
+    type FieldType = "name" | "posId" | "type" | "period" | "markdownDescription" | "startDate" | "endSpecifiedDate" | "techTaskItem" | "tagIds" | `techTaskItem.${number}` | `tagIds.${number}`;
 
     const handleInputChange = (field: FieldType, value: string) => {
-        const numericFields = ['posId'];
+        const numericFields = ['posId', 'period'];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
@@ -138,7 +161,8 @@ const RoutineWork: React.FC = () => {
                 period: techTaskToEdit.period,
                 startDate: techTaskToEdit.startDate.toString().substring(0, 10),
                 endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate.toString().substring(0, 10),
-                techTaskItem: techTaskItemNumber
+                techTaskItem: techTaskItemNumber,
+                tagIds: []
             });
         }
     };
@@ -186,9 +210,9 @@ const RoutineWork: React.FC = () => {
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
         ?.map((item: TechTasks) => ({
             ...item,
-            period: t(`tables.${item.period}`),
             type: t(`tables.${item.type}`),
-            posName: poses.find((pos) => pos.value === item.posId)?.name
+            posName: poses.find((pos) => pos.value === item.posId)?.name,
+            status: t(`tables.${item.status}`)
         }))
         .sort((a, b) => a.id - b.id) || [];
 
@@ -237,28 +261,11 @@ const RoutineWork: React.FC = () => {
         setValue("techTaskItem", movingItemIds);
     };
 
-    // Transfer selected items
-    // const handleTransfer = () => {
-    //     let updatedSelectedItems = [...selectedItems];
-    //     let updatedAvailableItems = [...availableItems];
-    //     if (areItemsInAvailableList) {
-    //         // Move from Available to Selected
-    //         const movingItems = availableItems.filter((item) => selected.includes(item.id));
-    //         updatedSelectedItems = [...updatedSelectedItems, ...movingItems];
-    //         updatedAvailableItems = availableItems.filter((item) => !selected.includes(item.id));
-    //     } else {
-    //         // Move from Selected to Available
-    //         const movingItems = selectedItems.filter((item) => selected.includes(item.id));
-    //         updatedAvailableItems = [...updatedAvailableItems, ...movingItems];
-    //         updatedSelectedItems = selectedItems.filter((item) => !selected.includes(item.id));
-    //     }
-    //     setAvailableItems(updatedAvailableItems);
-    //     setSelectedItems(updatedSelectedItems);
-    //     setSelected([]);
-    //     const movingItemIds = updatedSelectedItems.map((item) => item.id);
-    //     setFormData((prev) => ({ ...prev, ["techTaskItem"]: movingItemIds }));
-    //     setValue("techTaskItem", movingItemIds);
-    // };
+    const handleSelectionTagChange = (selected: typeof options) => {
+        console.log("Selected Options:", selected);
+        const selectedIds = selected.map((sel) => sel.id);
+        setTagIds(selectedIds);
+    };
 
     const toggleSelection = (id: number) => {
         setSelected((prev) =>
@@ -269,6 +276,16 @@ const RoutineWork: React.FC = () => {
     const handleClear = () => {
         setSearchPosId(posType);
     }
+
+    const getStatusTag = (status: string) => {
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT"))
+            return <Tag color="green">{status}</Tag>;
+        if (status === t("tables.OVERDUE") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+            return <Tag color="red">{status}</Tag>;
+        if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
+            return <Tag color="orange">{status}</Tag>;
+        else return <Tag color="default">{status}</Tag>;
+    };
 
     return (
         <>
@@ -285,29 +302,158 @@ const RoutineWork: React.FC = () => {
                     </div>
                 </div>
             </Filter>
-            {techTasksLoading ? (
-                <TableSkeleton columnCount={columnsTechTasks.length} />
-            ) :
-                techTasks.length > 0 ?
-                    <>
-                        <div className="mt-8">
-                            <DynamicTable
-                                data={techTasks}
-                                columns={columnsTechTasks}
-                                isDisplayEdit={true}
-                                onEdit={handleUpdate}
-                            />
-                        </div>
-                    </>
-                    :
-                    <NoDataUI
-                        title={t("routine.display")}
-                        description={""}
-                    >
-                        <img src={SalyImage} className="mx-auto" />
-                    </NoDataUI>
-            }
+            <Tabs defaultActiveKey="cards">
+                <TabPane tab={t("equipment.card")} key="cards">
+                    {techTasksLoading ? (
+                        <TableSkeleton columnCount={columnsTechTasks.length} />
+                    ) : techTasks.length > 0 ? (
+                        <div className="flex flex-wrap gap-4 justify-start md:justify-start">
+                            {techTasks.map((tech) => (
+                                <div
+                                    key={tech.id}
+                                    className="w-full sm:w-[360px] h-[186px]"
+                                >
+                                    <Card
+                                        variant="outlined"
+                                        style={{
+                                            height: '100%',
+                                        }}
+                                        styles={{
+                                            body: {
+                                                padding: '16px',
+                                                height: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'space-between'
+                                            }
+                                        }}
+                                    >
+                                        <Row justify="space-between" align="top">
+                                            <Col>
+                                                <Space direction="vertical" size="small">
+                                                    <Space>
+                                                        <FolderOutlined style={{ color: '#1890ff' }} />
+                                                        <Title level={4} style={{ margin: 0 }}>
+                                                            {tech.name}
+                                                        </Title>
+                                                    </Space>
+                                                    <Text type="secondary">
+                                                        {poses.find((pos) => pos.value === tech.posId)?.name || ''}
+                                                    </Text>
+                                                    <Text
+                                                        type="secondary"
+                                                        style={{ display: 'block' }}
+                                                    >
+                                                        Крайний срок: 28.05.2024
+                                                    </Text>
+                                                    <AntDButton
+                                                        type="text"
+                                                        style={{
+                                                            color: '#722ed1',
+                                                            background: '#f9f0ff',
+                                                            borderRadius: '4px',
+                                                            padding: '0 12px',
+                                                            height: '28px',
+                                                        }}
+                                                    >
+                                                        Регламентные работы
+                                                    </AntDButton>
+                                                </Space>
+                                            </Col>
+                                            <Col>
+                                                {getStatusTag(tech.status)}
+                                            </Col>
+                                        </Row>
+                                        <Row
+                                            justify="center"
+                                            align="middle"
+                                            style={{
+                                                marginTop: '4px',
+                                                borderTop: '1px solid #f0f0f0',
+                                                paddingTop: '8px',
+                                                height: '48px', // Ensure a fixed height for alignment
+                                            }}
+                                        >
+                                            {/* Check Button */}
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    padding: '0 16px',
+                                                    height: '100%',
+                                                    width: '150px'
+                                                }}
+                                            >
+                                                <AntDButton
+                                                    type="text"
+                                                    icon={tech.status === t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                />
+                                            </div>
 
+                                            {/* Divider */}
+                                            <div
+                                                style={{
+                                                    width: '1px',
+                                                    height: '24px',
+                                                    backgroundColor: '#f0f0f0',
+                                                    margin: '0 8px',
+                                                    alignSelf: 'center',
+                                                }}
+                                            />
+
+                                            {/* Delete Button */}
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    padding: '0 16px',
+                                                    height: '100%',
+                                                    width: '150px'
+                                                }}
+                                            >
+                                                <AntDButton
+                                                    type="text"
+                                                    icon={<DeleteOutlined style={{ color: '#f5222d', fontSize: '16px' }} />}
+                                                />
+                                            </div>
+                                        </Row>
+                                    </Card>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <NoDataUI title={t('routine.display')} description={''}>
+                            <img src={SalyImage} className="mx-auto" />
+                        </NoDataUI>
+                    )}
+                </TabPane>
+                <TabPane tab={t("equipment.table")} key="table">
+                    {techTasksLoading ? (
+                        <TableSkeleton columnCount={columnsTechTasks.length} />
+                    ) :
+                        techTasks.length > 0 ?
+                            <>
+                                <div className="mt-8">
+                                    <DynamicTable
+                                        data={techTasks}
+                                        columns={columnsTechTasks}
+                                        isDisplayEdit={true}
+                                        onEdit={handleUpdate}
+                                    />
+                                </div>
+                            </>
+                            :
+                            <NoDataUI
+                                title={t("routine.display")}
+                                description={""}
+                            >
+                                <img src={SalyImage} className="mx-auto" />
+                            </NoDataUI>
+                    }
+                </TabPane>
+            </Tabs>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
@@ -338,7 +484,10 @@ const RoutineWork: React.FC = () => {
                                 (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
-                        onChange={(value) => handleInputChange('posId', value)}
+                        onChange={(value) => { 
+                            handleInputChange('posId', value);
+                            setSearchPosId(value);
+                        }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
                     />
@@ -348,8 +497,8 @@ const RoutineWork: React.FC = () => {
                         label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
-                            { name: t("routine.routine"), value: "Routine" },
-                            { name: t("routine.regulation"), value: "Regulation" },
+                            { name: t("tables.ONETIME"), value: "ONETIME" },
+                            { name: t("tables.REGULAR"), value: "REGULAR" },
                         ]}
                         {...register('type', {
                             required: !isEditMode && 'Type is required',
@@ -359,23 +508,19 @@ const RoutineWork: React.FC = () => {
                         error={!!errors.type}
                         helperText={errors.type?.message}
                     />
-                    <DropdownInput
+                    <Input
                         title={`${t("routine.frequency")} *`}
-                        type={""}
+                        type={"number"}
                         label={t("warehouse.notSel")}
                         classname="w-64"
-                        options={[
-                            { name: t("routine.daily"), value: "Daily" },
-                            { name: t("routine.weekly"), value: "Weekly" },
-                            { name: t("routine.monthly"), value: "Monthly" },
-                        ]}
-                        {...register('period', {
-                            required: !isEditMode && 'Period is required',
-                        })}
+                        // options={[
+                        //     { name: t("routine.daily"), value: "Daily" },
+                        //     { name: t("routine.weekly"), value: "Weekly" },
+                        //     { name: t("routine.monthly"), value: "Monthly" },
+                        // ]}
+                        {...register('period')}
                         value={formData.period}
-                        onChange={(value) => handleInputChange('period', value)}
-                        error={!!errors.period}
-                        helperText={errors.period?.message}
+                        changeValue={(e) => handleInputChange('period', e.target.value)}
                     />
                     <Input
                         type={"date"}
@@ -388,39 +533,22 @@ const RoutineWork: React.FC = () => {
                         helperText={errors.startDate?.message || ''}
                         disabled={isEditMode}
                     />
-                    <Input
-                        type={"date"}
-                        title={`${t("equipment.end")}`}
-                        classname="w-40"
-                        value={formData.endSpecifiedDate}
-                        changeValue={(e) => handleInputChange('endSpecifiedDate', e.target.value)}
-                        error={!!errors.endSpecifiedDate}
-                        {...register('endSpecifiedDate')}
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.end")}</div>
+                        <Input
+                            type={"date"}
+                            classname="w-40"
+                            value={formData.endSpecifiedDate}
+                            changeValue={(e) => handleInputChange('endSpecifiedDate', e.target.value)}
+                            error={!!errors.endSpecifiedDate}
+                            {...register('endSpecifiedDate')}
+                        />
+                    </div>
+                    <MultiInput
+                        options={options}
+                        value={tagIds}
+                        onChange={handleSelectionTagChange}
                     />
-                    {/* <div className="font-semibold text-2xl text-text01">{t("routine.checklist")}</div>
-                    {taskCount > 0 && (
-                        Array.from({ length: taskCount }).map((_, index) => (
-                            <div key={index} className="space-y-4">
-                                <Input
-                                    title={`${t("routine.task")}`}
-                                    label={t("routine.enterTask")}
-                                    type={""}
-                                    changeValue={() => { }}
-                                    classname="w-80"
-                                />
-                                <MultilineInput
-                                    title={t("equipment.comment")}
-                                    classname="w-96"
-                                    changeValue={() => { }}
-                                />
-                                <div className="font-semibold text-[#ff3b30] cursor-pointer" onClick={() => setTaskCount((taskCount) => taskCount - 1)}>{t("routine.delete")}</div>
-                            </div>
-                        ))
-                    )}
-                    <div className="flex text-primary02 cursor-pointer" onClick={() => setTaskCount((taskCount) => taskCount + 1)}>
-                        <Plus icon="plus" className="h-6 w-6" />
-                        <div className="font-semibold">{t("routine.add")}</div>
-                    </div> */}
                     <div className="flex flex-col">
                         {/* Available Items List */}
                         <div className="border rounded w-80">
@@ -484,6 +612,17 @@ const RoutineWork: React.FC = () => {
                             </div>
                         </div>
                     </div>
+                    <Tabs defaultActiveKey="editor">
+                        <TabPane tab={t("equipment.text")} key="editor">
+                            <TiptapEditor
+                                value={formData.markdownDescription}
+                                onChange={(value) => handleInputChange("markdownDescription", value)}
+                            />
+                        </TabPane>
+                        <TabPane tab={t("equipment.templates")} key="templates">
+                            <div style={{ padding: 10, color: '#888' }}>Нет доступных шаблонов</div>
+                        </TabPane>
+                    </Tabs>
                     <div className="flex justify-start space-x-4">
                         <Button
                             title={t("organizations.cancel")}

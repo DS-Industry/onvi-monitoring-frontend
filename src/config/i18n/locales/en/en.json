@@ -274,7 +274,11 @@
     "no": "No",
     "program": "Program",
     "comment": "Comment",
-    "user": "User"
+    "user": "User",
+    "card": "Card View",
+    "table": "Table",
+    "text": "Text Editor",
+    "templates": "Templates"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -665,7 +669,9 @@
     "OFFLINE": "OFFLINE",
     "DELETED": "DELETED",
     "lines": "Lines per page",
-    "PAUSE": "PAUSE"
+    "PAUSE": "PAUSE",
+    "ONETIME": "ONETIME",
+    "REGULAR": "REGULAR"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
