@@ -11,17 +11,17 @@ import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/w
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsAllDocuments } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import NoDataUI from "@/components/ui/NoDataUI";
 import OverheadsEmpty from "@/assets/NoOverhead.png"
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type DocumentParams = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId: number;
-    placementId: number;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 enum WarehouseDocumentType {
     WRITEOFF = 'WRITEOFF',
@@ -69,7 +69,10 @@ const Documents: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR(posType && city ? [`get-warehouse`] : null, () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -78,7 +81,7 @@ const Documents: React.FC = () => {
     const initialFilter = {
         dateStart: new Date(startDate.toString().slice(0, 10) || "2024-01-01"),
         dateEnd: new Date(endDate.toString().slice(0, 10) || `${formattedDate}`),
-        warehouseId: wareHouseId || 3,
+        warehouseId: wareHouseId,
         placementId: city
     };
 
@@ -93,7 +96,7 @@ const Documents: React.FC = () => {
         if(newFilterData.placementId) setCity(newFilterData.placementId);
     };
 
-    const { data: allDocuments, isLoading: documentsLoading, mutate: documentsMutating } = useSWR([`get-all-documents`], () => getAllDocuments({
+    const { data: allDocuments, isLoading: documentsLoading, mutate: documentsMutating } = useSWR(wareHouseId ? [`get-all-documents`] : null, () => getAllDocuments({
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         warehouseId: dataFilter.warehouseId,
@@ -153,7 +156,7 @@ const Documents: React.FC = () => {
 
                 // Ensure result has the expected data
                 if (result?.props) {
-                    const { id, name, carryingAt, warehouseId, status } = result.props;
+                    const { id, name, carryingAt, status } = result.props;
 
                     // Navigate with the correct state values
                     navigate("/warehouse/documents/creation", {
@@ -161,7 +164,7 @@ const Documents: React.FC = () => {
                             ownerId: id,
                             name,
                             carryingAt,
-                            wareHouseId: warehouseId,
+                            wareHouseId: wareHouseId,
                             status
                         }
                     });
@@ -182,18 +185,19 @@ const Documents: React.FC = () => {
                 count={data.length}
                 wareHousesSelect={warehouses}
                 handleDataFilter={handleDataFilter}
+                hideSearch={true}
             />
             {isTableLoading || documentsLoading ? (
                 <TableSkeleton columnCount={columnsAllDocuments.length} />
             ) :
                 data.length > 0 ?
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={data}
+                        <DynamicTable
+                            data={data}
                             columns={columnsAllDocuments}
                             isDisplayEdit={true}
                             isStatus={true}
-                            nameUrl={'/warehouse/documents/view'}
+                            navigableFields={[{ key: "name", getPath: () => '/warehouse/documents/view' }]}
                         />
                     </div> :
                     <NoDataUI
@@ -203,7 +207,7 @@ const Documents: React.FC = () => {
                         <img src={OverheadsEmpty} className="mx-auto" />
                     </NoDataUI>
             }
-            <Modal isOpen={buttonOn} onClose={() => setButtonOn(false)} handleClick={handleModalSubmit} classname="w-96" loading={loadingDocument}>
+            <Modal isOpen={buttonOn} onClose={() => setButtonOn(false)} handleClick={handleModalSubmit} classname="w-96 h-72" loading={loadingDocument}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-2xl font-semibold text-text01">{t("warehouse.createDoc")}</h2>
                     <div className="flex items-center gap-6">

@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap.tsx";
 import Button from "../Button/Button.tsx";
-import DropdownInput from "../Input/DropdownInput.tsx";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity } from "@/hooks/useAuthStore.ts";
-import SearchInput from "../Input/SearchInput.tsx";
+// import DropdownInput from "../Input/DropdownInput.tsx";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity, useDeviceId, useSetDeviceId } from "@/hooks/useAuthStore.ts";
+// import SearchInput from "../Input/SearchInput.tsx";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
+import { Select, Input } from "antd";
+import { useTranslation } from "react-i18next";
 
 type Optional = {
     name: string;
@@ -23,7 +25,11 @@ type Props = {
     handleDataFilter?: any;
     hideCity?: boolean;
     hideSearch?: boolean;
+    hideReset?: boolean;
 };
+
+const { Search } = Input;
+
 const FilterMonitoring: React.FC<Props> = ({
     count,
     organizationsSelect,
@@ -33,11 +39,13 @@ const FilterMonitoring: React.FC<Props> = ({
     usersSelect,
     handleDataFilter,
     hideCity = false,
-    hideSearch = false
+    hideSearch = false,
+    hideReset = false
 }: Props) => {
 
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
+    const { t } = useTranslation();
 
     const posType = usePosType();
     const wareHouseId = useWareHouseId();
@@ -52,9 +60,11 @@ const FilterMonitoring: React.FC<Props> = ({
     const [startDate, setStartDate] = useState(storeStartDate);
     const [endDate, setEndDate] = useState(storeEndDate);
     const [organizationId, setOrganizationId] = useState('');
-    const [posId, setPosId] = useState(posType);
+    const posId = posType;
+    const setPosId = useSetPosType();
     const [warehouseId, setWarehouseId] = useState(wareHouseId);
-    const [deviceId, setDeviceId] = useState('');
+    const deviceId = useDeviceId();
+    const setDeviceId = useSetDeviceId();
     const city = useCity();
     const setCity = useSetCity();
 
@@ -77,9 +87,7 @@ const FilterMonitoring: React.FC<Props> = ({
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
-
-
+    const cities: { label: string; value: number; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || [];
 
     useEffect(() => {
         if (filterOpen && !buttonOn) {
@@ -123,90 +131,117 @@ const FilterMonitoring: React.FC<Props> = ({
         >
             <div className="flex flex-wrap gap-4">
                 {!hideSearch && (
-                    <SearchInput
-                        value={""}
-                        onChange={() => { }}
-                        classname="w-full sm:w-80"
-                        searchType="outlined"
-                        title="Поиск"
-                    />
+                    <Search placeholder="Поиск" className="w-full sm:w-80" />
                 )}
                 {!hideCity && (
-                    <DropdownInput
-                        title={"Город"}
-                        value={city}
-                        classname="w-full sm:w-80"
-                        options={cities}
-                        onChange={(value) => setCity(value)}
-                    />
+                    <div>
+                        <div className="text-sm text-text02">{t("pos.city")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Город"
+                            options={cities}
+                            value={city}
+                            onChange={setCity}
+                        />
+                    </div>
                 )}
-                {organizationsSelect && (
-                    <DropdownInput
-                        title={"Организация"}
-                        type={"string"}
-                        label={'Выберите организацию'}
-                        classname="w-full sm:w-80"
-                        options={organizationsSelect}
-                        value={organizationId}
-                        onChange={setOrganizationId}
-                    />
+                {organizationsSelect && organizationsSelect.length > 0 && (
+                    <div>
+                        <div className="text-sm text-text02">{t("analysis.organizationId")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Выберите организацию"
+                            options={organizationsSelect.map((item) => ({ label: item.name, value: item.value }))}
+                            value={organizationId}
+                            onChange={setOrganizationId}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 )}
-                {posesSelect && (
-                    <DropdownInput
-                        title={"Объект"}
-                        type={"string"}
-                        label={'Выберите объект'}
-                        classname="w-full sm:w-80"
-                        options={posesSelect}
-                        value={posId}
-                        onChange={setPosId}
-                    />
+                {posesSelect && posesSelect.length > 0 && (
+                    <div>
+                        <div className="text-sm text-text02">{t("analysis.posId")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Выберите объект"
+                            options={posesSelect.map((item) => ({ label: item.name, value: item.value }))}
+                            value={posType}
+                            onChange={setPosType}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 )}
-                {usersSelect && (
-                    <DropdownInput
-                        title={"Пользователь"}
-                        type={"string"}
-                        label={'Выберите объект'}
-                        classname="w-full sm:w-80"
-                        options={usersSelect}
-                        value={undefined}
-                    />
+                {usersSelect && usersSelect.length > 0 && (
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.user")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Выберите пользователя"
+                            options={usersSelect.map((item) => ({ label: item.name, value: item.value }))}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 )}
-                {devicesSelect && (
-                    <DropdownInput
-                        title={"Устройство"}
-                        type={"string"}
-                        label={'Выберите устройство'}
-                        classname="w-full sm:w-80"
-                        options={devicesSelect}
-                        value={deviceId}
-                        onChange={setDeviceId}
-                    />
+                {devicesSelect && devicesSelect.length > 0 && (
+                    <div>
+                        <div className="text-sm text-text02">{t("analysis.deviceId")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Выберите устройство"
+                            options={devicesSelect.map((item) => ({ label: item.name, value: item.value }))}
+                            value={deviceId}
+                            onChange={setDeviceId}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 )}
-                {wareHousesSelect && (
-                    <DropdownInput
-                        title={"Склад"}
-                        type={"string"}
-                        label={'Введите название склада'}
-                        classname="w-full sm:w-80"
-                        options={wareHousesSelect}
-                        value={warehouseId}
-                        onChange={setWarehouseId}
-                    />
+                {wareHousesSelect && wareHousesSelect.length > 0 && (
+                    <div>
+                        <div className="text-sm text-text02">{t("analysis.warehouseId")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            placeholder="Введите название склада"
+                            options={wareHousesSelect.map((item) => ({ label: item.name, value: item.value }))}
+                            value={warehouseId}
+                            onChange={setWarehouseId}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 )}
-                <DropdownInput
-                    title={"Строк на стр."}
-                    value={pageNumber}
-                    classname="w-24"
-                    options={[
-                        { name: 15, value: 15 },
-                        { name: 50, value: 50 },
-                        { name: 100, value: 100 },
-                        { name: 120, value: 120 },
-                        { name: 150, value: 150 }
-                    ]}
-                    onChange={(value) => setPageNumber(value)}
-                />
+                <div>
+                    <div className="text-sm text-text02">{t("tables.lines")}</div>
+                    <Select
+                        className="w-24"
+                        options={[{ label: 15, value: 15 }, { label: 50, value: 50 }, { label: 100, value: 100 }, { label: 120, value: 120 }]}
+                        value={pageNumber}
+                        onChange={setPageNumber}
+                        dropdownRender={(menu) => (
+                            <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                {menu}
+                            </div>
+                        )}
+                    />
+                </div>
             </div>
 
             <div className="mt-4">
@@ -219,23 +254,24 @@ const FilterMonitoring: React.FC<Props> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-4 mt-4">
-                <Button
+                {!hideReset && (<Button
                     title='Сбросить'
                     type='outline'
                     handleClick={() => {
                         setStartDate(new Date(`${formattedDate} 00:00`));
                         setEndDate(new Date(`${formattedDate} 23:59`));
-                        setPosId(66);
-                        setWarehouseId(0);
+                        setPosId("*");
+                        setWarehouseId("*");
                         setOrganizationId('');
-                        setDeviceId('');
-                        setPosType(66);
-                        setWareHouseId(0);
+                        setDeviceId(undefined);
+                        setPosType("*");
+                        setWareHouseId("*");
+                        setCity("*");
                         setStartDateInStore(new Date(`${formattedDate} 00:00`));
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);
                     }}
-                />
+                />)}
                 <Button
                     title='Применить'
                     form={true}

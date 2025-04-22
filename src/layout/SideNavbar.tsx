@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Layout } from "antd";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
@@ -14,15 +15,15 @@ import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/contex
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import EZ from "@icons/EZ.svg?react";
-import moment from "moment";
 import Icon from "feather-icons-react";
+
+const { Sider, Content } = Layout;
 
 type Props = {
   children: React.ReactNode;
@@ -30,11 +31,10 @@ type Props = {
 
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
-  const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
+  const [activeNavItem, setActiveNavItem] = useState<string | null>(null);
+  const [activeSubNavItem, setActiveSubNavItem] = useState<string | null>(null);
   const [openSubNav, setOpenSubNav] = useState<string | null>(null);
   const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
-  // const [notificationVisible, setNotificationVisible] = useState(true);
   const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
@@ -43,6 +43,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const navigate = useNavigate();
   const user = useUser();
   const [isMobile, setIsMobile] = useState(false);
+  // Add a new state to track hover state
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,9 +83,13 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     navigate('/profile');
   };
 
+  const handleNotificationsNavigate = () => {
+    navigate('/notifications');
+  };
+
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
-  const document = useDocumentType();
+  const doc = useDocumentType();
 
   const isParentActive = (subMenu: any[] | undefined) =>
     subMenu && subMenu.some((child) => child.path === location.pathname);
@@ -94,30 +100,80 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   };
 
   const toggleNavbar = () => {
+    setIsHovered(!isHovered);
     setIsOpen(!isOpen);
   };
 
-  const handleMouseEnter = (item: string) => {
-    setHoveredNavItem(item);
+  const handleNavItemClick = (item: string) => {
+    if (activeNavItem === item) {
+      setActiveNavItem(null);
+    } else {
+      setActiveNavItem(item);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleMouseLeave = () => {
-    setHoveredNavItem(null);
+  const handleSubNavItemClick = (subItem: string) => {
+    if (activeSubNavItem === subItem) {
+      setActiveSubNavItem(null);
+    } else {
+      setActiveSubNavItem(subItem);
+    }
   };
 
-  const handleSubNavMouseEnter = (subItem: string) => {
-    setHoveredSubNavItem(subItem);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (isMobile) return; // Skip for mobile
+
+    const sideBar = document.getElementById('sidebar');
+    const sideNavs = document.querySelectorAll('.side-nav');
+    let isInsideSidebar = false;
+
+    sideNavs.forEach(element => {
+      if (element.contains(e.target as Node)) {
+        isInsideSidebar = true;
+      }
+    });
+
+    if (sideBar && !sideBar.contains(e.target as Node) && !isInsideSidebar) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleSubNavMouseLeave = () => {
-    setHoveredSubNavItem(null);
-  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile]);
+
+  // Close submenus when navigating to a new route
+  useEffect(() => {
+    if (!isMobile) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
+  }, [location.pathname, isMobile]);
 
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     setSnackbarFunction(showSnackbar);
   }, [showSnackbar]);
+
+  const hoverRef = useRef(false);
+
+  useEffect(() => {
+    hoverRef.current = isHovered;
+  }, [isHovered]);
+
+  // Add effect to handle hover state changes
+  useEffect(() => {
+    if (!isMobile && isHovered && !isOpen) {
+      // Open sidebar when hovered
+      setIsOpen(true);
+    }
+  }, [isHovered, isMobile, isOpen]);
 
   const getRequiredPermissions = (path: string) => {
     if (path.includes("administration"))
@@ -152,14 +208,13 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         { action: "manage", subject: "ShiftReport" },
         { action: "create", subject: "ShiftReport" },
       ];
-    // Add cases for other components as needed
     else
       return [];
   };
 
   return (
-    <div className="relative">
-      {hoveredNavItem && (
+    <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
+      {activeNavItem && !isMobile && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
           aria-hidden="true"
@@ -171,16 +226,49 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           onClick={() => setIsOpen(false)} // Close sidebar when clicking outside
         ></div>
       )}
-      <div
-        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform transition-all duration-300 ease-in-out
-      ${isOpen ? "w-64 translate-x-0" : "w-20"}
-      ${isOpen && "md:w-64"}
-      ${isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : ""}`}
+
+      <Sider
+        id="sidebar"
+        theme="dark"
+        trigger={null}
+        collapsible
+        collapsed={!isOpen}
+        width={256}
+        collapsedWidth={80}
+        className="fixed h-full z-50"
+        style={{
+          background: "#1c1917",
+          height: "100%",
+          left: isMobile ? (isOpen ? 0 : -80) : 0,
+          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
+        }}
+        // Add hover event handlers
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setIsHovered(false);
+            setTimeout(() => {
+              if (!hoverRef.current) {  
+                setIsOpen(false);
+                setActiveNavItem(null);
+                setActiveSubNavItem(null);
+              }
+            }, 300); // Smooth UX delay
+          }
+        }}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
             <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
               {isOpen ? <img src={onvi} alt="" /> : <img src={onvi_small} alt="" />}
+              {isMobile && (
+                <button
+                  onClick={toggleNavbar}
+                  className="p-2 border border-primary01 text-primary01 rounded h-10 w-10"
+                >
+                  {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
+                </button>
+              )}
             </div>
             <nav className="mt-5 text-sm grid gap-y-1">
               {routes.map((item) =>
@@ -194,15 +282,20 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                       allowed && (
                         <div
                           key={item.name}
-                          onMouseEnter={!isMobile ? () => handleMouseEnter(item.name) : undefined}
-                          onMouseLeave={!isMobile ? handleMouseLeave : undefined}
+                          className="side-nav"
+                          onMouseEnter={isMobile ? undefined : () => { }}
+                          onMouseLeave={isMobile ? undefined : () => { }}
                         >
                           <NavLink
                             to={item.subMenu ? '#' : item.path}
                             onClick={(e) => {
                               if (item.subMenu) {
                                 e.preventDefault();
-                                setOpenSubNav(openSubNav === item.name ? null : item.name);
+                                if (isMobile) {
+                                  setOpenSubNav(openSubNav === item.name ? null : item.name);
+                                } else {
+                                  handleNavItemClick(item.name);
+                                }
                               }
                             }}
                             className={({ isActive }) =>
@@ -210,7 +303,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
                               ${isParentActive(item.subNav)
                                   ? 'bg-opacity01/30 text-primary01'
-                                  : hoveredNavItem === item.name
+                                  : (!isMobile && activeNavItem === item.name)
                                     ? 'bg-opacity01/30 text-primary01'
                                     : 'text-text02'
                                 } hover:bg-opacity01/30 hover:text-primary01`
@@ -305,8 +398,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                               </div>
                             </div>
                           )}
-                          {hoveredNavItem === item.name && item.subNav && (
-                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
+                          {!isMobile && activeNavItem === item.name && item.subNav && (
+                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
                               {item.subNavHeading !== "" && <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
                                 {t(`routes.${item.subNavHeading}`)}
                               </div>}
@@ -314,8 +407,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 subItem.isSidebar &&
                                 <div
                                   key={subItem.name}
-                                  onMouseEnter={!isMobile ? () => handleSubNavMouseEnter(subItem.name) : undefined}
-                                  onMouseLeave={!isMobile ? handleSubNavMouseLeave : undefined}
+                                  className="side-nav"
                                 >
                                   {subItem.titleName &&
                                     <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
@@ -335,6 +427,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           onClick={(e) => {
                                             if (subItem.subMenu) {
                                               e.preventDefault();
+                                              handleSubNavItemClick(subItem.name);
                                             }
                                           }}
                                           className={({ isActive }) =>
@@ -360,8 +453,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                       )}
                                   </Can>
                                   {subItem.isHr && <hr className="my-3" />}
-                                  {hoveredSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
-                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01">
+                                  {!isMobile && activeSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
+                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01 side-nav">
                                       {subItem.subNav.map((subSubItem) => (
                                         subSubItem.isSidebar &&
                                         <div>
@@ -405,9 +498,10 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div
               className={`flex items-center ${!isOpen && "justify-center"
                 } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+              onClick={handleNotificationsNavigate}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
-              {isOpen && <span>Notification</span>}
+              {isOpen && <span>{t("routes.notifications")}</span>}
             </div>
             <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               {user.avatar ? <img
@@ -421,121 +515,103 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
-          }`}
-      >
-        {isMobile && (<button
-          onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-5 left-4 p-2 bg-opacity01 text-white rounded-md"
-        >
-          {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
-        </button>)}
-        <div className={`px-4 sm:px-6 relative min-h-screen bg-background02 z-10`}>
-          {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
-            <div className="absolute z-10 inset-0 bg-background01/65"></div>
-          )}
+      </Sider>
 
-          <div className="flex flex-wrap items-start sm:items-center justify-between pt-6">
-            {/* Left Section: Toggle Button & Page Title */}
-            <div className="flex items-center">
-              {!isMobile && (
-                <button
-                  onClick={toggleNavbar}
-                  className="p-2 bg-white border border-primary02 text-primary02 rounded"
-                >
-                  {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-                </button>
-              )}
-              <div className="ml-3 lg:ml-12 flex flex-col items-start">
-                {activePageName === "bonus" && (
-                  <span className="text-sm text-text02">{t("routes.share")}</span>
-                )}
-                <div className="flex items-center mb-2">
-                  <span className="text-xl sm:text-3xl font-normal text-text01">
-                    {location.pathname === "/finance/timesheet/view"
-                      ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
-                      : location.pathname === "/equipment/routine/work/progress/item"
-                        ? location.state.name
-                        : activePageName === "createDo"
-                          ? t(`routes.${document}`)
-                          : t(`routes.${activePageName}`)}
-                  </span>
-                  {location.pathname !== "/equipment/routine/work/progress/item" && (
-                    activePageName === "bonus"
-                      ? <EditIcon className="text-text02 ml-2" />
-                      : <QuestionmarkIcon className="text-2xl ml-2" />
-                  )}
-                </div>
-                {activePage?.filter && (
+      <Layout style={{ marginLeft: isMobile ? 80 : (isOpen ? 256 : 80), transition: "all 0.3s" }}>
+        <Content className="min-h-screen bg-white">
+          {isMobile && (<button
+            onClick={() => setIsOpen(!isOpen)}
+            className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md z-40"
+          >
+            {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+          </button>)}
+
+          <div className="px-4 sm:px-6 relative min-h-screen z-10">
+            {(!isMobile && activeNavItem === "Администрирование" || activeNavItem === "Мониторинг") && (
+              <div className="absolute z-10 inset-0 bg-background01/65"></div>
+            )}
+
+            <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
+              {/* Left Section: Toggle Button & Page Title */}
+              <div className="flex items-center">
+                {!isMobile && (
                   <button
-                    disabled={!isData}
-                    onClick={() => setFilterOpen(!filterOpen)}
-                    className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
-                      }`}
+                    onClick={toggleNavbar}
+                    className="p-2 bg-white border border-primary02 text-primary02 rounded"
                   >
-                    {filterOpen ? t("routes.filter") : t("routes.expand")}
-                    {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
                   </button>
                 )}
+                <div className="ml-3 lg:ml-12 flex flex-col items-start">
+                  {activePageName === "bonus" && (
+                    <span className="text-sm text-text02">{t("routes.loyalty")}</span>
+                  )}
+                  <div className="flex items-center mb-2">
+                    <span className="text-xl sm:text-3xl font-normal text-text01">
+                      {location.pathname === "/finance/timesheet/view"
+                        ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
+                        : activePageName === "createDo"
+                          ? t(`routes.${doc}`)
+                          : t(`routes.${activePageName}`)}
+                    </span>
+                    {
+                      activePageName === "bonus"
+                        ? <EditIcon className="text-text02 ml-2" />
+                        : <QuestionmarkIcon className="text-2xl ml-2" />
+                    }
+                  </div>
+                  {activePage?.filter && (
+                    <button
+                      disabled={!isData}
+                      onClick={() => setFilterOpen(!filterOpen)}
+                      className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
+                        }`}
+                    >
+                      {filterOpen ? t("routes.filter") : t("routes.expand")}
+                      {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Section: Buttons */}
+              <div className="flex flex-wrap justify-end">
+                {activePage?.name === "nomenclature" && (
+                  <Button
+                    title={isMobile ? "" : t("warehouse.import")}
+                    iconUpload={true}
+                    type="outline"
+                    classname="mr-2"
+                    handleClick={() => navigate('/warehouse/inventory/import')}
+                  />
+                )}
+                <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) =>
+                    allowed &&
+                    activePage?.addButton &&
+                    location?.state?.status !== t("tables.SENT") && (
+                      <Button
+                        title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
+                        iconPlus={true}
+                        handleClick={handleClickButtonCreate}
+                      />
+                    )
+                  }
+                </Can>
               </div>
             </div>
 
-            {/* Right Section: Buttons */}
-            <div className="flex flex-wrap justify-end">
-              {location.pathname === "/equipment/routine/work/progress/item" && (
-                <div className="flex space-x-2 sm:space-x-4 text-text01 text-lg sm:text-2xl">
-                  <div>{location.state.type}</div>
-                  {location.state.endDate && <div>-</div>}
-                  {location.state.endDate && (
-                    <div>{moment(location.state.endDate).format('DD.MM.YYYY')}</div>
-                  )}
-                </div>
-              )}
-              {activePage?.name === "nomenclature" && (
-                <Button
-                  title={isMobile ? "" : t("warehouse.import")}
-                  iconPlus={true}
-                  type="outline"
-                  classname="mr-2"
-                  handleClick={() => navigate('/warehouse/inventory/import')}
-                />
-              )}
-              {activePage?.name === "clients" && (
-                <Button
-                  title={isMobile ? "" : t("routes.importClients")}
-                  type="outline"
-                  classname="mr-2"
-                  handleClick={() => navigate('/marketing/clients/import')}
-                />
-              )}
-              <Can
-                requiredPermissions={getRequiredPermissions(activePage?.path || "")}
-                userPermissions={userPermissions}
-              >
-                {(allowed) =>
-                  allowed &&
-                  activePage?.addButton &&
-                  location?.state?.status !== t("tables.SENT") && (
-                    <Button
-                      title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
-                      iconPlus={true}
-                      handleClick={handleClickButtonCreate}
-                    />
-                  )
-                }
-              </Can>
+            {/* Content Section */}
+            <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
+              {children}
             </div>
           </div>
-
-          {/* Content Section - Responsive Margins */}
-          <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

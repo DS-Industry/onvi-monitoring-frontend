@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import DropdownIcon from '@/assets/icons/dropdown.svg?react';
 import { Spinner } from '@material-tailwind/react';
 import Check from 'feather-icons-react';
-
+import { SmileOutlined } from "@ant-design/icons";
 
 type Option = {
     name: any;
@@ -18,7 +18,6 @@ type DropdownInputProps = {
     label?: string;
     isLoading?: boolean;
     isMultiSelect?: boolean;
-    isEmptyState?: boolean;
     showMoreButton?: boolean;
     isSelectable?: boolean;
     inputType?: 'primary' | 'secondary' | 'tertiary' | 'forth';
@@ -28,6 +27,7 @@ type DropdownInputProps = {
     error?: boolean;
     helperText?: string;
     renderOption?: (option: Option) => JSX.Element;
+    classnameOptions?: string;
 };
 
 const DropdownInput: React.FC<DropdownInputProps> = ({
@@ -38,7 +38,6 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     label,
     isLoading = false,
     isMultiSelect = false,
-    isEmptyState = false,
     showMoreButton = false,
     isSelectable = false,
     inputType = 'forth',
@@ -47,7 +46,8 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     classname,
     error = false,
     helperText,
-    renderOption
+    renderOption,
+    classnameOptions
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +56,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
 
-    const isLabelFloating = isFocused || value !== undefined;
+    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== '' && value !== 0);
     const handleToggleDropdown = () => {
         if (!isDisabled && !isLoading) {
             const rect = dropdownRef.current?.getBoundingClientRect();
@@ -131,8 +131,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${isDisabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating) ? "text-base invisible" : "text-text02 visible")} 
-                        ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
+                        ${isDisabled ? "text-text03 invisible"
+                            : isLabelFloating && inputType == 'primary'
+                                ? "text-text02 text-[10px] font-normal"
+                                : (inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating
+                                    ? "text-base invisible"
+                                    : "text-text02 visible"}
+                                                ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >
                     {label}
@@ -177,12 +182,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
                 <div
                     className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-10`}
                 >
-                    {isEmptyState ? (
-                        <div className="p-4 text-center text-primary02">
-                            Не найдено
+                    {options.length === 0 ? (
+                        <div className="p-2 flex flex-col items-center justify-center">
+                            <SmileOutlined style={{ fontSize: "24px" }} />
+                            <div>Не найдено</div>
                         </div>
                     ) : (
-                        <ul className="py-1 max-h-32 overflow-y-auto">
+                        <ul className={`py-1 max-h-32 overflow-y-auto ${classnameOptions}`}>
                             {options.map(option => (
                                 <li
                                     key={option.value}

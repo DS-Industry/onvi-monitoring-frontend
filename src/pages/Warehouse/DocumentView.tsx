@@ -1,4 +1,4 @@
-import { getDocument, getWarehouses } from "@/services/api/warehouse";
+import { getDocument, getNomenclature, getWarehouses } from "@/services/api/warehouse";
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
@@ -6,10 +6,12 @@ import moment from "moment";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useDocumentType, usePosType } from "@/hooks/useAuthStore";
-import GoodsTable from "@/components/ui/Table/GoodsTable";
+import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
+// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
+import { useUser } from "@/hooks/useUserStore";
+import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -27,30 +29,34 @@ const DocumentView: React.FC = () => {
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
     const posType = usePosType();
+    const city = useCity();
+    const user = useUser();
 
     const { data: document, isLoading: loadingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const columnsDocumentView = documentType === "INVENTORY" ? [
-        {
-            label: "",
-            key: "check",
-            type: "checkbox"
-        },
         {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -70,20 +76,16 @@ const DocumentView: React.FC = () => {
         }
     ] : [
         {
-            label: "",
-            key: "check"
-        },
-        {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -105,8 +107,8 @@ const DocumentView: React.FC = () => {
 
     const tableData: {
         id: number;
-        responsibleId: number;
-        nomenclatureId: number;
+        responsibleName: string;
+        nomenclatureName: string;
         quantity: number;
         comment?: string;
         oldQuantity?: number;
@@ -114,8 +116,8 @@ const DocumentView: React.FC = () => {
     }[] = documentType === "INVENTORY"
             ? (document?.details || []).map((doc) => ({
                 id: doc.props.id,
-                responsibleId: document?.document.props.responsibleId ?? 0,
-                nomenclatureId: doc.props.nomenclatureId,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
                 quantity: doc.props.quantity,
                 comment: doc.props.comment,
                 oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
@@ -123,8 +125,8 @@ const DocumentView: React.FC = () => {
             }))
             : (document?.details || []).map((doc) => ({
                 id: doc.props.id,
-                responsibleId: document?.document.props.responsibleId ?? 0,
-                nomenclatureId: doc.props.nomenclatureId,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
                 quantity: doc.props.quantity,
                 comment: doc.props.comment
             }));
@@ -135,13 +137,9 @@ const DocumentView: React.FC = () => {
     }, [buttonOn, location.state.ownerId, navigate])
 
     return (
-        <div className="ml-20">
+        <div>
             {loadingDocument ? <TableSkeleton columnCount={10} /> :
                 <div>
-                    <div className="flex space-x-3 text-text02">
-                        <div>{document?.document.props.name}</div>
-                        <div>{moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}</div>
-                    </div>
                     <div className="flex flex-col sm:flex-row gap-4 py-4">
                         <div className="flex flex-wrap gap-4">
                             <div className="flex">
@@ -189,9 +187,12 @@ const DocumentView: React.FC = () => {
                             </div>}
                         </div>
                     </div>
-                    <GoodsTable
+                    <GoodsAntTable
                         tableData={tableData}
                         columns={columnsDocumentView}
+                        showDocument={true}
+                        documentName={document?.document.props.name}
+                        documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
                     />
                 </div>
             }

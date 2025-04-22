@@ -23,8 +23,8 @@ enum TECHTASKS {
 type IncidentParam = {
     dateStart: string;
     dateEnd: string;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 type IncidentResponse = {
@@ -105,36 +105,15 @@ type POSRESPONSE = {
     id: number;
     name: string;
     slug: string;
-    monthlyPlan: number;
-    timeWork: string;
+    address: string;
     organizationId: number;
-    posMetaData: string;
+    placementId: number;
     timezone: number;
-    image: string;
-    rating: number;
-    status: string;
+    posStatus: string;
     createdAt: Date;
     updatedAt: Date;
     createdById: number;
     updatedById: number;
-    address:
-    {
-        id: number;
-        city: string;
-        location: string;
-        lat: number;
-        lon: number;
-    };
-    posType:
-    {
-        id: number;
-        name: string;
-        slug: string;
-        carWashPosType: string;
-        minSumOrder: number;
-        maxSumOrder: number;
-        stepSumOrder: number;
-    };
 }
 
 type WorkerResponse = {
@@ -292,7 +271,7 @@ type TechTaskShapeResponse = {
         type: string;
         group: string;
         code: string;
-        value?: string;
+        value?: string | null;
     }[];
 }
 
@@ -304,9 +283,10 @@ type TechTaskShapeBody = {
 }
 
 type ChemicalParams = {
-    posId: number;
     dateStart: string;
     dateEnd: string;
+    posId: number | string;
+    placementId: number | string;
 }
 
 type ChemicalResponse = {
@@ -347,7 +327,16 @@ type ConsumptionRateCoeffPatchResponse = {
 }
 
 type PosParams = {
-    placementId: number;
+    placementId: number | string;
+}
+
+type TechTaskParams = {
+    posId: number | string;
+    placementId: number | string;
+}
+
+type ProgramParams = {
+    posId: number | string;
 }
 
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
@@ -382,13 +371,13 @@ export async function getWorkers(): Promise<WorkerResponse[]> {
     return response.data;
 }
 
-export async function getDevices(posId: number): Promise<DeviceResponse[]> {
+export async function getDevices(posId: number | string): Promise<DeviceResponse[]> {
     const response: AxiosResponse<DeviceResponse[]> = await api.get(EQUIPMENT.GET_POS_DEVICE + `/${posId}`);
 
     return response.data;
 }
 
-export async function getEquipmentKnots(posId: number): Promise<EquipmentKnotResponse[]> {
+export async function getEquipmentKnots(posId: number | string): Promise<EquipmentKnotResponse[]> {
     const response: AxiosResponse<EquipmentKnotResponse[]> = await api.get(EQUIPMENT.GET_EQUIPMENT + `/${posId}`);
 
     return response.data;
@@ -400,14 +389,14 @@ export async function getIncidentEquipmentKnots(id: number): Promise<IncidentEqu
     return response.data;
 }
 
-export async function getPrograms(): Promise<AllProgramsResponse[]> {
-    const response: AxiosResponse<AllProgramsResponse[]> = await api.get(EQUIPMENT.GET_PROGRAMS);
+export async function getPrograms(params: ProgramParams): Promise<AllProgramsResponse[]> {
+    const response: AxiosResponse<AllProgramsResponse[]> = await api.get(EQUIPMENT.GET_PROGRAMS, { params });
 
     return response.data;
 }
 
-export async function getTechTasks(posId: number): Promise<TechTasksResponse[]> {
-    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS + `/${posId}`);
+export async function getTechTasks(params: TechTaskParams): Promise<TechTasksResponse[]> {
+    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS,{ params });
 
     return response.data;
 }
@@ -426,8 +415,8 @@ export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTask
     return response.data;
 }
 
-export async function readTechTasks(posId: number): Promise<ReadTechTasksResponse[]> {
-    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS + `/${posId}`);
+export async function readTechTasks(params: TechTaskParams): Promise<ReadTechTasksResponse[]> {
+    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS,{ params });
 
     return response.data;
 }
@@ -451,19 +440,19 @@ export async function createTechTaskShape(id: number, body: TechTaskShapeBody): 
     return response.data;
 }
 
-export async function getChemicalReport(params: ChemicalParams, posId: number): Promise<ChemicalResponse[]> {
-    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION + `/${posId}`, { params });
+export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalResponse[]> {
+    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
 
     return response.data;
 }
 
-export async function getConsumptionRate(posId: number): Promise<ConsumptionRateResponse[]> {
+export async function getConsumptionRate(posId: number | string): Promise<ConsumptionRateResponse[]> {
     const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(TECHTASKS.GET_CONSUMPTION_RATE + `/${posId}`);
 
     return response.data;
 }
 
-export async function patchProgramCoefficient(id: number, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
+export async function patchProgramCoefficient(id: number | string, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
     console.log(body);
     const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
     console.log(response.data);

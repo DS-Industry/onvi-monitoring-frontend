@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
@@ -11,12 +10,13 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
-interface FilterDepositPos {
+type FilterDepositPos = {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 enum CarWashPosType {
@@ -25,7 +25,7 @@ enum CarWashPosType {
     SelfServiceAndPortal = "SelfServiceAndPortal"
 }
 
-interface PosPrograms {
+type PosPrograms = {
     id: number;
     name: string;
     posType?: CarWashPosType;
@@ -41,7 +41,7 @@ interface PosPrograms {
     }[]
 }
 
-interface PosMonitoring {
+type PosMonitoring = {
     id: number;
     name: string;
 }
@@ -72,7 +72,6 @@ const ProgramDevices: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
-
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-programs-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getProgramPos(
         {
             dateStart: dataFilter.dateStart,
@@ -81,8 +80,7 @@ const ProgramDevices: React.FC = () => {
             placementId: dataFilter?.placementId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
-
+    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -97,6 +95,7 @@ const ProgramDevices: React.FC = () => {
     useEffect(() => {
         console.log(JSON.stringify(filterErtot, null, 2));
     }, [filterErtot]);
+
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
@@ -109,11 +108,9 @@ const ProgramDevices: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id.toString() })
+    const posOptional: { name: string; value: number }[] = posData.map(
+        (item) => ({ name: item.name, value: item.id })
     );
-
-    // const portalPrograms = devicePrograms.filter(program => program.posType === "Portal");
 
     return (
         <>
@@ -125,7 +122,6 @@ const ProgramDevices: React.FC = () => {
             />
             {isTableLoading || filterLoading ? (
                 <div className="mt-8 space-y-6">
-                    {/* Skeleton for Table Card */}
                     <div>
                         <TableSkeleton columnCount={columnsProgramsPos.length} />
                     </div>
@@ -133,11 +129,11 @@ const ProgramDevices: React.FC = () => {
                 : devicePrograms.length > 0 ? (
                     <div className="mt-8 space-y-6">
                         {devicePrograms.map((deviceProgram) =>
-                            <OverflowTable
+                            <DynamicTable
                                 title={deviceProgram.name}
                                 urlTitleId={deviceProgram.id}
                                 nameUrlTitle={"/station/programs/devices"}
-                                tableData={deviceProgram.programsInfo}
+                                data={deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p }))} 
                                 columns={columnsProgramsPos}
                             />
                         )}

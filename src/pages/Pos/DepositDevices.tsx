@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { getDepositPos } from "@/services/api/pos";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
@@ -10,12 +9,13 @@ import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterDepositPos {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: number | string;
+    placementId: number | string;
 }
 
 interface DevicesMonitoring {
@@ -38,36 +38,15 @@ interface PosMonitoring {
     id: number;
     name: string;
     slug: string;
-    monthlyPlan: number;
-    timeWork: string;
+    address: string;
     organizationId: number;
-    posMetaData: string;
+    placementId: number;
     timezone: number;
-    image: string;
-    rating: number;
-    status: string;
+    posStatus: string;
     createdAt: Date;
     updatedAt: Date;
     createdById: number;
     updatedById: number;
-    address:
-    {
-        id: number;
-        city: string;
-        location: string;
-        lat: number;
-        lon: number;
-    };
-    posType:
-    {
-        id: number;
-        name: string;
-        slug: string;
-        carWashPosType: string;
-        minSumOrder: number;
-        maxSumOrder: number;
-        stepSumOrder: number;
-    };
 }
 
 const DepositDevices: React.FC = () => {
@@ -91,7 +70,7 @@ const DepositDevices: React.FC = () => {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
-        placementId: city || 1
+        placementId: city
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
@@ -139,8 +118,8 @@ const DepositDevices: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id.toString() })
+    const posOptional: { name: string; value: number }[] = posData.map(
+        (item) => ({ name: item.name, value: item.id })
     );
 
     return (
@@ -156,11 +135,11 @@ const DepositDevices: React.FC = () => {
                     <TableSkeleton columnCount={columnsMonitoringPos.length} />
                 ) : devicesMonitoring.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={devicesMonitoring}
+                        <DynamicTable
+                            data={devicesMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
-                            nameUrl={"/station/enrollments/devices"}
+                            navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
                         />
                     </div>
                 ) : (

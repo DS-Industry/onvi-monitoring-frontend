@@ -5,7 +5,6 @@ import Icon from 'feather-icons-react';
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { createCashOper, getCashOperById, getCashOperCleanById, getCashOperRefundById, getCashOperSuspiciousById, getDayShiftById, returnDayShift, sendDayShift } from "@/services/api/finance";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { columnsDataCashOper, columnsDataCashOperCleaning, columnsDataCashOperRefund, columnsDataCashOperSuspiciously } from "@/utils/OverFlowTableData";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import Modal from "@/components/ui/Modal/Modal";
@@ -19,6 +18,7 @@ import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
 import NoDataUI from "@/components/ui/NoDataUI";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 enum TypeWorkDayShiftReportCashOper {
     REFUND = "REFUND",
@@ -76,7 +76,7 @@ const TimesheetView: React.FC = () => {
 
     const { data: cashOperSuspData, isLoading: loadingCashOperSusp } = useSWR(location.state?.ownerId ? [`get-cash-oper-susp-data`] : null, () => getCashOperSuspiciousById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cashOperArray = [cashOperData];
+    const cashOperArray = cashOperData ? [cashOperData] : [];
 
     const cashOperReturnArray = cashOperReturnData?.map((item) => ({
         ...item.props,
@@ -307,7 +307,7 @@ const TimesheetView: React.FC = () => {
                             {loadingCashOper ? (
                                 <TableSkeleton columnCount={columnsDataCashOper.length} />
                             ) : cashOperArray.length > 0 ? (
-                                <OverflowTable tableData={cashOperArray} columns={columnsDataCashOper} />
+                                <DynamicTable data={cashOperArray.map((item, index) => ({ ...item, id: index }))} columns={columnsDataCashOper} />
                             ) : (
                                 <div className="flex flex-col justify-center items-center">
                                     <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
@@ -329,6 +329,7 @@ const TimesheetView: React.FC = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <DropdownInput
                                         title={t("finance.operType")}
+                                        label={t("warehouse.notSel")}
                                         options={[
                                             { name: t("finance.REFUND"), value: "REFUND" },
                                             { name: t("finance.REPLENISHMENT"), value: "REPLENISHMENT" }
@@ -352,6 +353,7 @@ const TimesheetView: React.FC = () => {
                                     />
                                     <DropdownInput
                                         title={t("equipment.device")}
+                                        label={devices.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                                         options={devices}
                                         classname="w-full"
                                         {...register('carWashDeviceId')}
@@ -406,7 +408,7 @@ const TimesheetView: React.FC = () => {
                             {loadingCashOperReturn ? (
                                 <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
                             ) : cashOperReturnArray.length > 0 ? (
-                                <OverflowTable tableData={cashOperReturnArray} columns={columnsDataCashOperRefund} />
+                                <DynamicTable data={cashOperReturnArray} columns={columnsDataCashOperRefund} />
                             ) : (
                                 <div className="flex flex-col justify-center items-center">
                                     <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
@@ -475,8 +477,8 @@ const TimesheetView: React.FC = () => {
                         {loadingCashOperClean ? (
                             <TableSkeleton columnCount={columnsDataCashOperCleaning.length} />
                         ) : cashOperCleanArray.length > 0 ? (
-                            <OverflowTable
-                                tableData={cashOperCleanArray}
+                            <DynamicTable
+                                data={cashOperCleanArray.map((item, index) => ({ ...item, id: index }))}
                                 columns={columnsDataCashOperCleaning}
                                 showTotalClean={true}
                             />
@@ -494,8 +496,8 @@ const TimesheetView: React.FC = () => {
                         {loadingCashOperSusp ?
                             <TableSkeleton columnCount={columnsDataCashOperSuspiciously.length} />
                             : cashOperSubsArray.length > 0 ?
-                                <OverflowTable
-                                    tableData={cashOperSubsArray}
+                                <DynamicTable
+                                    data={cashOperSubsArray.map((item, index) => ({ ...item, id: index }))}
                                     columns={columnsDataCashOperSuspiciously}
                                 /> : (
                                     <div className="flex flex-col justify-center items-center text-center p-4">

@@ -1,6 +1,6 @@
 import axios from "axios";
 import useAuthStore from "@/config/store/authSlice";
-import i18n from "@/config/i18n"; 
+import i18n from "@/config/i18n";
 
 let showSnackbar: (message: string, type: "success" | "error" | "info" | "warning") => void;
 
@@ -10,7 +10,7 @@ export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
 
 const api = axios.create({
   baseURL: 'https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net',
-  withCredentials: true
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -27,10 +27,18 @@ api.interceptors.request.use(
 const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
     if (!showSnackbar) {
       console.error("Snackbar function is not initialized.");
+      return Promise.reject(error);
+    }
+
+    const endpoint = error.config?.url;
+    if (!endpoint) {
+      showSnackbar("Unexpected error occurred. Please try again.", "error");
       return Promise.reject(error);
     }
 

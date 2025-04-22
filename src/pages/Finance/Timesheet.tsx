@@ -11,12 +11,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getShifts } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsShifts } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterCollection {
     dateStart: string;
     dateEnd: string;
-    posId: number;
+    posId: number | string;
     page?: number;
     size?: number;
 }
@@ -61,10 +61,11 @@ const Timesheet: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-shifts-${dataFilter.posId ? dataFilter.posId : 66}`], () => getShifts(
-        dataFilter.posId ? dataFilter.posId : 66, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-shifts`], () => getShifts({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
+        posId: dataFilter.posId,
+        placementId: city,
         page: dataFilter.page,
         size: dataFilter.size
     }));
@@ -108,7 +109,7 @@ const Timesheet: React.FC = () => {
 
     const shifts = filter?.shiftReportsData.map((item) => ({
         ...item,
-        posName: poses.find((pos) => pos.value === posType)?.name || "-",
+        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
         createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
     })) || [];
 
@@ -118,19 +119,18 @@ const Timesheet: React.FC = () => {
                 count={shifts.length}
                 posesSelect={poses}
                 hideSearch={true}
-                hideCity={true}
                 handleDataFilter={handleDataFilter}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsShifts.length} />)
                 :
                 shifts.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={shifts}
+                        <DynamicTable
+                            data={shifts}
                             columns={columnsShifts}
                             isDisplayEdit={true}
                             showPagination={true}
-                            nameUrl="/finance/timesheet/creation"
+                            navigableFields={[{ key: "posName", getPath: () => "/finance/timesheet/creation" }]}
                         />
                     </div>
                 ) : (

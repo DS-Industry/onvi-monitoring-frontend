@@ -4,7 +4,6 @@ import { getDepositDevice } from "@/services/api/pos";
 import {
     columnsMonitoringDevice,
 } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import { getDeviceByPosId } from "@/services/api/device";
@@ -12,6 +11,7 @@ import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 type DeviceMonitoring = {
     props: {
@@ -61,35 +61,55 @@ const DepositDevice: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
     const posType = usePosType();
-
     const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.ownerId) {
+            setDeviceId(location.state.ownerId);
+        }
+    }, [location.state?.ownerId, setDeviceId]);
+
     const [isTableLoading, setIsTableLoading] = useState(false);
     const initialFilter = {
         dateStart: startDate || `2024-10-01 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         page: currentPage,
         size: pageSize,
-        deviceId: location.state?.ownerId || deviceId,
+        deviceId: deviceId,
     };
     const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({ 
-            ...prevFilter, 
-            page: 1 
-        }));  
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
     }, [location, setCurrentPage]);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-pos-deposits-pos-devices-${dataFilter.deviceId ? dataFilter.deviceId : location.state?.ownerId}`], () => getDepositDevice(
-        dataFilter.deviceId ? dataFilter.deviceId : location.state.ownerId, {
+    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR(deviceId ? [`get-pos-deposits-pos-devices`, deviceId] : null, () => getDepositDevice(
+        deviceId ? deviceId : 0, {
         dateStart: dataFilter.dateStart,
         dateEnd: dataFilter.dateEnd,
         page: dataFilter.page,
         size: dataFilter.size
     }));
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
+    const totalRecords = filter?.totalCount || 0; 
+    const maxPages = Math.ceil(totalRecords / pageSize); 
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
+    
+
+    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType));
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -123,8 +143,8 @@ const DepositDevice: React.FC = () => {
         return item;
     }).sort((a, b) => a.props.id - b.props.id) || [];
 
-    const deviceOptional: { name: string; value: string }[] = deviceData.map(
-        (item) => ({ name: item.props.name, value: item.props.id.toString() })
+    const deviceOptional: { name: string; value: number; }[] = deviceData.map(
+        (item) => ({ name: item.props.name, value: item.props.id })
     );
 
     return (
@@ -135,13 +155,14 @@ const DepositDevice: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideCity={true}
                 hideSearch={true}
+                hideReset={true}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsMonitoringDevice.length} />)
                 :
                 deviceMonitoring.length > 0 ? (
                     <div className="mt-8">
-                        <OverflowTable
-                            tableData={deviceMonitoring}
+                        <DynamicTable
+                            data={deviceMonitoring}
                             columns={columnsMonitoringDevice}
                             isDisplayEdit={true}
                             showPagination={true}

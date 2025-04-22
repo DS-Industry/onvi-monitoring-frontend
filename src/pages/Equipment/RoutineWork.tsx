@@ -10,13 +10,14 @@ import { createTechTask, getPoses, getTechTaskItem, getTechTasks, updateTechTask
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasks } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Select } from "antd";
 
 type TechTasks = {
     id: number;
@@ -60,12 +61,14 @@ const RoutineWork: React.FC = () => {
     const posType = usePosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchPosId, setSearchPosId] = useState(posType);
-    const [searchRoutine, setSearchRoutine] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, searchRoutine], () => getTechTasks(searchPosId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => getTechTasks({
+        posId: searchPosId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -159,7 +162,7 @@ const RoutineWork: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
+                    mutate([`get-tech-tasks`, searchPosId, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -168,7 +171,7 @@ const RoutineWork: React.FC = () => {
                 const result = await createTech();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-tech-tasks`, searchPosId, searchRoutine]);
+                    mutate([`get-tech-tasks`, searchPosId, city]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -181,7 +184,6 @@ const RoutineWork: React.FC = () => {
 
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.filter((item: { period?: string }) => item.period && item.period.toLowerCase().includes(searchRoutine.toLowerCase()))
         ?.map((item: TechTasks) => ({
             ...item,
             period: t(`tables.${item.period}`),
@@ -266,12 +268,47 @@ const RoutineWork: React.FC = () => {
 
     const handleClear = () => {
         setSearchPosId(posType);
-        setSearchRoutine("");
     }
-    console.log("Techtasks test:", techTask);
+
     return (
         <>
-            <DrawerCreate>
+            <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
+                <div className="flex">
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                            value={searchPosId}
+                            onChange={(value) => setSearchPosId(value)}
+                        />
+                    </div>
+                </div>
+            </Filter>
+            {techTasksLoading ? (
+                <TableSkeleton columnCount={columnsTechTasks.length} />
+            ) :
+                techTasks.length > 0 ?
+                    <>
+                        <div className="mt-8">
+                            <DynamicTable
+                                data={techTasks}
+                                columns={columnsTechTasks}
+                                isDisplayEdit={true}
+                                onEdit={handleUpdate}
+                            />
+                        </div>
+                    </>
+                    :
+                    <NoDataUI
+                        title={t("routine.display")}
+                        description={""}
+                    >
+                        <img src={SalyImage} className="mx-auto" />
+                    </NoDataUI>
+            }
+
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
                     <div className="mb-5 flex">
@@ -292,6 +329,7 @@ const RoutineWork: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.carWash")}
+                        label={poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                         options={poses}
                         classname="w-64"
                         {...register('posId', {
@@ -307,6 +345,7 @@ const RoutineWork: React.FC = () => {
                     <DropdownInput
                         title={`${t("routine.type")} *`}
                         type={""}
+                        label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
                             { name: t("routine.routine"), value: "Routine" },
@@ -323,6 +362,7 @@ const RoutineWork: React.FC = () => {
                     <DropdownInput
                         title={`${t("routine.frequency")} *`}
                         type={""}
+                        label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
                             { name: t("routine.daily"), value: "Daily" },
@@ -464,53 +504,6 @@ const RoutineWork: React.FC = () => {
                     </div>
                 </form>
             </DrawerCreate>
-            <>
-                <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
-                    <div className="flex">
-                        <DropdownInput
-                            title={t("equipment.carWash")}
-                            value={searchPosId}
-                            classname="ml-2"
-                            options={poses}
-                            onChange={(value) => setSearchPosId(value)}
-                        />
-                        <DropdownInput
-                            title={`${t("routine.frequency")}`}
-                            value={searchRoutine}
-                            classname="ml-2"
-                            options={[
-                                { name: t("routine.daily"), value: "Daily" },
-                                { name: t("routine.weekly"), value: "Weekly" },
-                                { name: t("routine.monthly"), value: "Monthly" },
-                            ]}
-                            onChange={(value) => setSearchRoutine(value)}
-                        />
-                    </div>
-                </Filter>
-                {techTasksLoading ? (
-                    <TableSkeleton columnCount={columnsTechTasks.length} />
-                ) :
-                    techTasks.length > 0 ?
-                        <>
-                            <div className="mt-8">
-                                <OverflowTable
-                                    tableData={techTasks}
-                                    columns={columnsTechTasks}
-                                    isDisplayEdit={true}
-                                    isUpdate={true}
-                                    onUpdate={handleUpdate}
-                                />
-                            </div>
-                        </>
-                        :
-                        <NoDataUI
-                            title={t("routine.display")}
-                            description={""}
-                        >
-                            <img src={SalyImage} className="mx-auto" />
-                        </NoDataUI>
-                }
-            </>
         </>
     )
 }

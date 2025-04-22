@@ -73,8 +73,8 @@ type PosBody = {
 type DepositParam = {
     dateStart: Date;
     dateEnd: Date;
-    posId: number;
-    placementId: number;
+    posId: string | number;
+    placementId: number | string;
 }
 
 type DepositResponse = {
@@ -148,6 +148,17 @@ type DeviceParams = {
     size?: number;
 }
 
+type PlanFactResponse = {
+    posId: number;
+    plan: number;
+    cashFact: number;
+    virtualSumFact: number;
+    yandexSumFact: number;
+    sumFact: number;
+    completedPercent: number;
+    notCompletedPercent: number;
+}
+
 export async function getPos(userId: number): Promise<Pos[]> {
     const url = POS.GET_POSES + `/${userId}`;
     const response: AxiosResponse<Pos[]> = await api.get(url);
@@ -163,7 +174,7 @@ export async function postPosData(body: PosBody): Promise<Pos> {
     return response.data;
 }
 
-export async function getDeposit(posId: number, params: DevicesParams): Promise<DepositResponse[]> {
+export async function getDeposit(posId: number | string, params: DevicesParams): Promise<DepositResponse[]> {
     const response: AxiosResponse<DepositResponse[]> = await api.get(POS.GET_DEPOSIT + `/${posId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));
@@ -184,7 +195,7 @@ export async function getDepositDevice(deviceId: number, params: DeviceParams): 
     return response.data;
 }
 
-export async function getPrograms(posId: number, params: DevicesParams): Promise<Program[]> {
+export async function getPrograms(posId: number | string, params: DevicesParams): Promise<Program[]> {
     const response: AxiosResponse<Program[]> = await api.get(POS.GET_PROGRAMS + `/${posId}`, { params });
 
     //console.log(JSON.stringify(response, null, 2));
@@ -205,4 +216,12 @@ export async function getProgramDevice(deviceId: number, params: DeviceParams): 
     //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
+
+export async function getPlanFact(params: DepositParam): Promise<PlanFactResponse[]> {
+    const response: AxiosResponse<PlanFactResponse[]> = await api.get(POS.POST_POS + "/plan-fact", { params });
+
+    //console.log(JSON.stringify(response, null, 2));
+    return response.data;
+}
+
 

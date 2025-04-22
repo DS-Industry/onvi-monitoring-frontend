@@ -1,37 +1,44 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { Tabs } from "antd";
+import type { TabsProps } from "antd";
 import Settings from "./Settings";
 import Levels from "./Levels";
 import Events from "./Events";
 
 const BonusProgram: React.FC = () => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState('settings');
 
-    const tabs = [
-        { id: 'settings', name: t("routes.settings"), content: <Settings /> },
-        { id: 'levels', name: t("marketing.levels"), content: <Levels /> },
-        { id: 'events', name: t("marketing.events"), content: <Events /> },
+    const items: TabsProps['items'] = [
+        {
+            key: 'settings',
+            label: t("routes.settings"),
+            children: <Settings />,
+        },
+        {
+            key: 'levels',
+            label: t("marketing.levels"),
+            children: <Levels />,
+        },
+        {
+            key: 'events',
+            label: t("marketing.events"),
+            children: <Events />,
+        },
     ];
-
+    
     return (
-        <div className="max-w-5xl mx-auto bg-white">
-            <div className="flex space-x-4 border-b mb-6 w-fit">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
-                        onClick={() => setActiveTab(tab.id)}
-                    >
-                        {tab.name}
-                    </button>
-                ))}
-            </div>
-            <div className="flex">
-                {tabs.find((tab) => tab.id === activeTab)?.content}
+        <div className="w-full px-4 sm:px-8 md:px-16 py-4">
+            <div className="bg-white p-6 rounded-xl shadow-md">
+                <Tabs
+                    defaultActiveKey="settings"
+                    items={items}
+                    tabBarGutter={32}
+                    tabBarStyle={{ marginBottom: 24 }}
+                />
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default BonusProgram;

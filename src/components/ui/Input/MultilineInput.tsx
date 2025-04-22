@@ -38,7 +38,8 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
                 <label
                     className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
                         ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${ disabled ? "text-text03" : (isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text02 visible")} 
+                        ${(isLabelFloating && inputType == 'primary' ? "text-text02 text-[10px] font-normal" : ((inputType == 'secondary' || inputType == 'tertiary') && isLabelFloating) ? "text-base invisible" : "text-text02 visible")} 
+                        ${disabled && isLabelFloating ? "invisible" : "text-text02"}
                         ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
                         ${error ? "text-errorFill" : ""}`}
                 >
