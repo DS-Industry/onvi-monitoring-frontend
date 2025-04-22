@@ -20,8 +20,8 @@ import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
-import EZ from "@icons/EZ.svg?react";
 import Icon from "feather-icons-react";
+import Avatar from "@/components/ui/Avatar";
 
 const { Sider, Content } = Layout;
 
@@ -45,6 +45,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isMobile, setIsMobile] = useState(false);
   // Add a new state to track hover state
   const [isHovered, setIsHovered] = useState(false);
+
+  const initials = ((user.name?.[0])?.toUpperCase() || '') + ((user.middlename?.[0])?.toUpperCase() || '') || ((user.name?.[0])?.toUpperCase() || '');
 
   useEffect(() => {
     const handleResize = () => {
@@ -508,7 +510,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
                 className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
-              /> : <EZ />}
+              /> : <Avatar type="sidebar" initials={initials}/>}
               {isOpen && (
                 <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>
               )}

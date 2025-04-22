@@ -16,7 +16,6 @@ const InfoTab: React.FC = () => {
   const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const initials = 'CE'; // Replace this with dynamic initials logic
   const user = useUser();
   const setUser = useSetUser();
   const setClearUser = useClearUserData();
@@ -31,7 +30,8 @@ const InfoTab: React.FC = () => {
       phone: user.phone || '',
       middlename: user.middlename || '',
       surname: user.surname || '',
-      imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null
+      imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null,
+      initials: ((user.name?.[0])?.toUpperCase() || '') + ((user.middlename?.[0])?.toUpperCase() || '') || ((user.name?.[0])?.toUpperCase() || ''),
     }),
     [user]
   );
@@ -245,7 +245,7 @@ const InfoTab: React.FC = () => {
                 className="rounded-full w-full h-full object-cover"
               />
             ) : (
-              <span className="text-4xl font-bold text-black">{initials}</span>
+              <span className="text-4xl font-bold text-black">{defaultValues.initials}</span>
             )}
           </div>
           <div className="mt-2">
