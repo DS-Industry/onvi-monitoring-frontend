@@ -271,11 +271,13 @@ const FilterMonitoring: React.FC<Props> = ({
                         setEndDateInStore(new Date(`${formattedDate} 23:59`));
                         setFilterOn(!filterOn);
                     }}
+                    classname="w-[168px]"
                 />)}
                 <Button
                     title='Применить'
                     form={true}
                     handleClick={() => setFilterOn(!filterOn)}
+                    classname="w-[168px]"
                 />
                 <p className="font-semibold">Найдено: {count}</p>
             </div>

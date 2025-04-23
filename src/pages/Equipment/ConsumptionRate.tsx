@@ -132,12 +132,14 @@ const ConsumptionRate: React.FC = () => {
                     title={t("organizations.cancel")}
                     type='outline'
                     handleClick={() => { }}
+                    classname="w-[168px]"
                 />
                 <Button
                     title={t("organizations.save")}
                     form={true}
                     isLoading={isMutating}
                     handleClick={handleSubmit}
+                    classname="w-[168px]"
                 />
             </div>}
         </div>
