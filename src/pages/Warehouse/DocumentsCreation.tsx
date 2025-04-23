@@ -538,7 +538,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
-                    classnameOptions="max-h-20"
+                    classnameOptions="max-h-16"
                 />
             ),
         },
@@ -621,7 +621,7 @@ const DocumentsCreation: React.FC = () => {
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
                     options={nomenclatures}
                     error={errors[row.id]?.nomenclature || false}
-                    classnameOptions="max-h-20"
+                    classnameOptions="max-h-16"
                 />
             ),
         },
@@ -817,7 +817,7 @@ const DocumentsCreation: React.FC = () => {
                             sortAscending={sortAscending}
                             sortDescending={sortDescending}
                         />
-                        <div className="flex space-x-3">
+                        <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
                             <Button
                                 type="outline"
                                 title={t("organizations.cancel")}

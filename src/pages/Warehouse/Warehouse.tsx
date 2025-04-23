@@ -49,7 +49,7 @@ const Warehouse: React.FC = () => {
 
     const warehouses = warehouseData?.map((item) => ({
         ...item.props,
-        manager: workers.find((work) => work.value === item.props.managerId),
+        manager: workers.find((work) => work.value === item.props.managerId)?.name,
         posName: poses.find((pos) => pos.value === item.props.posId)?.name
     })) || [];
 
