@@ -34,7 +34,6 @@ const InfoTab: React.FC = () => {
       middlename: user.middlename || '',
       surname: user.surname || '',
       imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null,
-      initials: ((user.name?.[0])?.toUpperCase() || '') + ((user.middlename?.[0])?.toUpperCase() || '') || ((user.name?.[0])?.toUpperCase() || ''),
     }),
     [user]
   );
