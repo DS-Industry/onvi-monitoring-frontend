@@ -178,7 +178,8 @@ type TechTasksResponse = {
     posId: number;
     type: string;
     status: string;
-    period: string;
+    period?: number;
+    markdownDescription?: string;
     nextCreateDate?: Date;
     endSpecifiedDate?: Date;
     startDate: Date;
@@ -196,18 +197,20 @@ type TechTaskBody = {
     name: string;
     posId: number;
     type: string;
-    period: string;
+    period?: number;
+    markdownDescription?: string;
     startDate: Date;
     endSpecifiedDate?: Date;
     techTaskItem: number[];
+    tagIds: number[];
 }
 
 type UpdateTechTaskBody = {
     techTaskId: number;
     name?: string;
-    type?: string;
     status?: string;
-    period?: string;
+    period?: number;
+    markdownDescription?: string;
     endSpecifiedDate?: Date;
     techTaskItem?: number[];
 }
@@ -261,6 +264,8 @@ type TechTaskShapeResponse = {
     posId: number;
     type: string;
     status: string;
+    period?: number;
+    markdownDescription?: string;
     endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
@@ -339,6 +344,19 @@ type ProgramParams = {
     posId: number | string;
 }
 
+type CreateTags = {
+    name: string;
+    code?: string;
+}
+
+type CreateTagsResponse = {
+    props: {
+        id: number;
+        name: string;
+        code?: string;
+    }
+}
+
 export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
     const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
@@ -396,7 +414,7 @@ export async function getPrograms(params: ProgramParams): Promise<AllProgramsRes
 }
 
 export async function getTechTasks(params: TechTaskParams): Promise<TechTasksResponse[]> {
-    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS,{ params });
+    const response: AxiosResponse<TechTasksResponse[]> = await api.get(TECHTASKS.GET_TECH_TASKS, { params });
 
     return response.data;
 }
@@ -416,7 +434,7 @@ export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTask
 }
 
 export async function readTechTasks(params: TechTaskParams): Promise<ReadTechTasksResponse[]> {
-    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS,{ params });
+    const response: AxiosResponse<ReadTechTasksResponse[]> = await api.get(TECHTASKS.READ_TECH_TASKS, { params });
 
     return response.data;
 }
@@ -456,5 +474,18 @@ export async function patchProgramCoefficient(id: number | string, body: Consump
     console.log(body);
     const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
     console.log(response.data);
+    return response.data;
+}
+
+export async function createTag(body: CreateTags): Promise<CreateTagsResponse> {
+    console.log(body);
+    const response: AxiosResponse<CreateTagsResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK + '/tag', body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getTags(): Promise<CreateTagsResponse[]> {
+    const response: AxiosResponse<CreateTagsResponse[]> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/tag');
+
     return response.data;
 }
