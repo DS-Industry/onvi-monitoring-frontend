@@ -4,6 +4,12 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
 
 type MenuBarProps = {
   editor: Editor | null;
@@ -48,6 +54,22 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
         title="Strikethrough"
       >
         <s>S</s>
+      </button>
+      <button
+        type="button"
+        onClick={() => readonly ? {} : editor.chain().focus().toggleBulletList().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('bulletList') ? 'text-primary' : 'text-text01'}`}
+        title="Bullet List"
+      >
+        •
+      </button>
+      <button
+        type="button"
+        onClick={() => readonly ? {} : editor.chain().focus().toggleOrderedList().run()}
+        className={`p-2 hover:bg-background06 rounded ${editor.isActive('orderedList') ? 'text-primary' : 'text-text01'}`}
+        title="Numbered List"
+      >
+        1.
       </button>
       <button
         type="button"
@@ -102,16 +124,66 @@ type Props = {
 const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<string>(value || '');
-
   const isEditingRef = useRef<boolean>(false);
+
+  // Add custom CSS to ensure list styles are displayed
+  useEffect(() => {
+    // Add CSS for ordered and unordered lists
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      .ProseMirror ul { list-style-type: disc; margin-left: 1.5em; }
+      .ProseMirror ol { list-style-type: decimal; margin-left: 1.5em; }
+      .ProseMirror ul li, .ProseMirror ol li { margin-bottom: 0.5em; }
+      .ProseMirror ul[data-type="taskList"] { list-style-type: none; margin-left: 0; }
+      .ProseMirror ul[data-type="taskList"] li { display: flex; align-items: flex-start; }
+      .ProseMirror ul[data-type="taskList"] li > label { margin-right: 0.5em; }
+    `;
+    document.head.appendChild(styleEl);
+    
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      // Use only essential parts of StarterKit, manually add what we need
+      Document,
+      Paragraph,
+      Text,
+      StarterKit.configure({
+        // Disable all list-related extensions from StarterKit
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+      }),
       Underline,
-      TaskList,
+      // Add list extensions with proper configuration
+      ListItem.configure({
+        HTMLAttributes: {
+          class: 'list-item',
+        },
+      }),
+      BulletList.configure({
+        HTMLAttributes: {
+          class: 'bullet-list',
+        },
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: 'ordered-list',
+        },
+      }),
+      TaskList.configure({
+        HTMLAttributes: {
+          class: 'task-list',
+        },
+      }),
       TaskItem.configure({
         nested: true,
+        HTMLAttributes: {
+          class: 'task-item',
+        },
       }),
     ],
     content: value || '',
@@ -128,8 +200,19 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       }, 10);
     },
     editorProps: {
+      attributes: {
+        class: 'prose prose-sm focus:outline-none max-w-none',
+      },
       handleKeyDown: (_view, event) => {
         if (event.key === 'Enter') {
+          // Allow default Enter behavior for lists
+          if (editor && (
+            editor.isActive('bulletList') || 
+            editor.isActive('orderedList') || 
+            editor.isActive('taskList')
+          )) {
+            return false; // Let Tiptap handle the Enter key for lists
+          }
           event.stopPropagation();
           return false;
         }
@@ -147,6 +230,14 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      // Don't prevent Enter in lists
+      if (editor && (
+        editor.isActive('bulletList') || 
+        editor.isActive('orderedList') || 
+        editor.isActive('taskList')
+      )) {
+        return;
+      }
       e.stopPropagation();
     }
   };
