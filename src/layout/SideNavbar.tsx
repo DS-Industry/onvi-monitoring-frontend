@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, Tag } from "antd";
 import onvi from "../assets/onvi.png";
 import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
@@ -212,6 +212,16 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
       return [];
   };
 
+  const getStatusTag = (status: string) => {
+    if (status === t("tables.ACTIVE") || status === t("tables.SENT"))
+      return <Tag color="green">{status}</Tag>;
+    if (status === t("tables.OVERDUE") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+      return <Tag color="red">{status}</Tag>;
+    if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
+      return <Tag color="orange">{status}</Tag>;
+    else return <Tag color="default">{status}</Tag>;
+  };
+
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
       {activeNavItem && !isMobile && (
@@ -248,7 +258,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
           if (!isMobile) {
             setIsHovered(false);
             setTimeout(() => {
-              if (!hoverRef.current) {  
+              if (!hoverRef.current) {
                 setIsOpen(false);
                 setActiveNavItem(null);
                 setActiveSubNavItem(null);
@@ -548,16 +558,20 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
-                      {location.pathname === "/finance/timesheet/view"
-                        ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
-                        : activePageName === "createDo"
-                          ? t(`routes.${doc}`)
-                          : t(`routes.${activePageName}`)}
+                      {location.pathname === "/equipment/routine/work/list/item"
+                        ? location.state.name
+                        : location.pathname === "/finance/timesheet/view"
+                          ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
+                          : activePageName === "createDo"
+                            ? t(`routes.${doc}`)
+                            : t(`routes.${activePageName}`)}
                     </span>
                     {
-                      activePageName === "bonus"
-                        ? <EditIcon className="text-text02 ml-2" />
-                        : <QuestionmarkIcon className="text-2xl ml-2" />
+                      location.pathname === "/equipment/routine/work/list/item" ?
+                        <div className="ml-5">{getStatusTag(location.state.status)}</div>
+                        : activePageName === "bonus"
+                          ? <EditIcon className="text-text02 ml-2" />
+                          : <QuestionmarkIcon className="text-2xl ml-2" />
                     }
                   </div>
                   {activePage?.filter && (

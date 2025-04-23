@@ -1,4 +1,4 @@
-import { Card, Typography, Button, Space, Row, Col, DatePicker, Grid } from 'antd';
+import { Card, Typography, Button, Space, Row, Col, DatePicker, Grid, Skeleton } from 'antd';
 import { BarChartOutlined } from '@ant-design/icons';
 import useSWR from "swr";
 import { getRating } from "@/services/api/organization";
@@ -35,51 +35,47 @@ const RatingOfCarWashes = () => {
 
   const [activeDuration, setActiveDuration] = useState<"today" | "week" | "month" | null>(null);
 
-  // SWR fetch with dynamic date range
-  const { data } = useSWR(["get-rating-org", dateRange], () =>
+  const { data, isLoading: loadingRating, isValidating: validatingRating } = useSWR(["get-rating-org", dateRange], () =>
     getRating(dateRange)
   );
 
   const ratingData: Rating[] = data?.map((item: Rating) => item) || [];
 
-  // Handle duration click
   const handleDurationClick = (duration: "today" | "week" | "month") => {
     const now = new Date();
     let newDateStart: Date = now;
 
     if (duration === "today") {
-      newDateStart = new Date(now.toISOString().slice(0, 10)); // Start of today
+      newDateStart = new Date(now.toISOString().slice(0, 10)); 
     } else if (duration === "week") {
       newDateStart = new Date();
-      newDateStart.setDate(now.getDate() - 7); // Last 7 days
+      newDateStart.setDate(now.getDate() - 7); 
     } else if (duration === "month") {
       newDateStart = new Date();
-      newDateStart.setMonth(now.getMonth() - 1); // Last month
+      newDateStart.setMonth(now.getMonth() - 1); 
     }
 
     setDateRange({
       dateStart: newDateStart,
       dateEnd: now,
     });
-    
+
     setActiveDuration(duration);
   };
 
-  // Handle date range picker change
-  const handleDateRangeChange: RangePickerProps['onChange'] = (dates, dateStrings) => {
+  const handleDateRangeChange: RangePickerProps['onChange'] = (dates) => {
     if (dates) {
       const [start, end] = dates;
       setDateRange({
         dateStart: start?.toDate() || new Date(),
         dateEnd: end?.toDate() || new Date(),
       });
-      // Clear active duration button selection when date range is manually selected
       setActiveDuration(null);
     }
   };
 
   return (
-    <Card 
+    <Card
       className="mt-4 w-full min-w-64"
       bodyStyle={{ padding: '24px' }}
       variant='borderless'
@@ -105,7 +101,6 @@ const RatingOfCarWashes = () => {
         </Col>
         <Col xs={24} lg={8}>
           {screens.xs ? (
-            // Mobile view: Two separate DatePickers for better mobile experience
             <Space direction="vertical" style={{ width: '100%' }}>
               <DatePicker
                 placeholder="Start date"
@@ -152,7 +147,12 @@ const RatingOfCarWashes = () => {
       </Row>
 
       <div className="chart-container" style={{ width: '100%', overflowX: 'auto' }}>
-        {ratingData.length > 0 ? (
+        {loadingRating || validatingRating ? (
+          <div className="h-full flex flex-col w-full">
+            <Skeleton.Image style={{ width: '100%', height: '180px' }} active />
+            <Skeleton.Image style={{ width: '100%', marginTop: 16, height: '180px' }} active />
+          </div>
+        ) : ratingData.length > 0 ? (
           <BarChart data={ratingData} />
         ) : (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>

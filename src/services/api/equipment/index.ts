@@ -191,6 +191,11 @@ type TechTasksResponse = {
     updatedAt: Date;
     createdById: number;
     updatedById: number;
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[];
 }
 
 type TechTaskBody = {
@@ -233,6 +238,11 @@ type TechTaskResponse = {
         updatedAt?: Date;
         createdById: number;
         updatedById: number;
+        tags: {
+            id: number;
+            name: string;
+            code?: string;
+        }[];
     }
 }
 

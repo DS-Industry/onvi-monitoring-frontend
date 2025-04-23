@@ -4,18 +4,17 @@ import ProfitIcon from "@icons/profit.svg?react";
 import TotalDownTimeIcon from "@icons/total-downtime.svg?react";
 import Notification from "@ui/Notification";
 import LineChart from "@ui/LineChart";
-// import DatePickerComponent from "@ui/DatePickerComponent";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData";
 import useSWR from "swr";
-import { getStatistic } from "@/services/api/organization";
+import { getStatistic, getStatisticsGraph } from "@/services/api/organization";
 import { getDepositPos } from "@/services/api/pos";
-// import DropdownInput from "@ui/Input/DropdownInput";
 import TableSkeleton from "../../components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { getPoses } from "@/services/api/equipment";
 import { useCity, useEndDate, usePosType, useStartDate } from "@/hooks/useAuthStore";
 import DynamicTable from "../../components/ui/Table/DynamicTable";
-import { Card, Row, Col, Typography, Space, Button, Select, DatePicker, Grid } from "antd";
+import { Card, Row, Col, Typography, Space, Button, Select, DatePicker, Grid, Skeleton } from "antd";
+import { BarChartOutlined } from "@ant-design/icons";
 const { Text, Title } = Typography;
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
@@ -41,33 +40,11 @@ interface Statistic {
   sum: number;
 }
 
-// const selectOptions: {
-//   value: string;
-//   name: string;
-// }[] = [
-//     { value: "last_7_days", name: "Последние 7 дней" },
-//     { value: "last_30_days", name: "Последние 30 дней" },
-//     { value: "last_90_days", name: "Последние 90 дней" },
-//     { value: "last_month", name: "Последний месяц" },
-//     { value: "last_year", name: "Последний год" },
-//   ];
-
 const durations: { label: string; value: "today" | "week" | "month" }[] = [
   { label: "Today", value: "today" },
   { label: "For a week", value: "week" },
   { label: "For a month", value: "month" },
 ];
-
-// const tableHeader: string[] = [
-//   "id",
-//   "Наименование",
-//   "Город",
-//   "Адрес",
-//   "Инкассация за сегодня",
-//   "Инкассация за месяц",
-//   "Операций за сегодня",
-//   "Безнал. операций за сегодня",
-// ];
 
 const Indicators: React.FC = () => {
   const posType = usePosType();
@@ -83,17 +60,28 @@ const Indicators: React.FC = () => {
     dateStart: startDate,
     dateEnd: endDate,
   });
+  const [dateRangeRev, setDateRangeRev] = useState({
+    dateStart: startDate,
+    dateEnd: endDate,
+  });
   const { t } = useTranslation();
   const city = useCity();
   const [activeDuration, setActiveDuration] = useState<"today" | "week" | "month" | null>(null);
+  const [activeDurationRev, setActiveDurationRev] = useState<"today" | "week" | "month" | null>(null);
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
-  const { data: filter, isLoading: filterLoading } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
+  const { data: filter, isLoading: filterLoading, isValidating: filterValidating } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
     posId: selectedValue,
     placementId: city
   }));
+
+  const { data: graphData, isLoading: graphLoading, isValidating: graphValidating } = useSWR(['get-graph', dateRangeRev], () => getStatisticsGraph({
+    ...dateRangeRev
+  }));
+
+  const graph = graphData || [];
 
   const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -135,26 +123,18 @@ const Indicators: React.FC = () => {
     },
   ];
 
-  // const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
-  //   setDateRange({
-  //     dateStart: newDateRange.startDate || new Date(),
-  //     dateEnd: newDateRange.endDate || new Date(),
-  //   });
-  // };
-
-  // Handle duration click
   const handleDurationClick = (duration: "today" | "week" | "month") => {
     const now = new Date();
     let newDateStart: Date = now;
 
     if (duration === "today") {
-      newDateStart = new Date(now.toISOString().slice(0, 10)); // Start of today
+      newDateStart = new Date(now.toISOString().slice(0, 10));
     } else if (duration === "week") {
       newDateStart = new Date();
-      newDateStart.setDate(now.getDate() - 7); // Last 7 days
+      newDateStart.setDate(now.getDate() - 7);
     } else if (duration === "month") {
       newDateStart = new Date();
-      newDateStart.setMonth(now.getMonth() - 1); // Last month
+      newDateStart.setMonth(now.getMonth() - 1);
     }
 
     setDateRange({
@@ -164,17 +144,51 @@ const Indicators: React.FC = () => {
     setActiveDuration(duration);
   };
 
-  const handleDateRangeChange: RangePickerProps['onChange'] = (dates, dateStrings) => {
+  const handleDurationClickRev = (duration: "today" | "week" | "month") => {
+    const now = new Date();
+    let newDateStart: Date = now;
+
+    if (duration === "today") {
+      newDateStart = new Date(now.toISOString().slice(0, 10));
+    } else if (duration === "week") {
+      newDateStart = new Date();
+      newDateStart.setDate(now.getDate() - 7);
+    } else if (duration === "month") {
+      newDateStart = new Date();
+      newDateStart.setMonth(now.getMonth() - 1);
+    }
+
+    setDateRangeRev({
+      dateStart: newDateStart,
+      dateEnd: now,
+    });
+    setActiveDurationRev(duration);
+  };
+
+  const handleDateRangeChange: RangePickerProps['onChange'] = (dates) => {
     if (dates) {
       const [start, end] = dates;
       setDateRange({
         dateStart: start?.toDate() || new Date(),
         dateEnd: end?.toDate() || new Date(),
       });
-      // Clear active duration button selection when date range is manually selected
       setActiveDuration(null);
     }
   };
+
+  const handleDateRangeRevChange: RangePickerProps['onChange'] = (dates) => {
+    if (dates) {
+      const [start, end] = dates;
+      setDateRangeRev({
+        dateStart: start?.toDate() || new Date(),
+        dateEnd: end?.toDate() || new Date(),
+      });
+      setActiveDurationRev(null);
+    }
+  };
+
+
+  console.log("Graph data: ", graphData);
 
   return (
     <>
@@ -199,7 +213,7 @@ const Indicators: React.FC = () => {
                     padding: 24,
                     borderRadius: 24,
                     backgroundColor: "#fff",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)", // mimic `shadow-card`
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)",
                   },
                 }}
               >
@@ -222,8 +236,82 @@ const Indicators: React.FC = () => {
           <p className="text-background01 font-semibold text-2xl px-3 lg:px-8">
             {t("indicators.revenue")}
           </p>
+          <Row justify="space-between" align="middle" wrap gutter={[16, 16]} style={{ marginBottom: '4px', padding: "20px" }}>
+            <Col xs={24} lg={16}>
+              <Space wrap>
+                {durations.map((duration) => (
+                  <Button
+                    key={duration.value}
+                    type={activeDurationRev === duration.value ? "primary" : "default"}
+                    shape="round"
+                    onClick={() => handleDurationClickRev(duration.value)}
+                  >
+                    {duration.label}
+                  </Button>
+                ))}
+              </Space>
+            </Col>
+            <Col xs={24} lg={8}>
+              {screens.xs ? (
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <DatePicker
+                    placeholder="Start date"
+                    value={dayjs(dateRangeRev.dateStart)}
+                    onChange={(date) => {
+                      if (date) {
+                        setDateRangeRev({
+                          ...dateRangeRev,
+                          dateStart: date.toDate(),
+                        });
+                        setActiveDurationRev(null);
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                  <DatePicker
+                    placeholder="End date"
+                    value={dayjs(dateRangeRev.dateEnd)}
+                    onChange={(date) => {
+                      if (date) {
+                        setDateRangeRev({
+                          ...dateRangeRev,
+                          dateEnd: date.toDate(),
+                        });
+                        setActiveDurationRev(null);
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
+                </Space>
+              ) : (
+                <RangePicker
+                  onChange={handleDateRangeRevChange}
+                  value={[
+                    dayjs(dateRangeRev.dateStart),
+                    dayjs(dateRangeRev.dateEnd)
+                  ]}
+                  allowClear={false}
+                  style={{ width: '100%' }}
+                />
+              )}
+            </Col>
+          </Row>
           <div className="w-full h-64 lg:h-96 overflow-auto px-3 lg:px-8">
-            <LineChart />
+            {graphLoading || graphValidating ? (
+              <div className="h-full flex flex-col w-full">
+                <Skeleton.Image style={{ width: '100%', height: '180px' }} active />
+                <Skeleton.Image style={{ width: '100%', marginTop: 16, height: '180px' }} active />
+              </div>
+            ) : graph.length === 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+                <Space direction="vertical" align="center">
+                  <BarChartOutlined style={{ fontSize: '48px', opacity: 0.5 }} />
+                  <Typography.Text type="secondary">No data available</Typography.Text>
+                </Space>
+              </div>
+            ) : (
+              <LineChart revenueData={graph} />
+            )}
           </div>
         </div>
 
@@ -309,7 +397,7 @@ const Indicators: React.FC = () => {
             </Col>
           </Row>
           <div className="overflow-x-auto">
-            {filterLoading ? (
+            {filterLoading || filterValidating ? (
               <TableSkeleton columnCount={columnsMonitoringPos.length} />
             ) : (
               <DynamicTable

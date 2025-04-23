@@ -77,6 +77,7 @@ import SalaryCalculationCreation from "@/pages/Hr/SalaryCalculationCreation";
 import Notifications from "@/pages/Notifications/Notifications";
 import RewardsCreation from "@/pages/Marketing/RewardsCreation";
 import EmployeeAdvanceCreation from "@/pages/Hr/EmployeeAdvanceCreation";
+import RoutineWorkItem from "@/pages/Equipment/RoutineWorkItem";
 // import DailyReports from "@/pages/Equipment/DailyReports";
 
 const routes = [
@@ -242,6 +243,7 @@ const routes = [
       {
         name: "routine", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true, subNav: [
           { name: "list", filter: true, addButton: true, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/list", component: RoutineWork, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true },
+          { name: "list", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/list/item", component: RoutineWorkItem, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: false },
           { name: "progress", filter: true, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress", component: ProgressReport, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: true },
           { name: "progress", filter: false, addButton: false, addButtonText: "create", isVisible: true, path: "/equipment/routine/work/progress/item", component: ProgressReportItem, permissions: [{ action: "manage", subject: "TechTask" },{ action: "create", subject: "TechTask" },{ action: "read", subject: "TechTask" },{ action: "update", subject: "TechTask" },{ action: "delete", subject: "TechTask" }], isSidebar: false }
         ], subMenu: true

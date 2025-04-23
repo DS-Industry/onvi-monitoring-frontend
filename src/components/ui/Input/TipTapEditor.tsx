@@ -6,10 +6,11 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 
 type MenuBarProps = {
-    editor: Editor | null;
+  editor: Editor | null;
+  readonly?: boolean;
 }
 
-const MenuBar = ({ editor } : MenuBarProps) => {
+const MenuBar = ({ editor, readonly }: MenuBarProps) => {
   if (!editor) {
     return null;
   }
@@ -17,8 +18,8 @@ const MenuBar = ({ editor } : MenuBarProps) => {
   return (
     <div className="flex items-center gap-2 p-2">
       <button
-        type="button" // Explicitly set button type to prevent form submission
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        type="button"
+        onClick={() => readonly ? {} : editor.chain().focus().toggleBold().run()}
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('bold') ? 'text-primary' : 'text-text01'}`}
         title="Bold"
       >
@@ -26,7 +27,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
+        onClick={() => readonly ? {} : editor.chain().focus().toggleItalic().run()}
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('italic') ? 'text-primary' : 'text-text01'}`}
         title="Italic"
       >
@@ -34,7 +35,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        onClick={() => readonly ? {} : editor.chain().focus().toggleUnderline().run()}
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('underline') ? 'text-primary' : 'text-text01'}`}
         title="Underline"
       >
@@ -42,7 +43,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleStrike().run()}
+        onClick={() => readonly ? {} : editor.chain().focus().toggleStrike().run()}
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('strike') ? 'text-primary' : 'text-text01'}`}
         title="Strikethrough"
       >
@@ -50,7 +51,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleTaskList().run()}
+        onClick={() => readonly ? {} : editor.chain().focus().toggleTaskList().run()}
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('taskList') ? 'text-primary' : 'text-text01'}`}
         title="Task List"
       >
@@ -67,7 +68,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
       <div className="ml-auto flex gap-2">
         <button
           type="button"
-          onClick={() => editor.chain().focus().setContent('').run()}
+          onClick={() => readonly ? {} : editor.chain().focus().setContent('').run()}
           className="p-2 hover:bg-background06 rounded text-text01"
           title="Clear content"
         >
@@ -78,7 +79,7 @@ const MenuBar = ({ editor } : MenuBarProps) => {
         </button>
         <button
           type="button"
-          onClick={() => editor.chain().focus().undo().run()}
+          onClick={() => readonly ? {} : editor.chain().focus().undo().run()}
           className="p-2 hover:bg-background06 rounded text-text01"
           title="Undo"
         >
@@ -93,17 +94,17 @@ const MenuBar = ({ editor } : MenuBarProps) => {
 };
 
 type Props = {
-    value?: string;
-    onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
+  readonly?: boolean;
 }
 
-const TiptapEditor = ({ value, onChange } : Props) => {
+const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<string>(value || '');
-  
-  // Track if we're currently editing 
+
   const isEditingRef = useRef<boolean>(false);
-  
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -114,66 +115,60 @@ const TiptapEditor = ({ value, onChange } : Props) => {
       }),
     ],
     content: value || '',
+    editable: !readonly,
     onUpdate: ({ editor }) => {
+      if (readonly) return;
       isEditingRef.current = true;
       const html = editor.getHTML();
       contentRef.current = html;
-      onChange(html);
+      if (onChange)
+        onChange(html);
       setTimeout(() => {
         isEditingRef.current = false;
       }, 10);
     },
     editorProps: {
-      // Handle native DOM events inside the editor
       handleKeyDown: (_view, event) => {
         if (event.key === 'Enter') {
-          // Let the editor handle the enter key naturally but prevent form submission
           event.stopPropagation();
-          // Don't call preventDefault() here - let Tiptap handle the Enter normally
-          // Just stop it from bubbling up to the form
-          return false; // Return false to let Tiptap process the key event
+          return false;
         }
         return false;
       },
     }
   });
-  
-  // Only update content from props when it actually changed from outside
+
   useEffect(() => {
     if (editor && !isEditingRef.current && value !== contentRef.current) {
-      // Update content safely
       contentRef.current = value || '';
       editor.commands.setContent(contentRef.current);
     }
   }, [value, editor]);
 
-  // Handle keydown for the whole container
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.stopPropagation();
-      // Don't call preventDefault here to let the editor work properly
     }
   };
 
-  // Prevent form submissions from inside the editor
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
   return (
-    <div 
+    <div
       ref={wrapperRef}
-      className="w-full border rounded overflow-hidden bg-white" 
+      className="w-full border rounded overflow-hidden bg-white"
       onKeyDown={handleKeyDown}
       onSubmit={handleSubmit}
     >
-      <MenuBar editor={editor} />
+      <MenuBar editor={editor} readonly={readonly} />
       <div className="border-t p-4">
-        <EditorContent 
-          editor={editor} 
-          className="min-h-64 focus:outline-none text-text01" 
-          placeholder="Комментарий по выполнению" 
+        <EditorContent
+          editor={editor}
+          className="min-h-64 focus:outline-none text-text01"
+          placeholder="Комментарий по выполнению"
         />
       </div>
     </div>
