@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hooks/useAuthStore';
 import LanguageSelector from '@/components/LanguageSelector';
 import useAuthStore from '@/config/store/authSlice';
+import Avatar from '@/components/ui/Avatar';
 
 
 const InfoTab: React.FC = () => {
@@ -22,6 +23,8 @@ const InfoTab: React.FC = () => {
   const setClearToken = useClearJwtToken();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
+
+  const userName = { name: user.name, middlename: user.middlename };
 
   const defaultValues = useMemo(
     () => ({
@@ -123,15 +126,15 @@ const InfoTab: React.FC = () => {
     localStorage.clear();
     sessionStorage.clear();
 
-    setClearUser();         
-    setClearToken();        
-    setClearPermissions(); 
-    setPermissions([]);     
+    setClearUser();
+    setClearToken();
+    setClearPermissions();
+    setPermissions([]);
 
     useAuthStore.getState().reset();
 
-    window.location.href = ""; 
-};
+    window.location.href = "";
+  };
 
 
   console.log("Image Preview: ", imagePreview);
@@ -237,17 +240,19 @@ const InfoTab: React.FC = () => {
         </div>
         <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
           <div>{t("profile.photo")}</div>
-          <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
-            {imagePreview ? (
+
+          {imagePreview ? (
+            <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
               <img
                 src={imagePreview}
                 alt="Profile"
                 className="rounded-full w-full h-full object-cover"
               />
-            ) : (
-              <span className="text-4xl font-bold text-black">{defaultValues.initials}</span>
-            )}
-          </div>
+            </div>
+          ) : (
+            <Avatar type="profile" userName={userName} />
+          )}
+
           <div className="mt-2">
             <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
               {t("profile.changePh")}

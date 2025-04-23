@@ -46,7 +46,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   // Add a new state to track hover state
   const [isHovered, setIsHovered] = useState(false);
 
-  const initials = ((user.name?.[0])?.toUpperCase() || '') + ((user.middlename?.[0])?.toUpperCase() || '') || ((user.name?.[0])?.toUpperCase() || '');
+  const userName = {name: user.name, middlename: user.middlename};
 
   useEffect(() => {
     const handleResize = () => {
@@ -510,7 +510,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
                 className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
-              /> : <Avatar type="sidebar" initials={initials}/>}
+              /> : <Avatar type="sidebar" userName={userName}/>}
               {isOpen && (
                 <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>
               )}
