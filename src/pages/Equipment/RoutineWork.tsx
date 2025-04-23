@@ -17,12 +17,13 @@ import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
+import { Select, Tooltip } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import { Card, Tag, Button as AntDButton, Typography, Space, Row, Col } from 'antd';
 import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined } from '@ant-design/icons';
+import { useNavigate } from "react-router-dom";
 
 const { Text, Title } = Typography;
 
@@ -45,6 +46,11 @@ type TechTasks = {
     updatedAt: Date;
     createdById: number;
     updatedById: number;
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[];
 }
 
 type TechTaskBody = {
@@ -72,12 +78,14 @@ const RoutineWork: React.FC = () => {
     const posType = usePosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchPosId, setSearchPosId] = useState(posType);
+    const [searchStatus, setSearchStatus] = useState("ACTIVE");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
     const [tagIds, setTagIds] = useState<number[]>([]);
+    const navigate = useNavigate();
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => getTechTasks({
+    const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
         posId: searchPosId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
@@ -128,6 +136,7 @@ const RoutineWork: React.FC = () => {
         techTaskId: editTechTaskId,
         name: formData.name,
         endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
+        markdownDescription: formData.markdownDescription,
         period: formData.period,
         techTaskItem: formData.techTaskItem
     }));
@@ -162,7 +171,8 @@ const RoutineWork: React.FC = () => {
                 startDate: techTaskToEdit.startDate.toString().substring(0, 10),
                 endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate.toString().substring(0, 10),
                 techTaskItem: techTaskItemNumber,
-                tagIds: []
+                markdownDescription: techTaskToEdit.markdownDescription,
+                tagIds: techTaskToEdit.tags.map((tag) => tag.id)
             });
         }
     };
@@ -186,7 +196,7 @@ const RoutineWork: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-tech-tasks`, searchPosId, city]);
+                    mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -195,7 +205,7 @@ const RoutineWork: React.FC = () => {
                 const result = await createTech();
                 if (result) {
                     console.log('API Response:', result);
-                    mutate([`get-tech-tasks`, searchPosId, city]);
+                    mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -208,6 +218,7 @@ const RoutineWork: React.FC = () => {
 
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
+        ?.filter((item: { status: string }) => item.status === searchStatus)
         ?.map((item: TechTasks) => ({
             ...item,
             type: t(`tables.${item.type}`),
@@ -290,21 +301,33 @@ const RoutineWork: React.FC = () => {
     return (
         <>
             <Filter count={techTasks.length} hideDateTime={true} handleClear={handleClear} hideCity={true} hideSearch={true}>
-                <div className="flex">
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                        <Select
-                            className="w-full sm:w-80"
-                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
-                            value={searchPosId}
-                            onChange={(value) => setSearchPosId(value)}
-                        />
-                    </div>
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={poses.map((item) => ({ label: item.name, value: item.value }))}
+                        value={searchPosId}
+                        onChange={(value) => setSearchPosId(value)}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("finance.status")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={[
+                            { label: t("tables.ACTIVE"), value: "ACTIVE" },
+                            { label: t("tables.OVERDUE"), value: "OVERDUE" },
+                            { label: t("tables.FINISHED"), value: "FINISHED" },
+                            { label: t("tables.PAUSED"), value: "PAUSED" }
+                        ]}
+                        value={searchStatus}
+                        onChange={(value) => setSearchStatus(value)}
+                    />
                 </div>
             </Filter>
             <Tabs defaultActiveKey="cards">
                 <TabPane tab={t("equipment.card")} key="cards">
-                    {techTasksLoading ? (
+                    {techTasksLoading || isValidating ? (
                         <TableSkeleton columnCount={columnsTechTasks.length} />
                     ) : techTasks.length > 0 ? (
                         <div className="flex flex-wrap gap-4 justify-start md:justify-start">
@@ -333,7 +356,16 @@ const RoutineWork: React.FC = () => {
                                                 <Space direction="vertical" size="small">
                                                     <Space>
                                                         <FolderOutlined style={{ color: '#1890ff' }} />
-                                                        <Title level={4} style={{ margin: 0 }}>
+                                                        <Title
+                                                            level={4}
+                                                            className="cursor-pointer text-text01 hover:text-primary02 hover:underline"
+                                                            style={{ margin: 0 }}
+                                                            onClick={() =>
+                                                                navigate("/equipment/routine/work/list/item", {
+                                                                    state: { ownerId: tech.id, name: tech.name, status: tech.status },
+                                                                })
+                                                            }
+                                                        >
                                                             {tech.name}
                                                         </Title>
                                                     </Space>
@@ -346,18 +378,22 @@ const RoutineWork: React.FC = () => {
                                                     >
                                                         Крайний срок: 28.05.2024
                                                     </Text>
-                                                    <AntDButton
-                                                        type="text"
-                                                        style={{
-                                                            color: '#722ed1',
-                                                            background: '#f9f0ff',
-                                                            borderRadius: '4px',
-                                                            padding: '0 12px',
-                                                            height: '28px',
-                                                        }}
-                                                    >
-                                                        Регламентные работы
-                                                    </AntDButton>
+                                                    {tech.tags.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-2 items-center">
+                                                            {tech.tags.slice(0, 3).map((te) => (
+                                                                <Tag key={te.id} color="orange">
+                                                                    {te.name}
+                                                                </Tag>
+                                                            ))}
+                                                            {tech.tags.slice(3).length > 0 && (
+                                                                <Tooltip
+                                                                    title={tech.tags.slice(3).map(tag => tag.name).join(', ')}
+                                                                >
+                                                                    <Tag color="default">+{tech.tags.slice(3).length} more</Tag>
+                                                                </Tooltip>
+                                                            )}
+                                                        </div>
+                                                    ) : <div className="h-5"></div>}
                                                 </Space>
                                             </Col>
                                             <Col>
@@ -387,7 +423,7 @@ const RoutineWork: React.FC = () => {
                                             >
                                                 <AntDButton
                                                     type="text"
-                                                    icon={tech.status === t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                    icon={tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
                                                 />
                                             </div>
 
@@ -441,6 +477,7 @@ const RoutineWork: React.FC = () => {
                                         columns={columnsTechTasks}
                                         isDisplayEdit={true}
                                         onEdit={handleUpdate}
+                                        navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/list/item" }]}
                                     />
                                 </div>
                             </>
@@ -484,7 +521,7 @@ const RoutineWork: React.FC = () => {
                                 (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
-                        onChange={(value) => { 
+                        onChange={(value) => {
                             handleInputChange('posId', value);
                             setSearchPosId(value);
                         }}
@@ -549,69 +586,6 @@ const RoutineWork: React.FC = () => {
                         value={tagIds}
                         onChange={handleSelectionTagChange}
                     />
-                    <div className="flex flex-col">
-                        {/* Available Items List */}
-                        <div className="border rounded w-80">
-                            <div className="flex border-b-[1px] bg-background05 text-xs">
-                                <div className="font-normal text-text01 p-2">Available Tasks</div>
-                                <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
-                            </div>
-                            <div className="border-b-[1px] h-64 overflow-y-auto w-80">
-                                {availableItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        onClick={() => toggleSelection(item.id)}
-                                        className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
-                                            }`}
-                                    >
-                                        <div className="font-light text-[11px]">{item.title}</div>
-                                        {/* <div className="text-sm text-gray-600">{item.description}</div> */}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Buttons in the center */}
-                        <div className="flex max-w-80 justify-center items-center my-2">
-                            <button
-                                className="border border-r-0 bg-white text-black cursor-pointer"
-                                onClick={handleTransferToSelected}
-                                disabled={selected.length === 0}
-                                title={"→"}
-                            >
-                                <Icon icon="chevrons-down" />
-                            </button>
-                            <button
-                                className="border border-l-0 bg-white text-black cursor-pointer"
-                                onClick={handleTransferToAvailable}
-                                disabled={selected.length === 0}
-                                title={"→"}
-                            >
-                                <Icon icon="chevrons-up" />
-                            </button>
-                        </div>
-
-                        {/* Selected Items List */}
-                        <div className="border rounded w-80">
-                            <div className="flex border-b-[1px] bg-background05 text-xs">
-                                <div className="font-normal text-text01 p-2">Selected Tasks</div>
-                                <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
-                            </div>
-                            <div className="border-b-[1px] h-64 w-80 overflow-y-auto">
-                                {selectedItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        onClick={() => toggleSelection(item.id)}
-                                        className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
-                                            }`}
-                                    >
-                                        <div className="text-[11px] font-light">{item.title}</div>
-                                        <div className="text-[10px] font-light text-text01">{item.description}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
                     <Tabs defaultActiveKey="editor">
                         <TabPane tab={t("equipment.text")} key="editor">
                             <TiptapEditor
@@ -620,7 +594,69 @@ const RoutineWork: React.FC = () => {
                             />
                         </TabPane>
                         <TabPane tab={t("equipment.templates")} key="templates">
-                            <div style={{ padding: 10, color: '#888' }}>Нет доступных шаблонов</div>
+                            <div className="flex flex-col">
+                                {/* Available Items List */}
+                                <div className="border rounded w-80">
+                                    <div className="flex border-b-[1px] bg-background05 text-xs">
+                                        <div className="font-normal text-text01 p-2">Available Tasks</div>
+                                        <div className="ml-auto mr-2 text-text01 p-2">{availableItems.length}</div>
+                                    </div>
+                                    <div className="border-b-[1px] h-64 overflow-y-auto w-80">
+                                        {availableItems.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                onClick={() => toggleSelection(item.id)}
+                                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
+                                                    }`}
+                                            >
+                                                <div className="font-light text-[11px]">{item.title}</div>
+                                                {/* <div className="text-sm text-gray-600">{item.description}</div> */}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Buttons in the center */}
+                                <div className="flex max-w-80 justify-center items-center my-2">
+                                    <button
+                                        className="border border-r-0 bg-white text-black cursor-pointer"
+                                        onClick={handleTransferToSelected}
+                                        disabled={selected.length === 0}
+                                        title={"→"}
+                                    >
+                                        <Icon icon="chevrons-down" />
+                                    </button>
+                                    <button
+                                        className="border border-l-0 bg-white text-black cursor-pointer"
+                                        onClick={handleTransferToAvailable}
+                                        disabled={selected.length === 0}
+                                        title={"→"}
+                                    >
+                                        <Icon icon="chevrons-up" />
+                                    </button>
+                                </div>
+
+                                {/* Selected Items List */}
+                                <div className="border rounded w-80">
+                                    <div className="flex border-b-[1px] bg-background05 text-xs">
+                                        <div className="font-normal text-text01 p-2">Selected Tasks</div>
+                                        <div className="ml-auto mr-2 text-text01 p-2">{selectedItems.length}</div>
+                                    </div>
+                                    <div className="border-b-[1px] h-64 w-80 overflow-y-auto">
+                                        {selectedItems.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                onClick={() => toggleSelection(item.id)}
+                                                className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id) ? "bg-background06" : "hover:bg-background06"
+                                                    }`}
+                                            >
+                                                <div className="text-[11px] font-light">{item.title}</div>
+                                                <div className="text-[10px] font-light text-text01">{item.description}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </TabPane>
                     </Tabs>
                     <div className="flex justify-start space-x-4">

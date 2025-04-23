@@ -198,6 +198,16 @@ type ContactResponse = {
     position: string;
 }
 
+type StatGraphRequest = {
+    dateStart: Date;
+    dateEnd: Date;
+}
+
+type StatGraphResponse = {
+    date: Date;
+    sum: number;
+}
+
 export async function getOrganization(params: AddressParams): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
     const response: AxiosResponse<Organization[]> = await api.get(url, { params });
@@ -283,6 +293,12 @@ export async function getContactById(id: number): Promise<ContactResponse> {
     const response: AxiosResponse<ContactResponse> = await api.get(url);
 
     //console.log(JSON.stringify(response, null, 2));
+    return response.data;
+}
+
+export async function getStatisticsGraph(params: StatGraphRequest): Promise<StatGraphResponse[]> {
+    const url = ORGANIZATION.GET_STATISTIC + '-graf';
+    const response: AxiosResponse<StatGraphResponse[]> = await api.get(url, { params });
     return response.data;
 }
 

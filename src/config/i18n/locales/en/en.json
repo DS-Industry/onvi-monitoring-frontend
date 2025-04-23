@@ -278,7 +278,10 @@
     "card": "Card View",
     "table": "Table",
     "text": "Text Editor",
-    "templates": "Templates"
+    "templates": "Templates",
+    "deadline": "Deadline",
+    "resp": "Responsible",
+    "taskInfo": "Task Information"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
