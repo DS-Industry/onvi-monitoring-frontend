@@ -28,10 +28,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, handleClick, c
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-5">
           {onClose && (
-            <Button title={"Сбросить"} handleClick={onClose} type="outline" />
+            <Button title={"Сбросить"} handleClick={onClose} type="outline" classname="w-[141px]"/>
           )}
           {handleClick && (
-            <Button title={"Сохранить"} handleClick={handleClick} isLoading={loading} />
+            <Button title={"Сохранить"} handleClick={handleClick} isLoading={loading} classname="w-[141px]"/>
           )}
         </div>
       </div>
