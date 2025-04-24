@@ -139,7 +139,7 @@ const OverheadCosts: React.FC = () => {
 
     const handleClear = () => {
         setWarehouseId("*");
-        setCategoryId(allCategoriesText);
+        setCategoryId("*");
         setCity(city);
     }
 
