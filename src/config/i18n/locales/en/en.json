@@ -855,7 +855,7 @@
     "startPaymentDate": "Date of Issue",
     "billing": "Billing Month",
     "all": "All employees",
-    "endPaymentDate": "Date od Completion",
+    "endPaymentDate": "Date od Completion"
   },
   "notifications": {
     "fav": "Favorite",
