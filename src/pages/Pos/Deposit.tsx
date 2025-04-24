@@ -102,7 +102,7 @@ const Deposit: React.FC = () => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
 
-    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {
+    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {        
         return item;
     }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
