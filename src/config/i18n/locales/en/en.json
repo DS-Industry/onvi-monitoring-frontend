@@ -424,7 +424,8 @@
     "enterPhone": "Enter employee phone number",
     "noStock": "You don't have any products on stock",
     "noWare": "You don't have warehouse in the program",
-    "manager": "Manager"
+    "manager": "Manager",
+    "all": "All"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",

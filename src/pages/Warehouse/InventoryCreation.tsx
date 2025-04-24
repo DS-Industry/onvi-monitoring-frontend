@@ -42,28 +42,36 @@ type INVENTORY = {
 
 const InventoryCreation: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
-    const [category, setCategory] = useState<number | string>("*");
+    const [category, setCategory] = useState<number | string>(allCategoriesText); //Номенклатура фильтр категории 
     const [name, setName] = useState("");
     const [orgId, setOrgId] = useState(1);
     const city = useCity();
 
-    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category, orgId], () => getNomenclature(orgId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category, orgId], () => getNomenclature(orgId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }) 
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
+    
     const inventories = inventoryData?.map((item) => item.props)
-        ?.filter((item: { categoryId: number }) => category === "*" || item.categoryId === category)
+        ?.filter((item: { categoryId: number }) => category === allCategoriesText || item.categoryId === category) 
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))
         ?.map((item) => item) || [];
 
-    const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const categories: { name: string; value: number | string }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const categoryAllObj = {
+        name: allCategoriesText,
+        value: allCategoriesText,
+    };
+
+    categories.unshift(categoryAllObj);
 
     const inventoriesDisplay: { id: number; sku: string; name: string; categoryId: string | undefined; }[] = inventories.map((item) => ({ id: item.id, sku: item.sku, name: item.name, categoryId: categories.find((cat) => cat.value === item.categoryId)?.name }));
 
@@ -217,7 +225,7 @@ const InventoryCreation: React.FC = () => {
     };
 
     const handleClear = () => {
-        setCategory("*");
+        setCategory(allCategoriesText);
     }
 
     return (
@@ -233,6 +241,7 @@ const InventoryCreation: React.FC = () => {
                     />
                 </div>
                 <div>
+                    {/* здесь фильтр категории */}
                     <div className="text-sm text-text02">{t("warehouse.category")}</div>
                     <Select
                         className="w-full sm:w-80"

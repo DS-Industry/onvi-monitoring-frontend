@@ -20,8 +20,9 @@ type StockParams = {
 
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const [orgId, setOrgId] = useState(1);
-    const [categoryId, setCategoryId] = useState<string | number>("*");
+    const [categoryId, setCategoryId] = useState<string | "*">("*");
     const warehouseId = useWareHouseId();
     const setWarehouseId = useSetWareHouseId();
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -59,7 +60,14 @@ const OverheadCosts: React.FC = () => {
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const categories: { name: string; value: number; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const categories: { name: string; value: number | string; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const categoryAllObj = {
+        name: allCategoriesText,
+        value: "*",
+    };
+
+    categories.unshift(categoryAllObj);
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 

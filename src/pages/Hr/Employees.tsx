@@ -54,6 +54,7 @@ type WorkerParams = {
 
 const Employees: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [notificationVisibleForm, setNotificationVisibleForm] = useState(true);
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -80,7 +81,15 @@ const Employees: React.FC = () => {
 
     const organizations: { name: string; value: number; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
 
-    const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+    const positions: { name: string; value: number | string; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+
+    const categoryAllObj = {
+        name: allCategoriesText,
+        value: "*",
+        label: allCategoriesText,
+    };
+
+    positions.unshift(categoryAllObj);
 
     const { data: workersData, isLoading: workersLoading, mutate: positionsMutating } = useSWR([`get-workers`], () => getWorkers({
         placementId: dataFilter.placementId,
