@@ -39,7 +39,7 @@ type Worker = {
     passportNumber?: string;
     passportExtradition?: string;
     passportDateIssue?: Date;
-    inn?: string;
+    inn?: string;   
     snils?: string;
 }
 
@@ -54,12 +54,13 @@ type WorkerParams = {
 
 const Employees: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("hr.all2");
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [notificationVisibleForm, setNotificationVisibleForm] = useState(true);
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [name, setName] = useState<string | undefined>(undefined);
     const [organizationId, setOrganizationId] = useState<number | "*">("*");
-    const [positionId, setPositionId] = useState<number | "*">("*");
+    const [positionId, setPositionId] = useState<number | string>(allCategoriesText);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -80,7 +81,15 @@ const Employees: React.FC = () => {
 
     const organizations: { name: string; value: number; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
 
-    const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+    const positions: { name: string; value: number | string; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+
+    const categoryAllObj = {
+        name: allCategoriesText,
+        value: allCategoriesText,
+        label: allCategoriesText,
+    };
+
+    positions.unshift(categoryAllObj);
 
     const { data: workersData, isLoading: workersLoading, mutate: positionsMutating } = useSWR([`get-workers`], () => getWorkers({
         placementId: dataFilter.placementId,
@@ -136,7 +145,7 @@ const Employees: React.FC = () => {
 
     const handleClear = () => {
         setCity(city);
-        setPositionId("*");
+        setPositionId(allCategoriesText);
         setOrganizationId("*");
         setName(undefined);
     }

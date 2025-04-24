@@ -423,7 +423,8 @@
     "enterPhone": "Enter employee phone number",
     "noStock": "You don't have any products on stock",
     "noWare": "You don't have warehouse in the program",
-    "manager": "Manager"
+    "manager": "Manager",
+    "all": "All"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
@@ -602,7 +603,8 @@
     "updateBen": "Update Benefit",
     "CASHBACK": "Cashback",
     "DISCOUNT": "Discount",
-    "GIFT_POINTS": "Gift Points"
+    "GIFT_POINTS": "Gift Points",
+    "all": "All"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -854,7 +856,8 @@
     "startPaymentDate": "Date of Issue",
     "billing": "Billing Month",
     "all": "All employees",
-    "endPaymentDate": "Date od Completion"
+    "endPaymentDate": "Date od Completion",
+    "all2": "All"
   },
   "notifications": {
     "fav": "Favorite",
