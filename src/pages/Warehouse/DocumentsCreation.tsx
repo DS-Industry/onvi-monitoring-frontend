@@ -546,7 +546,10 @@ const DocumentsCreation: React.FC = () => {
                     value={row.nomenclatureId}
                     placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))}
+                    options={[
+                        { label: t("warehouse.notSel"), value: 0 },
+                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
+                    ]}
                     className="w-80"
                     listHeight={160}
                 />
@@ -638,9 +641,12 @@ const DocumentsCreation: React.FC = () => {
                     value={row.nomenclatureId}
                     placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={[nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))]}
+                    options={[
+                        { label: t("warehouse.notSel"), value: 0 },
+                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
+                    ]}
                     className="w-80"
-                    listHeight={160} 
+                    listHeight={160}
                 />
             ),
         },

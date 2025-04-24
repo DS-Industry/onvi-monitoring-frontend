@@ -24,6 +24,9 @@ import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import { Card, Tag, Button as AntDButton, Typography, Space, Row, Col } from 'antd';
 import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
+import Modal from "@/components/ui/Modal/Modal";
+import Close from "@icons/close.svg?react";
+import moment from "moment";
 
 const { Text, Title } = Typography;
 
@@ -83,6 +86,9 @@ const RoutineWork: React.FC = () => {
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
     const [tagIds, setTagIds] = useState<number[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [techId, setTechId] = useState(0);
+    const [techStatus, setTechStatus] = useState("");
     const navigate = useNavigate();
 
     const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
@@ -140,6 +146,23 @@ const RoutineWork: React.FC = () => {
         period: formData.period,
         techTaskItem: formData.techTaskItem
     }));
+
+    const { trigger: updateStatus, isMutating: updatingStatus } = useSWRMutation(
+        ['update-tech-task-status'],
+        async (_, { arg }: {
+            arg: {
+                techTaskId: number;
+                name?: string;
+                status?: string;
+                period?: number;
+                markdownDescription?: string;
+                endSpecifiedDate?: Date;
+                techTaskItem?: number[];
+            }
+        }) => {
+            return updateTechTask(arg);
+        }
+    );
 
     type FieldType = "name" | "posId" | "type" | "period" | "markdownDescription" | "startDate" | "endSpecifiedDate" | "techTaskItem" | "tagIds" | `techTaskItem.${number}` | `tagIds.${number}`;
 
@@ -223,7 +246,7 @@ const RoutineWork: React.FC = () => {
             ...item,
             type: t(`tables.${item.type}`),
             posName: poses.find((pos) => pos.value === item.posId)?.name,
-            status: t(`tables.${item.status}`)
+            status: item.status === "ACTIVE" ? t(`tables.In Progress`) : item.status === "FINISHED" ? t(`tables.Done`) : t(`tables.${item.status}`)
         }))
         .sort((a, b) => a.id - b.id) || [];
 
@@ -289,14 +312,25 @@ const RoutineWork: React.FC = () => {
     }
 
     const getStatusTag = (status: string) => {
-        if (status === t("tables.ACTIVE") || status === t("tables.SENT"))
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress"))
             return <Tag color="green">{status}</Tag>;
-        if (status === t("tables.OVERDUE") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
             return <Tag color="red">{status}</Tag>;
         if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
             return <Tag color="orange">{status}</Tag>;
         else return <Tag color="default">{status}</Tag>;
     };
+
+    const updateStat = async (id: number, status: string) => {
+        const result = await updateStatus({
+            techTaskId: id,
+            status: status === t("tables.In Progress") ? "FINISHED" : "ACTIVE"
+        });
+
+        if (result) {
+            mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
+        }
+    }
 
     return (
         <>
@@ -315,16 +349,37 @@ const RoutineWork: React.FC = () => {
                     <Select
                         className="w-full sm:w-80"
                         options={[
-                            { label: t("tables.ACTIVE"), value: "ACTIVE" },
+                            { label: t("tables.In Progress"), value: "ACTIVE" },
                             { label: t("tables.OVERDUE"), value: "OVERDUE" },
-                            { label: t("tables.FINISHED"), value: "FINISHED" },
-                            { label: t("tables.PAUSED"), value: "PAUSED" }
+                            { label: t("tables.Done"), value: "FINISHED" },
+                            { label: t("tables.PAUSE"), value: "PAUSE" }
                         ]}
                         value={searchStatus}
                         onChange={(value) => setSearchStatus(value)}
                     />
                 </div>
             </Filter>
+            <Modal isOpen={isModalOpen}>
+                <div className="flex flex-row items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("equipment.do")}</h2>
+                    <Close
+                        onClick={() => { setIsModalOpen(false); }}
+                        className="cursor-pointer text-text01"
+                    />
+                </div>
+                <div className="flex flex-wrap gap-3 mt-5">
+                    <Button
+                        title={"Сбросить"}
+                        handleClick={() => setIsModalOpen(false)}
+                        type="outline"
+                    />
+                    <Button
+                        title={"Сохранить"}
+                        isLoading={updatingStatus}
+                        handleClick={() => updateStat(techId, techStatus)}
+                    />
+                </div>
+            </Modal>
             <Tabs defaultActiveKey="cards">
                 <TabPane tab={t("equipment.card")} key="cards">
                     {techTasksLoading || isValidating ? (
@@ -376,7 +431,7 @@ const RoutineWork: React.FC = () => {
                                                         type="secondary"
                                                         style={{ display: 'block' }}
                                                     >
-                                                        Крайний срок: 28.05.2024
+                                                        {t("equipment.deadline")}: {tech.endSpecifiedDate ? moment(tech.endSpecifiedDate).format('DD.MM.YYYY') : "-"}
                                                     </Text>
                                                     {tech.tags.length > 0 ? (
                                                         <div className="flex flex-wrap gap-2 items-center">
@@ -423,7 +478,13 @@ const RoutineWork: React.FC = () => {
                                             >
                                                 <AntDButton
                                                     type="text"
-                                                    icon={tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                    loading={updatingStatus}
+                                                    icon={updatingStatus ? undefined : tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                    onClick={() => {
+                                                        setIsModalOpen(true);
+                                                        setTechId(tech.id);
+                                                        setTechStatus(tech.status);
+                                                    }}
                                                 />
                                             </div>
 

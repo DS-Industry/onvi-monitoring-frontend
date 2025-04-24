@@ -262,96 +262,97 @@ const RoutineWorkItem: React.FC = () => {
                             </div>
                         ) : <div className="h-5"></div>}
                     </div>
-                    {(<div className="space-y-2">
+                    <div className="space-y-2">
                         <div className="font-semibold text-2xl text-text01">{t("equipment.taskInfo")}</div>
-                        <TiptapEditor
+                        {techTaskData?.items.length === 0 && (<TiptapEditor
                             value={techTaskData?.markdownDescription}
-                        />
-                        <List
-                            dataSource={Object.entries(groupedTechTaskItems)}
-                            renderItem={([groupName, items]) => (
-                                <List.Item className="w-full">
-                                    <Card className="w-full">
-                                        {/* Group Header */}
-                                        <div className="flex items-center space-x-2 mb-4">
-                                            <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center"
-                                                onClick={() => toggleGroup(groupName)}>
-                                                {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                        />)}
+                        {((techTaskData && techTaskData?.items.length > 0)) && (
+                            <List
+                                dataSource={Object.entries(groupedTechTaskItems)}
+                                renderItem={([groupName, items]) => (
+                                    <List.Item className="w-full">
+                                        <Card className="w-full">
+                                            {/* Group Header */}
+                                            <div className="flex items-center space-x-2 mb-4">
+                                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center"
+                                                    onClick={() => toggleGroup(groupName)}>
+                                                    {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                                </div>
+                                                <div className="text-lg md:text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
                                             </div>
-                                            <div className="text-lg md:text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
-                                        </div>
 
-                                        {/* Group Items */}
-                                        {openSettings[groupName] && (
-                                            <List
-                                                dataSource={items}
-                                                renderItem={(techItem) => (
-                                                    <List.Item className="w-full">
-                                                        <div className="w-full">
-                                                            {/* Task Content Section */}
-                                                            <div className="flex flex-wrap w-full gap-4 my-4 items-start md:items-center">
-                                                                {/* Left Section: Title & Input */}
-                                                                <div className="flex items-center justify-center space-x-10 min-w-[250px] max-w-full">
-                                                                    <div className="flex space-x-2 items-center justify-center">
-                                                                        <input type="checkbox" />
-                                                                        <div className="text-text01">{techItem.title}</div>
-                                                                    </div>
-                                                                    <div className="text-sm text-text02 max-w-sm">
-                                                                        Task description is simply dummy text of the printing and typesetting industry.
-                                                                    </div>
-                                                                    {location.state.status === "FINISHED" ?
-                                                                        <div>{techItem.type === "SelectList" ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name : taskValues[techItem.id]}</div>
-                                                                        : <DynamicInput
-                                                                            type={techItem.type}
-                                                                            value={taskValues[techItem.id]}
-                                                                            onChange={(value) => handleChange(techItem.id, value)}
-                                                                            location={location}
-                                                                            t={t}
-                                                                        />}
-                                                                </div>
-
-                                                                {/* Upload Button */}
-                                                                <div>
-                                                                    <Upload {...uploadProps}>
-                                                                        <div className="w-[120px] h-[120px] border border-dashed flex items-center justify-center cursor-pointer rounded-md hover:border-primary flex-col transition">
-                                                                            <PlusOutlined className="text-2xl text-gray-500" />
-                                                                            <div>Upload</div>
+                                            {/* Group Items */}
+                                            {openSettings[groupName] && (
+                                                <List
+                                                    dataSource={items}
+                                                    renderItem={(techItem) => (
+                                                        <List.Item className="w-full">
+                                                            <div className="w-full">
+                                                                {/* Task Content Section */}
+                                                                <div className="flex flex-wrap w-full gap-4 my-4 items-start md:items-center">
+                                                                    {/* Left Section: Title & Input */}
+                                                                    <div className="flex items-center justify-center space-x-10 min-w-[250px] max-w-full">
+                                                                        <div className="flex space-x-2 items-center justify-center">
+                                                                            <input type="checkbox" />
+                                                                            <div className="text-text01">{techItem.title}</div>
                                                                         </div>
-                                                                    </Upload>
+                                                                        <div className="text-sm text-text02 max-w-sm">
+                                                                            Task description is simply dummy text of the printing and typesetting industry.
+                                                                        </div>
+                                                                        {location.state.status === "FINISHED" ?
+                                                                            <div>{techItem.type === "SelectList" ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name : taskValues[techItem.id]}</div>
+                                                                            : <DynamicInput
+                                                                                type={techItem.type}
+                                                                                value={taskValues[techItem.id]}
+                                                                                onChange={(value) => handleChange(techItem.id, value)}
+                                                                                location={location}
+                                                                                t={t}
+                                                                            />}
+                                                                    </div>
+
+                                                                    {/* Upload Button */}
+                                                                    <div>
+                                                                        <Upload {...uploadProps}>
+                                                                            <div className="w-[120px] h-[120px] border border-dashed flex items-center justify-center cursor-pointer rounded-md hover:border-primary flex-col transition">
+                                                                                <PlusOutlined className="text-2xl text-gray-500" />
+                                                                                <div>Upload</div>
+                                                                            </div>
+                                                                        </Upload>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            {imageList.length > 0 && (
-                                                                <div className="flex flex-wrap gap-4 pt-4">
-                                                                    {imageList.map((img, index) => (
-                                                                        <div
-                                                                            key={index}
-                                                                            className="relative w-[120px] h-[120px] border rounded-md overflow-hidden group"
-                                                                        >
-                                                                            <img
-                                                                                src={img}
-                                                                                alt={`uploaded-${index}`}
-                                                                                className="w-full h-full object-cover"
-                                                                            />
-                                                                            <button
-                                                                                onClick={() => removeImage(index)}
-                                                                                className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
+                                                                {imageList.length > 0 && (
+                                                                    <div className="flex flex-wrap gap-4 pt-4">
+                                                                        {imageList.map((img, index) => (
+                                                                            <div
+                                                                                key={index}
+                                                                                className="relative w-[120px] h-[120px] border rounded-md overflow-hidden group"
                                                                             >
-                                                                                <CloseOutlined style={{ fontSize: '12px' }} />
-                                                                            </button>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </List.Item>
-                                                )}
-                                            />
-                                        )}
-                                    </Card>
-                                </List.Item>
-                            )}
-                        />
-                    </div>)}
+                                                                                <img
+                                                                                    src={img}
+                                                                                    alt={`uploaded-${index}`}
+                                                                                    className="w-full h-full object-cover"
+                                                                                />
+                                                                                <button
+                                                                                    onClick={() => removeImage(index)}
+                                                                                    className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
+                                                                                >
+                                                                                    <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                                </button>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            )}
+                                        </Card>
+                                    </List.Item>
+                                )}
+                            />)}
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}

@@ -46,7 +46,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   // Add a new state to track hover state
   const [isHovered, setIsHovered] = useState(false);
 
-  const userName = {name: user.name, middlename: user.middlename};
+  const userName = { name: user.name, middlename: user.middlename };
 
   useEffect(() => {
     const handleResize = () => {
@@ -215,9 +215,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   };
 
   const getStatusTag = (status: string) => {
-    if (status === t("tables.ACTIVE") || status === t("tables.SENT"))
+    if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress"))
       return <Tag color="green">{status}</Tag>;
-    if (status === t("tables.OVERDUE") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+    if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
       return <Tag color="red">{status}</Tag>;
     if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
       return <Tag color="orange">{status}</Tag>;
@@ -312,7 +312,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                             }}
                             className={({ isActive }) =>
                               item.subMenu
-                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
                               ${isParentActive(item.subNav)
                                   ? 'bg-opacity01/30 text-primary01'
                                   : (!isMobile && activeNavItem === item.name)
@@ -321,9 +321,9 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 } hover:bg-opacity01/30 hover:text-primary01`
                                 : isActive
                                   ? `flex items-center 
-                                    py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-primary01`
+                                    py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
                                   : `flex items-center 
-                                    py-1.5 px-2 mx-4 rounded transition duration-200 
+                                    py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
                                     hover:bg-opacity01/30 hover:text-primary01 text-text02`
                             }
                           >
@@ -444,16 +444,16 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           }}
                                           className={({ isActive }) =>
                                             subItem.subMenu
-                                              ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                                              ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
                                                 ${isParentActive(subItem.subNav)
                                                 ? 'bg-opacity01/30 text-text01'
                                                 : 'text-text02'
                                               } hover:bg-opacity01/30 hover:text-text01`
                                               : isActive
                                                 ? `flex items-center 
-                                                  py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                                                  p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
                                                 : `flex items-center 
-                                                  py-1.5 px-2 mx-4 rounded transition duration-200 
+                                                  p-2 mx-4 font-semibold text-sm rounded transition duration-200 
                                                   hover:bg-opacity01/30 hover:text-text01 text-text02`
                                           }
                                         >
@@ -482,8 +482,8 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                                   to={subSubItem.path}
                                                   className={({ isActive }) =>
                                                     isActive
-                                                      ? `flex items-center p-2.5 mx-4 rounded bg-opacity01/30 text-text01 font-medium text-sm`
-                                                      : `flex items-center p-2.5 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-medium text-sm`
+                                                      ? `flex items-center p-2 mx-4 rounded bg-opacity01/30 text-text01 font-semibold text-sm`
+                                                      : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-semibold text-sm`
                                                   }
                                                 >
                                                   {t(`routes.${subSubItem.name}`)}
@@ -520,7 +520,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
                 className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
-              /> : <Avatar type="sidebar" userName={userName}/>}
+              /> : <Avatar type="sidebar" userName={userName} />}
               {isOpen && (
                 <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>
               )}
