@@ -256,15 +256,24 @@ const DynamicTable = <T extends TableRow>({
                 }
 
                 if (col.type === "date") {
-                    return new Date(value).toLocaleString("ru-RU", {
-                        timeZone: userTimezone,
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                    })
+
+                    let date = null;
+
+                    if (value === null || value === undefined) {
+                        date = "-";
+                    } else {
+                        date = new Date(value).toLocaleString("ru-RU", {
+                            timeZone: userTimezone,
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                        });
+                    }
+
+                    return date;
                 }
 
                 if (col.type === "period") {
