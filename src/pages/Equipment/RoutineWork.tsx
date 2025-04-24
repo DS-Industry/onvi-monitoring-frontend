@@ -358,8 +358,8 @@ const RoutineWork: React.FC = () => {
                                                         <FolderOutlined style={{ color: '#1890ff' }} />
                                                         <Title
                                                             level={4}
-                                                            className="cursor-pointer text-text01 hover:text-primary02 hover:underline"
-                                                            style={{ margin: 0 }}
+                                                            className="cursor-pointer text-text01 hover:text-primary02 hover:underline truncate"
+                                                            style={{ margin: 0, maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                                                             onClick={() =>
                                                                 navigate("/equipment/routine/work/list/item", {
                                                                     state: { ownerId: tech.id, name: tech.name, status: tech.status },

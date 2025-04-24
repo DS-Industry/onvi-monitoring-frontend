@@ -288,6 +288,11 @@ type TechTaskShapeResponse = {
         code: string;
         value?: string | null;
     }[];
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[];
 }
 
 type TechTaskShapeBody = {

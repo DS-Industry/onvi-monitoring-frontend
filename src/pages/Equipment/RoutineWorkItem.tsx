@@ -9,7 +9,7 @@ import useSWR, { mutate } from "swr";
 import { CalendarOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import Button from "@/components/ui/Button/Button";
-import { Card, List, message, Upload } from "antd";
+import { Card, List, message, Tag, Tooltip, Upload } from "antd";
 import Icon from "feather-icons-react";
 import { TFunction } from "i18next";
 import Input from "@/components/ui/Input/Input";
@@ -243,7 +243,26 @@ const RoutineWorkItem: React.FC = () => {
                             {"-"}
                         </div>
                     </div>
-                    {techTaskData?.markdownDescription && (<div className="space-y-2">
+                    <div>
+                        <div className="text-sm text-text02">{t("marketing.tags")}</div>
+                        {techTaskData && techTaskData.tags.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 items-center">
+                                {techTaskData.tags.slice(0, 3).map((te) => (
+                                    <Tag key={te.id} color="orange">
+                                        {te.name}
+                                    </Tag>
+                                ))}
+                                {techTaskData.tags.slice(3).length > 0 && (
+                                    <Tooltip
+                                        title={techTaskData.tags.slice(3).map(tag => tag.name).join(', ')}
+                                    >
+                                        <Tag color="default">+{techTaskData.tags.slice(3).length} more</Tag>
+                                    </Tooltip>
+                                )}
+                            </div>
+                        ) : <div className="h-5"></div>}
+                    </div>
+                    {(<div className="space-y-2">
                         <div className="font-semibold text-2xl text-text01">{t("equipment.taskInfo")}</div>
                         <TiptapEditor
                             value={techTaskData?.markdownDescription}
