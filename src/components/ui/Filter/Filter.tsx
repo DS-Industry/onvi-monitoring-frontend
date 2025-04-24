@@ -179,8 +179,8 @@ const Filter: React.FC<Props> = ({
       ) :
         <div className="h-5"></div>}
       <div className="flex flex-wrap items-center gap-4 mt-4">
-        {!hideCancel && <Button title="Сбросить" handleClick={handleReset} type="outline" />}
-        <Button title="Применить" handleClick={handleApply} />
+        {!hideCancel && <Button title="Сбросить" handleClick={handleReset} type="outline" classname="w-[168px]"/>}
+        <Button title="Применить" handleClick={handleApply} classname="w-[168px]"/>
         <p className="font-semibold">Найдено: {count}</p>
         {/* <Button
           title={"Дополнительно"}

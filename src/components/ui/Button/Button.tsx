@@ -40,7 +40,7 @@ const Button: React.FC<ButtonCreateProps> = ({
         outline: "bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center",
     };
 
-    const className = ` ${typeButton[type]} font-semibold rounded-md text-base px-3 py-2 flex justify-center items-center ${classname}`;
+    const className = ` ${typeButton[type]} font-normal rounded-md text-base px-[25px] py-[21px] flex justify-center items-center ${classname}`;
 
     const typeForm = form ? "submit" : "button";
 

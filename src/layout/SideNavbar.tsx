@@ -597,7 +597,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                     title={isMobile ? "" : t("warehouse.import")}
                     iconUpload={true}
                     type="outline"
-                    classname="mr-2"
+                    classname={`mr-2 ${isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""}`}
                     handleClick={() => navigate('/warehouse/inventory/import')}
                   />
                 )}
@@ -613,6 +613,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                         title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
                         iconPlus={true}
                         handleClick={handleClickButtonCreate}
+                        classname={isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : "min-w-[166px]"}
                       />
                     )
                   }
