@@ -6,12 +6,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
-import { CalendarOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { CalendarOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import Button from "@/components/ui/Button/Button";
-import { Card, List, message, Tag, Tooltip, Upload } from "antd";
+import { Card, Checkbox, List, message, Tag, Tooltip, Upload } from "antd";
 import Icon from "feather-icons-react";
-import { TFunction } from "i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
@@ -30,7 +29,6 @@ interface DynamicInputProps {
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
     location: any;
-    t: TFunction<"translation", undefined>;
 }
 
 const selectOptions = [
@@ -39,13 +37,12 @@ const selectOptions = [
     { name: "Выше нормы", value: "aboveNormal" },
 ];
 
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location, t }) => {
+const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location }) => {
     switch (type) {
         case "Text":
             return (
                 <Input
                     type="text"
-                    title={t("chemical.enter")}
                     value={value}
                     changeValue={(e) => onChange(e.target.value || "")}
                     classname="w-80"
@@ -57,7 +54,6 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
             return (
                 <Input
                     type="number"
-                    title={t("chemical.enter")}
                     value={value}
                     changeValue={(e) => {
                         const newValue = e.target.value ? e.target.value : 0;
@@ -71,7 +67,6 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
         case "SelectList":
             return (
                 <DropdownInput
-                    title={t("chemical.select")}
                     value={value}
                     options={selectOptions}
                     onChange={(selectedValue) => onChange(selectedValue)}
@@ -271,15 +266,17 @@ const RoutineWorkItem: React.FC = () => {
                             <List
                                 dataSource={Object.entries(groupedTechTaskItems)}
                                 renderItem={([groupName, items]) => (
-                                    <List.Item className="w-full">
-                                        <Card className="w-full">
-                                            {/* Group Header */}
-                                            <div className="flex items-center space-x-2 mb-4">
-                                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center"
-                                                    onClick={() => toggleGroup(groupName)}>
+                                    <List.Item className="w-full border-none p-0">
+                                        <Card className="w-full border-none shadow-none">
+                                            <div className="flex items-center space-x-2 mb-4 cursor-pointer" onClick={() => toggleGroup(groupName)}>
+                                                <div className="text-lg font-semibold text-text01">
+                                                    {t(`chemical.${groupName}`)}
+                                                </div>
+                                                <div
+                                                    className="cursor-pointer w-6 h-6 text-primary02_Hover flex justify-center items-center"
+                                                >
                                                     {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
                                                 </div>
-                                                <div className="text-lg md:text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
                                             </div>
 
                                             {/* Group Items */}
@@ -287,38 +284,45 @@ const RoutineWorkItem: React.FC = () => {
                                                 <List
                                                     dataSource={items}
                                                     renderItem={(techItem) => (
-                                                        <List.Item className="w-full">
+                                                        <List.Item className="w-full border-none">
                                                             <div className="w-full">
-                                                                {/* Task Content Section */}
-                                                                <div className="flex flex-wrap w-full gap-4 my-4 items-start md:items-center">
-                                                                    {/* Left Section: Title & Input */}
-                                                                    <div className="flex items-center justify-center space-x-10 min-w-[250px] max-w-full">
-                                                                        <div className="flex space-x-2 items-center justify-center">
-                                                                            <input type="checkbox" />
-                                                                            <div className="text-text01">{techItem.title}</div>
+                                                                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between w-full">
+                                                                    <div className="flex flex-col md:flex-row md:space-x-40 gap-2 min-w-[250px] max-w-full">
+                                                                        <div className="flex items-center gap-2 w-64">
+                                                                            <Checkbox />
+                                                                            <div className="text-text01 break-words">{techItem.title}</div>
                                                                         </div>
-                                                                        <div className="text-sm text-text02 max-w-sm">
-                                                                            Task description is simply dummy text of the printing and typesetting industry.
-                                                                        </div>
-                                                                        {location.state.status === "FINISHED" ?
-                                                                            <div>{techItem.type === "SelectList" ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name : taskValues[techItem.id]}</div>
-                                                                            : <DynamicInput
-                                                                                type={techItem.type}
-                                                                                value={taskValues[techItem.id]}
-                                                                                onChange={(value) => handleChange(techItem.id, value)}
-                                                                                location={location}
-                                                                                t={t}
-                                                                            />}
-                                                                    </div>
-
-                                                                    {/* Upload Button */}
-                                                                    <div>
-                                                                        <Upload {...uploadProps}>
-                                                                            <div className="w-[120px] h-[120px] border border-dashed flex items-center justify-center cursor-pointer rounded-md hover:border-primary flex-col transition">
-                                                                                <PlusOutlined className="text-2xl text-gray-500" />
-                                                                                <div>Upload</div>
+                                                                        <div>
+                                                                            <div className="text-sm text-text02">{t("equipment.comment")}</div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Upload {...uploadProps} showUploadList={false}>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className="flex items-center justify-center"
+                                                                                        title="Upload"
+                                                                                    >
+                                                                                        <FileImageOutlined
+                                                                                            className="text-primary02"
+                                                                                            style={{ fontSize: "20px", marginTop: "4px" }}
+                                                                                        />
+                                                                                    </button>
+                                                                                </Upload>
+                                                                                {location.state.status === "FINISHED" ? (
+                                                                                    <div>
+                                                                                        {techItem.type === "SelectList"
+                                                                                            ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name
+                                                                                            : taskValues[techItem.id]}
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <DynamicInput
+                                                                                        type={techItem.type}
+                                                                                        value={taskValues[techItem.id]}
+                                                                                        onChange={(value) => handleChange(techItem.id, value)}
+                                                                                        location={location}
+                                                                                    />
+                                                                                )}
                                                                             </div>
-                                                                        </Upload>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 {imageList.length > 0 && (
@@ -326,7 +330,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                         {imageList.map((img, index) => (
                                                                             <div
                                                                                 key={index}
-                                                                                className="relative w-[120px] h-[120px] border rounded-md overflow-hidden group"
+                                                                                className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group"
                                                                             >
                                                                                 <img
                                                                                     src={img}
