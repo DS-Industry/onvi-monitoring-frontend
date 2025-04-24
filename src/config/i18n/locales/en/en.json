@@ -603,8 +603,7 @@
     "updateBen": "Update Benefit",
     "CASHBACK": "Cashback",
     "DISCOUNT": "Discount",
-    "GIFT_POINTS": "Gift Points",
-    "all": "All"
+    "GIFT_POINTS": "Gift Points"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -857,7 +856,6 @@
     "billing": "Billing Month",
     "all": "All employees",
     "endPaymentDate": "Date od Completion",
-    "all2": "All"
   },
   "notifications": {
     "fav": "Favorite",
