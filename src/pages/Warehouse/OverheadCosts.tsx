@@ -22,7 +22,7 @@ const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
     const [orgId, setOrgId] = useState(1);
-    const [categoryId, setCategoryId] = useState<string | number>(allCategoriesText);
+    const [categoryId, setCategoryId] = useState<string | "*">("*");
     const warehouseId = useWareHouseId();
     const setWarehouseId = useSetWareHouseId();
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -64,7 +64,7 @@ const OverheadCosts: React.FC = () => {
 
     const categoryAllObj = {
         name: allCategoriesText,
-        value: allCategoriesText,
+        value: "*",
     };
 
     categories.unshift(categoryAllObj);

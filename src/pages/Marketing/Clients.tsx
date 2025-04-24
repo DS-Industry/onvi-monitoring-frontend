@@ -67,14 +67,13 @@ type ClientsParams = {
 
 const Clients: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("marketing.all");
     const { buttonOn, setButtonOn } = useButtonCreate();
     // const [openTag, setOpenTag] = useState(false);
     // const [hoveredTag, setHoveredTag] = useState("del");
     // const dropdownRef = useRef<HTMLDivElement | null>(null);
     // const [searchQuery, setSearchQuery] = useState("");
     const [viewLoyalty, setViewLoyalty] = useState(false);
-    const [userType, setUserType] = useState(allCategoriesText);
+    const [userType, setUserType] = useState("*");
     const [cardNo, setCardNo] = useState<number | null>(null);
     const [phone, setPhone] = useState<string | undefined>(undefined);
     const [tagIds, setTagIds] = useState<number[] | undefined>(undefined);
@@ -152,7 +151,7 @@ const Clients: React.FC = () => {
 
     const handleClear = () => {
         setCity(city);
-        setUserType(allCategoriesText);
+        setUserType("*");
         setTagIds(undefined);
         setPhone(undefined);
     }
@@ -388,7 +387,6 @@ const Clients: React.FC = () => {
                         className="w-full sm:w-80"
                         placeholder={t("marketing.phys")}
                         options={[
-                            { label: allCategoriesText, value: allCategoriesText },
                             { label: t("marketing.physical"), value: "PHYSICAL" },
                             { label: t("marketing.legal"), value: "LEGAL" }
                         ]}
