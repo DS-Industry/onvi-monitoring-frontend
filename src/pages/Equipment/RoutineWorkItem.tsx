@@ -1,19 +1,20 @@
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity } from "@/hooks/useAuthStore";
-import { getPoses, getTechTaskShapeItem } from "@/services/api/equipment";
+import { createTechTaskShape, getPoses, getTechTaskShapeItem } from "@/services/api/equipment";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { CalendarOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import Button from "@/components/ui/Button/Button";
-import { Card, List, message, Upload } from "antd";
+import { Card, List, message, Tag, Tooltip, Upload } from "antd";
 import Icon from "feather-icons-react";
 import { TFunction } from "i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
+import useSWRMutation from "swr/mutation";
 
 interface TechTaskItem {
     id: number;
@@ -139,8 +140,25 @@ const RoutineWorkItem: React.FC = () => {
         }, {} as Record<string, TechTaskItem[]>);
     }, [techTaskItems]);
 
+    const { trigger: createTechTasks, isMutating } = useSWRMutation(
+        ['create-tech-task'],
+        async (_, { arg }: { arg: { valueData: { itemValueId: number; value: string }[] } }) => {
+            return createTechTaskShape(location.state?.ownerId, arg);
+        }
+    );
+
 
     const [taskValues, setTaskValues] = useState<Record<number, string | number | boolean | null>>({});
+
+    useEffect(() => {
+        if (techTaskItems.length > 0) {
+            const initialValues = techTaskItems.reduce((acc, item) => {
+                acc[item.id] = item.value ?? ""; // Default to an empty string
+                return acc;
+            }, {} as Record<number, string | number | boolean | null>);
+            setTaskValues(initialValues);
+        }
+    }, [techTaskItems]);
 
     const handleChange = (id: number, value: string | number | boolean | null) => {
         setTaskValues((prev) => ({
@@ -170,6 +188,22 @@ const RoutineWorkItem: React.FC = () => {
         showUploadList: false,
         multiple: true,
         accept: 'image/*',
+    };
+
+    const handleSubmit = async () => {
+        const techTaskValue = Object.entries(taskValues).map(([itemValueId, value]) => ({
+            itemValueId: Number(itemValueId),
+            value: value as string,
+        }));
+
+        const result = await createTechTasks({
+            valueData: techTaskValue,
+        });
+
+        if (result) {
+            mutate([`get-tech-task`]);
+            navigate(-1);
+        }
     };
 
     return (
@@ -209,11 +243,29 @@ const RoutineWorkItem: React.FC = () => {
                             {"-"}
                         </div>
                     </div>
-                    {techTaskData?.markdownDescription && (<div className="space-y-2">
+                    <div>
+                        <div className="text-sm text-text02">{t("marketing.tags")}</div>
+                        {techTaskData && techTaskData.tags.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 items-center">
+                                {techTaskData.tags.slice(0, 3).map((te) => (
+                                    <Tag key={te.id} color="orange">
+                                        {te.name}
+                                    </Tag>
+                                ))}
+                                {techTaskData.tags.slice(3).length > 0 && (
+                                    <Tooltip
+                                        title={techTaskData.tags.slice(3).map(tag => tag.name).join(', ')}
+                                    >
+                                        <Tag color="default">+{techTaskData.tags.slice(3).length} more</Tag>
+                                    </Tooltip>
+                                )}
+                            </div>
+                        ) : <div className="h-5"></div>}
+                    </div>
+                    {(<div className="space-y-2">
                         <div className="font-semibold text-2xl text-text01">{t("equipment.taskInfo")}</div>
                         <TiptapEditor
                             value={techTaskData?.markdownDescription}
-                            readonly={true}
                         />
                         <List
                             dataSource={Object.entries(groupedTechTaskItems)}
@@ -308,7 +360,8 @@ const RoutineWorkItem: React.FC = () => {
                         />
                         <Button
                             title={t("routine.done")}
-                            handleClick={() => { }}
+                            isLoading={isMutating}
+                            handleClick={handleSubmit}
                         />
                     </div>
                 </div>

@@ -18,6 +18,7 @@ import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
+import { Select } from "antd";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -177,7 +178,7 @@ const DocumentsCreation: React.FC = () => {
             return sendDocument(arg, docId);
         });
 
-    
+
     const posType = usePosType();
     const city = useCity();
 
@@ -272,7 +273,7 @@ const DocumentsCreation: React.FC = () => {
     const sortAscending = () => {
         setTableData(prevData => [...prevData].sort((a, b) => a.id - b.id));
     };
-    
+
     const sortDescending = () => {
         setTableData(prevData => [...prevData].sort((a, b) => b.id - a.id));
     };
@@ -532,13 +533,22 @@ const DocumentsCreation: React.FC = () => {
             label: "Номенклатура",
             key: "nomenclatureId",
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
+                // <DropdownInput
+                //     value={row.nomenclatureId}
+                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
+                //     options={nomenclatures}
+                //     error={errors[row.id]?.nomenclature || false}
+                //     classnameOptions="max-h-20"
+                // />
+                <Select
+                    status={errors[row.id]?.nomenclature ? 'error' : ''}
                     value={row.nomenclatureId}
-                    label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={nomenclatures}
-                    error={errors[row.id]?.nomenclature || false}
-                    classnameOptions="max-h-20"
+                    options={nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))}
+                    className="w-80"
+                    listHeight={160}
                 />
             ),
         },
@@ -615,13 +625,22 @@ const DocumentsCreation: React.FC = () => {
             label: "Номенклатура",
             key: "nomenclatureId",
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
+                // <DropdownInput
+                //     value={row.nomenclatureId}
+                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
+                //     options={nomenclatures}
+                //     error={errors[row.id]?.nomenclature || false}
+                //     classnameOptions="max-h-20"
+                // />
+                <Select
+                    status={errors[row.id]?.nomenclature ? 'error' : ''}
                     value={row.nomenclatureId}
-                    label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={nomenclatures}
-                    error={errors[row.id]?.nomenclature || false}
-                    classnameOptions="max-h-20"
+                    options={[nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))]}
+                    className="w-80"
+                    listHeight={160} 
                 />
             ),
         },
@@ -817,7 +836,7 @@ const DocumentsCreation: React.FC = () => {
                             sortAscending={sortAscending}
                             sortDescending={sortDescending}
                         />
-                        <div className="flex space-x-3">
+                        <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
                             <Button
                                 type="outline"
                                 title={t("organizations.cancel")}
