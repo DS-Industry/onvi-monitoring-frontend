@@ -21,7 +21,7 @@ type StockParams = {
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const [orgId, setOrgId] = useState(1);
+    const [orgId, setOrgId] = useState<number | null>(null);
     const [categoryId, setCategoryId] = useState<string | "*">("*");
     const warehouseId = useWareHouseId();
     const setWarehouseId = useSetWareHouseId();
@@ -58,7 +58,20 @@ const OverheadCosts: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR(
+        [`get-organization`],
+        () => getOrganization({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
+            onSuccess: (data) => {
+                if (data && data.length > 0) {
+                    setOrgId(data[0].id);                    
+                }
+            }
+        }
+    );
 
     const categories: { name: string; value: number | string; }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -69,15 +82,28 @@ const OverheadCosts: React.FC = () => {
 
     categories.unshift(categoryAllObj);
 
-    const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const warehouses: { name: string; value: number | string; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const warehousesAllObj = {
+        name: allCategoriesText,
+        value: "*",
+    };
+
+    warehouses.unshift(warehousesAllObj);
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR([`get-all-stock-levels`, orgId], () => getAllStockLevels(orgId, {
-        warehouseId: dataFilter.warehouseId,
-        categoryId: dataFilter.categoryId,
-        placementId: dataFilter.placementId
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR(
+        orgId ? [`get-all-stock-levels`, orgId]: null,
+        () => getAllStockLevels(orgId!, {
+            warehouseId: dataFilter.warehouseId,
+            categoryId: dataFilter.categoryId,
+            placementId: dataFilter.placementId
+        }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
+        });
 
     const stockLevels = useMemo(() => allStockLevels || [], [allStockLevels]);
 
@@ -146,7 +172,7 @@ const OverheadCosts: React.FC = () => {
     return (
         <>
             <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} address={city} setAddress={setCity} hideSearch={true}>
-            <div>
+                <div>
                     <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                     <Select
                         className="w-full sm:w-80"

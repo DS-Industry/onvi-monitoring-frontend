@@ -34,6 +34,7 @@ enum WarehouseDocumentType {
 const Documents: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -76,7 +77,14 @@ const Documents: React.FC = () => {
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const warehouses: { name: string; value: number | string; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const warehousesAllObj = {
+        name: allCategoriesText,
+        value: "*",
+    };
+
+    warehouses.unshift(warehousesAllObj);
 
     const initialFilter = {
         dateStart: new Date(startDate.toString().slice(0, 10) || "2024-01-01"),

@@ -9,6 +9,7 @@ import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
+import { useTranslation } from "react-i18next";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 interface FilterDepositPos {
@@ -50,6 +51,8 @@ interface PosMonitoring {
 }
 
 const DepositDevices: React.FC = () => {
+    const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
@@ -118,9 +121,17 @@ const DepositDevices: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: number }[] = posData.map(
+    const posOptional: { name: string; value: number | string }[] = posData.map(
         (item) => ({ name: item.name, value: item.id })
     );
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    posOptional.unshift(posesAllObj);
+
 
     return (
         <>

@@ -32,6 +32,7 @@ type PlanFactResponse = {
 
 const PlanAct: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
@@ -84,9 +85,16 @@ const PlanAct: React.FC = () => {
     }, [dataFilter, filterMutate]);
 
 
-    const posOptional: { name: string; value: number; }[] = data?.map(
+    const posOptional: { name: string; value: number | string; }[] = data?.map(
         (item) => ({ name: item.name, value: item.id })
     ) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    posOptional.unshift(posesAllObj);
 
     const planFacts: PlanFactResponse[] = filter?.map((item: PlanFactResponse) => ({
          ...item,

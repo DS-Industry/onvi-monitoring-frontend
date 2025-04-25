@@ -48,17 +48,38 @@ const InventoryCreation: React.FC = () => {
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
     const [category, setCategory] = useState<number | string>(allCategoriesText); //Номенклатура фильтр категории 
     const [name, setName] = useState("");
-    const [orgId, setOrgId] = useState(1);
+    const [orgId, setOrgId] = useState<number | null>(null);
     const city = useCity();
 
-    const { data: inventoryData, isLoading: inventoryLoading } = useSWR([`get-inventory`, category, orgId], () => getNomenclature(orgId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }) 
+    const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
+        orgId ? [`get-inventory`, category, orgId] : null, 
+        () => {
+            return getNomenclature(orgId!);
+        }, 
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true
+        }) 
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    
+    const { data: organizationData } = useSWR(
+        [`get-organization`], 
+        () => getOrganization({ placementId: city }), 
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true,
+            onSuccess: (data) => {
+                if (data && data.length > 0) {
+                    setOrgId(data[0].id);
+                }
+            }
+        });
+
     const inventories = inventoryData?.map((item) => item.props)
         ?.filter((item: { categoryId: number }) => category === allCategoriesText || item.categoryId === category) 
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))

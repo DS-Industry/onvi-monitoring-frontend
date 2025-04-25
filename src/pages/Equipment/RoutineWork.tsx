@@ -77,6 +77,7 @@ interface Item {
 const RoutineWork: React.FC = () => {
     const { TabPane } = Tabs;
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     // const [taskCount, setTaskCount] = useState(0);
     const posType = usePosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
@@ -103,7 +104,14 @@ const RoutineWork: React.FC = () => {
 
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     const options = tagsData ? tagsData.map((tag) => (({
         id: tag.props.id,

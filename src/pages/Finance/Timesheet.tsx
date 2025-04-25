@@ -23,6 +23,7 @@ interface FilterCollection {
 
 const Timesheet: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
     const { buttonOn } = useButtonCreate();
@@ -98,7 +99,14 @@ const Timesheet: React.FC = () => {
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

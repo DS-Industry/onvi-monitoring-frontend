@@ -28,6 +28,7 @@ type WAREHOUSE = {
 
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const city = useCity();
     const setCity = useSetCity();
     const posType = usePosType();
@@ -43,7 +44,14 @@ const Warehouse: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*",
+    };
+
+    poses.unshift(posesAllObj);
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 

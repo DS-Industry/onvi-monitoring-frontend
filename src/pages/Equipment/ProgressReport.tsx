@@ -25,6 +25,7 @@ type ReadTechTasks = {
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const posType = usePosType();
     const [searchPosId, setSearchPosId] = useState(posType);
     const city = useCity();
@@ -36,7 +37,14 @@ const ProgressReport: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     const techTasks: ReadTechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)

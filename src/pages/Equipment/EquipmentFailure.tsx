@@ -63,6 +63,7 @@ type IncidentBody = {
 
 const EquipmentFailure: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editIncidentId, setEditIncidentId] = useState<number>(0);
@@ -134,7 +135,14 @@ const EquipmentFailure: React.FC = () => {
 
     const { data: allProgramsData } = useSWR(formData.posId !== 0 ? [`get-all-programs`, formData.posId] : null, () => getPrograms({ posId: formData.posId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+    const poses: { name: string; value: number | string; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     const workers: { name: string; value: number; }[] = (workerData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
