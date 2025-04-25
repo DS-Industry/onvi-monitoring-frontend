@@ -80,18 +80,21 @@ const Employees: React.FC = () => {
             revalidateOnFocus: false, 
             revalidateOnReconnect: false, 
             keepPreviousData: true,
-            onSuccess: (data) => {
-                if (data && data.length > 0) {
-                    setOrganizationId(data[0].id);                    
-                }
-            } 
         });
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
 
-    const organizations: { name: string; value: number; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
+    const organizations: { name: string; value: number | string; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
+
+    const corganizationsAllObj = {
+        name: allCategoriesText,
+        value: "*",
+        label: allCategoriesText,
+    };
+
+    organizations.unshift(corganizationsAllObj);
 
     const positions: { name: string; value: number | string; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
 
