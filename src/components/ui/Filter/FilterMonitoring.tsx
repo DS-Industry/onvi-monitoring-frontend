@@ -46,7 +46,7 @@ const FilterMonitoring: React.FC<Props> = ({
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
     const { t } = useTranslation();
-
+    const allCategoriesText = t("warehouse.all");
     const posType = usePosType();
     const wareHouseId = useWareHouseId();
     const storeStartDate = useStartDate();
@@ -87,7 +87,14 @@ const FilterMonitoring: React.FC<Props> = ({
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { label: string; value: number; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || [];
+    const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || [];
+
+    const citiesAllObj = {
+        label: allCategoriesText,
+        value: "*"
+    };
+
+    cities.unshift(citiesAllObj);
 
     useEffect(() => {
         if (filterOpen && !buttonOn) {

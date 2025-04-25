@@ -387,6 +387,7 @@ const Clients: React.FC = () => {
                         className="w-full sm:w-80"
                         placeholder={t("marketing.phys")}
                         options={[
+                            { label: t("warehouse.all"), value: "*" },
                             { label: t("marketing.physical"), value: "PHYSICAL" },
                             { label: t("marketing.legal"), value: "LEGAL" }
                         ]}

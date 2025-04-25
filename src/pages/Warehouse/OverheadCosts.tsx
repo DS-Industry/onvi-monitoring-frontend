@@ -82,7 +82,14 @@ const OverheadCosts: React.FC = () => {
 
     categories.unshift(categoryAllObj);
 
-    const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+    const warehouses: { name: string; value: number | string; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const warehousesAllObj = {
+        name: allCategoriesText,
+        value: "*",
+    };
+
+    warehouses.unshift(warehousesAllObj);
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
     const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR(

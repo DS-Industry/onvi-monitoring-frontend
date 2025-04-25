@@ -60,6 +60,7 @@ interface PosMonitoring {
 
 const Programs: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const location = useLocation();
     const startDate = useStartDate();
     const endDate = useEndDate();
@@ -123,9 +124,16 @@ const Programs: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: number }[] = [
+    const posOptional: { name: string; value: number | string }[] = [
         ...posData.map((item) => ({ name: item.name, value: item.id }))
     ];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    posOptional.unshift(posesAllObj);
 
     const getRandomColor = (index: number) => {
         const colors = [

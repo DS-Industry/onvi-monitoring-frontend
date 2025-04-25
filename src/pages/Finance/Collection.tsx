@@ -22,6 +22,7 @@ interface FilterCollection {
 
 const Collection: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
 
@@ -91,7 +92,14 @@ const Collection: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     useEffect(() => {
         if (buttonOn)

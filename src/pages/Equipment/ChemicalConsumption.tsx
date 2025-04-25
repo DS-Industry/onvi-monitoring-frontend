@@ -65,6 +65,7 @@ const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
 
 const ChemicalConsumption: React.FC = () => {
     const { t } = useTranslation();
+    const allCategoriesText = t("warehouse.all");
     const [isTableLoading, setIsTableLoading] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
@@ -106,7 +107,14 @@ const ChemicalConsumption: React.FC = () => {
 
     const data: TechTask[] = chemicalReports || [];
     const tableRows = transformDataToTableRows(data);
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const posesAllObj = {
+        name: allCategoriesText,
+        value: "*"
+    };
+
+    poses.unshift(posesAllObj);
 
     console.log(tableRows);
 
