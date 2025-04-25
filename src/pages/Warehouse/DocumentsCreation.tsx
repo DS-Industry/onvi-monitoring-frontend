@@ -6,7 +6,6 @@ import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import NoDataUI from "@/components/ui/NoDataUI";
 // import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
 import { useUser } from "@/hooks/useUserStore";
 import { getOrganization } from "@/services/api/organization";
@@ -18,7 +17,7 @@ import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
-import { Select } from "antd";
+import { Select, Skeleton } from "antd";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -57,7 +56,7 @@ const DocumentsCreation: React.FC = () => {
         }));
     };
 
-    const { data: document, isLoading: loadingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
         return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
@@ -195,7 +194,7 @@ const DocumentsCreation: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId) || 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
@@ -781,8 +780,11 @@ const DocumentsCreation: React.FC = () => {
                     </div>
                 </DocumentModal>
 
-                {loadingDocument ?
-                    <TableSkeleton columnCount={10} /> :
+                {loadingDocument || validatingDocument ? (
+                    <div className="mt-16">
+                        <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />
+                    </div>
+                ) :
                     <div>
                         <div className="flex flex-col sm:flex-row gap-y-4 py-4">
                             <div className="flex flex-wrap gap-4">

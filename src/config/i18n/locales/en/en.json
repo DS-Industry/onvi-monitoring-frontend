@@ -100,7 +100,10 @@
   "dashboard": {
     "news": "News",
     "indicators": "Indicators",
-    "rating": "Rating of Car Washes"
+    "rating": "Rating of Car Washes",
+    "today": "Today",
+    "week": "For a week",
+    "month": "For a month"
   },
   "news": {
     "promotion": "Promotion",

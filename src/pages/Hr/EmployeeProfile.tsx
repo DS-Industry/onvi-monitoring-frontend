@@ -297,7 +297,7 @@ const EmployeeProfile: React.FC = () => {
                                 </div>
                             ))
                         ) : employeeDetails.map((emp) => (
-                            <div className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer" onClick={() => setWorkerId(emp.workerId)}>
+                            <div className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2" onClick={() => setWorkerId(emp.workerId)}>
                                 {emp.avatar ? (
                                     <img
                                         src={"https://storage.yandexcloud.net/onvi-business/avatar/worker/" + emp.avatar}

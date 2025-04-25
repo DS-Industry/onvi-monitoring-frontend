@@ -234,23 +234,14 @@ export const columnsMonitoringPos = [
     key: "city",
   },
   {
-    label: "Адрес",
-    key: "address",
-  },
-  {
-    label: "Кол-во операций",
-    key: "quantity",
-    type: "number"
-  },
-  {
     label: "Последняя операция",
     key: "lastOper",
     type: "date",
   },
-  {
-    label: "Последняя Списание по картам",
-    key: "lastLabelWriteOff"
-  },
+  // {
+  //   label: "Последняя Списание по картам",
+  //   key: "lastLabelWriteOff"
+  // },
   {
     label: "Наличные",
     key: "cashSum",
@@ -261,10 +252,10 @@ export const columnsMonitoringPos = [
     key: "virtualSum",
     type: "number"
   },
-  {
-    label: "Списание по приложению",
-    key: "Writeoffapplication"
-  },
+  // {
+  //   label: "Списание по приложению",
+  //   key: "Writeoffapplication"
+  // },
   {
     label: "Сashback по картам",
     key: "cashbackSumCard",

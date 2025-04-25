@@ -100,7 +100,10 @@
   "dashboard": {
     "news": "Новости",
     "indicators": "Статистика",
-    "rating": "Рейтинг АМС"
+    "rating": "Рейтинг АМС",
+    "today": "Сегодня",
+    "week": "Неделя",
+    "month": "Месяц"
   },
   "news": {
     "promotion": "Акция",

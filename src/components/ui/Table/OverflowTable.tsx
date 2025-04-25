@@ -447,6 +447,7 @@ const OverflowTable: React.FC<Props> = ({
             selectedColumns={selectedColumns}
             onColumnToggle={handleColumnToggle}
             onIsModalOpen={() => setIsModalOpen(false)}
+            storageKey=""
           />
         </Modal>
       </>}

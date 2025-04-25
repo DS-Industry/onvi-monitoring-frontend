@@ -162,11 +162,11 @@ const RoutineWorkItem: React.FC = () => {
         }));
     }
 
-    const [imageList, setImageList] = useState<string[]>([]);
+    const [imageList, setImageList] = useState<string>("");
 
     const handleUpload = ({ file, onSuccess }: any) => {
         const url = URL.createObjectURL(file);
-        setImageList((prev) => [...prev, url]);
+        setImageList(url);
 
         setTimeout(() => {
             message.success(`${file.name} uploaded successfully.`);
@@ -174,8 +174,8 @@ const RoutineWorkItem: React.FC = () => {
         }, 1000);
     };
 
-    const removeImage = (index: number) => {
-        setImageList((prev) => prev.filter((_, i) => i !== index));
+    const removeImage = () => {
+        setImageList("");
     };
 
     const uploadProps = {
@@ -255,7 +255,7 @@ const RoutineWorkItem: React.FC = () => {
                                     </Tooltip>
                                 )}
                             </div>
-                        ) : <div className="h-5"></div>}
+                        ) : <div className="h-5">-</div>}
                     </div>
                     <div className="space-y-2">
                         <div className="font-semibold text-2xl text-text01">{t("equipment.taskInfo")}</div>
@@ -327,24 +327,21 @@ const RoutineWorkItem: React.FC = () => {
                                                                 </div>
                                                                 {imageList.length > 0 && (
                                                                     <div className="flex flex-wrap gap-4 pt-4">
-                                                                        {imageList.map((img, index) => (
-                                                                            <div
-                                                                                key={index}
-                                                                                className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group"
+                                                                        <div
+                                                                            className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group"
+                                                                        >
+                                                                            <img
+                                                                                src={imageList}
+                                                                                alt={`uploaded`}
+                                                                                className="w-full h-full object-cover"
+                                                                            />
+                                                                            <button
+                                                                                onClick={() => removeImage()}
+                                                                                className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
                                                                             >
-                                                                                <img
-                                                                                    src={img}
-                                                                                    alt={`uploaded-${index}`}
-                                                                                    className="w-full h-full object-cover"
-                                                                                />
-                                                                                <button
-                                                                                    onClick={() => removeImage(index)}
-                                                                                    className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
-                                                                                >
-                                                                                    <CloseOutlined style={{ fontSize: '12px' }} />
-                                                                                </button>
-                                                                            </div>
-                                                                        ))}
+                                                                                <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 )}
                                                             </div>
