@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Input from '@ui/Input/Input';
+import { Input as AntInput, Form } from 'antd';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
@@ -11,7 +11,6 @@ import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hook
 import LanguageSelector from '@/components/LanguageSelector';
 import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
-
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -42,17 +41,6 @@ const InfoTab: React.FC = () => {
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-  // const { trigger } = useSWRMutation(
-  //   `user/avatar`,
-  //   async () => {
-  //     if (selectedFile) {
-  //       const formData = new FormData();
-  //       formData.append('file', selectedFile);
-  //       formData.append('id', user.id.toString())
-  //       return await uploadUserAvatar(formData);
-  //     }
-  //   });
-
   const { trigger: updateUser, isMutating } = useSWRMutation('user', async () => updateUserProfile({
     name: formData.name,
     email: formData.email,
@@ -60,7 +48,6 @@ const InfoTab: React.FC = () => {
     middlename: formData.middlename,
     surname: formData.surname,
   }, selectedFile));
-
 
   useEffect(() => {
     const storedAvatarUrl = localStorage.getItem('avatarUrl') || defaultValues.imagePreview;
@@ -82,6 +69,7 @@ const InfoTab: React.FC = () => {
       setImagePreview(null);
     }
   };
+
   type FieldName = 'name' | 'email' | 'phone' | 'middlename' | 'surname';
 
   const handleInputChange = (field: FieldName, value: string) => {
@@ -92,7 +80,6 @@ const InfoTab: React.FC = () => {
   const onSubmit = async (data: unknown) => {
     console.log('Form Data:', data);
     try {
-      // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
 
       if ((await updateUserData).props.avatar) {
@@ -102,13 +89,6 @@ const InfoTab: React.FC = () => {
       }
 
       const [updatedData] = await Promise.all([updateUserData]);
-
-      // if (avatarResult) {
-      //   const avatarUrl = avatarResult; 
-      //   setImagePreview(avatarUrl);
-      //   localStorage.setItem('avatarUrl', avatarUrl);
-      //   console.log('Uploaded file:', selectedFile);
-      // }
 
       if (updatedData) {
         console.log('User profile updated:', updatedData);
@@ -135,96 +115,79 @@ const InfoTab: React.FC = () => {
     window.location.href = "";
   };
 
-
   console.log("Image Preview: ", imagePreview);
 
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
         <div className="flex flex-col space-y-6 w-full md:w-2/3">
-          <div>
-            <Input
-              type="text"
-              title={t("profile.name")}
-              label={t("profile.name")}
+          <Form.Item label={t("profile.name")}>
+            <AntInput
+              placeholder={t("profile.name")}
               value={formData?.name}
-              changeValue={(e) => handleInputChange('name', e.target.value)}
-              {...register('name', { required: 'Имя is required' })}
-              disabled={false}
-              inputType="primary"
-              classname='w-80'
-              error={!!errors.name}
-              helperText={errors.name?.message}
+              onChange={(e) => {
+                handleInputChange('name', e.target.value);
+                register('name').onChange(e);
+              }}
+              className='w-80'
+              status={errors.name ? 'error' : ''}
             />
-          </div>
-          <div>
-            <Input
-              type="text"
-              title={t("profile.middlename")}
-              label={t("profile.middlename")}
+            {errors.name && <span className="error-message">{errors.name.message}</span>}
+          </Form.Item>
+          <Form.Item label={t("profile.middlename")}>
+            <AntInput
+              placeholder={t("profile.middlename")}
               value={formData.middlename}
-              changeValue={(e) => handleInputChange('middlename', e.target.value)}
-              {...register('middlename')}
-              disabled={false}
-              inputType="primary"
-              classname='w-80'
-              error={!!errors.middlename}
-              helperText={errors.middlename?.message}
+              onChange={(e) => {
+                handleInputChange('middlename', e.target.value);
+                register('middlename').onChange(e);
+              }}
+              className='w-80'
+              status={errors.middlename ? 'error' : ''}
             />
-          </div>
-          <div>
-            <Input
-              type="text"
-              title={t("profile.surname")}
-              label={t("profile.surname")}
+            {errors.middlename && <span className="error-message">{errors.middlename.message}</span>}
+          </Form.Item>
+          <Form.Item label={t("profile.surname")}>
+            <AntInput
+              placeholder={t("profile.surname")}
               value={formData.surname}
-              changeValue={(e) => handleInputChange('surname', e.target.value)}
-              {...register('surname', { required: 'Отчество is required' })}
-              disabled={false}
-              inputType="primary"
-              classname='w-80'
-              error={!!errors.surname}
-              helperText={errors.surname?.message}
+              onChange={(e) => {
+                handleInputChange('surname', e.target.value);
+                register('surname').onChange(e);
+              }}
+              className='w-80'
+              status={errors.surname ? 'error' : ''}
             />
-          </div>
-          <div>
-            <Input
-              type="text"
-              label={t("profile.telephone")}
-              title={t("profile.telephone")}
+            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
+          </Form.Item>
+          <Form.Item label={t("profile.telephone")}>
+            <AntInput
+              placeholder={t("profile.telephone")}
               value={formData.phone}
-              changeValue={(e) => handleInputChange('phone', e.target.value)}
-              {...register('phone')}
-              disabled={false}
-              inputType="primary"
-              classname='w-80'
-              error={!!errors.phone}
-              helperText={errors.phone?.message}
+              onChange={(e) => {
+                handleInputChange('phone', e.target.value);
+                register('phone').onChange(e);
+              }}
+              className='w-80'
+              status={errors.phone ? 'error' : ''}
             />
-          </div>
-          <div className='flex'>
-            <div>
-              <Input
-                type="email"
-                title="E-mail *"
-                value={formData.email}
-                changeValue={(e) => handleInputChange('email', e.target.value)}
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Invalid email format'
-                  }
-                })}
-                disabled={true}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              />
-            </div>
-            {/* <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div> */}
-          </div>
+            {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+          </Form.Item>
+          <Form.Item label="E-mail *">
+            <AntInput
+              type="email"
+              placeholder="E-mail *"
+              value={formData.email}
+              onChange={(e) => {
+                handleInputChange('email', e.target.value);
+                register('email').onChange(e);
+              }}
+              disabled={true}
+              className='w-80'
+              status={errors.email ? 'error' : ''}
+            />
+            {errors.email && <span className="error-message">{errors.email.message}</span>}
+          </Form.Item>
           <div className='flex'>
             <input type='checkbox' />
             <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
