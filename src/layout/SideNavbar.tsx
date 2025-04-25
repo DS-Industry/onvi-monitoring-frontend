@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Layout, Tag } from "antd";
-import onvi from "../assets/onvi.png";
-import onvi_small from "../assets/onvi_small.png";
+// import onvi from "../assets/onvi.png";
+// import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
 import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
@@ -22,6 +22,8 @@ import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import Icon from "feather-icons-react";
 import Avatar from "@/components/ui/Avatar";
+import OnviLogo from "@/assets/OnviLogo.svg";
+import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
 
 const { Sider, Content } = Layout;
 
@@ -272,7 +274,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         <div className="h-full flex flex-col justify-between relative">
           <div>
             <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-              {isOpen ? <img src={onvi} alt="" /> : <img src={onvi_small} alt="" />}
+              {isOpen ? <img src={OnviLogo} alt="" /> : <img src={OnviSmallLogo} alt="" />}
               {isMobile && (
                 <button
                   onClick={toggleNavbar}
@@ -515,7 +517,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
               {isOpen && <span>{t("routes.notifications")}</span>}
             </div>
-            <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
+            <div className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               {user.avatar ? <img
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
