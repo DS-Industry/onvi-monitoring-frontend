@@ -292,13 +292,13 @@ const DynamicTable = <T extends TableRow>({
 
                 if (col.type === "tags") {
                     return value.length > 0 ? (
-                        <>
+                        <div className="flex flex-wrap max-w-64 gap-4">
                             {value.map((tag: { id: number; color: string; name: string; }) => (
-                                <Tag key={tag.id} color={tag.color}>
+                                <Tag key={tag.id} color={tag.color ? tag.color : "cyan"}>
                                     {tag.name}
                                 </Tag>
                             ))}
-                        </>
+                        </div>
                     ) : (
                         "—"
                     )

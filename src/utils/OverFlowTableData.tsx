@@ -535,6 +535,11 @@ export const columnsTechTasks = [
     key: "type"
   },
   {
+    label: "Теги",
+    key: "tags",
+    type: "tags"
+  },
+  {
     label: "Дата начала работ",
     key: "startDate",
     type: "date"

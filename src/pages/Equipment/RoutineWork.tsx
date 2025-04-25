@@ -105,7 +105,7 @@ const RoutineWork: React.FC = () => {
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-    
+
     const posesAllObj = {
         name: allCategoriesText,
         value: "*"
@@ -113,10 +113,19 @@ const RoutineWork: React.FC = () => {
 
     poses.unshift(posesAllObj);
 
+    // const getRandomColor = () => {
+    //     const letters = '0123456789ABCDEF';
+    //     let color = '#';
+    //     for (let i = 0; i < 6; i++) {
+    //         color += letters[Math.floor(Math.random() * 16)];
+    //     }
+    //     return color;
+    // }
+
     const options = tagsData ? tagsData.map((tag) => (({
         id: tag.props.id,
         name: tag.props.name,
-        color: "red"
+        color: "cyan"
     }))) : [];
 
     const defaultValues: TechTaskBody = {
@@ -420,7 +429,7 @@ const RoutineWork: React.FC = () => {
                             {techTasks.map((tech) => (
                                 <div
                                     key={tech.id}
-                                    className="w-full sm:w-[360px] h-[186px]"
+                                    className="w-full sm:w-[360px] h-[186px] relative"
                                 >
                                     <Card
                                         variant="outlined"
@@ -482,9 +491,11 @@ const RoutineWork: React.FC = () => {
                                                     ) : <div className="h-5"></div>}
                                                 </Space>
                                             </Col>
-                                            <Col>
+                                            <div
+                                                className="absolute top-4 right-4"
+                                            >
                                                 {getStatusTag(tech.status)}
-                                            </Col>
+                                            </div>
                                         </Row>
                                         <Row
                                             justify="center"
