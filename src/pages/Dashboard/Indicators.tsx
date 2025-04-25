@@ -65,6 +65,7 @@ const Indicators: React.FC = () => {
     dateEnd: endDate,
   });
   const { t } = useTranslation();
+  const allCategoriesText = t("warehouse.all");
   const city = useCity();
   const [activeDuration, setActiveDuration] = useState<"today" | "week" | "month" | null>(null);
   const [activeDurationRev, setActiveDurationRev] = useState<"today" | "week" | "month" | null>(null);
@@ -91,7 +92,14 @@ const Indicators: React.FC = () => {
 
   const statisticData: Statistic = data || { cars: 0, sum: 0 };
 
-  const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+  const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+  const posesAllObj = {
+    name: allCategoriesText,
+    value: "*",
+  };
+
+  poses.unshift(posesAllObj);
 
   const cards = [
     {

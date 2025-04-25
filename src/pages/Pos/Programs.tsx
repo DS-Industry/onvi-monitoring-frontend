@@ -124,16 +124,9 @@ const Programs: React.FC = () => {
         return item;
     }).sort((a, b) => a.id - b.id) || [];
 
-    const posOptional: { name: string; value: number | string }[] = [
+    const posOptional: { name: string; value: number }[] = [
         ...posData.map((item) => ({ name: item.name, value: item.id }))
     ];
-
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    posOptional.unshift(posesAllObj);
 
     const getRandomColor = (index: number) => {
         const colors = [
