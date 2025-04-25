@@ -73,7 +73,19 @@ const Employees: React.FC = () => {
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR(
+        [`get-organization`], 
+        () => getOrganization({ placementId: city }), 
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true,
+            onSuccess: (data) => {
+                if (data && data.length > 0) {
+                    setOrganizationId(data[0].id);                    
+                }
+            } 
+        });
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
