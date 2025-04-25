@@ -40,12 +40,6 @@ interface Statistic {
   sum: number;
 }
 
-const durations: { label: string; value: "today" | "week" | "month" }[] = [
-  { label: "Today", value: "today" },
-  { label: "For a week", value: "week" },
-  { label: "For a month", value: "month" },
-];
-
 const Indicators: React.FC = () => {
   const posType = usePosType();
   const { RangePicker } = DatePicker;
@@ -68,6 +62,12 @@ const Indicators: React.FC = () => {
   const city = useCity();
   const [activeDuration, setActiveDuration] = useState<"today" | "week" | "month" | null>(null);
   const [activeDurationRev, setActiveDurationRev] = useState<"today" | "week" | "month" | null>(null);
+
+  const durations: { label: string; value: "today" | "week" | "month" }[] = [
+    { label: t("dashboard.today"), value: "today" },
+    { label: t("dashboard.week"), value: "week" },
+    { label: t("dashboard.month"), value: "month" },
+  ];
 
   const { data } = useSWR(['get-statistic'], () => getStatistic());
 
@@ -299,8 +299,7 @@ const Indicators: React.FC = () => {
           <div className="w-full h-64 lg:h-96 overflow-auto px-3 lg:px-8">
             {graphLoading || graphValidating ? (
               <div className="h-full flex flex-col w-full">
-                <Skeleton.Image style={{ width: '100%', height: '180px' }} active />
-                <Skeleton.Image style={{ width: '100%', marginTop: 16, height: '180px' }} active />
+                <Skeleton.Image style={{ width: '100%', height: '380px' }} active />
               </div>
             ) : graph.length === 0 ? (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>

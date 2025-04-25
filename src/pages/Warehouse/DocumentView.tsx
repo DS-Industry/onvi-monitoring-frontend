@@ -8,11 +8,11 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
 // import GoodsTable from "@/components/ui/Table/GoodsTable";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useUser } from "@/hooks/useUserStore";
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { getOrganization } from "@/services/api/organization";
+import { Skeleton } from "antd";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -33,7 +33,7 @@ const DocumentView: React.FC = () => {
     const city = useCity();
     const user = useUser();
 
-    const { data: document, isLoading: loadingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
         placementId: city
@@ -145,63 +145,66 @@ const DocumentView: React.FC = () => {
 
     return (
         <div>
-            {loadingDocument ? <TableSkeleton columnCount={10} /> :
-                <div>
-                    <div className="flex flex-col sm:flex-row gap-4 py-4">
-                        <div className="flex flex-wrap gap-4">
-                            <div className="flex">
-                                <div className="mr-10 text-text01 font-normal text-sm">
-                                    <div>{t("warehouse.no")}</div>
-                                    <div>{t("warehouse.overhead")}</div>
-                                </div>
-                                <Input
-                                    type={""}
-                                    value={document?.document.props.name}
-                                    changeValue={() => { }}
-                                    disabled={true}
-                                />
+            {loadingDocument || validatingDocument ? (
+                <div className="mt-16">
+                    <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />
+                </div>
+            ) : <div>
+                <div className="flex flex-col sm:flex-row gap-4 py-4">
+                    <div className="flex flex-wrap gap-4">
+                        <div className="flex">
+                            <div className="mr-10 text-text01 font-normal text-sm">
+                                <div>{t("warehouse.no")}</div>
+                                <div>{t("warehouse.overhead")}</div>
                             </div>
-                            <div className="flex">
-                                <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                                <Input
-                                    type={"date"}
-                                    value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
-                                    changeValue={() => { }}
-                                    disabled={true}
-                                />
-                            </div>
+                            <Input
+                                type={""}
+                                value={document?.document.props.name}
+                                changeValue={() => { }}
+                                disabled={true}
+                            />
                         </div>
-                        <div className="flex flex-col space-y-6">
-                            <div className="flex space-x-2">
-                                <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
-                                <DropdownInput
-                                    value={document?.document.props.warehouseId}
-                                    options={warehouses}
-                                    classname="w-48 sm:w-80"
-                                    onChange={() => { }}
-                                    isDisabled={true}
-                                />
-                            </div>
-                            {documentType === "MOVING" && <div className="flex space-x-2">
-                                <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
-                                <DropdownInput
-                                    value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
-                                    options={warehouses}
-                                    classname="w-48 sm:w-80"
-                                    onChange={() => { }}
-                                    isDisabled={true}
-                                />
-                            </div>}
+                        <div className="flex">
+                            <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
+                            <Input
+                                type={"date"}
+                                value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
+                                changeValue={() => { }}
+                                disabled={true}
+                            />
                         </div>
                     </div>
-                    <GoodsAntTable
-                        tableData={tableData}
-                        columns={columnsDocumentView}
-                        showDocument={true}
-                        documentName={document?.document.props.name}
-                        documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
-                    />
+                    <div className="flex flex-col space-y-6">
+                        <div className="flex space-x-2">
+                            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                            <DropdownInput
+                                value={document?.document.props.warehouseId}
+                                options={warehouses}
+                                classname="w-48 sm:w-80"
+                                onChange={() => { }}
+                                isDisabled={true}
+                            />
+                        </div>
+                        {documentType === "MOVING" && <div className="flex space-x-2">
+                            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
+                            <DropdownInput
+                                value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
+                                options={warehouses}
+                                classname="w-48 sm:w-80"
+                                onChange={() => { }}
+                                isDisabled={true}
+                            />
+                        </div>}
+                    </div>
                 </div>
+                <GoodsAntTable
+                    tableData={tableData}
+                    columns={columnsDocumentView}
+                    showDocument={true}
+                    documentName={document?.document.props.name}
+                    documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                />
+            </div>
             }
         </div>
     )

@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Button from "@/components/ui/Button/Button";
-import { createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsTechTasks } from "@/utils/OverFlowTableData";
@@ -17,7 +17,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select, Tooltip } from "antd";
+import { Select, Skeleton, Tooltip } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
@@ -90,6 +90,7 @@ const RoutineWork: React.FC = () => {
     const [techId, setTechId] = useState(0);
     const [techStatus, setTechStatus] = useState("");
     const navigate = useNavigate();
+    const [searchValue, setSearchValue] = useState("");
 
     const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
         posId: searchPosId,
@@ -98,7 +99,7 @@ const RoutineWork: React.FC = () => {
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: tagsData } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: tagsData, isLoading: loadingTags, isValidating: validatingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -161,6 +162,18 @@ const RoutineWork: React.FC = () => {
             }
         }) => {
             return updateTechTask(arg);
+        }
+    );
+
+    const { trigger: createT, isMutating: creatingTag } = useSWRMutation(
+        ['create-tag'],
+        async (_, { arg }: {
+            arg: {
+                name: string;
+                code?: string;
+            }
+        }) => {
+            return createTag(arg);
         }
     );
 
@@ -329,6 +342,16 @@ const RoutineWork: React.FC = () => {
 
         if (result) {
             mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
+        }
+    }
+
+    const createTa = async () => {
+        const result = await createT({
+            name: searchValue
+        });
+
+        if (result) {
+            mutate([`get-tags`]);
         }
     }
 
@@ -642,11 +665,17 @@ const RoutineWork: React.FC = () => {
                             {...register('endSpecifiedDate')}
                         />
                     </div>
-                    <MultiInput
+                    {loadingTags || validatingTags ? (
+                        <Skeleton.Input style={{ width: "256px", height: "130px" }} />
+                    ) : <MultiInput
                         options={options}
                         value={tagIds}
                         onChange={handleSelectionTagChange}
-                    />
+                        searchValue={searchValue}
+                        setSearchValue={setSearchValue}
+                        handleChange={createTa}
+                        isLoading={creatingTag}
+                    />}
                     <Tabs defaultActiveKey="editor">
                         <TabPane tab={t("equipment.text")} key="editor">
                             <TiptapEditor

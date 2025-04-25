@@ -88,14 +88,18 @@ const DynamicTable = <T extends TableRow>({
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
     const { t } = useTranslation();
+    const location = useLocation();
     const { filterOn, setFilterOn } = useFilterOn();
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const [selectedColumns, setSelectedColumns] = useState<string[]>(
-        columns.map((col) => col.key)
-    );
-    const setDocumentType = useSetDocumentType();
-    const location = useLocation();
+    const routePath = location.pathname;
+    const autoTableId = `${routePath}-default-table`; // fallback ID
+    const storageKey = `columns-${autoTableId}`;
 
+    const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
+        const stored = localStorage.getItem(storageKey);
+        return stored ? JSON.parse(stored) : columns.map((col) => col.key); 
+      });
+    const setDocumentType = useSetDocumentType();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
@@ -496,6 +500,7 @@ const DynamicTable = <T extends TableRow>({
                         selectedColumns={selectedColumns}
                         onColumnToggle={handleColumnToggle}
                         onIsModalOpen={() => setIsModalOpen(false)}
+                        storageKey={storageKey}
                     />
                 </Modal>
             </>}

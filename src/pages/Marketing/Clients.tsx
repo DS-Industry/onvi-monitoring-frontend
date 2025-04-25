@@ -5,7 +5,6 @@ import ClientEmpty from "@/assets/NoMarketing.png";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import Icon from "feather-icons-react";
 import Button from "@/components/ui/Button/Button";
 import MultiInput from "@/components/ui/Input/MultiInput";
 // import OverflowTable from "@/components/ui/Table/OverflowTable";
@@ -17,7 +16,7 @@ import { useButtonCreate, useFilterOn } from "@/components/context/useContext";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWR, { mutate } from "swr";
 import { getPlacement } from "@/services/api/device";
-import { createClient, getClientById, getClients, getTags, updateClient } from "@/services/api/marketing";
+import { createClient, createTag, getClientById, getClients, getTags, updateClient } from "@/services/api/marketing";
 import useSWRMutation from "swr/mutation";
 import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetPageNumber } from "@/hooks/useAuthStore";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
@@ -25,7 +24,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 // import { Tag } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import Filter from "@/components/ui/Filter/Filter";
-import { Select, Input as AntInput, InputNumber, DatePicker } from "antd";
+import { Select, Input as AntInput, InputNumber, DatePicker, Skeleton } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 
 // enum StatusUser {
@@ -89,7 +88,7 @@ const Clients: React.FC = () => {
     const pageNumber = usePageNumber();
     const setPageNumber = useSetPageNumber();
     const currentPage = useCurrentPage();
-
+    const [searchValue, setSearchValue] = useState("");
 
     // const tableData = [
     //     { type: "Физ.лицо", name: "Testing Profile" }
@@ -156,7 +155,7 @@ const Clients: React.FC = () => {
         setPhone(undefined);
     }
 
-    const { data: tagsData } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: tagsData, isLoading: loadingTags, isValidating: validatingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
 
@@ -225,6 +224,18 @@ const Clients: React.FC = () => {
         monthlyLimit: formData.monthlyLimit,
         tagIds: formData.tagIds
     }));
+
+    const { trigger: createT, isMutating: creatingTag } = useSWRMutation(
+        ['create-tag'],
+        async (_, { arg }: {
+            arg: {
+                name: string;
+                color: string;
+            }
+        }) => {
+            return createTag(arg);
+        }
+    );
 
     type FieldType = "number" | "name" | "type" | "email" | "birthday" | "phone" | "gender" | "inn" | "comment" | "placementId" | "devNumber" | "monthlyLimit" | "tagIds" | `tagIds.${number}`;
 
@@ -362,10 +373,30 @@ const Clients: React.FC = () => {
 
     const handleDateChange = (_date: Dayjs | null, dateString: string | string[]) => {
         if (typeof dateString === "string") {
-            setRegDate(dateString); 
+            setRegDate(dateString);
         }
         console.log("Date string: ", dateString);
     };
+
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    const createTa = async () => {
+        const result = await createT({
+            name: searchValue,
+            color: getRandomColor()
+        });
+
+        if (result) {
+            mutate([`get-tags`]);
+        }
+    }
 
     return (
         <>
@@ -477,7 +508,7 @@ const Clients: React.FC = () => {
                     <div className="text-sm text-text02">{t("marketing.reg")}</div>
                     <DatePicker
                         className="w-44"
-                        value={regDate ? dayjs(regDate) : null} 
+                        value={regDate ? dayjs(regDate) : null}
                         onChange={handleDateChange}
                         format="YYYY-MM-DD"
                         placeholder={t("marketing.reg")}
@@ -659,15 +690,21 @@ const Clients: React.FC = () => {
                         changeValue={(e) => handleInputChange('inn', e.target.value)}
                         {...register('inn')}
                     />)}
-                    <div className="flex items-center text-primary02">
+                    {/* <div className="flex items-center text-primary02">
                         <Icon icon="plus" className="w-5 h-5" />
                         <div className="font-semibold text-base">{t("marketing.add")}</div>
-                    </div>
-                    <MultiInput
+                    </div> */}
+                    {loadingTags || validatingTags ? (
+                        <Skeleton.Input style={{ width: "256px", height: "130px" }} />
+                    ) : <MultiInput
                         options={options}
                         value={formData.tagIds}
                         onChange={handleSelectionChange}
-                    />
+                        searchValue={searchValue}
+                        setSearchValue={setSearchValue}
+                        handleChange={createTa}
+                        isLoading={creatingTag}
+                    />}
                     {/* <div>
                         <div className="flex items-center text-text01 space-x-2">
                             <div className="font-semibold text-2xl">{t("marketing.mess")}</div>

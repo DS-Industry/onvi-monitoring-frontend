@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Icon from "feather-icons-react";
 import Check from "@/assets/icons/CheckCircle.png";
 import { useTranslation } from "react-i18next";
+import Button from "../Button/Button";
 
 interface Option {
     id: number;
@@ -14,20 +15,28 @@ interface MultiInputProps {
     value?: number[]; // Add value prop
     placeholder?: string;
     onChange: (selectedOptions: Option[]) => void;
+    searchValue?: string;
+    setSearchValue?: (value: string) => void;
+    handleChange?: () => void;
+    isLoading?: boolean;
 }
 
 const MultiInput: React.FC<MultiInputProps> = ({
     options,
-    value = [], 
+    value = [],
     placeholder = "Название тега",
     onChange,
+    searchValue,
+    setSearchValue,
+    handleChange,
+    isLoading
 }) => {
     const { t } = useTranslation();
     const [selectedOptions, setSelectedOptions] = useState<Option[]>(
         options.filter((opt) => value.includes(opt.id))
-    ); 
+    );
     const [isOpen, setIsOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(searchValue || "");
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -36,21 +45,23 @@ const MultiInput: React.FC<MultiInputProps> = ({
             setSelectedOptions(newSelectedOptions);
         }
     }, [options, selectedOptions, value]);
-    
+
 
     const handleSelect = (option: Option) => {
         if (!selectedOptions.some((opt) => opt.id === option.id)) {
             const updatedOptions = [...selectedOptions, option];
-            setSelectedOptions(updatedOptions); 
-            onChange(updatedOptions); 
+            setSelectedOptions(updatedOptions);
+            onChange(updatedOptions);
         }
-        setSearchQuery(""); 
+        if (setSearchValue)
+            setSearchValue("");
+        setSearchQuery("");
     };
 
     const handleRemove = (id: number) => {
         const updatedOptions = selectedOptions.filter((opt) => opt.id !== id);
-        setSelectedOptions(updatedOptions); 
-        onChange(updatedOptions); 
+        setSelectedOptions(updatedOptions);
+        onChange(updatedOptions);
     };
 
     const filteredOptions = options.filter((opt) =>
@@ -97,7 +108,11 @@ const MultiInput: React.FC<MultiInputProps> = ({
                     type="text"
                     placeholder={selectedOptions.length === 0 ? placeholder : ""}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        if (setSearchValue)
+                            setSearchValue(e.target.value);
+                    }}
                     onFocus={() => setIsOpen(true)}
                     className="flex-1 outline-none text-sm text-gray-700"
                 />
@@ -105,7 +120,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
 
             {/* Dropdown */}
             {isOpen && (
-                <ul className="absolute left-0 right-0 max-h-48 overflow-auto bg-white border shadow-lg w-80 z-10 mt-1 p-2 space-y-2 rounded-md">
+                <ul className="absolute left-0 right-0 max-h-40 overflow-auto bg-white border shadow-lg w-80 z-10 mt-1 p-2 space-y-2 rounded-md">
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => (
                             <li
@@ -139,7 +154,17 @@ const MultiInput: React.FC<MultiInputProps> = ({
                             </li>
                         ))
                     ) : (
-                        <li className="px-3 py-2 text-text02 text-sm">Нет доступных опций</li>
+                        handleChange ? (
+                            <li className="flex items-center justify-center">
+                                <Button
+                                    title={t("roles.create")}
+                                    handleClick={handleChange}
+                                    isLoading={isLoading}
+                                />
+                            </li>
+                        ) : (<li className="px-3 py-2 text-text02 text-sm cursor-pointer">
+                            Нет доступных опций
+                        </li>)
                     )}
                 </ul>
             )}

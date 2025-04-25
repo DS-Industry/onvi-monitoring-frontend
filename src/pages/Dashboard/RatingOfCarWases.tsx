@@ -13,12 +13,6 @@ type Rating = {
   sum: number;
 };
 
-const durations: { label: string; value: "today" | "week" | "month" }[] = [
-  { label: "Today", value: "today" },
-  { label: "For a week", value: "week" },
-  { label: "For a month", value: "month" },
-];
-
 const RatingOfCarWashes = () => {
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -27,6 +21,12 @@ const RatingOfCarWashes = () => {
   const { RangePicker } = DatePicker;
   const { useBreakpoint } = Grid;
   const screens = useBreakpoint();
+
+  const durations: { label: string; value: "today" | "week" | "month" }[] = [
+    { label: t("dashboard.today"), value: "today" },
+    { label: t("dashboard.week"), value: "week" },
+    { label: t("dashboard.month"), value: "month" },
+  ];
 
   const [dateRange, setDateRange] = useState({
     dateStart: new Date("2023-01-01T00:00:00"),
@@ -149,8 +149,7 @@ const RatingOfCarWashes = () => {
       <div className="chart-container" style={{ width: '100%', overflowX: 'auto' }}>
         {loadingRating || validatingRating ? (
           <div className="h-full flex flex-col w-full">
-            <Skeleton.Image style={{ width: '100%', height: '180px' }} active />
-            <Skeleton.Image style={{ width: '100%', marginTop: 16, height: '180px' }} active />
+            <Skeleton.Image style={{ width: '100%', height: '380px' }} active />
           </div>
         ) : ratingData.length > 0 ? (
           <BarChart data={ratingData} />
