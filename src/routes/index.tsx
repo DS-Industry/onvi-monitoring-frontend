@@ -101,7 +101,7 @@ const routes = [
     addButton: false,
     addButtonText: '',
     icon: AdministrationIcon,
-    subNavHeading: "directories",
+    subNavHeading: "",
     component: Default,
     permissions: [{ action: "manage", subject: "Organization" },{ action: "create", subject: "Organization" },{ action: "read", subject: "Organization" },{ action: "update", subject: "Organization" },{ action: "delete", subject: "Organization" }],
     subNav: [
@@ -124,7 +124,7 @@ const routes = [
     addButton: false,
     addButtonText: '',
     icon: CarWashIcon,
-    subNavHeading: "directories",
+    subNavHeading: "",
     permissions: [{ action: "manage", subject: "Pos" },{ action: "create", subject: "Pos" },{ action: "read", subject: "Pos" },{ action: "update", subject: "Pos" },{ action: "delete", subject: "Pos" }],
     subNav: [
       { name: "services", filter: true, addButton: false, addButtonText: "", isVisible: false, path: "/station/services", component: Default, permissions: [{ action: "manag", subject: "Pos" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
@@ -152,7 +152,7 @@ const routes = [
     component: Default,
     isSidebar: true,
     permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }],
-    subNavHeading: "directories",
+    subNavHeading: "",
     subNav: [
       { name: "employees", filter: true, addButton: true, addButtonText: "addE", isVisible: true, path: "/hr/employees", component: Employees, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
       { name: "sid", filter: false, addButton: true, addButtonText: "save", isVisible: true, path: "/hr/employees/profile", component: EmployeeProfile, permissions: [{ action: "manage", subject: "Hr" },{ action: "create", subject: "Hr" },{ action: "read", subject: "Hr" },{ action: "update", subject: "Hr" },{ action: "delete", subject: "Hr" }], isSidebar: false, isHr: false, titleName: "", subNav: [], subMenu: false },
