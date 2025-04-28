@@ -229,7 +229,11 @@ const Indicators: React.FC = () => {
                   <div>
                     <Text strong style={{ fontSize: 18 }}>{t(`indicators.${item.title}`)}</Text>
                     <Title level={2} style={{ margin: 0, color: "#202224" }}>
-                      {item.number} {item.unit}
+                      {
+                        item.number === 0
+                          ? <Skeleton.Button active={true} size={"default"} shape={"default"} block={false} />
+                          : <>{item.number} {item.unit}</>
+                      }
                     </Title>
                   </div>
                   <item.icon />
