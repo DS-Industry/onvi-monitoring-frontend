@@ -144,6 +144,34 @@ const InfoTab: React.FC = () => {
     }
   });
 
+  const formatPhoneNumber = (value: string): string => {
+    if (!value) return '';
+
+    const cleaned = value.replace(/\D/g, '');
+
+    const match = cleaned.match(/^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
+
+    if (!match) return '';
+
+    let formatted = '+7';
+    if (match[2]) formatted += `(${match[2]}`;
+    if (match[3]) formatted += `)${match[3]}`;
+    if (match[4]) formatted += `-${match[4]}`;
+    if (match[5]) formatted += `-${match[5]}`;
+
+    return formatted;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    handleInputChange('phone', formatted);
+    register('phone').onChange({
+      target: {
+        value: formatted.replace(/\D/g, '').substring(1) 
+      }
+    });
+  };
+
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
@@ -203,15 +231,13 @@ const InfoTab: React.FC = () => {
             layout="vertical"
           >
             <AntInput
-              placeholder={t("profile.telephone")}
+              placeholder="+7(XXX)XXX-XX-XX"
               value={formData.phone}
-              onChange={(e) => {
-                handleInputChange('phone', e.target.value);
-                register('phone').onChange(e);
-              }}
+              onChange={handlePhoneChange}
               onBlur={register('phone').onBlur}
               className='w-80'
               status={errors.phone ? 'error' : ''}
+              maxLength={18} 
             />
             {errors.phone && <span className="error-message">{errors.phone.message}</span>}
           </Form.Item>
