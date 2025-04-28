@@ -41,17 +41,6 @@ const InfoTab: React.FC = () => {
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-  // const { trigger } = useSWRMutation(
-  //   `user/avatar`,
-  //   async () => {
-  //     if (selectedFile) {
-  //       const formData = new FormData();
-  //       formData.append('file', selectedFile);
-  //       formData.append('id', user.id.toString())
-  //       return await uploadUserAvatar(formData);
-  //     }
-  //   });
-
   const { trigger: updateUser, isMutating } = useSWRMutation('user', async () => updateUserProfile({
     name: formData.name,
     email: formData.email,
@@ -91,7 +80,6 @@ const InfoTab: React.FC = () => {
   const onSubmit = async (data: unknown) => {
     console.log('Form Data:', data);
     try {
-      // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
 
       if ((await updateUserData).props.avatar) {
@@ -146,9 +134,7 @@ const InfoTab: React.FC = () => {
 
   const formatPhoneNumber = (value: string): string => {
     if (!value) return '';
-
     const cleaned = value.replace(/\D/g, '');
-
     const match = cleaned.match(/^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
 
     if (!match) return '';
@@ -167,7 +153,7 @@ const InfoTab: React.FC = () => {
     handleInputChange('phone', formatted);
     register('phone').onChange({
       target: {
-        value: formatted.replace(/\D/g, '').substring(1) 
+        value: formatted.replace(/\D/g, '').substring(1)
       }
     });
   };
@@ -181,7 +167,7 @@ const InfoTab: React.FC = () => {
             layout="vertical"
           >
             <AntInput
-              placeholder={t("profile.name")}
+              placeholder={t("profile.namePlaceholder")}
               value={formData?.name}
               onChange={(e) => {
                 handleInputChange('name', e.target.value);
@@ -198,23 +184,7 @@ const InfoTab: React.FC = () => {
             layout="vertical"
           >
             <AntInput
-              placeholder={t("profile.surname")}
-              value={formData.surname}
-              onChange={(e) => {
-                handleInputChange('surname', e.target.value);
-                register('surname', { required: 'Отчество is required' }).onChange(e);
-              }}
-              className='w-80'
-              status={errors.surname ? 'error' : ''}
-            />
-            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
-          </Form.Item>
-          <Form.Item
-            label={t("profile.surname")}
-            layout="vertical"
-          >
-            <AntInput
-              placeholder={t("profile.middlename")}
+              placeholder={t("profile.middlenamePlaceholder")}
               value={formData.middlename}
               onChange={(e) => {
                 handleInputChange('middlename', e.target.value);
@@ -227,6 +197,23 @@ const InfoTab: React.FC = () => {
             {errors.middlename && <span className="error-message">{errors.middlename.message}</span>}
           </Form.Item>
           <Form.Item
+            label={t("profile.surname")}
+            layout="vertical"
+          >
+            <AntInput
+              placeholder={t("profile.surnamePlaceholder")}
+              value={formData.surname}
+              onChange={(e) => {
+                handleInputChange('surname', e.target.value);
+                register('surname', { required: 'Отчество is required' }).onChange(e);
+              }}
+              onBlur={register('surname').onBlur}
+              className='w-80'
+              status={errors.surname ? 'error' : ''}
+            />
+            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
+          </Form.Item>
+          <Form.Item
             label={t("profile.telephone")}
             layout="vertical"
           >
@@ -237,7 +224,7 @@ const InfoTab: React.FC = () => {
               onBlur={register('phone').onBlur}
               className='w-80'
               status={errors.phone ? 'error' : ''}
-              maxLength={18} 
+              maxLength={18}
             />
             {errors.phone && <span className="error-message">{errors.phone.message}</span>}
           </Form.Item>
