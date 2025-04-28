@@ -24,7 +24,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 // import { Tag } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import Filter from "@/components/ui/Filter/Filter";
-import { Select, Input as AntInput, InputNumber, DatePicker, Skeleton } from "antd";
+import { Select, Input as AntInput, InputNumber, DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 
 // enum StatusUser {
@@ -695,9 +695,7 @@ const Clients: React.FC = () => {
                         <Icon icon="plus" className="w-5 h-5" />
                         <div className="font-semibold text-base">{t("marketing.add")}</div>
                     </div> */}
-                    {loadingTags || validatingTags ? (
-                        <Skeleton.Input style={{ width: "256px", height: "130px" }} />
-                    ) : <MultiInput
+                    <MultiInput
                         options={options}
                         value={formData.tagIds}
                         onChange={handleSelectionChange}
@@ -705,7 +703,8 @@ const Clients: React.FC = () => {
                         setSearchValue={setSearchValue}
                         handleChange={createTa}
                         isLoading={creatingTag}
-                    />}
+                        loadingOptions={loadingTags || validatingTags}
+                    />
                     {/* <div>
                         <div className="flex items-center text-text01 space-x-2">
                             <div className="font-semibold text-2xl">{t("marketing.mess")}</div>
