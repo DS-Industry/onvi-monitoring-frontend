@@ -136,24 +136,55 @@ const InfoTab: React.FC = () => {
 
   console.log("Image Preview: ", imagePreview);
 
+  const emailRegister = register('email', {
+    required: 'Email is required',
+    pattern: {
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: 'Invalid email format'
+    }
+  });
+
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
-        <div className="flex flex-col space-y-6 w-full md:w-2/3">
-          <Form.Item label={t("profile.name")}>
+        <div className="flex flex-col gap-2 w-full">
+          <Form.Item
+            label={t("profile.name")}
+            layout="vertical"
+          >
             <AntInput
               placeholder={t("profile.name")}
               value={formData?.name}
               onChange={(e) => {
                 handleInputChange('name', e.target.value);
-                register('name').onChange(e);
+                register('name', { required: 'Имя is required' }).onChange(e);
               }}
+              onBlur={register('name', { required: 'Имя is required' }).onBlur}
               className='w-80'
               status={errors.name ? 'error' : ''}
             />
             {errors.name && <span className="error-message">{errors.name.message}</span>}
           </Form.Item>
-          <Form.Item label={t("profile.middlename")}>
+          <Form.Item
+            label={t("profile.middlename")}
+            layout="vertical"
+          >
+            <AntInput
+              placeholder={t("profile.surname")}
+              value={formData.surname}
+              onChange={(e) => {
+                handleInputChange('surname', e.target.value);
+                register('surname', { required: 'Отчество is required' }).onChange(e);
+              }}
+              className='w-80'
+              status={errors.surname ? 'error' : ''}
+            />
+            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
+          </Form.Item>
+          <Form.Item
+            label={t("profile.surname")}
+            layout="vertical"
+          >
             <AntInput
               placeholder={t("profile.middlename")}
               value={formData.middlename}
@@ -161,25 +192,16 @@ const InfoTab: React.FC = () => {
                 handleInputChange('middlename', e.target.value);
                 register('middlename').onChange(e);
               }}
+              onBlur={register('middlename').onBlur}
               className='w-80'
               status={errors.middlename ? 'error' : ''}
             />
             {errors.middlename && <span className="error-message">{errors.middlename.message}</span>}
           </Form.Item>
-          <Form.Item label={t("profile.surname")}>
-            <AntInput
-              placeholder={t("profile.surname")}
-              value={formData.surname}
-              onChange={(e) => {
-                handleInputChange('surname', e.target.value);
-                register('surname').onChange(e);
-              }}
-              className='w-80'
-              status={errors.surname ? 'error' : ''}
-            />
-            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
-          </Form.Item>
-          <Form.Item label={t("profile.telephone")}>
+          <Form.Item
+            label={t("profile.telephone")}
+            layout="vertical"
+          >
             <AntInput
               placeholder={t("profile.telephone")}
               value={formData.phone}
@@ -187,21 +209,26 @@ const InfoTab: React.FC = () => {
                 handleInputChange('phone', e.target.value);
                 register('phone').onChange(e);
               }}
+              onBlur={register('phone').onBlur}
               className='w-80'
               status={errors.phone ? 'error' : ''}
             />
             {errors.phone && <span className="error-message">{errors.phone.message}</span>}
           </Form.Item>
-          <Form.Item label="E-mail *">
+          <Form.Item
+            label="E-mail *"
+            layout="vertical"
+          >
             <AntInput
               type="email"
-              placeholder="E-mail *"
+              placeholder={t("profile.email")}
               value={formData.email}
               onChange={(e) => {
                 handleInputChange('email', e.target.value);
-                register('email').onChange(e);
+                emailRegister.onChange(e);
               }}
               disabled={true}
+              onBlur={emailRegister.onBlur}
               className='w-80'
               status={errors.email ? 'error' : ''}
             />
