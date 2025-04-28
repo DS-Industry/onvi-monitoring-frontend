@@ -41,6 +41,17 @@ const InfoTab: React.FC = () => {
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
+  // const { trigger } = useSWRMutation(
+  //   `user/avatar`,
+  //   async () => {
+  //     if (selectedFile) {
+  //       const formData = new FormData();
+  //       formData.append('file', selectedFile);
+  //       formData.append('id', user.id.toString())
+  //       return await uploadUserAvatar(formData);
+  //     }
+  //   });
+
   const { trigger: updateUser, isMutating } = useSWRMutation('user', async () => updateUserProfile({
     name: formData.name,
     email: formData.email,
@@ -80,6 +91,7 @@ const InfoTab: React.FC = () => {
   const onSubmit = async (data: unknown) => {
     console.log('Form Data:', data);
     try {
+      // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
 
       if ((await updateUserData).props.avatar) {
@@ -89,6 +101,13 @@ const InfoTab: React.FC = () => {
       }
 
       const [updatedData] = await Promise.all([updateUserData]);
+
+      // if (avatarResult) {
+      //   const avatarUrl = avatarResult; 
+      //   setImagePreview(avatarUrl);
+      //   localStorage.setItem('avatarUrl', avatarUrl);
+      //   console.log('Uploaded file:', selectedFile);
+      // }
 
       if (updatedData) {
         console.log('User profile updated:', updatedData);
