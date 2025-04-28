@@ -14,6 +14,7 @@ import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
 import { useTranslation } from "react-i18next";
 import Button from "../Button/Button.tsx";
+import DateUtils from "@/utils/Date.tsx";
 
 interface TableColumn {
   label: string;
@@ -334,15 +335,7 @@ const OverflowTable: React.FC<Props> = ({
                                 <div className="whitespace-nowrap text-ellipsis overflow-hidden">
                                   {column.type === 'date' ? (
                                     row[column.key]
-                                      ? new Date(row[column.key]).toLocaleString("ru-RU", {
-                                        timeZone: userTimezone,
-                                        day: "2-digit",
-                                        month: "2-digit",
-                                        year: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        second: "2-digit",
-                                      })
+                                      ? DateUtils.createDateTimeWithoutComma(row[column.key], userTimezone)
                                       : '-'
                                   ) : column.type === "period" ? (
                                     row[column.key] ? formatPeriodType(row[column.key]) : '-'
