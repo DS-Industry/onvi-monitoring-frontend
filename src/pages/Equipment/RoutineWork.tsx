@@ -17,7 +17,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select, Skeleton, Tooltip } from "antd";
+import { Select, Tooltip } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
@@ -125,7 +125,7 @@ const RoutineWork: React.FC = () => {
     const options = tagsData ? tagsData.map((tag) => (({
         id: tag.props.id,
         name: tag.props.name,
-        color: "cyan"
+        color: "#A0AEC0"
     }))) : [];
 
     const defaultValues: TechTaskBody = {
@@ -684,9 +684,7 @@ const RoutineWork: React.FC = () => {
                             {...register('endSpecifiedDate')}
                         />
                     </div>
-                    {loadingTags || validatingTags ? (
-                        <Skeleton.Input style={{ width: "256px", height: "130px" }} />
-                    ) : <MultiInput
+                    <MultiInput
                         options={options}
                         value={tagIds}
                         onChange={handleSelectionTagChange}
@@ -694,7 +692,8 @@ const RoutineWork: React.FC = () => {
                         setSearchValue={setSearchValue}
                         handleChange={createTa}
                         isLoading={creatingTag}
-                    />}
+                        loadingOptions={loadingTags || validatingTags}
+                    />
                     <Tabs defaultActiveKey="editor">
                         <TabPane tab={t("equipment.text")} key="editor">
                             <TiptapEditor
