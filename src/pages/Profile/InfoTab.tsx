@@ -218,7 +218,7 @@ const InfoTab: React.FC = () => {
             layout="vertical"
           >
             <AntInput
-              placeholder="+7(XXX)XXX-XX-XX"
+              placeholder={t("profile.telephonePlaceholder")}
               value={formData.phone}
               onChange={handlePhoneChange}
               onBlur={register('phone').onBlur}
