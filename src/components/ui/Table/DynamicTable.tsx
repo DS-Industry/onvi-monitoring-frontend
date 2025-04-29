@@ -332,6 +332,7 @@ const DynamicTable = <T extends TableRow>({
                         type="text"
                         icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
                         onClick={() => onEdit(record.id)}
+                        style={{ height: "24px" }} 
                     />
                 </Tooltip>
             ),
