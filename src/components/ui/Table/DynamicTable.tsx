@@ -298,7 +298,8 @@ const DynamicTable = <T extends TableRow>({
                 }
 
                 if (col.type === "currency") {
-                    return TableUtils.createCurrencyFormat(value);
+                    const number = formatNumber(value);
+                    return TableUtils.createCurrencyFormat(number);
                 }
 
                 if (col.type === "percent") {

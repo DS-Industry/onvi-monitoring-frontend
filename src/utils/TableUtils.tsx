@@ -16,7 +16,11 @@ const createDateTimeWithoutComma = (value: Date | string, timezone: string): str
   return formattedDate.replace(/,/, '');
 };
 
-const createCurrencyFormat = (value: number): string => {
+const createCurrencyFormat = (value: number | string): string => {
+  if (typeof value === "string") {
+    return value + " ₽";
+  }
+  
   return value.toString() + " ₽";
 };
 
