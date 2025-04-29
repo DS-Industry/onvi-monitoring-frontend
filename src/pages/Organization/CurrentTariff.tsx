@@ -1,95 +1,140 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Row, Col, Card, Typography, Divider, Button, Space } from "antd";
+import { Row, Col, Card, Typography, Divider, List } from "antd";
+import Button from "@/components/ui/Button/Button";
+import Icon from "feather-icons-react";
 
 const { Title, Text } = Typography;
 
 const CurrentTariff: React.FC = () => {
-  const { t } = useTranslation();
+    const { t } = useTranslation();
 
-  return (
-    <div className="w-full p-6 space-y-8">
-      {/* Tariff Section */}
-      <Row justify="space-between" align="top">
-        <Col xs={24} md={12}>
-          <Space direction="vertical" size="small" className="w-full">
-            <Title level={4}>{t("subscriptions.tariff")}</Title>
-            <Divider style={{ margin: 0 }} />
-            <Title level={3} style={{ marginTop: 8 }}>{t("subscriptions.base")}</Title>
-            <Text type="secondary">{t("subscriptions.ends")} 10.09.2024</Text>
-          </Space>
-        </Col>
-        <Col xs={24} md={6} className="flex justify-end mt-4 md:mt-0">
-          <Button type="primary">{t("subscriptions.change")}</Button>
-        </Col>
-      </Row>
+    const items = [
+        { key: "administration", label: t("routes.administration") },
+        { key: "account", label: t("subscriptions.account") },
+        { key: "data", label: t("subscriptions.data") },
+    ];
 
-      {/* Price Card */}
-      <Card className="bg-gray-50">
-        <Space direction="vertical" size="middle" className="w-full">
-          <Row justify="space-between">
-            <Text strong>{t("subscriptions.price_per_month")}</Text>
-            <Text strong>1 000 ₽</Text>
-          </Row>
-          <Row justify="space-between">
-            <Text strong>{t("subscriptions.price_per_year")}</Text>
-            <Text strong>11 000 ₽</Text>
-          </Row>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {t("subscriptions.single_payment_note")}
-          </Text>
-        </Space>
-      </Card>
+    const [openItems, setOpenItems] = useState<{ [key: string]: boolean }>({});
 
-      {/* Modules Section */}
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Space direction="vertical" size="small">
-            <Title level={4}>{t("subscriptions.modules")}</Title>
-            <Divider style={{ margin: 0 }} />
-          </Space>
-        </Col>
-        <Col>
-          <Title level={4} style={{ margin: 0 }}>
-            3 {t("subscriptions.modules_count")}
-          </Title>
-        </Col>
-      </Row>
+    const toggleItem = (key: string) => {
+        setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
 
-      {/* Modules Card */}
-      <Card>
-        <Space direction="vertical" className="w-full">
-          <Card size="small" bordered={false} className="bg-gray-50">
-            {t("subscriptions.admin")}
-          </Card>
-          <Card size="small" bordered={false} className="bg-gray-50">
-            {t("subscriptions.accounting")}
-          </Card>
-          <Card size="small" bordered={false} className="bg-gray-50">
-            {t("subscriptions.data_analysis")}
-          </Card>
-        </Space>
-      </Card>
+    return (
+        <div className="w-full p-6 space-y-8">
+            {/* Tariff Section */}
+            <Row justify="end" align="top">
+                <Col xs={24} md={12}>
+                    <Row align={"bottom"} gutter={8}>
+                        <Col>
+                            <Title level={4} style={{ margin: 0 }}>
+                                {t("subscriptions.tariff")}
+                            </Title>
+                        </Col>
+                        <Col flex={"auto"}>
+                            <Divider style={{ margin: 0 }} />
+                        </Col>
+                    </Row>
+                </Col>
+                <Col xs={24} md={12} className="justify-end mt-4 md:mt-0">
+                    <Row justify={"space-between"}>
+                        <Title level={3}>{t("subscriptions.base")}</Title>
+                        <Button title={t("subscriptions.change")} />
+                    </Row>
+                    <Text type="secondary">{t("subscriptions.the")} 10.09.2024</Text>
+                    <Card className="bg-background05 rounded-lg" variant="borderless">
+                        <Col>
+                            <Row className="w-full flex justify-between items-center">
+                                <Title level={4} style={{ margin: 0 }}>{t("subscriptions.cost")}</Title>
+                                <Title level={4} style={{ margin: 0 }}>1 000 ₽</Title>
+                            </Row>
+                            <Row className="w-full flex justify-between items-center mt-2">
+                                <Title level={4} style={{ margin: 0 }}>{t("subscriptions.costYr")}</Title>
+                                <Title level={4} style={{ margin: 0 }}>11 000 ₽</Title>
+                            </Row>
+                            <Text type="secondary" style={{ fontSize: 16 }}>
+                                {t("subscriptions.when")}
+                            </Text>
+                        </Col>
+                    </Card>
+                </Col>
+            </Row>
 
-      {/* Balance Section */}
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Space direction="vertical" size="small">
-            <Title level={4}>{t("subscriptions.current_balance")}</Title>
-            <Divider style={{ margin: 0 }} />
-          </Space>
-        </Col>
-        <Col>
-          <Title level={4} style={{ margin: 0 }}>0 ₽</Title>
-        </Col>
-      </Row>
+            <Row justify="end" align="top">
+                <Col xs={24} md={12}>
+                    <Row align={"bottom"} gutter={8}>
+                        <Col>
+                            <Title level={4} style={{ margin: 0 }}>
+                                {t("subscriptions.modules")}
+                            </Title>
+                        </Col>
+                        <Col flex={"auto"}>
+                            <Divider style={{ margin: 0 }} />
+                        </Col>
+                    </Row>
+                </Col>
+                <Col xs={24} md={12} className="justify-end mt-4 md:mt-0">
+                    <Title level={4} style={{ margin: 0 }}>
+                        3 {t("subscriptions.modules")}
+                    </Title>
+                    <Card className="bg-background05 rounded-lg" variant="borderless">
+                        <List
+                            dataSource={items}
+                            split={false}
+                            renderItem={(item) => {
+                                const isOpen = openItems[item.key];
 
-      {/* Recharge Button */}
-      <div className="flex justify-end">
-        <Button type="primary">{t("subscriptions.replenish")}</Button>
-      </div>
-    </div>
-  );
+                                return (
+                                    <List.Item style={{ padding: 0 }}>
+                                        <div className="w-full">
+                                            <div
+                                                className="flex items-center gap-2 cursor-pointer"
+                                                onClick={() => toggleItem(item.key)}
+                                            >
+                                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center">
+                                                    {isOpen ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                                </div>
+                                                <Title level={4} style={{ margin: 0 }}>
+                                                    {item.label}
+                                                </Title>
+                                            </div>
+                                            {isOpen && (
+                                                <div className="mt-2 pl-6 text-text02 text-sm">
+                                                    <p>{t(`subscriptions.details.${item.key}`)}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </List.Item>
+                                );
+                            }}
+                        />
+                    </Card>
+                </Col>
+            </Row>
+
+            <Row justify="end" align="top">
+                <Col xs={24} md={12}>
+                    <Row align={"bottom"} gutter={8}>
+                        <Col>
+                            <Title level={4} style={{ margin: 0 }}>
+                                {t("subscriptions.curr")}
+                            </Title>
+                        </Col>
+                        <Col flex={"auto"}>
+                            <Divider style={{ margin: 0 }} />
+                        </Col>
+                    </Row>
+                </Col>
+                <Col xs={24} md={12}>
+                    <Row justify={"space-between"}>
+                        <Title level={4} style={{ margin: 0 }}>0 ₽</Title>
+                        <Button title={t("subscriptions.top")} />
+                    </Row>
+                </Col>
+            </Row>
+        </div>
+    );
 };
 
 export default CurrentTariff;
