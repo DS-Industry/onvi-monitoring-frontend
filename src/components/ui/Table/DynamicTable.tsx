@@ -15,7 +15,7 @@ import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import routes from "@/routes/index.tsx";
 import hasPermission from "@/permissions/hasPermission.tsx";
-import DateUtils from "@/utils/Date.tsx";
+import TableUtils from "@/utils/TableUtils.tsx";
 
 interface TableColumn {
     label: string;
@@ -98,8 +98,8 @@ const DynamicTable = <T extends TableRow>({
 
     const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
         const stored = localStorage.getItem(storageKey);
-        return stored ? JSON.parse(stored) : columns.map((col) => col.key); 
-      });
+        return stored ? JSON.parse(stored) : columns.map((col) => col.key);
+    });
     const setDocumentType = useSetDocumentType();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -267,7 +267,7 @@ const DynamicTable = <T extends TableRow>({
                     if (value === null || value === undefined) {
                         date = "-";
                     } else {
-                        date = DateUtils.createDateTimeWithoutComma(value, userTimezone);
+                        date = TableUtils.createDateTimeWithoutComma(value, userTimezone);
                     }
 
                     return date;
@@ -295,6 +295,14 @@ const DynamicTable = <T extends TableRow>({
                     ) : (
                         "—"
                     )
+                }
+
+                if (col.type === "currency") {
+                    return TableUtils.createCurrencyFormat(value);
+                }
+
+                if (col.type === "percent") {
+                    return TableUtils.createPercentFormat(value);
                 }
 
                 return navigableField ? (
