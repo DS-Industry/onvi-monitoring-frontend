@@ -874,5 +874,23 @@
     "label": "Label color",
     "add": "Add color",
     "labelCol": "Label Color Preview"
+  },
+  "subscriptions": {
+    "you": "You can switch to one of the new tariffs by selecting the desired configuration.",
+    "if": "If you have a valid paid tariff, to receive compensation for it",
+    "write": "write to us at: support@onvibiznes.ru",
+    "current": "Current Tariff",
+    "change": "Change Tariff",
+    "tariff": "Tariff",
+    "modules": "Modules",
+    "curr": "Current balance",
+    "base": "Base",
+    "the": "The Basic tariff ends on 10.09.2024",
+    "cost": "Cost for 1 month",
+    "costYr": "Cost for 1 year",
+    "when": "When paying in one payment",
+    "account": "Accounting",
+    "data": "Data Analysis",
+    "top": "Top Up"
   }
 }

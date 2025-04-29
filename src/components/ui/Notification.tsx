@@ -3,6 +3,7 @@ import Close from "@icons/close.svg?react";
 import { useNavigate } from "react-router-dom";
 import ShareBonus from "@/assets/ShareBonus.png";
 import Employees from "@icons/Employees.png";
+import Rocket from "@icons/Rocket.png";
 
 interface NotificationProps {
   title: string;
@@ -12,6 +13,7 @@ interface NotificationProps {
   linkUrl?: string;
   showBonus?: boolean;
   showEmp?: boolean;
+  showRocket?: boolean;
   onClose?: () => void;
 }
 
@@ -24,6 +26,7 @@ const Notification: React.FC<NotificationProps> = ({
   showBonus,
   showEmp,
   onClose,
+  showRocket
 }) => {
   const navigate = useNavigate();
 
@@ -46,6 +49,7 @@ const Notification: React.FC<NotificationProps> = ({
       <div className="w-full md:w-3/12 flex justify-center relative mt-4 md:mt-0">
         {showBonus && <img src={ShareBonus} className="w-32 md:w-40 lg:w-48 bottom-0" />}
         {showEmp && <img src={Employees} className="w-32 md:w-40 lg:w-48 bottom-0" />}
+        {showRocket && <img src={Rocket} className="w-32 md:w-40 lg:w-48 bottom-0" />}
       </div>
 
       {onClose && (
