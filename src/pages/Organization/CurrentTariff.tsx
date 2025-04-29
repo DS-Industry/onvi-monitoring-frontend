@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Row, Col, Card, Typography, Divider, List } from "antd";
+import { Row, Col, Card, Typography, Divider, List, Checkbox } from "antd";
 import Button from "@/components/ui/Button/Button";
 import Icon from "feather-icons-react";
 
@@ -87,22 +87,28 @@ const CurrentTariff: React.FC = () => {
 
                                 return (
                                     <List.Item style={{ padding: 0 }}>
-                                        <div className="w-full">
+                                        <div className="w-full mb-4">
                                             <div
                                                 className="flex items-center gap-2 cursor-pointer"
                                                 onClick={() => toggleItem(item.key)}
                                             >
                                                 <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center">
-                                                    {isOpen ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                                    {isOpen ? <Icon icon="chevron-up" className="w-4 h-4" /> : <Icon icon="chevron-down" className="w-4 h-4" />}
                                                 </div>
                                                 <Title level={4} style={{ margin: 0 }}>
                                                     {item.label}
                                                 </Title>
                                             </div>
                                             {isOpen && (
-                                                <div className="mt-2 pl-6 text-text02 text-sm">
-                                                    <p>{t(`subscriptions.details.${item.key}`)}</p>
-                                                </div>
+                                                <div className="mt-2 pl-8 text-text02 text-sm space-y-2">                
+                                                <Checkbox.Group>
+                                                    <div className="flex flex-col space-y-2">
+                                                        <Checkbox value="option1" className="text-text02">{t(`routes.objectManagement`)}</Checkbox>
+                                                        <Checkbox value="option2" className="text-text02">{t(`subscriptions.tar`)}</Checkbox>
+                                                        <Checkbox value="option3" className="text-text02">{t(`subscriptions.legal`)}</Checkbox>
+                                                    </div>
+                                                </Checkbox.Group>
+                                            </div>
                                             )}
                                         </div>
                                     </List.Item>
