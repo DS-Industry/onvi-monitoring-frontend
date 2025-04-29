@@ -245,12 +245,12 @@ export const columnsMonitoringPos = [
   {
     label: "Наличные",
     key: "cashSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "number"
+    type: "currency"
   },
   // {
   //   label: "Списание по приложению",
@@ -259,12 +259,12 @@ export const columnsMonitoringPos = [
   {
     label: "Сashback по картам",
     key: "cashbackSumCard",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Сумма скидки",
     key: "discountSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Кол-во опреаций",
@@ -274,7 +274,7 @@ export const columnsMonitoringPos = [
   {
     label: "Яндекс Сумма",
     key: "yandexSum",
-    type: "number"
+    type: "currency"
   },
 ]
 
@@ -294,17 +294,17 @@ export const columnsMonitoringFullDevices = [
   {
     label: "Наличные",
     key: "cashSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Яндекс Заправки",
     key: "yandexSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Последняя операция",
@@ -398,12 +398,12 @@ export const columnsProgramsPosPortal = [
   {
     label: "Выручка по программам",
     key: "totalProfit",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Средний чек",
     key: "averageProfit",
-    type: "number"
+    type: "currency"
   }
 ]
 
@@ -905,22 +905,22 @@ export const columnsDeviceData = [
   {
     label: "Купюры",
     key: "sumPaperDevice",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Монеты",
     key: "sumCoinDevice",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Сумма всего",
     key: "sumDevice",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Безналичная оплата",
     key: "virtualSumDevice",
-    type: "number"
+    type: "currency"
   }
 ]
 
@@ -1029,7 +1029,7 @@ export const columnsDataCashOperRefund = [
   {
     label: "Сумма",
     key: "sum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Комментарий",
@@ -1230,17 +1230,17 @@ export const columnsEmployee = [
   {
     label: "Месячный оклад",
     key: "monthlySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Дневной оклад",
     key: "dailySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Проценты",
     key: "percentageSalary",
-    type: "number"
+    type: "percent"
   }
 ]
 
@@ -1271,17 +1271,17 @@ export const columnsSalaryCalcCreation = [
   {
     label: "Оклад",
     key: "salary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Посменное начисление",
     key: "shift",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Процент",
     key: "percent",
-    type: "number"
+    type: "percent"
   },
   {
     label: "Количество отработанных смен",
@@ -1355,17 +1355,17 @@ export const columnsPayments = [
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "number"
+    type: "percent"
   },
   {
     label: "Количество отработанных смен",
@@ -1375,27 +1375,27 @@ export const columnsPayments = [
   {
     label: "Выплачено аванс",
     key: "prepaymentSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Выплачено ЗП",
     key: "paymentSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Премия",
     key: "prize",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Штраф",
     key: "fine",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Выплачено итог",
     key: "totalPayment",
-    type: "number"
+    type: "currency"
   }
 ]
 
@@ -1421,17 +1421,17 @@ export const columnsPrePayments = [
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "number"
+    type: "percent"
   },
   {
     label: "Количество отработанных смен",
@@ -1441,7 +1441,7 @@ export const columnsPrePayments = [
   {
     label: "Выплачено",
     key: "sum",
-    type: "number"
+    type: "currency"
   }
 ]
 
@@ -1462,22 +1462,22 @@ export const columnsPaymentsCreation = [
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "number"
+    type: "percent"
   },
   {
     label: "Выплачено аванс",
     key: "prepaymentSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Количество отработанных смен аванс",
