@@ -130,11 +130,20 @@ const DynamicTreeTable: React.FC<Props> = ({
                     cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
                         <th
                             {...props}
-                            style={{ backgroundColor: headerBgColor, fontWeight: "bold", paddingTop: "30px", paddingBottom: "30px", textAlign: "center", borderRadius: "0px" }}
-                            className="border-b border-x-2 border-background02 bg-background06 px-2.5 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
+                            style={{ backgroundColor: headerBgColor, fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                            className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-left text-sm font-semibold text-text01 tracking-wider"
                         />
                     ),
-                }
+                },
+                body: {
+                    cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableDataCellElement> & ThHTMLAttributes<HTMLTableDataCellElement>) => (
+                        <td
+                            {...props}
+                            style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
+                        />
+                    ),
+                },
+
             }}
             scroll={{ x: "max-content" }}
         />

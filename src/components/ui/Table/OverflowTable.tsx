@@ -258,7 +258,7 @@ const OverflowTable: React.FC<Props> = ({
                     selectedColumns.includes(column.key) && (
                       <th
                         key={column.key}
-                        className="border-b border-x-2 border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider"
+                        className="border-b border-x-2 border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 tracking-wider"
                       >
                         {column.label}
                       </th>
@@ -298,7 +298,7 @@ const OverflowTable: React.FC<Props> = ({
                     )}
                   </Can>
                   {displayedColumns.map((column) => (
-                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-right whitespace-nowrap text-sm text-text01 overflow-hidden overflow-x-visible">
+                    <td key={column.key} className="border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm text-text01 overflow-hidden overflow-x-visible">
                       {(column.key === 'name' || (column.key === 'posName' && !row.name)) && nameUrl ? (
                         <span
                           className="cursor-pointer"

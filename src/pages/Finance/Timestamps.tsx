@@ -42,7 +42,7 @@ const Timestamps: React.FC = () => {
             label: "Инкассация",
             key: "Begin",
             render: (row: { deviceId: number }) => (
-                <div className="flex justify-end">
+                <div className="flex justify-start">
                     <Button
                         title="Проинкассировал"
                         classname="border border-successFill rounded px-2 py-2 text-successFill hover:border-successFill/80 hover:text-successFill/80"
