@@ -70,7 +70,7 @@ const Indicators: React.FC = () => {
     { label: t("dashboard.month"), value: "month" },
   ];
 
-  const { data } = useSWR(['get-statistic'], () => getStatistic());
+  const { data, isLoading: cardsDataLoading } = useSWR(['get-statistic'], () => getStatistic());
 
   const { data: filter, isLoading: filterLoading, isValidating: filterValidating } = useSWR(['get-pos-deposits', dateRange, selectedValue], () => getDepositPos({
     ...dateRange,
@@ -230,7 +230,7 @@ const Indicators: React.FC = () => {
                     <Text strong style={{ fontSize: 18 }}>{t(`indicators.${item.title}`)}</Text>
                     <Title level={2} style={{ margin: 0, color: "#202224" }}>
                       {
-                        item.number === 0
+                        cardsDataLoading
                           ? <Skeleton.Button active={true} size={"default"} shape={"default"} block={false} />
                           : <>{item.number} {item.unit}</>
                       }
