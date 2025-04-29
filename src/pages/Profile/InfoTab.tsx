@@ -90,6 +90,13 @@ const InfoTab: React.FC = () => {
 
       const [updatedData] = await Promise.all([updateUserData]);
 
+      // if (avatarResult) {
+      //   const avatarUrl = avatarResult; 
+      //   setImagePreview(avatarUrl);
+      //   localStorage.setItem('avatarUrl', avatarUrl);
+      //   console.log('Uploaded file:', selectedFile);
+      // }
+
       if (updatedData) {
         console.log('User profile updated:', updatedData);
         setUser({ user: updatedData?.props });
@@ -117,72 +124,124 @@ const InfoTab: React.FC = () => {
 
   console.log("Image Preview: ", imagePreview);
 
+  const emailRegister = register('email', {
+    required: 'Email is required',
+    pattern: {
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: 'Invalid email format'
+    }
+  });
+
+  const formatPhoneNumber = (value: string): string => {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
+
+    if (!match) return '';
+
+    let formatted = '+7';
+    if (match[2]) formatted += `(${match[2]}`;
+    if (match[3]) formatted += `)${match[3]}`;
+    if (match[4]) formatted += `-${match[4]}`;
+    if (match[5]) formatted += `-${match[5]}`;
+
+    return formatted;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    handleInputChange('phone', formatted);
+    register('phone').onChange({
+      target: {
+        value: formatted.replace(/\D/g, '').substring(1)
+      }
+    });
+  };
+
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
-        <div className="flex flex-col space-y-6 w-full md:w-2/3">
-          <Form.Item label={t("profile.name")}>
+        <div className="flex flex-col gap-2 w-full">
+          <Form.Item
+            label={t("profile.name")}
+            layout="vertical"
+          >
             <AntInput
-              placeholder={t("profile.name")}
+              placeholder={t("profile.namePlaceholder")}
               value={formData?.name}
               onChange={(e) => {
                 handleInputChange('name', e.target.value);
-                register('name').onChange(e);
+                register('name', { required: 'Имя is required' }).onChange(e);
               }}
+              onBlur={register('name', { required: 'Имя is required' }).onBlur}
               className='w-80'
               status={errors.name ? 'error' : ''}
             />
             {errors.name && <span className="error-message">{errors.name.message}</span>}
           </Form.Item>
-          <Form.Item label={t("profile.middlename")}>
+          <Form.Item
+            label={t("profile.middlename")}
+            layout="vertical"
+          >
             <AntInput
-              placeholder={t("profile.middlename")}
+              placeholder={t("profile.middlenamePlaceholder")}
               value={formData.middlename}
               onChange={(e) => {
                 handleInputChange('middlename', e.target.value);
                 register('middlename').onChange(e);
               }}
+              onBlur={register('middlename').onBlur}
               className='w-80'
               status={errors.middlename ? 'error' : ''}
             />
             {errors.middlename && <span className="error-message">{errors.middlename.message}</span>}
           </Form.Item>
-          <Form.Item label={t("profile.surname")}>
+          <Form.Item
+            label={t("profile.surname")}
+            layout="vertical"
+          >
             <AntInput
-              placeholder={t("profile.surname")}
+              placeholder={t("profile.surnamePlaceholder")}
               value={formData.surname}
               onChange={(e) => {
                 handleInputChange('surname', e.target.value);
-                register('surname').onChange(e);
+                register('surname', { required: 'Отчество is required' }).onChange(e);
               }}
+              onBlur={register('surname').onBlur}
               className='w-80'
               status={errors.surname ? 'error' : ''}
             />
             {errors.surname && <span className="error-message">{errors.surname.message}</span>}
           </Form.Item>
-          <Form.Item label={t("profile.telephone")}>
+          <Form.Item
+            label={t("profile.telephone")}
+            layout="vertical"
+          >
             <AntInput
-              placeholder={t("profile.telephone")}
+              placeholder={t("profile.telephonePlaceholder")}
               value={formData.phone}
-              onChange={(e) => {
-                handleInputChange('phone', e.target.value);
-                register('phone').onChange(e);
-              }}
+              onChange={handlePhoneChange}
+              onBlur={register('phone').onBlur}
               className='w-80'
               status={errors.phone ? 'error' : ''}
+              maxLength={18}
             />
             {errors.phone && <span className="error-message">{errors.phone.message}</span>}
           </Form.Item>
-          <Form.Item label="E-mail *">
+          <Form.Item
+            label="E-mail *"
+            layout="vertical"
+          >
             <AntInput
               type="email"
-              placeholder="E-mail *"
+              placeholder={t("profile.email")}
               value={formData.email}
               onChange={(e) => {
                 handleInputChange('email', e.target.value);
-                register('email').onChange(e);
+                emailRegister.onChange(e);
               }}
               disabled={true}
+              onBlur={emailRegister.onBlur}
               className='w-80'
               status={errors.email ? 'error' : ''}
             />

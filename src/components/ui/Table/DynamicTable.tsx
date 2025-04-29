@@ -15,6 +15,7 @@ import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import routes from "@/routes/index.tsx";
 import hasPermission from "@/permissions/hasPermission.tsx";
+import DateUtils from "@/utils/Date.tsx";
 
 interface TableColumn {
     label: string;
@@ -266,15 +267,7 @@ const DynamicTable = <T extends TableRow>({
                     if (value === null || value === undefined) {
                         date = "-";
                     } else {
-                        date = new Date(value).toLocaleString("ru-RU", {
-                            timeZone: userTimezone,
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                        });
+                        date = DateUtils.createDateTimeWithoutComma(value, userTimezone);
                     }
 
                     return date;
