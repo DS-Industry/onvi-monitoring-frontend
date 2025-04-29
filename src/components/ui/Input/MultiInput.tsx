@@ -150,7 +150,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                 }}
             >
                 {loadingOptions ? (
-                    <div className="flex justify-center items-center h-40 min-w-80">
+                    <div className="flex justify-center items-center h-40 m-auto">
                         <Spin size="large" />
                     </div>
                 ) : (
