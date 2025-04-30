@@ -1,5 +1,4 @@
 import Button from "@/components/ui/Button/Button";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
@@ -12,13 +11,14 @@ import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { useNavigate } from "react-router-dom";
-import { Button as AntDButton, message, Transfer } from "antd";
+import { Button as AntDButton, DatePicker, message, Select, Transfer } from "antd";
 import ArrowUp from "@icons/ArrowUp.png";
 import ArrowDown from "@icons/ArrowDown.png";
 import NoDataUI from "@/components/ui/NoDataUI";
 import PositionEmpty from "@/assets/NoPosition.png";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
+import dayjs from "dayjs";
 
 type PaymentCalculateBody = {
     organizationId: number;
@@ -65,7 +65,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
         organizationId: "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const organizations: { name: string; value: number }[] = [
+        { name: t("chemical.select"), value: 0 },
+        ...(organizationData?.map(item => ({ name: item.name, value: item.id })) || [])
+    ];
 
     const workers: { key: string; title: string; value: number | "*"; }[] = [
         ...(workersData?.map((work) => ({
@@ -394,40 +397,61 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </Modal>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                    <DropdownInput
-                        title={t("warehouse.organization")}
-                        options={organizations}
-                        classname="w-64"
-                        {...register('organizationId', {
-                            required: 'Organization Id is required',
-                            validate: (value) =>
-                                (value !== 0) || "Organization Id is required"
-                        })}
-                        value={formData.organizationId}
-                        onChange={(value) => handleInputChange('organizationId', value)}
-                        error={!!errors.organizationId}
-                        helperText={errors.organizationId?.message}
-                    />
-                    <Input
-                        type="month"
-                        title={t("hr.billing")}
-                        classname="w-40"
-                        value={formData.billingMonth}
-                        changeValue={(e) => handleInputChange('billingMonth', e.target.value)}
-                        error={!!errors.billingMonth}
-                        {...register('billingMonth', {
-                            required: 'Billing Month is required'
-                        })}
-                        helperText={errors.billingMonth?.message || ''}
-                    />
-                    <DropdownInput
-                        title={t("routes.employees")}
-                        options={positions}
-                        classname="w-64"
-                        {...register('hrPositionId')}
-                        value={formData.hrPositionId}
-                        onChange={(value) => handleInputChange('hrPositionId', value)}
-                    />
+                    <div>
+                        <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                        <Select
+                            className="w-64"
+                            options={organizations.map((item) => ({ label: item.name, value: item.value }))}
+                            value={formData.organizationId}
+                            {...register('organizationId', {
+                                required: 'Organization Id is required',
+                                validate: (value) =>
+                                    (value !== 0) || "Organization Id is required"
+                            })}
+                            onChange={(value) => handleInputChange('organizationId', value)}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                            status={errors.organizationId ? 'error' : ''}
+                        />
+                        {errors.organizationId?.message && (
+                            <div className="text-xs text-errorFill mt-1">{errors.organizationId.message}</div>
+                        )}
+                    </div>
+                    <div>
+                        <div className="text-sm text-text02">{t("hr.billing")}</div>
+                        <DatePicker
+                            picker="month"
+                            {...register('billingMonth', {
+                                required: 'Billing Month is required'
+                            })}
+                            value={formData.billingMonth ? dayjs(formData.billingMonth) : null}
+                            onChange={(_date, dateString) => handleInputChange('billingMonth', dateString.toString())}
+                            className="w-40"
+                            status={errors.billingMonth ? 'error' : ''}
+                            placeholder="Select Month"
+                        />
+                        {errors.billingMonth?.message && (
+                            <div className="text-xs text-errorFill mt-1">{errors.billingMonth.message}</div>
+                        )}
+                    </div>
+                    <div>
+                        <div className="text-sm text-text02">{t("routes.employees")}</div>
+                        <Select
+                            className="w-64"
+                            options={positions}
+                            value={formData.hrPositionId}
+                            {...register('hrPositionId')}
+                            onChange={(value) => handleInputChange('hrPositionId', value)}
+                            dropdownRender={(menu) => (
+                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                                    {menu}
+                                </div>
+                            )}
+                        />
+                    </div>
                 </div>
                 <div className="flex space-x-4">
                     <Button
