@@ -321,6 +321,7 @@ export const columnsMonitoringDevice = [
   {
     label: "Сумма операции",
     key: "sumOper",
+    type: "currency"
   },
   {
     label: "Дата операции",
