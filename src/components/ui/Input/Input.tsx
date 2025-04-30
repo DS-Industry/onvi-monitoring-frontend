@@ -165,7 +165,7 @@ const Input: React.FC<InputProps> = ({
     return (
         <div className={containerClassName}>
             {title && (
-                <label className="text-sm text-gray-600">
+                <label className="text-sm text-text02">
                     {title.endsWith("*") ? (
                         <>
                             {title.substring(0, title.length - 1)}
@@ -182,20 +182,20 @@ const Input: React.FC<InputProps> = ({
                     <label
                         className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out z-10
               ${isLabelFloating && inputType === "primary"
-                                ? "text-gray-600 text-xs font-normal -top-0 pt-2"
+                                ? "text-text02 text-xs font-normal -top-0 pt-1"
                                 : inputType === "primary" && !isLabelFloating
-                                    ? "text-gray-600 top-2"
+                                    ? "text-text02 top-2"
                                     : inputType === "secondary" && isLabelFloating
                                         ? "text-base invisible"
                                         : inputType === "secondary" && !isLabelFloating
-                                            ? "text-gray-600 visible top-1"
+                                            ? "text-text02 visible top-1"
                                             : inputType === "tertiary" && isLabelFloating
                                                 ? "text-base invisible"
                                                 : inputType === "tertiary" && !isLabelFloating
-                                                    ? "text-gray-600 visible top-0"
+                                                    ? "text-text02 visible top-0"
                                                     : isLabelFloating
                                                         ? "text-base invisible"
-                                                        : "text-gray-600 visible top-2"
+                                                        : "text-text02 visible top-2"
                             }
               ${disabled && isLabelFloating ? "invisible" : ""}
               ${error ? "text-errorFill" : ""}`}
@@ -230,7 +230,7 @@ const Input: React.FC<InputProps> = ({
                             boxShadow: "none",
                             backgroundColor: "transparent",
                             width: "100%",
-                            paddingTop: inputType === "primary" && isLabelFloating ? "1rem" : 0
+                            paddingTop: inputType === "primary" && isLabelFloating ? "0.5rem" : 0
                         }}
                     />
                     {type === "password" && <PasswordIcon />}
@@ -238,7 +238,7 @@ const Input: React.FC<InputProps> = ({
                 </div>
             </div>
             {helperText && (
-                <div className={`text-xs font-normal ${error ? "text-errorFill" : "text-gray-600"}`}>
+                <div className={`text-xs font-normal ${error ? "text-errorFill" : "text-text02"}`}>
                     {helperText}
                 </div>
             )}
