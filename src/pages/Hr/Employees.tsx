@@ -14,12 +14,13 @@ import useFormHook from "@/hooks/useFormHook";
 import useSWR, { mutate } from "swr";
 import { createWorker, getPositions, getWorkers } from "@/services/api/hr";
 import { getPlacement } from "@/services/api/device";
-import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetPageNumber } from "@/hooks/useAuthStore";
+import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import { getOrganization } from "@/services/api/organization";
 import useSWRMutation from "swr/mutation";
 import { Select, Input as AntInput } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useLocation } from "react-router-dom";
 
 type Worker = {
     name: string;
@@ -70,15 +71,19 @@ const Employees: React.FC = () => {
     const setPageNumber = useSetPageNumber();
     const currentPage = useCurrentPage();
     const { filterOn } = useFilterOn();
+    const setCurrentPage = useSetCurrentPage();
+    const setTotalCount = useSetPageSize();
+    const location = useLocation();
+    const pageSize = usePageNumber();
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR(
-        [`get-organization`], 
-        () => getOrganization({ placementId: city }), 
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
+        [`get-organization`],
+        () => getOrganization({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
             keepPreviousData: true,
         });
 
@@ -131,7 +136,28 @@ const Employees: React.FC = () => {
         size: pageNumber
     }
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
+
     const [dataFilter, setDataFilter] = useState<WorkerParams>(initialFilter);
+
+    const totalRecords = workersData?.length || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
 
     const handleDataFilter = (newFilterData: Partial<WorkerParams>) => {
         setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -157,6 +183,11 @@ const Employees: React.FC = () => {
     useEffect(() => {
         positionsMutating().then(() => setIsTableLoading(false));
     }, [dataFilter, positionsMutating]);
+
+    useEffect(() => {
+        if (!workersLoading && workersData)
+            setTotalCount(workersData.length)
+    }, [workersData, workersLoading, setTotalCount]);
 
     const handleClear = () => {
         setCity(city);
