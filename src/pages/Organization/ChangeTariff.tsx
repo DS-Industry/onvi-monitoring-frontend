@@ -58,6 +58,7 @@ const TariffCard: React.FC<TariffType> = ({
                         <Button
                             title={t("subscriptions.current")}
                             handleClick={handleButtonOn}
+                            disabled={true}
                         />
                     )}
                 </Col>
@@ -110,7 +111,10 @@ const TariffCard: React.FC<TariffType> = ({
                                     </div>
                                     {isOpen && (
                                         <div className="mt-2 pl-8 text-text02 text-sm space-y-2">
-                                            <Checkbox.Group>
+                                            <Checkbox.Group
+                                                value={["option1", "option2", "option3"]}
+                                                disabled
+                                            >
                                                 <div className="flex flex-col space-y-2">
                                                     <Checkbox value="option1" className="text-text02">{t(`routes.objectManagement`)}</Checkbox>
                                                     <Checkbox value="option2" className="text-text02">{t(`subscriptions.tar`)}</Checkbox>

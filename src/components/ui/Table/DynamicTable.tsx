@@ -123,7 +123,7 @@ const DynamicTable = <T extends TableRow>({
     };
 
     const formatNumber = (num: number): string => {
-        if (isNaN(num)) return num.toString();
+        if (num && isNaN(num)) return num.toString();
 
         return new Intl.NumberFormat("ru-RU", {
             minimumFractionDigits: 2,

@@ -7,13 +7,14 @@ import ChangeTariff from "./ChangeTariff";
 
 const Subscriptions: React.FC = () => {
     const { t } = useTranslation();
+    const [activeTabKey, setActiveTabKey] = useState('current');
     const [isNotificationVisible, setIsNotificationVisible] = useState(true);
 
     const items: TabsProps['items'] = [
         {
             key: 'current',
             label: t("subscriptions.current"),
-            children: <CurrentTariff />,
+            children: <CurrentTariff setActiveTab={setActiveTabKey} />,
         },
         {
             key: 'change',
@@ -31,8 +32,10 @@ const Subscriptions: React.FC = () => {
                 showRocket={true}
                 onClose={() => setIsNotificationVisible(false)}
             />)}
-             <Tabs
-                defaultActiveKey="basic"
+            <Tabs
+                defaultActiveKey="current"
+                activeKey={activeTabKey}
+                onChange={setActiveTabKey}
                 items={items}
                 tabBarGutter={24}
                 tabBarStyle={{ marginBottom: 24 }}

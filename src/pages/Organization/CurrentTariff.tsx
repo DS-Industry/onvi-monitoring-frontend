@@ -6,7 +6,13 @@ import Icon from "feather-icons-react";
 
 const { Title, Text } = Typography;
 
-const CurrentTariff: React.FC = () => {
+type Props = {
+    setActiveTab: (tab: string) => void;
+}
+
+const CurrentTariff: React.FC<Props> = ({
+    setActiveTab
+}: Props) => {
     const { t } = useTranslation();
 
     const items = [
@@ -40,7 +46,10 @@ const CurrentTariff: React.FC = () => {
                 <Col xs={24} md={12} className="justify-end mt-4 md:mt-0">
                     <Row justify={"space-between"}>
                         <Title level={3}>{t("subscriptions.base")}</Title>
-                        <Button title={t("subscriptions.change")} />
+                        <Button
+                            title={t("subscriptions.change")}
+                            handleClick={() => setActiveTab("change")}
+                        />
                     </Row>
                     <Text type="secondary">{t("subscriptions.the")} 10.09.2024</Text>
                     <Card className="bg-background05 rounded-lg" variant="borderless">
@@ -100,15 +109,18 @@ const CurrentTariff: React.FC = () => {
                                                 </Title>
                                             </div>
                                             {isOpen && (
-                                                <div className="mt-2 pl-8 text-text02 text-sm space-y-2">                
-                                                <Checkbox.Group>
-                                                    <div className="flex flex-col space-y-2">
-                                                        <Checkbox value="option1" className="text-text02">{t(`routes.objectManagement`)}</Checkbox>
-                                                        <Checkbox value="option2" className="text-text02">{t(`subscriptions.tar`)}</Checkbox>
-                                                        <Checkbox value="option3" className="text-text02">{t(`subscriptions.legal`)}</Checkbox>
-                                                    </div>
-                                                </Checkbox.Group>
-                                            </div>
+                                                <div className="mt-2 pl-8 text-text02 text-sm space-y-2">
+                                                    <Checkbox.Group
+                                                        value={["option1", "option2", "option3"]}
+                                                        disabled
+                                                    >
+                                                        <div className="flex flex-col space-y-2">
+                                                            <Checkbox value="option1" className="text-text02">{t(`routes.objectManagement`)}</Checkbox>
+                                                            <Checkbox value="option2" className="text-text02">{t(`subscriptions.tar`)}</Checkbox>
+                                                            <Checkbox value="option3" className="text-text02">{t(`subscriptions.legal`)}</Checkbox>
+                                                        </div>
+                                                    </Checkbox.Group>
+                                                </div>
                                             )}
                                         </div>
                                     </List.Item>
@@ -119,7 +131,7 @@ const CurrentTariff: React.FC = () => {
                 </Col>
             </Row>
 
-            <Row justify="end" align="top">
+            {/* <Row justify="end" align="top">
                 <Col xs={24} md={12}>
                     <Row align={"bottom"} gutter={8}>
                         <Col>
@@ -138,7 +150,7 @@ const CurrentTariff: React.FC = () => {
                         <Button title={t("subscriptions.top")} />
                     </Row>
                 </Col>
-            </Row>
+            </Row> */}
         </div>
     );
 };
