@@ -18,7 +18,7 @@ import useSWR, { mutate } from "swr";
 import { getPlacement } from "@/services/api/device";
 import { createClient, createTag, getClientById, getClients, getTags, updateClient } from "@/services/api/marketing";
 import useSWRMutation from "swr/mutation";
-import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetPageNumber } from "@/hooks/useAuthStore";
+import { useCity, useCurrentPage, usePageNumber, useSetCity, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 // import ClientTable from "@/components/ui/Table/ClientsTable";
 // import { Tag } from "antd";
@@ -26,6 +26,7 @@ import DynamicTable from "@/components/ui/Table/DynamicTable";
 import Filter from "@/components/ui/Filter/Filter";
 import { Select, Input as AntInput, InputNumber, DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import { useLocation } from "react-router-dom";
 
 // enum StatusUser {
 //     VERIFICATE = "VERIFICATE",
@@ -89,6 +90,10 @@ const Clients: React.FC = () => {
     const setPageNumber = useSetPageNumber();
     const currentPage = useCurrentPage();
     const [searchValue, setSearchValue] = useState("");
+    const setCurrentPage = useSetCurrentPage();
+    const setTotalCount = useSetPageSize();
+    const location = useLocation();
+    const pageSize = usePageNumber();
 
     // const tableData = [
     //     { type: "Физ.лицо", name: "Testing Profile" }
@@ -121,7 +126,28 @@ const Clients: React.FC = () => {
         size: pageNumber
     }
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
+
     const [dataFilter, setDataFilter] = useState<ClientsParams>(initialFilter);
+
+    const totalRecords = clientsData?.length || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
 
     const handleDataFilter = (newFilterData: Partial<ClientsParams>) => {
         setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -147,6 +173,11 @@ const Clients: React.FC = () => {
     useEffect(() => {
         clientsMutating().then(() => setIsTableLoading(false));
     }, [dataFilter, clientsMutating]);
+
+    useEffect(() => {
+        if (!loadingClients && clientsData)
+            setTotalCount(clientsData.length)
+    }, [clientsData, loadingClients, setTotalCount]);
 
     const handleClear = () => {
         setCity(city);
