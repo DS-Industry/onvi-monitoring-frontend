@@ -180,7 +180,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
             </div>
             {isOpen && !isLoading && (
                 <div
-                    className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-10`}
+                    className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-20`}
                 >
                     {options.length === 0 ? (
                         <div className="p-2 flex flex-col items-center justify-center">
