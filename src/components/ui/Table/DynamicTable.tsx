@@ -122,13 +122,13 @@ const DynamicTable = <T extends TableRow>({
         else return <Tag color="default">{status}</Tag>;
     };
 
-    const formatNumber = (num: number): string => {
-        if (num && isNaN(num)) return num.toString();
+    const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
+        if (num === null || num === undefined || isNaN(num)) return "-";
 
         return new Intl.NumberFormat("ru-RU", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            useGrouping: true
+            minimumFractionDigits: type === 'double' ? 2 : 0,
+            maximumFractionDigits: type === 'double' ? 2 : 0,
+            useGrouping: true,
         }).format(num);
     };
 
@@ -277,11 +277,13 @@ const DynamicTable = <T extends TableRow>({
                     return formatPeriodType(value);
                 }
 
-                if (col.type === "number")
-                    return value ?
+                if (col.type === "number" || col.type === "double") {
+                    return value !== undefined && value !== null ? (
                         <div className={`${value < 0 ? "text-errorFill" : ""}`}>
-                            {formatNumber(value)}
-                        </div> : "-";
+                            {formatNumber(value, col.type)}
+                        </div>
+                    ) : "-";
+                }
 
                 if (col.type === "tags") {
                     return value.length > 0 ? (
@@ -333,7 +335,7 @@ const DynamicTable = <T extends TableRow>({
                         type="text"
                         icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
                         onClick={() => onEdit(record.id)}
-                        style={{ height: "24px" }} 
+                        style={{ height: "24px" }}
                     />
                 </Tooltip>
             ),
@@ -455,7 +457,7 @@ const DynamicTable = <T extends TableRow>({
                         cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableDataCellElement> & ThHTMLAttributes<HTMLTableDataCellElement>) => (
                             <td
                                 {...props}
-                                style={{paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px"}}
+                                style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
                             />
                         ),
                     },
