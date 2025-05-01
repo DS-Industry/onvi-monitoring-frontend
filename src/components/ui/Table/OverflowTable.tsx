@@ -91,13 +91,13 @@ const OverflowTable: React.FC<Props> = ({
     );
   };
 
-  const formatNumber = (num: number): string => {
-    if (isNaN(num)) return num.toString();
+  const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
+    if (num === null || num === undefined || isNaN(num)) return "-";
 
     return new Intl.NumberFormat("ru-RU", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      useGrouping: true
+      minimumFractionDigits: type === 'double' ? 2 : 0,
+      maximumFractionDigits: type === 'double' ? 2 : 0,
+      useGrouping: true,
     }).format(num);
   };
 
@@ -306,11 +306,11 @@ const OverflowTable: React.FC<Props> = ({
                         >
                           <div className="whitespace-nowrap flex items-center space-x-2 text-ellipsis overflow-hidden text-primary02 hover:text-primary02_Hover hover:underline">
                             {row[column.key]}
-                            <Icon icon="arrow-up-right" className="w-4 h-4"/>
+                            <Icon icon="arrow-up-right" className="w-4 h-4" />
                           </div>
                         </span>
-                      ) : column.type === 'number' ? (
-                        row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key])}</div> : '-'
+                      ) : (column.type === 'number' || column.type === 'double') ? (
+                        row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key], column.type)}</div> : '-'
                       ) :
                         column.type === 'percent' ? (
                           row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${formatNumber(row[column.key])}%`}</div> : '-'

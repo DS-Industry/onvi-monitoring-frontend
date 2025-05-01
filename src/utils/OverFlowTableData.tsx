@@ -357,17 +357,17 @@ export const columnsProgramsPos = [
   {
     label: "Кол-во программ",
     key: "counter",
-    type: "number"
+    type: "double"
   },
   {
     label: "Общее время (мин)",
     key: "totalTime",
-    type: "number"
+    type: "double"
   },
   {
     label: "Среднее время (мин)",
     key: "averageTime",
-    type: "number"
+    type: "double"
   },
   {
     label: "Последняя программа",
@@ -384,17 +384,17 @@ export const columnsProgramsPosPortal = [
   {
     label: "Кол-во программ",
     key: "counter",
-    type: "number"
+    type: "double"
   },
   {
     label: "Общее время (мин)",
     key: "totalTime",
-    type: "number"
+    type: "double"
   },
   {
     label: "Среднее время (мин)",
     key: "averageTime",
-    type: "number"
+    type: "double"
   },
   {
     label: "Выручка по программам",
@@ -430,12 +430,12 @@ export const columnsProgramDevice = [
   {
     label: "Время выполнения",
     key: "time",
-    type: "number"
+    type: "double"
   },
   {
     label: "Локальный id",
     key: "localId",
-    type: "number"
+    type: "double"
   },
   {
     label: "Оплата",
@@ -863,19 +863,19 @@ export const columnsCollections = [
   {
     label: "Сумма всего",
     key: "sumFactDeviceType",
-    type: "number",
+    type: "double",
     render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
   },
   {
     label: "Недостача",
     key: "shortageDeviceType",
-    type: "number",
+    type: "double",
     render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
   },
   {
     label: "Безналичная оплата",
     key: "virtualSumDeviceType",
-    type: "number",
+    type: "double",
     render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
   }
 ]
@@ -998,22 +998,22 @@ export const columnsDataCashOper = [
   {
     label: "На начало смены",
     key: "cashAtStart",
-    type: "number"
+    type: "double"
   },
   {
     label: "Пополнение",
     key: "replenishmentSum",
-    type: "number"
+    type: "double"
   },
   {
     label: "Расход",
     key: "expenditureSum",
-    type: "number"
+    type: "double"
   },
   {
     label: "На конец смены",
     key: "cashAtEnd",
-    type: "number"
+    type: "double"
   }
 ]
 
@@ -1050,7 +1050,7 @@ export const columnsDataCashOperCleaning = [
   {
     label: "Кол-во программ",
     key: "countProgram",
-    type: "number"
+    type: "double"
   },
   {
     label: "Общее время",
@@ -1177,27 +1177,27 @@ export const columnsPlanFact = [
   {
     label: "План за указанный период",
     key: "plan",
-    type: "number"
+    type: "double"
   },
   {
     label: "Наличные",
     key: "cashFact",
-    type: "number"
+    type: "double"
   },
   {
     label: "Безналичные",
     key: "virtualSumFact",
-    type: "number"
+    type: "double"
   },
   {
     label: "Яндекс зачисления",
     key: "yandexSumFact",
-    type: "number"
+    type: "double"
   },
   {
     label: "Факт итог",
     key: "sumFact",
-    type: "number"
+    type: "double"
   },
   {
     label: "Выполнен план",
@@ -1371,7 +1371,7 @@ export const columnsPayments = [
   {
     label: "Количество отработанных смен",
     key: "countShifts",
-    type: "number"
+    type: "double"
   },
   {
     label: "Выплачено аванс",
@@ -1437,7 +1437,7 @@ export const columnsPrePayments = [
   {
     label: "Количество отработанных смен",
     key: "countShifts",
-    type: "number"
+    type: "double"
   },
   {
     label: "Выплачено",
@@ -1483,7 +1483,7 @@ export const columnsPaymentsCreation = [
   {
     label: "Количество отработанных смен аванс",
     key: "prepaymentCountShifts",
-    type: "number"
+    type: "double"
   },
   {
     label: "Количество отработанных смен",
@@ -1500,12 +1500,12 @@ export const columnsPaymentsCreation = [
   {
     label: "Количество отработанных смен итог",
     key: "totalCountShifts",
-    type: "number"
+    type: "double"
   },
   {
     label: "Выплачено ЗП",
     key: "sum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Премия",
@@ -1534,6 +1534,6 @@ export const columnsPaymentsCreation = [
   {
     label: "Выплачено итог",
     key: "totalPayment",
-    type: "number"
+    type: "double"
   }
 ]
