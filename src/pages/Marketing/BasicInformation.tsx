@@ -8,6 +8,7 @@ import { getClientById } from "@/services/api/marketing";
 import { Skeleton } from "antd";
 import { Form, Typography, Tag, Row, Col, Divider, Space } from "antd";
 import { CloseOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import moment from "moment";
 
 const { Title, Text } = Typography;
 
@@ -123,25 +124,25 @@ const BasicInformation: React.FC = () => {
 
                             <Form.Item label={t("marketing.type")}>
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-xs">
-                                    {clientData?.type}
+                                    {clientData?.type ? clientData.type : "-"}
                                 </div>
                             </Form.Item>
 
                             <Form.Item label={t("marketing.name")}>
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                                    {clientData?.name}
+                                    {clientData?.name ? clientData.name : "-"}
                                 </div>
                             </Form.Item>
 
                             <Form.Item label={t("marketing.floor")}>
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-20">
-                                    {clientData?.gender}
+                                    {clientData?.gender ? clientData.gender : "-"}
                                 </div>
                             </Form.Item>
 
                             <Form.Item label={t("register.date")}>
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-36">
-                                    01.06.1984
+                                    {clientData?.birthday ? moment(clientData.birthday).format("DD.MM.YYYY") : "-"}
                                 </div>
                             </Form.Item>
 
@@ -153,7 +154,7 @@ const BasicInformation: React.FC = () => {
 
                             <Form.Item label="E-mail">
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                                    {clientData?.email}
+                                    {clientData?.email ? clientData.email : "-"}
                                 </div>
                             </Form.Item>
 

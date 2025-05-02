@@ -68,9 +68,9 @@ const TimesheetView: React.FC = () => {
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
-    const { data: cashOperData, isLoading: loadingCashOper } = useSWR(location.state?.ownerId ? [`get-cash-oper-data`] : null, () => getCashOperById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: cashOperData, isLoading: loadingCashOper, isValidating: validatingCashOper } = useSWR(location.state?.ownerId ? [`get-cash-oper-data`] : null, () => getCashOperById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: cashOperReturnData, isLoading: loadingCashOperReturn } = useSWR(location.state?.ownerId ? [`get-cash-oper-return-data`] : null, () => getCashOperRefundById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: cashOperReturnData, isLoading: loadingCashOperReturn, isValidating: validatingCashOperReturn } = useSWR(location.state?.ownerId ? [`get-cash-oper-return-data`] : null, () => getCashOperRefundById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: cashOperCleanData, isLoading: loadingCashOperClean } = useSWR(location.state?.ownerId ? [`get-cash-oper-clean-data`] : null, () => getCashOperCleanById(location.state?.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -140,7 +140,7 @@ const TimesheetView: React.FC = () => {
         reset();
     };
 
-    const onSubmit = async (data: unknown) => {
+    const onSubmit = async (data: any) => {
         console.log("Data of usbmit: ", data);
 
         const result = await createCash();
@@ -149,6 +149,9 @@ const TimesheetView: React.FC = () => {
             console.log("Result of the api: ", result);
             mutate([`get-cash-oper-return-data`]);
             mutate([`get-cash-oper-data`]);
+            resetForm();
+            setIsModalOpen(false);
+            setIsModalOpenReturn(false);
         }
     }
 
@@ -304,7 +307,7 @@ const TimesheetView: React.FC = () => {
                                     {t("routes.add")}
                                 </button>
                             )}
-                            {loadingCashOper ? (
+                            {loadingCashOper || validatingCashOper ? (
                                 <TableSkeleton columnCount={columnsDataCashOper.length} />
                             ) : cashOperArray.length > 0 ? (
                                 <DynamicTable data={cashOperArray.map((item, index) => ({ ...item, id: index }))} columns={columnsDataCashOper} />
@@ -326,7 +329,7 @@ const TimesheetView: React.FC = () => {
                                 />
                             </div>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
                                     <DropdownInput
                                         title={t("finance.operType")}
                                         label={t("warehouse.notSel")}
@@ -405,7 +408,7 @@ const TimesheetView: React.FC = () => {
                                     {t("routes.add")}
                                 </button>
                             )}
-                            {loadingCashOperReturn ? (
+                            {loadingCashOperReturn || validatingCashOperReturn ? (
                                 <TableSkeleton columnCount={columnsDataCashOperRefund.length} />
                             ) : cashOperReturnArray.length > 0 ? (
                                 <DynamicTable data={cashOperReturnArray} columns={columnsDataCashOperRefund} />
@@ -429,7 +432,7 @@ const TimesheetView: React.FC = () => {
                             </div>
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-text02">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
                                     <Input
                                         type="number"
                                         title={t("finance.sum")}

@@ -1,38 +1,37 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Tabs } from "antd";
-import type { TabsProps } from "antd";
 import Settings from "./Settings";
 import Levels from "./Levels";
 import Events from "./Events";
+import GenericTabs from "@ui/Tabs/GenericTab";
 
 const BonusProgram: React.FC = () => {
     const { t } = useTranslation();
 
-    const items: TabsProps['items'] = [
+    const tabItems = [
         {
-            key: 'settings',
+            key: "settings",
             label: t("routes.settings"),
-            children: <Settings />,
+            content: <Settings />,
         },
         {
-            key: 'levels',
+            key: "levels",
             label: t("marketing.levels"),
-            children: <Levels />,
+            content: <Levels />,
         },
         {
-            key: 'events',
+            key: "events",
             label: t("marketing.events"),
-            children: <Events />,
+            content: <Events />,
         },
     ];
-    
+
     return (
         <div className="w-full px-4 sm:px-8 md:px-16 py-4">
             <div className="bg-white p-6 rounded-xl shadow-md">
-                <Tabs
+                <GenericTabs
+                    tabs={tabItems}
                     defaultActiveKey="settings"
-                    items={items}
                     tabBarGutter={32}
                     tabBarStyle={{ marginBottom: 24 }}
                 />
