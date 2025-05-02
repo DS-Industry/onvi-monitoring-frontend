@@ -362,8 +362,8 @@ const DynamicTable = <T extends TableRow>({
             key: "statusCheck",
             render: (_: any, record: T) =>
                 record.status === "SENT" ?
-                    <img src={SentIcon} />
-                    : <img src={SavedIcon} />
+                    <img src={SentIcon} loading="lazy" />
+                    : <img src={SavedIcon} loading="lazy" />
         });
     }
     const totalRow = showTotal

@@ -616,7 +616,7 @@ const Clients: React.FC = () => {
                             title={t("marketing.noClient")}
                             description={""}
                         >
-                            <img src={ClientEmpty} className="mx-auto" />
+                            <img src={ClientEmpty} className="mx-auto" loading="lazy" />
                         </NoDataUI>
                     </div>
             }

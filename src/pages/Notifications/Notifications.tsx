@@ -260,7 +260,7 @@ const Notifications: React.FC = () => {
                             <div className="flex flex-col justify-center items-center mt-16">
                                 <Empty
                                     description={t("notifications.you")}
-                                    image={<img src={NoToken} alt="no-data" className="mx-auto" />}
+                                    image={<img src={NoToken} alt="no-data" className="mx-auto" loading="lazy" />}
                                 />
                             </div>
                         )}

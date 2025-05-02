@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useId } from "react";
 import { Input as AntInput } from "antd";
 import { EyeOutlined, EyeInvisibleOutlined, UserOutlined } from "@ant-design/icons";
 
@@ -33,7 +33,7 @@ const Input: React.FC<InputProps> = ({
     IconComponent,
     classname,
     title,
-    id = "my-input",
+    id,
     placeholder,
     defaultValue,
 }) => {
@@ -41,6 +41,8 @@ const Input: React.FC<InputProps> = ({
     const [showPassword, setShowPassword] = useState(false);
     const [isPreFilled, setIsPreFilled] = useState(false);
     const [hasValue, setHasValue] = useState(value !== "" && value !== undefined && value !== null);
+    const autoId = useId();
+    const inputId = id || `input-${autoId}`;
 
     useEffect(() => {
         if (value && value !== "") {
@@ -53,8 +55,8 @@ const Input: React.FC<InputProps> = ({
     }, [value]);
 
     useEffect(() => {
-        if (id) {
-            const inputElement = document.getElementById(id) as HTMLInputElement;
+        if (inputId) {
+            const inputElement = document.getElementById(inputId) as HTMLInputElement;
 
             if (inputElement) {
                 const checkAutofill = () => {
@@ -73,7 +75,7 @@ const Input: React.FC<InputProps> = ({
                 return () => observer.disconnect();
             }
         }
-    }, [id]);
+    }, [inputId]);
 
     const isLabelFloating = isFocused || isPreFilled || hasValue;
 
@@ -205,7 +207,7 @@ const Input: React.FC<InputProps> = ({
                 )}
                 <div className={inputWrapperClass}>
                     <AntInput
-                        id={id}
+                        id={inputId}
                         value={value}
                         onChange={(e) => {
                             if (changeValue) {

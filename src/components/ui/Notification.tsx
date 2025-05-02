@@ -47,9 +47,9 @@ const Notification: React.FC<NotificationProps> = ({
       </div>
       
       <div className="w-full md:w-3/12 flex justify-center relative mt-4 md:mt-0">
-        {showBonus && <img src={ShareBonus} className="w-32 md:w-40 lg:w-48 bottom-0" />}
-        {showEmp && <img src={Employees} className="w-32 md:w-40 lg:w-48 bottom-0" />}
-        {showRocket && <img src={Rocket} className="w-32 md:w-40 lg:w-48 bottom-0" />}
+        {showBonus && <img src={ShareBonus} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" />}
+        {showEmp && <img src={Employees} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" />}
+        {showRocket && <img src={Rocket} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" />}
       </div>
 
       {onClose && (

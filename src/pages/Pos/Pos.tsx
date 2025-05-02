@@ -299,7 +299,7 @@ const Pos: React.FC = () => {
                                 title={t("pos.noObject")}
                                 description={t("pos.addCar")}
                             >
-                                <img src={PosEmpty} className="mx-auto" />
+                                <img src={PosEmpty} className="mx-auto" loading="lazy" />
                             </NoDataUI>
                         </>
                     )}

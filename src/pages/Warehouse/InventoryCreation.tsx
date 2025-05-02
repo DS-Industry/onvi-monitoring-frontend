@@ -287,7 +287,7 @@ const InventoryCreation: React.FC = () => {
                         title={t("warehouse.nomenclature")}
                         description={""}
                     >
-                        <img src={InventoryEmpty} className="mx-auto" />
+                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                     </NoDataUI>
                 </div>
             }

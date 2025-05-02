@@ -536,7 +536,7 @@ const SalaryCalculationCreation: React.FC = () => {
                                     setPaymentsData(sortedData);
                                 }}
                             >
-                                <img src={ArrowUp} />
+                                <img src={ArrowUp} loading="lazy" />
                             </button>
                             <button
                                 className="px-2 py-1 bg-background07/50 rounded"
@@ -545,7 +545,7 @@ const SalaryCalculationCreation: React.FC = () => {
                                     setPaymentsData(sortedData);
                                 }}
                             >
-                                <img src={ArrowDown} />
+                                <img src={ArrowDown} loading="lazy" />
                             </button>
                         </div>
                     </div>
@@ -578,7 +578,7 @@ const SalaryCalculationCreation: React.FC = () => {
                             title={t("marketing.nodata")}
                             description={""}
                         >
-                            <img src={PositionEmpty} className="mx-auto" />
+                            <img src={PositionEmpty} className="mx-auto" loading="lazy" />
                         </NoDataUI>
                         <Button
                             title={t("finance.addE")}

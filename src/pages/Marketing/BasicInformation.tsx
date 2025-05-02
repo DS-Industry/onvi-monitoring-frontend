@@ -186,11 +186,11 @@ const BasicInformation: React.FC = () => {
                             <Form.Item label={t("routes.segments")}>
                                 <Space wrap>
                                     <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                                        <img src={PieChart} alt="segment" />
+                                        <img src={PieChart} alt="segment" loading="lazy" />
                                         <Text>{t("marketing.regular")}</Text>
                                     </div>
                                     <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                                        <img src={PieChart} alt="segment" />
+                                        <img src={PieChart} alt="segment" loading="lazy" />
                                         <Text>{t("marketing.checks")}</Text>
                                     </div>
                                 </Space>
@@ -211,17 +211,17 @@ const BasicInformation: React.FC = () => {
                             <Space direction="vertical" size="middle" className="w-full">
                                 <Space wrap>
                                     <div className="flex items-center gap-2">
-                                        <img src={Check} alt="check" />
+                                        <img src={Check} alt="check" loading="lazy" />
                                         <Text type="secondary">{t("marketing.sub")} WhatsApp</Text>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <img src={Check} alt="check" />
+                                        <img src={Check} alt="check" loading="lazy" />
                                         <Text type="secondary">{t("marketing.sub")} Telegram</Text>
                                     </div>
                                 </Space>
 
                                 <div className="flex items-center gap-2">
-                                    <img src={Check} alt="check" />
+                                    <img src={Check} alt="check" loading="lazy" />
                                     <Text type="secondary">{t("marketing.sub")} Email</Text>
                                 </div>
                             </Space>

@@ -33,7 +33,7 @@ const Register: React.FC = () => {
             <p>{t("login.back")}</p>
           </div>
           <div className='flex mb-5'>
-            <img src={OnviBlue} className='h-7 w-14' />
+            <img src={OnviBlue} className='h-7 w-14' loading="lazy" />
             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
           </div>
           {count === 0 && <RegisterForm count={count} setCount={setCount} registerObj={registerObj} setRegisterObj={setRegisterObj} />}
@@ -59,9 +59,9 @@ const Register: React.FC = () => {
 
         <div className="p-8 hidden lg:flex fixed right-0 top-0 h-screen w-[50%] justify-center items-center">
           <div className="p-8">
-            {count === 0 && <img src={RegisterImage} alt="Rocket illustration" key={"register-image-1"} className="object-contain max-w-full max-h-full" />}
-            {count === 1 && <img src={OTPImage} alt="Rocket illustration" key={"register-image-2"} className="object-contain max-w-full max-h-full" />}
-            {count === 2 && <img src={PostRegisterImage} alt="Rocket illustration" key={"register-image-3"} className="object-contain max-w-full max-h-full" />}
+            {count === 0 && <img src={RegisterImage} alt="Rocket illustration" key={"register-image-1"} className="object-contain max-w-full max-h-full"  loading="lazy" decoding='async' fetchPriority='low' />}
+            {count === 1 && <img src={OTPImage} alt="Rocket illustration" key={"register-image-2"} className="object-contain max-w-full max-h-full"  loading="lazy" decoding='async' fetchPriority='low' />}
+            {count === 2 && <img src={PostRegisterImage} alt="Rocket illustration" key={"register-image-3"} className="object-contain max-w-full max-h-full"  loading="lazy" decoding='async' fetchPriority='low' />}
           </div>
         </div>
 
