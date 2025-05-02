@@ -22,7 +22,7 @@ const Segments: React.FC = () => {
                     title={t("marketing.customer")}
                     description={t("marketing.atThe")}
                 >
-                    <img src={SegmentEmpty} className="mx-auto" />
+                    <img src={SegmentEmpty} className="mx-auto" loading="lazy" />
                 </NoDataUI>
             </div>
         </>

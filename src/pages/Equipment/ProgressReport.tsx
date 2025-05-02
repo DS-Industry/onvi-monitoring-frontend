@@ -91,7 +91,7 @@ const ProgressReport: React.FC = () => {
                         title={t("routine.reports")}
                         description={""}
                     >
-                        <img src={SalyImage} className="mx-auto" />
+                        <img src={SalyImage} className="mx-auto" loading="lazy" />
                     </NoDataUI>
             }
         </>

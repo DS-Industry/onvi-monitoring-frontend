@@ -182,7 +182,7 @@ const Positions: React.FC = () => {
                         title={t("hr.no")}
                         description={t("hr.create")}
                     >
-                        <img src={PositionEmpty} className="mx-auto" />
+                        <img src={PositionEmpty} className="mx-auto" loading="lazy" />
                     </NoDataUI>
                 </div>
             )}

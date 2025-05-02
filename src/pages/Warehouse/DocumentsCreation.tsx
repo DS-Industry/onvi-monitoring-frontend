@@ -758,7 +758,7 @@ const DocumentsCreation: React.FC = () => {
                                             title={t("roles.invent")}
                                             description={""}
                                         >
-                                            <img src={InventoryEmpty} className="mx-auto" />
+                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                                         </NoDataUI>
                                     </div>)
                             ) : (
@@ -772,7 +772,7 @@ const DocumentsCreation: React.FC = () => {
                                             title={t("roles.invent")}
                                             description={""}
                                         >
-                                            <img src={InventoryEmpty} className="mx-auto" />
+                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                                         </NoDataUI>
                                     </div>)
                             )}

@@ -482,6 +482,7 @@ const Employees: React.FC = () => {
                                 src={imagePreview || ProfilePhoto}
                                 alt="Profile"
                                 className="w-16 h-16 object-cover rounded-full border border-gray-300"
+                                loading="lazy"
                             />
                             <div className="text-primary02 font-semibold">{t("hr.upload")}</div>
                         </div>

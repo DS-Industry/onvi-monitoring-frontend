@@ -209,7 +209,7 @@ const ListOfEmployees: React.FC = () => {
                                 title={t("organizations.noLegal")}
                                 description={t("organizations.addLegal")}
                             >
-                                <img src={NoOverhead} className="mx-auto" />
+                                <img src={NoOverhead} className="mx-auto" loading="lazy" />
                             </NoDataUI>
                         )}
                 {openModal && selectedWorker && (

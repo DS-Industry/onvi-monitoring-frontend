@@ -268,6 +268,7 @@ const InfoTab: React.FC = () => {
                 src={imagePreview}
                 alt="Profile"
                 className="rounded-full w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           ) : (

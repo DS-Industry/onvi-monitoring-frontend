@@ -141,7 +141,7 @@ const ChemicalConsumption: React.FC = () => {
                         title={t("chemical.noText")}
                         description={t("chemical.dont")}
                     >
-                        <img src={SalyImage} className="mx-auto" />
+                        <img src={SalyImage} className="mx-auto" loading="lazy" />
                     </NoDataUI>
             }
         </>

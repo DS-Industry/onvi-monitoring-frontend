@@ -135,10 +135,10 @@ const GoodsTable: React.FC<Props> = ({
                         </div>
                         <div className="space-x-2">
                             <button className="px-2 py-1 bg-background07/50 rounded">
-                                <img src={ArrowUp} />
+                                <img src={ArrowUp} loading="lazy" />
                             </button>
                             <button className="px-2 py-1 bg-background07/50 rounded">
-                                <img src={ArrowDown} />
+                                <img src={ArrowDown} loading="lazy" />
                             </button>
                         </div>
                     </div>) : (

@@ -90,7 +90,7 @@ const Suppliers: React.FC = () => {
                         title={t("warehouse.noSupply")}
                         description={""}
                     >
-                        <img src={InventoryEmpty} className="mx-auto" />
+                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                     </NoDataUI>
                 </div>
             }

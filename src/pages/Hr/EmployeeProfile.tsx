@@ -303,6 +303,7 @@ const EmployeeProfile: React.FC = () => {
                                         src={"https://storage.yandexcloud.net/onvi-business/avatar/worker/" + emp.avatar}
                                         alt="Profile"
                                         className="rounded-full w-10 h-10 object-cover"
+                                        loading="lazy"
                                     />
                                 ) : <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
                                     {getInitials(emp.fullName)}
@@ -405,6 +406,7 @@ const EmployeeProfile: React.FC = () => {
                                                     src={imagePreview}
                                                     alt="Profile"
                                                     className="rounded-full w-10 h-10 object-cover"
+                                                    loading="lazy"
                                                 />
                                             ) : (
                                                 <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">

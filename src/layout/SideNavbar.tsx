@@ -274,7 +274,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         <div className="h-full flex flex-col justify-between relative">
           <div>
             <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-              {isOpen ? <img src={OnviLogo} alt="" /> : <img src={OnviSmallLogo} alt="" />}
+              {isOpen ? <img src={OnviLogo} alt="" loading="lazy" /> : <img src={OnviSmallLogo} alt="" loading="lazy" />}
               {isMobile && (
                 <button
                   onClick={toggleNavbar}
@@ -522,6 +522,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
                 className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
+                loading="lazy"
               /> : <Avatar type="sidebar" userName={userName} />}
               {isOpen && (
                 <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>

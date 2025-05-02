@@ -334,6 +334,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                                 src={imageList}
                                                                                 alt={`uploaded`}
                                                                                 className="w-full h-full object-cover"
+                                                                                loading="lazy"
                                                                             />
                                                                             <button
                                                                                 onClick={() => removeImage()}

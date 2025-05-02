@@ -140,7 +140,7 @@ const Warehouse: React.FC = () => {
                         title={t("warehouse.noWare")}
                         description={""}
                     >
-                        <img src={InventoryEmpty} className="mx-auto" />
+                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                     </NoDataUI>
                 </div>)}
             <DrawerCreate onClose={resetForm}>

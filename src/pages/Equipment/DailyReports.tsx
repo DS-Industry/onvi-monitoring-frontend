@@ -151,7 +151,7 @@ const DailyReports: React.FC = () => {
                 title={t("daily.noText")}
                 description={t("daily.create")}
             >
-                <img src={SalyImage} className="mx-auto" />
+                <img src={SalyImage} className="mx-auto" loading="lazy" />
             </NoDataUI>
         </>
     )
