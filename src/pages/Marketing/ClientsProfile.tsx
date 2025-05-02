@@ -1,50 +1,48 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Tabs } from "antd";
-import type { TabsProps } from "antd";
-
 import BasicInformation from "./BasicInformation";
 import KeyTab from "./KeyTab";
 import Communication from "./Communication";
 import Loyalty from "./Loyalty";
 import Actions from "./Actions";
+import GenericTabs from "@ui/Tabs/GenericTab";
 
 const ClientsProfile: React.FC = () => {
     const { t } = useTranslation();
 
-    const items: TabsProps['items'] = [
+    const tabItems = [
         {
-            key: 'basic',
+            key: "basic",
             label: t("warehouse.basic"),
-            children: <BasicInformation />,
+            content: <BasicInformation />,
         },
         {
-            key: 'key',
+            key: "key",
             label: t("marketing.key"),
-            children: <KeyTab />,
+            content: <KeyTab />,
         },
         {
-            key: 'comm',
+            key: "comm",
             label: t("marketing.comm"),
-            children: <Communication />,
+            content: <Communication />,
         },
         {
-            key: 'loyalty',
+            key: "loyalty",
             label: t("news.loyalty"),
-            children: <Loyalty />,
+            content: <Loyalty />,
         },
         {
-            key: 'actions',
+            key: "actions",
             label: t("marketing.actions"),
-            children: <Actions />,
+            content: <Actions />,
         },
     ];
 
     return (
         <div className="max-w-5xl ml-10 bg-white p-4 rounded-md shadow-sm">
-            <Tabs
+            <GenericTabs
+                tabs={tabItems}
                 defaultActiveKey="basic"
-                items={items}
                 tabBarGutter={24}
                 tabBarStyle={{ marginBottom: 24 }}
                 type="line"
