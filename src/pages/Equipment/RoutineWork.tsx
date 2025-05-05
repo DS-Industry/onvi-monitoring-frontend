@@ -17,7 +17,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
 import { useCity, usePosType, useSetPosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
+import { Select, Tooltip } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
@@ -78,6 +78,11 @@ type ReadTechTasks = {
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[]
 }
 
 interface Item {
@@ -298,7 +303,7 @@ const RoutineWork: React.FC = () => {
         }))
         .sort((a, b) => a.id - b.id) || [];
 
-        const techTasksRead: ReadTechTasks[] = readTechTask
+    const techTasksRead: ReadTechTasks[] = readTechTask
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
         ?.filter((item: { status: string }) => item.status === searchStatus || searchStatus === "")
         ?.map((item: ReadTechTasks) => ({
@@ -413,7 +418,7 @@ const RoutineWork: React.FC = () => {
                         className="w-full sm:w-80"
                         options={poses.map((item) => ({ label: item.name, value: item.value }))}
                         value={searchPosId}
-                        onChange={(value) => { 
+                        onChange={(value) => {
                             setSearchPosId(value);
                             setPosType(value);
                         }}
@@ -508,7 +513,7 @@ const RoutineWork: React.FC = () => {
                                                     >
                                                         {t("equipment.deadline")}: {tech.endSpecifiedDate ? moment(tech.endSpecifiedDate).format('DD.MM.YYYY') : "-"}
                                                     </Text>
-                                                    {/* {tech.tags.length > 0 ? (
+                                                    {tech.tags.length > 0 ? (
                                                         <div className="flex flex-wrap gap-2 items-center">
                                                             {tech.tags.slice(0, 3).map((te) => (
                                                                 <Tag key={te.id} color="orange">
@@ -523,8 +528,8 @@ const RoutineWork: React.FC = () => {
                                                                 </Tooltip>
                                                             )}
                                                         </div>
-                                                    ) :  */}
-                                                     <div className="h-5">-</div>
+                                                    ) :
+                                                        <div className="h-5">-</div>}
                                                 </Space>
                                             </Col>
                                             <div

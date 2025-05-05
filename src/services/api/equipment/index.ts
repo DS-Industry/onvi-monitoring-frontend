@@ -256,6 +256,11 @@ type ReadTechTasksResponse = {
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[]
 }
 
 type TechTaskItemResponse = {
