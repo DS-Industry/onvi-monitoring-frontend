@@ -6,16 +6,16 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Button from "@/components/ui/Button/Button";
-import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, updateTechTask } from "@/services/api/equipment";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, readTechTasks, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsTechTasks } from "@/utils/OverFlowTableData";
+import { columnsTechTasks, columnsTechTasksRead } from "@/utils/OverFlowTableData";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import Icon from 'feather-icons-react';
-import { useCity, usePosType } from "@/hooks/useAuthStore";
+import { useCity, usePosType, useSetPosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Select, Tooltip } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
@@ -68,6 +68,23 @@ type TechTaskBody = {
     tagIds: number[];
 }
 
+type ReadTechTasks = {
+    id: number;
+    name: string;
+    posId: number;
+    type: string;
+    status: string;
+    endSpecifiedDate?: Date;
+    startWorkDate?: Date;
+    sendWorkDate?: Date;
+    executorId?: number;
+    tags: {
+        id: number;
+        name: string;
+        code?: string;
+    }[]
+}
+
 interface Item {
     id: number;
     title: string;
@@ -80,9 +97,10 @@ const RoutineWork: React.FC = () => {
     const allCategoriesText = t("warehouse.all");
     // const [taskCount, setTaskCount] = useState(0);
     const posType = usePosType();
+    const setPosType = useSetPosType();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchPosId, setSearchPosId] = useState(posType);
-    const [searchStatus, setSearchStatus] = useState("ACTIVE");
+    const [searchStatus, setSearchStatus] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const city = useCity();
@@ -96,7 +114,12 @@ const RoutineWork: React.FC = () => {
     const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
         posId: searchPosId,
         placementId: city
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: readTechTask, isLoading: techTasksReadLoading } = useSWR([`get-tech-tasks-read`, searchPosId, city, searchStatus], () => readTechTasks({
+        posId: searchPosId,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -280,6 +303,17 @@ const RoutineWork: React.FC = () => {
         }))
         .sort((a, b) => a.id - b.id) || [];
 
+    const techTasksRead: ReadTechTasks[] = readTechTask
+        ?.filter((item: { posId: number }) => item.posId === searchPosId)
+        ?.filter((item: { status: string }) => item.status === searchStatus || searchStatus === "")
+        ?.map((item: ReadTechTasks) => ({
+            ...item,
+            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+            type: t(`tables.${item.type}`),
+            status: t(`tables.${item.status}`)
+        }))
+        .sort((a, b) => a.id - b.id) || [];
+
     const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);
 
     const [selected, setSelected] = useState<number[]>([]);
@@ -339,6 +373,7 @@ const RoutineWork: React.FC = () => {
 
     const handleClear = () => {
         setSearchPosId(posType);
+        setPosType(posType);
     }
 
     const getStatusTag = (status: string) => {
@@ -359,6 +394,8 @@ const RoutineWork: React.FC = () => {
 
         if (result) {
             mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
+            mutate([`get-tech-tasks-read`, searchPosId, city, searchStatus]);
+            setIsModalOpen(false);
         }
     }
 
@@ -381,7 +418,10 @@ const RoutineWork: React.FC = () => {
                         className="w-full sm:w-80"
                         options={poses.map((item) => ({ label: item.name, value: item.value }))}
                         value={searchPosId}
-                        onChange={(value) => setSearchPosId(value)}
+                        onChange={(value) => {
+                            setSearchPosId(value);
+                            setPosType(value);
+                        }}
                     />
                 </div>
                 <div>
@@ -422,11 +462,11 @@ const RoutineWork: React.FC = () => {
             </Modal>
             <Tabs defaultActiveKey="cards">
                 <TabPane tab={t("equipment.card")} key="cards">
-                    {techTasksLoading || isValidating ? (
+                    {techTasksLoading || isValidating || techTasksReadLoading ? (
                         <TableSkeleton columnCount={columnsTechTasks.length} />
-                    ) : techTasks.length > 0 ? (
+                    ) : techTasksRead.length > 0 ? (
                         <div className="flex flex-wrap gap-4 justify-start md:justify-start">
-                            {techTasks.map((tech) => (
+                            {techTasksRead.map((tech) => (
                                 <div
                                     key={tech.id}
                                     className="w-full sm:w-[360px] h-[186px] relative"
@@ -488,7 +528,8 @@ const RoutineWork: React.FC = () => {
                                                                 </Tooltip>
                                                             )}
                                                         </div>
-                                                    ) : <div className="h-5"></div>}
+                                                    ) :
+                                                        <div className="h-5">-</div>}
                                                 </Space>
                                             </Col>
                                             <div
@@ -520,8 +561,8 @@ const RoutineWork: React.FC = () => {
                                             >
                                                 <AntDButton
                                                     type="text"
-                                                    loading={updatingStatus}
-                                                    icon={updatingStatus ? undefined : tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                    loading={tech.id === techId && updatingStatus}
+                                                    icon={tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
                                                     onClick={() => {
                                                         setIsModalOpen(true);
                                                         setTechId(tech.id);
@@ -569,15 +610,16 @@ const RoutineWork: React.FC = () => {
                     )}
                 </TabPane>
                 <TabPane tab={t("equipment.table")} key="table">
-                    {techTasksLoading ? (
-                        <TableSkeleton columnCount={columnsTechTasks.length} />
+                    {techTasksReadLoading ? (
+                        <TableSkeleton columnCount={columnsTechTasksRead.length} />
                     ) :
-                        techTasks.length > 0 ?
+                        techTasksRead.length > 0 ?
                             <>
                                 <div className="mt-8">
                                     <DynamicTable
-                                        data={techTasks}
-                                        columns={columnsTechTasks}
+                                        data={techTasksRead}
+                                        columns={columnsTechTasksRead}
+                                        isCheck={true}
                                         isDisplayEdit={true}
                                         onEdit={handleUpdate}
                                         navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/list/item" }]}
