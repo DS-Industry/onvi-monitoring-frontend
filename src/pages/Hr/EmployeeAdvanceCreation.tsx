@@ -337,6 +337,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
             const result = await addWork();
             if (result) {
                 console.log('API Response:', result);
+                if(result.length === 0)
+                    message.error(t("hr.noAdvance"));
                 setPaymentsData(result.map((res, index) => ({
                     ...res,
                     paymentDate: new Date(),

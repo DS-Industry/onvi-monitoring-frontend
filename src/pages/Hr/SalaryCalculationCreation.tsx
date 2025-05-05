@@ -385,6 +385,8 @@ const SalaryCalculationCreation: React.FC = () => {
             const result = await addWork();
             if (result) {
                 console.log('API Response:', result);
+                if (result.length === 0)
+                    message.error(t("hr.noSalary"));
                 setPaymentsData(result.map((res, index) => ({
                     ...res,
                     paymentDate: new Date(),
@@ -444,7 +446,7 @@ const SalaryCalculationCreation: React.FC = () => {
                 </form>
             </Modal>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                     <div>
                         <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                         <Select

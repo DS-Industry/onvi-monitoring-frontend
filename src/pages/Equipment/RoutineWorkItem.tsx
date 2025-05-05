@@ -9,11 +9,12 @@ import useSWR, { mutate } from "swr";
 import { CalendarOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import Button from "@/components/ui/Button/Button";
-import { Card, Checkbox, List, message, Tag, Tooltip, Upload } from "antd";
+import { Card, Checkbox, List, Tag, Tooltip, Upload } from "antd";
 import Icon from "feather-icons-react";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
+import { TFunction } from "i18next";
 
 interface TechTaskItem {
     id: number;
@@ -22,6 +23,7 @@ interface TechTaskItem {
     group: string;
     code: string;
     value?: string | number | boolean | null;
+    image?: string | null;
 }
 
 interface DynamicInputProps {
@@ -29,6 +31,7 @@ interface DynamicInputProps {
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
     location: any;
+    t: TFunction;
 }
 
 const selectOptions = [
@@ -37,7 +40,7 @@ const selectOptions = [
     { name: "Выше нормы", value: "aboveNormal" },
 ];
 
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location }) => {
+const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location, t }) => {
     switch (type) {
         case "Text":
             return (
@@ -46,7 +49,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     value={value}
                     changeValue={(e) => onChange(e.target.value || "")}
                     classname="w-80"
-                    disabled={location.state?.status === "FINISHED"}
+                    disabled={location.state?.status === t("tables.FINISHED")}
                 />
             );
 
@@ -56,11 +59,10 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     type="number"
                     value={value}
                     changeValue={(e) => {
-                        const newValue = e.target.value ? e.target.value : 0;
-                        onChange(newValue);
+                        onChange(e.target.value);
                     }}
                     classname="w-80"
-                    disabled={location.state?.status === "FINISHED"}
+                    disabled={location.state?.status === t("tables.FINISHED")}
                 />
             );
 
@@ -71,7 +73,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     options={selectOptions}
                     onChange={(selectedValue) => onChange(selectedValue)}
                     classname="w-80"
-                    isDisabled={location.state?.status === "FINISHED"}
+                    isDisabled={location.state?.status === t("tables.FINISHED")}
                 />
             );
 
@@ -137,23 +139,45 @@ const RoutineWorkItem: React.FC = () => {
 
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
         ['create-tech-task'],
-        async (_, { arg }: { arg: { valueData: { itemValueId: number; value: string }[] } }) => {
-            return createTechTaskShape(location.state?.ownerId, arg);
+        async (_, { arg }: {
+            arg: {
+                valueData: { itemValueId: number; value: string }[];
+                files: { itemValueId: number; file: File }[];
+            };
+        }) => {
+            return createTechTaskShape(location.state?.ownerId, arg, arg.files);
         }
     );
-
 
     const [taskValues, setTaskValues] = useState<Record<number, string | number | boolean | null>>({});
 
     useEffect(() => {
-        if (techTaskItems.length > 0) {
-            const initialValues = techTaskItems.reduce((acc, item) => {
-                acc[item.id] = item.value ?? ""; // Default to an empty string
-                return acc;
-            }, {} as Record<number, string | number | boolean | null>);
-            setTaskValues(initialValues);
-        }
-    }, [techTaskItems]);
+        const processFiles = async () => {
+            if (techTaskItems.length > 0) {
+                const initialValues = techTaskItems.reduce((acc, item) => {
+                    acc[item.id] = item.value ?? "";
+                    return acc;
+                }, {} as Record<number, string | number | boolean | null>);
+                setTaskValues(initialValues);
+
+                const fileEntries = await Promise.all(
+                    techTaskItems.map(async (item) => {
+                        if (item.image) {
+                            const file = "https://storage.yandexcloud.net/onvi-business/image/pos/" + techTaskData?.posId + "/techTask/" + techTaskData?.id + `/${item.id}/${item.image}`;
+                            return [item.id, file];
+                        } else {
+                            return [item.id, null];
+                        }
+                    })
+                );
+
+                const initialFiles = Object.fromEntries(fileEntries);
+                setUploadedFiles(initialFiles);
+            }
+        };
+
+        processFiles();
+    }, [techTaskItems, techTaskData]);
 
     const handleChange = (id: number, value: string | number | boolean | null) => {
         setTaskValues((prev) => ({
@@ -162,28 +186,39 @@ const RoutineWorkItem: React.FC = () => {
         }));
     }
 
-    const [imageList, setImageList] = useState<string>("");
+    const [uploadedFiles, setUploadedFiles] = useState<Record<number, File | string | null>>({});
 
-    const handleUpload = ({ file, onSuccess }: any) => {
-        const url = URL.createObjectURL(file);
-        setImageList(url);
+    const handleUpload = (itemId: number) => async (options: any) => {
+        const { file, onSuccess, onError } = options;
 
-        setTimeout(() => {
-            message.success(`${file.name} uploaded successfully.`);
-            onSuccess("ok");
-        }, 1000);
+        try {
+            if (file instanceof File) {
+                setUploadedFiles(prev => ({
+                    ...prev,
+                    [itemId]: file,
+                }));
+                onSuccess?.("ok");
+            } else {
+                throw new Error("Invalid file type");
+            }
+        } catch (err) {
+            onError?.(err as Error);
+        }
     };
 
-    const removeImage = () => {
-        setImageList("");
+    const removeImage = (itemValueId: number) => {
+        setUploadedFiles((prev) => ({
+            ...prev,
+            [itemValueId]: null,
+        }));
     };
 
-    const uploadProps = {
-        customRequest: handleUpload,
-        showUploadList: false,
-        multiple: true,
-        accept: 'image/*',
-    };
+    // const uploadProps = {
+    //     customRequest: handleUpload,
+    //     showUploadList: false,
+    //     multiple: true,
+    //     accept: 'image/*',
+    // };
 
     const handleSubmit = async () => {
         const techTaskValue = Object.entries(taskValues).map(([itemValueId, value]) => ({
@@ -193,6 +228,12 @@ const RoutineWorkItem: React.FC = () => {
 
         const result = await createTechTasks({
             valueData: techTaskValue,
+            files: Object.entries(uploadedFiles)
+                .filter(([, file]) => file instanceof File)
+                .map(([itemValueId, file]) => ({
+                    itemValueId: Number(itemValueId),
+                    file: file as File,
+                })),
         });
 
         if (result) {
@@ -295,19 +336,21 @@ const RoutineWorkItem: React.FC = () => {
                                                                         <div>
                                                                             <div className="text-sm text-text02">{t("equipment.comment")}</div>
                                                                             <div className="flex items-center gap-2">
-                                                                                <Upload {...uploadProps} showUploadList={false}>
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        className="flex items-center justify-center"
-                                                                                        title="Upload"
-                                                                                    >
+                                                                                <Upload
+                                                                                    customRequest={handleUpload(techItem.id)}
+                                                                                    showUploadList={false}
+                                                                                    multiple={false}
+                                                                                    accept="image/*"
+                                                                                    disabled={location.state.status === t("tables.FINISHED")}
+                                                                                >
+                                                                                    <button type="button" className="flex items-center justify-center" title="Upload">
                                                                                         <FileImageOutlined
                                                                                             className="text-primary02"
                                                                                             style={{ fontSize: "20px", marginTop: "4px" }}
                                                                                         />
                                                                                     </button>
                                                                                 </Upload>
-                                                                                {location.state.status === "FINISHED" ? (
+                                                                                {location.state.status === t("tables.FINISHED") ? (
                                                                                     <div>
                                                                                         {techItem.type === "SelectList"
                                                                                             ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name
@@ -319,25 +362,28 @@ const RoutineWorkItem: React.FC = () => {
                                                                                         value={taskValues[techItem.id]}
                                                                                         onChange={(value) => handleChange(techItem.id, value)}
                                                                                         location={location}
+                                                                                        t={t}
                                                                                     />
                                                                                 )}
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                {imageList.length > 0 && (
+                                                                {uploadedFiles[techItem.id] && (
                                                                     <div className="flex flex-wrap gap-4 pt-4">
-                                                                        <div
-                                                                            className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group"
-                                                                        >
+                                                                        <div className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group">
                                                                             <img
-                                                                                src={imageList}
-                                                                                alt={`uploaded`}
+                                                                                src={
+                                                                                    uploadedFiles[techItem.id] instanceof File
+                                                                                        ? URL.createObjectURL(uploadedFiles[techItem.id] as File)
+                                                                                        : uploadedFiles[techItem.id] as string
+                                                                                }
+                                                                                alt="uploaded"
                                                                                 className="w-full h-full object-cover"
                                                                                 loading="lazy"
                                                                             />
                                                                             <button
-                                                                                onClick={() => removeImage()}
+                                                                                onClick={() => removeImage(techItem.id)}
                                                                                 className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
                                                                             >
                                                                                 <CloseOutlined style={{ fontSize: '12px' }} />
@@ -345,6 +391,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                         </div>
                                                                     </div>
                                                                 )}
+
                                                             </div>
                                                         </List.Item>
                                                     )}
@@ -355,7 +402,7 @@ const RoutineWorkItem: React.FC = () => {
                                 )}
                             />)}
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    {location.state.status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
                             type="outline"
@@ -366,7 +413,7 @@ const RoutineWorkItem: React.FC = () => {
                             isLoading={isMutating}
                             handleClick={handleSubmit}
                         />
-                    </div>
+                    </div>)}
                 </div>
             )}
         </div>

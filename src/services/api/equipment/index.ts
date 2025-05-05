@@ -287,6 +287,7 @@ type TechTaskShapeResponse = {
         group: string;
         code: string;
         value?: string | null;
+        image?: string | null;
     }[];
     tags: {
         id: number;
@@ -299,8 +300,9 @@ type TechTaskShapeBody = {
     valueData: {
         itemValueId: number;
         value: string;
-    }[]
-}
+    }[];
+};
+
 
 type ChemicalParams = {
     dateStart: string;
@@ -466,10 +468,31 @@ export async function getTechTaskShapeItem(id: number): Promise<TechTaskShapeRes
     return response.data;
 }
 
-export async function createTechTaskShape(id: number, body: TechTaskShapeBody): Promise<TechTaskResponse> {
-    console.log(body);
-    const response: AxiosResponse<TechTaskResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK + `/${id}`, body);
-    console.log(response.data);
+export async function createTechTaskShape(
+    id: number,
+    body: TechTaskShapeBody,
+    files: { itemValueId: number; file: File }[]
+): Promise<TechTaskResponse> {
+    const formData = new FormData();
+
+    // Append JSON valueData
+    formData.append('valueData', JSON.stringify(body.valueData));
+
+    // Append files with raw itemValueId as key
+    files?.forEach(({ itemValueId, file }) => {
+        formData.append(`${itemValueId}`, file);
+    });
+
+    const response: AxiosResponse<TechTaskResponse> = await api.post(
+        `${TECHTASKS.CREATE_TECH_TASK}/${id}`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+
     return response.data;
 }
 
