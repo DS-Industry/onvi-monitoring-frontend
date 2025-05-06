@@ -52,11 +52,14 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
+    const cities: { name: string; value: number | string }[] = [
+        { name: t("analysis.all"), value: '*' },
+        ...(cityData?.map((item) => ({ name: item.city, value: item.id })) || [])
+    ];
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: placementId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const organizations: { label: string; value: number; }[] = organizationData?.map((item) => ({ label: item.name, value: item.id })) || [];
+    const organizations: { label: string; value: number | string }[] = organizationData?.map((item) => ({ label: item.name, value: item.id })) || [];
 
     const placementId = useCity();
     const setPlacementId = useSetCity();

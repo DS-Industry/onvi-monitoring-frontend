@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { Select, Spin } from 'antd';
+import { SmileOutlined } from '@ant-design/icons';
 import DropdownIcon from '@/assets/icons/dropdown.svg?react';
-import { Spinner } from '@material-tailwind/react';
-import Check from 'feather-icons-react';
-import { SmileOutlined } from "@ant-design/icons";
 
 type Option = {
     name: any;
@@ -39,10 +38,8 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     isLoading = false,
     isMultiSelect = false,
     showMoreButton = false,
-    isSelectable = false,
     inputType = 'forth',
     title,
-    type,
     classname,
     error = false,
     helperText,
@@ -50,186 +47,155 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     classnameOptions
 }) => {
     const [isFocused, setIsFocused] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedValues, setSelectedValues] = useState<string[]>([]);
-    const [selectedOption, setSelectedOption] = useState<Option | null>(null);
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const hasValue = value !== undefined && value !== null && value !== '' && value !== 0;
+    const isLabelFloating = isFocused || hasValue;
 
-    const isLabelFloating = isFocused || (value !== undefined && value !== null && value !== '' && value !== 0);
-    const handleToggleDropdown = () => {
-        if (!isDisabled && !isLoading) {
-            const rect = dropdownRef.current?.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - (rect?.bottom || 0);
-            const spaceAbove = rect?.top || 0;
-            setDropdownPosition(spaceBelow > spaceAbove ? 'bottom' : 'top');
-            setIsOpen((prevState) => !prevState);
-        }
+    const handleDropdownVisibleChange = (open: boolean) => {
+        if (!open) return;
+
+        const rect = dropdownRef.current?.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - (rect?.bottom || 0);
+        const spaceAbove = rect?.top || 0;
+        setDropdownPosition(spaceBelow > spaceAbove ? 'bottom' : 'top');
     };
 
-    const handleSelectOption = (option: Option) => {
-        setSelectedOption(option);
-        if (isMultiSelect) {
-            const updatedValues = selectedValues.includes(option.value)
-                ? selectedValues.filter(val => val !== option.value)
-                : [...selectedValues, option.value];
-            setSelectedValues(updatedValues);
-            if (onChange)
-                onChange(updatedValues.join(', '));
-        } else {
-            if (onChange)
-                onChange(option.value);
-            setIsOpen(false);
-        }
-    };
+    const allOptions = options;
 
-    const handleClearSelection = () => {
-        setSelectedOption(null);
-        if (onChange) {
-            onChange('');
-        }
-        setSelectedValues([]);
-    };
-
-    useEffect(() => {
-        if (value === '') {
-            handleClearSelection();
-        }
-    }, [value]);
-
-    useEffect(() => {
-        if (isMultiSelect && Array.isArray(value)) {
-            setSelectedValues(value);
-        } else if (!isMultiSelect) {
-            const matchedOption = options.find(option => option.value === value);
-            setSelectedOption(matchedOption || null);
-        }
-    }, [value, options, isMultiSelect]);
-
-
-
-    const className = `w-full px-3 cursor-pointer ${inputType == 'primary' ? "pt-3 pb-1" : (inputType == 'secondary') ? "py-1" : (inputType == 'tertiary') ? "py-0" : "py-2"} ${isDisabled ? "bg-disabledFill" : "bg-background02"} rounded-md caret-primary02 text-black border outline-none  ${isDisabled ? "outline-none" : (error ? "border-errorFill" : isFocused ? "border-primary02" : "border-primary02 border-opacity-30")} ${isDisabled ? "hover:outline-none" : "hover:border-primary02"}`
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const selectedValues = isMultiSelect
+        ? Array.isArray(value)
+            ? value.map((val) => {
+                const opt = allOptions.find((o) => o.value === val);
+                return opt ? { label: opt.name, value: opt.value } : { label: val, value: val };
+            })
+            : []
+        : (() => {
+            const opt = allOptions.find((o) => o.value === value);
+            return opt ? [{ label: opt.name, value: opt.value }] : value ? [{ label: value, value: value }] : [];
+        })();
 
     return (
         <div ref={dropdownRef} className={`relative ${classname}`}>
-            {title && title[title?.length - 1] === "*" ? <label className="text-sm text-text02">{title.substring(0, title.length - 1)}<label className="text-textError">*</label></label> : <label className="text-sm text-text02">{title}</label>}
-            <div className='relative'>
-                <label
-                    className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
-                        ${inputType == 'tertiary' ? 'top-0' : ""}
-                        ${isDisabled ? "text-text03 invisible"
-                            : isLabelFloating && inputType == 'primary'
-                                ? "text-text02 text-[10px] font-normal"
-                                : (inputType == 'secondary' || inputType == 'tertiary' || inputType == 'forth') && isLabelFloating
-                                    ? "text-base invisible"
-                                    : "text-text02 visible"}
-                                                ${inputType == 'primary' && isLabelFloating ? "-top-[0.05rem] pt-1" : (inputType == 'secondary') ? "top-1" : (inputType == 'tertiary') ? "top-0" : "top-2"}
-                        ${error ? "text-errorFill" : ""}`}
-                >
-                    {label}
+            {title && (
+                <label className="text-sm text-text02">
+                    {title.endsWith('*') ? (
+                        <>
+                            {title.slice(0, -1)}
+                            <span className="text-textError">*</span>
+                        </>
+                    ) : (
+                        title
+                    )}
                 </label>
-                <input
-                    value={
-                        isMultiSelect
-                            ? options
-                                .filter(option => selectedValues.includes(option.value))
-                                .map(option => option.name)
-                                .join(', ')
-                            : selectedOption
-                                ? selectedOption.name
-                                : ''
-                    }
-                    onClick={handleToggleDropdown} // Toggle dropdown when clicking the input
+            )}
+
+            <div className="relative mt-1">
+            {label && (
+                    <label
+                        className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out z-10
+              ${isLabelFloating && inputType === "primary"
+                                ? "text-text02 text-xs font-normal -top-0 pt-1"
+                                : inputType === "primary" && !isLabelFloating
+                                    ? "text-text02 top-2"
+                                    : inputType === "secondary" && isLabelFloating
+                                        ? "text-base invisible"
+                                        : inputType === "secondary" && !isLabelFloating
+                                            ? "text-text02 visible top-1"
+                                            : inputType === "tertiary" && isLabelFloating
+                                                ? "text-base invisible"
+                                                : inputType === "tertiary" && !isLabelFloating
+                                                    ? "text-text02 visible top-0"
+                                                    : isLabelFloating
+                                                        ? "text-base invisible"
+                                                        : "text-text02 visible top-2"
+                            }
+              ${isDisabled && isLabelFloating ? "invisible" : ""}
+              ${error ? "text-errorFill" : ""}`}
+                    >
+                        {label}
+                    </label>
+                )}
+                <Select
+                    getPopupContainer={() => document.body}
+                    labelInValue
+                    value={isMultiSelect ? selectedValues : selectedValues.length > 0 ? selectedValues[0] : undefined}
+                    onChange={(val) => {
+                        if (isMultiSelect) {
+                            const values = (val as { value: Option }[]).map((v) => v.value);
+                            onChange?.(values);
+                        } else {
+                            onChange?.((val as { value: Option })?.value);
+                        }
+                    }}
+                    mode={isMultiSelect ? 'multiple' : undefined}
                     disabled={isDisabled}
-                    className={`${className}`}
-                    readOnly
-                    style={{ paddingRight: '2.5rem' }}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-                    type={type}
+                    onDropdownVisibleChange={handleDropdownVisibleChange}
+                    variant="borderless"
+                    loading={isLoading}
+                    dropdownStyle={{ zIndex: 2000 }}
+                    popupClassName={`max-h-32 overflow-y-auto border border-primary02 border-opacity-30 ${classnameOptions}`}
+                    className={`w-full ${inputType === 'primary'
+                        ? 'pt-3 pb-1'
+                        : inputType === 'secondary'
+                            ? 'py-1'
+                            : inputType === 'tertiary'
+                                ? 'py-0'
+                                : 'py-2'
+                        } ${isDisabled ? 'bg-disabledFill' : 'bg-background02'} rounded-md text-black border ${error ? 'border-errorFill' : 'border-primary02 border-opacity-30'
+                        }`}
+                    suffixIcon={
+                        isLoading ? (
+                            <Spin size="small" />
+                        ) : (
+                            <DropdownIcon
+                                className={`w-5 h-5 text-text02 transition-transform`}
+                                style={{
+                                    transform: dropdownPosition === 'bottom' ? 'rotate(0deg)' : 'rotate(180deg)'
+                                }}
+                            />
+                        )
+                    }
+                    options={allOptions.map((opt) => ({
+                        label: renderOption ? (
+                            renderOption(opt)
+                        ) : isMultiSelect ? (
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedValues.some((v) => v.value === opt.value)}
+                                    className="mr-2 h-4 w-4 border border-text02 rounded-sm accent-primary02"
+                                    readOnly
+                                />
+                                {opt.name}
+                            </div>
+                        ) : (
+                            opt.name
+                        ),
+                        value: opt.value
+                    }))}
+                    dropdownRender={(menu) => (
+                        <>
+                            {options.length === 0 ? (
+                                <div className="p-2 flex flex-col items-center justify-center">
+                                    <SmileOutlined style={{ fontSize: '24px' }} />
+                                    <div>Не найдено</div>
+                                </div>
+                            ) : (
+                                menu
+                            )}
+                            {showMoreButton && (
+                                <div className="border-t border-primary02 text-primary02 px-4 py-2 cursor-pointer hover:bg-text02">
+                                    Show More
+                                </div>
+                            )}
+                        </>
+                    )}
                 />
-
-                {/* Right dropdown icon */}
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    {isLoading ? (
-                        <Spinner className="w-5 h-5 animate-spin text-primary02" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleToggleDropdown} // Make the icon clickable
-                            className="focus:outline-none"
-                        >
-                            <DropdownIcon className={`w-5 h-5 text-gray-400 ${isOpen ? 'rotate-180' : 'rotate-0'} transition-transform`} />
-                        </button>
-                    )}
-                </div>
             </div>
-            {isOpen && !isLoading && (
-                <div
-                    className={`absolute ${dropdownPosition === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'} left-0 right-0 bg-white border border-primary02 text-primary02 rounded-md shadow-lg z-20`}
-                >
-                    {options.length === 0 ? (
-                        <div className="p-2 flex flex-col items-center justify-center">
-                            <SmileOutlined style={{ fontSize: "24px" }} />
-                            <div>Не найдено</div>
-                        </div>
-                    ) : (
-                        <ul className={`py-1 max-h-32 overflow-y-auto ${classnameOptions}`}>
-                            {options.map(option => (
-                                <li
-                                    key={option.value}
-                                    className={`px-2 py-1 cursor-pointer ${(value == option.value) ? "text-primary02_Hover" : "text-black"} hover:text-primary02_Hover hover:bg-background06 flex justify-between`}
-                                    onClick={() => handleSelectOption(option)}
-                                >
-                                    {renderOption ? renderOption(option) :
-                                        isMultiSelect ? (
-                                            <div className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedValues.includes(option.value)}
-                                                    style={{ accentColor: 'blue' }}
-                                                    className="mr-2 h-4 w-4 border border-gray-300 rounded-sm accent-primary02"
-                                                    readOnly
-                                                />
-                                                {option.name}
-                                            </div>
-                                        ) : (
-                                            option.name
-                                        )}
 
-                                    {isSelectable && !isMultiSelect && (
-                                        value === option.value ? (
-                                            <div>
-                                                <Check icon='check' className="w-5 h-5 text-primary02" />
-                                            </div>
-                                        ) : null
-                                    )}
-
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    {showMoreButton && (
-                        <button className="w-full text-left py-2 px-4 border-t border-primary02 text-blue-500 cursor-pointer hover:bg-gray-100">
-                            Show More
-                        </button>
-                    )}
-                </div>
-            )}
             {helperText && (
                 <div className={`text-[11px] font-normal ${error ? 'text-errorFill' : 'text-text02'}`}>
                     {helperText}

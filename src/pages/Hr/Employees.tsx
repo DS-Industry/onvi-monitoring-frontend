@@ -93,23 +93,13 @@ const Employees: React.FC = () => {
 
     const organizations: { name: string; value: number | string; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
 
-    const corganizationsAllObj = {
+    const allObj = {
         name: allCategoriesText,
         value: "*",
         label: allCategoriesText,
     };
-
-    organizations.unshift(corganizationsAllObj);
 
     const positions: { name: string; value: number | string; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
-
-    const categoryAllObj = {
-        name: allCategoriesText,
-        value: "*",
-        label: allCategoriesText,
-    };
-
-    positions.unshift(categoryAllObj);
 
     const { data: workersData, isLoading: workersLoading, mutate: positionsMutating } = useSWR([`get-workers`], () => getWorkers({
         placementId: dataFilter.placementId,
@@ -299,7 +289,7 @@ const Employees: React.FC = () => {
                     <Select
                         className="w-full sm:w-80"
                         placeholder={t("warehouse.notSel")}
-                        options={positions}
+                        options={[...positions, allObj]}
                         value={positionId}
                         onChange={(value) => setPositionId(value)}
                         dropdownRender={(menu) => (
@@ -314,7 +304,7 @@ const Employees: React.FC = () => {
                     <Select
                         className="w-full sm:w-80"
                         placeholder={t("warehouse.notSel")}
-                        options={organizations}
+                        options={[...organizations, allObj]}
                         value={organizationId}
                         onChange={(value) => setOrganizationId(value)}
                         dropdownRender={(menu) => (

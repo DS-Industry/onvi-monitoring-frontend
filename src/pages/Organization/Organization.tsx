@@ -272,7 +272,7 @@ const Organization: React.FC = () => {
                                 { name: "18%", value: "Vat18" },
                                 { name: "20%", value: "Vat20" }
                             ]}
-                            inputType="primary"
+                            inputType="secondary"
                             classname="w-80"
                             {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
                             value={formData.rateVat}

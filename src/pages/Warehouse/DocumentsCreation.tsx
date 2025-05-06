@@ -194,7 +194,7 @@ const DocumentsCreation: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" && !isNaN(Number(warehouseId)) ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
