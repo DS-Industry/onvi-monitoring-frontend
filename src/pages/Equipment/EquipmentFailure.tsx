@@ -142,8 +142,6 @@ const EquipmentFailure: React.FC = () => {
         value: "*"
     };
 
-    poses.unshift(posesAllObj);
-
     const workers: { name: string; value: number; }[] = (workerData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const programs: { name: string; value: number; }[] = formData.posId === 0 ? [] : (allProgramsData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
@@ -234,10 +232,10 @@ const EquipmentFailure: React.FC = () => {
                 startDate: formatDateTime(incidentToEdit.startDate),
                 finishDate: formatDateTime(incidentToEdit.finishDate),
                 objectName: incidentToEdit.objectName,
-                equipmentKnotId: Number(equipmentKnots.find((equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot)?.value),
-                incidentNameId: Number(problemNames.find((incidentName) => incidentName.name === incidentToEdit.incidentName)?.value),
-                incidentReasonId: Number(reasons.find((reason) => reason.name === incidentToEdit.incidentReason)?.value),
-                incidentSolutionId: Number(solutions.find((solution) => solution.name === incidentToEdit.incidentSolution)?.value),
+                equipmentKnotId: equipmentKnots.find((equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot) ? Number(equipmentKnots.find((equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot)?.value) : 0,
+                incidentNameId: problemNames.find((incidentName) => incidentName.name === incidentToEdit.equipmentKnot) ? Number(problemNames.find((incidentName) => incidentName.name === incidentToEdit.incidentName)?.value) : 0,
+                incidentReasonId: reasons.find((reason) => reason.name === incidentToEdit.equipmentKnot) ? Number(reasons.find((reason) => reason.name === incidentToEdit.incidentReason)?.value) : 0,
+                incidentSolutionId: solutions.find((solution) => solution.name === incidentToEdit.equipmentKnot) ? Number(solutions.find((solution) => solution.name === incidentToEdit.incidentSolution)?.value) : 0,
                 downtime: incidentToEdit.downtime === "Нет" ? 0 : 1,
                 comment: incidentToEdit.comment,
                 carWashDeviceProgramsTypeId: incidentToEdit.programId,
@@ -286,7 +284,7 @@ const EquipmentFailure: React.FC = () => {
         <>
             <FilterMonitoring
                 count={incidents.length}
-                posesSelect={poses}
+                posesSelect={[...poses, posesAllObj]}
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
             />
