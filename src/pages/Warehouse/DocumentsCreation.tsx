@@ -18,6 +18,8 @@ import useSWRMutation from "swr/mutation";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { Select, Skeleton } from "antd";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -802,10 +804,9 @@ const DocumentsCreation: React.FC = () => {
                                 </div>
                                 <div className="flex">
                                     <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                                    <Input
-                                        type={"date"}
-                                        value={selectedDate}
-                                        changeValue={(e) => setSelectedDate(e.target.value)}
+                                    <DateInput
+                                        value={selectedDate ? dayjs(selectedDate) : null}
+                                        changeValue={(date) => setSelectedDate(date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                                     />
                                 </div>
                             </div>

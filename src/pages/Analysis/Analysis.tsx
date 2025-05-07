@@ -97,7 +97,7 @@ const Analysis: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.category")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         value={cat}
                         onChange={(value) => setCat(value)}
                         options={[

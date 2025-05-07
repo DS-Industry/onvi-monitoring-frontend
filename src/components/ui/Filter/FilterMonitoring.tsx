@@ -144,7 +144,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     <div>
                         <div className="text-sm text-text02">{t("pos.city")}</div>
                         <Select
-                            className="w-full sm:w-80"
+                            className="w-full sm:w-80 h-10"
                             placeholder="Город"
                             options={cities}
                             value={city}
@@ -173,7 +173,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     <div>
                         <div className="text-sm text-text02">{t("analysis.posId")}</div>
                         <Select
-                            className="w-full sm:w-80"
+                            className="w-full sm:w-80 h-10"
                             placeholder="Выберите объект"
                             options={posesSelect.map((item) => ({ label: item.name, value: item.value }))}
                             value={posType}
@@ -190,7 +190,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     <div>
                         <div className="text-sm text-text02">{t("equipment.user")}</div>
                         <Select
-                            className="w-full sm:w-80"
+                            className="w-full sm:w-80 h-10"
                             placeholder="Выберите пользователя"
                             options={usersSelect.map((item) => ({ label: item.name, value: item.value }))}
                             dropdownRender={(menu) => (
@@ -205,7 +205,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     <div>
                         <div className="text-sm text-text02">{t("analysis.deviceId")}</div>
                         <Select
-                            className="w-full sm:w-80"
+                            className="w-full sm:w-80 h-10"
                             placeholder="Выберите устройство"
                             options={devicesSelect.map((item) => ({ label: item.name, value: item.value }))}
                             value={deviceId}
@@ -222,7 +222,7 @@ const FilterMonitoring: React.FC<Props> = ({
                     <div>
                         <div className="text-sm text-text02">{t("analysis.warehouseId")}</div>
                         <Select
-                            className="w-full sm:w-80"
+                            className="w-full sm:w-80 h-10"
                             placeholder="Введите название склада"
                             options={wareHousesSelect.map((item) => ({ label: item.name, value: item.value }))}
                             value={warehouseId}
@@ -238,7 +238,7 @@ const FilterMonitoring: React.FC<Props> = ({
                 <div>
                     <div className="text-sm text-text02">{t("tables.lines")}</div>
                     <Select
-                        className="w-24"
+                        className="w-24 h-10"
                         options={[{ label: 15, value: 15 }, { label: 50, value: 50 }, { label: 100, value: 100 }, { label: 120, value: 120 }]}
                         value={pageNumber}
                         onChange={setPageNumber}

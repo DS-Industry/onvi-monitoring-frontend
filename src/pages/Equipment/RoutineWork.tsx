@@ -9,7 +9,7 @@ import Button from "@/components/ui/Button/Button";
 import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTasks, readTechTasks, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsTechTasks, columnsTechTasksRead } from "@/utils/OverFlowTableData";
+import { columnsTechTasks } from "@/utils/OverFlowTableData";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -27,6 +27,8 @@ import { useNavigate } from "react-router-dom";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import moment from "moment";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
@@ -294,7 +296,7 @@ const RoutineWork: React.FC = () => {
 
     const techTasks: TechTasks[] = data
         ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.filter((item: { status: string }) => item.status === searchStatus)
+        ?.filter((item: { status: string }) => item.status === searchStatus || searchStatus === "")
         ?.map((item: TechTasks) => ({
             ...item,
             type: t(`tables.${item.type}`),
@@ -362,6 +364,7 @@ const RoutineWork: React.FC = () => {
     const handleSelectionTagChange = (selected: typeof options) => {
         console.log("Selected Options:", selected);
         const selectedIds = selected.map((sel) => sel.id);
+        setFormData((prev) => ({...prev, tagIds: selectedIds}));
         setTagIds(selectedIds);
     };
 
@@ -422,6 +425,7 @@ const RoutineWork: React.FC = () => {
                             setSearchPosId(value);
                             setPosType(value);
                         }}
+                        size="large"
                     />
                 </div>
                 <div>
@@ -436,6 +440,7 @@ const RoutineWork: React.FC = () => {
                         ]}
                         value={searchStatus}
                         onChange={(value) => setSearchStatus(value)}
+                        size="large"
                     />
                 </div>
             </Filter>
@@ -610,15 +615,15 @@ const RoutineWork: React.FC = () => {
                     )}
                 </TabPane>
                 <TabPane tab={t("equipment.table")} key="table">
-                    {techTasksReadLoading ? (
-                        <TableSkeleton columnCount={columnsTechTasksRead.length} />
+                    {techTasksLoading ? (
+                        <TableSkeleton columnCount={columnsTechTasks.length} />
                     ) :
                         techTasksRead.length > 0 ?
                             <>
                                 <div className="mt-8">
                                     <DynamicTable
-                                        data={techTasksRead}
-                                        columns={columnsTechTasksRead}
+                                        data={techTasks}
+                                        columns={columnsTechTasks}
                                         isCheck={true}
                                         isDisplayEdit={true}
                                         onEdit={handleUpdate}
@@ -675,7 +680,6 @@ const RoutineWork: React.FC = () => {
                     />
                     <DropdownInput
                         title={`${t("routine.type")} *`}
-                        type={""}
                         label={t("warehouse.notSel")}
                         classname="w-64"
                         options={[
@@ -704,12 +708,11 @@ const RoutineWork: React.FC = () => {
                         value={formData.period}
                         changeValue={(e) => handleInputChange('period', e.target.value)}
                     />
-                    <Input
-                        type={"date"}
+                    <DateInput
                         title={`${t("equipment.start")} *`}
                         classname="w-40"
-                        value={formData.startDate}
-                        changeValue={(e) => handleInputChange('startDate', e.target.value)}
+                        value={formData.startDate ? dayjs(formData.startDate) : null}
+                        changeValue={(date) => handleInputChange('startDate', date ? date.format('YYYY-MM-DD') : "")}
                         error={!!errors.startDate}
                         {...register('startDate', { required: !isEditMode && 'Start Date is required' })}
                         helperText={errors.startDate?.message || ''}
@@ -717,18 +720,17 @@ const RoutineWork: React.FC = () => {
                     />
                     <div>
                         <div className="text-sm text-text02">{t("equipment.end")}</div>
-                        <Input
-                            type={"date"}
+                        <DateInput
                             classname="w-40"
-                            value={formData.endSpecifiedDate}
-                            changeValue={(e) => handleInputChange('endSpecifiedDate', e.target.value)}
+                            value={formData.endSpecifiedDate ? dayjs(formData.endSpecifiedDate) : null}
+                            changeValue={(date) => handleInputChange('endSpecifiedDate', date ? date.format('YYYY-MM-DD') : "")}
                             error={!!errors.endSpecifiedDate}
                             {...register('endSpecifiedDate')}
                         />
                     </div>
                     <MultiInput
                         options={options}
-                        value={tagIds}
+                        value={formData.tagIds}
                         onChange={handleSelectionTagChange}
                         searchValue={searchValue}
                         setSearchValue={setSearchValue}

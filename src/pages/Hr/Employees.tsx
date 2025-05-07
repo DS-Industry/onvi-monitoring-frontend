@@ -21,6 +21,8 @@ import { Select, Input as AntInput } from "antd";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useLocation } from "react-router-dom";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type Worker = {
     name: string;
@@ -287,7 +289,7 @@ const Employees: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("roles.job")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         placeholder={t("warehouse.notSel")}
                         options={[...positions, allObj]}
                         value={positionId}
@@ -302,7 +304,7 @@ const Employees: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         placeholder={t("warehouse.notSel")}
                         options={[...organizations, allObj]}
                         value={organizationId}
@@ -317,7 +319,7 @@ const Employees: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("hr.full")}</div>
                     <AntInput
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         placeholder={t("hr.enter")}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -419,11 +421,10 @@ const Employees: React.FC = () => {
                     />
                     <div>
                         <div className="text-sm text-text02">{t("hr.date")}</div>
-                        <Input
-                            type={"date"}
+                        <DateInput
                             classname="w-40"
-                            value={formData.startWorkDate}
-                            changeValue={(e) => handleInputChange('startWorkDate', e.target.value)}
+                            value={formData.startWorkDate ? dayjs(formData.startWorkDate) : null}
+                            changeValue={(date) => handleInputChange('startWorkDate', date ? date.format('YYYY-MM-DD') : "")}
                             {...register('startWorkDate')}
                         />
                     </div>
@@ -565,13 +566,11 @@ const Employees: React.FC = () => {
                         changeValue={(e) => handleInputChange('passportExtradition', e.target.value)}
                         {...register('passportExtradition')}
                     />
-                    <Input
-                        type="date"
+                    <DateInput
                         title={t("hr.passportDateIssue")}
                         classname="w-40"
-                        inputType="secondary"
-                        value={formData.passportDateIssue}
-                        changeValue={(e) => handleInputChange('passportDateIssue', e.target.value)}
+                        value={formData.passportDateIssue ? dayjs(formData.passportDateIssue) : null}
+                        changeValue={(date) => handleInputChange('passportDateIssue', date ? date.format('YYYY-MM-DD') : "")}
                         {...register('passportDateIssue')}
                     />
                     <Input

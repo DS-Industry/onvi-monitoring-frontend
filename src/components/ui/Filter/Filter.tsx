@@ -136,6 +136,7 @@ const Filter: React.FC<Props> = ({
                 if (setSearch)
                   setSearch(e.target.value);
               }}
+              size="large"
             />
           </div>
         }
@@ -150,7 +151,7 @@ const Filter: React.FC<Props> = ({
           <div>
             <div className="text-sm text-text02">{t("pos.city")}</div>
             <Select
-              className="w-full sm:w-80"
+              className="w-full sm:w-80 h-10"
               placeholder="Город"
               options={cities}
               value={address}
@@ -162,7 +163,7 @@ const Filter: React.FC<Props> = ({
         {!hidePage && (<div>
           <div className="text-sm text-text02">{t("tables.lines")}</div>
           <Select
-            className="w-24"
+            className="w-24 h-10"
             options={[{ label: 15, value: 15 }, { label: 50, value: 50 }, { label: 100, value: 100 }, { label: 120, value: 120 }]}
             value={pageNumber}
             onChange={setPageNumber}

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import SalyImage from "@/assets/NoEquipment.png"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -17,6 +16,8 @@ import useSWRMutation from "swr/mutation";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import DateTimeInput from "@/components/ui/Input/DateTimeInput";
+import dayjs from "dayjs";
 
 
 interface Incident {
@@ -341,32 +342,29 @@ const EquipmentFailure: React.FC = () => {
                         error={!!errors.workerId}
                         helperText={errors.workerId?.message}
                     />
-                    <Input
-                        type={"datetime-local"}
+                    <DateTimeInput
                         title={t("equipment.call")}
-                        classname="w-44"
-                        value={formData.appearanceDate}
-                        changeValue={(e) => handleInputChange('appearanceDate', e.target.value)}
+                        classname="w-64"
+                        value={formData.appearanceDate ? dayjs(formData.appearanceDate) : null}
+                        changeValue={(date) => handleInputChange("appearanceDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.appearanceDate}
                         {...register('appearanceDate', { required: !isEditMode && 'Appearance Date is required' })}
                         helperText={errors.appearanceDate?.message || ''}
                     />
-                    <Input
-                        type={"datetime-local"}
+                    <DateTimeInput
                         title={t("equipment.start")}
-                        classname="w-44"
-                        value={formData.startDate}
-                        changeValue={(e) => handleInputChange('startDate', e.target.value)}
+                        classname="w-64"
+                        value={formData.startDate ? dayjs(formData.startDate) : null}
+                        changeValue={(date) => handleInputChange("startDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.startDate}
                         {...register('startDate', { required: !isEditMode && 'Start Date is required' })}
                         helperText={errors.startDate?.message || ''}
                     />
-                    <Input
-                        type={"datetime-local"}
+                    <DateTimeInput
                         title={t("equipment.end")}
-                        classname="w-44"
-                        value={formData.finishDate}
-                        changeValue={(e) => handleInputChange('finishDate', e.target.value)}
+                        classname="w-64"
+                        value={formData.finishDate ? dayjs(formData.finishDate) : null}
+                        changeValue={(date) => handleInputChange("finishDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.finishDate}
                         {...register('finishDate', { required: !isEditMode && 'Finish Date is required' })}
                         helperText={errors.finishDate?.message || ''}

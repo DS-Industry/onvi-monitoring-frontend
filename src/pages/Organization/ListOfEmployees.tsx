@@ -19,6 +19,8 @@ import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
 import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type Role = {
     name: string;
@@ -281,12 +283,11 @@ const ListOfEmployees: React.FC = () => {
                             changeValue={(e) => handleInputChange('middlename', e.target.value)}
                             {...register('middlename')}
                         />
-                        <Input
-                            type="date"
+                        <DateInput
                             title={`${t("register.date")}*`}
                             classname="w-40"
-                            value={formData.birthday}
-                            changeValue={(e) => handleInputChange('birthday', e.target.value)}
+                            value={formData.birthday ? dayjs(formData.birthday) : null}
+                            changeValue={(date) => handleInputChange('birthday', date ? date.format('YYYY-MM-DD') : "")}
                             error={!!errors.birthday}
                             {...register('birthday', {
                                 required: 'Birthday is required'
@@ -356,7 +357,6 @@ const ListOfEmployees: React.FC = () => {
                             helperText={errors.roleId?.message}
                         />
                         <DropdownInput
-                            type="text"
                             title={`${t("roles.position")}*`}
                             options={[
                                 { name: "Оператор", value: "Operator" }

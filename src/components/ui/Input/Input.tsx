@@ -34,7 +34,6 @@ const Input: React.FC<InputProps> = ({
     classname,
     title,
     id,
-    placeholder,
     defaultValue,
 }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -89,21 +88,20 @@ const Input: React.FC<InputProps> = ({
     const getInputSizeStyles = () => {
         switch (inputType) {
             case "primary":
-                return "pt-2 pb-1";
+                return "py-2";
             case "secondary":
-                return "py-1";
+                return "py-2";
             case "tertiary":
-                return "py-0";
+                return "py-2";
             default: // forth
                 return "py-2";
         }
     };
 
     const getBorderColor = () => {
-        if (disabled) return "border-disabledFill";
         if (error) return "border-errorFill";
         if (isFocused) return "border-primary02";
-        return "border-primary02 border-opacity-30";
+        return "border";
     };
 
     const containerClassName = `relative ${classname || ""}`;
@@ -113,7 +111,6 @@ const Input: React.FC<InputProps> = ({
     w-full 
     px-3 
     ${getInputSizeStyles()} 
-    ${disabled ? "bg-gray-100" : "bg-white"} 
     rounded-md 
     text-black 
     border 
@@ -180,7 +177,7 @@ const Input: React.FC<InputProps> = ({
             )}
 
             <div className="relative">
-                {label && (
+                {/* {label && (
                     <label
                         className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out z-10
               ${isLabelFloating && inputType === "primary"
@@ -204,7 +201,7 @@ const Input: React.FC<InputProps> = ({
                     >
                         {label}
                     </label>
-                )}
+                )} */}
                 <div className={inputWrapperClass}>
                     <AntInput
                         id={inputId}
@@ -217,7 +214,7 @@ const Input: React.FC<InputProps> = ({
                         }}
                         disabled={disabled}
                         defaultValue={defaultValue}
-                        placeholder={isLabelFloating ? placeholder : ""}
+                        placeholder={isLabelFloating ? "" : label}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
                         onAnimationStart={(e: any) => {
@@ -232,7 +229,7 @@ const Input: React.FC<InputProps> = ({
                             boxShadow: "none",
                             backgroundColor: "transparent",
                             width: "100%",
-                            paddingTop: inputType === "primary" && isLabelFloating ? "0.5rem" : 0
+                            // paddingTop: inputType === "primary" && isLabelFloating ? "0.5rem" : 0
                         }}
                     />
                     {type === "password" && <PasswordIcon />}

@@ -245,24 +245,16 @@ const Pos: React.FC = () => {
     return (
         <>
             <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setCity} hideSearch={true}>
-                <div className="flex">
-                    {/* <SearchInput
-                        title={t("equipment.carWash")}
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Search
+                        placeholder="Поиск"
+                        className="w-full sm:w-80"
                         value={searchTerm}
-                        searchType="outlined"
-                        classname="ml-2"
-                        onChange={(value) => setSearchTerm(value)}
-                    /> */}
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                        <Search
-                            placeholder="Поиск"
-                            className="w-full sm:w-80 ml-2"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onSearch={(value) => setSearchTerm(value)}
-                        />
-                    </div>
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onSearch={(value) => setSearchTerm(value)}
+                        size="large"
+                    />
                 </div>
             </Filter>
             {

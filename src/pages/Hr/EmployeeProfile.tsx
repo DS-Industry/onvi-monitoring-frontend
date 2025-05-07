@@ -15,6 +15,8 @@ import { DatePicker, Skeleton } from 'antd';
 import useSWR, { mutate } from "swr";
 import { getPositions, getWorkerById, getWorkers, updateWorker } from "@/services/api/hr";
 import useSWRMutation from "swr/mutation";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type UpdateWorkerRequest = {
     workerId: string;
@@ -360,11 +362,10 @@ const EmployeeProfile: React.FC = () => {
                                     />
                                     <div>
                                         <div className="text-sm text-text02">{t("hr.date")}</div>
-                                        <Input
-                                            type={"date"}
+                                        <DateInput
                                             classname="w-full md:w-40"
-                                            value={formData.startWorkDate}
-                                            changeValue={(e) => handleInputChange('startWorkDate', e.target.value)}
+                                            value={formData.startWorkDate ? dayjs(formData.startWorkDate) : null}
+                                            changeValue={(date) => handleInputChange('startWorkDate', date ? date.format('YYYY-MM-DD') : "")}
                                             {...register('startWorkDate')}
                                             inputType="secondary"
                                         />
@@ -469,13 +470,12 @@ const EmployeeProfile: React.FC = () => {
                                     changeValue={(e) => handleInputChange('passportExtradition', e.target.value)}
                                     {...register('passportExtradition')}
                                 />
-                                <Input
-                                    type="date"
+                                <DateInput
                                     title={t("hr.passportDateIssue")}
                                     classname="w-40"
                                     inputType="secondary"
-                                    value={formData.passportDateIssue}
-                                    changeValue={(e) => handleInputChange('passportDateIssue', e.target.value)}
+                                    value={formData.passportDateIssue ? dayjs(formData.passportDateIssue) : null}
+                                    changeValue={(date) => handleInputChange('passportDateIssue', date ? date.format('YYYY-MM-DD') : "")}
                                     {...register('passportDateIssue')}
                                 />
                                 <Input

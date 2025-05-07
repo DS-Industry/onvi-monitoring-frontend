@@ -1,11 +1,13 @@
 import Button from "@/components/ui/Button/Button";
+import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Input from "@/components/ui/Input/Input";
+// import Input from "@/components/ui/Input/Input";
 import ScheduleTable from "@/components/ui/Table/ScheduleTable";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
 import { createShift, getShiftById } from "@/services/api/finance";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
@@ -90,57 +92,47 @@ const TimeSheetCreation: React.FC = () => {
         }
     }
 
-    const handleDateTimeChange = (value: string, field: "startDate" | "endDate", type: "date" | "time") => {
-        setFormData((prev) => {
-            const currentDate = prev[field] ? prev[field].split("T") : ["", ""];
-            const updatedDateTime =
-                type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
+    // const handleDateTimeChange = (value: string, field: "startDate" | "endDate", type: "date" | "time") => {
+    //     setFormData((prev) => {
+    //         const currentDate = prev[field] ? prev[field].split("T") : ["", ""];
+    //         const updatedDateTime =
+    //             type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
 
-            const updatedFormData = { ...prev, [field]: updatedDateTime };
+    //         const updatedFormData = { ...prev, [field]: updatedDateTime };
 
-            setValue(field, updatedDateTime);
+    //         setValue(field, updatedDateTime);
 
-            return updatedFormData;
-        });
-    };
+    //         return updatedFormData;
+    //     });
+    // };
 
     return (
         <div>
             {location.state?.ownerId === 0 && <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+
                 <div className="flex space-x-4">
-                    <Input
-                        type="date"
-                        title={t("finance.start")}
-                        classname="w-44"
-                        value={formData.startDate ? formData.startDate.split("T")[0] : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "startDate", "date")}
+                    <DateTimeInput
+                        title={t("finance.start") + "*"}
+                        value={formData.startDate ? dayjs(formData.startDate) : null}
+                        changeValue={(date) =>
+                            handleInputChange("startDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
+                        }
                         error={!!errors.startDate}
-                        {...register("startDate", { required: "Start DateTime is required" })}
                         helperText={errors.startDate?.message || ""}
+                        {...register("startDate", { required: "Start DateTime is required" })}
+                        classname="w-64"
                     />
-                    <Input
-                        type="time"
-                        classname="w-32 mt-6"
-                        value={formData.startDate ? formData.startDate.split("T")[1]?.slice(0, 5) : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "startDate", "time")}
-                        error={!!errors.startDate}
-                    />
-                    <Input
-                        type="date"
-                        title={t("finance.end")}
-                        classname="w-44"
-                        value={formData.endDate ? formData.endDate.split("T")[0] : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "endDate", "date")}
+
+                    <DateTimeInput
+                        title={t("finance.end") + "*"}
+                        value={formData.endDate ? dayjs(formData.endDate) : null}
+                        changeValue={(date) =>
+                            handleInputChange("endDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
+                        }
                         error={!!errors.endDate}
-                        {...register("endDate", { required: "End DateTime is required" })}
                         helperText={errors.endDate?.message || ""}
-                    />
-                    <Input
-                        type="time"
-                        classname="w-32 mt-6"
-                        value={formData.endDate ? formData.endDate.split("T")[1]?.slice(0, 5) : ""}
-                        changeValue={(e) => handleDateTimeChange(e.target.value, "endDate", "time")}
-                        error={!!errors.endDate}
+                        {...register("endDate", { required: "End DateTime is required" })}
+                        classname="w-64"
                     />
                 </div>
                 <DropdownInput
@@ -164,7 +156,7 @@ const TimeSheetCreation: React.FC = () => {
                         form={true}
                     />
                 </div>
-            </form> }
+            </form>}
             <div className="mt-10">
                 <ScheduleTable id={shiftId} shift={shift} />
             </div>
