@@ -450,7 +450,7 @@ const SalaryCalculationCreation: React.FC = () => {
                     <div>
                         <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                         <Select
-                            className="w-64"
+                            className="w-64 h-10"
                             options={organizations.map((item) => ({ label: item.name, value: item.value }))}
                             value={formData.organizationId}
                             {...register('organizationId', {
@@ -479,7 +479,7 @@ const SalaryCalculationCreation: React.FC = () => {
                             })}
                             value={formData.billingMonth ? dayjs(formData.billingMonth) : null}
                             onChange={(_date, dateString) => handleInputChange('billingMonth', dateString.toString())}
-                            className="w-40"
+                            className="w-40 h-10"
                             status={errors.billingMonth ? 'error' : ''}
                             placeholder="Select Month"
                         />
@@ -490,7 +490,7 @@ const SalaryCalculationCreation: React.FC = () => {
                     <div>
                         <div className="text-sm text-text02">{t("routes.employees")}</div>
                         <Select
-                            className="w-64"
+                            className="w-64 h-10"
                             options={positions}
                             value={formData.hrPositionId}
                             {...register('hrPositionId')}

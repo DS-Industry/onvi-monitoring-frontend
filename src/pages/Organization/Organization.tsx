@@ -197,25 +197,16 @@ const Organization: React.FC = () => {
     return (
         <>
             <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress} hideSearch={true}>
-                <div className="flex">
-                    {/* <SearchInput
-                        title="Имя"
-                        placeholder="Filter by name..."
-                        classname="w-64"
-                        searchType="outlined"
+                <div>
+                    <div className="text-sm text-text02">{"Имя"}</div>
+                    <Search
+                        placeholder="Поиск"
+                        className="w-full sm:w-80"
                         value={searchTerm}
-                        onChange={handleSearchChange}
-                    /> */}
-                    <div>
-                        <div className="text-sm text-text02">{"Имя"}</div>
-                        <Search
-                            placeholder="Поиск"
-                            className="w-full sm:w-80 ml-2"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onSearch={handleSearchChange}
-                        />
-                    </div>
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onSearch={handleSearchChange}
+                        size="large"
+                    />
                 </div>
             </Filter>
             {

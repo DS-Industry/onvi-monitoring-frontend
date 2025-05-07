@@ -234,7 +234,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                             classname="w-64"
                         /> */}
                             <div>
-                                <div className="text-sm text-text02 mb-1">{t("warehouse.organization")}</div>
+                                <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                                 <Select
                                     mode="tags"
                                     allowClear
@@ -245,6 +245,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                                     {...register('organizationIds', { required: !isEditMode && 'Organizations is required' })}
                                     onChange={handleChangeTags}
                                     value={formData.organizationIds}
+                                    size="large"
                                 >
                                     {organizations.map((tag) => (
                                         <Option key={tag.value} value={tag.value}>

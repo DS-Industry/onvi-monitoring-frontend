@@ -175,7 +175,7 @@ const OverheadCosts: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         options={organizations.map((item) => ({ label: item.name, value: item.value }))}
                         value={orgId}
                         onChange={(value) => setOrgId(value)}
@@ -184,7 +184,7 @@ const OverheadCosts: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.category")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         options={categories.map((item) => ({ label: item.name, value: item.value }))}
                         value={categoryId}
                         onChange={(value) => setCategoryId(value)}
@@ -193,7 +193,7 @@ const OverheadCosts: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.ware")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         options={warehouses.map((item) => ({ label: item.name, value: item.value }))}
                         value={warehouseId}
                         onChange={(value) => setWarehouseId(value)}

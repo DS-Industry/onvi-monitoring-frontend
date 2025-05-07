@@ -21,7 +21,6 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
   label,
   disabled = false,
   rows = 4,
-  inputType = "primary",
   title,
   classname = "",
   helperText,
@@ -29,12 +28,8 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const isLabelFloating = isFocused || value?.length > 0;
 
-  const paddingClass =
-    inputType === "primary"
-      ? "pt-3 pb-1"
-      : inputType === "secondary"
-      ? "py-1"
-      : "py-0";
+  const paddingClass = "py-2";
+    
 
   const borderColor = disabled
     ? "outline-none"
@@ -42,7 +37,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
     ? "border-errorFill"
     : isFocused
     ? "border-primary02"
-    : "border-primary02 border-opacity-30";
+    : "border";
 
   const hoverBorder = disabled ? "" : "hover:border-primary02";
   const bgColor = disabled ? "bg-disabledFill" : "bg-background02";
@@ -61,7 +56,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
       )}
 
       <div className="relative mt-1">
-        {label && (
+        {/* {label && (
           <span
             className={`absolute left-3 transition-all duration-200 ease-in-out pointer-events-none z-10 bg-background02 px-1
               ${
@@ -80,7 +75,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
           >
             {label}
           </span>
-        )}
+        )} */}
 
         <Input.TextArea
           value={value}
@@ -90,6 +85,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={textAreaClass}
+          placeholder={isLabelFloating ? "" : label}
         />
       </div>
 

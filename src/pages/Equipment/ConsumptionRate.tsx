@@ -117,7 +117,7 @@ const ConsumptionRate: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("equipment.carWash")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         options={poses.map((item) => ({ label: item.name, value: item.value }))}
                         value={searchPosId}
                         onChange={(value) => setSearchPosId(value)}

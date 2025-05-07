@@ -15,6 +15,8 @@ import Icon from "feather-icons-react";
 import moment from "moment";
 import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import DateTimeInput from "@/components/ui/Input/DateTimeInput";
+import dayjs from "dayjs";
 
 type TableRow = {
     id: number;
@@ -172,19 +174,19 @@ const CollectionCreation: React.FC = () => {
         );
     };
 
-    const handleDateTimeChange = (value: string, type: string) => {
-        setFormData((prev) => {
-            const currentDate = prev.cashCollectionDate ? prev.cashCollectionDate.split("T") : ["", ""];
-            const updatedDateTime =
-                type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
+    // const handleDateTimeChange = (value: string, type: string) => {
+    //     setFormData((prev) => {
+    //         const currentDate = prev.cashCollectionDate ? prev.cashCollectionDate.split("T") : ["", ""];
+    //         const updatedDateTime =
+    //             type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
 
-            const updatedFormData = { ...prev, cashCollectionDate: updatedDateTime };
+    //         const updatedFormData = { ...prev, cashCollectionDate: updatedDateTime };
 
-            setValue("cashCollectionDate", updatedDateTime);
+    //         setValue("cashCollectionDate", updatedDateTime);
 
-            return updatedFormData;
-        });
-    };
+    //         return updatedFormData;
+    //     });
+    // };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, rowId: number, key: string) => {
         const inputDate = e.target.value;
@@ -361,22 +363,16 @@ const CollectionCreation: React.FC = () => {
                 <></> :
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex space-x-4">
-                        <Input
-                            type="date"
-                            title={t("finance.collDate")}
-                            classname="w-44"
-                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[0] : ""}
-                            changeValue={(e) => handleDateTimeChange(e.target.value, "date")}
+                        <DateTimeInput
+                            title={t("finance.start") + "*"}
+                            value={formData.cashCollectionDate ? dayjs(formData.cashCollectionDate) : null}
+                            changeValue={(date) =>
+                                handleInputChange("cashCollectionDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
+                            }
                             error={!!errors.cashCollectionDate}
-                            {...register("cashCollectionDate", { required: "Cash Collection DateTime is required" })}
                             helperText={errors.cashCollectionDate?.message || ""}
-                        />
-                        <Input
-                            type="time"
-                            classname="w-32 mt-6"
-                            value={formData.cashCollectionDate ? formData.cashCollectionDate.split("T")[1]?.slice(0, 5) : ""}
-                            changeValue={(e) => handleDateTimeChange(e.target.value, "time")}
-                            error={!!errors.cashCollectionDate}
+                            {...register("cashCollectionDate", { required: "Cash Collection Date is required" })}
+                            classname="w-64"
                         />
                     </div>
                     <DropdownInput

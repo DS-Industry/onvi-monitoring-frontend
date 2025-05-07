@@ -13,6 +13,8 @@ import { useUser } from "@/hooks/useUserStore";
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { getOrganization } from "@/services/api/organization";
 import { Skeleton } from "antd";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -166,9 +168,8 @@ const DocumentView: React.FC = () => {
                         </div>
                         <div className="flex">
                             <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                            <Input
-                                type={"date"}
-                                value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
+                            <DateInput
+                                value={document?.document.props.createdAt ? dayjs(document?.document.props.createdAt) : null}
                                 changeValue={() => { }}
                                 disabled={true}
                             />

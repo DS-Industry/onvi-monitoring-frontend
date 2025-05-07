@@ -27,6 +27,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import { Select, Input as AntInput, InputNumber, DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useLocation } from "react-router-dom";
+import DateInput from "@/components/ui/Input/DateInput";
 
 // enum StatusUser {
 //     VERIFICATE = "VERIFICATE",
@@ -446,7 +447,7 @@ const Clients: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("marketing.type")}</div>
                     <Select
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         placeholder={t("marketing.phys")}
                         options={[
                             { label: t("warehouse.all"), value: "*" },
@@ -473,7 +474,7 @@ const Clients: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("profile.telephone")}</div>
                     <AntInput
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         placeholder={t("warehouse.enterPhone")}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -499,6 +500,7 @@ const Clients: React.FC = () => {
                         placeholder={t("marketing.enterName")}
                         value={cardNo}
                         onChange={(value) => setCardNo(value)}
+                        size="large"
                     />
                 </div>
                 {/* <Input
@@ -510,7 +512,7 @@ const Clients: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("finance.status")}</div>
                     <AntInput
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     />
@@ -524,7 +526,7 @@ const Clients: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("marketing.loy")}</div>
                     <AntInput
-                        className="w-full sm:w-80"
+                        className="w-full sm:w-80 h-10"
                         value={loyLevel}
                         onChange={(e) => setLoyLevel(e.target.value)}
                     />
@@ -539,7 +541,7 @@ const Clients: React.FC = () => {
                 <div>
                     <div className="text-sm text-text02">{t("marketing.reg")}</div>
                     <DatePicker
-                        className="w-44"
+                        className="w-44 h-10"
                         value={regDate ? dayjs(regDate) : null}
                         onChange={handleDateChange}
                         format="YYYY-MM-DD"
@@ -662,12 +664,11 @@ const Clients: React.FC = () => {
                         {...register('gender')}
                         onChange={(value) => handleInputChange('gender', value)}
                     />
-                    <Input
-                        type="date"
+                    <DateInput
                         title={t("register.date")}
                         classname="w-40"
-                        value={formData.birthday}
-                        changeValue={(e) => handleInputChange('birthday', e.target.value)}
+                        value={formData.birthday ? dayjs(formData.birthday) : null}
+                        changeValue={(date) => handleInputChange('birthday', date ? date.format('YYYY-MM-DD') : "")}
                         {...register('birthday')}
                     />
                     <Input

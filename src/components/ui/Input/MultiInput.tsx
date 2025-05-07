@@ -100,7 +100,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
 
     return (
         <div className="w-80">
-            <div className="text-text02 text-sm mb-1">{t("marketing.tags")}</div>
+            <div className="text-text02 text-sm">{t("marketing.tags")}</div>
             <Select
                 mode="multiple"
                 style={{ width: "100%" }}
@@ -118,6 +118,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                 filterOption={false}
                 showSearch
                 optionLabelProp="label"
+                size="large"
                 tagRender={({ label, value, closable, onClose }) => {
                     const option = options.find((opt) => opt.id === value);
                     return (

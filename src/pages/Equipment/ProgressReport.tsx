@@ -67,6 +67,7 @@ const ProgressReport: React.FC = () => {
                             options={poses.map((item) => ({ label: item.name, value: item.value }))}
                             value={searchPosId}
                             onChange={(value) => setSearchPosId(value)}
+                            size="large"
                         />
                     </div>
                 </div>
