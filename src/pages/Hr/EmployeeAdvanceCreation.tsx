@@ -433,7 +433,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                             onChange={(_date, dateString) => handleInputChange('billingMonth', dateString.toString())}
                             className="w-40 h-10"
                             status={errors.billingMonth ? 'error' : ''}
-                            placeholder="Select Month"
+                            placeholder={t("finance.selMon")}
                         />
                         {errors.billingMonth?.message && (
                             <div className="text-xs text-errorFill mt-1">{errors.billingMonth.message}</div>
