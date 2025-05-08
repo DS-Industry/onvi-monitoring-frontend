@@ -75,13 +75,13 @@ const InputDateGap: React.FC<InputDateGapProps> = ({
             <div className="w-full flex flex-wrap gap-x-2 gap-y-4 text-text02">
                 <div className="flex flex-wrap gap-2 items-center w-fit">
                     <span>с</span>
-                    <DatePicker value={dateStart} onChange={handleStartDateChange} className="h-10" />
-                    <TimePicker value={timeStart} onChange={handleStartTimeChange} format="HH:mm" className="h-10" />
+                    <DatePicker value={dateStart} onChange={handleStartDateChange} className="h-10" placeholder={t("finance.sel")} />
+                    <TimePicker value={timeStart} onChange={handleStartTimeChange} format="HH:mm" className="h-10" placeholder={t("finance.selTime")} />
                 </div>
                 <div className="flex flex-wrap gap-2 items-center w-fit">
                     <span>{t("analysis.endDate")}</span>
-                    <DatePicker value={dateEnd} onChange={handleEndDateChange} className="h-10" />
-                    <TimePicker value={timeEnd} onChange={handleEndTimeChange} format="HH:mm" className="h-10" />
+                    <DatePicker value={dateEnd} onChange={handleEndDateChange} className="h-10" placeholder={t("finance.sel")} />
+                    <TimePicker value={timeEnd} onChange={handleEndTimeChange} format="HH:mm" className="h-10" placeholder={t("finance.selTime")} />
                 </div>
             </div>
         </div>
