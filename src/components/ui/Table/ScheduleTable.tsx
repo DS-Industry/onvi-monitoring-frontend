@@ -193,9 +193,10 @@ const ScheduleTable: React.FC<Props> = ({
         minutes_endWorkingTime: ""
     });
 
-    const { trigger: addWork } = useSWRMutation(userId !== 0 ? ['add-worker'] : null, async () => addWorker({
-        userId: userId
-    }, id));
+    const { trigger: addWork, isMutating: addingWorker } = useSWRMutation(
+        userId !==0 ?['add-worker'] : null,
+        (_, { arg }: { arg: { userId: number; } }) => addWorker(arg, id)
+    );
 
     const { trigger: createDay } = useSWRMutation(['create-day'],
         async (_, { arg }: {
@@ -420,9 +421,13 @@ const ScheduleTable: React.FC<Props> = ({
 
     const dates = generateDates(startDate, endDate);
 
-    useEffect(() => {
-        if (userId !== 0) {
-            addWork().then((result) => {
+
+    const handleModalSubmit = async () => {
+        if (userId) {
+
+            try {
+                const result = await addWork({ userId: userId });
+
                 if (result) {
                     const newEmployee: Employee[] = result.workers.map((item) => ({
                         id: item.workerId,
@@ -432,10 +437,15 @@ const ScheduleTable: React.FC<Props> = ({
                         userId: workers.find((work) => work.name === item.name)?.value || 0
                     }));
                     setEmployees([...newEmployee]);
+                    setOpenAddRow(false);
+                } else {
+                    console.error("Adding worker did not return expected data:", result);
                 }
-            });
+            } catch (error) {
+                console.error("Error adding worker:", error);
+            }
         }
-    }, [userId]);
+    };
 
     const addNewRow = (value: React.SetStateAction<number>) => {
         setUserId(value);
@@ -863,7 +873,7 @@ const ScheduleTable: React.FC<Props> = ({
                     </form>
                 </Modal>
             )}
-            <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)} classname="h-72">
+            <Modal isOpen={openAddRow} onClose={() => setOpenAddRow(false)} handleClick={handleModalSubmit} loading={addingWorker}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01">{t("finance.addNew")}</h2>
                     <Close onClick={() => setOpenAddRow(false)} className="cursor-pointer text-text01" />

@@ -17,6 +17,8 @@ import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
+import OverflowTable from "@/components/ui/Table/OverflowTable";
+import { Descriptions, Divider } from "antd";
 
 type TableRow = {
     id: number;
@@ -174,20 +176,6 @@ const CollectionCreation: React.FC = () => {
         );
     };
 
-    // const handleDateTimeChange = (value: string, type: string) => {
-    //     setFormData((prev) => {
-    //         const currentDate = prev.cashCollectionDate ? prev.cashCollectionDate.split("T") : ["", ""];
-    //         const updatedDateTime =
-    //             type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
-
-    //         const updatedFormData = { ...prev, cashCollectionDate: updatedDateTime };
-
-    //         setValue("cashCollectionDate", updatedDateTime);
-
-    //         return updatedFormData;
-    //     });
-    // };
-
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, rowId: number, key: string) => {
         const inputDate = e.target.value;
         const isoDate = new Date(inputDate).toISOString();
@@ -312,32 +300,32 @@ const CollectionCreation: React.FC = () => {
             label: "Купюры",
             key: "sumPaperDeviceType",
             render: (row: { sumPaperDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                row.key === "total" ? "" : <Input
-                    type="number"
-                    // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
-                    placeholder="00,00"
-                    value={row.sumPaperDeviceType}
-                    //   error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
-                    //   helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
-                    changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
-                    disabled={location.state?.status === t("tables.SENT")}
-                />
+                row.key === "total" ? "" :
+                    <Input
+                        type="number"
+                        label="00,00"
+                        value={row.sumPaperDeviceType}
+                        //   error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
+                        //   helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
+                        changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+                        disabled={location.state?.status === t("tables.SENT")}
+                    />
             ),
         },
         {
             label: "Монеты",
             key: "sumCoinDeviceType",
             render: (row: { sumCoinDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                row.key === "total" ? "" : <Input
-                    type="number"
-                    // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
-                    placeholder="00,00"
-                    value={row.sumCoinDeviceType}
-                    //   error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
-                    //   helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
-                    changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
-                    disabled={location.state?.status === t("tables.SENT")}
-                />
+                row.key === "total" ? "" :
+                    <Input
+                        type="number"
+                        label="00,00"
+                        value={row.sumCoinDeviceType}
+                        //   error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
+                        //   helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
+                        changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+                        disabled={location.state?.status === t("tables.SENT")}
+                    />
             ),
         },
         {
@@ -407,34 +395,24 @@ const CollectionCreation: React.FC = () => {
                 />}
             </div>
             {showData && collection && Object.keys(collection).length > 0 && (
-                <div className="flex space-x-20">
-                    <div className="text-text01 space-y-4">
-                        {[
-                            { label: t("finance.no"), value: collection.id },
-                            { label: t("marketing.total"), value: `${collection.sumFact || "00"} ₽` },
-                            { label: t("finance.cars"), value: collection.countCar },
-                            { label: t("finance.cash"), value: `${collection.virtualSum || "00"} ₽` },
-                            { label: t("finance.amt"), value: `${collection.sumCard || "00"} ₽` }
-                        ].map((item, index) => (
-                            <div key={index} className="grid grid-cols-2 gap-10">
-                                <div>{item.label}</div>
-                                <div className="text-lg font-semibold text-right">{item.value}</div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="text-text01 space-y-4">
-                        {[
-                            { label: t("finance.short"), value: `${collection.shortage || "00"} ₽` },
-                            { label: t("marketing.avg"), value: `${collection.averageCheck || "00"} ₽` }
-                        ].map((item, index) => (
-                            <div key={index} className="grid grid-cols-2 gap-20">
-                                <div>{item.label}</div>
-                                <div className="text-lg font-semibold text-right">{item.value}</div>
-                            </div>
-                        ))}
-                    </div>
+                <>
+                    <Descriptions
+                        title={""}
+                        column={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 3 }}
+                        labelStyle={{ fontWeight: 500 }}
+                        contentStyle={{ textAlign: "right", fontSize: "16px", fontWeight: "bold" }}
+                    >
+                        <Descriptions.Item label={t("finance.no")}>{collection.id}</Descriptions.Item>
+                        <Descriptions.Item label={t("marketing.total")}>{`${collection.sumFact || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.cars")}>{collection.countCar || 0}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.cash")}>{`${collection.virtualSum || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.amt")}>{`${collection.sumCard || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.short")}>{`${collection.shortage || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("marketing.avg")}>{`${collection.averageCheck || "00"} ₽`}</Descriptions.Item>
+                    </Descriptions>
 
-                </div>
+                    <Divider />
+                </>
             )}
             <div>
                 {collectionLoading ? (
@@ -448,8 +426,8 @@ const CollectionCreation: React.FC = () => {
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
-                            {openCashColl && <DynamicTable
-                                data={tableData.sort((a, b) => a.id - b.id)}
+                            {openCashColl && <OverflowTable
+                                tableData={tableData.sort((a, b) => a.id - b.id)}
                                 columns={columnsCollections}
                                 handleChange={handleTableChange}
                                 showTotal={true}

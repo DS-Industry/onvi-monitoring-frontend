@@ -866,7 +866,7 @@
     "startPaymentDate": "Date of Issue",
     "billing": "Billing Month",
     "all": "All employees",
-    "endPaymentDate": "Date od Completion",
+    "endPaymentDate": "Date of Completion",
     "noAdvance": "There are no more employees to calculate the advance payment during the specified period.",
     "noSalary": "There are no more employees to calculate salaries during the specified period."
   },

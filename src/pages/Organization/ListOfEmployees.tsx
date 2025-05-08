@@ -244,7 +244,7 @@ const ListOfEmployees: React.FC = () => {
                         </div>
                     </Modal>
                 )}
-                <Modal isOpen={isModalOpen}>
+                <Modal isOpen={isModalOpen} classname="w-[470px]">
                     <div className="flex flex-row items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-text01">{t("roles.create")}</h2>
                         <Close onClick={() => { setIsModalOpen(false); setButtonOn(false); }} className="cursor-pointer text-text01" />

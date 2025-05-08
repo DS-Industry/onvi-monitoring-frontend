@@ -10,9 +10,10 @@ import { getPayments, getPositions, getWorkers } from "@/services/api/hr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsPayments } from "@/utils/OverFlowTableData";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { DatePicker, Select, TimePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useCurrentPage, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore";
+import DateTimeInput from "@/components/ui/Input/DateTimeInput";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
 
 type PaymentParams = {
     startPaymentDate: Date | string;
@@ -35,41 +36,6 @@ const SalaryCalculation: React.FC = () => {
     const setPageNumber = useSetPageNumber();
     const currentPage = useCurrentPage();
     const { filterOn } = useFilterOn();
-
-    type DateField = 'startPaymentDate' | 'endPaymentDate';
-
-    const handleDateChange = (field: DateField, date: Dayjs | null) => {
-        if (!date) {
-            updateDateField(field, null);
-            return;
-        }
-
-        const existingValue = field === 'startPaymentDate' ? startPaymentDate : endPaymentDate;
-        const updated = existingValue
-            ? date.set('hour', existingValue.hour()).set('minute', existingValue.minute())
-            : date;
-
-        updateDateField(field, updated);
-    };
-
-    const handleTimeChange = (field: DateField, time: Dayjs | null) => {
-        if (!time) return;
-
-        const existingValue = field === 'startPaymentDate' ? startPaymentDate : endPaymentDate;
-        const updated = existingValue
-            ? existingValue.set('hour', time.hour()).set('minute', time.minute())
-            : dayjs().set('hour', time.hour()).set('minute', time.minute());
-
-        updateDateField(field, updated);
-    };
-
-    const updateDateField = (field: DateField, value: Dayjs | null) => {
-        if (field === 'startPaymentDate') {
-            setStartPaymentDate(value);
-        } else {
-            setEndPaymentDate(value);
-        }
-    };
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -150,10 +116,10 @@ const SalaryCalculation: React.FC = () => {
         organizationId: "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const workers: { label: string; value: number | "*"; }[] = [
-        { label: t("hr.all"), value: "*" },
+    const workers: { name: string; value: number | "*"; }[] = [
+        { name: t("hr.all"), value: "*" },
         ...(workersData?.map((work) => ({
-            label: work.props.name,
+            name: work.props.name,
             value: work.props.id
         })) || [])
     ];
@@ -166,60 +132,26 @@ const SalaryCalculation: React.FC = () => {
     return (
         <div>
             <Filter count={payments.length} hideDateTime={true} hideCity={true} hideSearch={true} handleClear={handleClear}>
-                <div className="flex flex-col">
-                    <label className="text-sm text-text02">{t("hr.startPaymentDate")}</label>
-                    <div className="flex space-x-2">
-                        <DatePicker
-                            value={startPaymentDate}
-                            onChange={(date) => handleDateChange('startPaymentDate', date)}
-                            placeholder="Select Date"
-                            className="w-40"
-                            format="YYYY-MM-DD"
-                        />
-                        <TimePicker
-                            value={startPaymentDate}
-                            onChange={(time) => handleTimeChange('startPaymentDate', time)}
-                            placeholder="Select Time"
-                            className="w-40"
-                            format="HH:mm"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex flex-col">
-                    <label className="text-sm text-text02">{t("hr.endPaymentDate")}</label>
-                    <div className="flex space-x-2">
-                        <DatePicker
-                            value={endPaymentDate}
-                            onChange={(date) => handleDateChange('endPaymentDate', date)}
-                            placeholder="Select Date"
-                            className="w-40"
-                            format="YYYY-MM-DD"
-                        />
-                        <TimePicker
-                            value={endPaymentDate}
-                            onChange={(time) => handleTimeChange('endPaymentDate', time)}
-                            placeholder="Select Time"
-                            className="w-40"
-                            format="HH:mm"
-                        />
-                    </div>
-                </div>
-                <div>
-                    <div className="text-sm text-text02">{t("routes.employees")}</div>
-                    <Select
-                        className="w-full sm:w-80"
-                        placeholder={t("warehouse.notSel")}
-                        options={workers}
-                        value={workerId}
-                        onChange={(value) => setWorkerId(value)}
-                        dropdownRender={(menu) => (
-                            <div style={{ maxHeight: 100, overflowY: "auto" }}>
-                                {menu}
-                            </div>
-                        )}
-                    />
-                </div>
+                <DateTimeInput
+                    title={t("hr.startPaymentDate")}
+                    classname="w-64"
+                    value={startPaymentDate}
+                    changeValue={(date) => setStartPaymentDate(date)}
+                />
+                <DateTimeInput
+                    title={t("hr.endPaymentDate")}
+                    classname="w-64"
+                    value={endPaymentDate}
+                    changeValue={(date) => setStartPaymentDate(date)}
+                />
+                <DropdownInput
+                    title={t("routes.employees")}
+                    classname="w-full sm:w-80"
+                    label={t("warehouse.notSel")}
+                    options={workers}
+                    value={workerId}
+                    onChange={(value) => setWorkerId(value)}
+                />
             </Filter>
             {paymentsLoading || isTableLoading ? (
                 <TableSkeleton columnCount={columnsPayments.length} />

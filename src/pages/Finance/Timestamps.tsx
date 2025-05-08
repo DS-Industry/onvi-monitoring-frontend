@@ -67,7 +67,7 @@ const Timestamps: React.FC = () => {
         }
     ];
 
-    const { data: timestampData, isLoading, mutate } = useSWR(posId !== "*" ? [`get-timestamp`, posId] : null, () => getTimestamp(posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: timestampData, isLoading, mutate } = useSWR(posId !== "*" && posId ? [`get-timestamp`, posId] : null, () => getTimestamp(posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { trigger: postTime } = useSWRMutation(
         ['post-timestamp'],

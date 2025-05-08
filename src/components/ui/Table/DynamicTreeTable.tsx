@@ -66,11 +66,23 @@ const DynamicTreeTable: React.FC<Props> = ({
         };
 
         // Data Columns (Middle Columns)
-        const dataColumns = columns.map((col) => ({
+        const dataColumns = columns.map((col, index) => ({
             title: col.label,
             dataIndex: col.key,
             key: col.key,
-        }));
+            render: (value: any, record: TreeData) => {
+                // Only apply indent to the first column
+                if (index === 0) {
+                    const level = record._level ?? 0;
+                    return (
+                        <div style={{ paddingLeft: level * 20 }}>
+                            {value}
+                        </div>
+                    );
+                }
+                return value;
+            }
+        }));        
 
         // Actions Column (Last Column)
         const actionColumn = {
@@ -108,6 +120,7 @@ const DynamicTreeTable: React.FC<Props> = ({
             acc.push({
                 ...item,
                 key: item.id,
+                _level: level
             });
 
             // Add children only if this row is expanded
