@@ -256,6 +256,7 @@ const DynamicTable = <T extends TableRow>({
                     return getStatusTag(value);
                 }
 
+
                 if (renderCell) {
                     return renderCell(col, record);
                 }
@@ -316,8 +317,7 @@ const DynamicTable = <T extends TableRow>({
                         {value}
                         <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
-                ) : col.render ? col.render(record, handleChange) :
-                    value;
+                ) : col.render ? col.render(record, handleChange) : value;
             },
         };
     });
@@ -422,13 +422,9 @@ const DynamicTable = <T extends TableRow>({
             {tableTitle && <h2 className="text-lg font-semibold mb-4">{tableTitle}</h2>}
             {title && (
                 <span
-                    className="cursor-pointer  flex justify-start sm:justify-end"
+                    className="cursor-pointer flex justify-start"
                     onClick={() => navigate(`${nameUrlTitle}`, { state: { ownerId: urlTitleId } })}
                 >
-                    {/* <div className=" text-xl md:text-2xl flex space-x-2 items-center text-primary02 hover:text-primary02_Hover hover:underline">
-                {title}
-                <Icon icon="arrow-up-right" className="w-6 h-6"/>
-              </div> */}
                     <Button
                         title={title}
                         type="outline"
