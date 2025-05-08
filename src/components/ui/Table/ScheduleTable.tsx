@@ -883,7 +883,7 @@ const ScheduleTable: React.FC<Props> = ({
                         value={userId}
                         options={workers}
                         onChange={addNewRow}
-                        classname="w-64"
+                        classname="w-[292px]"
                     />
                 </div>
             </Modal>
