@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Input as AntInput, Form } from 'antd';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
@@ -11,6 +10,7 @@ import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hook
 import LanguageSelector from '@/components/LanguageSelector';
 import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
+import Input from '@/components/ui/Input/Input';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -122,131 +122,76 @@ const InfoTab: React.FC = () => {
     window.location.href = "";
   };
 
-  console.log("Image Preview: ", imagePreview);
-
-  const emailRegister = register('email', {
-    required: 'Email is required',
-    pattern: {
-      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      message: 'Invalid email format'
-    }
-  });
-
-  const formatPhoneNumber = (value: string): string => {
-    if (!value) return '';
-    const cleaned = value.replace(/\D/g, '');
-    const match = cleaned.match(/^(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
-
-    if (!match) return '';
-
-    let formatted = '+7';
-    if (match[2]) formatted += `(${match[2]}`;
-    if (match[3]) formatted += `)${match[3]}`;
-    if (match[4]) formatted += `-${match[4]}`;
-    if (match[5]) formatted += `-${match[5]}`;
-
-    return formatted;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    handleInputChange('phone', formatted);
-    register('phone').onChange({
-      target: {
-        value: formatted.replace(/\D/g, '').substring(1)
-      }
-    });
-  };
-
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
-        <div className="flex flex-col gap-2 w-full">
-          <Form.Item
-            label={t("profile.name")}
-            layout="vertical"
-          >
-            <AntInput
-              placeholder={t("profile.namePlaceholder")}
-              value={formData?.name}
-              onChange={(e) => {
-                handleInputChange('name', e.target.value);
-                register('name', { required: 'Имя is required' }).onChange(e);
-              }}
-              onBlur={register('name', { required: 'Имя is required' }).onBlur}
-              className='w-80'
-              status={errors.name ? 'error' : ''}
-            />
-            {errors.name && <span className="error-message">{errors.name.message}</span>}
-          </Form.Item>
-          <Form.Item
-            label={t("profile.middlename")}
-            layout="vertical"
-          >
-            <AntInput
-              placeholder={t("profile.middlenamePlaceholder")}
-              value={formData.middlename}
-              onChange={(e) => {
-                handleInputChange('middlename', e.target.value);
-                register('middlename').onChange(e);
-              }}
-              onBlur={register('middlename').onBlur}
-              className='w-80'
-              status={errors.middlename ? 'error' : ''}
-            />
-            {errors.middlename && <span className="error-message">{errors.middlename.message}</span>}
-          </Form.Item>
-          <Form.Item
-            label={t("profile.surname")}
-            layout="vertical"
-          >
-            <AntInput
-              placeholder={t("profile.surnamePlaceholder")}
-              value={formData.surname}
-              onChange={(e) => {
-                handleInputChange('surname', e.target.value);
-                register('surname', { required: 'Отчество is required' }).onChange(e);
-              }}
-              onBlur={register('surname').onBlur}
-              className='w-80'
-              status={errors.surname ? 'error' : ''}
-            />
-            {errors.surname && <span className="error-message">{errors.surname.message}</span>}
-          </Form.Item>
-          <Form.Item
-            label={t("profile.telephone")}
-            layout="vertical"
-          >
-            <AntInput
-              placeholder={t("profile.telephonePlaceholder")}
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              onBlur={register('phone').onBlur}
-              className='w-80'
-              status={errors.phone ? 'error' : ''}
-              maxLength={18}
-            />
-            {errors.phone && <span className="error-message">{errors.phone.message}</span>}
-          </Form.Item>
-          <Form.Item
-            label="E-mail *"
-            layout="vertical"
-          >
-            <AntInput
-              type="email"
-              placeholder={t("profile.email")}
-              value={formData.email}
-              onChange={(e) => {
-                handleInputChange('email', e.target.value);
-                emailRegister.onChange(e);
-              }}
-              disabled={true}
-              onBlur={emailRegister.onBlur}
-              className='w-80'
-              status={errors.email ? 'error' : ''}
-            />
-            {errors.email && <span className="error-message">{errors.email.message}</span>}
-          </Form.Item>
+        <div className="flex flex-col space-y-6 w-full">
+          <Input
+            title={t("profile.name")}
+            label={t("profile.namePlaceholder")}
+            value={formData.name}
+            changeValue={(e) => {
+              handleInputChange('name', e.target.value);
+            }}
+            {...register('name', { required: 'Имя is required' })}
+            classname='w-80'
+            error={!!errors.name}
+            helperText={errors.name?.message}
+          />
+          <Input
+            title={t("profile.middlename")}
+            label={t("profile.middlenamePlaceholder")}
+            value={formData.middlename}
+            changeValue={(e) => {
+              handleInputChange('middlename', e.target.value);
+            }}
+            {...register('middlename')}
+            classname='w-80'
+          />
+          <Input
+            title={t("profile.surname")}
+            label={t("profile.surnamePlaceholder")}
+            value={formData.surname}
+            changeValue={(e) => {
+              handleInputChange('surname', e.target.value);
+            }}
+            {...register('surname')}
+            classname='w-80'
+          />
+          <Input
+            type="text"
+            title={t("profile.telephone")}
+            label={t("profile.telephonePlaceholder")}
+            classname="mb-5"
+            value={formData.phone}
+            changeValue={(e) => handleInputChange('phone', e.target.value)}
+            error={!!errors.phone}
+            {...register('phone', {
+              required: 'phone is required',
+              pattern: {
+                value: /^\+79\d{9}$/,
+                message: 'Phone number must start with +79 and be 11 digits long'
+              }
+            })}
+            helperText={errors.phone?.message || ''}
+          />
+          <Input
+            type="text"
+            title={"E-mail *"}
+            classname="mb-5"
+            value={formData.email}
+            changeValue={(e) => handleInputChange('email', e.target.value)}
+            error={!!errors.email}
+            {...register('email', {
+              required: 'email is required',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Invalid email format'
+              }
+            })}
+            helperText={errors.email?.message || ''}
+            disabled={true}
+          />
           <div className='flex'>
             <input type='checkbox' />
             <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
