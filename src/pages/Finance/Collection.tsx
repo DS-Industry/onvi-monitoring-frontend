@@ -121,6 +121,10 @@ const Collection: React.FC = () => {
             type: "period"
         },
         {
+            label: "Статус",
+            key: "status"
+        },
+        {
             label: "Инкассация",
             key: "sumFact",
             type: "currency"
@@ -141,13 +145,9 @@ const Collection: React.FC = () => {
             type: "currency"
         },
         {
-            label: "Статус",
-            key: "status"
-        },
-        {
             label: "Недостача",
             key: "shortage",
-            type: "number"
+            type: "currency"
         }
     ], []);
 
@@ -164,7 +164,7 @@ const Collection: React.FC = () => {
                 const columnLabel = item.typeName || `Склад ${index + 1}`;
     
                 if (!collectionColumns.some((col) => col.key === columnKey)) {
-                    collectionColumns.push({ label: columnLabel, key: columnKey, type: "number" });
+                    collectionColumns.push({ label: columnLabel, key: columnKey, type: "currency" });
                 }
     
                 transformedLevel[columnKey] = item.typeShortage ?? 0;
