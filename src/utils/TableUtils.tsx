@@ -18,9 +18,11 @@ const createDateTimeWithoutComma = (value: Date | string, timezone: string): str
 
 const createCurrencyFormat = (value: number | string): string => {
   if (typeof value === "string") {
+    if (value === "-")
+      return value;
     return value + " ₽";
   }
-  
+
   return value.toString() + " ₽";
 };
 

@@ -215,7 +215,7 @@ const ListOfEmployees: React.FC = () => {
                             </NoDataUI>
                         )}
                 {openModal && selectedWorker && (
-                    <Modal isOpen={openModal} classname="w-[552px] h-[300px]">
+                    <Modal isOpen={openModal} classname="sm:w-[552px] sm:h-[300px]">
                         <div className="flex items-center justify-between">
                             <div></div>
                             <Close onClick={() => setOpenModal(false)} className="cursor-pointer text-text01" />
@@ -226,7 +226,7 @@ const ListOfEmployees: React.FC = () => {
                             value={roleId}
                             options={roles}
                             onChange={(value) => setRoleId(value)}
-                            classname="w-[456px]"
+                            classname="w-[300px] sm:w-[456px]"
                             renderOption={(option) => option.render || <span>{option.name}</span>}
                         />
                         <div className="flex justify-end space-x-4 mt-10">
@@ -244,7 +244,7 @@ const ListOfEmployees: React.FC = () => {
                         </div>
                     </Modal>
                 )}
-                <Modal isOpen={isModalOpen} classname="w-[470px]">
+                <Modal isOpen={isModalOpen} classname="sm:w-[552px]">
                     <div className="flex flex-row items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-text01">{t("roles.create")}</h2>
                         <Close onClick={() => { setIsModalOpen(false); setButtonOn(false); }} className="cursor-pointer text-text01" />
@@ -258,7 +258,7 @@ const ListOfEmployees: React.FC = () => {
                         <Input
                             type="text"
                             title={t("roles.name")}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             value={formData.name}
                             changeValue={(e) => handleInputChange('name', e.target.value)}
                             error={!!errors.name}
@@ -270,7 +270,7 @@ const ListOfEmployees: React.FC = () => {
                         <Input
                             type="text"
                             title={t("profile.surname")}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             value={formData.surname}
                             changeValue={(e) => handleInputChange('surname', e.target.value)}
                             {...register('surname')}
@@ -278,7 +278,7 @@ const ListOfEmployees: React.FC = () => {
                         <Input
                             type="text"
                             title={t("profile.middlename")}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             value={formData.middlename}
                             changeValue={(e) => handleInputChange('middlename', e.target.value)}
                             {...register('middlename')}
@@ -297,7 +297,7 @@ const ListOfEmployees: React.FC = () => {
                         <Input
                             type="text"
                             title={`${t("register.phone")}*`}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             value={formData.phone}
                             changeValue={(e) => handleInputChange('phone', e.target.value)}
                             error={!!errors.phone}
@@ -313,7 +313,7 @@ const ListOfEmployees: React.FC = () => {
                         <Input
                             type="text"
                             title={"Email*"}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             value={formData.email}
                             changeValue={(e) => handleInputChange('email', e.target.value)}
                             error={!!errors.email}
@@ -330,7 +330,7 @@ const ListOfEmployees: React.FC = () => {
                             title={`${t("warehouse.organization")}*`}
                             label={t("warehouse.notSel")}
                             options={organizations}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             {...register('organizationId', {
                                 required: 'Organization Id is required',
                                 validate: (value) =>
@@ -345,7 +345,7 @@ const ListOfEmployees: React.FC = () => {
                             title={`${t("roles.rol")}*`}
                             label={t("warehouse.notSel")}
                             options={roles}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             {...register('roleId', {
                                 required: 'Role Id is required',
                                 validate: (value) =>
@@ -361,7 +361,7 @@ const ListOfEmployees: React.FC = () => {
                             options={[
                                 { name: "Оператор", value: "Operator" }
                             ]}
-                            classname="w-80"
+                            classname="w-80 sm:w-96"
                             error={!!errors.position}
                             {...register('position', {
                                 required: 'Position is required'
@@ -370,20 +370,6 @@ const ListOfEmployees: React.FC = () => {
                             onChange={(value) => handleInputChange('position', value)}
                             helperText={errors.position?.message || ''}
                         />
-                        {/* <MultilineInput
-                        title={t("warehouse.desc")}
-                        label={t("roles.desc")}
-                        classname="w-96"
-                        changeValue={() => { }}
-                    />
-                    <div className="flex items-center space-x-2">
-                        <input type="checkbox" className="w-4 h-4" />
-                        <div className="text-text01">{t("roles.acc")}</div>
-                    </div>
-                    <div className="flex">
-                        <div className="text-text01 font-semibold text-lg">{t("routes.accessRights")}</div>
-                        <span className="text-errorFill">*</span>
-                    </div> */}
                         <div className="flex space-x-4">
                             <Button
                                 title={t("organizations.cancel")}

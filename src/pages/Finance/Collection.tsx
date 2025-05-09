@@ -123,22 +123,22 @@ const Collection: React.FC = () => {
         {
             label: "Инкассация",
             key: "sumFact",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Сумма по картам",
             key: "sumCard",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Безналичная оплата",
             key: "sumVirtual",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Прибыль",
             key: "profit",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Статус",
