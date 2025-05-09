@@ -8,13 +8,14 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import useSWR, { mutate } from "swr";
-import { createCategory, getCategory } from "@/services/api/warehouse";
+import { createCategory, getCategory, updateCategory } from "@/services/api/warehouse";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
-import TreeTable from "@/components/ui/Table/TreeTable";
+// import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsCategory } from "@/utils/OverFlowTableData";
+import DynamicTreeTable from "@/components/ui/Table/DynamicTreeTable";
 
 type TreeData = {
     id: number;
@@ -54,6 +55,8 @@ const buildTree = (data: any[]): TreeData[] => {
 const InventoryGroups: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editInventoryId, setEditInventoryId] = useState<number>(0);
 
     const { data: categoryData, isLoading: loadingCategory } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -77,6 +80,11 @@ const InventoryGroups: React.FC = () => {
         ownerCategoryId: formData.ownerCategoryId
     }));
 
+    const { trigger: updateCat, isMutating: updatingCat } = useSWRMutation(['update-inventory'], async () => updateCategory({
+        name: formData.name,
+        description: formData.description,
+    }, editInventoryId));
+
     type FieldType = "name" | "description" | "ownerCategoryId";
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -86,9 +94,29 @@ const InventoryGroups: React.FC = () => {
         setValue(field, value);
     };
 
+    const handleUpdate = (id: number) => {
+        setEditInventoryId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+        console.log(id);
+        console.log(isEditMode);
+        const inventoryToEdit = category.find((inventory) => inventory.id === id);
+        console.log(inventoryToEdit);
+        if (inventoryToEdit) {
+            setFormData({
+                name: inventoryToEdit.name,
+                description: inventoryToEdit.description,
+                ownerCategoryId: inventoryToEdit.ownerCategoryId
+            });
+        }
+        console.log("The id to edit: ", id);
+    };
+
     const resetForm = () => {
         setFormData(defaultValues);
+        setIsEditMode(false);
         reset();
+        setEditInventoryId(0);
         setButtonOn(!buttonOn);
     };
 
@@ -96,14 +124,25 @@ const InventoryGroups: React.FC = () => {
         console.log("Errors: ", errors);
         console.log('Form data:', data);
         try {
-
-            const result = await createCat();
-            if (result) {
-                console.log('API Response:', result);
-                mutate([`get-category`]);
-                resetForm();
+            if (editInventoryId) {
+                const result = await updateCat();
+                console.log(result);
+                if (result) {
+                    console.log(result);
+                    mutate([`get-category`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
             } else {
-                throw new Error('Invalid response from API');
+                const result = await createCat();
+                if (result) {
+                    console.log('API Response:', result);
+                    mutate([`get-category`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
@@ -118,21 +157,21 @@ const InventoryGroups: React.FC = () => {
                 <TableSkeleton columnCount={columnsCategory.length} />
             ) : treeData.length > 0 ?
                 <div className="mt-8">
-                    <TreeTable
+                    <DynamicTreeTable
                         treeData={treeData}
                         columns={columnsCategory}
                         isUpdate={true}
-                        onUpdate={(id) => console.log("Update clicked for ID:", id)}
+                        onUpdate={handleUpdate}
                     />
                 </div> :
                 <NoDataUI
                     title={t("warehouse.nomenclature")}
                     description={""}
                 >
-                    <img src={InventoryEmpty} className="mx-auto" />
+                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                 </NoDataUI>
             }
-            <DrawerCreate classname="w-[440px]">
+            <DrawerCreate classname="w-[440px]" onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.groupCreate")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>
@@ -144,17 +183,18 @@ const InventoryGroups: React.FC = () => {
                         value={formData.name}
                         changeValue={(e) => handleInputChange('name', e.target.value)}
                         error={!!errors.name}
-                        {...register('name', { required: 'Name is required' })}
+                        {...register('name', { required: !isEditMode && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                     />
                     <DropdownInput
                         title={`${t("warehouse.included")}`}
-                        label={t("warehouse.notSel")}
+                        // label={t("warehouse.notSel")}
                         options={categories}
                         classname="w-64"
                         {...register('ownerCategoryId')}
                         value={formData.ownerCategoryId}
                         onChange={(value) => handleInputChange('ownerCategoryId', value)}
+                        isDisabled={isEditMode}
                     />
                     <MultilineInput
                         title={t("warehouse.desc")}
@@ -175,7 +215,7 @@ const InventoryGroups: React.FC = () => {
                         <Button
                             title={t("routes.create")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingCat : isMutating}
                             handleClick={() => { }}
                         />
                     </div>

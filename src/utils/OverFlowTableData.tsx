@@ -1,3 +1,5 @@
+import Input from "@/components/ui/Input/Input";
+
 export const tableUserData = [
   {
     id: 1,
@@ -114,29 +116,20 @@ export const columnsPos = [
     key: "name",
   },
   {
-    label: "Обозначение",
-    key: "slug",
+    label: "Страна",
+    key: "country",
   },
   {
-    label: "Адресс",
+    label: "Город",
+    key: "city",
+  },
+  {
+    label: "Адрес",
     key: "address",
-  },
-  {
-    label: "Месячный план",
-    key: "monthlyPlan",
-    type: "number"
   },
   {
     label: "Организация",
     key: "organizationName"
-  },
-  {
-    label: "Название организации",
-    key: "posType",
-  },
-  {
-    label: "Временная зона",
-    key: "timezone",
   },
   {
     label: "Статус",
@@ -154,11 +147,11 @@ export const columnsPos = [
   },
   {
     label: "Создал",
-    key: "createdById",
+    key: "createdByName",
   },
   {
     label: "Обновил",
-    key: "updatedById",
+    key: "updatedByName",
   }
 ]
 export const columnsOrg = [
@@ -241,46 +234,37 @@ export const columnsMonitoringPos = [
     key: "city",
   },
   {
-    label: "Адрес",
-    key: "address",
-  },
-  {
-    label: "Кол-во операций",
-    key: "quantity",
-    type: "number"
-  },
-  {
     label: "Последняя операция",
     key: "lastOper",
     type: "date",
   },
-  {
-    label: "Последняя Списание по картам",
-    key: "lastLabelWriteOff"
-  },
+  // {
+  //   label: "Последняя Списание по картам",
+  //   key: "lastLabelWriteOff"
+  // },
   {
     label: "Наличные",
     key: "cashSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "number"
+    type: "currency"
   },
-  {
-    label: "Списание по приложению",
-    key: "Writeoffapplication"
-  },
+  // {
+  //   label: "Списание по приложению",
+  //   key: "Writeoffapplication"
+  // },
   {
     label: "Сashback по картам",
     key: "cashbackSumCard",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Сумма скидки",
     key: "discountSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Кол-во опреаций",
@@ -290,7 +274,7 @@ export const columnsMonitoringPos = [
   {
     label: "Яндекс Сумма",
     key: "yandexSum",
-    type: "number"
+    type: "currency"
   },
 ]
 
@@ -310,17 +294,17 @@ export const columnsMonitoringFullDevices = [
   {
     label: "Наличные",
     key: "cashSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Яндекс Заправки",
     key: "yandexSum",
-    type: "number"
+    type: "currency"
   },
   {
     label: "Последняя операция",
@@ -337,6 +321,7 @@ export const columnsMonitoringDevice = [
   {
     label: "Сумма операции",
     key: "sumOper",
+    type: "currency"
   },
   {
     label: "Дата операции",
@@ -372,23 +357,55 @@ export const columnsProgramsPos = [
   {
     label: "Кол-во программ",
     key: "counter",
-    type: "number"
+    type: "double"
   },
   {
-    label: "Общее время мин.",
+    label: "Общее время (мин)",
     key: "totalTime",
-    type: "number"
+    type: "double"
   },
   {
-    label: "Среднее время мин.",
+    label: "Среднее время (мин)",
     key: "averageTime",
-    type: "number"
+    type: "double"
   },
   {
     label: "Последняя программа",
     key: "lastOper",
     type: "date",
   },
+]
+
+export const columnsProgramsPosPortal = [
+  {
+    label: "Программа",
+    key: "programName",
+  },
+  {
+    label: "Кол-во программ",
+    key: "counter",
+    type: "double"
+  },
+  {
+    label: "Общее время (мин)",
+    key: "totalTime",
+    type: "double"
+  },
+  {
+    label: "Среднее время (мин)",
+    key: "averageTime",
+    type: "double"
+  },
+  {
+    label: "Выручка по программам",
+    key: "totalProfit",
+    type: "currency"
+  },
+  {
+    label: "Средний чек",
+    key: "averageProfit",
+    type: "currency"
+  }
 ]
 
 export const columnsProgramDevice = [
@@ -413,12 +430,12 @@ export const columnsProgramDevice = [
   {
     label: "Время выполнения",
     key: "time",
-    type: "number"
+    type: "double"
   },
   {
     label: "Локальный id",
     key: "localId",
-    type: "number"
+    type: "double"
   },
   {
     label: "Оплата",
@@ -433,7 +450,7 @@ export const columnsProgramDevice = [
 export const columnsEquipmentFailure = [
   {
     label: "Название объекта",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Тип объекта",
@@ -441,10 +458,10 @@ export const columnsEquipmentFailure = [
   },
   {
     label: "Сотрудник",
-    key: "workerId"
+    key: "workerName"
   },
   {
-    label: "Дата вызова",
+    label: "Дата поломки",
     key: "appearanceDate",
     type: "date"
   },
@@ -479,7 +496,7 @@ export const columnsEquipmentFailure = [
     key: "incidentSolution"
   },
   {
-    label: "Замена",
+    label: "Время исправления",
     key: "repair"
   },
   {
@@ -487,39 +504,19 @@ export const columnsEquipmentFailure = [
     key: "downtime"
   },
   {
-    label: "Авто/час",
-    key: "autoHour"
-  },
-  {
     label: "Комментарий",
     key: "comment"
   },
   {
-    label: "Цена минуты",
-    key: "pricePerMinute"
-  },
-  {
-    label: "Проверка простоя",
-    key: "idleCheck"
-  },
-  {
-    label: "Стоимость простоя",
-    key: "downtimeCost"
-  },
-  {
-    label: "Авто на устройстве",
-    key: "autoOnDevice"
-  },
-  {
     label: "Программа",
-    key: "programId"
+    key: "programName"
   }
 ]
 
 export const columnsTechTasks = [
   {
     label: "Автомойка/ Филиал",
-    key: "posId"
+    key: "posName"
   },
   {
     label: "Наименование работ",
@@ -527,11 +524,21 @@ export const columnsTechTasks = [
   },
   {
     label: "Периодичность",
-    key: "period"
+    key: "period",
+    type: "number"
+  },
+  {
+    label: "Статус",
+    key: "status"
   },
   {
     label: "Тип работы",
     key: "type"
+  },
+  {
+    label: "Теги",
+    key: "tags",
+    type: "tags"
   },
   {
     label: "Дата начала работ",
@@ -584,75 +591,93 @@ export const columnsChemicalConsumption = [
   },
   {
     label: "Вода + шампунь, факт",
-    key: "Вода + шампунь, факт"
+    key: "Вода + шампунь, факт",
+    type: "number"
   },
   {
     label: "Вода + шампунь, время",
-    key: "Вода + шампунь, время"
+    key: "Вода + шампунь, время",
+    type: "number"
   },
   {
     label: "Вода + шампунь, пересчет",
-    key: "Вода + шампунь, пересчет"
+    key: "Вода + шампунь, пересчет",
+    type: "number"
   },
   {
     label: "Активная химия, факт",
-    key: "Активная химия, факт"
+    key: "Активная химия, факт",
+    type: "number"
   },
   {
     label: "Активная химия, время",
-    key: "Активная химия, время"
+    key: "Активная химия, время",
+    type: "number"
   },
   {
     label: "Активная химия, пересчет",
-    key: "Активная химия, пересчет"
+    key: "Активная химия, пересчет",
+    type: "number"
   },
   {
     label: "Мойка дисков, факт",
-    key: "Мойка дисков, факт"
+    key: "Мойка дисков, факт",
+    type: "number"
   },
   {
     label: "Мойка дисков, время",
-    key: "Мойка дисков, время"
+    key: "Мойка дисков, время",
+    type: "number"
   },
   {
     label: "Мойка дисков, пересчет",
-    key: "Мойка дисков, пересчет"
+    key: "Мойка дисков, пересчет",
+    type: "number"
   },
   {
     label: "Щетка + пена, факт",
-    key: "Щетка + пена, факт"
+    key: "Щетка + пена, факт",
+    type: "number"
   },
   {
     label: "Щетка + пена, время",
-    key: "Щетка + пена, время"
+    key: "Щетка + пена, время",
+    type: "number"
   },
   {
     label: "Щетка + пена, пересчет",
-    key: "Щетка + пена, пересчет"
+    key: "Щетка + пена, пересчет",
+    type: "number"
   },
   {
     label: "Воск + защита, факт",
-    key: "Воск + защита, факт"
+    key: "Воск + защита, факт",
+    type: "number"
   },
   {
     label: "Воск + защита, время",
-    key: "Воск + защита, время"
+    key: "Воск + защита, время",
+    type: "number"
   },
   {
     label: "Воск + защита, пересчет",
-    key: "Воск + защита, пересчет"
+    key: "Воск + защита, пересчет",
+    type: "number"
   },
   {
     label: "T-POWER, факт",
-    key: "T-POWER, факт"
+    key: "T-POWER, факт",
+    type: "number"
   },
   {
     label: "T-POWER, время",
-    key: "T-POWER, время"
+    key: "T-POWER, время",
+    type: "number"
   },
   {
     label: "T-POWER, пересчет",
-    key: "T-POWER, пересчет"
+    key: "T-POWER, пересчет",
+    type: "number"
   }
 ]
 
@@ -666,11 +691,11 @@ export const columnsConsumptionRate = [
     label: "Расход литр/минута",
     key: "literRate",
     render: (row: { literRate: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-gray-300 p-2 w-full"
         value={row.literRate}
-        onChange={(e) => handleChange(row.id, "literRate", e.target.value)}
+        changeValue={(e) => handleChange(row.id, "literRate", e.target.value)}
+        error={row.literRate < 0}
       />
     ),
   },
@@ -678,11 +703,11 @@ export const columnsConsumptionRate = [
     label: "Концентрация 1/х",
     key: "concentration",
     render: (row: { concentration: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-      <input
+      <Input
         type="number"
-        className="border border-gray-300 p-2 w-full"
         value={row.concentration}
-        onChange={(e) => handleChange(row.id, "concentration", e.target.value)}
+        changeValue={(e) => handleChange(row.id, "concentration", e.target.value)}
+        error={row.concentration < 0}
       />
     ),
   },
@@ -691,7 +716,7 @@ export const columnsConsumptionRate = [
 export const columnsInventory = [
   {
     label: "Код",
-    key: "id"
+    key: "sku"
   },
   {
     label: "Номенклатура",
@@ -799,4 +824,716 @@ export const columnsClient = [
   }
 ]
 
+export const columnsCollections = [
+  {
+    label: "Тип",
+    key: "typeName",
+    render: (row: { typeName: string; }) => <span>{row.typeName}</span>,
+  },
+  {
+    label: "Купюры",
+    key: "sumPaperDeviceType",
+    render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        placeholder="00,00"
+        value={row.sumPaperDeviceType}
+        error={!row.sumPaperDeviceType}
+        helperText={!row.sumPaperDeviceType ? "Sum Paper Device type is required." : undefined}
+        changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Монеты",
+    key: "sumCoinDeviceType",
+    render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
+        placeholder="00,00"
+        value={row.sumCoinDeviceType}
+        error={!row.sumCoinDeviceType}
+        helperText={!row.sumCoinDeviceType ? "Sum Coin Device type is required." : undefined}
+        changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Сумма всего",
+    key: "sumFactDeviceType",
+    type: "double",
+    render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
+  },
+  {
+    label: "Недостача",
+    key: "shortageDeviceType",
+    type: "double",
+    render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
+  },
+  {
+    label: "Безналичная оплата",
+    key: "virtualSumDeviceType",
+    type: "double",
+    render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
+  }
+]
 
+export const columnsDeviceData = [
+  {
+    label: "Код",
+    key: "deviceId"
+  },
+  {
+    label: "Название",
+    key: "deviceName"
+  },
+  {
+    label: "Тип",
+    key: "deviceType"
+  },
+  {
+    label: "Предыдущая инкассация",
+    key: "oldTookMoneyTime",
+    type: "date"
+  },
+  {
+    label: "Текущая инкассация",
+    key: "tookMoneyTime",
+    type: "date"
+  },
+  {
+    label: "Купюры",
+    key: "sumPaperDevice",
+    type: "currency"
+  },
+  {
+    label: "Монеты",
+    key: "sumCoinDevice",
+    type: "currency"
+  },
+  {
+    label: "Сумма всего",
+    key: "sumDevice",
+    type: "currency"
+  },
+  {
+    label: "Безналичная оплата",
+    key: "virtualSumDevice",
+    type: "currency"
+  }
+]
+
+export const columnsCollectionsData = [
+  {
+    label: "№ Документа",
+    key: "id"
+  },
+  {
+    label: "Мойка/Филиал",
+    key: "posId"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Период",
+    key: "period"
+  },
+  {
+    label: "Инкассация",
+    key: "sumFact"
+  },
+  {
+    label: "Сумма по картам",
+    key: "sumCard"
+  },
+  {
+    label: "Безналичная оплата",
+    key: "sumVirtual"
+  },
+  {
+    label: "Прибыль",
+    key: "profit"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Недостача",
+    key: "shortage"
+  }
+]
+
+export const columnsShifts = [
+  {
+    label: "Мойка/филиал",
+    key: "posName"
+  },
+  {
+    label: "Период",
+    key: "period",
+    type: "period"
+  },
+  {
+    label: "Дата форматирования",
+    key: "createdAt",
+    type: "date"
+  },
+  {
+    label: "Ответственный",
+    key: "createdByName"
+  },
+  {
+    label: "Изменения в отчете",
+    key: "updatedAt",
+    type: "date"
+  }
+]
+
+export const columnsDataCashOper = [
+  {
+    label: "На начало смены",
+    key: "cashAtStart",
+    type: "double"
+  },
+  {
+    label: "Пополнение",
+    key: "replenishmentSum",
+    type: "double"
+  },
+  {
+    label: "Расход",
+    key: "expenditureSum",
+    type: "double"
+  },
+  {
+    label: "На конец смены",
+    key: "cashAtEnd",
+    type: "double"
+  }
+]
+
+export const columnsDataCashOperRefund = [
+  {
+    label: "Устройство",
+    key: "deviceName"
+  },
+  {
+    label: "Дата и время",
+    key: "eventDate",
+    type: "date"
+  },
+  {
+    label: "Сумма",
+    key: "sum",
+    type: "currency"
+  },
+  {
+    label: "Комментарий",
+    key: "comment"
+  }
+]
+
+export const columnsDataCashOperCleaning = [
+  {
+    label: "Наименование",
+    key: "deviceName"
+  },
+  {
+    label: "Программа",
+    key: "programName"
+  },
+  {
+    label: "Кол-во программ",
+    key: "countProgram",
+    type: "double"
+  },
+  {
+    label: "Общее время",
+    key: "time"
+  }
+]
+
+export const columnsDataCashOperSuspiciously = [
+  {
+    label: "Устройство",
+    key: "deviceName"
+  },
+  {
+    label: "Время включения",
+    key: "programDate",
+    type: "date"
+  },
+  {
+    label: "Программа",
+    key: "programName"
+  },
+  {
+    label: "Время работы",
+    key: "programTime"
+  },
+  {
+    label: "Время включения (Предыдущая)",
+    key: "lastProgramDate",
+    type: "date"
+  },
+  {
+    label: "Программа (Предыдущая)",
+    key: "lastProgramName"
+  },
+  {
+    label: "Время работы (Предыдущая)",
+    key: "lastProgramTime"
+  }
+]
+
+export const columnsEmployees = [
+  {
+    label: "ФИО Сотрудника",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "position"
+  },
+  {
+    label: "Роль СRM",
+    key: "roleName"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Работает с",
+    key: "createdAt"
+  }
+]
+
+export const columnsRoles = [
+  {
+    label: "Роль СRM",
+    key: "name"
+  },
+  {
+    label: "Права доступа",
+    key: "description"
+  }
+] 
+
+export const columnsTransactions = [
+  {
+    label: "Отчет",
+    key: "reportTemplateId"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Дата начала создания",
+    key: "startTemplateAt",
+    type: "date"
+  },
+  {
+    label: "Дата окончания создания",
+    key: "endTemplateAt",
+    type: "date"
+  }
+]
+
+export const columnsWarehouses = [
+  {
+    label: "Наименование",
+    key: "name"
+  },
+  {
+    label: "Расположение",
+    key: "location"
+  },
+  {
+    label: "Менеджер",
+    key: "manager"
+  },
+  {
+    label: "Автомойка/ Филиал",
+    key: "posName"
+  }
+]
+
+export const columnsPlanFact = [
+  {
+    label: "ID",
+    key: "posId"
+  },
+  {
+    label: "Название",
+    key: "posName"
+  },
+  {
+    label: "План за указанный период",
+    key: "plan",
+    type: "double"
+  },
+  {
+    label: "Наличные",
+    key: "cashFact",
+    type: "double"
+  },
+  {
+    label: "Безналичные",
+    key: "virtualSumFact",
+    type: "double"
+  },
+  {
+    label: "Яндекс зачисления",
+    key: "yandexSumFact",
+    type: "double"
+  },
+  {
+    label: "Факт итог",
+    key: "sumFact",
+    type: "double"
+  },
+  {
+    label: "Выполнен план",
+    key: "completedPercent",
+    type: "percent"
+  },
+  {
+    label: "Не выполнен план",
+    key: "notCompletedPercent",
+    type: "percent"
+  }
+]
+
+export const columnsEmployee = [
+  {
+    label: "ФИО Сотрудника",
+    key: "name"
+  },
+  {
+    label: "Город",
+    key: "placement"
+  },
+  {
+    label: "Организация",
+    key: "organization"
+  },
+  {
+    label: "Должность",
+    key: "position"
+  },
+  {
+    label: "Месячный оклад",
+    key: "monthlySalary",
+    type: "currency"
+  },
+  {
+    label: "Дневной оклад",
+    key: "dailySalary",
+    type: "currency"
+  },
+  {
+    label: "Проценты",
+    key: "percentageSalary",
+    type: "percent"
+  }
+]
+
+export const columnsPositions = [
+  {
+    label: "Должность",
+    key: "name"
+  },
+  {
+    label: "Описание",
+    key: "description"
+  }
+]
+
+export const columnsSalaryCalcCreation = [
+  {
+    label: "Мойка/Филиал",
+    key: "posName"
+  },
+  {
+    label: "ФИО Сотрудника",
+    key: "fullName"
+  },
+  {
+    label: "Должность",
+    key: "jobTitle"
+  },
+  {
+    label: "Оклад",
+    key: "salary",
+    type: "currency"
+  },
+  {
+    label: "Посменное начисление",
+    key: "shift",
+    type: "currency"
+  },
+  {
+    label: "Процент",
+    key: "percent",
+    type: "percent"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "shifts",
+    type: "number"
+  }
+]
+
+export const columnsClients = [
+  {
+    label: "Тип клиента",
+    key: "type"
+  },
+  {
+    label: "Имя клиента",
+    key: "name"
+  },
+  {
+    label: "Город",
+    key: "city"
+  },
+  {
+    label: "Телефон",
+    key: "phone"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Теги",
+    key: "tags",
+    type: "tags"
+  },
+  {
+    label: "Комментарий",
+    key: "comment"
+  }
+]
+
+export const columnsLoyaltyPrograms = [
+  {
+    label: "Название программы",
+    key: "name"
+  },
+  {
+    label: "Статус",
+    key: "status"
+  },
+  {
+    label: "Дата запуска",
+    key: "startDate",
+    type: "date"
+  }
+]
+
+export const columnsPayments = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Месяц расчёта",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "currency"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "currency"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "percent"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    type: "double"
+  },
+  {
+    label: "Выплачено аванс",
+    key: "prepaymentSum",
+    type: "currency"
+  },
+  {
+    label: "Выплачено ЗП",
+    key: "paymentSum",
+    type: "currency"
+  },
+  {
+    label: "Премия",
+    key: "prize",
+    type: "currency"
+  },
+  {
+    label: "Штраф",
+    key: "fine",
+    type: "currency"
+  },
+  {
+    label: "Выплачено итог",
+    key: "totalPayment",
+    type: "currency"
+  }
+]
+
+export const columnsPrePayments = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Расчетный месяц",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Дата выдачи",
+    key: "paymentDate",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "currency"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "currency"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "percent"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    type: "double"
+  },
+  {
+    label: "Выплачено",
+    key: "sum",
+    type: "currency"
+  }
+]
+
+export const columnsPaymentsCreation = [
+  {
+    label: "ФИО",
+    key: "name"
+  },
+  {
+    label: "Должность",
+    key: "hrPosition"
+  },
+  {
+    label: "Месяц расчёта",
+    key: "billingMonth",
+    type: "date"
+  },
+  {
+    label: "Оклад",
+    key: "monthlySalary",
+    type: "currency"
+  },
+  {
+    label: "Посменное начисление",
+    key: "dailySalary",
+    type: "currency"
+  },
+  {
+    label: "Процент",
+    key: "percentageSalary",
+    type: "percent"
+  },
+  {
+    label: "Выплачено аванс",
+    key: "prepaymentSum",
+    type: "currency"
+  },
+  {
+    label: "Количество отработанных смен аванс",
+    key: "prepaymentCountShifts",
+    type: "double"
+  },
+  {
+    label: "Количество отработанных смен",
+    key: "countShifts",
+    render: (row: { countShifts: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.countShifts}
+        changeValue={(e) => handleChange(row.id, "countShifts", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Количество отработанных смен итог",
+    key: "totalCountShifts",
+    type: "double"
+  },
+  {
+    label: "Выплачено ЗП",
+    key: "sum",
+    type: "currency"
+  },
+  {
+    label: "Премия",
+    key: "prize",
+    render: (row: { prize: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.prize}
+        changeValue={(e) => handleChange(row.id, "prize", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Штраф",
+    key: "fine",
+    render: (row: { fine: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+      <Input
+        type="number"
+        placeholder="00,00"
+        value={row.fine}
+        changeValue={(e) => handleChange(row.id, "fine", e.target.value)}
+      />
+    ),
+  },
+  {
+    label: "Выплачено итог",
+    key: "totalPayment",
+    type: "double"
+  }
+]

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Input from '@ui/Input/Input';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
@@ -7,22 +6,24 @@ import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useClearJwtToken, useClearPermissions, useSetPermissions } from '@/hooks/useAuthStore';
-
+import LanguageSelector from '@/components/LanguageSelector';
+import useAuthStore from '@/config/store/authSlice';
+import Avatar from '@/components/ui/Avatar';
+import Input from '@/components/ui/Input/Input';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const initials = 'CE'; // Replace this with dynamic initials logic
   const user = useUser();
   const setUser = useSetUser();
   const setClearUser = useClearUserData();
   const setClearToken = useClearJwtToken();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
-  const navigate = useNavigate();
+
+  const userName = { name: user.name, middlename: user.middlename };
 
   const defaultValues = useMemo(
     () => ({
@@ -31,7 +32,7 @@ const InfoTab: React.FC = () => {
       phone: user.phone || '',
       middlename: user.middlename || '',
       surname: user.surname || '',
-      imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null
+      imagePreview: user.avatar ? "https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar : null,
     }),
     [user]
   );
@@ -40,17 +41,6 @@ const InfoTab: React.FC = () => {
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
-  // const { trigger } = useSWRMutation(
-  //   `user/avatar`,
-  //   async () => {
-  //     if (selectedFile) {
-  //       const formData = new FormData();
-  //       formData.append('file', selectedFile);
-  //       formData.append('id', user.id.toString())
-  //       return await uploadUserAvatar(formData);
-  //     }
-  //   });
-
   const { trigger: updateUser, isMutating } = useSWRMutation('user', async () => updateUserProfile({
     name: formData.name,
     email: formData.email,
@@ -58,7 +48,6 @@ const InfoTab: React.FC = () => {
     middlename: formData.middlename,
     surname: formData.surname,
   }, selectedFile));
-
 
   useEffect(() => {
     const storedAvatarUrl = localStorage.getItem('avatarUrl') || defaultValues.imagePreview;
@@ -80,6 +69,7 @@ const InfoTab: React.FC = () => {
       setImagePreview(null);
     }
   };
+
   type FieldName = 'name' | 'email' | 'phone' | 'middlename' | 'surname';
 
   const handleInputChange = (field: FieldName, value: string) => {
@@ -90,7 +80,6 @@ const InfoTab: React.FC = () => {
   const onSubmit = async (data: unknown) => {
     console.log('Form Data:', data);
     try {
-      // const uploadAvatar = selectedFile ? trigger() : Promise.resolve(null);
       const updateUserData = updateUser();
 
       if ((await updateUserData).props.avatar) {
@@ -121,140 +110,132 @@ const InfoTab: React.FC = () => {
 
   const logout = () => {
     localStorage.clear();
-    
+    sessionStorage.clear();
+
     setClearUser();
     setClearToken();
     setClearPermissions();
     setPermissions([]);
-    navigate('/login');
-  }
 
-  console.log("Image Preview: ", imagePreview);
+    useAuthStore.getState().reset();
+
+    window.location.href = "";
+  };
 
   return (
     <div className="max-w-6xl mr-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row justify-between items-start gap-6">
-          <div className="flex flex-col space-y-6 w-full md:w-2/3">
-            <div>
-              <Input
-                type="text"
-                title={t("profile.name")}
-                label={t("profile.name")}
-                value={formData?.name}
-                changeValue={(e) => handleInputChange('name', e.target.value)}
-                {...register('name', { required: 'Имя is required' })}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                title={t("profile.middlename")}
-                label={t("profile.middlename")}
-                value={formData.middlename}
-                changeValue={(e) => handleInputChange('middlename', e.target.value)}
-                {...register('middlename')}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.middlename}
-                helperText={errors.middlename?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                title={t("profile.surname")}
-                label={t("profile.surname")}
-                value={formData.surname}
-                changeValue={(e) => handleInputChange('surname', e.target.value)}
-                {...register('surname', { required: 'Отчество is required' })}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.surname}
-                helperText={errors.surname?.message}
-              />
-            </div>
-            <div>
-              <Input
-                type="text"
-                label={t("profile.telephone")}
-                title={t("profile.telephone")}
-                value={formData.phone}
-                changeValue={(e) => handleInputChange('phone', e.target.value)}
-                {...register('phone')}
-                disabled={false}
-                inputType="primary"
-                classname='w-80'
-                error={!!errors.phone}
-                helperText={errors.phone?.message}
-              />
-            </div>
-            <div className='flex'>
-              <div>
-                <Input
-                  type="email"
-                  title="E-mail *"
-                  value={formData.email}
-                  changeValue={(e) => handleInputChange('email', e.target.value)}
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Invalid email format'
-                    }
-                  })}
-                  disabled={true}
-                  inputType="primary"
-                  classname='w-80'
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              </div>
-              {/* <div className='flex ml-2 mt-5 text-primary02 font-semibold text-base items-center justify-center'>{t("profile.email")}</div> */}
-            </div>
-            <div className='flex'>
-              <input type='checkbox' />
-              <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
-            </div>
-            <div className="flex">
-              <Button form={false} title={t("profile.logout")} classname='mt-2' handleClick={logout} />
-            </div>
+        <div className="flex flex-col space-y-6 w-full">
+          <Input
+            title={t("profile.name")}
+            label={t("profile.namePlaceholder")}
+            value={formData.name}
+            changeValue={(e) => {
+              handleInputChange('name', e.target.value);
+            }}
+            {...register('name', { required: 'Имя is required' })}
+            classname='w-80'
+            error={!!errors.name}
+            helperText={errors.name?.message}
+          />
+          <Input
+            title={t("profile.middlename")}
+            label={t("profile.middlenamePlaceholder")}
+            value={formData.middlename}
+            changeValue={(e) => {
+              handleInputChange('middlename', e.target.value);
+            }}
+            {...register('middlename')}
+            classname='w-80'
+          />
+          <Input
+            title={t("profile.surname")}
+            label={t("profile.surnamePlaceholder")}
+            value={formData.surname}
+            changeValue={(e) => {
+              handleInputChange('surname', e.target.value);
+            }}
+            {...register('surname')}
+            classname='w-80'
+          />
+          <Input
+            type="text"
+            title={t("profile.telephone")}
+            label={t("profile.telephonePlaceholder")}
+            classname="mb-5"
+            value={formData.phone}
+            changeValue={(e) => handleInputChange('phone', e.target.value)}
+            error={!!errors.phone}
+            {...register('phone', {
+              required: 'phone is required',
+              pattern: {
+                value: /^\+79\d{9}$/,
+                message: 'Phone number must start with +79 and be 11 digits long'
+              }
+            })}
+            helperText={errors.phone?.message || ''}
+          />
+          <Input
+            type="text"
+            title={"E-mail *"}
+            classname="mb-5"
+            value={formData.email}
+            changeValue={(e) => handleInputChange('email', e.target.value)}
+            error={!!errors.email}
+            {...register('email', {
+              required: 'email is required',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Invalid email format'
+              }
+            })}
+            helperText={errors.email?.message || ''}
+            disabled={true}
+          />
+          <div className='flex'>
+            <input type='checkbox' />
+            <div className='ml-2 text-text02 text-base'>{t("profile.agree")}</div>
           </div>
-          <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
-            <div>{t("profile.photo")}</div>
+          <div>
+            <div className='text-text02'>{t("routes.lan")}</div>
+            <LanguageSelector />
+          </div>
+          <div className="flex">
+            <Button form={false} title={t("profile.logout")} classname='mt-2' handleClick={logout} />
+          </div>
+        </div>
+        <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
+          <div>{t("profile.photo")}</div>
+
+          {imagePreview ? (
             <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="Profile"
-                  className="rounded-full w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-4xl font-bold text-black">{initials}</span>
-              )}
-            </div>
-            <div className="mt-2">
-              <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
-                {t("profile.changePh")}
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
+              <img
+                src={imagePreview}
+                alt="Profile"
+                className="rounded-full w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
-            <div className="flex">
-              <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
-            </div>
+          ) : (
+            <Avatar type="profile" userName={userName} />
+          )}
+
+          <div className="mt-2">
+            <label htmlFor="file-upload" className="w-36 flex justify-center items-center text-primary02 cursor-pointer">
+              {t("profile.changePh")}
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
+          <div className="flex">
+            <Button form={true} title={t("profile.save")} classname='mt-10' isLoading={isMutating} />
+          </div>
+        </div>
       </form>
     </div>
   );

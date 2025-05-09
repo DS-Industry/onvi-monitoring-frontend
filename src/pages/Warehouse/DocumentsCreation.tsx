@@ -1,21 +1,25 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
 import SearchInput from "@/components/ui/Input/SearchInput";
 import DocumentModal from "@/components/ui/Modal/DocumentModal";
-import GoodsTable from "@/components/ui/Table/GoodsTable";
+import NoDataUI from "@/components/ui/NoDataUI";
+// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
-import { getWorkers } from "@/services/api/equipment";
+import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
+import { useUser } from "@/hooks/useUserStore";
+import { getOrganization } from "@/services/api/organization";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
-import { columnsInventoryItems } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
+import InventoryEmpty from "@/assets/NoInventory.png"
+import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
+import { Select, Skeleton } from "antd";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -30,19 +34,31 @@ const DocumentsCreation: React.FC = () => {
 
     const documentType = useDocumentType();
     const { t } = useTranslation();
-    const [warehouseId, setWarehouseId] = useState<number | null>(0);
+    const location = useLocation();
+    const warehouseID = location.state.wareHouseId;
+    const [warehouseId, setWarehouseId] = useState<number | string | null>(warehouseID);
     const [warehouseRecId, setWarehouseRecId] = useState(0);
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
     const [selectedDate, setSelectedDate] = useState<string | null>(() => {
-        const today = new Date(); 
-        return today.toISOString().split("T")[0]; 
+        const today = new Date();
+        return today.toISOString().split("T")[0];
     });
     const navigate = useNavigate();
-    const location = useLocation();
     const setEndDate = useSetEndDate();
+    const user = useUser();
+    const [searchNomen, setSearchNomen] = useState("");
 
-    const { data: document, isLoading: loadingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
+
+    const handleCheckboxChange = (id: number) => {
+        setSelectedItems(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document-view`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
         return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
@@ -67,6 +83,7 @@ const DocumentsCreation: React.FC = () => {
                         id: doc.props.id,
                         check: false, // Add the 'check' property
                         responsibleId: document.document.props.responsibleId,
+                        responsibleName: user.name,
                         nomenclatureId: doc.props.nomenclatureId,
                         quantity: doc.props.quantity,
                         comment: doc.props.comment || "",
@@ -77,13 +94,14 @@ const DocumentsCreation: React.FC = () => {
                         id: doc.props.id,
                         check: false, // Add the 'check' property
                         responsibleId: document.document.props.responsibleId,
+                        responsibleName: user.name,
                         nomenclatureId: doc.props.nomenclatureId,
                         quantity: doc.props.quantity,
                         comment: doc.props.comment || ""
                     }));
                 setTableData(tableData);
             } else {
-                setWarehouseId(location?.state?.warehouseId || null);
+                setWarehouseId(location?.state?.wareHouseId || null);
                 setNoOverHead(location?.state?.name || '');
                 const validDate = new Date(location?.state?.carryingAt ?? '');
                 setSelectedDate(!isNaN(validDate.getTime()) ? validDate.toISOString().split("T")[0] : null);
@@ -93,7 +111,8 @@ const DocumentsCreation: React.FC = () => {
                     ? [{
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
-                        responsibleId: 0,
+                        responsibleId: user.id,
+                        responsibleName: user.name,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: "",
@@ -103,7 +122,8 @@ const DocumentsCreation: React.FC = () => {
                     : [{
                         id: location?.state.ownerId,
                         check: false, // Add the 'check' property
-                        responsibleId: 0,
+                        responsibleId: user.id,
+                        responsibleName: user.name,
                         nomenclatureId: 0,
                         quantity: 0,
                         comment: ""
@@ -111,16 +131,16 @@ const DocumentsCreation: React.FC = () => {
                 setTableData(tableData);
             }
         }
-    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.warehouseId, loadingDocument]);
+    }, [document, documentType, location?.state?.carryingAt, location?.state.ownerId, location?.state?.name, location?.state?.wareHouseId, loadingDocument, user.id, user.name]);
 
 
-    const [errors, setErrors] = useState({
+    const [globalErrors, setGlobalErrors] = useState({
         warehouse: false,
-        responsible: false,
-        nomenclature: false,
-        quantity: false,
-        warehouseRec: false
+        warehouseRec: false,
     });
+
+    const [errors, setErrors] = useState<Record<number, { nomenclature: boolean; quantity: boolean }>>({});
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const addProduct = () => {
@@ -159,31 +179,44 @@ const DocumentsCreation: React.FC = () => {
             return sendDocument(arg, docId);
         });
 
-    const mockData = documentType === "INVENTORY" ? [
-        { id: 1, check: false, responsibleId: 0, nomenclatureId: 0, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
-    ] : [
-        { id: 1, check: false, responsibleId: 0, nomenclatureId: 0, quantity: 0, comment: "" }
-    ]
 
     const posType = usePosType();
+    const city = useCity();
 
-    const [tableData, setTableData] = useState(mockData);
+    const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
+        placementId: city
+    }));
 
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const { data: nomenclatureData } = useSWR([`get-inventory`], () => getNomenclature(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations[0].value), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: inventoryItemData } = useSWR(warehouseData ? [`get-inventory-items`] : null, () => getInventoryItems(warehouseData ? warehouseData[0].props.id : 1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const { data: inventoryItemData } = useSWR(warehouseId !== null && warehouseID !== "*" && !isNaN(Number(warehouseId)) ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name })) || [];
+    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; sku: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name, sku: item.props.sku })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
+
+    const inventoryItems: { nomenclatureId: number; nomenclatureName: string; sku: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, nomenclatureName: item.nomenclatureName, sku: item.quantity })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
+
+    const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
+
+    const firstNomenclature = nomenclatures.length > 0 ? nomenclatures[0].value : 0;
+
+    const mockData = documentType === "INVENTORY" ? [
+        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: firstNomenclature, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
+    ] : [
+        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: firstNomenclature, quantity: 0, comment: "" }
+    ];
+
+    const [tableData, setTableData] = useState(mockData);
 
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
@@ -193,11 +226,12 @@ const DocumentsCreation: React.FC = () => {
                         return {
                             ...item,
                             [key]: value,
+                            oldQuantity: oldQuantityItems.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity,
                             deviation:
                                 key === "quantity" || key === "oldQuantity"
                                     ? (key === "quantity" ? Number(value) : item.quantity) -
-                                      (key === "oldQuantity" ? Number(value) : item.oldQuantity)
-                                    : item.deviation,
+                                    (key === "oldQuantity" ? Number(value) : item.oldQuantity)
+                                    : item.deviation
                         };
                     }
                     return { ...item, [key]: value };
@@ -205,78 +239,104 @@ const DocumentsCreation: React.FC = () => {
                 return item;
             })
         );
-    };    
-    
+    };
+
     const updateRow = () => {
-        if (documentType === "INVENTORY")
-            setTableData((prevData) => [
-                ...prevData,
-                {
-                    id: prevData.length + 1,
-                    check: false,
-                    responsibleId: 0,
-                    nomenclatureId: 0,
-                    quantity: 0,
-                    comment: "",
-                    oldQuantity: 0,
-                    deviation: 0
-                },
-            ]);
-        else
-            setTableData((prevData) => [
-                ...prevData,
-                {
-                    id: prevData.length + 1,
-                    check: false,
-                    responsibleId: 0,
-                    nomenclatureId: 0,
-                    quantity: 0,
-                    comment: "",
-                },
-            ]);
+        setTableData((prevData) => {
+
+            const maxId = prevData.length > 0 ? Math.max(...prevData.map(row => row.id)) : 0;
+            const existingNomenclatureIds = new Set(prevData.map(row => row.nomenclatureId));
+            const availableNomenclature = nomenclatures.find(nom => !existingNomenclatureIds.has(nom.value));
+
+            if (!availableNomenclature) {
+                return prevData;
+            }
+
+            const newRow = {
+                id: maxId + 1,
+                check: false,
+                responsibleId: user.id,
+                responsibleName: user.name,
+                nomenclatureId: availableNomenclature.value,
+                quantity: 0,
+                comment: "",
+                ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
+            };
+
+            return [...prevData, newRow];
+        });
+    };
+
+    const deleteRow = () => {
+        setTableData((prevData) => prevData.filter((row) => !row.check));
+    };
+
+    const sortAscending = () => {
+        setTableData(prevData => [...prevData].sort((a, b) => a.id - b.id));
+    };
+
+    const sortDescending = () => {
+        setTableData(prevData => [...prevData].sort((a, b) => b.id - a.id));
     };
 
     const handleSubmit = async () => {
         console.log("Final document creation values: ", tableData);
-        if (warehouseId === 0) {
-            setErrors((prev) => ({
-                ...prev,
-                warehouse: true
-            }));
+
+        let hasErrors = false;
+
+        const newErrors: Record<number, { nomenclature: boolean; quantity: boolean }> = {};
+        tableData.forEach((data) => {
+            newErrors[data.id] = { nomenclature: false, quantity: false };
+        });
+
+        const newGlobalErrors = { warehouse: false, warehouseRec: false };
+
+        if (warehouseId === 0 || warehouseId === "*") {
+            newGlobalErrors.warehouse = true;
+            hasErrors = true;
+        }
+
+        if (documentType === "MOVING" && warehouseId === warehouseRecId) {
+            newGlobalErrors.warehouseRec = true;
+            newGlobalErrors.warehouse = true;
+            hasErrors = true;
         }
 
         tableData?.map((data) => {
-            if (data.responsibleId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    responsible: true
-                }));
-            if (data.nomenclatureId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    nomenclature: true
-                }));
-            if (data.quantity <= 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    quantity: true
-                }));
+            if (data.nomenclatureId === 0) {
+                newErrors[data.id].nomenclature = true;
+                hasErrors = true;
+            }
+            if (data.quantity <= 0) {
+                newErrors[data.id].quantity = true;
+                hasErrors = true;
+            }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
-            setErrors((prev) => ({
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouseRec: true,
                 warehouse: true
             }));
+            hasErrors = true;
         }
+
+        setErrors(newErrors);
+        setGlobalErrors(newGlobalErrors);
+
+        if (hasErrors) {
+            return;
+        }
+
+        const filteredTableData = tableData.filter((data) => data.check === true);
 
         const detailsValues: {
             nomenclatureId: number;
             responsibleId: number;
             quantity: number;
             comment?: string;
-        }[] = tableData?.map((data) => ({
+        }[] = filteredTableData?.map((data) => ({
             nomenclatureId: data.nomenclatureId,
             responsibleId: data.responsibleId,
             quantity: Number(data.quantity),
@@ -292,7 +352,7 @@ const DocumentsCreation: React.FC = () => {
                 oldQuantity?: number;
                 deviation?: number;
             };
-        }[] = tableData?.map((data) => {
+        }[] = filteredTableData?.map((data) => {
             const base = {
                 nomenclatureId: data.nomenclatureId,
                 quantity: Number(data.quantity),
@@ -322,7 +382,7 @@ const DocumentsCreation: React.FC = () => {
         console.log("Payload for details: ", detailsValues, detailValues);
 
         const result = await saveDoc({
-            warehouseId: warehouseId == null ? 0 : warehouseId,
+            warehouseId: warehouseId == null ? 0 : Number(warehouseId),
             responsibleId: tableData[0].responsibleId,
             carryingAt: new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate),
             details: detailValues
@@ -338,45 +398,56 @@ const DocumentsCreation: React.FC = () => {
 
     const handleSubmitSend = async () => {
         console.log("Final document creation values: ", tableData);
-        if (warehouseId === 0) {
-            setErrors((prev) => ({
+
+        const newErrors: { nomenclature: boolean; quantity: boolean }[] = tableData.map(() => ({
+            nomenclature: false,
+            quantity: false
+        }));
+
+        let hasErrors = false;
+
+        if (warehouseId === 0 || warehouseId === "*") {
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouse: true
             }));
+            hasErrors = true;
         }
 
         tableData?.map((data) => {
-            if (data.responsibleId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    responsible: true
-                }));
-            if (data.nomenclatureId === 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    nomenclature: true
-                }));
-            if (data.quantity <= 0)
-                setErrors((prev) => ({
-                    ...prev,
-                    quantity: true
-                }));
+            if (data.nomenclatureId === 0) {
+                newErrors[data.id].nomenclature = true;
+                hasErrors = true;
+            }
+            if (data.quantity <= 0) {
+                newErrors[data.id].quantity = true;
+                hasErrors = true;
+            }
         });
 
         if (documentType === "MOVING" && warehouseId === warehouseRecId) {
-            setErrors((prev) => ({
+            setGlobalErrors((prev) => ({
                 ...prev,
                 warehouseRec: true,
                 warehouse: true
             }));
+            hasErrors = true;
         }
+
+        setErrors(newErrors);
+
+        if (hasErrors) {
+            return;
+        }
+
+        const filteredTableData = tableData.filter((data) => data.check === true);
 
         const detailsValues: {
             nomenclatureId: number;
             responsibleId: number;
             quantity: number;
             comment?: string;
-        }[] = tableData?.map((data) => ({
+        }[] = filteredTableData?.map((data) => ({
             nomenclatureId: data.nomenclatureId,
             responsibleId: data.responsibleId,
             quantity: Number(data.quantity),
@@ -392,7 +463,7 @@ const DocumentsCreation: React.FC = () => {
                 oldQuantity?: number;
                 deviation?: number;
             };
-        }[] = tableData?.map((data) => {
+        }[] = filteredTableData?.map((data) => {
             const base = {
                 nomenclatureId: data.nomenclatureId,
                 quantity: Number(data.quantity),
@@ -422,7 +493,7 @@ const DocumentsCreation: React.FC = () => {
         console.log("Payload for details: ", detailsValues, detailValues);
 
         const result = await sendDoc({
-            warehouseId: warehouseId == null ? 0 : warehouseId,
+            warehouseId: warehouseId == null ? 0 : Number(warehouseId),
             responsibleId: tableData[0].responsibleId,
             carryingAt: new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate),
             details: detailValues
@@ -457,25 +528,31 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId",
-            render: (row: { responsibleId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
-                    value={row.responsibleId}
-                    onChange={(value) => handleChange(row.id, "responsibleId", value)}
-                    options={workers}
-                    error={errors.responsible}
-                />
-            ),
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
             key: "nomenclatureId",
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
+                // <DropdownInput
+                //     value={row.nomenclatureId}
+                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
+                //     options={nomenclatures}
+                //     error={errors[row.id]?.nomenclature || false}
+                //     classnameOptions="max-h-20"
+                // />
+                <Select
+                    status={errors[row.id]?.nomenclature ? 'error' : ''}
                     value={row.nomenclatureId}
+                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={nomenclatures}
-                    error={errors.nomenclature}
+                    options={[
+                        { label: t("warehouse.notSel"), value: 0 },
+                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
+                    ]}
+                    className="w-80"
+                    listHeight={160}
                 />
             ),
         },
@@ -487,7 +564,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.quantity}
                     changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors.quantity}
+                    error={errors[row.id]?.quantity || false}
                 />
             ),
         },
@@ -495,9 +572,8 @@ const DocumentsCreation: React.FC = () => {
             label: "Комментарий",
             key: "comment",
             render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <MultilineInput
+                <Input
                     value={row.comment}
-                    rows={1}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
                 />
             ),
@@ -547,25 +623,31 @@ const DocumentsCreation: React.FC = () => {
         },
         {
             label: "Ответственный",
-            key: "responsibleId",
-            render: (row: { responsibleId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
-                    value={row.responsibleId}
-                    onChange={(value) => handleChange(row.id, "responsibleId", value)}
-                    options={workers}
-                    error={errors.responsible}
-                />
-            ),
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
             key: "nomenclatureId",
             render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <DropdownInput
+                // <DropdownInput
+                //     value={row.nomenclatureId}
+                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
+                //     options={nomenclatures}
+                //     error={errors[row.id]?.nomenclature || false}
+                //     classnameOptions="max-h-20"
+                // />
+                <Select
+                    status={errors[row.id]?.nomenclature ? 'error' : ''}
                     value={row.nomenclatureId}
+                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
                     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={nomenclatures}
-                    error={errors.nomenclature}
+                    options={[
+                        { label: t("warehouse.notSel"), value: 0 },
+                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
+                    ]}
+                    className="w-80"
+                    listHeight={160}
                 />
             ),
         },
@@ -577,7 +659,7 @@ const DocumentsCreation: React.FC = () => {
                     type="number"
                     value={row.quantity}
                     changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors.quantity}
+                    error={errors[row.id]?.quantity || false}
                 />
             ),
         },
@@ -585,100 +667,185 @@ const DocumentsCreation: React.FC = () => {
             label: "Комментарий",
             key: "comment",
             render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                <MultilineInput
+                <Input
                     value={row.comment}
-                    rows={1}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
                 />
             ),
         }
     ]
 
+    const columnsInventoryItems = [
+        {
+            label: "",
+            key: "check",
+            render: (row: { nomenclatureId: number; }) => (
+                <input
+                    type="checkbox"
+                    checked={!!selectedItems[row.nomenclatureId]}  // Use selectedItems state
+                    className="w-[18px] h-[18px]"
+                    onChange={() => handleCheckboxChange(row.nomenclatureId)}
+                />
+            ),
+        },
+        {
+            label: "Код",
+            key: "sku"
+        },
+        {
+            label: "Наименование товара",
+            key: "nomenclatureName"
+        }
+    ]
+
+    const addProductItem = () => {
+        console.log("Add product Item.");
+
+        const dataSource = documentType === "RECEIPT" ? nomenclatureItems : inventoryItems;
+
+        if (!dataSource || !selectedItems) {
+            return;
+        }
+
+        setTableData(prevData => {
+            const existingNomenclatureIds = new Set(prevData.map(item => item.nomenclatureId));
+
+            const selectedData = dataSource
+                .filter(item => selectedItems?.[item.nomenclatureId] && !existingNomenclatureIds.has(item.nomenclatureId))
+                .map(item => ({
+                    id: item.nomenclatureId,
+                    check: true,
+                    responsibleId: user.id,
+                    responsibleName: user.name,
+                    nomenclatureId: item.nomenclatureId,
+                    quantity: 0,
+                    comment: "",
+                    ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
+                }));
+
+            if (selectedData.length === 0) {
+                return prevData;
+            }
+
+            return [...prevData, ...selectedData];
+        });
+
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             <div>
-                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                    <div className="w-[1000px] h-full flex">
-                        <div className="w-1/3">
+                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={addProductItem}>
+                    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-full max-h-[90vh] overflow-y-auto flex flex-col space-y-5 p-4">
+                        {/* Search Input */}
+                        <div className="flex">
                             <SearchInput
-                                value={""}
-                                onChange={() => { }}
-                                classname="w-64"
+                                value={searchNomen}
+                                onChange={(value) => setSearchNomen(value)}
+                                classname="w-full sm:w-64"
                                 searchType="outlined"
                             />
                         </div>
-                        <div className="w-2/3">
-                            {documentType === "RECEIPT" ?
-                                <div className="mt-8">
+
+                        {/* Table Content */}
+                        <div className="mt-4 overflow-x-auto">
+                            {documentType === "RECEIPT" ? (
+                                nomenclatureItems.length > 0 ? (<OverflowTable
+                                    tableData={nomenclatureItems}
+                                    columns={columnsInventoryItems}
+                                />) : (
+                                    <div className="flex flex-col justify-center items-center">
+                                        <NoDataUI
+                                            title={t("roles.invent")}
+                                            description={""}
+                                        >
+                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
+                                        </NoDataUI>
+                                    </div>)
+                            ) : (
+                                inventoryItems.length > 0 ? (
                                     <OverflowTable
-                                        tableData={nomenclatureItems}
+                                        tableData={inventoryItems}
                                         columns={columnsInventoryItems}
-                                    />
-                                </div> :
-                                <div className="mt-8">
-                                    <OverflowTable
-                                        tableData={inventoryItemData}
-                                        columns={columnsInventoryItems}
-                                    />
-                                </div>}
+                                    />) : (
+                                    <div className="flex flex-col justify-center items-center">
+                                        <NoDataUI
+                                            title={t("roles.invent")}
+                                            description={""}
+                                        >
+                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
+                                        </NoDataUI>
+                                    </div>)
+                            )}
                         </div>
                     </div>
                 </DocumentModal>
-                {loadingDocument ?
-                    <TableSkeleton columnCount={10} /> :
+
+                {loadingDocument || validatingDocument ? (
+                    <div className="mt-16">
+                        <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />
+                    </div>
+                ) :
                     <div>
-                        <div className="flex p-4 justify-between">
-                            <div className="flex">
-                                <div className="mr-10 text-text01 font-normal text-sm">
-                                    <div>{t("warehouse.no")}</div>
-                                    <div>{t("warehouse.overhead")}</div>
+                        <div className="flex flex-col sm:flex-row gap-y-4 py-4">
+                            <div className="flex flex-wrap gap-4">
+                                <div className="flex">
+                                    <div className="mr-10 text-text01 font-normal text-sm">
+                                        <div>{t("warehouse.no")}</div>
+                                        <div>{t("warehouse.overhead")}</div>
+                                    </div>
+                                    <Input
+                                        type={""}
+                                        value={noOverhead}
+                                        changeValue={(e) => setNoOverHead(e.target.value)}
+                                        disabled={true}
+                                    />
                                 </div>
-                                <Input
-                                    type={""}
-                                    value={noOverhead}
-                                    changeValue={(e) => setNoOverHead(e.target.value)}
-                                    disabled={true}
-                                />
-                                <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                                <Input
-                                    type={"date"}
-                                    value={selectedDate}
-                                    changeValue={(e) => setSelectedDate(e.target.value)}
-                                />
+                                <div className="flex">
+                                    <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
+                                    <DateInput
+                                        value={selectedDate ? dayjs(selectedDate) : null}
+                                        changeValue={(date) => setSelectedDate(date ? date.format("YYYY-MM-DDTHH:mm") : "")}
+                                    />
+                                </div>
                             </div>
                             <div className="flex flex-col space-y-6">
-                                <div className="flex">
-                                    <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                                <div className="flex space-x-2">
+                                    <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
                                     <DropdownInput
                                         value={warehouseId}
                                         options={warehouses}
                                         label={t("warehouse.enterWare")}
-                                        classname="w-80"
+                                        classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseId(value)}
-                                        error={errors.warehouse}
+                                        error={globalErrors.warehouse}
                                     />
                                 </div>
-                                {documentType === "MOVING" && <div className="flex">
-                                    <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
+                                {documentType === "MOVING" && <div className="flex space-x-2">
+                                    <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
                                     <DropdownInput
                                         value={warehouseRecId}
                                         options={warehouses}
                                         label={t("warehouse.enterWare")}
-                                        classname="w-80"
+                                        classname="w-48 sm:w-80"
                                         onChange={(value) => setWarehouseRecId(value)}
-                                        error={errors.warehouseRec}
+                                        error={globalErrors.warehouseRec}
                                     />
                                 </div>}
                             </div>
                         </div>
-                        <GoodsTable
+                        <GoodsAntTable
                             tableData={tableData}
                             columns={columnsDocumentCreation}
                             handleChange={handleTableChange}
                             addRow={updateRow}
                             addProduct={addProduct}
+                            deleteRow={deleteRow}
+                            sortAscending={sortAscending}
+                            sortDescending={sortDescending}
                         />
-                        <div className="flex space-x-3">
+                        <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
                             <Button
                                 type="outline"
                                 title={t("organizations.cancel")}

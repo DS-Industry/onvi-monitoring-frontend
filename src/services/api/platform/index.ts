@@ -7,7 +7,8 @@ enum LOGIN {
     REGISTER_ACTIVATION = 'user/auth/activation',
     PASSWORD_CONFIRM = 'user/auth/password/confirm',
     PASSWORD_VALID = 'user/auth/password/valid/confirm',
-    PASSWORD_RESET = 'user/auth/password/reset'
+    PASSWORD_RESET = 'user/auth/password/reset',
+    WORKER = 'user/auth/worker'
 }
 
 enum USER {
@@ -199,6 +200,47 @@ type USERPASSWORDBODY = {
     newPassword: string;
 }
 
+type ValidResponse = {
+    status: 'SUCCESS'
+}
+
+type WorkerRequest = {
+    password: string;
+}
+
+type WorkerResponse = {
+    user: {
+        props: {
+            id: number;
+            userRoleId: number;
+            name: string;
+            surname: string;
+            middlename?: string;
+            birthday?: Date;
+            phone?: string;
+            email: string;
+            password: string;
+            gender: string;
+            position: string;
+            status: string;
+            avatar?: string;
+            country: string;
+            countryCode: number;
+            timezone: number;
+            refreshTokenId: string;
+            receiveNotifications: number;
+            createdAt: Date;
+            updatedAt: Date;
+        }
+    },
+    tokens: {
+        accessToken: string;
+        accessTokenExp: Date;
+        refreshToken: string;
+        refreshTokenExp: Date;
+    }
+}
+
 export async function loginPlatformUser(body: LOGINBODY): Promise<LOGINRESPONSE> {
     console.log(body);
     const response: AxiosResponse<LOGINRESPONSE> = await api.post(LOGIN.CREATE_LOGIN, body);
@@ -277,6 +319,19 @@ export async function updateUserProfile(body: UPDATEUSERBODY, file?: File | null
 export async function updateUserPassword(body: USERPASSWORDBODY): Promise<UPDATEUSERRESPONSE> {
     console.log(body);
     const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(USER.USER_UPDATE_PASSWORD, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function createUserRole(body: WorkerRequest, confirm: string): Promise<WorkerResponse> {
+    console.log(body);
+    const response: AxiosResponse<WorkerResponse> = await api.post(LOGIN.WORKER + `/${confirm}`, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function getWorkerStatus(confirm: string): Promise<ValidResponse> {
+    const response: AxiosResponse<ValidResponse> = await api.get(LOGIN.WORKER + `/valid/${confirm}`);
     console.log(response.data);
     return response.data;
 }

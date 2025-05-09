@@ -9,7 +9,6 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import revenueData from "@/data/revenueData.json";
 
 ChartJS.register(
   CategoryScale,
@@ -21,7 +20,16 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = () => {
+type StatGraphResponse = {
+  date: Date;
+  sum: number;
+}
+
+type Props = {
+  revenueData: StatGraphResponse[]
+}
+
+const LineChart = ({ revenueData }: Props) => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -33,14 +41,15 @@ const LineChart = () => {
   };
 
   const data = {
-    labels: revenueData.map((data) => data.label),
+    labels: revenueData.map((item) => new Date(item.date).toLocaleDateString()),
     datasets: [
       {
         fill: true,
         label: "Revenue",
-        data: revenueData.map((data) => data.revenue),
+        data: revenueData.map((item) => item.sum),
         borderColor: "#0B68E1",
         backgroundColor: "#9BD0F5",
+        tension: 0.4, // Optional: makes the line smooth
       },
     ],
   };

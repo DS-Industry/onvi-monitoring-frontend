@@ -2,9 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
 import InputDateGap from "../InputLine/InputDateGap";
 import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
-import SearchInput from "../Input/SearchInput";
-import DropdownInput from "../Input/DropdownInput";
+// import SearchInput from "../Input/SearchInput";
+// import DropdownInput from "../Input/DropdownInput";
 import Button from "../Button/Button";
+import useSWR from "swr";
+import { getPlacement } from "@/services/api/device";
+import { Select, Input } from "antd";
+import { useTranslation } from "react-i18next";
+
 
 type Props = {
   children: React.ReactNode;
@@ -17,9 +22,14 @@ type Props = {
   search?: string;
   setSearch?: (value: string) => void;
   handleClear?: () => void;
-  address?: string;
-  setAddress?: (value: string) => void;
+  address?: number | string;
+  setAddress?: (value: number | string) => void;
+  hidePage?: boolean;
+  hideCancel?: boolean;
 };
+
+const { Search } = Input;
+
 const Filter: React.FC<Props> = ({
   children,
   count,
@@ -31,9 +41,13 @@ const Filter: React.FC<Props> = ({
   search = "",
   setSearch,
   handleClear,
-  address = "",
-  setAddress
+  address = 0,
+  setAddress,
+  hidePage = false,
+  hideCancel
 }: Props) => {
+  const { t } = useTranslation();
+  const allCategoriesText = t("warehouse.all");
   const { filterOpen } = useFilterOpen();
   const { buttonOn } = useButtonCreate();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -45,6 +59,17 @@ const Filter: React.FC<Props> = ({
   const { filterOn, setFilterOn } = useFilterOn();
   const pageNumber = usePageNumber();
   const setPageNumber = useSetPageNumber();
+
+  const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+  const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || []; 
+
+  const citiesAllObj = {
+    label: allCategoriesText,
+    value: "*"
+  };
+
+  cities.unshift(citiesAllObj);
 
   useEffect(() => {
     if (filterOpen && !buttonOn) {
@@ -58,7 +83,7 @@ const Filter: React.FC<Props> = ({
 
   const handleReset = () => {
     if (setSearchTerm) setSearchTerm("");
-    if (setAddress) setAddress("");
+    if (setAddress) setAddress("*");
     if (setSearch) setSearch("");
     if (handleClear) handleClear();
     setFilterOn(!filterOn);
@@ -82,7 +107,7 @@ const Filter: React.FC<Props> = ({
     if (setSearch) setSearch(value);
   };
 
-  const handleAddressChange = (value: string) => {
+  const handleAddressChange = (value: number | string) => {
     if (setAddress) setAddress(value);
   }
 
@@ -91,34 +116,65 @@ const Filter: React.FC<Props> = ({
       ref={contentRef}
       className={`transition-all duration-500 ease-in-out max-h-0`}
     >
-      <div className="flex">
-        {!hideSearch && <SearchInput
-          value={search}
-          onChange={handleSearchChange}
-          classname="w-80"
-          searchType="outlined"
-          title="Поиск"
-        /> }
-        {!hideCity && <SearchInput
-          title={"Город"}
-          value={address}
-          searchType="outlined"
-          classname="ml-2"
-          onChange={handleAddressChange}
-        /> }
+      <div className="flex flex-wrap gap-4">
+        {!hideSearch &&
+          // <SearchInput
+          //   value={search}
+          //   onChange={handleSearchChange}
+          //   classname="w-full sm:w-80"
+          //   searchType="outlined"
+          //   title="Поиск"
+          // />
+          <div>
+            <div className="text-sm text-text02">{t("analysis.search")}</div>
+            <Search
+              placeholder="Поиск"
+              className="w-full sm:w-80"
+              value={search}
+              onSearch={handleSearchChange}
+              onChange={(e) => {
+                if (setSearch)
+                  setSearch(e.target.value);
+              }}
+              size="large"
+            />
+          </div>
+        }
+        {!hideCity &&
+          // <DropdownInput
+          //   title={"Город"}
+          //   value={address}
+          //   options={cities}
+          //   classname="w-full sm:w-80"
+          //   onChange={handleAddressChange}
+          // />
+          <div>
+            <div className="text-sm text-text02">{t("pos.city")}</div>
+            <Select
+              className="w-full sm:w-80 h-10"
+              placeholder="Город"
+              options={cities}
+              value={address}
+              onChange={handleAddressChange}
+            />
+          </div>
+        }
         {children}
-        <DropdownInput
-          title={"Строк на стр."}
-          value={pageNumber}
-          classname="ml-2 w-24"
-          options={[
-            { name: 5, value: 5 },
-            { name: 10, value: 10 },
-            { name: 20, value: 20 },
-            { name: 50, value: 50 },
-          ]}
-          onChange={(value) => setPageNumber(value)}
-        />
+        {!hidePage && (<div>
+          <div className="text-sm text-text02">{t("tables.lines")}</div>
+          <Select
+            className="w-24 h-10"
+            options={[{ label: 15, value: 15 }, { label: 50, value: 50 }, { label: 100, value: 100 }, { label: 120, value: 120 }]}
+            value={pageNumber}
+            onChange={setPageNumber}
+            dropdownRender={(menu) => (
+              <div style={{ maxHeight: 100, overflowY: "auto" }}>
+                {menu}
+              </div>
+            )}
+          />
+        </div>
+        )}
       </div>
       {!hideDateTime ? (
         <div>
@@ -131,9 +187,9 @@ const Filter: React.FC<Props> = ({
         </div>
       ) :
         <div className="h-5"></div>}
-      <div className="flex items-center gap-6">
-        <Button title="Сбросить" handleClick={handleReset} type="outline" />
-        <Button title="Применить" handleClick={handleApply} />
+      <div className="flex flex-wrap items-center gap-4 mt-4">
+        {!hideCancel && <Button title="Сбросить" handleClick={handleReset} type="outline" classname="w-[168px]"/>}
+        <Button title="Применить" handleClick={handleApply} classname="w-[168px]"/>
         <p className="font-semibold">Найдено: {count}</p>
         {/* <Button
           title={"Дополнительно"}

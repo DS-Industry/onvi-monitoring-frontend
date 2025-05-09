@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import onvi from "../assets/onvi.png";
-import onvi_small from "../assets/onvi_small.png";
+import React, { useEffect, useRef, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Layout, Tag } from "antd";
+// import onvi from "../assets/onvi.png";
+// import onvi_small from "../assets/onvi_small.png";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
 import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
@@ -14,14 +15,17 @@ import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/contex
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
-import EZ from "@icons/EZ.svg?react";
-import moment from "moment";
+import Icon from "feather-icons-react";
+import Avatar from "@/components/ui/Avatar";
+import OnviLogo from "@/assets/OnviLogo.svg";
+import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
+
+const { Sider, Content } = Layout;
 
 type Props = {
   children: React.ReactNode;
@@ -29,9 +33,10 @@ type Props = {
 
 const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
-  const [hoveredSubNavItem, setHoveredSubNavItem] = useState<string | null>(null);
-  // const [notificationVisible, setNotificationVisible] = useState(true);
+  const [activeNavItem, setActiveNavItem] = useState<string | null>(null);
+  const [activeSubNavItem, setActiveSubNavItem] = useState<string | null>(null);
+  const [openSubNav, setOpenSubNav] = useState<string | null>(null);
+  const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
   const isData = true;
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
@@ -39,6 +44,22 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useUser();
+  const [isMobile, setIsMobile] = useState(false);
+  // Add a new state to track hover state
+  const [isHovered, setIsHovered] = useState(false);
+
+  const userName = { name: user.name, middlename: user.middlename };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
 
   const userPermissions = useAuthStore((state) => state.permissions);
 
@@ -66,9 +87,13 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
     navigate('/profile');
   };
 
+  const handleNotificationsNavigate = () => {
+    navigate('/notifications');
+  };
+
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
-  const document = useDocumentType();
+  const doc = useDocumentType();
 
   const isParentActive = (subMenu: any[] | undefined) =>
     subMenu && subMenu.some((child) => child.path === location.pathname);
@@ -79,30 +104,80 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   };
 
   const toggleNavbar = () => {
+    setIsHovered(!isHovered);
     setIsOpen(!isOpen);
   };
 
-  const handleMouseEnter = (item: string) => {
-    setHoveredNavItem(item);
+  const handleNavItemClick = (item: string) => {
+    if (activeNavItem === item) {
+      setActiveNavItem(null);
+    } else {
+      setActiveNavItem(item);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleMouseLeave = () => {
-    setHoveredNavItem(null);
+  const handleSubNavItemClick = (subItem: string) => {
+    if (activeSubNavItem === subItem) {
+      setActiveSubNavItem(null);
+    } else {
+      setActiveSubNavItem(subItem);
+    }
   };
 
-  const handleSubNavMouseEnter = (subItem: string) => {
-    setHoveredSubNavItem(subItem);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (isMobile) return; // Skip for mobile
+
+    const sideBar = document.getElementById('sidebar');
+    const sideNavs = document.querySelectorAll('.side-nav');
+    let isInsideSidebar = false;
+
+    sideNavs.forEach(element => {
+      if (element.contains(e.target as Node)) {
+        isInsideSidebar = true;
+      }
+    });
+
+    if (sideBar && !sideBar.contains(e.target as Node) && !isInsideSidebar) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
   };
 
-  const handleSubNavMouseLeave = () => {
-    setHoveredSubNavItem(null);
-  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile]);
+
+  // Close submenus when navigating to a new route
+  useEffect(() => {
+    if (!isMobile) {
+      setActiveNavItem(null);
+      setActiveSubNavItem(null);
+    }
+  }, [location.pathname, isMobile]);
 
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     setSnackbarFunction(showSnackbar);
   }, [showSnackbar]);
+
+  const hoverRef = useRef(false);
+
+  useEffect(() => {
+    hoverRef.current = isHovered;
+  }, [isHovered]);
+
+  // Add effect to handle hover state changes
+  useEffect(() => {
+    if (!isMobile && isHovered && !isOpen) {
+      // Open sidebar when hovered
+      setIsOpen(true);
+    }
+  }, [isHovered, isMobile, isOpen]);
 
   const getRequiredPermissions = (path: string) => {
     if (path.includes("administration"))
@@ -127,28 +202,87 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         { action: "manage", subject: "Warehouse" },
         { action: "create", subject: "Warehouse" },
       ];
-    // Add cases for other components as needed
+    if (path.includes("finance"))
+      return [
+        { action: "manage", subject: "CashCollection" },
+        { action: "create", subject: "CashCollection" },
+      ];
+    if (path.includes("analysis"))
+      return [
+        { action: "manage", subject: "ShiftReport" },
+        { action: "create", subject: "ShiftReport" },
+      ];
     else
       return [];
   };
 
+  const getStatusTag = (status: string) => {
+    if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress"))
+      return <Tag color="green">{status}</Tag>;
+    if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+      return <Tag color="red">{status}</Tag>;
+    if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
+      return <Tag color="orange">{status}</Tag>;
+    else return <Tag color="default">{status}</Tag>;
+  };
+
   return (
-    <div className="flex">
-      {hoveredNavItem && (
+    <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
+      {activeNavItem && !isMobile && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
           aria-hidden="true"
         ></div>
       )}
-      <div
-        className={`fixed z-50 top-0 left-0 h-full bg-stone-900 transform ${isOpen ? "translate-x-0" : "translate-x-0 w-20"
-          } transition-width duration-300 ease-in-out ${isOpen ? "w-64" : "w-20"
-          }`}
+      {isOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)} // Close sidebar when clicking outside
+        ></div>
+      )}
+
+      <Sider
+        id="sidebar"
+        theme="dark"
+        trigger={null}
+        collapsible
+        collapsed={!isOpen}
+        width={256}
+        collapsedWidth={80}
+        className="fixed h-full z-50"
+        style={{
+          background: "#1c1917",
+          height: "100%",
+          left: isMobile ? (isOpen ? 0 : -80) : 0,
+          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
+        }}
+        // Add hover event handlers
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setIsHovered(false);
+            setTimeout(() => {
+              if (!hoverRef.current) {
+                setIsOpen(false);
+                setActiveNavItem(null);
+                setActiveSubNavItem(null);
+              }
+            }, 300); // Smooth UX delay
+          }
+        }}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
             <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-              {isOpen ? <img src={onvi} alt="" /> : <img src={onvi_small} alt="" />}
+              {isOpen ? <img src={OnviLogo} alt="" loading="lazy" /> : <img src={OnviSmallLogo} alt="" loading="lazy" />}
+              {isMobile && (
+                <button
+                  onClick={toggleNavbar}
+                  className="p-2 border border-primary01 text-primary01 rounded h-10 w-10"
+                >
+                  {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
+                </button>
+              )}
             </div>
             <nav className="mt-5 text-sm grid gap-y-1">
               {routes.map((item) =>
@@ -162,31 +296,36 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                       allowed && (
                         <div
                           key={item.name}
-                          onMouseEnter={() => handleMouseEnter(item.name)}
-                          onMouseLeave={handleMouseLeave}
+                          className="side-nav"
+                          onMouseEnter={isMobile ? undefined : () => { }}
+                          onMouseLeave={isMobile ? undefined : () => { }}
                         >
                           <NavLink
                             to={item.subMenu ? '#' : item.path}
                             onClick={(e) => {
                               if (item.subMenu) {
-                                e.preventDefault(); // Prevent default navigation
-                                // Optionally, toggle visibility of sub-items if required
+                                e.preventDefault();
+                                if (isMobile) {
+                                  setOpenSubNav(openSubNav === item.name ? null : item.name);
+                                } else {
+                                  handleNavItemClick(item.name);
+                                }
                               }
                             }}
                             className={({ isActive }) =>
                               item.subMenu
-                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
                               ${isParentActive(item.subNav)
                                   ? 'bg-opacity01/30 text-primary01'
-                                  : hoveredNavItem === item.name
+                                  : (!isMobile && activeNavItem === item.name)
                                     ? 'bg-opacity01/30 text-primary01'
                                     : 'text-text02'
                                 } hover:bg-opacity01/30 hover:text-primary01`
                                 : isActive
                                   ? `flex items-center 
-                                    py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-primary01`
+                                    py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
                                   : `flex items-center 
-                                    py-1.5 px-2 mx-4 rounded transition duration-200 
+                                    py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
                                     hover:bg-opacity01/30 hover:text-primary01 text-text02`
                             }
                           >
@@ -196,8 +335,85 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                               <ArrowRight className="ml-auto" />
                             )}
                           </NavLink>
-                          {hoveredNavItem === item.name && item.subNav && (
-                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5">
+                          {isMobile && openSubNav === item.name && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
+                              <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg p-5">
+                                <button className="text-xl p-2" onClick={() => setOpenSubNav(null)}>✕</button>
+                                {item.subNav && item.subNav.map((subItem) => (
+                                  <Can
+                                    key={subItem.name}
+                                    requiredPermissions={subItem.permissions}
+                                    userPermissions={userPermissions}
+                                  >
+                                    {(allowed) =>
+                                      allowed && subItem.isSidebar && (
+                                        <div key={subItem.name}>
+                                          <NavLink
+                                            to={subItem.subMenu ? "#" : subItem.path}
+                                            onClick={(e) => {
+                                              if (subItem.subMenu) {
+                                                e.preventDefault();
+                                                setOpenSubNavItem(openSubNavItem === subItem.name ? null : subItem.name);
+                                              } else {
+                                                setOpenSubNav(null); // Close when navigating
+                                                setOpenSubNavItem(null);
+                                              }
+                                            }}
+                                            className={({ isActive }) =>
+                                              subItem.subMenu
+                                                ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                        ${isParentActive(subItem.subNav) ? 'bg-opacity01/30 text-text01' : 'text-text02'}
+                        hover:bg-opacity01/30 hover:text-text01`
+                                                : isActive
+                                                  ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                                                  : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
+                          hover:bg-opacity01/30 hover:text-text01 text-text02`
+                                            }
+                                          >
+                                            {t(`routes.${subItem.name}`)}
+                                            {subItem.subMenu && <ArrowRight className="ml-auto" />}
+                                          </NavLink>
+                                          {openSubNavItem === subItem.name && subItem.subNav && (
+                                            <div className="ml-5 mt-2 border-l pl-3">
+                                              {subItem.subNav.map((subSubItem) => (
+                                                <Can
+                                                  key={subSubItem.name}
+                                                  requiredPermissions={subSubItem.permissions}
+                                                  userPermissions={userPermissions}
+                                                >
+                                                  {(allowed) =>
+                                                    allowed && (
+                                                      subSubItem.isSidebar && <NavLink
+                                                        to={subSubItem.path}
+                                                        className={({ isActive }) =>
+                                                          isActive
+                                                            ? `block py-1.5 px-2 rounded bg-opacity01/30 text-text01`
+                                                            : `block py-1.5 px-2 rounded transition duration-200 
+                                    hover:bg-opacity01/30 hover:text-text01 text-text02`
+                                                        }
+                                                        onClick={() => {
+                                                          setOpenSubNav(null);
+                                                          setOpenSubNavItem(null);
+                                                        }}
+                                                      >
+                                                        {t(`routes.${subSubItem.name}`)}
+                                                      </NavLink>
+                                                    )
+                                                  }
+                                                </Can>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )
+                                    }
+                                  </Can>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {!isMobile && activeNavItem === item.name && item.subNav && (
+                            <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
                               {item.subNavHeading !== "" && <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
                                 {t(`routes.${item.subNavHeading}`)}
                               </div>}
@@ -205,8 +421,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                 subItem.isSidebar &&
                                 <div
                                   key={subItem.name}
-                                  onMouseEnter={() => handleSubNavMouseEnter(subItem.name)}
-                                  onMouseLeave={handleSubNavMouseLeave}
+                                  className="side-nav"
                                 >
                                   {subItem.titleName &&
                                     <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
@@ -225,22 +440,22 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                           to={subItem.path}
                                           onClick={(e) => {
                                             if (subItem.subMenu) {
-                                              e.preventDefault(); // Prevent default navigation
-                                              // Optionally, toggle visibility of sub-items if required
+                                              e.preventDefault();
+                                              handleSubNavItemClick(subItem.name);
                                             }
                                           }}
                                           className={({ isActive }) =>
                                             subItem.subMenu
-                                              ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                                              ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
                                                 ${isParentActive(subItem.subNav)
                                                 ? 'bg-opacity01/30 text-text01'
                                                 : 'text-text02'
                                               } hover:bg-opacity01/30 hover:text-text01`
                                               : isActive
                                                 ? `flex items-center 
-                                                  py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                                                  p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
                                                 : `flex items-center 
-                                                  py-1.5 px-2 mx-4 rounded transition duration-200 
+                                                  p-2 mx-4 font-semibold text-sm rounded transition duration-200 
                                                   hover:bg-opacity01/30 hover:text-text01 text-text02`
                                           }
                                         >
@@ -249,12 +464,11 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                             <ArrowRight className="ml-auto" />
                                           )}
                                         </NavLink>
-                                      )
-                                    }
+                                      )}
                                   </Can>
                                   {subItem.isHr && <hr className="my-3" />}
-                                  {hoveredSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
-                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01">
+                                  {!isMobile && activeSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
+                                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01 side-nav">
                                       {subItem.subNav.map((subSubItem) => (
                                         subSubItem.isSidebar &&
                                         <div>
@@ -270,14 +484,13 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
                                                   to={subSubItem.path}
                                                   className={({ isActive }) =>
                                                     isActive
-                                                      ? `flex items-center p-2.5 mx-4 rounded bg-opacity01/30 text-text01 font-medium text-sm`
-                                                      : `flex items-center p-2.5 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-medium text-sm`
+                                                      ? `flex items-center p-2 mx-4 rounded bg-opacity01/30 text-text01 font-semibold text-sm`
+                                                      : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-semibold text-sm`
                                                   }
                                                 >
                                                   {t(`routes.${subSubItem.name}`)}
                                                 </NavLink>
-                                              )
-                                            }
+                                              )}
                                           </Can>
                                         </div>
                                       ))}
@@ -299,101 +512,126 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
             <div
               className={`flex items-center ${!isOpen && "justify-center"
                 } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+              onClick={handleNotificationsNavigate}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
-              {isOpen && <span>Notification</span>}
+              {isOpen && <span>{t("routes.notifications")}</span>}
             </div>
-            <div className="mt-5 py-3 border-t-2 border-text02 flex gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
+            <div className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer" onClick={handleProfileNavigate}>
               {user.avatar ? <img
                 src={"https://storage.yandexcloud.net/onvi-business/avatar/user/" + user.avatar}
                 alt="Profile"
-                className="rounded-full w-12 h-12 object-cover"
-              /> : <EZ />}
+                className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
+                loading="lazy"
+              /> : <Avatar type="sidebar" userName={userName} />}
               {isOpen && (
-                <div className="text-text02 flex items-center">
-                  <p>{user.name}</p>
-                </div>
+                <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>
               )}
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className={`flex-grow transition-all duration-300 ease-in-out ${isOpen ? "ml-64" : "ml-20"
-          }`}
-      >
-        <div className={`px-6 relative min-h-screen bg-background02 z-10`}>
-          {(hoveredNavItem === "Администрирование" || hoveredNavItem === "Мониторинг") && (
-            <div className="absolute z-10 inset-0 bg-background01/65"></div>
-          )}
-          <div className="flex items-center justify-between">
-            <div className="py-5 flex items-center">
-              <button
-                onClick={toggleNavbar}
-                className="p-2 bg-white border border-primary02 text-primary02 rounded"
-              >
-                {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
-              </button>
-              <div className="ms-3 lg:ms-12 flex flex-col items-start">
-                {activePageName === "bonus" && <span className="text-sm text-text02">{t("routes.share")}</span>}
-                <div className="flex items-center mb-3">
-                  <span className="text-3xl font-normal text-text01">{location.pathname === "/equipment/routine/work/progress/item" ? location.state.name : activePageName === "createDo" ? t(`routes.${document}`) : t(`routes.${activePageName}`)}</span>
-                  {location.pathname !== "/equipment/routine/work/progress/item" && (activePageName === "bonus" ? <EditIcon className="text-text02 ms-2" /> : <QuestionmarkIcon className="text-2xl ms-2" />)}
-                </div>
-                {activePage?.filter && (
+      </Sider>
+
+      <Layout style={{ marginLeft: isMobile ? 80 : (isOpen ? 256 : 80), transition: "all 0.3s" }}>
+        <Content className="min-h-screen bg-white">
+          {isMobile && (<button
+            onClick={() => setIsOpen(!isOpen)}
+            className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md z-40"
+          >
+            {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+          </button>)}
+
+          <div className="px-4 sm:px-6 relative min-h-screen z-10">
+            {(!isMobile && activeNavItem === "Администрирование" || activeNavItem === "Мониторинг") && (
+              <div className="absolute z-10 inset-0 bg-background01/65"></div>
+            )}
+
+            <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
+              {/* Left Section: Toggle Button & Page Title */}
+              <div className="flex items-center">
+                {!isMobile && (
                   <button
-                    disabled={!isData}
-                    onClick={() => setFilterOpen(!filterOpen)}
-                    className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
-                      }`}
+                    onClick={toggleNavbar}
+                    className="p-2 bg-white border border-primary02 text-primary02 rounded"
                   >
-                    {filterOpen ? t("routes.filter") : t("routes.expand")} {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    {isOpen ? <DoubleArrowLeft /> : <DoubleArrowRight />}
                   </button>
                 )}
-              </div>
-            </div>
-            <div className="flex">
-              {location.pathname === "/equipment/routine/work/progress/item" && (
-                <div className="flex space-x-4 text-text01 text-2xl">
-                  <div>{location.state.type}-</div>
-                  <div>{moment(location.state.workDate).add(1, 'days').format('DD.MM.YYYY')}</div>
+                <div className="ml-3 lg:ml-12 flex flex-col items-start">
+                  {activePageName === "bonus" && (
+                    <span className="text-sm text-text02">{t("routes.loyalty")}</span>
+                  )}
+                  <div className="flex items-center mb-2">
+                    <span className="text-xl sm:text-3xl font-normal text-text01">
+                      {location.pathname === "/equipment/routine/work/list/item"
+                        ? location.state.name
+                        : location.pathname === "/finance/timesheet/view"
+                          ? `${location.state.name} : ${location.state.date.slice(0, 10)}`
+                          : activePageName === "createDo"
+                            ? t(`routes.${doc}`)
+                            : t(`routes.${activePageName}`)}
+                    </span>
+                    {
+                      location.pathname === "/equipment/routine/work/list/item" ?
+                        <div className="ml-5">{getStatusTag(location.state.status)}</div>
+                        : activePageName === "bonus"
+                          ? <EditIcon className="text-text02 ml-2" />
+                          : <QuestionmarkIcon className="text-2xl ml-2" />
+                    }
+                  </div>
+                  {activePage?.filter && (
+                    <button
+                      disabled={!isData}
+                      onClick={() => setFilterOpen(!filterOpen)}
+                      className={`flex font-semibold text-primary02 ${isData ? "opacity-100" : "opacity-50"
+                        }`}
+                    >
+                      {filterOpen ? t("routes.filter") : t("routes.expand")}
+                      {filterOpen ? <ArrowUp /> : <ArrowDown />}
+                    </button>
+                  )}
                 </div>
-              )}
-              {activePage?.name === "nomenclature" && (
-                <Button
-                  title={t("warehouse.import")}
-                  iconPlus={true}
-                  type="outline"
-                  classname="mr-2"
-                  handleClick={() => navigate('/warehouse/inventory/import')}
-                />
-              )}
-              {activePage?.name === "clients" && (
-                <Button
-                  title={t("routes.importClients")}
-                  type="outline"
-                  classname="mr-2"
-                  handleClick={() => navigate('/marketing/clients/import')}
-                />
-              )}
-              <Can
-                requiredPermissions={getRequiredPermissions(activePage?.path || "")}
-                userPermissions={userPermissions}
-              >
-                {(allowed) => allowed && activePage?.addButton && location?.state?.status !== "SENT" && (
+              </div>
+
+              {/* Right Section: Buttons */}
+              <div className="flex flex-wrap justify-end">
+                {activePage?.name === "nomenclature" && (
                   <Button
-                    title={t(`routes.${activePage?.addButtonText}`)}
-                    iconPlus={true}
-                    handleClick={handleClickButtonCreate}
+                    title={isMobile ? "" : t("warehouse.import")}
+                    iconUpload={true}
+                    type="outline"
+                    classname={`mr-2 ${isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""}`}
+                    handleClick={() => navigate('/warehouse/inventory/import')}
                   />
                 )}
-              </Can>
+                <Can
+                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) =>
+                    allowed &&
+                    activePage?.addButton &&
+                    location?.state?.status !== t("tables.SENT") && (
+                      <Button
+                        title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
+                        iconPlus={true}
+                        handleClick={handleClickButtonCreate}
+                        classname={isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : "min-w-[166px]"}
+                      />
+                    )
+                  }
+                </Can>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
+              {children}
             </div>
           </div>
-          {children}
-        </div>
-      </div>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

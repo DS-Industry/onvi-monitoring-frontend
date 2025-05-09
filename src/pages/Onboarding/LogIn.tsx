@@ -14,7 +14,6 @@ import OnviBlue from '@/assets/onvi_blue.png';
 import { useSnackbar } from '@/components/context/useContext';
 import { setSnackbarFunction } from '@/config/axiosConfig';
 import useAuthStore from '@/config/store/authSlice';
-// import LanguageSelector from '@/components/LanguageSelector';
 
 const LogIn: React.FC = () => {
   const { t } = useTranslation();
@@ -103,7 +102,7 @@ const LogIn: React.FC = () => {
             <p>{t("login.back")}</p>
           </div>
           <div className='flex mb-5'>
-            <img src={OnviBlue} className='h-7 w-14' />
+            <img src={OnviBlue} className='h-7 w-14' loading="lazy" />
             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t('login.business')}</div>
           </div>
           <h1 className="text-2xl font-extrabold leading-[1.25] text-text01 mb-2">{t('login.welcome')}</h1>
@@ -170,12 +169,19 @@ const LogIn: React.FC = () => {
               {t('login.register')}
             </span>
           </p>
-          {/* <LanguageSelector /> */}
         </div>
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20">
           <div className='p-8'>
-            <img src={LoginImage} alt="Rocket illustration" key={"login-image"} className="object-cover w-11/12 h-11/12" />
+            <img
+              src={LoginImage}
+              alt="Rocket illustration"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low" 
+              className="object-cover w-11/12 h-11/12"
+              key="login-image"
+            />
           </div>
         </div>
       </div>

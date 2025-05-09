@@ -4,11 +4,10 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
 import { useButtonCreate } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
-import { getPos, postPosData } from "@/services/api/pos/index.ts";
+import { postPosData } from "@/services/api/pos/index.ts";
 import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
@@ -16,43 +15,29 @@ import useFormHook from "@/hooks/useFormHook";
 import Filter from "@ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-import { getOrganization } from "@/services/api/organization";
-import SearchInput from "@/components/ui/Input/SearchInput";
+import { getContactById, getOrganization, getOrganizationContactById } from "@/services/api/organization";
+// import SearchInput from "@/components/ui/Input/SearchInput";
+import { getPoses } from "@/services/api/equipment";
+import { useCity, useSetCity } from "@/hooks/useAuthStore";
+import { getPlacement } from "@/services/api/device";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Input as SearchInp } from "antd";
+
+const { Search } = SearchInp;
 
 type Pos = {
     id: number;
     name: string;
     slug: string;
-    monthlyPlan: number;
-    timeWork: string;
+    address: string;
     organizationId: number;
-    posMetaData: string;
+    placementId: number;
     timezone: number;
-    image: string;
-    rating: number;
-    status: string;
+    posStatus: string;
     createdAt: Date;
     updatedAt: Date;
     createdById: number;
     updatedById: number;
-    address:
-    {
-        id: number;
-        city: string;
-        location: string;
-        lat: number;
-        lon: number;
-    };
-    posType:
-    {
-        id: number;
-        name: string;
-        slug: string;
-        carWashPosType: string;
-        minSumOrder: number;
-        maxSumOrder: number;
-        stepSumOrder: number;
-    };
 }
 
 type OrganizationResponse = {
@@ -67,16 +52,52 @@ type OrganizationResponse = {
     ownerId: number;
 }
 
+type OrgContactResponse = {
+    name: string;
+    address: string;
+    status: string;
+    type: string;
+}
+
+type ContactResponse = {
+    name: string;
+    surname: string;
+    middlename: string;
+    email: string;
+    position: string;
+}
+
+const fetchOrgContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getOrganizationContactById(id);
+};
+
+const fetchContact = async (id: number) => {
+    if (!id) return null; // Prevent invalid API calls
+    return getContactById(id);
+};
+
 const Pos: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const { data, isLoading: posLoading } = useSWR([`get-pos`], () => getPos(1), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
-    const { data: organizationData } = useSWR([`get-org`], () => getOrganization());
-    const { setButtonOn } = useButtonCreate();
+    const address = useCity();
+    const setCity = useSetCity();
+    const { buttonOn, setButtonOn } = useButtonCreate();
+    const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
+        placementId: address
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: organizationData } = useSWR(buttonOn ? [`get-org`, address] : null, () => getOrganization({
+        placementId: address
+    }));
+
+    const { data: placementData } = useSWR([`get-placement`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const placements: { country: string; city: string; value: number; }[] = placementData?.map((item) => ({ country: item.country, city: item.city, value: item.id })) || [];
+
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
-    const [address, setAddress] = useState("");
 
     const organizations: OrganizationResponse[] = organizationData
         ?.map((item: OrganizationResponse) => item)
@@ -155,7 +176,7 @@ const Pos: React.FC = () => {
             const result = await createPos();
             if (result) {
                 console.log('API Response:', result);
-                mutate([`get-pos`]);
+                mutate([`get-pos`, address]);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -165,14 +186,56 @@ const Pos: React.FC = () => {
         }
     };
 
+    const organizationIds = Array.from(new Set(data?.map((item) => item.organizationId)));
+
+    const createIds = Array.from(new Set(data?.map((item) => item.createdById)));
+
+    const updateIds = Array.from(new Set(data?.map((item) => item.updatedById)));
+
+    const { data: orgContacts } = useSWR(
+        organizationIds.length ? ["organizationContacts", organizationIds] : null,
+        async () => {
+            const responses = await Promise.all(organizationIds.map(fetchOrgContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[organizationIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, OrgContactResponse>);
+        }
+    );
+
+    const { data: createContacts } = useSWR(
+        organizationIds.length ? ["createContacts", createIds] : null,
+        async () => {
+            const responses = await Promise.all(createIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[createIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
+    const { data: updateContacts } = useSWR(
+        organizationIds.length ? ["updateContacts", updateIds] : null,
+        async () => {
+            const responses = await Promise.all(updateIds.map(fetchContact));
+            return responses.reduce((acc, contact, idx) => {
+                if (contact) acc[updateIds[idx]] = contact;
+                return acc;
+            }, {} as Record<number, ContactResponse>);
+        }
+    );
+
     const poses: Pos[] = data
-        ?.map((item: Pos) => ({ 
+        ?.map((item: Pos) => ({
             ...item,
-            organizationName: organization.find((org) => org.value === item.organizationId)?.name || "-",
-            status: t(`tables.${item.status}`)
+            organizationName: orgContacts?.[item.organizationId]?.name || "-",
+            status: t(`tables.${item.posStatus}`),
+            createdByName: `${createContacts?.[item.createdById]?.name || ""} ${createContacts?.[item.createdById]?.surname || ""}` || "-",
+            updatedByName: `${updateContacts?.[item.updatedById]?.name || ""} ${updateContacts?.[item.updatedById]?.surname || ""}` || "-",
+            city: placements.find((place) => place.value === item.placementId)?.city || "",
+            country: placements.find((place) => place.value === item.placementId)?.country || ""
         }))
         ?.filter((pos) => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        ?.filter((pos) => pos.address?.city?.toLowerCase().includes(address.toLowerCase()))
         .sort((a, b) => a.id - b.id) || [];
 
     const handleClear = () => {
@@ -181,15 +244,17 @@ const Pos: React.FC = () => {
 
     return (
         <>
-            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setAddress} hideSearch={true}>
-                <div className="flex">
-                <SearchInput
-                    title={t("equipment.carWash")}
-                    value={searchTerm}
-                    searchType="outlined"
-                    classname="ml-2"
-                    onChange={(value) => setSearchTerm(value)}
-                />
+            <Filter count={poses.length} hideDateTime={true} handleClear={handleClear} address={address} setAddress={setCity} hideSearch={true}>
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Search
+                        placeholder="Поиск"
+                        className="w-full sm:w-80"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onSearch={(value) => setSearchTerm(value)}
+                        size="large"
+                    />
                 </div>
             </Filter>
             {
@@ -200,37 +265,39 @@ const Pos: React.FC = () => {
                     poses.length > 0 ? (
                         <>
                             <div className="mt-8">
-                                <OverflowTable
-                                    tableData={poses}
+                                <DynamicTable
+                                    data={poses}
                                     columns={columnsPos}
                                     isDisplayEdit={true}
-                                    isUpdate={false}
-                                    nameUrl={'/station/enrollments/devices'}
+                                    // isUpdate={false}
+                                    navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
                                 />
                             </div>
                         </>
                     ) : (
                         <>
                             {notificationVisible && organizations.length === 0 && (
-                                <Notification
-                                    title={t("pos.companyName")}
-                                    message={t("pos.createObject")}
-                                    link={t("pos.goto")}
-                                    linkUrl="/administration/legalRights"
-                                    onClose={() => setNotificationVisible(false)}
-                                />
+                                <div className="mt-2">
+                                    <Notification
+                                        title={t("pos.companyName")}
+                                        message={t("pos.createObject")}
+                                        link={t("pos.goto")}
+                                        linkUrl="/administration/legalRights"
+                                        onClose={() => setNotificationVisible(false)}
+                                    />
+                                </div>
                             )}
                             <NoDataUI
                                 title={t("pos.noObject")}
                                 description={t("pos.addCar")}
                             >
-                                <img src={PosEmpty} className="mx-auto" />
+                                <img src={PosEmpty} className="mx-auto" loading="lazy" />
                             </NoDataUI>
                         </>
                     )}
 
 
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 {notificationVisible && organizations.length === 0 && (
                     <Notification
                         title={t("organizations.legalEntity")}
@@ -241,169 +308,171 @@ const Pos: React.FC = () => {
                     />
                 )}
 
-                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <form className="space-y-6 w-full max-w-2xl mx-auto p-4" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5">{t("pos.creating")}</span>
-                    <Input
-                        title={t("pos.name")}
-                        type={'text'}
-                        label={t("pos.example")}
-                        classname="w-96"
-                        {...register('name', { required: 'Name is required' })}
-                        value={formData.name}
-                        changeValue={(e) => handleInputChange('name', e.target.value)}
-                        error={!!errors.name}
-                        helperText={errors.name?.message}
-                    />
-                    <Input
-                        title={t("pos.city")}
-                        type={'text'}
-                        label={t("pos.address")}
-                        classname="w-96"
-                        {...register('city', { required: 'City is required' })}
-                        value={formData.city}
-                        changeValue={(e) => handleInputChange('city', e.target.value)}
-                        error={!!errors.city}
-                        helperText={errors.city?.message}
-                    />
-                    <Input
-                        title={t("pos.location")}
-                        type={'text'}
-                        label={t("pos.location")}
-                        classname="w-96"
-                        {...register('location', { required: 'Location is required' })}
-                        value={formData.location}
-                        changeValue={(e) => handleInputChange('location', e.target.value)}
-                        error={!!errors.location}
-                        helperText={errors.location?.message}
-                    />
-                    <Input
-                        title={t("pos.lat")}
-                        type="number"
-                        classname="w-48"
-                        {...register('lat')}
-                        value={formData.lat}
-                        changeValue={(e) => handleInputChange('lat', e.target.value)}
-                    />
-                    <Input
-                        title={t("pos.lon")}
-                        type="number"
-                        classname="w-48"
-                        {...register('lon')}
-                        value={formData.lon}
-                        changeValue={(e) => handleInputChange('lon', e.target.value)}
-                    />
-                    <div>
-                        <label className="text-sm text-text02">{t("pos.opening")}</label>
-                        <div className="flex space-x-2">
+                    <div className="grid grid-cols-1 gap-4">
+                        <Input
+                            title={t("pos.name")}
+                            type={'text'}
+                            label={t("pos.example")}
+                            classname="w-80 sm:w-96"
+                            {...register('name', { required: 'Name is required' })}
+                            value={formData.name}
+                            changeValue={(e) => handleInputChange('name', e.target.value)}
+                            error={!!errors.name}
+                            helperText={errors.name?.message}
+                        />
+                        <Input
+                            title={t("pos.city")}
+                            type={'text'}
+                            label={t("pos.address")}
+                            classname="w-80 sm:w-96"
+                            {...register('city', { required: 'City is required' })}
+                            value={formData.city}
+                            changeValue={(e) => handleInputChange('city', e.target.value)}
+                            error={!!errors.city}
+                            helperText={errors.city?.message}
+                        />
+                        <Input
+                            title={t("pos.location")}
+                            type={'text'}
+                            label={t("pos.location")}
+                            classname="w-80 sm:w-96"
+                            {...register('location', { required: 'Location is required' })}
+                            value={formData.location}
+                            changeValue={(e) => handleInputChange('location', e.target.value)}
+                            error={!!errors.location}
+                            helperText={errors.location?.message}
+                        />
+                        <Input
+                            title={t("pos.lat")}
+                            type="number"
+                            classname="w-48"
+                            {...register('lat')}
+                            value={formData.lat}
+                            changeValue={(e) => handleInputChange('lat', e.target.value)}
+                        />
+                        <Input
+                            title={t("pos.lon")}
+                            type="number"
+                            classname="w-48"
+                            {...register('lon')}
+                            value={formData.lon}
+                            changeValue={(e) => handleInputChange('lon', e.target.value)}
+                        />
+                        <div>
+                            <label className="text-sm text-text02">{t("pos.opening")}</label>
+                            <div className="flex space-x-2">
+                                <Input
+                                    type="number"
+                                    classname="w-40"
+                                    value={startHour !== null ? startHour : ''}
+                                    changeValue={(e) => handleTimeWorkChange('startHour', e.target.value)}
+                                    {...register('timeWork', { required: 'Time Work is required' })}
+                                    error={!!errors.timeWork}
+                                    helperText={errors.timeWork?.message}
+                                />
+                                <div className="flex justify-center items-center text-text02"> : </div>
+                                <Input
+                                    type="number"
+                                    classname="w-40"
+                                    value={endHour !== null ? endHour : ''}
+                                    changeValue={(e) => handleTimeWorkChange('endHour', e.target.value)}
+                                    {...register('timeWork', { required: 'Time Work is required' })}
+                                    error={!!errors.timeWork}
+                                    helperText={errors.timeWork?.message}
+                                />
+                            </div>
+                            <div className="flex mt-2">
+                                <input type="checkbox" />
+                                <div className="text-text02 ml-2">{t("pos.clock")}</div>
+                            </div>
+                        </div>
+                        <Input
+                            title={t("pos.monthly")}
+                            type={'number'}
+                            defaultValue={'0'}
+                            classname="w-48"
+                            {...register('monthlyPlan', { required: 'Monthly Plan is required' })}
+                            value={formData.monthlyPlan}
+                            changeValue={(e) => handleInputChange('monthlyPlan', e.target.value)}
+                            error={!!errors.monthlyPlan}
+                            helperText={errors.monthlyPlan?.message}
+                        />
+                        <DropdownInput
+                            title={t("pos.company")}
+                            label={t("pos.companyName")}
+                            options={organization}
+                            classname="w-80 sm:w-96"
+                            {...register('organizationId', { required: 'Organization ID is required' })}
+                            value={formData.organizationId}
+                            onChange={(value) => handleInputChange('organizationId', value)}
+                            error={!!errors.organizationId}
+                            helperText={errors.organizationId?.message}
+                        />
+                        <DropdownInput
+                            title={t("pos.type")}
+                            label={t("pos.self")}
+                            options={[
+                                { name: "МСО", value: "SelfService" },
+                                { name: t("pos.robot"), value: "Portal" },
+                                { name: `МСО + ${t("pos.robot")}`, value: "SelfServiceAndPortal" }
+                            ]}
+                            classname="w-80 sm:w-96"
+                            {...register('carWashPosType', { required: 'Pos Type is required' })}
+                            value={formData.carWashPosType}
+                            onChange={(value) => handleInputChange('carWashPosType', value)}
+                            error={!!errors.carWashPosType}
+                            helperText={errors.carWashPosType?.message}
+                        />
+                        <div>
+                            <label className="text-sm text-text02">{t("pos.min")}</label>
                             <Input
                                 type="number"
-                                classname="w-40"
-                                value={startHour !== null ? startHour : ''}
-                                changeValue={(e) => handleTimeWorkChange('startHour', e.target.value)}
-                                {...register('timeWork', { required: 'Time Work is required' })}
-                                error={!!errors.timeWork}
-                                helperText={errors.timeWork?.message}
+                                classname="w-48"
+                                {...register('stepSumOrder', { required: 'Step Sum Order is required' })}
+                                value={formData.stepSumOrder}
+                                changeValue={(e) => handleInputChange('stepSumOrder', e.target.value)}
+                                error={!!errors.stepSumOrder}
+                                helperText={errors.stepSumOrder?.message}
                             />
-                            <div className="flex justify-center items-center text-text02"> : </div>
+                        </div>
+                        <div>
+                            <label className="text-sm text-text02">{t("pos.minAmount")}</label>
                             <Input
                                 type="number"
-                                classname="w-40"
-                                value={endHour !== null ? endHour : ''}
-                                changeValue={(e) => handleTimeWorkChange('endHour', e.target.value)}
-                                {...register('timeWork', { required: 'Time Work is required' })}
-                                error={!!errors.timeWork}
-                                helperText={errors.timeWork?.message}
+                                classname="w-48"
+                                {...register('minSumOrder', { required: 'Min Sum Order is required' })}
+                                value={formData.minSumOrder}
+                                changeValue={(e) => handleInputChange('minSumOrder', e.target.value)}
+                                error={!!errors.minSumOrder}
+                                helperText={errors.minSumOrder?.message}
                             />
                         </div>
-                        <div className="flex mt-2">
-                            <input type="checkbox" />
-                            <div className="text-text02 ml-2">{t("pos.clock")}</div>
+                        <div>
+                            <label className="text-sm text-text02">{t("pos.maxAmount")}</label>
+                            <Input
+                                type="number"
+                                classname="w-48"
+                                {...register('maxSumOrder', { required: 'Max Sum Order is required' })}
+                                value={formData.maxSumOrder}
+                                changeValue={(e) => handleInputChange('maxSumOrder', e.target.value)}
+                                error={!!errors.maxSumOrder}
+                                helperText={errors.maxSumOrder?.message}
+                            />
+                        </div>
+                        <div>
+                            <div>{t("pos.photos")}</div>
+                            <div>{t("pos.maxNumber")}</div>
+                            <Button
+                                form={false}
+                                iconPlus={true}
+                                type="outline"
+                                title={t("pos.download")}
+                            />
                         </div>
                     </div>
-                    <Input
-                        title={t("pos.monthly")}
-                        type={'number'}
-                        defaultValue={'0'}
-                        classname="w-48"
-                        {...register('monthlyPlan', { required: 'Monthly Plan is required' })}
-                        value={formData.monthlyPlan}
-                        changeValue={(e) => handleInputChange('monthlyPlan', e.target.value)}
-                        error={!!errors.monthlyPlan}
-                        helperText={errors.monthlyPlan?.message}
-                    />
-                    <DropdownInput
-                        title={t("pos.company")}
-                        label={t("pos.companyName")}
-                        options={organization}
-                        classname="w-96"
-                        {...register('organizationId', { required: 'Organization ID is required' })}
-                        value={formData.organizationId}
-                        onChange={(value) => handleInputChange('organizationId', value)}
-                        error={!!errors.organizationId}
-                        helperText={errors.organizationId?.message}
-                    />
-                    <DropdownInput
-                        title={t("pos.type")}
-                        label={t("pos.self")}
-                        options={[
-                            { name: "МСО", value: "SelfService" },
-                            { name: t("pos.robot"), value: "Portal" },
-                            { name: `МСО + ${t("pos.robot")}`, value: "SelfServiceAndPortal" }
-                        ]}
-                        classname="w-96"
-                        {...register('carWashPosType', { required: 'Pos Type is required' })}
-                        value={formData.carWashPosType}
-                        onChange={(value) => handleInputChange('carWashPosType', value)}
-                        error={!!errors.carWashPosType}
-                        helperText={errors.carWashPosType?.message}
-                    />
-                    <div>
-                        <label className="text-sm text-text02">{t("pos.min")}</label>
-                        <Input
-                            type="number"
-                            classname="w-48"
-                            {...register('stepSumOrder', { required: 'Step Sum Order is required' })}
-                            value={formData.stepSumOrder}
-                            changeValue={(e) => handleInputChange('stepSumOrder', e.target.value)}
-                            error={!!errors.stepSumOrder}
-                            helperText={errors.stepSumOrder?.message}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-sm text-text02">{t("pos.minAmount")}</label>
-                        <Input
-                            type="number"
-                            classname="w-48"
-                            {...register('minSumOrder', { required: 'Min Sum Order is required' })}
-                            value={formData.minSumOrder}
-                            changeValue={(e) => handleInputChange('minSumOrder', e.target.value)}
-                            error={!!errors.minSumOrder}
-                            helperText={errors.minSumOrder?.message}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-sm text-text02">{t("pos.maxAmount")}</label>
-                        <Input
-                            type="number"
-                            classname="w-48"
-                            {...register('maxSumOrder', { required: 'Max Sum Order is required' })}
-                            value={formData.maxSumOrder}
-                            changeValue={(e) => handleInputChange('maxSumOrder', e.target.value)}
-                            error={!!errors.maxSumOrder}
-                            helperText={errors.maxSumOrder?.message}
-                        />
-                    </div>
-                    <div>
-                        <div>{t("pos.photos")}</div>
-                        <div>{t("pos.maxNumber")}</div>
-                        <Button
-                            form={false}
-                            iconPlus={true}
-                            type="outline"
-                            title={t("pos.download")}
-                        />
-                    </div>
-                    <div className="flex justify-end space-x-4">
+                    <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
                             type='outline'

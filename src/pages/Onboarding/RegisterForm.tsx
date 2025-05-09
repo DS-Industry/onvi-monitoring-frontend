@@ -6,12 +6,14 @@ import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from "swr/mutation";
 import { registerPlatformUser } from "@/services/api/platform";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type Props = {
     count: number;
     setCount: (key: number) => void;
     registerObj: { email: string };
-    setRegisterObj: (obj: {email: string}) => void;
+    setRegisterObj: (obj: { email: string }) => void;
 }
 
 const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegisterObj }: Props) => {
@@ -39,8 +41,8 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
             phone: formData.phone,
             email: formData.email,
             password: formData.password
-        }) 
-      );
+        })
+    );
 
     type FieldType = "name" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
 
@@ -66,9 +68,9 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         console.log("Form data:", data);
         try {
             const result = await trigger();
-            if(result) {
+            if (result) {
                 console.log(result);
-                setRegisterObj({email: formData.email});
+                setRegisterObj({ email: formData.email });
                 console.log(registerObj);
                 setCount(count + 1);
             }
@@ -128,13 +130,12 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                             helperText={errors.confirmPassword?.message || ''}
                         />
                         <div className="flex mb-5">
-                            <Input
-                                type="date"
+                            <DateInput
                                 title={t("register.date")}
                                 classname="w-40"
                                 id="date-input"
-                                value={formData.birthday}
-                                changeValue={(e) => handleInputChange('birthday', e.target.value)}
+                                value={formData.birthday ? dayjs(formData.birthday) : null}
+                                changeValue={(date) => handleInputChange("birthday", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                                 error={!!errors.birthday}
                                 {...register('birthday', {
                                     required: 'birthday is required'

@@ -4,7 +4,6 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import { useButtonCreate } from "@/components/context/useContext.tsx";
 import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
-import OverflowTable from "@ui/Table/OverflowTable.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
 import { getOrganization, getOrganizationDocument, postUpdateOrganization } from "@/services/api/organization/index.ts";
@@ -15,10 +14,15 @@ import useFormHook from "@/hooks/useFormHook.ts";
 import useSWRMutation from "swr/mutation";
 import { createUserOrganization } from "@/services/api/organization/index.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
-import SearchInput from "@/components/ui/Input/SearchInput.tsx";
+// import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@/hooks/useUserStore";
+import { useCity, useSetCity } from "@/hooks/useAuthStore";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Input as SearchInp } from "antd";
+
+const { Search } = SearchInp;
 
 type OrganizationResponse = {
     id: number;
@@ -35,18 +39,20 @@ type OrganizationResponse = {
 const Organization: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { data, isLoading: loadingOrg } = useSWR([`get-org`], () => getOrganization());
+    const address = useCity();
+    const setAddress = useSetCity();
+    const { data, isLoading: loadingOrg } = useSWR([`get-org`, address], () => getOrganization({
+        placementId: address
+    }));
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const [address, setAddress] = useState("");
     const user = useUser();
 
     useSWR(editOrgId !== 0 ? [`get-org-doc`] : null, () => getOrganizationDocument(editOrgId));
 
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        ?.filter((item: { address: string }) => item.address.toLowerCase().includes(address.toLowerCase()))
         .map((item: OrganizationResponse) => ({
             ...item,
             ownerName: user.name,
@@ -165,7 +171,7 @@ const Organization: React.FC = () => {
                 console.log(result);
                 if (result) {
                     console.log(result);
-                    mutate([`get-org`]);
+                    mutate([`get-org`, address]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -174,7 +180,7 @@ const Organization: React.FC = () => {
                 const result = await createOrganization();
                 if (result) {
                     console.log(result);
-                    mutate([`get-org`]);
+                    mutate([`get-org`, address]);
                 } else {
                     throw new Error('Invalid org data. Please try again.');
                 }
@@ -191,187 +197,29 @@ const Organization: React.FC = () => {
     return (
         <>
             <Filter count={organizations.length} searchTerm={searchTerm} setSearchTerm={handleSearchChange} hideDateTime={true} address={address} setAddress={setAddress} hideSearch={true}>
-                <div className="flex">
-                    <SearchInput
-                        title="Имя"
-                        placeholder="Filter by name..."
-                        classname="w-64 ml-2"
-                        searchType="outlined"
+                <div>
+                    <div className="text-sm text-text02">{"Имя"}</div>
+                    <Search
+                        placeholder="Поиск"
+                        className="w-full sm:w-80"
                         value={searchTerm}
-                        onChange={handleSearchChange}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onSearch={handleSearchChange}
+                        size="large"
                     />
                 </div>
             </Filter>
-            <DrawerCreate>
-                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("organizations.update") : t("organizations.new")}</span>
-                    <DropdownInput
-                        title={t("organizations.typeLegal")}
-                        options={[
-                            { name: t("organizations.legalEntity"), value: "LegalEntity" },
-                            { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
-                        ]}
-                        inputType="secondary"
-                        classname="w-64"
-                        {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}
-                        value={formData.organizationType}
-                        onChange={(value) => handleInputChange('organizationType', value)}
-                        error={!!errors.organizationType}
-                        helperText={errors.organizationType?.message}
-                    />
-                    <DropdownInput
-                        title={t("organizations.vatRate")}
-                        label={t("organizations.selectBet")}
-                        type={"typeOrg"}
-                        options={[
-                            { name: t("organizations.withoutVat"), value: "WithoutVAT" },
-                            { name: "10%", value: "Vat10" },
-                            { name: "18%", value: "Vat18" },
-                            { name: "20%", value: "Vat20" }
-                        ]}
-                        inputType="primary"
-                        classname="w-64"
-                        {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
-                        value={formData.rateVat}
-                        onChange={(value) => handleInputChange('rateVat', value)}
-                        error={!!errors.rateVat}
-                        helperText={errors.rateVat?.message}
-                    />
-                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.legalDetails")}</div>
-                    <Input
-                        title={t("organizations.tin")}
-                        type="text"
-                        classname="w-96"
-                        {...register('inn', { required: !isEditMode && 'Inn is required' })}
-                        value={formData.inn}
-                        changeValue={(e) => handleInputChange('inn', e.target.value)}
-                        error={!!errors.inn}
-                        helperText={errors.inn?.message}
-                    />
-                    <Input
-                        title={t("organizations.fullName")}
-                        type={'text'}
-                        classname="w-96"
-                        {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
-                        value={formData.fullName}
-                        changeValue={(e) => handleInputChange('fullName', e.target.value)}
-                        error={!!errors.fullName}
-                        helperText={errors.fullName?.message}
-                    />
-                    <Input
-                        title={t("organizations.okpo")}
-                        type="text"
-                        classname="w-96"
-                        {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
-                        value={formData.okpo}
-                        changeValue={(e) => handleInputChange('okpo', e.target.value)}
-                        error={!!errors.okpo}
-                        helperText={errors.okpo?.message}
-                    />
-                    <Input
-                        title={t("organizations.kpp")}
-                        type="text"
-                        classname="w-96"
-                        {...register('kpp')}
-                        value={formData.kpp}
-                        changeValue={(e) => handleInputChange('kpp', e.target.value)}
-                    />
-                    <MultilineInput
-                        title={t("organizations.address")}
-                        classname="w-96"
-                        {...register('addressRegistration', { required: !isEditMode && 'Registration Address is required' })}
-                        value={formData.addressRegistration}
-                        changeValue={(e) => handleInputChange('addressRegistration', e.target.value)}
-                        error={!!errors.addressRegistration}
-                        helperText={errors.addressRegistration?.message}
-                    />
-                    <Input
-                        title={t("organizations.ogrn")}
-                        type="text"
-                        classname="w-96"
-                        {...register('ogrn', { required: !isEditMode && 'OGRN is required' })}
-                        value={formData.ogrn}
-                        changeValue={(e) => handleInputChange('ogrn', e.target.value)}
-                        error={!!errors.ogrn}
-                        helperText={errors.ogrn?.message}
-                    />
-                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.bankDetails")}</div>
-                    <Input
-                        title={t("organizations.bik")}
-                        type="text"
-                        classname="w-96"
-                        {...register('bik', { required: !isEditMode && 'BIK is required' })}
-                        value={formData.bik}
-                        changeValue={(e) => handleInputChange('bik', e.target.value)}
-                        error={!!errors.bik}
-                        helperText={errors.bik?.message}
-                    />
-                    <Input
-                        title={t("organizations.corres")}
-                        type="text"
-                        classname="w-96"
-                        {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
-                        value={formData.correspondentAccount}
-                        changeValue={(e) => handleInputChange('correspondentAccount', e.target.value)}
-                        error={!!errors.correspondentAccount}
-                        helperText={errors.correspondentAccount?.message}
-                    />
-                    <Input
-                        title={t("organizations.bank")}
-                        type="text"
-                        classname="w-96"
-                        {...register('bank', { required: !isEditMode && 'Bank is required' })}
-                        value={formData.bank}
-                        changeValue={(e) => handleInputChange('bank', e.target.value)}
-                        error={!!errors.bank}
-                        helperText={errors.bank?.message}
-                    />
-                    <Input
-                        title={t("organizations.current")}
-                        type="text"
-                        classname="w-96"
-                        {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
-                        value={formData.settlementAccount}
-                        changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
-                        error={!!errors.settlementAccount}
-                        helperText={errors.settlementAccount?.message}
-                    />
-                    <MultilineInput
-                        title={t("organizations.add")}
-                        classname="w-96"
-                        {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
-                        value={formData.addressBank}
-                        changeValue={(e) => handleInputChange('addressBank', e.target.value)}
-                        error={!!errors.addressBank}
-                        helperText={errors.addressBank?.message}
-                    />
-
-                    <div className="flex justify-end space-x-4">
-                        <Button
-                            title={t("organizations.cancel")}
-                            type='outline'
-                            handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
-                        <Button
-                            title={t("organizations.save")}
-                            form={true}
-                            isLoading={isMutating}
-                            handleClick={() => { }} />
-                    </div>
-                </form>
-            </DrawerCreate>
-
             {
                 loadingOrg ? (<TableSkeleton columnCount={columnsOrg.length} />)
                     :
                     organizations.length > 0 ? (
                         <>
                             <div className="mt-8">
-                                <OverflowTable
-                                    tableData={organizations}
+                                <DynamicTable
+                                    data={organizations}
                                     columns={columnsOrg}
                                     isDisplayEdit={true}
-                                    isUpdate={true}
-                                    onUpdate={handleUpdate}
+                                    onEdit={handleUpdate}
                                 />
                             </div>
                         </>
@@ -380,9 +228,185 @@ const Organization: React.FC = () => {
                             title={t("organizations.noLegal")}
                             description={t("organizations.addLegal")}
                         >
-                            <img src={SalyIamge} className="mx-auto" />
+                            <img src={SalyIamge} className="mx-auto" loading="lazy" />
                         </NoDataUI>
                     )}
+            <DrawerCreate onClose={resetForm}>
+                <form className="space-y-6 w-full max-w-2xl mx-auto p-4" onSubmit={handleSubmit(onSubmit)}>
+                    <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
+                        {isEditMode ? t("organizations.update") : t("organizations.new")}
+                    </span>
+
+                    {/* Dropdown Inputs */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <DropdownInput
+                            title={t("organizations.typeLegal")}
+                            options={[
+                                { name: t("organizations.legalEntity"), value: "LegalEntity" },
+                                { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
+                            ]}
+                            inputType="secondary"
+                            classname="w-80"
+                            {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}
+                            value={formData.organizationType}
+                            onChange={(value) => handleInputChange('organizationType', value)}
+                            error={!!errors.organizationType}
+                            helperText={errors.organizationType?.message}
+                        />
+
+                        <DropdownInput
+                            title={t("organizations.vatRate")}
+                            label={t("organizations.selectBet")}
+                            options={[
+                                { name: t("organizations.withoutVat"), value: "WithoutVAT" },
+                                { name: "10%", value: "Vat10" },
+                                { name: "18%", value: "Vat18" },
+                                { name: "20%", value: "Vat20" }
+                            ]}
+                            inputType="secondary"
+                            classname="w-80"
+                            {...register('rateVat', { required: !isEditMode && 'Rate VAT is required' })}
+                            value={formData.rateVat}
+                            onChange={(value) => handleInputChange('rateVat', value)}
+                            error={!!errors.rateVat}
+                            helperText={errors.rateVat?.message}
+                        />
+                    </div>
+
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.legalDetails")}</div>
+
+                    {/* Input Fields */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <Input
+                            title={t("organizations.tin")}
+                            type="text"
+                            classname="w-80"
+                            {...register('inn', { required: !isEditMode && 'Inn is required' })}
+                            value={formData.inn}
+                            changeValue={(e) => handleInputChange('inn', e.target.value)}
+                            error={!!errors.inn}
+                            helperText={errors.inn?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.fullName")}
+                            type="text"
+                            classname="w-80"
+                            {...register('fullName', { required: !isEditMode && 'Full Name is required' })}
+                            value={formData.fullName}
+                            changeValue={(e) => handleInputChange('fullName', e.target.value)}
+                            error={!!errors.fullName}
+                            helperText={errors.fullName?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.okpo")}
+                            type="text"
+                            classname="w-80"
+                            {...register('okpo', { required: !isEditMode && 'Okpo is required' })}
+                            value={formData.okpo}
+                            changeValue={(e) => handleInputChange('okpo', e.target.value)}
+                            error={!!errors.okpo}
+                            helperText={errors.okpo?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.kpp")}
+                            type="text"
+                            classname="w-80"
+                            {...register('kpp')}
+                            value={formData.kpp}
+                            changeValue={(e) => handleInputChange('kpp', e.target.value)}
+                        />
+                    </div>
+
+                    <MultilineInput
+                        title={t("organizations.address")}
+                        classname="w-80 sm:w-96"
+                        {...register('addressRegistration', { required: !isEditMode && 'Registration Address is required' })}
+                        value={formData.addressRegistration}
+                        changeValue={(e) => handleInputChange('addressRegistration', e.target.value)}
+                        error={!!errors.addressRegistration}
+                        helperText={errors.addressRegistration?.message}
+                    />
+
+                    <Input
+                        title={t("organizations.ogrn")}
+                        type="text"
+                        classname="w-80"
+                        {...register('ogrn', { required: !isEditMode && 'OGRN is required' })}
+                        value={formData.ogrn}
+                        changeValue={(e) => handleInputChange('ogrn', e.target.value)}
+                        error={!!errors.ogrn}
+                        helperText={errors.ogrn?.message}
+                    />
+
+                    <div className="text-sm text-text01 font-normal mb-4 uppercase">{t("organizations.bankDetails")}</div>
+
+                    {/* Bank Details */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <Input
+                            title={t("organizations.bik")}
+                            type="text"
+                            classname="w-80"
+                            {...register('bik', { required: !isEditMode && 'BIK is required' })}
+                            value={formData.bik}
+                            changeValue={(e) => handleInputChange('bik', e.target.value)}
+                            error={!!errors.bik}
+                            helperText={errors.bik?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.corres")}
+                            type="text"
+                            classname="w-80"
+                            {...register('correspondentAccount', { required: !isEditMode && 'Correspondent Account is required' })}
+                            value={formData.correspondentAccount}
+                            changeValue={(e) => handleInputChange('correspondentAccount', e.target.value)}
+                            error={!!errors.correspondentAccount}
+                            helperText={errors.correspondentAccount?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.bank")}
+                            type="text"
+                            classname="w-80"
+                            {...register('bank', { required: !isEditMode && 'Bank is required' })}
+                            value={formData.bank}
+                            changeValue={(e) => handleInputChange('bank', e.target.value)}
+                            error={!!errors.bank}
+                            helperText={errors.bank?.message}
+                        />
+
+                        <Input
+                            title={t("organizations.current")}
+                            type="text"
+                            classname="w-80"
+                            {...register('settlementAccount', { required: !isEditMode && 'Settlement Account is required' })}
+                            value={formData.settlementAccount}
+                            changeValue={(e) => handleInputChange('settlementAccount', e.target.value)}
+                            error={!!errors.settlementAccount}
+                            helperText={errors.settlementAccount?.message}
+                        />
+                    </div>
+
+                    <MultilineInput
+                        title={t("organizations.add")}
+                        classname="w-80 sm:w-96"
+                        {...register('addressBank', { required: !isEditMode && 'Bank Address is required' })}
+                        value={formData.addressBank}
+                        changeValue={(e) => handleInputChange('addressBank', e.target.value)}
+                        error={!!errors.addressBank}
+                        helperText={errors.addressBank?.message}
+                    />
+
+                    {/* Buttons */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+                        <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
+                        <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
+                    </div>
+                </form>
+            </DrawerCreate>
         </>
     );
 };

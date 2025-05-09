@@ -1,141 +1,178 @@
-import React, { useEffect, useRef, useState } from "react";
-import Icon from "feather-icons-react";
-import Check from "@/assets/icons/CheckCircle.png";
+import React, { useEffect, useMemo, useState } from "react";
+import { Select, Input, Button as AntButton, Spin } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
-interface Option {
+const { Option } = Select;
+
+interface OptionType {
     id: number;
-    label: string;
+    name: string;
     color: string;
 }
 
 interface MultiInputProps {
-    options: Option[];
-    value?: Option[]; // Add value prop
+    options: OptionType[];
+    value?: number[];
     placeholder?: string;
-    onChange: (selectedOptions: Option[]) => void;
+    onChange: (selectedOptions: OptionType[]) => void;
+    searchValue?: string;
+    setSearchValue?: (value: string) => void;
+    handleChange?: () => void;
+    isLoading?: boolean;
+    loadingOptions?: boolean;
 }
 
 const MultiInput: React.FC<MultiInputProps> = ({
     options,
-    value = [], // Default to an empty array if value is not provided
+    value = [],
     placeholder = "Название тега",
     onChange,
+    searchValue = "",
+    setSearchValue,
+    handleChange,
+    isLoading = false,
+    loadingOptions = false
 }) => {
-    const [selectedOptions, setSelectedOptions] = useState<Option[]>(value); // Use value for initial state
-    const [isOpen, setIsOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
-    // Update local state if the value prop changes
+    const selectedOptions = useMemo(() => {
+        return options.filter((opt) => value.includes(opt.id));
+    }, [value, options]);
+
+    const handleSelectChange = (selectedIds: number[]) => {
+        const selected = options.filter((opt) => selectedIds.includes(opt.id));
+        onChange(selected);
+    };
+
+    const [filterSearchValue, setFilterSearchValue] = useState("");
+    const [pendingTagName, setPendingTagName] = useState<string | null>(null);
+
+    const filteredOptions = useMemo(() => {
+        return options.filter((opt) =>
+            opt.name.toLowerCase().includes(filterSearchValue.toLowerCase())
+        );
+    }, [filterSearchValue, options]);
+
     useEffect(() => {
-        setSelectedOptions(value);
-    }, [value]);
-
-    const handleSelect = (option: Option) => {
-        if (!selectedOptions.some((opt) => opt.id === option.id)) {
-            const updatedOptions = [...selectedOptions, option];
-            setSelectedOptions(updatedOptions); // Update local state
-            onChange(updatedOptions); // Notify parent
+        if (pendingTagName) {
+            const newlyCreatedTag = options.find(opt => opt.name.toLowerCase() === pendingTagName.toLowerCase());
+            if (newlyCreatedTag) {
+                onChange([...selectedOptions, newlyCreatedTag]);
+                setPendingTagName(null); // Clear pending tag
+            }
         }
-        setSearchQuery(""); // Clear the search query after selection
-    };
+    }, [options, pendingTagName, onChange, selectedOptions]);    
 
-    const handleRemove = (id: number) => {
-        const updatedOptions = selectedOptions.filter((opt) => opt.id !== id);
-        setSelectedOptions(updatedOptions); // Update local state
-        onChange(updatedOptions); // Notify parent
-    };
-
-    const filteredOptions = options.filter((opt) =>
-        opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+    const dropdownRender = (menu: React.ReactNode) => (
+        <div>
+            <div style={{ maxHeight: 150, overflowY: "auto" }}>{menu}</div>
+            {handleChange && (
+                <div className="flex items-center gap-2 p-2 border-t">
+                    <Input
+                        value={searchValue}
+                        onFocus={() => setIsInputFocused(true)}
+                        onBlur={() => setIsInputFocused(false)}
+                        onChange={(e) => setSearchValue?.(e.target.value)}
+                        placeholder={t("marketing.tags")}
+                        size="middle"
+                    />
+                    <AntButton
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        loading={isLoading}
+                        onClick={() => {
+                            if (!handleChange || !searchValue.trim()) return;
+                        
+                            setPendingTagName(searchValue.trim()); 
+                            handleChange(); 
+                            setSearchValue?.(""); 
+                        }}
+                        
+                    >
+                        {t("roles.create")}
+                    </AntButton>
+                </div>
+            )}
+        </div>
     );
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
     return (
-        <div className="relative w-full" ref={dropdownRef}>
-            {/* Input Box */}
-            <div className="border rounded-md px-3 py-2 w-80 flex items-center gap-2 flex-wrap bg-white">
-                {selectedOptions.map((option) => (
-                    <div
-                        key={option.id}
-                        className={`flex items-center gap-2 p-2.5 text-sm font-semibold rounded`}
-                        style={{ backgroundColor: option.color, color: "#fff" }}
-                    >
-                        {option.label}
-                        <button
-                            className="text-white"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemove(option.id);
+        <div className="w-80">
+            <div className="text-text02 text-sm">{t("marketing.tags")}</div>
+            <Select
+                mode="multiple"
+                style={{ width: "100%" }}
+                placeholder={placeholder}
+                value={selectedOptions.map((opt) => opt.id)}
+                onChange={(selectedIds) => {
+                    if (isInputFocused) {
+                        return;
+                    }
+                    handleSelectChange(selectedIds);
+                }}
+                searchValue={filterSearchValue}
+                onSearch={(val) => setFilterSearchValue?.(val)}
+                dropdownRender={dropdownRender}
+                filterOption={false}
+                showSearch
+                optionLabelProp="label"
+                size="large"
+                tagRender={({ label, value, closable, onClose }) => {
+                    const option = options.find((opt) => opt.id === value);
+                    return (
+                        <div
+                            style={{
+                                backgroundColor: option?.color || "#ccc",
+                                color: "#fff",
+                                padding: "2px 8px",
+                                borderRadius: 4,
+                                marginRight: 4,
+                                display: "inline-flex",
+                                alignItems: "center",
                             }}
                         >
-                            <Icon icon="x" className="w-4 h-4" />
-                        </button>
+                            <span>{label}</span>
+                            {closable && (
+                                <span
+                                    onClick={onClose}
+                                    style={{
+                                        marginLeft: 8,
+                                        cursor: "pointer",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    ×
+                                </span>
+                            )}
+                        </div>
+                    );
+                }}
+            >
+                {loadingOptions ? (
+                    <div className="flex justify-center items-center h-40 m-auto">
+                        <Spin size="large" />
                     </div>
-                ))}
-
-                <input
-                    type="text"
-                    placeholder={selectedOptions.length === 0 ? placeholder : ""}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsOpen(true)}
-                    className="flex-1 outline-none text-sm text-gray-700"
-                />
-            </div>
-
-            {/* Dropdown */}
-            {isOpen && (
-                <ul className="absolute left-0 right-0 max-h-48 overflow-auto bg-white border shadow-lg w-80 z-10 mt-1 rounded-md">
-                    {filteredOptions.length > 0 ? (
-                        filteredOptions.map((option) => (
-                            <li
-                                key={option.id}
-                                onClick={() => {
-                                    handleSelect(option);
-                                    setIsOpen(false);
-                                }}
-                                className="cursor-pointer hover:bg-background06 flex"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <div
-                                        style={{ backgroundColor: option.color }}
-                                        className="p-1 rounded"
-                                    >
-                                        <span className="text-sm font-semibold text-white">
-                                            {option.label}
-                                        </span>
-                                    </div>
-                                    {/* Align check icon at the end of the option */}
-                                    <div className="flex space-x-4 ml-auto">
-                                        {selectedOptions.some((opt) => opt.id === option.id) && (
-                                            <img src={Check} />
-                                        )}
-                                        <Icon
-                                            icon="more-horizontal"
-                                            className="w-6 h-6 text-primary02"
-                                        />
-                                    </div>
-                                </div>
-                            </li>
-                        ))
-                    ) : (
-                        <li className="px-3 py-2 text-text02 text-sm">Нет доступных опций</li>
-                    )}
-                </ul>
-            )}
+                ) : (
+                    filteredOptions.map((option) => (
+                        <Option key={option.id} value={option.id} label={option.name}>
+                            <div className="flex justify-between items-center">
+                                <span
+                                    style={{
+                                        backgroundColor: option.color,
+                                        padding: "2px 6px",
+                                        borderRadius: 4,
+                                        color: "#fff",
+                                    }}
+                                >
+                                    {option.name}
+                                </span>
+                            </div>
+                        </Option>
+                    ))
+                )}
+            </Select>
         </div>
     );
 };

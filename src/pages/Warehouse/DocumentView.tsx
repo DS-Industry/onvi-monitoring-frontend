@@ -1,4 +1,4 @@
-import { getDocument, getWarehouses } from "@/services/api/warehouse";
+import { getDocument, getNomenclature, getWarehouses } from "@/services/api/warehouse";
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
@@ -6,10 +6,15 @@ import moment from "moment";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useDocumentType, usePosType } from "@/hooks/useAuthStore";
-import GoodsTable from "@/components/ui/Table/GoodsTable";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
+// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import { useButtonCreate } from "@/components/context/useContext";
+import { useUser } from "@/hooks/useUserStore";
+import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
+import { getOrganization } from "@/services/api/organization";
+import { Skeleton } from "antd";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -27,30 +32,40 @@ const DocumentView: React.FC = () => {
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
     const posType = usePosType();
+    const city = useCity();
+    const user = useUser();
 
-    const { data: document, isLoading: loadingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
+        placementId: city
+    }));
+
+    const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+
+    const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations[0].value), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
+
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const columnsDocumentView = documentType === "INVENTORY" ? [
-        {
-            label: "",
-            key: "check",
-            type: "checkbox"
-        },
         {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -70,20 +85,16 @@ const DocumentView: React.FC = () => {
         }
     ] : [
         {
-            label: "",
-            key: "check"
-        },
-        {
             label: "№",
             key: "id"
         },
         {
             label: "Ответственный",
-            key: "responsibleId"
+            key: "responsibleName"
         },
         {
             label: "Номенклатура",
-            key: "nomenclatureId"
+            key: "nomenclatureName"
         },
         {
             label: "Кол-во",
@@ -103,46 +114,46 @@ const DocumentView: React.FC = () => {
         return !!metaData && 'warehouseReceirId' in metaData;
     }
 
-    const tableData: { 
-        id: number; 
-        responsibleId: number; 
-        nomenclatureId: number; 
-        quantity: number; 
-        comment?: string; 
-        oldQuantity?: number; 
-        deviation?: number; 
+    const tableData: {
+        id: number;
+        responsibleName: string;
+        nomenclatureName: string;
+        quantity: number;
+        comment?: string;
+        oldQuantity?: number;
+        deviation?: number;
     }[] = documentType === "INVENTORY"
-        ? (document?.details || []).map((doc) => ({
-            id: doc.props.id,
-            responsibleId: document?.document.props.responsibleId ?? 0, 
-            nomenclatureId: doc.props.nomenclatureId,
-            quantity: doc.props.quantity,
-            comment: doc.props.comment,
-            oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
-            deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
-        }))
-        : (document?.details || []).map((doc) => ({
-            id: doc.props.id,
-            responsibleId: document?.document.props.responsibleId ?? 0, 
-            nomenclatureId: doc.props.nomenclatureId,
-            quantity: doc.props.quantity,
-            comment: doc.props.comment
-        }));    
+            ? (document?.details || []).map((doc) => ({
+                id: doc.props.id,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
+                quantity: doc.props.quantity,
+                comment: doc.props.comment,
+                oldQuantity: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.oldQuantity : 0,
+                deviation: isInventoryMetaData(doc.props.metaData) ? doc.props.metaData.deviation : 0
+            }))
+            : (document?.details || []).map((doc) => ({
+                id: doc.props.id,
+                responsibleName: user.name,
+                nomenclatureName: nomenclatures.find((nom) => nom.value === doc.props.nomenclatureId)?.name || "",
+                quantity: doc.props.quantity,
+                comment: doc.props.comment
+            }));
 
     useEffect(() => {
-        if(buttonOn)
-            navigate("/warehouse/documents/creation", {state: { ownerId: location.state.ownerId } })
-    },[buttonOn, location.state.ownerId, navigate])
+        if (buttonOn)
+            navigate("/warehouse/documents/creation", { state: { ownerId: location.state.ownerId } })
+    }, [buttonOn, location.state.ownerId, navigate])
 
     return (
-        <div className="ml-20">
-            {loadingDocument ? <TableSkeleton columnCount={10} /> :
-                <div>
-                    <div className="flex space-x-3 text-text02">
-                        <div>{document?.document.props.name}</div>
-                        <div>{moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}</div>
-                    </div>
-                    <div className="flex py-4 justify-between">
+        <div>
+            {loadingDocument || validatingDocument ? (
+                <div className="mt-16">
+                    <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />
+                </div>
+            ) : <div>
+                <div className="flex flex-col sm:flex-row gap-4 py-4">
+                    <div className="flex flex-wrap gap-4">
                         <div className="flex">
                             <div className="mr-10 text-text01 font-normal text-sm">
                                 <div>{t("warehouse.no")}</div>
@@ -154,42 +165,47 @@ const DocumentView: React.FC = () => {
                                 changeValue={() => { }}
                                 disabled={true}
                             />
+                        </div>
+                        <div className="flex">
                             <div className="flex mt-3 text-text01 font-normal text-sm mx-2">{t("warehouse.from")}</div>
-                            <Input
-                                type={"date"}
-                                value={new Date(document?.document.props.createdAt ?? '').toISOString().split("T")[0] || null}
+                            <DateInput
+                                value={document?.document.props.createdAt ? dayjs(document?.document.props.createdAt) : null}
                                 changeValue={() => { }}
                                 disabled={true}
                             />
                         </div>
-                        <div className="flex flex-col space-y-6">
-                            <div className="flex">
-                                <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
-                                <DropdownInput
-                                    value={document?.document.props.warehouseId}
-                                    options={warehouses}
-                                    classname="w-80"
-                                    onChange={() => { }}
-                                    isDisabled={true}
-                                />
-                            </div>
-                            {documentType === "MOVING" && <div className="flex">
-                                <div className="flex items-center justify-center w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
-                                <DropdownInput
-                                    value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
-                                    options={warehouses}
-                                    classname="w-80"
-                                    onChange={() => { }}
-                                    isDisabled={true}
-                                />
-                            </div>}
-                        </div>
                     </div>
-                    <GoodsTable
-                        tableData={tableData}
-                        columns={columnsDocumentView}
-                    />
+                    <div className="flex flex-col space-y-6">
+                        <div className="flex space-x-2">
+                            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                            <DropdownInput
+                                value={document?.document.props.warehouseId}
+                                options={warehouses}
+                                classname="w-48 sm:w-80"
+                                onChange={() => { }}
+                                isDisabled={true}
+                            />
+                        </div>
+                        {documentType === "MOVING" && <div className="flex space-x-2">
+                            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
+                            <DropdownInput
+                                value={isMovingMetaData(document?.details[0].props.metaData) && document?.details[0].props.metaData?.warehouseReceirId}
+                                options={warehouses}
+                                classname="w-48 sm:w-80"
+                                onChange={() => { }}
+                                isDisabled={true}
+                            />
+                        </div>}
+                    </div>
                 </div>
+                <GoodsAntTable
+                    tableData={tableData}
+                    columns={columnsDocumentView}
+                    showDocument={true}
+                    documentName={document?.document.props.name}
+                    documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                />
+            </div>
             }
         </div>
     )

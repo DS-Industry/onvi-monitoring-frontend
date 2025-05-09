@@ -9,7 +9,8 @@ enum WAREHOUSE {
     GET_WAREHOUSE_POS = 'user/warehouse/pos',
     CREATE_DOCUMENT = 'user/warehouse/document',
     GET_INVENTORY_ITEM = 'user/warehouse/inventory-item/inventory',
-    GET_STOCK_LEVEL = 'user/warehouse/inventory-item'
+    GET_STOCK_LEVEL = 'user/warehouse/inventory-item',
+    CREATE_WAREHOUSE = 'user/warehouse'
 }
 
 enum WarehouseDocumentType {
@@ -26,6 +27,16 @@ enum WarehouseDocumentStatus {
     SENT = "SENT"
 }
 
+enum PurposeType {
+    SALE = "SALE",
+    INTERNAL_USE = "INTERNAL_USE"
+}
+
+enum NomeclatureStatus {
+    ACTIVE = "ACTIVE",
+    DELETED = "DELETED"
+}
+
 type NOMENCLATURE_REQUEST = {
     name: string;
     sku: string;
@@ -33,6 +44,14 @@ type NOMENCLATURE_REQUEST = {
     categoryId: number;
     supplierId?: number;
     measurement: string;
+    metaData: {
+        description?: string;
+        weight?: number;
+        height?: number;
+        width?: number;
+        length?: number;
+        purpose?: PurposeType;
+    }
 }
 
 type NOMENCLATURE_RESPONSE = {
@@ -44,6 +63,16 @@ type NOMENCLATURE_RESPONSE = {
         categoryId: number;
         supplierId?: number;
         measurement: string;
+        image?: string;
+        metaData: {
+            description?: string;
+            weight?: number;
+            height?: number;
+            width?: number;
+            length?: number;
+            purpose?: PurposeType;
+        }
+        status: NomeclatureStatus;
         createdAt: Date;
         updatedAt: Date;
         createdById: number;
@@ -65,12 +94,25 @@ type NOMENCLATURE_UPDATE_REQUEST = {
     categoryId?: number;
     supplierId?: number;
     measurement?: string;
+    metaData: {
+        description?: string;
+        weight?: number;
+        height?: number;
+        width?: number;
+        length?: number;
+        purpose?: PurposeType;
+    }
 }
 
 type CATEGORY_REQUEST = {
     name: string;
     description?: string;
     ownerCategoryId?: number;
+}
+
+type UPDATE_CATEGORY_REQUEST = {
+    name?: string;
+    description?: string;
 }
 
 type CATEGORY_RESPONSE = {
@@ -157,7 +199,8 @@ type DocumentResponse = {
 type DOCUMENT_PARAMS = {
     dateStart: Date;
     dateEnd: Date;
-    warehouseId?: number;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 type DOCUMENTS_RESPONSE = {
@@ -206,8 +249,9 @@ type INVENTORY_RESPONSE = {
 }
 
 type STOCK_PARAMS = {
-    categoryId?: number;
-    warehouseId?: number;
+    categoryId: number | string;
+    warehouseId: number | string;
+    placementId: number | string;
 }
 
 type STOCK_RESPONSE = {
@@ -220,6 +264,18 @@ type STOCK_RESPONSE = {
         warehouseName: string;
         quantity?: number;
     }[]
+}
+
+type WAREHOUSE_BODY = {
+    name: string;
+    location: string;
+    managerId: number;
+    posId: number;
+}
+
+type WarehouseParams = {
+    posId: number | string;
+    placementId: number | string;
 }
 
 export async function createNomenclature(body: NOMENCLATURE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
@@ -245,9 +301,22 @@ export async function updateNomenclature(body: NOMENCLATURE_UPDATE_REQUEST): Pro
     return response.data;
 }
 
+export async function deleteNomenclature(id: number): Promise<NOMENCLATURE_RESPONSE> {
+    const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.delete(WAREHOUSE.CREATE_NOMENCLATURE + `/${id}`);
+    console.log(response.data);
+    return response.data;
+}
+
 export async function createCategory(body: CATEGORY_REQUEST): Promise<CATEGORY_RESPONSE> {
     console.log(body);
     const response: AxiosResponse<CATEGORY_RESPONSE> = await api.post(WAREHOUSE.CREATE_CATEGORY, body);
+    console.log(response.data);
+    return response.data;
+}
+
+export async function updateCategory(body: UPDATE_CATEGORY_REQUEST, id: number): Promise<CATEGORY_RESPONSE> {
+    console.log(body);
+    const response: AxiosResponse<CATEGORY_RESPONSE> = await api.patch(WAREHOUSE.CREATE_CATEGORY + `/${id}`, body);
     console.log(response.data);
     return response.data;
 }
@@ -277,8 +346,8 @@ export async function getNomenclature(orgId: number): Promise<NOMENCLATURE_RESPO
     return response.data;
 }
 
-export async function getWarehouses(posId: number): Promise<WAREHOUSE_RESPONSE[]> {
-    const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.GET_WAREHOUSE_POS + `/${posId}`);
+export async function getWarehouses(params: WarehouseParams): Promise<WAREHOUSE_RESPONSE[]> {
+    const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_WAREHOUSE, { params });
     console.log(response);
     return response.data;
 }
@@ -325,5 +394,12 @@ export async function getDocument(documentId: number): Promise<GET_DOCUMENT_RESP
 export async function getAllStockLevels(orgId: number, params: STOCK_PARAMS): Promise<STOCK_RESPONSE[]> {
     const response: AxiosResponse<STOCK_RESPONSE[]> = await api.get(WAREHOUSE.GET_STOCK_LEVEL + `/${orgId}`, { params });
     console.log(response);
+    return response.data;
+}
+
+export async function createWarehouse(body: WAREHOUSE_BODY): Promise<WAREHOUSE_RESPONSE> {
+    console.log(body);
+    const response: AxiosResponse<WAREHOUSE_RESPONSE> = await api.post(WAREHOUSE.CREATE_WAREHOUSE, body);
+    console.log(response.data);
     return response.data;
 }

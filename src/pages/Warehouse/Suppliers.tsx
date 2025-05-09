@@ -12,8 +12,8 @@ import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsSupplier } from "@/utils/OverFlowTableData";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import Filter from "@/components/ui/Filter/Filter";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
 
 const Suppliers: React.FC = () => {
     const { t } = useTranslation();
@@ -73,15 +73,15 @@ const Suppliers: React.FC = () => {
 
     return (
         <>
-            <Filter children={undefined} count={supplier.length} hideDateTime={true} search={searchName} setSearch={setSearchName}>
+            <Filter children={undefined} count={supplier.length} hideDateTime={true} hideCity={true} hidePage={true} search={searchName} setSearch={setSearchName}>
 
             </Filter>
             {loadingSupplier ? (
                 <TableSkeleton columnCount={columnsSupplier.length} />
             ) : supplier.length > 0 ?
                 <div className="mt-8">
-                    <OverflowTable
-                        tableData={supplier}
+                    <DynamicTable
+                        data={supplier}
                         columns={columnsSupplier}
                     />
                 </div> :
@@ -90,11 +90,11 @@ const Suppliers: React.FC = () => {
                         title={t("warehouse.noSupply")}
                         description={""}
                     >
-                        <img src={InventoryEmpty} className="mx-auto" />
+                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
                     </NoDataUI>
                 </div>
             }
-            <DrawerCreate>
+            <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.suppliers")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>

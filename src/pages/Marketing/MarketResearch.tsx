@@ -18,7 +18,7 @@ const MarketResearch: React.FC = () => {
                     title={t("marketing.nodata")}
                     description={t("marketing.filter")}
                 >
-                    <img src={SalyIamge} className="mx-auto" />
+                    <img src={SalyIamge} className="mx-auto" loading="lazy" />
                 </NoDataUI>
             )}
         </div>
