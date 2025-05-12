@@ -179,7 +179,7 @@ const ProgressReportItem: React.FC = () => {
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
         ['create-tech-task'],
         async (_, { arg }: { arg: { valueData: { itemValueId: number; value: string }[] } }) => {
-            return createTechTaskShape(location.state?.ownerId, arg);
+            return createTechTaskShape(location.state?.ownerId, arg, []);
         }
     );
 

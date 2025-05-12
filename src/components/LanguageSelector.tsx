@@ -30,7 +30,6 @@ const LanguageSelector: React.FC = () => {
         options={languages}
         onChange={handleLanguageChange}
         classname="w-80"
-        isSelectable={true}
       />
     </div>
   );

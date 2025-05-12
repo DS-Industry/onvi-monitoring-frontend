@@ -25,7 +25,6 @@ const PostRegisterForm: React.FC = () => {
                     ]}
                     value={selectedEntity}
                     onChange={setSelectedEntity}
-                    isSelectable={true}
                     classname="w-72"
                 />
                 <Input
