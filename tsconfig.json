@@ -10,9 +10,9 @@
   ],
   "compilerOptions": {
     "baseUrl": "src",
-    "types": [
-      "process.env"
-    ],
+    // "types": [
+    //   "process.env"
+    // ],
     "moduleResolution": "node",
     "paths": {
       "@/*": ["*"],
