@@ -24,6 +24,8 @@ import Icon from "feather-icons-react";
 import Avatar from "@/components/ui/Avatar";
 import OnviLogo from "@/assets/OnviLogo.svg";
 import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
+import { datadogRum } from '@datadog/browser-rum';
+import { datadogLogs } from "@datadog/browser-logs";
 
 const { Sider, Content } = Layout;
 
@@ -49,6 +51,16 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const userName = { name: user.name, middlename: user.middlename };
+
+  useEffect(() => {
+    datadogRum.addAction("Navigated", {
+      pathname: location.pathname,
+    });
+
+    datadogLogs.logger.info("Route loaded", {
+      pathname: location.pathname,
+    });
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleResize = () => {
