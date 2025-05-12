@@ -13,6 +13,11 @@ dist-ssr
 *.local
 env.development
 
+# Add to .gitignore
+.env*
+.env.development
+.env.staging
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
