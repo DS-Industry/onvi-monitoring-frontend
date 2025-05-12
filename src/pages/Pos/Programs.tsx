@@ -60,7 +60,6 @@ interface PosMonitoring {
 
 const Programs: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
     const location = useLocation();
     const startDate = useStartDate();
     const endDate = useEndDate();
