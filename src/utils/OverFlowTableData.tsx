@@ -452,10 +452,10 @@ export const columnsEquipmentFailure = [
     label: "Название объекта",
     key: "posName"
   },
-  {
-    label: "Тип объекта",
-    key: "type"
-  },
+  // {
+  //   label: "Тип объекта",
+  //   key: "type"
+  // },
   {
     label: "Сотрудник",
     key: "workerName"

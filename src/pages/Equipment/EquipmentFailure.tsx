@@ -150,9 +150,9 @@ const EquipmentFailure: React.FC = () => {
     const incidents: Incident[] = data
         ?.map((item: Incident) => ({
             ...item,
-            posName: poses.find((pos) => pos.value === item.posId)?.name,
-            workerName: workers.find((work) => work.value === item.workerId)?.name,
-            programName: programs.find((prog) => prog.value === item.programId)?.name
+            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+            workerName: workers.find((work) => work.value === item.workerId)?.name || "-",
+            programName: programs.find((prog) => prog.value === item.programId)?.name || "-"
         }))
         .sort((a, b) => a.id - b.id) || [];
 
