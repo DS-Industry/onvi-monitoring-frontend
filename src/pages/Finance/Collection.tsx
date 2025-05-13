@@ -59,7 +59,7 @@ const Collection: React.FC = () => {
 
     const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId}`], () => getCollections({
+    const { data: filter, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-collections-${dataFilter.posId}`], () => getCollections({
         dateStart: new Date(dataFilter.dateStart),
         dateEnd: new Date(dataFilter.dateEnd),
         posId: dataFilter.posId,
@@ -76,10 +76,6 @@ const Collection: React.FC = () => {
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
     };
-
-    useEffect(() => {
-        console.log(JSON.stringify(filterError, null, 2));
-    }, [filterError]);
 
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));

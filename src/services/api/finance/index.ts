@@ -281,142 +281,111 @@ type ReturnCashCollectionResponse = {
 }
 
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
-    console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function recalculateCollection(body: RecalculateCollectionBody, id: number): Promise<CollectionResponse> {
-    console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION + `/recalculate/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function sendCollection(body: RecalculateCollectionBody, id: number): Promise<CollectionResponse> {
-    console.log(body);
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION + `/send/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function returnCollection(id: number): Promise<ReturnCollectionResponse> {
     const response: AxiosResponse<ReturnCollectionResponse> = await api.patch(FINANCE.POST_CASH_COLLECTION + `/return/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCollectionById(id: number): Promise<CollectionResponse> {
     const response: AxiosResponse<CollectionResponse> = await api.get(FINANCE.POST_CASH_COLLECTION + `/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCollections(params: CashCollectionParams): Promise<CashCollectionsResponse> {
     const response: AxiosResponse<CashCollectionsResponse> = await api.get(FINANCE.POST_CASH_COLLECTION + `s`, { params });
-    console.log(response.data);
     return response.data;
 }
 
 export async function getTimestamp(posId: number | string): Promise<TimestampResponse[]> {
     const response: AxiosResponse<TimestampResponse[]> = await api.get(FINANCE.TIME_STAMP + `/${posId}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function postTimestamp(body: TimestampBody, id: number): Promise<TimestampResponseBody> {
-    console.log(body);
     const response: AxiosResponse<TimestampResponseBody> = await api.post(FINANCE.TIME_STAMP + `/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createShift(body: ShiftRequestBody): Promise<ShiftResponseBody> {
-    console.log(body);
     const response: AxiosResponse<ShiftResponseBody> = await api.post(FINANCE.SHIFT_REPORT, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function addWorker(body: ShiftWorkerBody, id: number): Promise<ShiftWorkerResponse> {
-    console.log(body);
     const response: AxiosResponse<ShiftWorkerResponse> = await api.post(FINANCE.SHIFT_REPORT + `/worker/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getShifts(params: CashCollectionParams): Promise<ShiftParamsResponse> {
     const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s`, { params });
-    console.log(response.data);
     return response.data;
 }
 
 export async function getShiftById(id: number): Promise<ShiftWorkerResponse> {
     const response: AxiosResponse<ShiftWorkerResponse> = await api.get(FINANCE.SHIFT_REPORT + `/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createDayShift(body: CreateDayShiftBody): Promise<DayShiftResponse> {
-    console.log(body);
     const response: AxiosResponse<DayShiftResponse> = await api.post(FINANCE.SHIFT_REPORT + '/day-report', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getDayShiftById(id: number): Promise<DayShiftResponse> {
     const response: AxiosResponse<DayShiftResponse> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateDayShift(body: UpdateDayShiftBody, id: number): Promise<DayShiftResponse> {
-    console.log(body);
     const response: AxiosResponse<DayShiftResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function sendDayShift(id: number): Promise<DayShiftResponse> {
     const response: AxiosResponse<DayShiftResponse> = await api.post(FINANCE.SHIFT_REPORT + `/day-report/send/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function returnDayShift(id: number): Promise<ReturnCashCollectionResponse> {
     const response: AxiosResponse<ReturnCashCollectionResponse> = await api.patch(FINANCE.SHIFT_REPORT + `/day-report/return/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createCashOper(body: CreateCashOperBody, id: number): Promise<CreateCashOperResponse> {
-    console.log(body);
     const response: AxiosResponse<CreateCashOperResponse> = await api.post(FINANCE.SHIFT_REPORT + `/day-report/oper/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCashOperById(id: number): Promise<GetDataOperResponse> {
     const response: AxiosResponse<GetDataOperResponse> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/oper/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCashOperRefundById(id: number): Promise<CreateCashOperResponse[]> {
     const response: AxiosResponse<CreateCashOperResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/refund/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCashOperCleanById(id: number): Promise<GetDayReportCleanResponse[]> {
     const response: AxiosResponse<GetDayReportCleanResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/clean/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCashOperSuspiciousById(id: number): Promise<GetDayReportSuspResponse[]> {
     const response: AxiosResponse<GetDayReportSuspResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/suspiciously/${id}`);
-    console.log(response.data);
     return response.data;
 }

@@ -106,7 +106,6 @@ const DepositDevices: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log(JSON.stringify(error, null, 2));
     }, [error]);
 
     useEffect(() => {

@@ -132,14 +132,10 @@ const CollectionCreation: React.FC = () => {
         }
     }, [collections]);
 
-    const onSubmit = async (data: unknown) => {
-        console.log('Form data:', data);
-
+    const onSubmit = async () => {
         try {
             const result = await postColl();
-            console.log(result);
             if (result) {
-                console.log(result);
                 setTableData(result.cashCollectionDeviceType);
                 setDeviceData(result.cashCollectionDevice);
                 setCollection(result);
@@ -164,7 +160,6 @@ const CollectionCreation: React.FC = () => {
     const [hideButton, setHideButton] = useState(false);
 
     const handleUpdate = (id: number) => {
-        console.log("Id of handle update: ", id);
         setEditingRow(id);
     }
 
@@ -222,7 +217,6 @@ const CollectionCreation: React.FC = () => {
         });
 
     const handleRecalculation = async () => {
-        console.log("Final Task Values:", tableData);
 
         const collectionDeviceType: { cashCollectionDeviceTypeId: number; sumCoin: number; sumPaper: number; }[] = tableData?.map((data) => ({
             cashCollectionDeviceTypeId: data.id,
@@ -234,8 +228,6 @@ const CollectionCreation: React.FC = () => {
             cashCollectionDeviceId: data.id,
             tookMoneyTime: data.tookMoneyTime
         })) || [];
-
-        console.log("Payload for API:", collectionDevice, collectionDeviceType);
 
         const result = await recalCollection({
             cashCollectionDeviceData: collectionDevice,
@@ -243,7 +235,6 @@ const CollectionCreation: React.FC = () => {
         });
 
         if (result) {
-            console.log("Result of the api: ", result);
             setTableData(result.cashCollectionDeviceType);
             setDeviceData(result.cashCollectionDevice);
             setCollection(result);
@@ -251,8 +242,6 @@ const CollectionCreation: React.FC = () => {
     };
 
     const handleSend = async () => {
-        console.log("Final Task Values:", tableData);
-
         const collectionDeviceType: { cashCollectionDeviceTypeId: number; sumCoin: number; sumPaper: number; }[] = tableData?.map((data) => ({
             cashCollectionDeviceTypeId: data.id,
             sumCoin: Number(data.sumCoinDeviceType),
@@ -264,15 +253,12 @@ const CollectionCreation: React.FC = () => {
             tookMoneyTime: data.tookMoneyTime
         })) || [];
 
-        console.log("Payload for API:", collectionDevice, collectionDeviceType);
-
         const result = await senCollection({
             cashCollectionDeviceData: collectionDevice,
             cashCollectionDeviceTypeData: collectionDeviceType
         });
 
         if (result) {
-            console.log("Result of the api: ", result);
             setTableData(result.cashCollectionDeviceType);
             setDeviceData(result.cashCollectionDevice);
             setCollection(result);
@@ -281,12 +267,9 @@ const CollectionCreation: React.FC = () => {
     };
 
     const handleReturn = async () => {
-        console.log("Final Task Values:", tableData);
-
         const result = await returnColl();
 
         if (result) {
-            console.log("Result of the api: ", result);
             navigate("/finance/collection");
         }
     };

@@ -108,7 +108,6 @@ const Programs: React.FC = () => {
 
 
     useEffect(() => {
-        console.log(JSON.stringify(filterErtot, null, 2));
     }, [filterErtot]);
 
     useEffect(() => {

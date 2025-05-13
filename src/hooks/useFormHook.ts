@@ -12,8 +12,7 @@ const useFormHook = <T extends Record<string, unknown>>(defaultValues?: DefaultV
     defaultValues,
   });
 
-  const onSubmit: SubmitHandler<T> = (data) => {
-    console.log('Form Data:', data);
+  const onSubmit: SubmitHandler<T> = () => {
     reset();
   };
 

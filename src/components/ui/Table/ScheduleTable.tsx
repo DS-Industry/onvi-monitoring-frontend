@@ -379,8 +379,6 @@ const ScheduleTable: React.FC<Props> = ({
                 });
             });
 
-            console.log("Checking the filled data: ", filledData);
-
             setFilledData((prev) => {
                 return JSON.stringify(prev) === JSON.stringify(newFilledData) ? prev : newFilledData;
             });
@@ -452,9 +450,7 @@ const ScheduleTable: React.FC<Props> = ({
     };
 
 
-    const onSubmit = async (data: any) => {
-        console.log("Submitted Data:", data);
-
+    const onSubmit = async () => {
         // Call API
         const result = await updateDay({
             id: openModalId,
@@ -469,7 +465,6 @@ const ScheduleTable: React.FC<Props> = ({
         });
 
         if (result) {
-            console.log("Checking the result: ", result);
             reset({
                 typeWorkDay: result.typeWorkDay,
                 timeWorkedOut: result.timeWorkedOut,

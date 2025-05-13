@@ -265,14 +265,11 @@ const Employees: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
-
+    const onSubmit = async () => {
+        
         try {
             const result = await createEmp();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-workers`]);
                 resetForm();
             } else {

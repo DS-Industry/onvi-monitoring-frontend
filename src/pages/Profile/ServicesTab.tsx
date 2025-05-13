@@ -39,12 +39,10 @@ export const ServicesTab: React.FC = () => {
     newPassword: formData.confirmPassword
   }))
 
-  const onSubmit = async (data: unknown) => {
-    console.log('Form data:', data);
+  const onSubmit = async () => {
     try {
       const result = await passwordUpdate();
       if(result) {
-        console.log(result);
         setUser({ user: result?.props })
         setPasswordError(false);
         setErrorPasswordMessage('');
@@ -53,7 +51,6 @@ export const ServicesTab: React.FC = () => {
         throw new Error('Invalid password. Please try again.');
       }
     } catch(error) {
-      console.log("Password change error: ", error);
       setPasswordError(true);
       setErrorPasswordMessage('Enter the correct password.');
     }

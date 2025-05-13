@@ -125,14 +125,11 @@ const Organization: React.FC = () => {
         setEditOrgId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
 
         const fetchedOrgData = await getOrganizationDocument(id);
         const orgs = fetchedOrgData.props;
 
         const orgToEdit = organizations.find((org) => org.id === id);
-        console.log(orgToEdit);
         if (orgToEdit && orgs) {
             setFormData({
                 fullName: orgToEdit.name,
@@ -162,15 +159,11 @@ const Organization: React.FC = () => {
         setButtonOn(false);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log('Form data:', data);
-        // Handle form submission logic here
+    const onSubmit = async () => {
         try {
             if (editOrgId) {
                 const result = await updateOrganization();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     mutate([`get-org`, address]);
                     resetForm();
                 } else {
@@ -179,14 +172,13 @@ const Organization: React.FC = () => {
             } else {
                 const result = await createOrganization();
                 if (result) {
-                    console.log(result);
                     mutate([`get-org`, address]);
                 } else {
                     throw new Error('Invalid org data. Please try again.');
                 }
             }
         } catch (error) {
-            console.log("Password change error: ", error);
+            console.error("Password change error: ", error);
         }
     };
 

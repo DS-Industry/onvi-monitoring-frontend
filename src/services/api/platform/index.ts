@@ -242,57 +242,42 @@ type WorkerResponse = {
 }
 
 export async function loginPlatformUser(body: LOGINBODY): Promise<LOGINRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<LOGINRESPONSE> = await api.post(LOGIN.CREATE_LOGIN, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function registerPlatformUser(body: REGISTERBODY): Promise<REGISTERRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<REGISTERRESPONSE> = await api.post(LOGIN.CREATE_REGISTER, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function registerActivationUser(body: REGISTERACTIVATION): Promise<REGISTERACTIVATIONRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<REGISTERACTIVATIONRESPONSE> = await api.post(LOGIN.REGISTER_ACTIVATION, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function forgotPasswordUser(body: FORGOTPASSWORDBODY): Promise<REGISTERRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<REGISTERRESPONSE> = await api.post(LOGIN.PASSWORD_CONFIRM, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function passwordValidUser(body: REGISTERACTIVATION): Promise<unknown> {
-    console.log(body);
     const response: AxiosResponse<unknown> = await api.post(LOGIN.PASSWORD_VALID, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function passwordResetUser(body: RESETBODY): Promise<RESETRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<RESETRESPONSE> = await api.post(LOGIN.PASSWORD_RESET, body);
-    console.log(response.data);
     return response.data;
 }
 
 
 // export async function uploadUserAvatar(body: any): Promise<any> {
-//     console.log(body);
-//     const response: AxiosResponse<any> = await api.post(USER.USER_AVATAR, body);
-//     console.log(response.data);
-//     return response.data;
+// //     const response: AxiosResponse<any> = await api.post(USER.USER_AVATAR, body);
+// //     return response.data;
 // }
 
 export async function updateUserProfile(body: UPDATEUSERBODY, file?: File | null): Promise<UPDATEUSERRESPONSE> {
-    console.log(body);
     const formData = new FormData();
 
     for (const key in body) {
@@ -312,26 +297,20 @@ export async function updateUserProfile(body: UPDATEUSERBODY, file?: File | null
             "Content-Type": "multipart/form-data",
         },
     });
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateUserPassword(body: USERPASSWORDBODY): Promise<UPDATEUSERRESPONSE> {
-    console.log(body);
     const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(USER.USER_UPDATE_PASSWORD, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createUserRole(body: WorkerRequest, confirm: string): Promise<WorkerResponse> {
-    console.log(body);
     const response: AxiosResponse<WorkerResponse> = await api.post(LOGIN.WORKER + `/${confirm}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getWorkerStatus(confirm: string): Promise<ValidResponse> {
     const response: AxiosResponse<ValidResponse> = await api.get(LOGIN.WORKER + `/valid/${confirm}`);
-    console.log(response.data);
     return response.data;
 }

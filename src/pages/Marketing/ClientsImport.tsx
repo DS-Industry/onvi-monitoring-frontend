@@ -44,16 +44,12 @@ const ClientsImport: React.FC = () => {
             console.error("No file selected.");
             return;
         }
-        console.log("Payload for API:", selectedFile);
 
         const result = await createInventory({
             file: selectedFile
         });
 
-        console.log("Result for the import inventory api:", result);
-
         if (result) {
-            console.log("File uploaded successfully:", result);
             navigate('/warehouse/inventory');
         }
     };

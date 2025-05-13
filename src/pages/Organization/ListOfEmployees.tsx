@@ -124,17 +124,15 @@ const ListOfEmployees: React.FC = () => {
         setButtonOn(false);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Form data:", data);
+    const onSubmit = async () => {
         try {
             const result = await addUserRole();
             if (result) {
-                console.log(result);
                 showSnackbar(t("organizations.token"), "success");
                 resetForm();
             }
         } catch (error) {
-            console.log("Register error:", error);
+            console.error("Register error:", error);
         }
     }
 
@@ -157,7 +155,6 @@ const ListOfEmployees: React.FC = () => {
     })) || [];
 
     const handleUpdate = (rowId: number) => {
-        console.log("Row Id:", rowId);
         const worker = workers.find((work) => work.id === rowId)?.name || "";
         const workerRole = workers.find((role) => role.id === rowId)?.roleName || "";
         const roleNo = roles.find((role) => role.name === workerRole)?.value || 0;
@@ -171,7 +168,6 @@ const ListOfEmployees: React.FC = () => {
         const result = await update();
 
         if (result) {
-            console.log("Result of the api: ", result);
             mutate([`get-worker`]);
         }
     }

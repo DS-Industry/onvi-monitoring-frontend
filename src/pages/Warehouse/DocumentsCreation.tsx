@@ -280,8 +280,6 @@ const DocumentsCreation: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        console.log("Final document creation values: ", tableData);
-
         let hasErrors = false;
 
         const newErrors: Record<number, { nomenclature: boolean; quantity: boolean }> = {};
@@ -331,18 +329,6 @@ const DocumentsCreation: React.FC = () => {
 
         const filteredTableData = tableData.filter((data) => data.check === true);
 
-        const detailsValues: {
-            nomenclatureId: number;
-            responsibleId: number;
-            quantity: number;
-            comment?: string;
-        }[] = filteredTableData?.map((data) => ({
-            nomenclatureId: data.nomenclatureId,
-            responsibleId: data.responsibleId,
-            quantity: Number(data.quantity),
-            comment: data.comment
-        })) || [];
-
         const detailValues: {
             nomenclatureId: number;
             quantity: number;
@@ -378,9 +364,6 @@ const DocumentsCreation: React.FC = () => {
             return base;
         }) || [];
 
-
-        console.log("Payload for details: ", detailsValues, detailValues);
-
         const result = await saveDoc({
             warehouseId: warehouseId == null ? 0 : Number(warehouseId),
             responsibleId: tableData[0].responsibleId,
@@ -391,14 +374,11 @@ const DocumentsCreation: React.FC = () => {
         setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
 
         if (result) {
-            console.log(result);
             navigate('/warehouse/documents');
         }
     }
 
     const handleSubmitSend = async () => {
-        console.log("Final document creation values: ", tableData);
-
         const newErrors: { nomenclature: boolean; quantity: boolean }[] = tableData.map(() => ({
             nomenclature: false,
             quantity: false
@@ -442,18 +422,6 @@ const DocumentsCreation: React.FC = () => {
 
         const filteredTableData = tableData.filter((data) => data.check === true);
 
-        const detailsValues: {
-            nomenclatureId: number;
-            responsibleId: number;
-            quantity: number;
-            comment?: string;
-        }[] = filteredTableData?.map((data) => ({
-            nomenclatureId: data.nomenclatureId,
-            responsibleId: data.responsibleId,
-            quantity: Number(data.quantity),
-            comment: data.comment
-        })) || [];
-
         const detailValues: {
             nomenclatureId: number;
             quantity: number;
@@ -489,9 +457,6 @@ const DocumentsCreation: React.FC = () => {
             return base;
         }) || [];
 
-
-        console.log("Payload for details: ", detailsValues, detailValues);
-
         const result = await sendDoc({
             warehouseId: warehouseId == null ? 0 : Number(warehouseId),
             responsibleId: tableData[0].responsibleId,
@@ -502,7 +467,6 @@ const DocumentsCreation: React.FC = () => {
         setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
 
         if (result) {
-            console.log(result);
             navigate('/warehouse/documents');
         }
     }
@@ -699,8 +663,6 @@ const DocumentsCreation: React.FC = () => {
     ]
 
     const addProductItem = () => {
-        console.log("Add product Item.");
-
         const dataSource = documentType === "RECEIPT" ? nomenclatureItems : inventoryItems;
 
         if (!dataSource || !selectedItems) {

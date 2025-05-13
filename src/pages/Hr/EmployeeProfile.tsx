@@ -133,7 +133,6 @@ const EmployeeProfile: React.FC = () => {
         setScheduleData((prev) => ({ ...prev, date: dateString.toString() }))
         const year = Number(dateString.toString().split("-")[0]);
         const startIndex = Number(dateString.toString().split("-")[1]);
-        console.log("Date string: ", dateString.toString(), year, startIndex);
         setYear(year);
         setStartIndex(startIndex - 1);
     };
@@ -158,7 +157,7 @@ const EmployeeProfile: React.FC = () => {
             });
     }, [employee]);
 
-    const { register, handleSubmit, errors, setValue } = useFormHook(formData);
+    const { register, handleSubmit, setValue } = useFormHook(formData);
 
     const { trigger: updateEmp } = useSWRMutation(['update-employee'], async () => updateWorker({
         workerId: formData.workerId,
@@ -204,14 +203,10 @@ const EmployeeProfile: React.FC = () => {
         }
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
-
+    const onSubmit = async () => {
         try {
             const result = await updateEmp();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-employee-by-id`, workerId]);
             } else {
                 throw new Error('Invalid response from API');
@@ -272,7 +267,6 @@ const EmployeeProfile: React.FC = () => {
     }, [buttonOn]);
 
     const saveScheduleData = () => {
-        console.log("Schedule data: ", scheduleData);
     }
 
     return (

@@ -211,15 +211,11 @@ type StatGraphResponse = {
 export async function getOrganization(params: AddressParams): Promise<Organization[]> {
     const url = ORGANIZATION.GET_ORGANIZATIONS;
     const response: AxiosResponse<Organization[]> = await api.get(url, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function createUserOrganization(body: OrganizationBody): Promise<OrganizationPostResponse> {
-    console.log(body);
     const response: AxiosResponse<OrganizationPostResponse> = await api.post(ORGANIZATION.UPDATE_ORGANIZATION, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -236,7 +232,6 @@ export async function getStatistic(): Promise<Statistic> {
 }
 
 export async function postUpdateOrganization(body: OrganizationUpdateBody): Promise<OrganizationPostResponse> {
-    console.log(body);
     const response: AxiosResponse<OrganizationPostResponse> = await api.patch(ORGANIZATION.UPDATE_ORGANIZATION, body);
 
     return response.data;
@@ -274,7 +269,6 @@ export async function updateRole(body: UpdateRoleRequest): Promise<UpdateRoleRes
 }
 
 export async function addRole(body: RoleRequestBody): Promise<RoleResponse> {
-    console.log(body);
     const response: AxiosResponse<RoleResponse> = await api.post(ORGANIZATION.ADD_ROLE, body);
 
     return response.data;
@@ -283,16 +277,12 @@ export async function addRole(body: RoleRequestBody): Promise<RoleResponse> {
 export async function getOrganizationContactById(id: number): Promise<OrgContactResponse> {
     const url = ORGANIZATION.UPDATE_ORGANIZATION + `/contact/${id}`;
     const response: AxiosResponse<OrgContactResponse> = await api.get(url);
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getContactById(id: number): Promise<ContactResponse> {
     const url = ORGANIZATION.GET_CONTACT + `/${id}`;
     const response: AxiosResponse<ContactResponse> = await api.get(url);
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 

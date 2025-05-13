@@ -279,127 +279,98 @@ type WarehouseParams = {
 }
 
 export async function createNomenclature(body: NOMENCLATURE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.post(WAREHOUSE.CREATE_NOMENCLATURE, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createNomenclatureFile(body: NOMENCLATURE_FILE_REQUEST): Promise<NOMENCLATURE_FILE_RESPONSE> {
-    console.log(body);
     const formData = new FormData();
     formData.append("file", body.file); // Add the file to FormData
     const response: AxiosResponse<NOMENCLATURE_FILE_RESPONSE> = await api.post(WAREHOUSE.CREATE_NOMENCLATURE_FILE, formData);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateNomenclature(body: NOMENCLATURE_UPDATE_REQUEST): Promise<NOMENCLATURE_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.patch(WAREHOUSE.CREATE_NOMENCLATURE, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function deleteNomenclature(id: number): Promise<NOMENCLATURE_RESPONSE> {
     const response: AxiosResponse<NOMENCLATURE_RESPONSE> = await api.delete(WAREHOUSE.CREATE_NOMENCLATURE + `/${id}`);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createCategory(body: CATEGORY_REQUEST): Promise<CATEGORY_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<CATEGORY_RESPONSE> = await api.post(WAREHOUSE.CREATE_CATEGORY, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateCategory(body: UPDATE_CATEGORY_REQUEST, id: number): Promise<CATEGORY_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<CATEGORY_RESPONSE> = await api.patch(WAREHOUSE.CREATE_CATEGORY + `/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createSupplier(body: SUPPLIER_REQUEST): Promise<SUPPLIER_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<SUPPLIER_RESPONSE> = await api.post(WAREHOUSE.CREATE_SUPPLIER, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getCategory(): Promise<CATEGORY_RESPONSE[]> {
     const response: AxiosResponse<CATEGORY_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_CATEGORY);
-    console.log(response);
     return response.data;
 }
 
 export async function getSupplier(): Promise<SUPPLIER_RESPONSE[]> {
     const response: AxiosResponse<SUPPLIER_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_SUPPLIER);
-    console.log(response);
     return response.data;
 }
 
 export async function getNomenclature(orgId: number): Promise<NOMENCLATURE_RESPONSE[]> {
     const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`);
-    console.log(response);
     return response.data;
 }
 
 export async function getWarehouses(params: WarehouseParams): Promise<WAREHOUSE_RESPONSE[]> {
     const response: AxiosResponse<WAREHOUSE_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_WAREHOUSE, { params });
-    console.log(response);
     return response.data;
 }
 
 export async function createDocument(body: DOCUMENT_CREATE_BODY): Promise<DocumentResponse> {
-    console.log(body);
     const response: AxiosResponse<DocumentResponse> = await api.post(WAREHOUSE.CREATE_DOCUMENT, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getAllDocuments(params: DOCUMENT_PARAMS): Promise<DOCUMENTS_RESPONSE[]> {
     const response: AxiosResponse<DOCUMENTS_RESPONSE[]> = await api.get(WAREHOUSE.CREATE_DOCUMENT + `s`, { params });
-    console.log(response);
     return response.data;
 }
 
 export async function getInventoryItems(warehouseId: number): Promise<INVENTORY_RESPONSE[]> {
     const response: AxiosResponse<INVENTORY_RESPONSE[]> = await api.get(WAREHOUSE.GET_INVENTORY_ITEM + `/${warehouseId}`);
-    console.log(response);
     return response.data;
 }
 
 export async function saveDocument(body: DocumentBody, documentId: number): Promise<DOCUMENT_SAVE_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<DOCUMENT_SAVE_RESPONSE> = await api.post(WAREHOUSE.CREATE_DOCUMENT + `/save/${documentId}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function sendDocument(body: DocumentBody, documentId: number): Promise<DOCUMENT_SAVE_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<DOCUMENT_SAVE_RESPONSE> = await api.post(WAREHOUSE.CREATE_DOCUMENT + `/send/${documentId}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getDocument(documentId: number): Promise<GET_DOCUMENT_RESPONSE> {
     const response: AxiosResponse<GET_DOCUMENT_RESPONSE> = await api.get(WAREHOUSE.CREATE_DOCUMENT + `/${documentId}`);
-    console.log(response);
     return response.data;
 }
 
 export async function getAllStockLevels(orgId: number, params: STOCK_PARAMS): Promise<STOCK_RESPONSE[]> {
     const response: AxiosResponse<STOCK_RESPONSE[]> = await api.get(WAREHOUSE.GET_STOCK_LEVEL + `/${orgId}`, { params });
-    console.log(response);
     return response.data;
 }
 
 export async function createWarehouse(body: WAREHOUSE_BODY): Promise<WAREHOUSE_RESPONSE> {
-    console.log(body);
     const response: AxiosResponse<WAREHOUSE_RESPONSE> = await api.post(WAREHOUSE.CREATE_WAREHOUSE, body);
-    console.log(response.data);
     return response.data;
 }

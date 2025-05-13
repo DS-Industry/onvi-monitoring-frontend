@@ -116,7 +116,6 @@ const ProgramDevice: React.FC = () => {
         if (newFilterData.size) setPageSize(newFilterData.size);
     };
     useEffect(() => {
-        console.log(JSON.stringify(filterError, null, 2));
     }, [filterError]);
 
     useEffect(() => {

@@ -235,16 +235,12 @@ type UpdateBenefitBody = {
 }
 
 export async function createClient(body: ClientRequestBody): Promise<ClientResponseBody> {
-    console.log(body);
     const response: AxiosResponse<ClientResponseBody> = await api.post(MARKETING.GET_LOYALTY, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateClient(body: ClientUpdate): Promise<ClientResponseBody> {
-    console.log(body);
     const response: AxiosResponse<ClientResponseBody> = await api.patch(MARKETING.GET_LOYALTY, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -261,9 +257,7 @@ export async function getClientById(id: number): Promise<ClientResponseBody> {
 }
 
 export async function createTag(body: TagRequest): Promise<TagResponse> {
-    console.log(body);
     const response: AxiosResponse<TagResponse> = await api.post(MARKETING.GET_TAG, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -280,16 +274,12 @@ export async function deleteTag(id: number): Promise<DeleteTagResponse> {
 }
 
 export async function createLoyaltyProgram(body: LoyaltyProgramsRequest): Promise<LoyaltyProgramsResponse> {
-    console.log(body);
     const response: AxiosResponse<LoyaltyProgramsResponse> = await api.post(MARKETING.LOYALTY + '/program', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateLoyaltyProgram(body: UpdateLoyaltyRequest): Promise<LoyaltyProgramsResponse> {
-    console.log(body);
     const response: AxiosResponse<LoyaltyProgramsResponse> = await api.patch(MARKETING.LOYALTY + '/program', body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -306,16 +296,12 @@ export async function getLoyaltyProgramById(id: number): Promise<LoyaltyPrograms
 }
 
 export async function createTier(body: TierRequest): Promise<TierResponse> {
-    console.log(body);
     const response: AxiosResponse<TierResponse> = await api.post(MARKETING.LOYALTY + '/tier', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateTier(body: UpdateTierRequest): Promise<TierResponse> {
-    console.log(body);
     const response: AxiosResponse<TierResponse> = await api.patch(MARKETING.LOYALTY + '/tier', body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -332,9 +318,7 @@ export async function getTierById(id: number): Promise<TierByIdResponse> {
 }
 
 export async function createBenefit(body: BenefitRequest): Promise<BenefitResponse> {
-    console.log(body);
     const response: AxiosResponse<BenefitResponse> = await api.post(MARKETING.LOYALTY + '/benefit', body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -345,9 +329,7 @@ export async function getBenefits(): Promise<BenefitResponse[]> {
 }
 
 export async function createBenefitAction(body: BenefitActionRequest): Promise<BenefitActionResponse> {
-    console.log(body);
     const response: AxiosResponse<BenefitActionResponse> = await api.post(MARKETING.LOYALTY + '/benefit-action', body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -364,8 +346,6 @@ export async function getBenefitById(id: number): Promise<BenefitResponse> {
 }
 
 export async function updateBenefit(body: UpdateBenefitBody): Promise<BenefitResponse> {
-    console.log(body);
     const response: AxiosResponse<BenefitResponse> = await api.patch(MARKETING.LOYALTY + '/benefit', body);
-    console.log(response.data);
     return response.data;
 }

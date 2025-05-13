@@ -162,13 +162,9 @@ const InventoryCreation: React.FC = () => {
     };
 
     const handleUpdate = (id: number) => {
-        setEditInventoryId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
         const inventoryToEdit = inventories.find((inventory) => inventory.id === id);
-        console.log(inventoryToEdit);
         if (inventoryToEdit) {
             setFormData({
                 name: inventoryToEdit.name,
@@ -195,8 +191,6 @@ const InventoryCreation: React.FC = () => {
                 false
             );
 
-            console.log("Nomenclature deleted successfully", result);
-
             if (result) {
                 setButtonOn(!buttonOn);
                 mutate([`get-inventory`, category, orgId]);
@@ -214,15 +208,11 @@ const InventoryCreation: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
             if (editInventoryId) {
                 const result = await updateInventory();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     setCategory(result.props.categoryId)
                     mutate([`get-inventory`, result.props.categoryId, orgId]);
                     resetForm();
@@ -232,7 +222,6 @@ const InventoryCreation: React.FC = () => {
             } else {
                 const result = await createInventory();
                 if (result) {
-                    console.log('API Response:', result);
                     setCategory(result.props.categoryId)
                     mutate([`get-inventory`, result.props.categoryId, orgId]);
                     resetForm();

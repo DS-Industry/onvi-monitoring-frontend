@@ -75,7 +75,7 @@ const createAuthStore: StateCreator<AuthState> = (set) => {
     setCurrentPage: (currentPage) => set({ currentPage }),
     setPageSize: (pageSize) => set({ pageSize }),
     setCity: (city) => set({ city }),
-    
+
     // Reset function
     reset: () => set(initialState),
   };
@@ -92,8 +92,7 @@ const useAuthStore = create<AuthState>()(
   )
 );
 
-useAuthStore.subscribe((state: unknown) => {
-  console.log('State changed:', state);
+useAuthStore.subscribe(() => {
 });
 
 export default useAuthStore;

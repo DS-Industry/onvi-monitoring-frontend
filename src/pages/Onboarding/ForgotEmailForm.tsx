@@ -36,18 +36,14 @@ const ForgotEmailForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgo
         }) 
       );
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Form data:", data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if(result) {
-                console.log(result);
                 setForgotObj({email: formData.email, confirmString: forgotObj.confirmString});
-                console.log(forgotObj);
                 setCount(count + 1);
             }
         } catch (error) {
-            console.log("Forgot Password error:", error);
             setEmailError(true);
             setErrorEmailMessage('Enter the correct email address.');
         }

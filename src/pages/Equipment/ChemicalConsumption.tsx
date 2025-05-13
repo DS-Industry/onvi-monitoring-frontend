@@ -116,8 +116,6 @@ const ChemicalConsumption: React.FC = () => {
 
     poses.unshift(posesAllObj);
 
-    console.log(tableRows);
-
     return (
         <>
             <FilterMonitoring

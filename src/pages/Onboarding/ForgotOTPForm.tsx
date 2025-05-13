@@ -32,11 +32,8 @@ const ForgotOTPForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgotO
             const newOtp = [...otp];
             newOtp[index] = value;
             setOtp(newOtp);
-            console.log(newOtp);
-            console.log(forgotObj.email);
             if (index == 5) {
                 const newOtpString = newOtp.join("");
-                console.log(newOtpString);
                 setOtpString(newOtpString);
                 setValue("confirmString", newOtpString);
                 setFormData((prev) => ({ ...prev, ["confirmString"]: value }));
@@ -61,21 +58,17 @@ const ForgotOTPForm: React.FC<Props> = ({ count, setCount, forgotObj, setForgotO
         })
     );
 
-    const onSubmit = async (data: unknown) => {
-        console.log(data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if (result) {
-                console.log(result);
                 setForgotObj({ email: forgotObj.email, confirmString: `${otpString.substring(0,3)}-${otpString.substring(3)}`});
-                console.log(forgotObj);
                 setCount(count + 1);
             } else {
                 setIsError(true);
             }
         } catch (error) {
             setIsError(true);
-            console.log("Forgot Password error:", error);
         }
     };
 

@@ -82,7 +82,7 @@ const Notifications: React.FC = () => {
 
     return (
         <div className="mt-2">
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => console.log({ labelName, selectedColor })}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => {}}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
                     <Close onClick={() => setIsModalOpen(false)} className="cursor-pointer text-text01" />

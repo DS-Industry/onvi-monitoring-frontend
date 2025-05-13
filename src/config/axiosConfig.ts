@@ -1,6 +1,7 @@
 import axios from "axios";
 import useAuthStore from "@/config/store/authSlice";
 import i18n from "@/config/i18n";
+import { datadogLogs } from "@datadog/browser-logs";
 
 let showSnackbar: (message: string, type: "success" | "error" | "info" | "warning") => void;
 
@@ -9,7 +10,7 @@ export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
 };
 
 const api = axios.create({
-  baseURL: 'https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net',
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
@@ -19,18 +20,51 @@ api.interceptors.request.use(
     if (jwtToken !== null) {
       config.headers.Authorization = `Bearer ${jwtToken}`;
     }
+
+    datadogLogs.logger.info("API Request Initiated", {
+      url: config.url,
+      method: config.method,
+      timestamp: new Date().toISOString(),
+    });
+
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    datadogLogs.logger.error("Request setup error", {
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+    return Promise.reject(error);
+  }
 );
 
 const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
 
 api.interceptors.response.use(
   (response) => {
+    datadogLogs.logger.info("API Response Received", {
+      url: response.config.url,
+      method: response.config.method,
+      status: response.status,
+      timestamp: new Date().toISOString(),
+    });
     return response;
   },
   (error) => {
+    const url = error.config?.url;
+    const method = error.config?.method;
+    const status = error.response?.status || "No Response";
+    const code = error.response?.data?.code || null;
+
+    datadogLogs.logger.error("API Error", {
+      url,
+      method,
+      status,
+      code,
+      message: error.message,
+      timestamp: new Date().toISOString(),
+    });
+    
     if (!showSnackbar) {
       console.error("Snackbar function is not initialized.");
       return Promise.reject(error);

@@ -12,8 +12,6 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
   });
 
   const handleValueChange = (newValue: DateValueType) => {
-    console.log("newValue:", newValue);
-
     // Update state
     setValue(newValue);
 

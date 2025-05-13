@@ -162,65 +162,47 @@ type PlanFactResponse = {
 export async function getPos(userId: number): Promise<Pos[]> {
     const url = POS.GET_POSES + `/${userId}`;
     const response: AxiosResponse<Pos[]> = await api.get(url);
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function postPosData(body: PosBody): Promise<Pos> {
-    console.log(body);
     const response: AxiosResponse<Pos> = await api.post(POS.POST_POS, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function getDeposit(posId: number | string, params: DevicesParams): Promise<DepositResponse[]> {
     const response: AxiosResponse<DepositResponse[]> = await api.get(POS.GET_DEPOSIT + `/${posId}`, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getDepositPos(params: DepositParam): Promise<DepositResponse[]> {
     const response: AxiosResponse<DepositResponse[]> = await api.get(POS.GET_DEPOSIT, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getDepositDevice(deviceId: number, params: DeviceParams): Promise<DepositDeviceResponse> {
     const response: AxiosResponse<DepositDeviceResponse> = await api.get(`/user/device/monitoring/${deviceId}`, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getPrograms(posId: number | string, params: DevicesParams): Promise<Program[]> {
     const response: AxiosResponse<Program[]> = await api.get(POS.GET_PROGRAMS + `/${posId}`, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getProgramPos(params: DepositParam): Promise<Program[]> {
     const response: AxiosResponse<Program[]> = await api.get(POS.GET_PROGRAMS, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 
 export async function getProgramDevice(deviceId: number, params: DeviceParams): Promise<ProgramDevice> {
     const response: AxiosResponse<ProgramDevice> = await api.get(`/user/device/program/${deviceId}`, { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 
 export async function getPlanFact(params: DepositParam): Promise<PlanFactResponse[]> {
     const response: AxiosResponse<PlanFactResponse[]> = await api.get(POS.POST_POS + "/plan-fact", { params });
-
-    //console.log(JSON.stringify(response, null, 2));
     return response.data;
 }
 

@@ -10,7 +10,6 @@ interface RequestOptions {
 export const fetcher = (url: string, options: RequestOptions = {}) => {
     const defaultHeaders = { 'Content-Type': 'application/json' };
     const headers = { ...defaultHeaders, ...options.headers };
-    console.log(options.body)
     return fetch(url, {
         method: options.method || 'GET',
         headers: headers,

@@ -210,7 +210,6 @@ type addWorkerRequest = {
 }
 
 export async function createWorker(body: WorkerRequest, file?: File | null): Promise<WorkerResponse> {
-    console.log(body);
     const formData = new FormData();
 
     for (const key in body) {
@@ -230,12 +229,10 @@ export async function createWorker(body: WorkerRequest, file?: File | null): Pro
             "Content-Type": "multipart/form-data",
         },
     });
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateWorker(body: UpdateWorkerRequest, file?: File | null): Promise<WorkerResponse> {
-    console.log(body);
     const formData = new FormData();
 
     for (const key in body) {
@@ -255,7 +252,6 @@ export async function updateWorker(body: UpdateWorkerRequest, file?: File | null
             "Content-Type": "multipart/form-data",
         },
     });
-    console.log(response.data);
     return response.data;
 }
 
@@ -272,16 +268,12 @@ export async function getWorkerById(id: number): Promise<WorkerResponse> {
 }
 
 export async function createPosition(body: PositionRequest): Promise<PositionResponse> {
-    console.log(body);
     const response: AxiosResponse<PositionResponse> = await api.post(HR.GET_POSITIONS, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updatePosition(body: UpdatePositionRequest): Promise<PositionResponse> {
-    console.log(body);
     const response: AxiosResponse<PositionResponse> = await api.patch(HR.GET_POSITIONS, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -298,16 +290,12 @@ export async function getPositionById(id: number): Promise<PositionResponse> {
 }
 
 export async function calculatePrepayment(body: PrepaymentCalculateBody): Promise<PrepaymentCalculateResponse[]> {
-    console.log(body);
     const response: AxiosResponse<PrepaymentCalculateResponse[]> = await api.post(HR.PREPAYMENT + '/calculate', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createPrepayment(body: PrepaymentCreateRequest): Promise<PrepaymentCreateResponse> {
-    console.log(body);
     const response: AxiosResponse<PrepaymentCreateResponse> = await api.post(HR.PREPAYMENT, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -318,16 +306,12 @@ export async function getPrepayments(params: PrepaymentFilter): Promise<Prepayme
 }
 
 export async function calculatePayment(body: PrepaymentCalculateBody): Promise<PaymentCalculateResponse[]> {
-    console.log(body);
     const response: AxiosResponse<PaymentCalculateResponse[]> = await api.post(HR.PAYMENT + '/calculate', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createPayment(body: PaymentCreateRequest): Promise<PrepaymentCreateResponse> {
-    console.log(body);
     const response: AxiosResponse<PrepaymentCreateResponse> = await api.post(HR.PAYMENT, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -338,15 +322,11 @@ export async function getPayments(params: PrepaymentFilter): Promise<PaymentsRes
 }
 
 export async function addWorkerPrePayment(body: addWorkerRequest): Promise<PrepaymentCalculateResponse[]> {
-    console.log(body);
     const response: AxiosResponse<PrepaymentCalculateResponse[]> = await api.post(HR.PREPAYMENT + '/calculate/workers', body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function addWorkerPayment(body: addWorkerRequest): Promise<PaymentCalculateResponse[]> {
-    console.log(body);
     const response: AxiosResponse<PaymentCalculateResponse[]> = await api.post(HR.PAYMENT + '/calculate/workers', body);
-    console.log(response.data);
     return response.data;
 }

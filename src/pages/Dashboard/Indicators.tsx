@@ -195,9 +195,6 @@ const Indicators: React.FC = () => {
     }
   };
 
-
-  console.log("Graph data: ", graphData);
-
   return (
     <>
       {notificationVisible && (

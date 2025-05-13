@@ -232,10 +232,7 @@ const RoutineWork: React.FC = () => {
         setEditTechTaskId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
         const techTaskToEdit = techTasks.find((tech) => tech.id === id);
-        console.log(techTaskToEdit);
         if (techTaskToEdit) {
             const techTaskItemNumber: number[] = techTaskToEdit.items?.map((item) => (item.id)) || [];
             const techTaskss: { id: number; title: string; description: string; }[] = techTaskToEdit.items.map((item) => ({ id: item.id, title: item.title, description: "This is the description text." }));
@@ -265,15 +262,11 @@ const RoutineWork: React.FC = () => {
         setSelectedItems([]);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
             if (editTechTaskId) {
                 const result = await updateTech();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
                     resetForm();
                 } else {
@@ -282,7 +275,6 @@ const RoutineWork: React.FC = () => {
             } else {
                 const result = await createTech();
                 if (result) {
-                    console.log('API Response:', result);
                     mutate([`get-tech-tasks`, searchPosId, city, searchStatus]);
                     resetForm();
                 } else {
@@ -362,7 +354,6 @@ const RoutineWork: React.FC = () => {
     };
 
     const handleSelectionTagChange = (selected: typeof options) => {
-        console.log("Selected Options:", selected);
         const selectedIds = selected.map((sel) => sel.id);
         setFormData((prev) => ({...prev, tagIds: selectedIds}));
         setTagIds(selectedIds);

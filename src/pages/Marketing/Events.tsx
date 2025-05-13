@@ -154,14 +154,11 @@ const Events: React.FC = () => {
         reset();
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
 
             const result = await createBen();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-benefits`]);
                 resetForm();
                 setIsModalOpen(false);
@@ -174,14 +171,11 @@ const Events: React.FC = () => {
         }
     };
 
-    const onSubmitUpdate = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmitUpdate = async () => {
         try {
 
             const result = await updateBen();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-benefits`]);
                 resetForm();
                 setIsModalOpenUpdate(false);

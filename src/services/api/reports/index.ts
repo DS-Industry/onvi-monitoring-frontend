@@ -69,9 +69,7 @@ type TransactionResponse = {
 }
 
 export async function applyReport(body: { [key: string]: any; }, id: number): Promise<PostReportResponse> {
-    console.log(body);
     const response: AxiosResponse<PostReportResponse> = await api.post(REPORTS.GET_REPORTS + `/apply/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 

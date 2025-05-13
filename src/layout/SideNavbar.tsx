@@ -112,7 +112,6 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
 
   const handleClickButtonCreate = () => {
     setButtonOn(!buttonOn);
-    console.log("Button on", buttonOn);
   };
 
   const toggleNavbar = () => {

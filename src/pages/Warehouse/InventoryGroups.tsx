@@ -98,10 +98,7 @@ const InventoryGroups: React.FC = () => {
         setEditInventoryId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
         const inventoryToEdit = category.find((inventory) => inventory.id === id);
-        console.log(inventoryToEdit);
         if (inventoryToEdit) {
             setFormData({
                 name: inventoryToEdit.name,
@@ -109,7 +106,6 @@ const InventoryGroups: React.FC = () => {
                 ownerCategoryId: inventoryToEdit.ownerCategoryId
             });
         }
-        console.log("The id to edit: ", id);
     };
 
     const resetForm = () => {
@@ -120,15 +116,11 @@ const InventoryGroups: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
             if (editInventoryId) {
                 const result = await updateCat();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     mutate([`get-category`]);
                     resetForm();
                 } else {
@@ -137,7 +129,6 @@ const InventoryGroups: React.FC = () => {
             } else {
                 const result = await createCat();
                 if (result) {
-                    console.log('API Response:', result);
                     mutate([`get-category`]);
                     resetForm();
                 } else {

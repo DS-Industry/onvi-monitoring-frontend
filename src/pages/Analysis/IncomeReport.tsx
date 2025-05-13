@@ -42,8 +42,6 @@ const IncomeReport: React.FC = () => {
         ...formData
     }, reportData?.id ? reportData.id : 0));
 
-    console.log("Report data: ", reportData);
-
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const devices: { name: string; value: string; }[] = deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || [];
@@ -68,11 +66,8 @@ const IncomeReport: React.FC = () => {
             return;
         }
 
-        console.log("Submitting form data:", formData);
-
         try {
-            const result = await createReport(); // Pass formData correctly
-            console.log("Report created successfully:", result);
+            await createReport(); // Pass formData correctly
             navigate("/analysis/transactions");
         } catch (error) {
             console.error("Error creating report:", error);

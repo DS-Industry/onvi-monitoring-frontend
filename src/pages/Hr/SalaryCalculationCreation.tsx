@@ -151,14 +151,11 @@ const SalaryCalculationCreation: React.FC = () => {
         );
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log('Form data:', data);
+    const onSubmit = async () => {
 
         try {
             const result = await calculateSal();
-            console.log(result);
             if (result) {
-                console.log(result);
                 setPaymentsData(result.map((res, index) => ({
                     ...res,
                     check: false,
@@ -179,7 +176,6 @@ const SalaryCalculationCreation: React.FC = () => {
     }
 
     const handlePaymentCreation = async () => {
-        console.log("Final Task Values:", paymentsData);
 
         for (let i = 0; i < paymentsData.length; i++) {
             const item = paymentsData[i];
@@ -214,14 +210,11 @@ const SalaryCalculationCreation: React.FC = () => {
             fine: Number(data.fine)
         })) || [];
 
-        console.log("Payload for API:", paymentCreate);
-
         const result = await createSal({
             payments: paymentCreate
         });
 
         if (result) {
-            console.log("Result of the api: ", result);
             navigate(-1);
         }
     };
@@ -378,13 +371,10 @@ const SalaryCalculationCreation: React.FC = () => {
         // setButtonOn(!buttonOn);
     };
 
-    const onSubmitWorker = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmitWorker = async () => {
         try {
             const result = await addWork();
             if (result) {
-                console.log('API Response:', result);
                 if (result.length === 0)
                     message.error(t("hr.noSalary"));
                 setPaymentsData(result.map((res, index) => ({

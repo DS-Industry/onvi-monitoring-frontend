@@ -140,13 +140,11 @@ const TimesheetView: React.FC = () => {
         reset();
     };
 
-    const onSubmit = async (data: any) => {
-        console.log("Data of usbmit: ", data);
-
+    const onSubmit = async () => {
+        
         const result = await createCash();
 
         if (result) {
-            console.log("Result of the api: ", result);
             mutate([`get-cash-oper-return-data`]);
             mutate([`get-cash-oper-data`]);
             resetForm();
@@ -159,7 +157,6 @@ const TimesheetView: React.FC = () => {
         const result = await sendCash();
 
         if (result) {
-            console.log("Result of the api: ", result);
             navigate(-1);
         }
     }
@@ -168,7 +165,6 @@ const TimesheetView: React.FC = () => {
         const result = await returnCash();
 
         if (result) {
-            console.log("Result of the api: ", result);
             navigate(-1);
         }
     }

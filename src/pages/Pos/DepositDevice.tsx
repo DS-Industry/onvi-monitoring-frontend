@@ -123,7 +123,6 @@ const DepositDevice: React.FC = () => {
 
     };
     useEffect(() => {
-        console.log(JSON.stringify(filterError, null, 2));
     }, [filterError]);
 
     useEffect(() => {

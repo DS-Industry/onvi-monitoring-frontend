@@ -198,14 +198,12 @@ const Clients: React.FC = () => {
     // );
 
     const handleSelectionChange = (selected: typeof options) => {
-        console.log("Selected Options:", selected);
         const selectedIds = selected.map((sel) => sel.id);
         handleInputChange("tagIds", selectedIds);
     };
 
 
     const handleSelectionTagChange = (selected: typeof options) => {
-        console.log("Selected Options:", selected);
         const selectedIds = selected.map((sel) => sel.id);
         setTagIds(selectedIds);
     };
@@ -283,10 +281,7 @@ const Clients: React.FC = () => {
         setIsEditMode(true);
         setButtonOn(true);
 
-        console.log(id);
-        console.log(isEditMode);
         const clientToEdit = clients.find((client) => client.id === id);
-        console.log(clientToEdit);
         if (clientToEdit) {
             setFormData({
                 type: clientToEdit.type,
@@ -301,7 +296,6 @@ const Clients: React.FC = () => {
 
     useEffect(() => {
         if (clientData) {
-            console.log("Birthday: ", clientData.birthday);
             setFormData((prevData) => ({
                 ...prevData,
                 birthday: clientData.birthday ? clientData.birthday.split("T")[0] : undefined,
@@ -323,16 +317,12 @@ const Clients: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
-
+    const onSubmit = async () => {
+        
         try {
             if (editClientId) {
                 const result = await updateCl();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     // setCategory(result.props.categoryId)
                     mutate([`get-clients`]);
                     resetForm();
@@ -342,7 +332,6 @@ const Clients: React.FC = () => {
             } else {
                 const result = await createCl();
                 if (result) {
-                    console.log('API Response:', result);
                     // setCategory(result.props.categoryId)
                     mutate([`get-clients`]);
                     resetForm();
@@ -407,7 +396,6 @@ const Clients: React.FC = () => {
         if (typeof dateString === "string") {
             setRegDate(dateString);
         }
-        console.log("Date string: ", dateString);
     };
 
     const getRandomColor = () => {

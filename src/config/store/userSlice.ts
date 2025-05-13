@@ -1,6 +1,5 @@
 import { create, StateCreator } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-
 export interface User {
     id: number;
     userRoleId: number;
@@ -50,8 +49,7 @@ const useUserStore = create<UserState>()(
 );
 
 // Subscribe to state changes (optional)
-useUserStore.subscribe((state: unknown) => {
-    console.log('State changed:', state);
+useUserStore.subscribe(() => {
 });
 
 // Export the store

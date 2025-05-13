@@ -51,8 +51,6 @@ const Analysis: React.FC = () => {
         (report) => report.name.toLowerCase().includes(searchReport.toLowerCase())
     ) || [], [filter?.reports, searchReport]);
 
-    console.log("Filter data: ", filter);
-
     const generatePaginationRange = () => {
         const range: (number | string)[] = [];
 

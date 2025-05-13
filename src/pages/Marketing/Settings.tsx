@@ -130,7 +130,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         // setSelectedTags(values);
         setFormData((prev) => ({ ...prev, ["organizationIds"]: values }));
         setValue("organizationIds", values);
-        console.log('Selected tags:', values);
     };
 
     const resetForm = () => {
@@ -138,14 +137,10 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         reset();
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
-
             const result = await createLoyalty();
             if (result) {
-                console.log('API Response:', result);
                 location.state.ownerId = result.props.id;
                 nextStep;
                 resetForm();
@@ -159,7 +154,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     };
 
     useEffect(() => {
-        console.log("Loyalty by id: ", loyaltyById);
         if (loyaltyById?.id) {
             setIsEditMode(true);
             setFormData({
@@ -177,7 +171,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
             const result = await updateLoyalty();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-loyalty-program-by-id`]);
             } else {
                 throw new Error('Invalid response from API');

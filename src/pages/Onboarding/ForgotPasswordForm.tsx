@@ -42,12 +42,10 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
         })
     );
     
-    const onSubmit = async (data: unknown) => {
-        console.log(data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if (result && result.correctUser) {
-                console.log(result);
                 const { correctUser } = result;
                 setUser({ user: correctUser?.props });
                 navigate('/login');
@@ -55,7 +53,6 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
                 throw new Error(t('Password change failed. Please try again.'));
             }
         } catch (error) {
-            console.log("Register error:", error);
             clearData();
         }
     };

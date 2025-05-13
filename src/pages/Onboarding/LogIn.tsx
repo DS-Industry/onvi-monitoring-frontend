@@ -70,9 +70,7 @@ const LogIn: React.FC = () => {
         const { admin, tokens, permissionInfo } = result;
         setUser({ user: admin?.props });
         setTokens({ tokens });
-        console.log('Setting permissions:', permissionInfo.permissions);
         useAuthStore.getState().setPermissions(permissionInfo.permissions);
-        console.log('Current permissions in store:', useAuthStore.getState().permissions);
         navigate('/');
       } else {
         throw new Error(t('Invalid email or password. Please try again.'));

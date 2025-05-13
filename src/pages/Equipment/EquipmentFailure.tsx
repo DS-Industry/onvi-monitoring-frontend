@@ -252,15 +252,11 @@ const EquipmentFailure: React.FC = () => {
         setButtonOn(false);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
             if (editIncidentId) {
                 const result = await updateInc();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     mutate([`get-incident`]);
                     resetForm();
                 } else {
@@ -269,7 +265,6 @@ const EquipmentFailure: React.FC = () => {
             } else {
                 const result = await createInc();
                 if (result) {
-                    console.log('API Response:', result);
                     mutate([`get-incident`]);
                     resetForm();
                 } else {

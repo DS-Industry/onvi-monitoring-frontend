@@ -112,10 +112,7 @@ const Positions: React.FC = () => {
         setEditPositionId(id);
         setIsEditMode(true);
         setButtonOn(true);
-        console.log(id);
-        console.log(isEditMode);
         const positionToEdit = positionsData.find((pos) => pos.id === id);
-        console.log(positionToEdit);
         if (positionToEdit) {
             setFormData({
                 name: positionToEdit.name,
@@ -133,15 +130,11 @@ const Positions: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
             if (editPositionId) {
                 const result = await updatePos();
-                console.log(result);
                 if (result) {
-                    console.log(result);
                     mutate([`get-positions`]);
                     resetForm();
                 } else {
@@ -150,7 +143,6 @@ const Positions: React.FC = () => {
             } else {
                 const result = await createPos();
                 if (result) {
-                    console.log('API Response:', result);
                     mutate([`get-positions`]);
                     resetForm();
                 } else {

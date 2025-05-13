@@ -64,12 +64,10 @@ const InviteUser: React.FC = () => {
         password: formData.password
     }, key));
 
-    const onSubmit = async (data: unknown) => {
-        console.log(data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if (result && result.user) {
-                console.log(result);
                 const { user } = result;
                 setUser({ user: user?.props });
                 showSnackbar(t("roles.pass"), "success")
@@ -78,7 +76,6 @@ const InviteUser: React.FC = () => {
                 throw new Error(t('Password change failed. Please try again.'));
             }
         } catch (error) {
-            console.log("Register error:", error);
             clearData();
         }
     };

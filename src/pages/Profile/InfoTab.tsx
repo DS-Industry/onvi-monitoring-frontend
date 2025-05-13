@@ -77,8 +77,7 @@ const InfoTab: React.FC = () => {
     setValue(field, value);
   };
 
-  const onSubmit = async (data: unknown) => {
-    console.log('Form Data:', data);
+  const onSubmit = async () => {
     try {
       const updateUserData = updateUser();
 
@@ -94,11 +93,9 @@ const InfoTab: React.FC = () => {
       //   const avatarUrl = avatarResult; 
       //   setImagePreview(avatarUrl);
       //   localStorage.setItem('avatarUrl', avatarUrl);
-      //   console.log('Uploaded file:', selectedFile);
       // }
 
       if (updatedData) {
-        console.log('User profile updated:', updatedData);
         setUser({ user: updatedData?.props });
       } else {
         throw new Error('Failed to update user profile');

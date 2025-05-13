@@ -94,14 +94,11 @@ const Warehouse: React.FC = () => {
         setButtonOn(!buttonOn);
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
 
             const result = await createWare();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-warehouse`, posId]);
                 resetForm();
             } else {

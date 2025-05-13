@@ -386,16 +386,12 @@ export async function getIncident(params: IncidentParam): Promise<IncidentRespon
 }
 
 export async function createIncident(body: IncidentBody): Promise<PostIncidentResponse> {
-    console.log(body);
     const response: AxiosResponse<PostIncidentResponse> = await api.post(EQUIPMENT.GET_INCIDENT, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateIncident(body: UpdateIncidentBody): Promise<PostIncidentResponse> {
-    console.log(body);
     const response: AxiosResponse<PostIncidentResponse> = await api.patch(EQUIPMENT.GET_INCIDENT, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -442,16 +438,12 @@ export async function getTechTasks(params: TechTaskParams): Promise<TechTasksRes
 }
 
 export async function createTechTask(body: TechTaskBody): Promise<TechTaskResponse> {
-    console.log(body);
     const response: AxiosResponse<TechTaskResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function updateTechTask(body: UpdateTechTaskBody): Promise<TechTaskResponse> {
-    console.log(body);
     const response: AxiosResponse<TechTaskResponse> = await api.patch(TECHTASKS.CREATE_TECH_TASK, body);
-    console.log(response.data);
     return response.data;
 }
 
@@ -514,16 +506,12 @@ export async function getConsumptionRate(posId: number | string): Promise<Consum
 }
 
 export async function patchProgramCoefficient(id: number | string, body: ConsumptionRateCoeffPatch): Promise<ConsumptionRateCoeffPatchResponse[]> {
-    console.log(body);
     const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> = await api.patch(TECHTASKS.GET_CONSUMPTION_RATE + `/${id}`, body);
-    console.log(response.data);
     return response.data;
 }
 
 export async function createTag(body: CreateTags): Promise<CreateTagsResponse> {
-    console.log(body);
     const response: AxiosResponse<CreateTagsResponse> = await api.post(TECHTASKS.CREATE_TECH_TASK + '/tag', body);
-    console.log(response.data);
     return response.data;
 }
 

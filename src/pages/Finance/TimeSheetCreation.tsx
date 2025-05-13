@@ -73,14 +73,11 @@ const TimeSheetCreation: React.FC = () => {
         }
     }, [shiftData]);
 
-    const onSubmit = async (data: unknown) => {
-        console.log('Form data:', data);
+    const onSubmit = async () => {
 
         try {
             const result = await postShift();
-            console.log(result);
             if (result) {
-                console.log(result);
                 setShiftId(result.props.id);
                 setShift(result);
             } else {

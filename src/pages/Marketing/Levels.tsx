@@ -75,8 +75,6 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
 
     const loadingTiers = isLoading || isValidating || isInitialLoading;
 
-    console.log("Checking validation: ", isInitialLoading, isLoading, isValidating, loadingTiers);
-
     const { data: tierByIdData, isLoading: loadingTier } = useSWR(tierId !== 0 ? [`get-tier-by-id`, tierId] : null, () => getTierById(tierId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -190,14 +188,11 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
         reset();
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmit = async () => {
         try {
 
             const result = await createTi();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-tiers`, location.state.ownerId]);
                 resetForm();
                 setIsModalOpen(false);
@@ -210,14 +205,11 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
         }
     };
 
-    const onSubmitUpdate = async (data: unknown) => {
-        console.log("Errors: ", errors);
-        console.log('Form data:', data);
+    const onSubmitUpdate = async () => {
         try {
 
             const result = await updateTi();
             if (result) {
-                console.log('API Response:', result);
                 mutate([`get-tiers`, location.state.ownerId]);
                 resetForm();
                 setIsModalOpenUpdate(false);

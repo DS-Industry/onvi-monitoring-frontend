@@ -64,18 +64,15 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
     //     }
     // };
 
-    const onSubmit = async (data: unknown) => {
-        console.log("Form data:", data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if (result) {
-                console.log(result);
                 setRegisterObj({ email: formData.email });
-                console.log(registerObj);
                 setCount(count + 1);
             }
         } catch (error) {
-            console.log("Register error:", error);
+            console.error("Register error:", error);
         }
     }
 

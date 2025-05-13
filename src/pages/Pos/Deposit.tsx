@@ -95,7 +95,6 @@ const Deposit: React.FC = () => {
     const { data, error } = useSWR([`get-pos`], () => getPoses({ placementId: city }))
 
     useEffect(() => {
-        console.log(JSON.stringify(error, null, 2));
     }, [error]);
 
     useEffect(() => {

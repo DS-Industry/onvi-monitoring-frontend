@@ -86,7 +86,6 @@ const ConsumptionRate: React.FC = () => {
 
 
     const handleSubmit = async () => {
-        console.log("Final Task Values:", tableData);
 
         const hasNegativeValues = tableData && tableData.some((data) => data.literRate < 0 || data.concentration < 0);
 
@@ -99,8 +98,6 @@ const ConsumptionRate: React.FC = () => {
             literRate: Number(data.literRate),
             concentration: Number(data.concentration)
         })) || [];
-
-        console.log("Payload for API:", programCoeff);
 
         const result = await patchProgramCoeff({
             valueData: programCoeff,

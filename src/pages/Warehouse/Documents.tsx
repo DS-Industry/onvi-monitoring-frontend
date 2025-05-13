@@ -185,8 +185,6 @@ const Documents: React.FC = () => {
         }
     };
 
-    console.log("Data length: ", data.length);
-
     return (
         <>
             <FilterMonitoring

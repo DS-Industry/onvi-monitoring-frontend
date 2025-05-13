@@ -44,11 +44,8 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
             const newOtp = [...otp];
             newOtp[index] = value;
             setOtp(newOtp);
-            console.log(newOtp);
-            console.log(registerObj.email);
             if (index == 5) {
                 const newOtpString = newOtp.join("");
-                console.log(newOtpString);
                 setOtpString(newOtpString);
                 setValue("confirmString", newOtpString);
                 setFormData((prev) => ({ ...prev, ["confirmString"]: value }));
@@ -65,12 +62,10 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
         }
     };
 
-    const onSubmit = async (data: unknown) => {
-        console.log(data);
+    const onSubmit = async () => {
         try {
             const result = await trigger();
             if (result && result.admin && result.tokens && result.permissionInfo) {
-                console.log(result);
                 const { admin, tokens, permissionInfo } = result;
                 setUser({ user: admin?.props });
                 setTokens({ tokens });
@@ -81,7 +76,6 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
             }
         } catch (error) {
             setIsError(true);
-            console.log("Register error:", error);
             clearData();
         }
     };
