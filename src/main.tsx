@@ -16,6 +16,8 @@ datadogRum.init({
   version: "0.0.0",
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
+  trackUserInteractions: true,
+  trackLongTasks: true,
   defaultPrivacyLevel: 'mask-user-input',
   plugins: [reactPlugin({ router: true })],
   startSessionReplayRecordingManually: true,
