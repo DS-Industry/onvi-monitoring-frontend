@@ -18,7 +18,10 @@ datadogRum.init({
   sessionReplaySampleRate: 20,
   defaultPrivacyLevel: 'mask-user-input',
   plugins: [reactPlugin({ router: true })],
+  startSessionReplayRecordingManually: true,
 });
+
+datadogRum.startSessionReplayRecording();
 
 datadogLogs.init({
   clientToken: import.meta.env.VITE_DATADOG_CLIENT_TOKEN,
