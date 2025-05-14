@@ -1,6 +1,6 @@
 
 import React from "react";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import routes from "@/routes";
 import PrivateRoute from "@/routes/PrivateRoute";
 import PublicRoute from "@/routes/PublicRoute";
@@ -33,7 +33,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicRoute element={<PublicLayout />} />}>
@@ -159,7 +159,7 @@ const App: React.FC = () => {
             }
           />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 };
