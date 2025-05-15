@@ -12,6 +12,9 @@ import { useCity, usePosType } from "@/hooks/useAuthStore";
 import { getWarehouses } from "@/services/api/warehouse";
 import { getOrganization } from "@/services/api/organization";
 import { useTranslation } from "react-i18next";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
+import { Skeleton } from "antd";
 
 const IncomeReport: React.FC = () => {
     const { t } = useTranslation();
@@ -26,13 +29,16 @@ const IncomeReport: React.FC = () => {
         keepPreviousData: true
     });
 
-    const { data: deviceData } = useSWR([`get-device`], () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: deviceData } = useSWR(posType !== "*" ? [`get-device`] : null, () => getDevices(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses(posType), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
+        posId: posType,
+        placementId: city
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: reportData } = useSWR([`get-report`], () => getReportById(location.state.ownerId), {
+    const { data: reportData, isLoading: loadingReport, isValidating: validatingReport } = useSWR([`get-report`], () => getReportById(location.state.ownerId), {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         keepPreviousData: true
@@ -82,68 +88,75 @@ const IncomeReport: React.FC = () => {
             <div className="p-4 bg-white rounded-lg shadow-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <h3 className="text-lg font-semibold mb-4">{t("analysis.repo")}</h3>
-                    <div className="flex space-x-4">
-                        {reportData?.params && Object.entries(reportData.params).map(([key, value]) => (
-                            <div key={key}>
-                                {key.toLowerCase().includes("date") ? (
-                                    <Input
-                                        title={t(`analysis.${key}`)}
-                                        type="date"
-                                        value={formData[key] || ""}
-                                        changeValue={(e) => handleInputChange(key, e.target.value)}
-                                        classname="w-64"
-                                    />
-                                ) : key.toLowerCase().includes("pos") ?
-                                    <DropdownInput
-                                        title={t("analysis.posId")}
-                                        value={formData[key] || ""}
-                                        options={poses}
-                                        onChange={(value) => handleInputChange(key, value)}
-                                        classname="w-64"
-                                    />
-                                    : key.toLowerCase().includes("device") ?
-                                        <DropdownInput
-                                            title={t("analysis.deviceId")}
-                                            value={formData[key] || ""}
-                                            options={devices}
-                                            onChange={(value) => handleInputChange(key, value)}
+                    <div className="flex flex-col md:flex-row gap-4">
+                        {loadingReport || validatingReport ? (
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                                <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                                <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                            </div>
+                        ) : reportData &&
+                        reportData.params.params
+                            .map((value) => (
+                                <div key={value.name}>
+                                    {value.type === "date" ? (
+                                        <DateInput
+                                            title={value.description}
+                                            value={formData[value.name] ? dayjs(formData[value.name]) : null}
+                                            changeValue={(date) => handleInputChange(value.name, date ? date.format('YYYY-MM-DD') : "")}
                                             classname="w-64"
                                         />
-                                        : key.toLowerCase().includes("warehouse") ?
+                                    ) : value.name.toLowerCase().includes("pos") ?
+                                        <DropdownInput
+                                            title={value.description}
+                                            value={formData[value.name] || ""}
+                                            options={poses}
+                                            onChange={(value) => handleInputChange(value.name, value)}
+                                            classname="w-64"
+                                        />
+                                        : value.name.toLowerCase().includes("device") ?
                                             <DropdownInput
-                                                title={t("analysis.warehouseId")}
-                                                value={formData[key] || ""}
-                                                options={warehouses}
-                                                onChange={(value) => handleInputChange(key, value)}
+                                                title={value.description}
+                                                value={formData[value.name] || ""}
+                                                options={devices}
+                                                onChange={(value) => handleInputChange(value.name, value)}
                                                 classname="w-64"
                                             />
-                                            : key.toLowerCase().includes("org") ?
+                                            : value.name.toLowerCase().includes("warehouse") ?
                                                 <DropdownInput
-                                                    title={t("analysis.organizationId")}
-                                                    value={formData[key] || ""}
-                                                    options={organizations}
-                                                    onChange={(value) => handleInputChange(key, value)}
+                                                    title={value.description}
+                                                    value={formData[value.name] || ""}
+                                                    options={warehouses}
+                                                    onChange={(value) => handleInputChange(value.name, value)}
                                                     classname="w-64"
                                                 />
-                                                : typeof value === "number" ? (
-                                                    <Input
-                                                        title={t(`analysis.${key}`)}
-                                                        type="number"
-                                                        value={formData[key] || ""}
-                                                        changeValue={(e) => handleInputChange(key, Number(e.target.value))}
+                                                : value.name.toLowerCase().includes("org") ?
+                                                    <DropdownInput
+                                                        title={value.description}
+                                                        value={formData[value.name] || ""}
+                                                        options={organizations}
+                                                        onChange={(value) => handleInputChange(value.name, value)}
                                                         classname="w-64"
                                                     />
-                                                ) : (
-                                                    <Input
-                                                        title={t(`analysis.${key}`)}
-                                                        type="text"
-                                                        value={formData[key] || ""}
-                                                        changeValue={(e) => handleInputChange(key, e.target.value)}
-                                                        classname="w-64"
-                                                    />
-                                                )}
-                            </div>
-                        ))}
+                                                    : value.type === "number" ? (
+                                                        <Input
+                                                            title={t(`analysis.${value.name}`)}
+                                                            type="number"
+                                                            value={formData[value.name] || ""}
+                                                            changeValue={(e) => handleInputChange(value.name, Number(e.target.value))}
+                                                            classname="w-64"
+                                                        />
+                                                    ) : (
+                                                        <Input
+                                                            title={t(`analysis.${value.name}`)}
+                                                            type="text"
+                                                            value={formData[value.name] || ""}
+                                                            changeValue={(e) => handleInputChange(value.name, e.target.value)}
+                                                            classname="w-64"
+                                                        />
+                                                    )}
+                                </div>
+                            ))}
                     </div>
                     <Button
                         title={t("analysis.add")}

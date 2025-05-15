@@ -99,7 +99,7 @@ const Analysis: React.FC = () => {
                         value={cat}
                         onChange={(value) => setCat(value)}
                         options={[
-                            { label: "POS", value: "POS" }
+                            { label: t("analysis.posId"), value: "POS" }
                         ]}
                         dropdownRender={(menu) => (
                             <div style={{ maxHeight: 100, overflowY: "auto" }}>
