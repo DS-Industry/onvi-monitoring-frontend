@@ -33,6 +33,18 @@ datadogLogs.init({
   sessionSampleRate: 100,
 });
 
+// main.tsx or App.tsx
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then(() => {
+      // console.log("Service Worker registered:", registration);
+    })
+    .catch((err) => {
+      console.error("Service Worker registration failed:", err);
+    });
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

@@ -29,6 +29,7 @@
     "chart.js": "^4.4.3",
     "dayjs": "^1.11.12",
     "feather-icons-react": "^0.7.0",
+    "firebase": "^11.7.3",
     "flowbite": "^2.5.1",
     "i18next": "^23.12.1",
     "i18next-browser-languagedetector": "^8.0.0",

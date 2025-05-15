@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import routes from "@/routes";
 import PrivateRoute from "@/routes/PrivateRoute";
@@ -12,6 +12,8 @@ import PublicLayout from "./layout/PublicLayout";
 import useAuthStore from "./config/store/authSlice";
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { datadogLogs } from "@datadog/browser-logs";
+import { useFirebaseMessaging } from "./hooks/useFirebaseMessaging";
+import { requestFirebaseNotificationPermission } from "./utils/requestPermission";
 
 type ErrorFallbackProps = {
   error: Error;
@@ -30,6 +32,12 @@ function ErrorFallback({ resetError, error }: ErrorFallbackProps) {
 
 const App: React.FC = () => {
   const userPermissions = useAuthStore((state) => state.permissions);
+
+  useFirebaseMessaging();
+
+  useEffect(() => {
+    requestFirebaseNotificationPermission();
+  }, []);
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
