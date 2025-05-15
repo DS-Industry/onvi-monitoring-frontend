@@ -42,7 +42,7 @@ export default defineConfig({
         ],
       },
     }),
-    viteCompression()
+    viteCompression({ algorithm: 'gzip' })
   ],
   resolve: {
     alias: {
