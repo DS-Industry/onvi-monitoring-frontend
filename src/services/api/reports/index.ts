@@ -42,13 +42,21 @@ type AllReportsResponse = {
     count: number;
 }
 
+type ReportParam = {
+    name: string;
+    type: string;
+    description: string;
+};
+
 type ReportResponse = {
     id: number;
     name: string;
     category: CategoryReportTemplate;
     description?: string;
-    params: JSON;
-}
+    params: {
+        params: ReportParam[];
+    };
+};
 
 type TransactionParams = {
     page?: number;
