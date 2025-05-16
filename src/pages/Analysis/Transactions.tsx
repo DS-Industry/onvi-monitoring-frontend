@@ -1,7 +1,7 @@
 import { useFilterOn } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useCurrentPage, usePageNumber, useSetPageSize } from "@/hooks/useAuthStore";
+import { useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
 import { getAllReports, getTransactions } from "@/services/api/reports";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import Icon from 'feather-icons-react';
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Button } from "antd";
 import { UndoOutlined } from "@ant-design/icons";
+import { useLocation } from "react-router-dom";
 
 const Transactions: React.FC = () => {
     const { t } = useTranslation();
@@ -18,6 +19,9 @@ const Transactions: React.FC = () => {
     const setTotalCount = useSetPageSize();
     const { filterOn, setFilterOn } = useFilterOn();
     const [tableLoading, setTableLoading] = useState(false);
+    const location = useLocation();
+    const setCurrentPage = useSetCurrentPage();
+    const pageSize = usePageNumber();
 
     const { data: filter } = useSWR(["get-all-report"], () => getAllReports({}));
 
@@ -28,6 +32,11 @@ const Transactions: React.FC = () => {
         })) || [];
     }, [filter?.reports]);
 
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [location, setCurrentPage]);
+
     const { data: transactionData, mutate: mutateTransactions, isLoading: loadingTransactions } = useSWR([`get-transaction`], () => getTransactions({
         page: currentPage,
         size: pageNumber
@@ -36,6 +45,15 @@ const Transactions: React.FC = () => {
         revalidateOnReconnect: false,
         keepPreviousData: true
     });
+
+    const totalRecords = transactionData?.count || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
 
     useEffect(() => {
         setTableLoading(true);
