@@ -113,9 +113,9 @@ const DynamicTable = <T extends TableRow>({
     };
 
     const getStatusTag = (status: string) => {
-        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress"))
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS"))
             return <Tag color="green">{status}</Tag>;
-        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE"))
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE"))
             return <Tag color="red">{status}</Tag>;
         if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
             return <Tag color="orange">{status}</Tag>;

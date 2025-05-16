@@ -31,7 +31,7 @@ const Analysis: React.FC = () => {
     const [tableLoading, setTableLoading] = useState(false);
     const [searchReport, setSearchReport] = useState("");
 
-    const { data: filter, mutate: mutateGetAllReport, isLoading: loadingReports } = useSWR(["get-all-report"], () => getAllReports({
+    const { data: filter, mutate: mutateGetAllReport, isLoading: loadingReports, isValidating: validatingReports } = useSWR(["get-all-report"], () => getAllReports({
         category: cat as CategoryReportTemplate,
         page: currentPage,
         size: pageNumber
@@ -113,10 +113,18 @@ const Analysis: React.FC = () => {
             <div className="space-y-3">
                 <div className="text-text01 uppercase">{t("analysis.oper")}</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {reportsData.map((report) => (
-                        loadingReports || tableLoading ? <CardSkeleton cardHeight="200px" cardWidth="456px" />
-                            : <AnalysisCard iconText="file-text" firstText={report.name} secondText={report.description || ""} reports={report} />
-                    ))}
+                    {loadingReports || validatingReports || tableLoading ?
+                        <CardSkeleton
+                            cardHeight="200px"
+                            cardWidth="456px"
+                        /> : reportsData.map((report) => (
+                            <AnalysisCard
+                                iconText="file-text"
+                                firstText={report.name}
+                                secondText={report.description || ""}
+                                reports={report}
+                            />
+                        ))}
                 </div>
             </div>
             <div className="mt-4 flex gap-2">
