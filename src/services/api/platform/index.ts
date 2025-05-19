@@ -8,7 +8,8 @@ enum LOGIN {
     PASSWORD_CONFIRM = 'user/auth/password/confirm',
     PASSWORD_VALID = 'user/auth/password/valid/confirm',
     PASSWORD_RESET = 'user/auth/password/reset',
-    WORKER = 'user/auth/worker'
+    WORKER = 'user/auth/worker',
+    ORGANIZATION = 'user/organization/pre-create'
 }
 
 enum USER {
@@ -61,17 +62,12 @@ type LOGINRESPONSE = {
 
 type REGISTERBODY = {
     name: string;
-    surname?: string;
+    surname: string;
     middlename?: string;
     birthday: Date;
     phone: string;
     email: string;
     password: string;
-    gender?: string;
-    avatar?: string;
-    country?: string;
-    countryCode?: number;
-    timezone?: number;
 }
 
 type REGISTERRESPONSE = {
@@ -241,6 +237,24 @@ type WorkerResponse = {
     }
 }
 
+type OrganizationCreateRquest = {
+    fullName: string;
+    organizationType: string;
+    addressRegistration: string;
+}
+
+type OrganizationCreateResponse = {
+    id: number;
+    name: string;
+    slug: string;
+    address: string;
+    organizationStatus: string;
+    organizationType: string;
+    createdAt: Date;
+    updatedAt: Date;
+    ownerId: number;
+}
+
 export async function loginPlatformUser(body: LOGINBODY): Promise<LOGINRESPONSE> {
     const response: AxiosResponse<LOGINRESPONSE> = await api.post(LOGIN.CREATE_LOGIN, body);
     return response.data;
@@ -312,5 +326,10 @@ export async function createUserRole(body: WorkerRequest, confirm: string): Prom
 
 export async function getWorkerStatus(confirm: string): Promise<ValidResponse> {
     const response: AxiosResponse<ValidResponse> = await api.get(LOGIN.WORKER + `/valid/${confirm}`);
+    return response.data;
+}
+
+export async function precreateOrganization(body: OrganizationCreateRquest): Promise<OrganizationCreateResponse> {
+    const response: AxiosResponse<OrganizationCreateResponse> = await api.post(LOGIN.ORGANIZATION, body);
     return response.data;
 }

@@ -252,7 +252,7 @@ const DynamicTable = <T extends TableRow>({
             type: col.type,
             render: (value: any, record: T) => {
                 // If column is 'status', show tags
-                if (col.key === "status") {
+                if (col.key.toLowerCase().includes("status")) {
                     return getStatusTag(value);
                 }
 

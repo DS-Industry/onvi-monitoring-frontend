@@ -249,7 +249,13 @@
     "enter": "Enter Code",
     "otpEmail": "We sent it by email",
     "wrong": "You entered the wrong code",
-    "register": "Register"
+    "register": "Register",
+    "specify": "Specify the type of legal entity",
+    "name": "Name of the Legal Entity",
+    "brand": "Brand Name",
+    "car": "Registration address",
+    "regis": "Registration was successful",
+    "for": "For better service performance, please fill in the following fields"
   },
   "forgot": {
     "passwordRecovery": "Password Recovery",

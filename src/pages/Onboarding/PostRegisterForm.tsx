@@ -3,71 +3,143 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import useFormHook from "@/hooks/useFormHook";
+import useSWRMutation from "swr/mutation";
+import { precreateOrganization } from "@/services/api/platform";
+import { useSetTokens, useSetPermissions } from "@/hooks/useAuthStore";
+import { useClearUserData, useSetUser } from "@/hooks/useUserStore";
 
-const PostRegisterForm: React.FC = () => {
+type User = {
+    id: number;
+    userRoleId: number;
+    name: string;
+    surname: string;
+    middlename?: string;
+    birthday?: Date;
+    phone?: string;
+    email: string;
+    password: string;
+    gender: string;
+    position: string;
+    status: string;
+    avatar?: string;
+    country: string;
+    countryCode: number;
+    timezone: number;
+    refreshTokenId: string;
+    receiveNotifications: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+type Token = {
+    accessToken: string;
+    accessTokenExp: Date;
+    refreshToken: string;
+    refreshTokenExp: Date;
+}
+
+type Permissions = {
+    action: string;
+    subject: string;
+}
+
+type Props = {
+    registerUser: User;
+    registerToken: Token;
+    registerPermissions: Permissions[];
+}
+
+const PostRegisterForm: React.FC<Props> = ({
+    registerUser,
+    registerToken,
+    registerPermissions
+}: Props) => {
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
-    const [selectedEntity, setSelectedEntity] = useState('');
+    const setUser = useSetUser();
+    const setTokens = useSetTokens();
+    const setPermissions = useSetPermissions();
+    const clearData = useClearUserData();
 
     const handleToggle = () => {
         setIsToggled(!isToggled);
     };
 
+    const defaultValues = {
+        fullName: '',
+        organizationType: '',
+        addressRegistration: ''
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue } = useFormHook(formData);
+
+    const { trigger, isMutating } = useSWRMutation(
+        ['precreate-org'],
+        async () => precreateOrganization({
+            fullName: formData.fullName,
+            organizationType: formData.organizationType,
+            addressRegistration: formData.addressRegistration
+        })
+    );
+
+    type FieldType = "fullName" | "organizationType" | "addressRegistration";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setValue(field, value);
+    };
+
+    const onSubmit = async () => {
+        try {
+            const result = await trigger();
+            if (result) {
+                setUser({ user: registerUser });
+                setTokens({ tokens: registerToken });
+                setPermissions(registerPermissions);
+            }
+        } catch (error) {
+            console.error("Register error:", error);
+            clearData();
+        }
+    }
+
     return (
         <div>
-            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1">Регистрация прошла успешно</p>
-            <p className="font-normal text-text01 text-base mb-2">Для лучшей работы сервиса необходимо заполнить следующие поля</p>
-            <form>
+            <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-1">{t("register.regis")}</p>
+            <p className="font-normal text-text01 text-base mb-2">{t("register.for")}</p>
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <DropdownInput
-                    title="Укажите тип Юр. лица"
+                    title={t("register.specify")}
                     options={[{ value: "LegalEntity", name: "Юридическое лицо" },
                     { value: "IndividualEntrepreneur", name: "ИП" }
                     ]}
-                    value={selectedEntity}
-                    onChange={setSelectedEntity}
                     classname="w-72"
+                    {...register('organizationType', { required: 'Organization Type is required' })}
+                    value={formData.organizationType}
+                    onChange={(value) => handleInputChange('organizationType', value)}
+                    error={!!errors.organizationType}
+                    helperText={errors.organizationType?.message}
                 />
                 <Input
                     type="text"
-                    title='Наименование Юридического лица'
-                    classname="mb-5" changeValue={() => { }}
-                // value={formData.loginEmail}
-                // changeValue={(e) => handleInputChange('loginEmail', e.target.value)}
-                // error={!!errors.loginEmail || !!emailError}
-                // {...register('loginEmail', {
-                //   required: 'Email is required',
-                //   pattern: {
-                //     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                //     message: 'Invalid email format'
-                //   }
-                // })}
-                // helperText={errors.loginEmail?.message || errorEmailMessage || ''}
+                    title={t("register.name")}
+                    value={formData.fullName}
+                    changeValue={(e) => handleInputChange('fullName', e.target.value)}
+                    error={!!errors.fullName}
+                    {...register('fullName', { required: 'Full Name is required' })}
+                    helperText={errors.fullName?.message || ''}
                 />
                 <Input
                     type="text"
-                    title='Наименование Бренда'
-                    classname="mb-5" changeValue={() => { }}
-                // value={formData.loginPassword}
-                // changeValue={(e) => handleInputChange('loginPassword', e.target.value)}
-                // error={!!errors.loginPassword || !!passwordError}
-                // {...register('loginPassword', {
-                //   required: 'Password is required',
-                //   minLength: { value: 6, message: 'Password must be at least 6 characters' }
-                // })}
-                // helperText={errors.loginPassword?.message || errorPasswordMessage || ''}
-                />
-                <Input
-                    type="text"
-                    title='Адрес мойки'
-                    classname="mb-12" changeValue={() => { }}
-                // value={formData.loginPassword}
-                // changeValue={(e) => handleInputChange('loginPassword', e.target.value)}
-                // error={!!errors.loginPassword || !!passwordError}
-                // {...register('loginPassword', {
-                //   required: 'Password is required',
-                //   minLength: { value: 6, message: 'Password must be at least 6 characters' }
-                // })}
-                // helperText={errors.loginPassword?.message || errorPasswordMessage || ''}
+                    title={t("register.car")}
+                    value={formData.addressRegistration}
+                    changeValue={(e) => handleInputChange('addressRegistration', e.target.value)}
+                    error={!!errors.addressRegistration}
+                    {...register('addressRegistration', { required: 'Registration Address is required' })}
+                    helperText={errors.addressRegistration?.message}
                 />
                 <div className={`h-32 ${isToggled ? "bg-background06" : "bg-disabledFill"} mb-5`}>
                     <div className="flex ml-5">
@@ -85,14 +157,19 @@ const PostRegisterForm: React.FC = () => {
                                 </div>
                             </div>
                             <div className="ml-5">
-                                <div className="text-text01 text-lg font-semibold">Заказать обратный звонок</div>
-                                <div className="text-text01 font-normal text-sm">После регистрации наш менеджер свяжется с вами и ответит на все вопросы системы</div>
+                                <div className="text-text01 text-lg font-semibold">{t("register.request")}</div>
+                                <div className="text-text01 font-normal text-sm">{t("register.after")}</div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <Button type="basic" title={t('Зарегистрироваться')} form={true} classname='w-full' />
+                <Button
+                    type="basic"
+                    title={t('register.register')}
+                    form={true}
+                    classname='w-full'
+                    isLoading={isMutating}
+                />
             </form>
         </div>
     )

@@ -29,6 +29,7 @@ type OrganizationResponse = {
     name: string;
     slug: string;
     address: string;
+    organizationDocumentId: number | null;
     organizationStatus: string;
     organizationType: string;
     createdAt: Date;
@@ -48,8 +49,6 @@ const Organization: React.FC = () => {
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
     const user = useUser();
-
-    useSWR(editOrgId !== 0 ? [`get-org-doc`] : null, () => getOrganizationDocument(editOrgId));
 
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -126,27 +125,30 @@ const Organization: React.FC = () => {
         setIsEditMode(true);
         setButtonOn(true);
 
-        const fetchedOrgData = await getOrganizationDocument(id);
-        const orgs = fetchedOrgData.props;
-
         const orgToEdit = organizations.find((org) => org.id === id);
-        if (orgToEdit && orgs) {
+        let orgs;
+        if (orgToEdit?.organizationDocumentId) {
+            const fetchedOrgData = await getOrganizationDocument(orgToEdit?.organizationDocumentId);
+            orgs = fetchedOrgData.props;
+        }
+
+        if (orgToEdit) {
             setFormData({
                 fullName: orgToEdit.name,
                 organizationType: orgToEdit.organizationType,
-                rateVat: orgs.rateVat,
-                inn: orgs.inn,
-                okpo: orgs.okpo,
-                kpp: orgs.kpp ? orgs.kpp : '',
+                rateVat: orgs?.rateVat ? orgs.rateVat : '',
+                inn: orgs?.inn ? orgs.inn : '',
+                okpo: orgs?.okpo ? orgs.okpo : '',
+                kpp: orgs?.kpp ? orgs.kpp : '',
                 addressRegistration: orgToEdit.address,
-                ogrn: orgs.ogrn,
-                bik: orgs.bik,
-                correspondentAccount: orgs.correspondentAccount,
-                bank: orgs.bank,
-                settlementAccount: orgs.settlementAccount,
-                addressBank: orgs.addressBank,
-                certificateNumber: orgs.certificateNumber ? orgs.certificateNumber : "",
-                dateCertificate: orgs.dateCertificate ? orgs.dateCertificate : "",
+                ogrn: orgs?.ogrn ? orgs.ogrn : '',
+                bik: orgs?.bik ? orgs.bik : '',
+                correspondentAccount: orgs?.correspondentAccount ? orgs.correspondentAccount : '',
+                bank: orgs?.bank ? orgs.bank : '',
+                settlementAccount: orgs?.settlementAccount ? orgs.settlementAccount : '',
+                addressBank: orgs?.addressBank ? orgs.addressBank : '',
+                certificateNumber: orgs?.certificateNumber ? orgs.certificateNumber : "",
+                dateCertificate: orgs?.dateCertificate ? orgs.dateCertificate : "",
             });
         }
     };
