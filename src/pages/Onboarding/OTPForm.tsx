@@ -4,24 +4,65 @@ import { useTranslation } from 'react-i18next';
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { registerActivationUser } from "@/services/api/platform";
-import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
-import { useNavigate } from 'react-router-dom';
-import { useSetPermissions, useSetTokens } from '@/hooks/useAuthStore';
+import { useClearUserData } from '@/hooks/useUserStore';
+
+type User = {
+    id: number;
+    userRoleId: number;
+    name: string;
+    surname: string;
+    middlename?: string;
+    birthday?: Date;
+    phone?: string;
+    email: string;
+    password: string;
+    gender: string;
+    position: string;
+    status: string;
+    avatar?: string;
+    country: string;
+    countryCode: number;
+    timezone: number;
+    refreshTokenId: string;
+    receiveNotifications: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+type Token = {
+    accessToken: string;
+    accessTokenExp: Date;
+    refreshToken: string;
+    refreshTokenExp: Date;
+}
+
+type Permissions = {
+    action: string;
+    subject: string;
+}
 
 type Props = {
     registerObj: { email: string };
+    count: number;
+    setCount: (count: number) => void;
+    setRegisterUser: (user: User | null) => void;
+    setRegisterToken: (tokens: Token | null) => void;
+    setRegisterPermissions: (permissions: Permissions[]) => void;
 }
 
-const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
+const OTPForm: React.FC<Props> = ({
+    registerObj,
+    count,
+    setCount,
+    setRegisterUser,
+    setRegisterToken,
+    setRegisterPermissions
+}: Props) => {
     const { t } = useTranslation();
     const [otp, setOtp] = useState(Array(6).fill(""));
     const [otpString, setOtpString] = useState("");
     const [isError, setIsError] = useState(false);
-    const navigate = useNavigate();
-    const setUser = useSetUser();
     const clearData = useClearUserData();
-    const setTokens = useSetTokens();
-    const setPermissions = useSetPermissions();
 
     const defaultValues = {
         confirmString: ''
@@ -67,10 +108,10 @@ const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
             const result = await trigger();
             if (result && result.admin && result.tokens && result.permissionInfo) {
                 const { admin, tokens, permissionInfo } = result;
-                setUser({ user: admin?.props });
-                setTokens({ tokens });
-                setPermissions(permissionInfo.permissions)
-                navigate('/');
+                setRegisterUser(admin?.props);
+                setRegisterToken(tokens);
+                setRegisterPermissions(permissionInfo.permissions);
+                setCount(count + 1);
             } else {
                 setIsError(true);
             }
