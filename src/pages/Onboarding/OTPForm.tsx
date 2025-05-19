@@ -5,6 +5,7 @@ import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { registerActivationUser } from "@/services/api/platform";
 import { useClearUserData } from '@/hooks/useUserStore';
+import { useSetTokens } from "@/hooks/useAuthStore";
 
 type User = {
     id: number;
@@ -63,6 +64,7 @@ const OTPForm: React.FC<Props> = ({
     const [otpString, setOtpString] = useState("");
     const [isError, setIsError] = useState(false);
     const clearData = useClearUserData();
+    const setTokens = useSetTokens();
 
     const defaultValues = {
         confirmString: ''
@@ -110,6 +112,7 @@ const OTPForm: React.FC<Props> = ({
                 const { admin, tokens, permissionInfo } = result;
                 setRegisterUser(admin?.props);
                 setRegisterToken(tokens);
+                setTokens({ tokens });
                 setRegisterPermissions(permissionInfo.permissions);
                 setCount(count + 1);
             } else {

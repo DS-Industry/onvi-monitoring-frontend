@@ -19,6 +19,7 @@ type Organization = {
     name: string;
     slug: string;
     address: string;
+    organizationDocumentId: number | null;
     organizationStatus: string;
     organizationType: string;
     createdAt: Date;
