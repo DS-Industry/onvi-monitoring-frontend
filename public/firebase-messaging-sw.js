@@ -10,12 +10,12 @@ importScripts(
 );
 
 firebase.initializeApp({
-    apiKey: import.meta.env.VITE_API_KEY,
+    apiKey: "AIzaSyBy4cTKXjWzCxV4nd4hxZi1y74TF9qo1Aw",
     authDomain: "onvione-monitoring.firebaseapp.com",
     projectId: "onvione-monitoring",
     storageBucket: "onvione-monitoring.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_MESSAGING_ID,
-    appId: import.meta.env.VITE_APP_ID,
+    messagingSenderId: "645871534181",
+    appId: "1:645871534181:web:8cd42b272a364cdea9c68c",
 });
 
 const messaging = firebase.messaging();

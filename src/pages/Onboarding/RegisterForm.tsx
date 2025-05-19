@@ -13,15 +13,17 @@ type Props = {
     count: number;
     setCount: (key: number) => void;
     registerObj: { email: string };
-    setRegisterObj: (obj: { email: string }) => void;
+    setRegisterObj: (obj: { email: string; }) => void;
 }
 
-const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegisterObj }: Props) => {
+const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Props) => {
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
 
     const defaultValues = {
         name: '',
+        surname: '',
+        middlename: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -34,9 +36,11 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
     const { trigger, isMutating } = useSWRMutation(
-        'user/auth/register',
+        ['user-auth-register'],
         async () => registerPlatformUser({
             name: formData.name,
+            surname: formData.surname,
+            middlename: formData.middlename,
             birthday: new Date(`${formData.birthday}T13:24:45.742+03:00`),
             phone: formData.phone,
             email: formData.email,
@@ -44,7 +48,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         })
     );
 
-    type FieldType = "name" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
+    type FieldType = "name" | "surname" | "middlename" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
 
     const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -54,15 +58,6 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
     const handleToggle = () => {
         setIsToggled(!isToggled);
     };
-
-    // const handleIconClick = () => {
-    //     const dateInput = document.getElementById("date-input");
-    //     if (dateInput) {
-    //         dateInput.focus();
-    //         // Workaround to trigger date picker on focus
-    //         (dateInput as HTMLInputElement).showPicker?.();
-    //     }
-    // };
 
     const onSubmit = async () => {
         try {
@@ -80,12 +75,11 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
         <div>
             <p className="text-3xl font-extrabold leading-[1.25] text-text01 mb-2">{t('register.join')}</p>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} >
-                <div className="overflow-y-auto pr-6 h-96">
+                <div className="overflow-y-auto space-y-6 pr-6 h-96">
                     <div>
                         <Input
                             type="text"
-                            title={t("register.username")}
-                            classname="mb-0"
+                            title={`${t("register.username")} *`}
                             value={formData.name}
                             changeValue={(e) => handleInputChange('name', e.target.value)}
                             error={!!errors.name}
@@ -96,86 +90,92 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, registerObj, setRegist
                         />
                         <label className="text-xs text-text02 mb-5">{t("register.other")}</label>
                     </div>
-
-                    <div>
-                        <Input
-                            type="password"
-                            title={t("login.password")}
-                            classname="mb-5"
-                            value={formData.password}
-                            changeValue={(e) => handleInputChange('password', e.target.value)}
-                            error={!!errors.password}
-                            {...register('password', {
-                                required: 'Password is required',
-                                minLength: { value: 6, message: 'Password must be at least 6 characters' }
-                            })}
-                            helperText={errors.password?.message || ''}
-                        />
-                        <Input
-                            type="password"
-                            title={t("profile.confirm")}
-                            classname="mb-5"
-                            value={formData.confirmPassword}
-                            changeValue={(e) => handleInputChange('confirmPassword', e.target.value)}
-                            error={!!errors.confirmPassword}
-                            {...register('confirmPassword', {
-                                required: 'Password is required',
-                                minLength: { value: 6, message: 'Password must be at least 6 characters' },
-                                validate: (value) =>
-                                    value === formData.password || 'Passwords do not match'
-                            })}
-                            helperText={errors.confirmPassword?.message || ''}
-                        />
-                        <div className="flex mb-5">
-                            <DateInput
-                                title={t("register.date")}
-                                classname="w-40"
-                                id="date-input"
-                                value={formData.birthday ? dayjs(formData.birthday) : null}
-                                changeValue={(date) => handleInputChange("birthday", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
-                                error={!!errors.birthday}
-                                {...register('birthday', {
-                                    required: 'birthday is required'
-                                })}
-                                helperText={errors.birthday?.message || ''}
-                            />
-                            {/* <div onClick={handleIconClick} className="mt-9 text-primary02 ml-1 cursor-pointer">
-                                <Calendar className="pointer-events-none" />
-                            </div> */}
-                        </div>
-                        <Input
-                            type="text"
-                            title={t("register.phone")}
-                            classname="mb-5"
-                            value={formData.phone}
-                            changeValue={(e) => handleInputChange('phone', e.target.value)}
-                            error={!!errors.phone}
-                            {...register('phone', {
-                                required: 'phone is required',
-                                pattern: {
-                                    value: /^\+79\d{9}$/,
-                                    message: 'Phone number must start with +79 and be 11 digits long'
-                                }
-                            })}
-                            helperText={errors.phone?.message || ''}
-                        />
-                        <Input
-                            type="text"
-                            title={t("register.email")}
-                            classname="mb-5"
-                            value={formData.email}
-                            changeValue={(e) => handleInputChange('email', e.target.value)}
-                            error={!!errors.email}
-                            {...register('email', {
-                                required: 'email is required',
-                                pattern: {
-                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                    message: 'Invalid email format'
-                                }
-                            })}
-                            helperText={errors.email?.message || ''}
-                        />
-                    </div>
+                    <Input
+                        type="text"
+                        title={t("profile.middlename")}
+                        value={formData.middlename}
+                        changeValue={(e) => handleInputChange('middlename', e.target.value)}
+                        {...register('middlename')}
+                    />
+                    <Input
+                        type="text"
+                        title={`${t("profile.surname")} *`}
+                        value={formData.surname}
+                        changeValue={(e) => handleInputChange('surname', e.target.value)}
+                        error={!!errors.surname}
+                        {...register('surname', {
+                            required: 'Surname is required'
+                        })}
+                        helperText={errors.surname?.message || ''}
+                    />
+                    <Input
+                        type="password"
+                        title={`${t("login.password")} *`}
+                        value={formData.password}
+                        changeValue={(e) => handleInputChange('password', e.target.value)}
+                        error={!!errors.password}
+                        {...register('password', {
+                            required: 'Password is required',
+                            minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                        })}
+                        helperText={errors.password?.message || ''}
+                    />
+                    <Input
+                        type="password"
+                        title={`${t("profile.confirm")} *`}
+                        value={formData.confirmPassword}
+                        changeValue={(e) => handleInputChange('confirmPassword', e.target.value)}
+                        error={!!errors.confirmPassword}
+                        {...register('confirmPassword', {
+                            required: 'Password is required',
+                            minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                            validate: (value) =>
+                                value === formData.password || 'Passwords do not match'
+                        })}
+                        helperText={errors.confirmPassword?.message || ''}
+                    />
+                    <DateInput
+                        title={`${t("register.date")} *`}
+                        classname="w-40"
+                        id="date-input"
+                        value={formData.birthday ? dayjs(formData.birthday) : null}
+                        changeValue={(date) => handleInputChange("birthday", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
+                        error={!!errors.birthday}
+                        {...register('birthday', {
+                            required: 'Birthday is required'
+                        })}
+                        helperText={errors.birthday?.message || ''}
+                    />
+                    <Input
+                        type="text"
+                        title={`${t("register.phone")} *`}
+                        value={formData.phone}
+                        changeValue={(e) => handleInputChange('phone', e.target.value)}
+                        error={!!errors.phone}
+                        {...register('phone', {
+                            required: 'Phone is required',
+                            pattern: {
+                                value: /^\+79\d{9}$/,
+                                message: 'Phone number must start with +79 and be 11 digits long'
+                            }
+                        })}
+                        helperText={errors.phone?.message || ''}
+                    />
+                    <Input
+                        type="text"
+                        title={`${t("register.email")} *`}
+                        value={formData.email}
+                        changeValue={(e) => handleInputChange('email', e.target.value)}
+                        error={!!errors.email}
+                        {...register('email', {
+                            required: 'Email is required',
+                            pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: 'Invalid email format'
+                            }
+                        })}
+                        helperText={errors.email?.message || ''}
+                    />
                 </div>
                 <div className={`h-32 ${isToggled ? "bg-background06" : "bg-disabledFill"}`}>
                     <div className="flex ml-5">

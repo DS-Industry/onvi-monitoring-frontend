@@ -14,7 +14,7 @@ import { getOrganization } from "@/services/api/organization";
 import { useTranslation } from "react-i18next";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
-import { Skeleton } from "antd";
+import { message, Skeleton } from "antd";
 
 const IncomeReport: React.FC = () => {
     const { t } = useTranslation();
@@ -72,6 +72,16 @@ const IncomeReport: React.FC = () => {
             return;
         }
 
+        const missingFields = reportData.params.params
+            .filter(param => !formData[param.name] || formData[param.name].toString().trim() === "")
+            .map(param => param.description || param.name);
+
+        if (missingFields.length > 0) {
+            // Show Ant Design error notification or toast
+            message.error(`Please fill in the following fields: ${missingFields.join(', ')}`);
+            return;
+        }
+
         try {
             await createReport(); // Pass formData correctly
             navigate("/analysis/transactions");
@@ -88,9 +98,9 @@ const IncomeReport: React.FC = () => {
             <div className="p-4 bg-white rounded-lg shadow-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <h3 className="text-lg font-semibold mb-4">{t("analysis.repo")}</h3>
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-wrap gap-4">
                         {loadingReport || validatingReport ? (
-                            <div className="flex flex-col md:flex-row gap-4">
+                            <div className="flex flex-wrap gap-4">
                                 <Skeleton.Input active style={{ width: 150, height: 32 }} />
                                 <Skeleton.Input active style={{ width: 150, height: 32 }} />
                                 <Skeleton.Input active style={{ width: 150, height: 32 }} />
@@ -111,7 +121,7 @@ const IncomeReport: React.FC = () => {
                                             title={value.description}
                                             value={formData[value.name] || ""}
                                             options={poses}
-                                            onChange={(value) => handleInputChange(value.name, value)}
+                                            onChange={(val) => handleInputChange(value.name, val)}
                                             classname="w-64"
                                         />
                                         : value.name.toLowerCase().includes("device") ?
@@ -119,7 +129,7 @@ const IncomeReport: React.FC = () => {
                                                 title={value.description}
                                                 value={formData[value.name] || ""}
                                                 options={devices}
-                                                onChange={(value) => handleInputChange(value.name, value)}
+                                                onChange={(val) => handleInputChange(value.name, val)}
                                                 classname="w-64"
                                             />
                                             : value.name.toLowerCase().includes("warehouse") ?
@@ -135,7 +145,7 @@ const IncomeReport: React.FC = () => {
                                                         title={value.description}
                                                         value={formData[value.name] || ""}
                                                         options={organizations}
-                                                        onChange={(value) => handleInputChange(value.name, value)}
+                                                        onChange={(val) => handleInputChange(value.name, val)}
                                                         classname="w-64"
                                                     />
                                                     : value.type === "number" ? (

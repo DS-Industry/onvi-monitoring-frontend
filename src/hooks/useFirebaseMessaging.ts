@@ -6,7 +6,7 @@ import { notification } from "antd"; // Import antd's notification API
 export const useFirebaseMessaging = () => {
   useEffect(() => {
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Message received in foreground:", payload);
+    //   console.log("Message received in foreground:", payload);
       alert(`Notification: ${payload.notification?.title}`);
 
       const { title, body } = payload.notification || {};
