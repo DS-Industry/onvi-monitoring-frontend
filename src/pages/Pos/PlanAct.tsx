@@ -128,7 +128,7 @@ const PlanAct: React.FC = () => {
                             title={t("pos.thisSeg")}
                             description={t("pos.youDo")}
                         >
-                            <img src={NoCollection} className="mx-auto" loading="lazy" />
+                            <img src={NoCollection} className="mx-auto" loading="lazy" alt="Plan Act" />
                         </NoDataUI>
                     </div>
                 )}

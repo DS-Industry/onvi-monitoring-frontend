@@ -209,7 +209,7 @@ const Collection: React.FC = () => {
                             title={t("finance.details")}
                             description={t("finance.at")}
                         >
-                            <img src={NoCollection} className="mx-auto" loading="lazy" />
+                            <img src={NoCollection} className="mx-auto" loading="lazy" alt="No Collection" />
                         </NoDataUI>
                     </div>
                 )}

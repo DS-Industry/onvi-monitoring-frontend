@@ -100,7 +100,7 @@ const LogIn: React.FC = () => {
             <p>{t("login.back")}</p>
           </div>
           <div className='flex mb-5'>
-            <img src={OnviBlue} className='h-7 w-14' loading="lazy" />
+            <img src={OnviBlue} className='h-7 w-14' loading="lazy" alt='Onvi' />
             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t('login.business')}</div>
           </div>
           <h1 className="text-2xl font-extrabold leading-[1.25] text-text01 mb-2">{t('login.welcome')}</h1>
@@ -176,7 +176,6 @@ const LogIn: React.FC = () => {
               alt="Rocket illustration"
               loading="lazy"
               decoding="async"
-              fetchPriority="low" 
               className="object-cover w-11/12 h-11/12"
               key="login-image"
             />

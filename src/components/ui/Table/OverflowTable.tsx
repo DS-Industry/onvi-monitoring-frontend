@@ -277,12 +277,12 @@ const OverflowTable: React.FC<Props> = ({
                 <tr key={row.id}>
                   {isCheck && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
-                      {row.status === "FINISHED" && <img src={CheckIcon} loading="lazy" />}
+                      {row.status === "FINISHED" && <img src={CheckIcon} loading="lazy" alt="CHECK" />}
                     </td>
                   )}
                   {isStatus && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
-                      {row.status === "SENT" ? <img src={SentIcon} loading="lazy" /> : <img src={SavedIcon} loading="lazy" />}
+                      {row.status === "SENT" ? <img src={SentIcon} loading="lazy" alt="SENT" /> : <img src={SavedIcon} loading="lazy" alt="SAVED"/>}
                     </td>
                   )}
                   <Can
@@ -292,7 +292,7 @@ const OverflowTable: React.FC<Props> = ({
                     {(allowed) => allowed && isUpdateLeft && (
                       <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                         <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                          <img src={UpdateIcon} loading="lazy" />
+                          <img src={UpdateIcon} loading="lazy" alt="UPDATE" />
                         </button>
                       </td>
                     )}
@@ -355,7 +355,7 @@ const OverflowTable: React.FC<Props> = ({
                     {(allowed) => allowed && isUpdate && (
                       <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
                         <button className="flex items-center" onClick={() => onUpdate && onUpdate(row.id)}>
-                          <img src={UpdateIcon} loading="lazy" />
+                          <img src={UpdateIcon} loading="lazy" alt="UPDATE" />
                         </button>
                       </td>
                     )}

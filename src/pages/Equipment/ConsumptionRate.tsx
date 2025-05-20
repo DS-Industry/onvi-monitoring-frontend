@@ -136,7 +136,7 @@ const ConsumptionRate: React.FC = () => {
                         title={t("chemical.noText")}
                         description={t("chemical.dont")}
                     >
-                        <img src={SalyImage} className="mx-auto" loading="lazy" />
+                        <img src={SalyImage} className="mx-auto" loading="lazy" alt="CONSUMPTION" />
                     </NoDataUI>
             }
             {tableData && tableData.length > 0 && <div className="flex mt-4 space-x-4">

@@ -213,7 +213,7 @@ const OverheadCosts: React.FC = () => {
                     title={t("warehouse.noStock")}
                     description={""}
                 >
-                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
+                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Overhead" />
                 </NoDataUI>
 
             }

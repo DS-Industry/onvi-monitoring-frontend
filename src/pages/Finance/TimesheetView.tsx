@@ -310,7 +310,7 @@ const TimesheetView: React.FC = () => {
                             ) : (
                                 <div className="flex flex-col justify-center items-center">
                                     <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
-                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" loading="lazy" />
+                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" loading="lazy" alt="Timesheet" />
                                     </NoDataUI>
                                 </div>
                             )}
@@ -411,7 +411,7 @@ const TimesheetView: React.FC = () => {
                             ) : (
                                 <div className="flex flex-col justify-center items-center">
                                     <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
-                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" loading="lazy" />
+                                        <img src={NoTimeSheet} className="mx-auto max-w-[80%] sm:max-w-[50%]" loading="lazy" alt="Timesheet" />
                                     </NoDataUI>
                                 </div>
                             )}
@@ -484,7 +484,7 @@ const TimesheetView: React.FC = () => {
                         ) : (
                             <div className="flex flex-col justify-center items-center text-center p-4">
                                 <NoDataUI title={t("finance.data")} description={t("finance.atThe")}>
-                                    <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" loading="lazy" />
+                                    <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" loading="lazy" alt="Timesheet" />
                                 </NoDataUI>
                             </div>
                         )}
@@ -504,7 +504,7 @@ const TimesheetView: React.FC = () => {
                                             title={t("finance.data")}
                                             description={t("finance.atThe")}
                                         >
-                                            <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" loading="lazy" />
+                                            <img src={NoTimeSheet} className="mx-auto w-3/4 sm:w-1/2 md:w-1/3" loading="lazy" alt="Timesheet" />
                                         </NoDataUI>
                                     </div>
                                 )

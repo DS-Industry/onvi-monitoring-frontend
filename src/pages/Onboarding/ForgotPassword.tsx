@@ -31,7 +31,7 @@ const ForgotPassword: React.FC = () => {
                         <p>{t("login.back")}</p>
                     </div>
                     <div className='flex mb-5'>
-                        <img src={OnviBlue} className='h-7 w-14' loading="lazy" />
+                        <img src={OnviBlue} className='h-7 w-14' loading="lazy" alt="Onvi" />
                         <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
                     </div>
                     { count === 0 && <ForgotEmailForm count={count} setCount={setCount} forgotObj={forgotObj} setForgotObj={setForgotObj} /> }
@@ -41,7 +41,7 @@ const ForgotPassword: React.FC = () => {
 
                 <div className="hidden lg:flex lg:w-8/12 rounded-r-lg items-center justify-center lg:ml-20">
                     <div className="p-8">
-                      <img src={OTPImage} alt="Rocket illustration" key={"forgot-password"} className="object-cover w-11/12 h-11/12" loading="lazy" decoding='async' fetchPriority='low' />
+                      <img src={OTPImage} alt="Rocket illustration" key={"forgot-password"} className="object-cover w-11/12 h-11/12" loading="lazy" decoding='async' />
                     </div>
                 </div>
             </div>

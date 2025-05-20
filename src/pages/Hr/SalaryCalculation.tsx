@@ -170,7 +170,7 @@ const SalaryCalculation: React.FC = () => {
                     title={t("hr.here")}
                     description={t("hr.you")}
                 >
-                    <img src={NoCollection} className="mx-auto" loading="lazy" />
+                    <img src={NoCollection} className="mx-auto" loading="lazy" alt="Salary" />
                 </NoDataUI>
             </div>
             )}

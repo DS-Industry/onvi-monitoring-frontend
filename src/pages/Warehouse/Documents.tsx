@@ -210,7 +210,7 @@ const Documents: React.FC = () => {
                         title={t("warehouse.noOverhead")}
                         description={""}
                     >
-                        <img src={OverheadsEmpty} className="mx-auto" loading="lazy" />
+                        <img src={OverheadsEmpty} className="mx-auto" loading="lazy" alt="Documents" />
                     </NoDataUI>
             }
             <Modal isOpen={buttonOn} onClose={() => setButtonOn(false)} handleClick={handleModalSubmit} classname="w-96 h-72" loading={loadingDocument}>

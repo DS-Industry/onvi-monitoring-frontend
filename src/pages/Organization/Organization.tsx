@@ -222,7 +222,7 @@ const Organization: React.FC = () => {
                             title={t("organizations.noLegal")}
                             description={t("organizations.addLegal")}
                         >
-                            <img src={SalyIamge} className="mx-auto" loading="lazy" />
+                            <img src={SalyIamge} className="mx-auto" loading="lazy" alt="Organization" />
                         </NoDataUI>
                     )}
             <DrawerCreate onClose={resetForm}>
