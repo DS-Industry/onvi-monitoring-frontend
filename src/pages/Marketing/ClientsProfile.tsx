@@ -1,10 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import BasicInformation from "./BasicInformation";
-import KeyTab from "./KeyTab";
-import Communication from "./Communication";
-import Loyalty from "./Loyalty";
-import Actions from "./Actions";
+const BasicInformation = React.lazy(() => import("./BasicInformation"));
+const KeyTab = React.lazy(() => import("./KeyTab"));
+const Communication = React.lazy(() => import("./Communication"));
+const Loyalty = React.lazy(() => import("./Loyalty"));
+const Actions = React.lazy(() => import("./Actions"));
 import GenericTabs from "@ui/Tabs/GenericTab";
 
 const ClientsProfile: React.FC = () => {

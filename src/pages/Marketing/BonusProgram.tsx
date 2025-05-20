@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Settings from "./Settings";
-import Levels from "./Levels";
-import Events from "./Events";
+const Settings = React.lazy(() => import("./Settings"));
+const Levels = React.lazy(() => import("./Levels"));
+const Events = React.lazy(() => import("./Events"));
 import GenericTabs from "@ui/Tabs/GenericTab";
 
 const BonusProgram: React.FC = () => {

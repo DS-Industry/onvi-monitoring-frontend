@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import ArrowLeft from 'feather-icons-react';
 import OTPImage from '@/assets/OTPImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
-import ForgotEmailForm from './ForgotEmailForm';
-import ForgotOTPForm from './ForgotOTPForm';
-import ForgotPasswordForm from './ForgotPasswordForm';
+const ForgotEmailForm = React.lazy(() => import('./ForgotEmailForm'));
+const ForgotOTPForm = React.lazy(() => import('./ForgotOTPForm'));
+const ForgotPasswordForm = React.lazy(() => import('./ForgotPasswordForm'));
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 

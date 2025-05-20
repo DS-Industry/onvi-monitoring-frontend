@@ -1,4 +1,4 @@
-import _ from "lodash";
+import memoize from 'lodash/memoize'; // ✅ Better, but custom version is leaner
 
 /**
  * Determines if the user has the required object-action permissions.
@@ -8,7 +8,7 @@ import _ from "lodash";
  * @param userPermissions - Array of object-action pairs the user has.
  * @returns {boolean} - True if the user has at least one of the required permissions or if no required permissions are specified.
  */
-const hasPermission = _.memoize(
+const hasPermission = memoize(
   (
     requiredPermissions: { subject: string; action: string }[],
     userPermissions: { subject: string; action: string }[]

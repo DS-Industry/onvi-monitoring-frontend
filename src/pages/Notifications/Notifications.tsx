@@ -82,7 +82,7 @@ const Notifications: React.FC = () => {
 
     return (
         <div className="mt-2">
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => {}}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => { }}>
                 <div className="flex flex-row items-center justify-between mb-4">
                     <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
                     <Close onClick={() => setIsModalOpen(false)} className="cursor-pointer text-text01" />
@@ -156,22 +156,45 @@ const Notifications: React.FC = () => {
                     breakpoint="sm" // 👈 hides sidebar at md (768px)
                     collapsedWidth="0"
                 >
-                    <div className="p-4 border-b border-borderFill space-y-4">
+                    <div className="p-4 border-b border-borderFill">
                         <Text type="secondary">TITLE</Text>
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
-                            <Menu.Item icon={<MailOutlined />} className="font-semibold text-text02 hover:text-primary02">
-                                {t("analysis.all")}
+                            <Menu.Item className="!p-0">
+                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                    <MailOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <span className="font-semibold text-text02 group-hover:text-text01">{t("analysis.all")}</span>
+                                </div>
                             </Menu.Item>
-                            <Menu.Item icon={<StarOutlined />} className="font-semibold text-text02 hover:text-primary02">
-                                {t("notifications.fav")}
+                            <Menu.Item className="!p-0">
+                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                    <StarOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.fav")}</span>
+                                </div>
                             </Menu.Item>
-                            <Menu.Item icon={<DeleteOutlined />} className="font-semibold text-text02 hover:text-primary02">
-                                {t("notifications.basket")}
+                            <Menu.Item className="!p-0">
+                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                    <DeleteOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.basket")}</span>
+                                </div>
                             </Menu.Item>
                         </Menu>
                     </div>
                     <div className="p-4">
                         <Text type="secondary">TITLE</Text>
+                        <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
+                            <Menu.Item className="!p-0">
+                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                    <TagFilled style={{ fontSize: "24px"}} className="text-[#FF0808]" />
+                                    <span className="font-semibold text-text02 group-hover:text-text01">Финансы</span>
+                                </div>
+                            </Menu.Item>
+                            <Menu.Item className="!p-0">
+                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                    <TagFilled style={{ fontSize: "24px"}} className="text-primary02" />
+                                    <span className="font-semibold text-text02 group-hover:text-text01">Важное</span>
+                                </div>
+                            </Menu.Item>
+                        </Menu>
                     </div>
                 </Sider>
 
@@ -267,7 +290,6 @@ const Notifications: React.FC = () => {
                     </Content>
                 </Layout>
             </Layout>
-
         </div>
     )
 }

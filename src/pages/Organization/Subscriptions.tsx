@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Notification from "@/components/ui/Notification";
-import CurrentTariff from "./CurrentTariff";
-import ChangeTariff from "./ChangeTariff";
+const CurrentTariff = React.lazy(() => import("./CurrentTariff"));
+const ChangeTariff = React.lazy(() => import("./ChangeTariff"));
 import GenericTabs from "@ui/Tabs/GenericTab";
 
 const Subscriptions: React.FC = () => {

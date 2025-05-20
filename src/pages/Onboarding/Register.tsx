@@ -5,9 +5,10 @@ import ArrowLeft from 'feather-icons-react';
 import RegisterImage from '@/assets/RegisterImage.png';
 import PostRegisterImage from '@/assets/PostRegisterImage.png';
 import OTPImage from '@/assets/OTPImage.png';
-import RegisterForm from './RegisterForm';
-import OTPForm from './OTPForm';
-import PostRegisterForm from './PostRegisterForm';
+const RegisterForm = React.lazy(() => import('./RegisterForm'));
+const OTPForm = React.lazy(() => import('./OTPForm'));
+const PostRegisterForm = React.lazy(() => import('./PostRegisterForm'));
+
 import OnviBlue from '@/assets/onvi_blue.png';
 
 type User = {
