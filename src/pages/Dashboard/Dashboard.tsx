@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import News from "./News";
-import Indicators from "./Indicators";
-import RatingOfCarWases from "./RatingOfCarWases";
+const News = React.lazy(() => import("./News"));
+const Indicators = React.lazy(() => import("./Indicators"));
+const RatingOfCarWases = React.lazy(() => import("./RatingOfCarWases"));
 import GenericTabs from "@ui/Tabs/GenericTab";
 
 const Dashboard: React.FC = () => {

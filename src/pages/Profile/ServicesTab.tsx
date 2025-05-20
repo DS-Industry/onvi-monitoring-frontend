@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
 
-export const ServicesTab: React.FC = () => {
+const ServicesTab: React.FC = () => {
   const { t } = useTranslation();
   const defaultValues = {
       password: "",
@@ -116,3 +116,5 @@ export const ServicesTab: React.FC = () => {
     </form>
   );
 };
+
+export default ServicesTab;

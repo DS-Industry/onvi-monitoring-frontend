@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ServicesTab } from './ServicesTab';
-import InfoTab from './InfoTab';
+const InfoTab = React.lazy(() => import('./InfoTab'));
+const ServicesTab = React.lazy(() => import('./ServicesTab'));
 import { useTranslation } from 'react-i18next';
 
 const ProfileForm: React.FC = () => {
