@@ -2,7 +2,6 @@ import { getDocument, getNomenclature, getWarehouses } from "@/services/api/ware
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
-import moment from "moment";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
@@ -203,7 +202,7 @@ const DocumentView: React.FC = () => {
                     columns={columnsDocumentView}
                     showDocument={true}
                     documentName={document?.document.props.name}
-                    documentTime={moment(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                    documentTime={dayjs(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
                 />
             </div>
             }

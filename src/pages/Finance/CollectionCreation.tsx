@@ -12,7 +12,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
-import moment from "moment";
 import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
@@ -460,7 +459,7 @@ const CollectionCreation: React.FC = () => {
                                                 />
                                             );
                                         } else {
-                                            return moment(row[column.key]).format('DD.MM.YYYY HH:mm:ss') || "-";
+                                            return dayjs(row[column.key]).format('DD.MM.YYYY HH:mm:ss') || "-";
                                         }
                                     }
                                     return row[column.key] || "-";

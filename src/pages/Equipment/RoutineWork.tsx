@@ -26,7 +26,6 @@ import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined } from '@an
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
-import moment from "moment";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
 
@@ -507,7 +506,7 @@ const RoutineWork: React.FC = () => {
                                                         type="secondary"
                                                         style={{ display: 'block' }}
                                                     >
-                                                        {t("equipment.deadline")}: {tech.endSpecifiedDate ? moment(tech.endSpecifiedDate).format('DD.MM.YYYY') : "-"}
+                                                        {t("equipment.deadline")}: {tech.endSpecifiedDate ? dayjs(tech.endSpecifiedDate).format('DD.MM.YYYY') : "-"}
                                                     </Text>
                                                     {tech.tags.length > 0 ? (
                                                         <div className="flex flex-wrap gap-2 items-center">

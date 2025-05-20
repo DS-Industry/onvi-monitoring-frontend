@@ -12,8 +12,8 @@ import { TFunction } from "i18next";
 import Icon from 'feather-icons-react';
 import { Card, List, Descriptions, Upload, message } from "antd";
 import type { DescriptionsProps } from 'antd';
-import moment from "moment";
 import { PlusOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 interface TechTaskItem {
     id: number;
@@ -114,7 +114,7 @@ const ProgressReportItem: React.FC = () => {
         {
             key: '3',
             label: 'End Work Date',
-            children: moment(location.state.endDate).format("DD.MM.YYYY"),
+            children: dayjs(location.state.endDate).format("DD.MM.YYYY"),
         },
         // {
         //   key: '4',

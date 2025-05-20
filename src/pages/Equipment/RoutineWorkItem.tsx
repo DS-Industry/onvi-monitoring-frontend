@@ -1,7 +1,6 @@
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity } from "@/hooks/useAuthStore";
 import { createTechTaskShape, getPoses, getTechTaskShapeItem } from "@/services/api/equipment";
-import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,6 +14,7 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
 import { TFunction } from "i18next";
+import dayjs from "dayjs";
 
 interface TechTaskItem {
     id: number;
@@ -269,7 +269,7 @@ const RoutineWorkItem: React.FC = () => {
                     <div>
                         <div className="text-sm text-text02">{t("equipment.deadline")}</div>
                         <div className="w-32 border border-[#1476E9]/25 rounded-md px-2 py-2 flex items-center justify-between">
-                            <span>{moment(techTaskData?.endSpecifiedDate).format("DD.MM.YYYY") || ""}</span>
+                            <span>{dayjs(techTaskData?.endSpecifiedDate).format("DD.MM.YYYY") || ""}</span>
                             <CalendarOutlined style={{ color: '#000', fontSize: '16px' }} />
                         </div>
                     </div>

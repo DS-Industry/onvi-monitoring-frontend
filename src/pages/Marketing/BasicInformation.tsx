@@ -8,7 +8,7 @@ import { getClientById } from "@/services/api/marketing";
 import { Skeleton } from "antd";
 import { Form, Typography, Tag, Row, Col, Divider, Space } from "antd";
 import { CloseOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -142,7 +142,7 @@ const BasicInformation: React.FC = () => {
 
                             <Form.Item label={t("register.date")}>
                                 <div className="border border-borderFill rounded-md px-3 py-1 w-36">
-                                    {clientData?.birthday ? moment(clientData.birthday).format("DD.MM.YYYY") : "-"}
+                                    {clientData?.birthday ? dayjs(clientData.birthday).format("DD.MM.YYYY") : "-"}
                                 </div>
                             </Form.Item>
 
