@@ -10,18 +10,18 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'dist', // Ensure this matches your deployment settings
-    target: 'es2015',
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            // Split vendor packages
-            return id.toString().split('node_modules/')[1].split('/')[0].toString();
-          }
-        },
-      },
-    },
+    // target: 'es2015',
+    // minify: 'terser',
+    // rollupOptions: {
+    //   output: {
+    //     manualChunks(id) {
+    //       if (id.includes('node_modules')) {
+    //         // Split vendor packages
+    //         return id.toString().split('node_modules/')[1].split('/')[0].toString();
+    //       }
+    //     },
+    //   },
+    // },
   },
   plugins: [
     react(),
