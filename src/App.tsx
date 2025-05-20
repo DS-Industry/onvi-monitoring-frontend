@@ -1,5 +1,5 @@
 
-import React, { Suspense, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import routes from "@/routes";
 import { Can } from "@/permissions/Can";
@@ -12,9 +12,8 @@ import { useFirebaseMessaging } from "./hooks/useFirebaseMessaging";
 import { requestFirebaseNotificationPermission } from "./utils/requestPermission";
 const PublicLayout = React.lazy(() => import("./layout/PublicLayout"));
 const PublicRoute = React.lazy(() => import("@/routes/PublicRoute"));
-import DashboardLayout from "@/layout/DashboardLayout";
 import PrivateRoute from "@/routes/PrivateRoute";
-import TableSkeleton from "./components/ui/Table/TableSkeleton";
+const DashboardLayout = React.lazy(() => import("@/layout/DashboardLayout"));
 
 type ErrorFallbackProps = {
   error: Error;
@@ -43,10 +42,6 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary fallback={ErrorFallback}>
       <BrowserRouter>
-        <Suspense fallback={
-          <div className="mt-5">
-            <TableSkeleton columnCount={5} />
-          </div>}>
           <Routes>
             {/* Public Routes */}
             <Route element={<PublicRoute element={<PublicLayout />} />}>
@@ -172,7 +167,6 @@ const App: React.FC = () => {
               }
             />
           </Routes>
-        </Suspense>
       </BrowserRouter>
     </ErrorBoundary>
   );
