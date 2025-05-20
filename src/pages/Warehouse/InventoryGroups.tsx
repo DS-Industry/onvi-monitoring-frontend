@@ -159,7 +159,7 @@ const InventoryGroups: React.FC = () => {
                     title={t("warehouse.nomenclature")}
                     description={""}
                 >
-                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" />
+                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Inventory" />
                 </NoDataUI>
             }
             <DrawerCreate classname="w-[440px]" onClose={resetForm}>

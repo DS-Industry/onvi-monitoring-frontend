@@ -480,7 +480,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                                     setPaymentsData(sortedData);
                                 }}
                             >
-                                <img src={ArrowUp} loading="lazy" />
+                                <img src={ArrowUp} loading="lazy" alt="Arrow Up" />
                             </button>
                             <button
                                 className="px-2 py-1 bg-background07/50 rounded"
@@ -489,7 +489,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                                     setPaymentsData(sortedData);
                                 }}
                             >
-                                <img src={ArrowDown} loading="lazy" />
+                                <img src={ArrowDown} loading="lazy" alt="Arrow Down" />
                             </button>
                         </div>
                     </div>
@@ -519,7 +519,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                             title={t("marketing.nodata")}
                             description={""}
                         >
-                            <img src={PositionEmpty} className="mx-auto" loading="lazy" />
+                            <img src={PositionEmpty} className="mx-auto" loading="lazy" alt="Position Empty" />
                         </NoDataUI>
                         <Button
                             title={t("finance.addE")}

@@ -600,7 +600,7 @@ const RoutineWork: React.FC = () => {
                         </div>
                     ) : (
                         <NoDataUI title={t('routine.display')} description={''}>
-                            <img src={SalyImage} className="mx-auto" loading="lazy" />
+                            <img src={SalyImage} className="mx-auto" loading="lazy" alt="ROUTINE" />
                         </NoDataUI>
                     )}
                 </TabPane>
@@ -626,7 +626,7 @@ const RoutineWork: React.FC = () => {
                                 title={t("routine.display")}
                                 description={""}
                             >
-                                <img src={SalyImage} className="mx-auto" loading="lazy" />
+                                <img src={SalyImage} className="mx-auto" loading="lazy" alt="ROUTINE" />
                             </NoDataUI>
                     }
                 </TabPane>

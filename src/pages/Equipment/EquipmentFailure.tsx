@@ -300,7 +300,7 @@ const EquipmentFailure: React.FC = () => {
                         title={t("equipment.nodata")}
                         description={t("equipment.noBreakdown")}
                     >
-                        <img src={SalyImage} className="mx-auto" loading="lazy" />
+                        <img src={SalyImage} className="mx-auto" loading="lazy" alt="FAILURE" />
                     </NoDataUI>
             }
             <DrawerCreate onClose={resetForm}>

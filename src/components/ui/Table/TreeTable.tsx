@@ -65,7 +65,7 @@ const TreeTable: React.FC<Props> = ({
                         {(allowed) => allowed && isUpdate && (
                             <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 px-2 text-start">
                                 <button onClick={() => onUpdate && onUpdate(row.id)}>
-                                    <img src={UpdateIcon} loading="lazy" />
+                                    <img src={UpdateIcon} loading="lazy" alt="UPDATE" />
                                 </button>
                             </td>
                         )}

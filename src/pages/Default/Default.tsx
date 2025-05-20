@@ -10,7 +10,7 @@ const Default = () => {
         title={t("default.default")}
         description={t("default.come")}
       >
-        <img src={SalyIamge} className="mx-auto" loading="lazy" />
+        <img src={SalyIamge} className="mx-auto" loading="lazy" alt="DEFAULT" />
       </NoDataUI>
     </div>
   )

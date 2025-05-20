@@ -102,14 +102,14 @@ const InviteUser: React.FC = () => {
                         title={t("organizations.user")}
                         description={""}
                     >
-                        <img src={NoToken} className="mx-auto" loading="lazy" />
+                        <img src={NoToken} className="mx-auto" loading="lazy" alt="Token" />
                     </NoDataUI>
                 </div>
             ) : (<div className="flex min-h-screen items-center justify-center bg-background02 p-4">
                 <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
                     <div className="lg:w-5/12 p-8 lg:ml-40">
                         <div className='flex mb-5'>
-                            <img src={OnviBlue} className='h-7 w-14' loading="lazy" />
+                            <img src={OnviBlue} className='h-7 w-14' loading="lazy" alt="Onvi" />
                             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
                         </div>
                         <p className="text-3xl font-extrabold leading-[1.25] text-text01 mt-20 mb-1">{t("forgot.set")}</p>

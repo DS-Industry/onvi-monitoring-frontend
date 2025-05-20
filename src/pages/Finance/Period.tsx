@@ -58,7 +58,7 @@ const Period: React.FC = () => {
                     title={t("finance.colle")}
                     description={t("finance.atMom")}
                 >
-                    <img src={NoCollection} className="mx-auto" loading="lazy" />
+                    <img src={NoCollection} className="mx-auto" loading="lazy" alt="Period" />
                 </NoDataUI>
             </div>
         </div>

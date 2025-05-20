@@ -285,7 +285,7 @@ const SideNavbar: React.FC<Props> = ({ children }: Props) => {
         <div className="h-full flex flex-col justify-between relative">
           <div>
             <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-              {isOpen ? <img src={OnviLogo} alt="" loading="lazy" /> : <img src={OnviSmallLogo} alt="" loading="lazy" />}
+              {isOpen ? <img src={OnviLogo} alt="ONVI" loading="lazy" /> : <img src={OnviSmallLogo} alt="ONVI" loading="lazy" />}
               {isMobile && (
                 <button
                   onClick={toggleNavbar}

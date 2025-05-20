@@ -146,7 +146,7 @@ const Timesheet: React.FC = () => {
                             title={t("finance.data")}
                             description={t("finance.atThe")}
                         >
-                            <img src={NoTimeSheet} className="mx-auto" loading="lazy" />
+                            <img src={NoTimeSheet} className="mx-auto" loading="lazy" alt="No Timesheet" />
                         </NoDataUI>
                     </div>
                 )}
