@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Checkbox, Menu, Dropdown, ColorPicker } from "antd";
+import { Checkbox, Menu, Dropdown, ColorPicker, Button, MenuProps } from "antd";
 import OnviSmall from "@/assets/onvi_small.png";
 import { Input as SearchInp } from "antd";
 import { ArrowLeftOutlined, CheckOutlined, PlusOutlined, TagFilled } from "@ant-design/icons";
@@ -26,15 +26,18 @@ import {
     PictureOutlined,
     DownOutlined,
 } from "@ant-design/icons";
+import PosEmpty from "@/assets/EmptyPos.png";
 
 const { Sider, Content } = Layout;
-const { Text } = Typography;
+const { Text, Title, Paragraph } = Typography;
 
 const { Search } = SearchInp;
 
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
+
     const notifications = [
         {
             sender: "Onvi_бизнес",
@@ -79,6 +82,50 @@ const Notifications: React.FC = () => {
             </Menu.Item>
         </Menu>
     );
+
+    const menuItems: MenuProps["items"] = [
+        {
+            key: "markAsRead",
+            label: t("notifications.mark"),
+        },
+        {
+            key: "add",
+            label: t("notifications.addA"),
+            children: [
+                {
+                    key: "add_email",
+                    label: "Финансы",
+                },
+                {
+                    key: "add_sms",
+                    label: "Важное",
+                },
+                {
+                    key: "actions",
+                    label: (
+                        <div className="flex space-x-2">
+                            <Button
+                                type="default"
+                                onClick={() => setSelectedNotification(null)}
+                            >
+                                {t("organizations.cancel")}
+                            </Button>
+                            <Button
+                                type="primary"
+                                onClick={() => setSelectedNotification(null)}
+                            >
+                                {t("marketing.apply")}
+                            </Button>
+                        </div>
+                    )
+                }
+            ],
+        },
+        {
+            key: "delete",
+            label: t("notifications.move"),
+        }
+    ];
 
     return (
         <div className="mt-2">
@@ -153,7 +200,7 @@ const Notifications: React.FC = () => {
                 <Sider
                     width={220}
                     className="border-r border-borderFill bg-white"
-                    breakpoint="sm" // 👈 hides sidebar at md (768px)
+                    breakpoint="sm"
                     collapsedWidth="0"
                 >
                     <div className="p-4 border-b border-borderFill">
@@ -161,19 +208,19 @@ const Notifications: React.FC = () => {
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
                             <Menu.Item className="!p-0">
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <MailOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <MailOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("analysis.all")}</span>
                                 </div>
                             </Menu.Item>
                             <Menu.Item className="!p-0">
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <StarOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <StarOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.fav")}</span>
                                 </div>
                             </Menu.Item>
                             <Menu.Item className="!p-0">
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <DeleteOutlined style={{ fontSize: "24px"}} className="text-text02 group-hover:text-text01" />
+                                    <DeleteOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.basket")}</span>
                                 </div>
                             </Menu.Item>
@@ -184,13 +231,13 @@ const Notifications: React.FC = () => {
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
                             <Menu.Item className="!p-0">
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <TagFilled style={{ fontSize: "24px"}} className="text-[#FF0808]" />
+                                    <TagFilled style={{ fontSize: "24px" }} className="text-[#FF0808]" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">Финансы</span>
                                 </div>
                             </Menu.Item>
                             <Menu.Item className="!p-0">
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <TagFilled style={{ fontSize: "24px"}} className="text-primary02" />
+                                    <TagFilled style={{ fontSize: "24px" }} className="text-primary02" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">Важное</span>
                                 </div>
                             </Menu.Item>
@@ -198,10 +245,8 @@ const Notifications: React.FC = () => {
                     </div>
                 </Sider>
 
-                {/* Main Content */}
                 <Layout className="bg-white px-4 sm:px-6 py-4">
                     <Content className="w-full max-w-full sm:max-w-[740px]">
-                        {/* Top Controls */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <Checkbox />
@@ -226,16 +271,67 @@ const Notifications: React.FC = () => {
                             />
                         </div>
 
-                        {/* Notifications */}
-                        {notifications.length > 0 ? (
+                        {selectedNotification ? (
+                            <div className="space-y-4">
+                                <Card
+                                    variant={"borderless"}
+                                    className="shadow"
+                                    styles={{ body: { padding: 24 } }}
+                                >
+                                    <div className="flex justify-between">
+                                        <Button
+                                            type="link"
+                                            icon={<ArrowLeftOutlined />}
+                                            onClick={() => setSelectedNotification(null)}
+                                            style={{ paddingLeft: 0 }}
+                                        >
+                                            {t("login.back")}
+                                        </Button>
+                                        <div className="flex space-x-2 text-text01">
+                                            <StarOutlined className="text-lg" />
+                                            <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+                                                <MoreOutlined className="text-lg cursor-pointer" />
+                                            </Dropdown>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between mt-4">
+                                        <div className="flex space-x-2">
+                                            <Avatar src={selectedNotification.avatar || OnviSmall} size="large" />
+                                            <Text className="text-sm text-text01">
+                                                {selectedNotification.sender || "Onvi_бизнес"}
+                                            </Text>
+                                        </div>
+                                        <Text type="secondary">{selectedNotification.date}</Text>
+                                    </div>
+                                    <div className="mt-10 px-20">
+                                        <Title level={4} className="mt-2">
+                                            {selectedNotification.title}
+                                        </Title>
+
+                                        <Paragraph className="whitespace-pre-line mt-2">
+                                            {`Добро пожаловать!\n\nПриветствуем вас!\nНаша система поможет вам оптимизировать и контролировать все аспекты вашего бизнеса, начиная с учёта заказов и заканчивая взаимодействием с партнёрами и клиентами.\n\nФункциональные возможности CRM позволяют настраивать различные параметры в зависимости от ваших потребностей, такие как воронка продаж, учёт эффективности сотрудников и интеграция с различными приложениями.\n\nВыбирайте подходящий тариф и начните использовать наш сервис уже сегодня.\nМы уверены, что он значительно повысит вашу продуктивность и прибыль.`}
+                                        </Paragraph>
+                                        <div className="mt-6 text-center">
+                                            <img src={PosEmpty} alt="Welcome" className="w-48 inline-block" />
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        ) : notifications.length > 0 ? (
                             <List
                                 itemLayout="vertical"
                                 dataSource={notifications}
                                 renderItem={(item) => (
                                     <Card
+                                        onClick={() => setSelectedNotification(item)}
+                                        hoverable
                                         style={{ background: "#EEEFF1", marginBottom: "1rem" }}
                                         className="relative"
-                                        bodyStyle={{ padding: 20 }}
+                                        styles={{
+                                            body: {
+                                                padding: 20
+                                            }
+                                        }}
                                     >
                                         <div className="flex items-start justify-between space-x-4">
                                             <div className="flex items-start space-x-3">
@@ -274,7 +370,9 @@ const Notifications: React.FC = () => {
                                         </div>
                                         <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
                                             <StarOutlined className="text-lg" />
-                                            <MoreOutlined className="text-lg" />
+                                            <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+                                                <MoreOutlined className="text-lg cursor-pointer" />
+                                            </Dropdown>
                                         </div>
                                     </Card>
                                 )}

@@ -888,7 +888,10 @@
     "enter": "Enter the name of the shortcut",
     "label": "Label color",
     "add": "Add color",
-    "labelCol": "Label Color Preview"
+    "labelCol": "Label Color Preview",
+    "mark": "Mark as favorite",
+    "addA": "Add a shortcut",
+    "move": "Move to the box"
   },
   "subscriptions": {
     "you": "You can switch to one of the new tariffs by selecting the desired configuration.",
