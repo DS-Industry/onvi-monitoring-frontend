@@ -27,7 +27,7 @@ import {
 } from "@ant-design/icons";
 import PosEmpty from "@/assets/EmptyPos.png";
 import useSWR, { mutate } from "swr";
-import { createTag, getNotifications, getTags } from "@/services/api/notifications";
+import { createTag, deleteTag, getNotifications, getTags, updateTag } from "@/services/api/notifications";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import dayjs from "dayjs";
 import 'dayjs/locale/ru';
@@ -45,6 +45,8 @@ const { Search } = SearchInp;
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [tagId, setTagId] = useState<number>(0);
     const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
 
     const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`], () => getNotifications({}), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -152,6 +154,12 @@ const Notifications: React.FC = () => {
         color: formValues.color,
     }));
 
+    const { trigger: updateT, isMutating: updatingTag } = useSWRMutation(['update-tag'], async () => updateTag({
+        tagId: tagId,
+        name: formValues.name,
+        color: formValues.color,
+    }));
+
     type FieldType = "name" | "color";
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -159,20 +167,65 @@ const Notifications: React.FC = () => {
         setValue(field, value);
     };
 
+    const handleDelete = async () => {
+        try {
+            const result = await mutate(
+                [`delete-tag`, tagId],
+                () => deleteTag(tagId),
+                false
+            );
+
+            if (result) {
+                mutate([`get-tags`]);
+                resetForm();
+            }
+        } catch (error) {
+            console.error("Error deleting tag:", error);
+        }
+    };
+
     const resetForm = () => {
         setFormValues(defaultValues);
+        setIsEditMode(false);
         reset();
+        setTagId(0);
+        setIsModalOpen(false);
+    };
+
+    const handleUpdate = async (id: number) => {
+        setTagId(id);
+        setIsEditMode(true);
+
+        const tagToEdit = tags?.find((tag) => tag.props.id === id);
+
+        if (tagToEdit) {
+            setFormValues({
+                name: tagToEdit.props.name,
+                color: tagToEdit.props.color,
+            });
+        }
+
+        setIsModalOpen(true);
     };
 
     const onSubmit = async () => {
         try {
-            const result = await createT();
-            if (result) {
-                mutate([`get-tags`]);
-                resetForm();
-                setIsModalOpen(false);
+            if (tagId) {
+                const result = await updateT();
+                if (result) {
+                    mutate([`get-tags`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid update data.');
+                }
             } else {
-                throw new Error('Invalid response from API');
+                const result = await createT();
+                if (result) {
+                    mutate([`get-tags`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid org data. Please try again.');
+                }
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
@@ -185,7 +238,7 @@ const Notifications: React.FC = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-row items-center justify-between mb-4">
                         <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
-                        <Close onClick={() => setIsModalOpen(false)} className="cursor-pointer text-text01" />
+                        <Close onClick={() => resetForm()} className="cursor-pointer text-text01" />
                     </div>
                     {!isCustomColorMode && (
                         <div>
@@ -193,7 +246,7 @@ const Notifications: React.FC = () => {
                             <Input
                                 label={t("notifications.new")}
                                 classname="w-80"
-                                {...register('name', { required: 'Name is required' })}
+                                {...register('name', { required: !isEditMode && 'Name is required' })}
                                 value={formValues.name}
                                 changeValue={(e) => handleInputChange('name', e.target.value)}
                                 error={!!errors.name}
@@ -264,10 +317,15 @@ const Notifications: React.FC = () => {
                                 }}
                                 title={t("organizations.cancel")}
                             />
+                            {isEditMode && (<Button
+                                title={t("marketing.delete")}
+                                handleClick={handleDelete}
+                                classname="bg-red-600 hover:bg-red-300"
+                            />)}
                             <Button
                                 form={true}
                                 title="Создать"
-                                isLoading={isMutating}
+                                isLoading={isEditMode ? updatingTag : isMutating}
                             />
                         </div>
                     </div>
@@ -325,7 +383,7 @@ const Notifications: React.FC = () => {
                                 </Menu.Item>
                             ) :
                                 tags?.map((tag) => (
-                                    <Menu.Item key={tag.props.name} className="!p-0">
+                                    <Menu.Item key={tag.props.name} className="!p-0" onClick={() => handleUpdate(tag.props.id)}>
                                         <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
                                             <div style={{ color: tag.props.color, fill: tag.props.color, marginTop: "5px" }}>
                                                 <TagFilled style={{ fontSize: "24px" }} />

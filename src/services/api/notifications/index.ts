@@ -71,10 +71,6 @@ type ReadNotifsResponse = {
     status: string;
 }
 
-type DeleteTagParam = {
-    id: number;
-}
-
 export async function createTag(body: TagRequest): Promise<TagResponse> {
     const response: AxiosResponse<TagResponse> = await api.post(NOTIFICATION.GET_NOTIFS + '/tag', body);
     return response.data;
@@ -85,8 +81,8 @@ export async function updateTag(body: UpdateTagRequest): Promise<TagResponse> {
     return response.data;
 }
 
-export async function deleteTag(params: DeleteTagParam, id: number): Promise<ReadNotifsResponse> {
-    const response: AxiosResponse<ReadNotifsResponse> = await api.delete(NOTIFICATION.GET_NOTIFS + '/tag' + `/${id}`, { params });
+export async function deleteTag(id: number): Promise<ReadNotifsResponse> {
+    const response: AxiosResponse<ReadNotifsResponse> = await api.delete(NOTIFICATION.GET_NOTIFS + '/tag' + `/${id}`);
     return response.data;
 }
 
