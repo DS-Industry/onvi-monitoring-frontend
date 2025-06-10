@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Checkbox, Menu, Dropdown, ColorPicker, Button, MenuProps } from "antd";
+import { Checkbox, Menu, Dropdown, ColorPicker, MenuProps, Button as AntdButton } from "antd";
 import OnviSmall from "@/assets/onvi_small.png";
 import { Input as SearchInp } from "antd";
 import { ArrowLeftOutlined, CheckOutlined, PlusOutlined, TagFilled } from "@ant-design/icons";
@@ -23,10 +23,19 @@ import {
     StarOutlined,
     DeleteOutlined,
     MoreOutlined,
-    PictureOutlined,
     DownOutlined,
 } from "@ant-design/icons";
 import PosEmpty from "@/assets/EmptyPos.png";
+import useSWR, { mutate } from "swr";
+import { createTag, getNotifications, getTags } from "@/services/api/notifications";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import dayjs from "dayjs";
+import 'dayjs/locale/ru';
+import useFormHook from "@/hooks/useFormHook";
+import useSWRMutation from "swr/mutation";
+import Button from "@/components/ui/Button/Button";
+
+dayjs.locale('ru');
 
 const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
@@ -37,6 +46,10 @@ const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
+
+    const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`], () => getNotifications({}), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: tags, isLoading: loadingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const notifications = [
         {
@@ -59,8 +72,6 @@ const Notifications: React.FC = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const predefinedColors = ["#EF4444", "#F97316", "#22C55E", "#3B82F6", "#8B5CF6", "#6B7280"];
-    const [selectedColor, setSelectedColor] = useState<string>(predefinedColors[0]);
-    const [labelName, setLabelName] = useState("");
     const [isCustomColorMode, setIsCustomColorMode] = useState(false);
 
     const menu = (
@@ -104,18 +115,18 @@ const Notifications: React.FC = () => {
                     key: "actions",
                     label: (
                         <div className="flex space-x-2">
-                            <Button
+                            <AntdButton
                                 type="default"
                                 onClick={() => setSelectedNotification(null)}
                             >
                                 {t("organizations.cancel")}
-                            </Button>
-                            <Button
+                            </AntdButton>
+                            <AntdButton
                                 type="primary"
                                 onClick={() => setSelectedNotification(null)}
                             >
                                 {t("marketing.apply")}
-                            </Button>
+                            </AntdButton>
                         </div>
                     )
                 }
@@ -127,72 +138,140 @@ const Notifications: React.FC = () => {
         }
     ];
 
+    const defaultValues = {
+        name: '',
+        color: predefinedColors[0],
+    };
+
+    const [formValues, setFormValues] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook(formValues);
+
+    const { trigger: createT, isMutating } = useSWRMutation(['create-tag'], async () => createTag({
+        name: formValues.name,
+        color: formValues.color,
+    }));
+
+    type FieldType = "name" | "color";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        setFormValues((prev) => ({ ...prev, [field]: value }));
+        setValue(field, value);
+    };
+
+    const resetForm = () => {
+        setFormValues(defaultValues);
+        reset();
+    };
+
+    const onSubmit = async () => {
+        try {
+            const result = await createT();
+            if (result) {
+                mutate([`get-tags`]);
+                resetForm();
+                setIsModalOpen(false);
+            } else {
+                throw new Error('Invalid response from API');
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
+    };
+
     return (
         <div className="mt-2">
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={() => { }}>
-                <div className="flex flex-row items-center justify-between mb-4">
-                    <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
-                    <Close onClick={() => setIsModalOpen(false)} className="cursor-pointer text-text01" />
-                </div>
-                {!isCustomColorMode && (
-                    <div>
-                        <div className="text-text01">{t("notifications.enter")}</div>
-                        <Input
-                            label={t("notifications.new")}
-                            value={labelName}
-                            changeValue={(e) => setLabelName(e.target.value)}
-                            classname="w-80"
-                        />
+            <Modal isOpen={isModalOpen}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="flex flex-row items-center justify-between mb-4">
+                        <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
+                        <Close onClick={() => setIsModalOpen(false)} className="cursor-pointer text-text01" />
                     </div>
-                )}
+                    {!isCustomColorMode && (
+                        <div>
+                            <div className="text-text01">{t("notifications.enter")}</div>
+                            <Input
+                                label={t("notifications.new")}
+                                classname="w-80"
+                                {...register('name', { required: 'Name is required' })}
+                                value={formValues.name}
+                                changeValue={(e) => handleInputChange('name', e.target.value)}
+                                error={!!errors.name}
+                                helperText={errors.name?.message}
+                            />
+                        </div>
+                    )}
 
-                {/* Ant Design Color Picker */}
-                {!isCustomColorMode ? (
-                    <div className="flex flex-col space-y-2">
-                        <span>Цвет ярлыка:</span>
-                        <div className="flex items-center space-x-2">
-                            {predefinedColors.map((color) => (
+                    {/* Ant Design Color Picker */}
+                    {!isCustomColorMode ? (
+                        <div className="flex flex-col space-y-2">
+                            <span>Цвет ярлыка:</span>
+                            <div className="flex items-center space-x-2">
+                                {predefinedColors.map((color) => (
+                                    <div
+                                        key={color}
+                                        className="w-14 h-8 rounded cursor-pointer flex items-center justify-center border"
+                                        style={{
+                                            backgroundColor: color,
+                                            borderColor: formValues.color === color ? "#000" : "transparent",
+                                        }}
+                                        onClick={() => {
+                                            setFormValues((prev) => ({ ...prev, color }));
+                                            setValue('color', color);
+                                        }}
+                                    >
+                                        {formValues.color === color && <CheckOutlined className="text-white" />}
+                                    </div>
+                                ))}
+
+                                {/* Navigate to Custom Color Picker */}
                                 <div
-                                    key={color}
-                                    className="w-14 h-8 rounded cursor-pointer flex items-center justify-center border"
-                                    style={{
-                                        backgroundColor: color,
-                                        borderColor: selectedColor === color ? "#000" : "transparent",
-                                    }}
-                                    onClick={() => setSelectedColor(color)}
+                                    className="w-14 h-8 rounded border border-gray-300 flex items-center justify-center cursor-pointer"
+                                    onClick={() => setIsCustomColorMode(true)}
                                 >
-                                    {selectedColor === color && <CheckOutlined className="text-white" />}
+                                    <PlusOutlined />
                                 </div>
-                            ))}
-
-                            {/* Navigate to Custom Color Picker */}
-                            <div
-                                className="w-14 h-8 rounded border border-gray-300 flex items-center justify-center cursor-pointer"
-                                onClick={() => setIsCustomColorMode(true)}
-                            >
-                                <PlusOutlined />
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    // Custom Color Palette Screen
-                    <div>
-                        <div className="flex items-center space-x-2 mb-2">
-                            <ArrowLeftOutlined className="cursor-pointer" onClick={() => setIsCustomColorMode(false)} />
-                            <span className="text-text01">Выберите цвет</span>
+                    ) : (
+                        // Custom Color Palette Screen
+                        <div>
+                            <div className="flex items-center space-x-2 mb-2">
+                                <ArrowLeftOutlined className="cursor-pointer" onClick={() => setIsCustomColorMode(false)} />
+                                <span className="text-text01">Выберите цвет</span>
+                            </div>
+                            <div className="flex space-x-2">
+                                <TagFilled style={{ color: formValues.color }} />
+                                <div className="text-text01">{t("notifications.labelCol")}</div>
+                            </div>
+                            <ColorPicker
+                                value={formValues.color}
+                                onChange={(color) => {
+                                    setFormValues((prev) => ({ ...prev, color: color.toHex() }));
+                                    setValue('color', color.toHex());
+                                }}
+                                showText
+                            />
                         </div>
+                    )}
+                    <div className="mt-4">
                         <div className="flex space-x-2">
-                            <TagFilled style={{ color: selectedColor }} />
-                            <div className="text-text01">{t("notifications.labelCol")}</div>
+                            <Button
+                                type="outline"
+                                handleClick={() => {
+                                    resetForm();
+                                    setIsModalOpen(false);
+                                }}
+                                title={t("organizations.cancel")}
+                            />
+                            <Button
+                                form={true}
+                                title="Создать"
+                                isLoading={isMutating}
+                            />
                         </div>
-                        <ColorPicker
-                            value={selectedColor}
-                            onChange={(color) => setSelectedColor(color.toHexString())}
-                            showText
-                        />
                     </div>
-                )}
-
+                </form>
             </Modal>
             <hr />
             <Layout className="min-h-screen">
@@ -227,20 +306,34 @@ const Notifications: React.FC = () => {
                         </Menu>
                     </div>
                     <div className="p-4">
-                        <Text type="secondary">TITLE</Text>
+                        <div className="flex justify-between items-center">
+                            <Text type="secondary">TITLE</Text>
+                            <AntdButton
+                                size="small"
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex items-center space-x-2"
+                            >
+                                <PlusOutlined />
+                            </AntdButton>
+                        </div>
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
-                            <Menu.Item className="!p-0">
-                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <TagFilled style={{ fontSize: "24px" }} className="text-[#FF0808]" />
-                                    <span className="font-semibold text-text02 group-hover:text-text01">Финансы</span>
-                                </div>
-                            </Menu.Item>
-                            <Menu.Item className="!p-0">
-                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <TagFilled style={{ fontSize: "24px" }} className="text-primary02" />
-                                    <span className="font-semibold text-text02 group-hover:text-text01">Важное</span>
-                                </div>
-                            </Menu.Item>
+                            {loadingTags ? (
+                                <Menu.Item className="!p-0">
+                                    <div className="flex items-center px-2">
+                                        <span>Загрузка...</span>
+                                    </div>
+                                </Menu.Item>
+                            ) :
+                                tags?.map((tag) => (
+                                    <Menu.Item key={tag.props.name} className="!p-0">
+                                        <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
+                                            <div style={{ color: tag.props.color, fill: tag.props.color, marginTop: "5px" }}>
+                                                <TagFilled style={{ fontSize: "24px" }} />
+                                            </div>
+                                            <span className="font-semibold text-text02 group-hover:text-text01">{tag.props.name}</span>
+                                        </div>
+                                    </Menu.Item>
+                                ))}
                         </Menu>
                     </div>
                 </Sider>
@@ -257,7 +350,6 @@ const Notifications: React.FC = () => {
                                 </Dropdown>
                                 <MoreOutlined
                                     className="text-xl cursor-pointer text-text01 hover:text-primary02"
-                                    onClick={() => setIsModalOpen(true)}
                                 />
                             </div>
 
@@ -279,14 +371,14 @@ const Notifications: React.FC = () => {
                                     styles={{ body: { padding: 24 } }}
                                 >
                                     <div className="flex justify-between">
-                                        <Button
+                                        <AntdButton
                                             type="link"
                                             icon={<ArrowLeftOutlined />}
                                             onClick={() => setSelectedNotification(null)}
                                             style={{ paddingLeft: 0 }}
                                         >
                                             {t("login.back")}
-                                        </Button>
+                                        </AntdButton>
                                         <div className="flex space-x-2 text-text01">
                                             <StarOutlined className="text-lg" />
                                             <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
@@ -317,74 +409,79 @@ const Notifications: React.FC = () => {
                                     </div>
                                 </Card>
                             </div>
-                        ) : notifications.length > 0 ? (
-                            <List
-                                itemLayout="vertical"
-                                dataSource={notifications}
-                                renderItem={(item) => (
-                                    <Card
-                                        onClick={() => setSelectedNotification(item)}
-                                        hoverable
-                                        style={{ background: "#EEEFF1", marginBottom: "1rem" }}
-                                        className="relative"
-                                        styles={{
-                                            body: {
-                                                padding: 20
-                                            }
-                                        }}
-                                    >
-                                        <div className="flex items-start justify-between space-x-4">
-                                            <div className="flex items-start space-x-3">
-                                                <Checkbox />
-                                                <Avatar src={item.avatar || OnviSmall} size="large" />
-                                                <div className="space-y-1">
-                                                    <Text type="secondary" className="text-sm">
-                                                        {item.sender || "Onvi_бизнес"}
-                                                    </Text>
-                                                    <Text strong className="block">
-                                                        {item.title || "Модерация"}
-                                                    </Text>
-                                                    <div>{item.message || "Команда Onvi_бизнес приветствует вас!"}</div>
-                                                    {item.imageCount > 0 && (
-                                                        <Tag
-                                                            icon={<PictureOutlined />}
-                                                            className="bg-text04 text-text01 border-borderFill"
-                                                            style={{
-                                                                display: "inline-flex",
-                                                                alignItems: "center",
-                                                                gap: 4,
-                                                                height: 24,
-                                                                padding: "0 8px",
-                                                                borderRadius: 999,
-                                                                fontSize: 12,
-                                                            }}
-                                                        >
-                                                            +{item.imageCount}
-                                                        </Tag>
-                                                    )}
+                        ) :
+                            notificationsLoading ? (
+                                <TableSkeleton columnCount={5} />
+                            ) :
+                                notifications.length > 0 ? (
+                                    <List
+                                        itemLayout="vertical"
+                                        dataSource={notificationsData}
+                                        renderItem={(item) => (
+                                            <Card
+                                                onClick={() => setSelectedNotification(item)}
+                                                hoverable
+                                                style={{ background: "#EEEFF1", marginBottom: "1rem" }}
+                                                className="relative"
+                                                styles={{
+                                                    body: {
+                                                        padding: 20
+                                                    }
+                                                }}
+                                            >
+                                                <div className="flex items-start justify-between space-x-4">
+                                                    <div className="flex items-start space-x-3">
+                                                        <Checkbox />
+                                                        <Avatar src={OnviSmall} size="large" />
+                                                        <div className="space-y-1">
+                                                            <Text type="secondary" className="text-sm">
+                                                                {item.heading || "Onvi_бизнес"}
+                                                            </Text>
+                                                            <Text strong className="block">
+                                                                {item.heading || "Модерация"}
+                                                            </Text>
+                                                            <div className="max-w-[300px] max-h-[30px] overflow-hidden">{item.body || "Команда Onvi_бизнес приветствует вас!"}</div>
+                                                            {item.tags.length > 0 && (
+                                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                                    {item.tags.map((tag) => (
+                                                                        <Tag
+                                                                            key={tag.id}
+                                                                            color={tag.color}
+                                                                            className="text-xs"
+                                                                            style={{
+                                                                                backgroundColor: tag.color,
+                                                                                color: "#fff",
+                                                                                borderRadius: "999px",
+                                                                            }}
+                                                                        >
+                                                                            {tag.name}
+                                                                        </Tag>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-text02 text-xs max-w-[100px] truncate sm:max-w-none sm:whitespace-nowrap">
+                                                        {item.sendAt ? dayjs(item.sendAt).format('D MMMM, YYYY') : '10 Апреля, 2024'}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="text-text02 text-xs max-w-[100px] truncate sm:max-w-none sm:whitespace-nowrap">
-                                                {item.date || "10 Апреля, 2024"}
-                                            </div>
-                                        </div>
-                                        <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
-                                            <StarOutlined className="text-lg" />
-                                            <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
-                                                <MoreOutlined className="text-lg cursor-pointer" />
-                                            </Dropdown>
-                                        </div>
-                                    </Card>
+                                                <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
+                                                    <StarOutlined className="text-lg" />
+                                                    <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+                                                        <MoreOutlined className="text-lg cursor-pointer" />
+                                                    </Dropdown>
+                                                </div>
+                                            </Card>
+                                        )}
+                                    />
+                                ) : (
+                                    <div className="flex flex-col justify-center items-center mt-16">
+                                        <Empty
+                                            description={t("notifications.you")}
+                                            image={<img src={NoToken} alt="no-data" className="mx-auto" loading="lazy" />}
+                                        />
+                                    </div>
                                 )}
-                            />
-                        ) : (
-                            <div className="flex flex-col justify-center items-center mt-16">
-                                <Empty
-                                    description={t("notifications.you")}
-                                    image={<img src={NoToken} alt="no-data" className="mx-auto" loading="lazy" />}
-                                />
-                            </div>
-                        )}
                     </Content>
                 </Layout>
             </Layout>
