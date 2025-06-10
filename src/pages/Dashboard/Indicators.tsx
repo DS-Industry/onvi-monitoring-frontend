@@ -18,6 +18,7 @@ import { BarChartOutlined } from "@ant-design/icons";
 const { Text, Title } = Typography;
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
+import TableUtils from "@/utils/TableUtils";
 
 interface PosMonitoring {
   id: number;
@@ -113,8 +114,8 @@ const Indicators: React.FC = () => {
     },
     {
       title: "profit",
-      number: statisticData ? statisticData.sum : 0,
-      unit: "₽",
+      number: statisticData ? TableUtils.createCurrencyFormat(statisticData.sum) : 0,
+      unit: "",
       icon: ProfitIcon,
       isPositive: true,
       percentage: "15",
