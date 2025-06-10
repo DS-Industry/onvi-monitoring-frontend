@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Checkbox, Menu, Dropdown, ColorPicker, MenuProps, Button as AntdButton } from "antd";
 import OnviSmall from "@/assets/onvi_small.png";
 import { Input as SearchInp } from "antd";
-import { ArrowLeftOutlined, CheckOutlined, PlusOutlined, TagFilled } from "@ant-design/icons";
+import { ArrowLeftOutlined, CheckOutlined, PlusOutlined, StarFilled, TagFilled } from "@ant-design/icons";
 import NoToken from "@/assets/NoToken.png";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
@@ -27,7 +27,7 @@ import {
 } from "@ant-design/icons";
 import PosEmpty from "@/assets/EmptyPos.png";
 import useSWR, { mutate } from "swr";
-import { createTag, deleteTag, getNotifications, getTags, updateTag } from "@/services/api/notifications";
+import { createTag, deleteTag, getNotifications, getTags, updateNotifications, updateTag } from "@/services/api/notifications";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import dayjs from "dayjs";
 import 'dayjs/locale/ru';
@@ -42,16 +42,63 @@ const { Text, Title, Paragraph } = Typography;
 
 const { Search } = SearchInp;
 
+enum UserNotificationType {
+    DEFAULT = "DEFAULT",
+    FAVORITE = "FAVORITE",
+    DELETED = "DELETED",
+}
+
+enum ReadStatus {
+    READ = "READ",
+    NOT_READ = "NOT_READ",
+}
+
+
+type UpdateNotifRequest = {
+    userNotificationId: number;
+    readStatus?: ReadStatus;
+    type?: UserNotificationType;
+    tagIds?: number[];
+}
+
+type UserNotificationResponse = {
+    id: number;
+    notificationId: number;
+    heading: string;
+    body: string;
+    authorId?: number;
+    sendAt: Date;
+    openingAt?: Date;
+    type?: UserNotificationType;
+    tags: {
+        id: number;
+        name: string;
+        color: string;
+    }[];
+}
+
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
     const [isEditMode, setIsEditMode] = useState(false);
     const [tagId, setTagId] = useState<number>(0);
-    const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
+    const [notifId, setNotifId] = useState<number>(0);
+    const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+    const [selectedNotification, setSelectedNotification] = useState<UserNotificationResponse | null>(null);
 
     const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`], () => getNotifications({}), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: tags, isLoading: loadingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: tagsData, isLoading: loadingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const tags = tagsData ? tagsData : [];
+
+    const toggleTagSelection = (tagId: number) => {
+        setSelectedTagIds(prev =>
+            prev.includes(tagId)
+                ? prev.filter(id => id !== tagId)
+                : [...prev, tagId]
+        );
+    };
 
     const notifications = [
         {
@@ -96,50 +143,6 @@ const Notifications: React.FC = () => {
         </Menu>
     );
 
-    const menuItems: MenuProps["items"] = [
-        {
-            key: "markAsRead",
-            label: t("notifications.mark"),
-        },
-        {
-            key: "add",
-            label: t("notifications.addA"),
-            children: [
-                {
-                    key: "add_email",
-                    label: "Финансы",
-                },
-                {
-                    key: "add_sms",
-                    label: "Важное",
-                },
-                {
-                    key: "actions",
-                    label: (
-                        <div className="flex space-x-2">
-                            <AntdButton
-                                type="default"
-                                onClick={() => setSelectedNotification(null)}
-                            >
-                                {t("organizations.cancel")}
-                            </AntdButton>
-                            <AntdButton
-                                type="primary"
-                                onClick={() => setSelectedNotification(null)}
-                            >
-                                {t("marketing.apply")}
-                            </AntdButton>
-                        </div>
-                    )
-                }
-            ],
-        },
-        {
-            key: "delete",
-            label: t("notifications.move"),
-        }
-    ];
-
     const defaultValues = {
         name: '',
         color: predefinedColors[0],
@@ -160,6 +163,11 @@ const Notifications: React.FC = () => {
         color: formValues.color,
     }));
 
+    const { trigger: updateNot } = useSWRMutation(
+        notifId !== 0 ? ['update-not'] : null,
+        async (_key, { arg }: { arg: UpdateNotifRequest }) => updateNotifications(arg)
+    );
+
     type FieldType = "name" | "color";
 
     const handleInputChange = (field: FieldType, value: string) => {
@@ -177,6 +185,7 @@ const Notifications: React.FC = () => {
 
             if (result) {
                 mutate([`get-tags`]);
+                mutate([`get-notifications`]);
                 resetForm();
             }
         } catch (error) {
@@ -208,6 +217,11 @@ const Notifications: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    const handleUpdateNotification = (id: number) => {
+        setNotifId(id);
+        setSelectedNotification(notificationsData?.find((notif) => notif.id === id) || null);
+    }
+
     const onSubmit = async () => {
         try {
             if (tagId) {
@@ -231,6 +245,166 @@ const Notifications: React.FC = () => {
             console.error("Error during form submission: ", error);
         }
     };
+
+    const addToFavorite = async () => {
+        try {
+            const result = await updateNot({
+                userNotificationId: notifId,
+                type: UserNotificationType.FAVORITE
+            });
+            if (result) {
+                mutate([`get-notifications`]);
+                setSelectedNotification((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        type: UserNotificationType.FAVORITE,
+                    };
+                });
+            }
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+        }
+    };
+
+    const addTags = async () => {
+        try {
+            const result = await updateNot({
+                userNotificationId: notifId,
+                tagIds: selectedTagIds
+            });
+            if (result) {
+                mutate([`get-notifications`]);
+                setSelectedNotification((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        tags: prev.tags.map((tag) => {
+                            if (selectedTagIds.includes(tag.id)) {
+                                return {
+                                    ...tag,
+                                    id: tag.id,
+                                };
+                            }
+                            return tag;
+                        }
+                        )
+                    };
+                });
+            }
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+        }
+    };
+
+    const markAsRead = async () => {
+        try {
+            const result = await updateNot({
+                userNotificationId: notifId,
+                readStatus: ReadStatus.READ
+            });
+            if (result) {
+                mutate([`get-notifications`]);
+            }
+        } catch (error) {
+            console.error('Error marking as read:', error);
+        }
+    };
+
+    const moveToTrash = async () => {
+        try {
+            const result = await updateNot({
+                userNotificationId: notifId,
+                type: UserNotificationType.DELETED
+            });
+            if (result) {
+                mutate([`get-notifications`]);
+                setSelectedNotification((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        type: UserNotificationType.DELETED,
+                    };
+                });
+
+            }
+        } catch (error) {
+            console.error('Error moving to trash:', error);
+        }
+    };
+
+    const menuItems: MenuProps["items"] = [
+        {
+            key: "markAsRead",
+            label: t("notifications.mark"),
+            onClick: markAsRead,
+        },
+        {
+            key: "add",
+            label: t("notifications.addA"),
+            children: [
+                {
+                    key: "tag-selector",
+                    label: (
+                        <div
+                            className="p-2"
+                            onClick={(e) => e.stopPropagation()} // Prevent menu close
+                        >
+                            <div className="space-y-1 mb-3">
+                                {tags.map(tag => (
+                                    <div
+                                        key={`tag_${tag.props.id}`}
+                                        className={`flex items-center justify-between cursor-pointer px-2 py-1 rounded hover:bg-gray-50 ${selectedTagIds.includes(tag.props.id) ? 'bg-blue-100' : ''
+                                            }`}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent menu close
+                                            toggleTagSelection(tag.props.id);
+                                        }}
+                                    >
+                                        <span style={{ color: tag.props.color }}>{tag.props.name}</span>
+                                        {selectedTagIds.includes(tag.props.id) && <CheckOutlined />}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="border-t pt-2">
+                                <div className="flex space-x-2">
+                                    <AntdButton
+                                        size="small"
+                                        type="default"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedTagIds([]); // reset selection
+                                            setSelectedNotification(null);
+                                        }}
+                                    >
+                                        {t("organizations.cancel")}
+                                    </AntdButton>
+                                    <AntdButton
+                                        size="small"
+                                        type="primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            addTags();
+                                            // The menu will close naturally after applying tags
+                                            // or you can manually close it if needed
+                                        }}
+                                    >
+                                        {t("marketing.apply")}
+                                    </AntdButton>
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                },
+            ],
+        },
+        {
+            key: "delete",
+            label: t("notifications.move"),
+            onClick: moveToTrash,
+        },
+    ];
 
     return (
         <div className="mt-2">
@@ -300,8 +474,8 @@ const Notifications: React.FC = () => {
                             <ColorPicker
                                 value={formValues.color}
                                 onChange={(color) => {
-                                    setFormValues((prev) => ({ ...prev, color: color.toHex() }));
-                                    setValue('color', color.toHex());
+                                    setFormValues((prev) => ({ ...prev, color: `#${color.toHex()}` }));
+                                    setValue('color', `#${color.toHex()}`);
                                 }}
                                 showText
                             />
@@ -438,7 +612,10 @@ const Notifications: React.FC = () => {
                                             {t("login.back")}
                                         </AntdButton>
                                         <div className="flex space-x-2 text-text01">
-                                            <StarOutlined className="text-lg" />
+                                            <StarOutlined
+                                                className={`text-lg cursor-pointer ${selectedNotification.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
+                                                onClick={addToFavorite}
+                                            />
                                             <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
                                                 <MoreOutlined className="text-lg cursor-pointer" />
                                             </Dropdown>
@@ -446,20 +623,20 @@ const Notifications: React.FC = () => {
                                     </div>
                                     <div className="flex justify-between mt-4">
                                         <div className="flex space-x-2">
-                                            <Avatar src={selectedNotification.avatar || OnviSmall} size="large" />
+                                            <Avatar src={OnviSmall} size="large" />
                                             <Text className="text-sm text-text01">
-                                                {selectedNotification.sender || "Onvi_бизнес"}
+                                                {selectedNotification.heading || "Onvi_бизнес"}
                                             </Text>
                                         </div>
-                                        <Text type="secondary">{selectedNotification.date}</Text>
+                                        <Text type="secondary">{dayjs(selectedNotification.sendAt).format('D MMMM, YYYY')}</Text>
                                     </div>
                                     <div className="mt-10 px-20">
                                         <Title level={4} className="mt-2">
-                                            {selectedNotification.title}
+                                            {selectedNotification.heading}
                                         </Title>
 
                                         <Paragraph className="whitespace-pre-line mt-2">
-                                            {`Добро пожаловать!\n\nПриветствуем вас!\nНаша система поможет вам оптимизировать и контролировать все аспекты вашего бизнеса, начиная с учёта заказов и заканчивая взаимодействием с партнёрами и клиентами.\n\nФункциональные возможности CRM позволяют настраивать различные параметры в зависимости от ваших потребностей, такие как воронка продаж, учёт эффективности сотрудников и интеграция с различными приложениями.\n\nВыбирайте подходящий тариф и начните использовать наш сервис уже сегодня.\nМы уверены, что он значительно повысит вашу продуктивность и прибыль.`}
+                                            {selectedNotification.body || `Добро пожаловать!\n\nПриветствуем вас!\nНаша система поможет вам оптимизировать и контролировать все аспекты вашего бизнеса, начиная с учёта заказов и заканчивая взаимодействием с партнёрами и клиентами.\n\nФункциональные возможности CRM позволяют настраивать различные параметры в зависимости от ваших потребностей, такие как воронка продаж, учёт эффективности сотрудников и интеграция с различными приложениями.\n\nВыбирайте подходящий тариф и начните использовать наш сервис уже сегодня.\nМы уверены, что он значительно повысит вашу продуктивность и прибыль.`}
                                         </Paragraph>
                                         <div className="mt-6 text-center">
                                             <img src={PosEmpty} alt="Welcome" className="w-48 inline-block" />
@@ -477,9 +654,9 @@ const Notifications: React.FC = () => {
                                         dataSource={notificationsData}
                                         renderItem={(item) => (
                                             <Card
-                                                onClick={() => setSelectedNotification(item)}
+                                                onClick={() => { handleUpdateNotification(item.id); }}
                                                 hoverable
-                                                style={{ background: "#EEEFF1", marginBottom: "1rem" }}
+                                                style={{ background: item.openingAt ? "#EEEFF1" : "#ffffff", marginBottom: "1rem" }}
                                                 className="relative"
                                                 styles={{
                                                     body: {
@@ -524,7 +701,8 @@ const Notifications: React.FC = () => {
                                                     </div>
                                                 </div>
                                                 <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
-                                                    <StarOutlined className="text-lg" />
+                                                    <StarFilled className={`text-lg cursor-pointer ${item.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
+                                                    />
                                                     <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
                                                         <MoreOutlined className="text-lg cursor-pointer" />
                                                     </Dropdown>
