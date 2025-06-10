@@ -18,7 +18,6 @@ import { BarChartOutlined } from "@ant-design/icons";
 const { Text, Title } = Typography;
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
-import TableUtils from "@/utils/TableUtils";
 
 interface PosMonitoring {
   id: number;
@@ -102,6 +101,16 @@ const Indicators: React.FC = () => {
 
   poses.unshift(posesAllObj);
 
+  const formatNumber = (num: number): string => {
+    if (num === null || num === undefined || isNaN(num)) return "-";
+
+    return new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+      useGrouping: true,
+    }).format(num);
+  };
+
   const cards = [
     {
       title: "visitors",
@@ -114,8 +123,8 @@ const Indicators: React.FC = () => {
     },
     {
       title: "profit",
-      number: statisticData ? TableUtils.createCurrencyFormat(statisticData.sum) : 0,
-      unit: "",
+      number: statisticData ? formatNumber(statisticData.sum) : 0,
+      unit: "₽",
       icon: ProfitIcon,
       isPositive: true,
       percentage: "15",
