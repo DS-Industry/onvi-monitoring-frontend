@@ -9,6 +9,7 @@ import useSWR from "swr";
 import { getPlacement } from "@/services/api/device";
 import { Select, Input } from "antd";
 import { useTranslation } from "react-i18next";
+import SearchDropdownInput from "../Input/SearchDropdownInput";
 
 
 type Props = {
@@ -62,10 +63,10 @@ const Filter: React.FC<Props> = ({
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-  const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.region, value: item.id })) || []; 
+  const cities: { name: string; value: number | string; }[] = cityData?.map((item) => ({ name: item.region, value: item.id })) || []; 
 
   const citiesAllObj = {
-    label: allCategoriesText,
+    name: allCategoriesText,
     value: "*"
   };
 
@@ -141,23 +142,14 @@ const Filter: React.FC<Props> = ({
           </div>
         }
         {!hideCity &&
-          // <DropdownInput
-          //   title={"Город"}
-          //   value={address}
-          //   options={cities}
-          //   classname="w-full sm:w-80"
-          //   onChange={handleAddressChange}
-          // />
-          <div>
-            <div className="text-sm text-text02">{t("pos.city")}</div>
-            <Select
-              className="w-full sm:w-80 h-10"
+            <SearchDropdownInput
+              title={t("pos.city")}
+              classname="w-full sm:w-80"
               placeholder="Город"
               options={cities}
               value={address}
               onChange={handleAddressChange}
             />
-          </div>
         }
         {children}
         {!hidePage && (<div>

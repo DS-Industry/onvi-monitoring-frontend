@@ -17,6 +17,7 @@ type SearchableDropdownProps = {
     errorText?: string;
     classname?: string;
     title?: string;
+    allowClear?: boolean;
 };
 
 const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
@@ -29,6 +30,7 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
     errorText = "",
     classname,
     title = "",
+    allowClear = false
 }) => {
     const formattedOptions = options.map((option) => ({
         label: option.name,
@@ -43,11 +45,11 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
 
     return (
         <div className={`flex flex-col ${classname}`}>
-            {title && <label className="text-sm text-text02 mb-1">{title}</label>}
+            {title && <label className="text-sm text-text02">{title}</label>}
 
             <Select
                 showSearch
-                allowClear
+                allowClear={allowClear}
                 value={sanitizedValue}
                 disabled={isDisabled}
                 placeholder={placeholder}

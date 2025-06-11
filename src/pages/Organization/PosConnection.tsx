@@ -94,6 +94,7 @@ const PosConnection: React.FC = () => {
                     classname="w-full sm:w-72"
                     value={workerId}
                     onChange={(value) => setWorkerId(value)}
+                    allowClear={true}
                 />
                 <Button
                     title={t("organizations.save")}

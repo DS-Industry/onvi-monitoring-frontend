@@ -107,6 +107,7 @@ const Timestamps: React.FC = () => {
                 classname="w-64"
                 value={posId}
                 onChange={(value) => setPosId(value)}
+                allowClear={true}
             />
             <div className="mt-8">
                 {isLoading ?

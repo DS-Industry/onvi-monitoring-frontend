@@ -9,6 +9,7 @@ import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
 import { Select, Input } from "antd";
 import { useTranslation } from "react-i18next";
+import SearchDropdownInput from "../Input/SearchDropdownInput.tsx";
 
 type Optional = {
     name: string;
@@ -87,10 +88,10 @@ const FilterMonitoring: React.FC<Props> = ({
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.region, value: item.id })) || [];
+    const cities: { name: string; value: number | string; }[] = cityData?.map((item) => ({ name: item.region, value: item.id })) || [];
 
     const citiesAllObj = {
-        label: allCategoriesText,
+        name: allCategoriesText,
         value: "*"
     };
 
@@ -141,16 +142,13 @@ const FilterMonitoring: React.FC<Props> = ({
                     <Search placeholder="Поиск" className="w-full sm:w-80" />
                 )}
                 {!hideCity && (
-                    <div>
-                        <div className="text-sm text-text02">{t("pos.city")}</div>
-                        <Select
-                            className="w-full sm:w-80 h-10"
-                            placeholder="Город"
-                            options={cities}
-                            value={city}
-                            onChange={setCity}
-                        />
-                    </div>
+                    <SearchDropdownInput
+                        title={t("pos.city")}
+                        classname="w-full sm:w-80"
+                        options={cities}
+                        value={city}
+                        onChange={setCity}
+                    />
                 )}
                 {organizationsSelect && organizationsSelect.length > 0 && (
                     <div>
@@ -170,21 +168,14 @@ const FilterMonitoring: React.FC<Props> = ({
                     </div>
                 )}
                 {posesSelect && posesSelect.length > 0 && (
-                    <div>
-                        <div className="text-sm text-text02">{t("analysis.posId")}</div>
-                        <Select
-                            className="w-full sm:w-80 h-10"
-                            placeholder="Выберите объект"
-                            options={posesSelect.map((item) => ({ label: item.name, value: item.value }))}
-                            value={posType}
-                            onChange={setPosType}
-                            dropdownRender={(menu) => (
-                                <div style={{ maxHeight: 100, overflowY: "auto" }}>
-                                    {menu}
-                                </div>
-                            )}
-                        />
-                    </div>
+                    <SearchDropdownInput
+                        title={t("analysis.posId")}
+                        classname="w-full sm:w-80"
+                        placeholder="Выберите объект"
+                        options={posesSelect}
+                        value={posType}
+                        onChange={setPosType}
+                    />
                 )}
                 {usersSelect && usersSelect.length > 0 && (
                     <div>
