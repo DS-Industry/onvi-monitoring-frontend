@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/PosMonitoringEmpty.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
@@ -17,6 +17,8 @@ interface FilterDepositPos {
     dateEnd: Date;
     posId: number | string;
     placementId: number | string;
+    page?: number;
+    size?: number;
 }
 
 interface DevicesMonitoring {
@@ -66,32 +68,63 @@ const DepositDevices: React.FC = () => {
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setCity = useSetCity();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageNumber();
+
+    const setCurrentPage = useSetCurrentPage();
+    const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize();
 
     const [isTableLoading, setIsTableLoading] = useState(false);
-    
+
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
-        placementId: city
+        placementId: city,
+        page: currentPage,
+        size: pageSize
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
+
     const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        [`get-pos-deposits-pos-${dataFilter.posId}`], 
+        [`get-pos-deposits-pos-${dataFilter.posId}`],
         () => getDepositPos({
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId,
-            placementId: dataFilter?.placementId
-        }), 
+            placementId: dataFilter?.placementId,
+            page: currentPage,
+            size: pageSize
+        }),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
+    const totalRecords = filter?.length || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
+
     const { data, error } = useSWR(
-        [`get-pos`, city], 
-        () => getPoses({ placementId: city }), 
+        [`get-pos`, city],
+        () => getPoses({ placementId: city }),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
@@ -102,7 +135,9 @@ const DepositDevices: React.FC = () => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if(newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
     };
 
     useEffect(() => {
@@ -111,6 +146,11 @@ const DepositDevices: React.FC = () => {
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
+
+    useEffect(() => {
+        if (!filterLoading && filter?.length)
+            setTotalCount(filter?.length)
+    }, [filter, filterLoading, setTotalCount]);
 
     const devicesMonitoring: DevicesMonitoring[] = filter?.map((item: DevicesMonitoring) => {
         return item;
@@ -149,6 +189,7 @@ const DepositDevices: React.FC = () => {
                             data={devicesMonitoring}
                             columns={columnsMonitoringPos}
                             isDisplayEdit={true}
+                            showPagination={true}
                             navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
                         />
                     </div>

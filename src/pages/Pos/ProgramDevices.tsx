@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
@@ -17,6 +17,8 @@ type FilterDepositPos = {
     dateEnd: Date;
     posId: number | string;
     placementId: number | string;
+    page?: number;
+    size?: number;
 }
 
 enum CarWashPosType {
@@ -63,25 +65,56 @@ const ProgramDevices: React.FC = () => {
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setCity = useSetCity();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageNumber();
+
+    const setCurrentPage = useSetCurrentPage();
+    const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize();
 
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
-        placementId: city
+        placementId: city,
+        page: currentPage,
+        size: pageSize
     };
 
     const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
+
+    useEffect(() => {
+        setCurrentPage(1);
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
 
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-programs-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getProgramPos(
         {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId,
-            placementId: dataFilter?.placementId
+            placementId: dataFilter?.placementId,
+            page: currentPage,
+            size: pageSize
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const totalRecords = filter?.length || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -91,6 +124,8 @@ const ProgramDevices: React.FC = () => {
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
         if (newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
     };
 
     useEffect(() => {
@@ -99,6 +134,11 @@ const ProgramDevices: React.FC = () => {
     useEffect(() => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
+
+    useEffect(() => {
+        if (!filterLoading && filter?.length)
+            setTotalCount(filter?.length)
+    }, [filter, filterLoading, setTotalCount]);
 
     const devicePrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
         return item;
@@ -140,8 +180,9 @@ const ProgramDevices: React.FC = () => {
                                 title={deviceProgram.name}
                                 urlTitleId={deviceProgram.id}
                                 nameUrlTitle={"/station/programs/devices"}
-                                data={deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p }))} 
+                                data={deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p }))}
                                 columns={columnsProgramsPos}
+                                showPagination={true}
                             />
                         )}
                     </div>

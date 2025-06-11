@@ -3,7 +3,7 @@ import NoCollection from "@/assets/NoCollection.png";
 import NoDataUI from "@/components/ui/NoDataUI";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { usePosType, useStartDate, useEndDate, useCity, useSetPosType, useSetStartDate, useSetEndDate, useSetCity } from "@/hooks/useAuthStore";
+import { usePosType, useStartDate, useEndDate, useCity, useSetPosType, useSetStartDate, useSetEndDate, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import useSWR from "swr";
 import { getPlanFact } from "@/services/api/pos";
 import { getPoses } from "@/services/api/equipment";
@@ -17,6 +17,8 @@ type PlanFactParams = {
     dateEnd: Date;
     posId: number | string;
     placementId: number | string;
+    page?: number;
+    size?: number;
 }
 
 type PlanFactResponse = {
@@ -46,25 +48,56 @@ const PlanAct: React.FC = () => {
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setCity = useSetCity();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageNumber();
+
+    const setCurrentPage = useSetCurrentPage();
+    const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize();
 
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         posId: posType || location.state?.ownerId,
-        placementId: city
+        placementId: city,
+        page: currentPage,
+        size: pageSize
     };
 
     const [dataFilter, setIsDataFilter] = useState<PlanFactParams>(initialFilter);
+
+    useEffect(() => {
+        setCurrentPage(1);
+        setIsDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
 
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pan-fact`], () => getPlanFact(
         {
             dateStart: dataFilter.dateStart,
             dateEnd: dataFilter.dateEnd,
             posId: dataFilter?.posId,
-            placementId: dataFilter?.placementId
+            placementId: dataFilter?.placementId,
+            page: currentPage,
+            size: pageSize
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const totalRecords = filter?.length || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setIsDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
 
     const handleDataFilter = (newFilterData: Partial<PlanFactParams>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -74,6 +107,8 @@ const PlanAct: React.FC = () => {
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
         if (newFilterData.placementId) setCity(newFilterData.placementId);
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
     };
 
     useEffect(() => {
@@ -83,6 +118,10 @@ const PlanAct: React.FC = () => {
         filterMutate().then(() => setIsTableLoading(false));
     }, [dataFilter, filterMutate]);
 
+    useEffect(() => {
+        if (!filterLoading && filter?.length)
+            setTotalCount(filter?.length)
+    }, [filter, filterLoading, setTotalCount]);
 
     const posOptional: { name: string; value: number | string; }[] = data?.map(
         (item) => ({ name: item.name, value: item.id })
@@ -96,8 +135,8 @@ const PlanAct: React.FC = () => {
     posOptional.unshift(posesAllObj);
 
     const planFacts: PlanFactResponse[] = filter?.map((item: PlanFactResponse) => ({
-         ...item,
-         posName: posOptional.find((pos) => pos.value === item.posId)?.name
+        ...item,
+        posName: posOptional.find((pos) => pos.value === item.posId)?.name
     })) || [];
 
 
@@ -120,6 +159,7 @@ const PlanAct: React.FC = () => {
                         <DynamicTable
                             data={planFacts.map((p, index) => ({ id: index, ...p }))}
                             columns={columnsPlanFact}
+                            showPagination={true}
                         />
                     </div>
                 ) : (

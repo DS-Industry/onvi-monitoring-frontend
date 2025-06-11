@@ -75,6 +75,8 @@ type DepositParam = {
     dateEnd: Date;
     posId: string | number;
     placementId: number | string;
+    page?: number;
+    size?: number;
 }
 
 type DepositResponse = {
