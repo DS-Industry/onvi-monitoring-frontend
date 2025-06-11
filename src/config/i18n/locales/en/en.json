@@ -882,7 +882,7 @@
     "fav": "Favorite",
     "basket": "Trash",
     "read": "Read",
-    "non": "Non-Sports",
+    "non": "Non-Read",
     "you": "You currently have no notifications.",
     "new": "New Shortcut",
     "enter": "Enter the name of the shortcut",
@@ -891,7 +891,8 @@
     "labelCol": "Label Color Preview",
     "mark": "Mark as Read",
     "addA": "Add a shortcut",
-    "move": "Move to the box"
+    "move": "Move to the box",
+    "default": "Default"
   },
   "subscriptions": {
     "you": "You can switch to one of the new tariffs by selecting the desired configuration.",

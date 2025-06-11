@@ -77,6 +77,14 @@ type UserNotificationResponse = {
     }[];
 }
 
+type GetUserNotifParams = {
+    type?: UserNotificationType;
+    tagId?: number;
+    readStatus?: ReadStatus;
+    page?: number;
+    size?: number;
+}
+
 const Notifications: React.FC = () => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
@@ -85,8 +93,10 @@ const Notifications: React.FC = () => {
     const [notifId, setNotifId] = useState<number>(0);
     const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
     const [selectedNotification, setSelectedNotification] = useState<UserNotificationResponse | null>(null);
+    const [filterParams, setFilterParams] = useState<GetUserNotifParams>({});
+    const [, setSelectedFilter] = useState<string>('all');
 
-    const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`], () => getNotifications({}), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`, filterParams], () => getNotifications(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: tagsData, isLoading: loadingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -123,8 +133,46 @@ const Notifications: React.FC = () => {
     const predefinedColors = ["#EF4444", "#F97316", "#22C55E", "#3B82F6", "#8B5CF6", "#6B7280"];
     const [isCustomColorMode, setIsCustomColorMode] = useState(false);
 
+    const handleMenuClick = ({ key }: { key: string }) => {
+        let newParams: GetUserNotifParams = {};
+        let filterLabel = '';
+
+        switch (key) {
+            case '1': // All notifications
+                newParams = {};
+                filterLabel = 'all';
+                break;
+            case '2': // Read notifications
+                newParams = { readStatus: ReadStatus.READ };
+                filterLabel = 'read';
+                break;
+            case '3': // Unread notifications
+                newParams = { readStatus: ReadStatus.NOT_READ };
+                filterLabel = 'unread';
+                break;
+            case '4': // Favorite notifications (new option)
+                newParams = { type: UserNotificationType.FAVORITE };
+                filterLabel = 'favorite';
+                break;
+            case '5': // Default notifications (new option)
+                newParams = { type: UserNotificationType.DEFAULT };
+                filterLabel = 'default';
+                break;
+            case '6': // Deleted notifications (new option)
+                newParams = { type: UserNotificationType.DELETED };
+                filterLabel = 'deleted';
+                break;
+            default:
+                newParams = {};
+                filterLabel = 'all';
+        }
+
+        setFilterParams(newParams);
+        setSelectedFilter(filterLabel);
+    };
+
     const menu = (
-        <Menu>
+        <Menu onClick={handleMenuClick}>
             <Menu.Item key="1">
                 <div>
                     <span>{t("analysis.all")}</span>
@@ -138,6 +186,21 @@ const Notifications: React.FC = () => {
             <Menu.Item key="3">
                 <div>
                     <span>{t("notifications.non")}</span>
+                </div>
+            </Menu.Item>
+            <Menu.Item key="4">
+                <div>
+                    <span>{t("notifications.fav")}</span>
+                </div>
+            </Menu.Item>
+            <Menu.Item key="5">
+                <div>
+                    <span>{t("notifications.default")}</span>
+                </div>
+            </Menu.Item>
+            <Menu.Item key="6">
+                <div>
+                    <span>{t("notifications.basket")}</span>
                 </div>
             </Menu.Item>
         </Menu>
@@ -517,19 +580,19 @@ const Notifications: React.FC = () => {
                     <div className="p-4 border-b border-borderFill">
                         <Text type="secondary">TITLE</Text>
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
-                            <Menu.Item className="!p-0">
+                            <Menu.Item className="!p-0" onClick={() => setFilterParams({})}>
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
                                     <MailOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("analysis.all")}</span>
                                 </div>
                             </Menu.Item>
-                            <Menu.Item className="!p-0">
+                            <Menu.Item className="!p-0" onClick={() => setFilterParams({ type: UserNotificationType.FAVORITE })}>
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
                                     <StarOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.fav")}</span>
                                 </div>
                             </Menu.Item>
-                            <Menu.Item className="!p-0">
+                            <Menu.Item className="!p-0" onClick={() => setFilterParams({ type: UserNotificationType.DELETED })}>
                                 <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
                                     <DeleteOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
                                     <span className="font-semibold text-text02 group-hover:text-text01">{t("notifications.basket")}</span>
