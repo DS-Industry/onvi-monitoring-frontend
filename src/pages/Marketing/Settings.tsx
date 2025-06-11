@@ -54,7 +54,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
     const cities: { name: string; value: number | string }[] = [
         { name: t("analysis.all"), value: '*' },
-        ...(cityData?.map((item) => ({ name: item.city, value: item.id })) || [])
+        ...(cityData?.map((item) => ({ name: item.region, value: item.id })) || [])
     ];
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: placementId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });

@@ -189,7 +189,7 @@ const Clients: React.FC = () => {
 
     const { data: tagsData, isLoading: loadingTags, isValidating: validatingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
+    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.region, value: item.id })) || [];
 
     const options = tagsData ? tagsData.map((tag) => tag.props) : [];
 

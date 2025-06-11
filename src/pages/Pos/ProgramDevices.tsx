@@ -81,7 +81,7 @@ const ProgramDevices: React.FC = () => {
             placementId: dataFilter?.placementId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));

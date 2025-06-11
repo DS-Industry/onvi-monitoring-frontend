@@ -30,7 +30,7 @@ const ProgressReport: React.FC = () => {
     const [searchPosId, setSearchPosId] = useState(posType);
     const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => readTechTasks({
         posId: searchPosId,

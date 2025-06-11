@@ -64,7 +64,7 @@ const PlanAct: React.FC = () => {
             placementId: dataFilter?.placementId
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const handleDataFilter = (newFilterData: Partial<PlanFactParams>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));

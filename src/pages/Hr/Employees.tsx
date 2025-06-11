@@ -91,7 +91,7 @@ const Employees: React.FC = () => {
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.city, value: item.id })) || [];
+    const cities: { name: string; value: number; }[] = cityData?.map((item) => ({ name: item.region, value: item.id })) || [];
 
     const organizations: { name: string; value: number | string; label: string; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id, label: item.name })) || [];
 

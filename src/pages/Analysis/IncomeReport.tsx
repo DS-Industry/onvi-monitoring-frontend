@@ -23,7 +23,7 @@ const IncomeReport: React.FC = () => {
     const posType = usePosType();
     const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), {
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         keepPreviousData: true

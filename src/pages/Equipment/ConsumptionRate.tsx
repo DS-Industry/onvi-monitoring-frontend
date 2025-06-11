@@ -20,7 +20,7 @@ const ConsumptionRate: React.FC = () => {
     const [searchPosId, setSearchPosId] = useState(posType);
     const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
         searchPosId !== "*" ? [`get-consumption-rate`, searchPosId] : null, 

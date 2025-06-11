@@ -62,7 +62,7 @@ const Filter: React.FC<Props> = ({
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-  const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.city, value: item.id })) || []; 
+  const cities: { label: string; value: number | string; }[] = cityData?.map((item) => ({ label: item.region, value: item.id })) || []; 
 
   const citiesAllObj = {
     label: allCategoriesText,

@@ -90,7 +90,7 @@ const DepositDevices: React.FC = () => {
     );
 
     const { data, error } = useSWR(
-        [`get-pos`], 
+        [`get-pos`, city], 
         () => getPoses({ placementId: city }), 
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );

@@ -104,7 +104,7 @@ const Programs: React.FC = () => {
 
     const city = useCity();
 
-    const { data } = useSWR([`get-pos`], () => getPoses({ placementId: city }))
+    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
 
 
     useEffect(() => {

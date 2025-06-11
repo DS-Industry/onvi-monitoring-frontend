@@ -94,7 +94,7 @@ const Pos: React.FC = () => {
 
     const { data: placementData } = useSWR([`get-placement`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const placements: { country: string; city: string; value: number; }[] = placementData?.map((item) => ({ country: item.country, city: item.city, value: item.id })) || [];
+    const placements: { country: string; city: string; value: number; }[] = placementData?.map((item) => ({ country: item.country, city: item.region, value: item.id })) || [];
 
     const [startHour, setStartHour] = useState<number | null>(null);
     const [endHour, setEndHour] = useState<number | null>(null);
