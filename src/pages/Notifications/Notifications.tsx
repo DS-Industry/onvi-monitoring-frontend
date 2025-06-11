@@ -179,16 +179,8 @@ const Notifications: React.FC = () => {
                 filterLabel = 'deleted';
                 break;
             default:
-                // Handle tag filtering - key format: "tag-{tagId}"
-                if (key.startsWith('tag-')) {
-                    const tagId = parseInt(key.replace('tag-', ''));
-                    const selectedTag = tags.find(tag => tag.props.id === tagId);
-                    newParams = { tagId: tagId };
-                    filterLabel = `tag: ${selectedTag?.props.name || tagId}`;
-                } else {
-                    newParams = {};
-                    filterLabel = 'all';
-                }
+                newParams = {};
+                filterLabel = 'all';
         }
 
         setFilterParams(newParams);
@@ -227,25 +219,6 @@ const Notifications: React.FC = () => {
                     <span>{t("notifications.basket")}</span>
                 </div>
             </Menu.Item>
-            <Menu.SubMenu key="tags" title={t("notifications.filterByTag")}>
-                {loadingTags ? (
-                    <Menu.Item key="tags-loading" disabled>
-                        <span>{t("common.loading")}</span>
-                    </Menu.Item>
-                ) : tags && tags.length > 0 ? (
-                    tags.map((tag) => (
-                        <Menu.Item key={`tag-${tag.props.id}`}>
-                            <div>
-                                <span>{tag.props.name}</span>
-                            </div>
-                        </Menu.Item>
-                    ))
-                ) : (
-                    <Menu.Item key="no-tags" disabled>
-                        <span>{t("tags.noTags")}</span>
-                    </Menu.Item>
-                )}
-            </Menu.SubMenu>
         </Menu>
     );
 
@@ -325,6 +298,7 @@ const Notifications: React.FC = () => {
 
     const handleUpdateNotification = (id: number) => {
         setNotifId(id);
+        setFilterParams({ readStatus: ReadStatus.READ });
         setSelectedNotification(notificationsData?.find((notif) => notif.id === id) || null);
     }
 
@@ -527,18 +501,18 @@ const Notifications: React.FC = () => {
 
     return (
         <div className="mt-2">
-            <Modal isOpen={isModalOpen}>
+            <Modal isOpen={isModalOpen} classname="p-6 w-full sm:w-[635px]">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-row items-center justify-between mb-4">
-                        <div className="text-text01 font-semibold text-2xl">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
-                        <Close onClick={() => resetForm()} className="cursor-pointer text-text01" />
+                        <div className="text-text01 font-semibold text-2xl mt-4">{isCustomColorMode ? t("notifications.add") : t("notifications.new")}</div>
+                        <Close onClick={() => resetForm()} className="cursor-pointer text-text01 mb-4" />
                     </div>
                     {!isCustomColorMode && (
-                        <div>
-                            <div className="text-text01">{t("notifications.enter")}</div>
+                        <div className="mb-5">
+                            <div className="text-text01 mb-2">{t("notifications.enter")}</div>
                             <Input
                                 label={t("notifications.new")}
-                                classname="w-80"
+                                classname="w-full"
                                 {...register('name', { required: !isEditMode && 'Name is required' })}
                                 value={formValues.name}
                                 changeValue={(e) => handleInputChange('name', e.target.value)}
@@ -550,7 +524,7 @@ const Notifications: React.FC = () => {
 
                     {/* Ant Design Color Picker */}
                     {!isCustomColorMode ? (
-                        <div className="flex flex-col space-y-2">
+                        <div className="flex flex-col space-y-5">
                             <span>Цвет ярлыка:</span>
                             <div className="flex items-center space-x-2">
                                 {predefinedColors.map((color) => (
@@ -582,11 +556,11 @@ const Notifications: React.FC = () => {
                     ) : (
                         // Custom Color Palette Screen
                         <div>
-                            <div className="flex items-center space-x-2 mb-2">
+                            <div className="flex items-center space-x-2 mb-4">
                                 <ArrowLeftOutlined className="cursor-pointer" onClick={() => setIsCustomColorMode(false)} />
                                 <span className="text-text01">Выберите цвет</span>
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex space-x-2 mb-4">
                                 <TagFilled style={{ color: formValues.color }} />
                                 <div className="text-text01">{t("notifications.labelCol")}</div>
                             </div>
@@ -601,7 +575,7 @@ const Notifications: React.FC = () => {
                         </div>
                     )}
                     <div className="mt-4">
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 justify-end mt-10">
                             <Button
                                 type="outline"
                                 handleClick={() => {
@@ -637,9 +611,12 @@ const Notifications: React.FC = () => {
                         <Text type="secondary">TITLE</Text>
                         <Menu mode="vertical" selectable={false} className="bg-transparent border-none">
                             <Menu.Item className="!p-0" onClick={() => setFilterParams({})}>
-                                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                                    <MailOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
-                                    <span className="font-semibold text-text02 group-hover:text-text01">{t("analysis.all")}</span>
+                                <div className="flex justify-between pr-2">
+                                    <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                                        <MailOutlined style={{ fontSize: "24px" }} className="text-text02 group-hover:text-text01" />
+                                        <span className="font-semibold text-text02 group-hover:text-text01">{t("analysis.all")}</span>
+                                    </div>
+                                    <div className="hover:bg-opacity01 px-2 rounded-lg h-8 flex items-center mt-1">{notificationsData?.length}</div>
                                 </div>
                             </Menu.Item>
                             <Menu.Item className="!p-0" onClick={() => setFilterParams({ type: UserNotificationType.FAVORITE })}>
@@ -676,12 +653,28 @@ const Notifications: React.FC = () => {
                                 </Menu.Item>
                             ) :
                                 tags?.map((tag) => (
-                                    <Menu.Item key={tag.props.name} className="!p-0" onClick={() => handleUpdate(tag.props.id)}>
-                                        <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
-                                            <div style={{ color: tag.props.color, fill: tag.props.color, marginTop: "5px" }}>
-                                                <TagFilled style={{ fontSize: "24px" }} />
+                                    <Menu.Item key={tag.props.name} className="!p-0" onClick={() => setFilterParams({ tagId: tag.props.id })}>
+                                        <div className="flex justify-between">
+                                            <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
+                                                <div style={{ color: tag.props.color, fill: tag.props.color, marginTop: "5px" }}>
+                                                    <TagFilled style={{ fontSize: "24px" }} />
+                                                </div>
+                                                <span className="font-semibold text-text02 group-hover:text-text01">{tag.props.name}</span>
                                             </div>
-                                            <span className="font-semibold text-text02 group-hover:text-text01">{tag.props.name}</span>
+                                            <Dropdown overlay={(
+                                                <Menu>
+                                                    <Menu.Item key={"Edit"} onClick={() => handleUpdate(tag.props.id)}>
+                                                        <div>Edit</div>
+                                                    </Menu.Item>
+                                                </Menu>
+                                            )}>
+                                                <MoreOutlined
+                                                    className="cursor-pointer text-text03 hover:text-opacity01"
+                                                    style={{
+                                                        fontSize: "24px"
+                                                    }}
+                                                />
+                                            </Dropdown>
                                         </div>
                                     </Menu.Item>
                                 ))}
