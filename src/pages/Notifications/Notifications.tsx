@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Checkbox, Menu, Dropdown, ColorPicker, MenuProps, Button as AntdButton } from "antd";
 import OnviSmall from "@/assets/onvi_small.png";
@@ -103,12 +103,28 @@ const Notifications: React.FC = () => {
     const tags = tagsData ? tagsData : [];
 
     const toggleTagSelection = (tagId: number) => {
-        setSelectedTagIds(prev =>
-            prev.includes(tagId)
-                ? prev.filter(id => id !== tagId)
-                : [...prev, tagId]
-        );
+        setSelectedTagIds(prev => {
+            const isCurrentlySelected = prev.includes(tagId);
+            if (isCurrentlySelected) {
+                return prev.filter(id => id !== tagId);
+            } else {
+                return [...prev, tagId];
+            }
+        });
     };
+
+    const initializeSelectedTags = () => {
+        if (selectedNotification?.tags) {
+            const existingTagIds = selectedNotification.tags.map(tag => tag.id);
+            setSelectedTagIds(existingTagIds);
+        }
+    };
+
+    useEffect(() => {
+        if (selectedNotification) {
+            initializeSelectedTags();
+        }
+    }, [selectedNotification]);
 
     const notifications = [
         {
@@ -163,8 +179,16 @@ const Notifications: React.FC = () => {
                 filterLabel = 'deleted';
                 break;
             default:
-                newParams = {};
-                filterLabel = 'all';
+                // Handle tag filtering - key format: "tag-{tagId}"
+                if (key.startsWith('tag-')) {
+                    const tagId = parseInt(key.replace('tag-', ''));
+                    const selectedTag = tags.find(tag => tag.props.id === tagId);
+                    newParams = { tagId: tagId };
+                    filterLabel = `tag: ${selectedTag?.props.name || tagId}`;
+                } else {
+                    newParams = {};
+                    filterLabel = 'all';
+                }
         }
 
         setFilterParams(newParams);
@@ -203,6 +227,25 @@ const Notifications: React.FC = () => {
                     <span>{t("notifications.basket")}</span>
                 </div>
             </Menu.Item>
+            <Menu.SubMenu key="tags" title={t("notifications.filterByTag")}>
+                {loadingTags ? (
+                    <Menu.Item key="tags-loading" disabled>
+                        <span>{t("common.loading")}</span>
+                    </Menu.Item>
+                ) : tags && tags.length > 0 ? (
+                    tags.map((tag) => (
+                        <Menu.Item key={`tag-${tag.props.id}`}>
+                            <div>
+                                <span>{tag.props.name}</span>
+                            </div>
+                        </Menu.Item>
+                    ))
+                ) : (
+                    <Menu.Item key="no-tags" disabled>
+                        <span>{t("tags.noTags")}</span>
+                    </Menu.Item>
+                )}
+            </Menu.SubMenu>
         </Menu>
     );
 
@@ -248,7 +291,7 @@ const Notifications: React.FC = () => {
 
             if (result) {
                 mutate([`get-tags`]);
-                mutate([`get-notifications`]);
+                mutate([`get-notifications`, filterParams]);
                 resetForm();
             }
         } catch (error) {
@@ -316,7 +359,7 @@ const Notifications: React.FC = () => {
                 type: UserNotificationType.FAVORITE
             });
             if (result) {
-                mutate([`get-notifications`]);
+                mutate([`get-notifications`, filterParams]);
                 setSelectedNotification((prev) => {
                     if (!prev) return prev;
                     return {
@@ -336,27 +379,34 @@ const Notifications: React.FC = () => {
                 userNotificationId: notifId,
                 tagIds: selectedTagIds
             });
+
             if (result) {
-                mutate([`get-notifications`]);
+                // Refresh the notifications data
+                mutate([`get-notifications`, filterParams]);
+
+                // Update the selected notification with the new tags
                 setSelectedNotification((prev) => {
                     if (!prev) return prev;
+
+                    // Get the full tag objects for the selected tag IDs
+                    const newTags = tags.filter(tag => selectedTagIds.includes(tag.props.id))
+                        .map(tag => ({
+                            id: tag.props.id,
+                            name: tag.props.name,
+                            color: tag.props.color
+                        }));
+
                     return {
                         ...prev,
-                        tags: prev.tags.map((tag) => {
-                            if (selectedTagIds.includes(tag.id)) {
-                                return {
-                                    ...tag,
-                                    id: tag.id,
-                                };
-                            }
-                            return tag;
-                        }
-                        )
+                        tags: newTags
                     };
                 });
+
+                // Reset selection after successful update
+                setSelectedTagIds([]);
             }
         } catch (error) {
-            console.error('Error adding to favorites:', error);
+            console.error('Error adding tags:', error);
         }
     };
 
@@ -367,7 +417,7 @@ const Notifications: React.FC = () => {
                 readStatus: ReadStatus.READ
             });
             if (result) {
-                mutate([`get-notifications`]);
+                mutate([`get-notifications`, filterParams]);
             }
         } catch (error) {
             console.error('Error marking as read:', error);
@@ -381,7 +431,7 @@ const Notifications: React.FC = () => {
                 type: UserNotificationType.DELETED
             });
             if (result) {
-                mutate([`get-notifications`]);
+                mutate([`get-notifications`, filterParams]);
                 setSelectedNotification((prev) => {
                     if (!prev) return prev;
                     return {
@@ -411,23 +461,29 @@ const Notifications: React.FC = () => {
                     label: (
                         <div
                             className="p-2"
-                            onClick={(e) => e.stopPropagation()} // Prevent menu close
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <div className="space-y-1 mb-3">
-                                {tags.map(tag => (
-                                    <div
-                                        key={`tag_${tag.props.id}`}
-                                        className={`flex items-center justify-between cursor-pointer px-2 py-1 rounded hover:bg-gray-50 ${selectedTagIds.includes(tag.props.id) ? 'bg-blue-100' : ''
-                                            }`}
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // Prevent menu close
-                                            toggleTagSelection(tag.props.id);
-                                        }}
-                                    >
-                                        <span style={{ color: tag.props.color }}>{tag.props.name}</span>
-                                        {selectedTagIds.includes(tag.props.id) && <CheckOutlined />}
-                                    </div>
-                                ))}
+                                {tags.map(tag => {
+                                    const isSelected = selectedTagIds.includes(tag.props.id);
+
+                                    return (
+                                        <div
+                                            key={`tag_${tag.props.id}`}
+                                            className={`flex items-center justify-between cursor-pointer px-2 py-1 rounded hover:bg-gray-50 ${isSelected ? 'bg-blue-100' : ''
+                                                }`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleTagSelection(tag.props.id);
+                                            }}
+                                        >
+                                            <span style={{ color: tag.props.color }}>
+                                                {tag.props.name}
+                                            </span>
+                                            {isSelected && <CheckOutlined />}
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             <div className="border-t pt-2">
@@ -437,7 +493,8 @@ const Notifications: React.FC = () => {
                                         type="default"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setSelectedTagIds([]); // reset selection
+                                            // Reset to original tags when canceling
+                                            initializeSelectedTags();
                                             setSelectedNotification(null);
                                         }}
                                     >
@@ -449,9 +506,8 @@ const Notifications: React.FC = () => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             addTags();
-                                            // The menu will close naturally after applying tags
-                                            // or you can manually close it if needed
                                         }}
+                                        disabled={selectedTagIds.length === 0}
                                     >
                                         {t("marketing.apply")}
                                     </AntdButton>

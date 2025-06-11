@@ -892,7 +892,8 @@
     "mark": "Mark as Read",
     "addA": "Add a shortcut",
     "move": "Move to the box",
-    "default": "Default"
+    "default": "Default",
+    "filterByTag": "Filter By Tag"
   },
   "subscriptions": {
     "you": "You can switch to one of the new tariffs by selecting the desired configuration.",
