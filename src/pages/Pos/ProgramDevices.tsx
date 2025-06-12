@@ -178,12 +178,12 @@ const ProgramDevices: React.FC = () => {
                     <div className="mt-8 space-y-6">
                         <ExpandableTable
                             data={devicePrograms.flatMap((deviceProgram, deviceIndex) =>
-                                deviceProgram.programsInfo.map((p) => ({
-                                    id: deviceIndex,
-                                    deviceId: deviceProgram.id,
-                                    deviceName: deviceProgram.name,
-                                    ...p
-                                }))
+                                deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, programIndex) => ({
+                                        id: `${deviceIndex}-${programIndex}`,
+                                        deviceId: deviceProgram.id,
+                                        deviceName: deviceProgram.name,
+                                        ...p
+                                    })) : []
                             )}
                             columns={columnsProgramsPos}
                             titleColumns={[{
@@ -191,7 +191,7 @@ const ProgramDevices: React.FC = () => {
                                 key: "deviceName",
                                 render: (text: string, record: any) => (
                                     <span
-                                        className="font-semibold text-text01 cursor-pointer"
+                                        className="font-semibold text-primary02 hover:text-primary02_Hover cursor-pointer"
                                         onClick={() => navigate("/station/programs/devices", {
                                             state: { ownerId: record.deviceId }
                                         })}
@@ -204,7 +204,7 @@ const ProgramDevices: React.FC = () => {
                                 title: deviceProgram.name,
                                 deviceName: deviceProgram.name,
                                 deviceId: deviceProgram.id
-                            }))}
+                            })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
                             showPagination={true}
                         />
                     </div>

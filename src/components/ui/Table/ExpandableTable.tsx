@@ -30,7 +30,8 @@ type Props<T> = {
 }
 
 type TableRow = {
-    id: number;
+    deviceId: number;
+    id: number | string;
     name?: string;
     status?: string;
     type?: string;
@@ -182,13 +183,14 @@ const ExpandableTable = <T extends TableRow>({
         };
     });
 
-    const expandedRowRender = () => {
+    const expandedRowRender = (record: any) => {
+        const filteredData = dataSource.filter((item) => item.deviceId === record.deviceId);
 
         return (
             <>
                 <Table
                     columns={expandColumns}
-                    dataSource={dataSource}
+                    dataSource={filteredData}
                     pagination={false}
                     scroll={{ x: "max-content" }}
                 />

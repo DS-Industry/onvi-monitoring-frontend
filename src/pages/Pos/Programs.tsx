@@ -275,8 +275,8 @@ const Programs: React.FC = () => {
                             <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
                             <ExpandableTable
                                 data={posPrograms.flatMap((deviceProgram, deviceIndex) =>
-                                    deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p) => ({
-                                        id: deviceIndex,
+                                    deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, programIndex) => ({
+                                        id: `${deviceIndex}-${programIndex}`,
                                         deviceId: deviceProgram.id,
                                         deviceName: deviceProgram.name,
                                         ...p
@@ -288,7 +288,7 @@ const Programs: React.FC = () => {
                                     key: "deviceName",
                                     render: (text: string, record: any) => (
                                         <span
-                                            className="font-semibold text-text01 cursor-pointer"
+                                            className="font-semibold text-primary02 hover:text-primary02_Hover cursor-pointer"
                                             onClick={() => navigate("/station/programs/device", {
                                                 state: { ownerId: record.deviceId }
                                             })}
@@ -301,7 +301,7 @@ const Programs: React.FC = () => {
                                     title: deviceProgram.name,
                                     deviceName: deviceProgram.name,
                                     deviceId: deviceProgram.id
-                                }))}
+                                })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
                             />
                         </div>
                     </div>
