@@ -3,14 +3,14 @@ import useSWR from "swr";
 import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import ExpandableTable from "@/components/ui/Table/ExpandableTable";
 
 type FilterDepositPos = {
     dateStart: Date;
@@ -71,6 +71,7 @@ const ProgramDevices: React.FC = () => {
     const setCurrentPage = useSetCurrentPage();
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
+    const navigate = useNavigate();
 
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
@@ -175,16 +176,37 @@ const ProgramDevices: React.FC = () => {
                 </div>)
                 : devicePrograms.length > 0 ? (
                     <div className="mt-8 space-y-6">
-                        {devicePrograms.map((deviceProgram) =>
-                            <DynamicTable
-                                title={deviceProgram.name}
-                                urlTitleId={deviceProgram.id}
-                                nameUrlTitle={"/station/programs/devices"}
-                                data={deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p }))}
-                                columns={columnsProgramsPos}
-                                showPagination={true}
-                            />
-                        )}
+                        <ExpandableTable
+                            data={devicePrograms.flatMap((deviceProgram, deviceIndex) =>
+                                deviceProgram.programsInfo.map((p) => ({
+                                    id: deviceIndex,
+                                    deviceId: deviceProgram.id,
+                                    deviceName: deviceProgram.name,
+                                    ...p
+                                }))
+                            )}
+                            columns={columnsProgramsPos}
+                            titleColumns={[{
+                                label: "Device Name",
+                                key: "deviceName",
+                                render: (text: string, record: any) => (
+                                    <span
+                                        className="font-semibold text-text01 cursor-pointer"
+                                        onClick={() => navigate("/station/programs/devices", {
+                                            state: { ownerId: record.deviceId }
+                                        })}
+                                    >
+                                        {text}
+                                    </span>
+                                ),
+                            }]}
+                            titleData={devicePrograms.map(deviceProgram => ({
+                                title: deviceProgram.name,
+                                deviceName: deviceProgram.name,
+                                deviceId: deviceProgram.id
+                            }))}
+                            showPagination={true}
+                        />
                     </div>
                 ) : (
                     <>

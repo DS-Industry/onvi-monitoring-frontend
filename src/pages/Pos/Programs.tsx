@@ -5,7 +5,7 @@ import { columnsProgramsPos, columnsProgramsPosPortal } from "@/utils/OverFlowTa
 import NoDataUI from "@ui/NoDataUI.tsx";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, usePosType } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
@@ -21,7 +21,7 @@ import {
 } from "chart.js";
 import { useTranslation } from "react-i18next";
 import CardSkeleton from "@/components/ui/Card/CardSkeleton";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import ExpandableTable from "@/components/ui/Table/ExpandableTable";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -67,6 +67,7 @@ const Programs: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
+    const navigate = useNavigate();
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
@@ -94,12 +95,12 @@ const Programs: React.FC = () => {
     };
 
     const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        isReady ? ['get-pos-programs'] : null, 
+        isReady ? ['get-pos-programs'] : null,
         () => getPrograms(posType, {
             dateStart: dataFilter?.dateStart,
             dateEnd: dataFilter?.dateEnd,
         }),
-        { revalidateOnFocus: false } 
+        { revalidateOnFocus: false }
     );
 
     const city = useCity();
@@ -137,14 +138,14 @@ const Programs: React.FC = () => {
 
     const aggregateProgramsData = (portalPrograms: PosPrograms[]) => {
         const programMap = new Map();
-    
+
         portalPrograms.forEach(program => {
             program.programsInfo?.forEach(info => {
                 if (!programMap.has(info.programName)) {
-                    programMap.set(info.programName, { 
-                        programName: info.programName, 
-                        counter: 0, 
-                        totalProfit: 0 
+                    programMap.set(info.programName, {
+                        programName: info.programName,
+                        counter: 0,
+                        totalProfit: 0
                     });
                 }
                 const existing = programMap.get(info.programName);
@@ -153,7 +154,7 @@ const Programs: React.FC = () => {
                 programMap.set(info.programName, existing);
             });
         });
-    
+
         return Array.from(programMap.values());
     };
 
@@ -268,31 +269,52 @@ const Programs: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                
+
                         {/* Render Table Section */}
                         <div className="shadow-card rounded-2xl p-4 space-y-6">
                             <div className="text-text01 font-semibold text-2xl">{t("pos.rev")}</div>
-                            {posPrograms.map((deviceProgram) =>
-                                <DynamicTable
-                                    title={deviceProgram.name}
-                                    urlTitleId={deviceProgram.id}
-                                    nameUrlTitle={"/station/programs/device"}
-                                    data={deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, index) => ({ id: index, ...p })) : []}
-                                    columns={portalPrograms.length > 0 ? columnsProgramsPosPortal : columnsProgramsPos}
-                                />
-                            )}
+                            <ExpandableTable
+                                data={posPrograms.flatMap((deviceProgram, deviceIndex) =>
+                                    deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p) => ({
+                                        id: deviceIndex,
+                                        deviceId: deviceProgram.id,
+                                        deviceName: deviceProgram.name,
+                                        ...p
+                                    })) : []
+                                )}
+                                columns={portalPrograms.length > 0 ? columnsProgramsPosPortal : columnsProgramsPos}
+                                titleColumns={[{
+                                    label: "Device Name",
+                                    key: "deviceName",
+                                    render: (text: string, record: any) => (
+                                        <span
+                                            className="font-semibold text-text01 cursor-pointer"
+                                            onClick={() => navigate("/station/programs/device", {
+                                                state: { ownerId: record.deviceId }
+                                            })}
+                                        >
+                                            {text}
+                                        </span>
+                                    ),
+                                }]}
+                                titleData={posPrograms.map(deviceProgram => ({
+                                    title: deviceProgram.name,
+                                    deviceName: deviceProgram.name,
+                                    deviceId: deviceProgram.id
+                                }))}
+                            />
                         </div>
                     </div>
                 ) : (
-                        <>
-                            <NoDataUI
-                                title="В этом разделе представленны программы"
-                                description="По данной выборке программ не обнаружено"
-                            >
-                                <SalyIamge className="mx-auto" />
-                            </NoDataUI>
-                        </>
-                    )}
+                    <>
+                        <NoDataUI
+                            title="В этом разделе представленны программы"
+                            description="По данной выборке программ не обнаружено"
+                        >
+                            <SalyIamge className="mx-auto" />
+                        </NoDataUI>
+                    </>
+                )}
         </>
     )
 }

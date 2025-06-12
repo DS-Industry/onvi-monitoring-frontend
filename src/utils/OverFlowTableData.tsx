@@ -366,8 +366,7 @@ export const columnsProgramsPos = [
   },
   {
     label: "Среднее время (мин)",
-    key: "averageTime",
-    type: "double"
+    key: "averageTime"
   },
   {
     label: "Последняя программа",
@@ -393,8 +392,7 @@ export const columnsProgramsPosPortal = [
   },
   {
     label: "Среднее время (мин)",
-    key: "averageTime",
-    type: "double"
+    key: "averageTime"
   },
   {
     label: "Выручка по программам",
