@@ -183,7 +183,7 @@ const ProgramDevices: React.FC = () => {
                                         deviceId: deviceProgram.id,
                                         deviceName: deviceProgram.name,
                                         ...p
-                                    })) : []
+                                    })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
                             )}
                             columns={columnsProgramsPos}
                             titleColumns={[{

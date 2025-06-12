@@ -280,7 +280,7 @@ const Programs: React.FC = () => {
                                         deviceId: deviceProgram.id,
                                         deviceName: deviceProgram.name,
                                         ...p
-                                    })) : []
+                                    })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
                                 )}
                                 columns={portalPrograms.length > 0 ? columnsProgramsPosPortal : columnsProgramsPos}
                                 titleColumns={[{
