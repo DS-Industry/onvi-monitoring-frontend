@@ -515,7 +515,7 @@ const DocumentsCreation: React.FC = () => {
                         { label: t("warehouse.notSel"), value: 0 },
                         ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
                     ]}
-                    className="w-80"
+                    className="w-80 h-10"
                     listHeight={160}
                 />
             ),
@@ -610,7 +610,7 @@ const DocumentsCreation: React.FC = () => {
                         { label: t("warehouse.notSel"), value: 0 },
                         ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
                     ]}
-                    className="w-80"
+                    className="w-80 h-10"
                     listHeight={160}
                 />
             ),

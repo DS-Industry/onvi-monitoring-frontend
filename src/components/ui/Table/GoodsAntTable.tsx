@@ -56,7 +56,7 @@ const GoodsAntTable: React.FC<Props> = ({
     }));
 
     return (
-        <div className="p-4 bg-white rounded-lg font-sans">
+        <div className="py-6 bg-white rounded-lg font-sans">
             {activeTab === "tab1" && (
                 <Card>
                     {!showDocument ? (
@@ -101,7 +101,7 @@ const GoodsAntTable: React.FC<Props> = ({
                                                 fontWeight: "bold",
                                                 paddingTop: "30px",
                                                 paddingBottom: "30px",
-                                                textAlign: "center",
+                                                textAlign: "start",
                                                 borderRadius: "0px",
                                             }}
                                             className="border-b border-x-2 border-background02 bg-background06 px-2.5 text-center text-sm font-semibold text-text01 uppercase tracking-wider"
