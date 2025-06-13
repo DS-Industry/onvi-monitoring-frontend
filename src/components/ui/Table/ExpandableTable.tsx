@@ -189,67 +189,77 @@ const ExpandableTable = <T extends TableRow>({
 
         return (
             <>
-                <Table
-                    columns={expandColumns}
-                    dataSource={filteredData}
-                    pagination={false}
-                    components={{
-                        header: {
-                            cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
-                                <th
-                                    {...props}
-                                    style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
-                                    className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
-                                />
-                            ),
-                        },
-                        body: {
-                            cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableDataCellElement> & ThHTMLAttributes<HTMLTableDataCellElement>) => (
-                                <td
-                                    {...props}
-                                    style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
-                                />
-                            ),
-                        },
-                    }}
-                    scroll={{ x: "max-content" }}
-                />
-                {showPagination && <div className="mt-4 flex gap-2">
-                    <button
-                        onClick={() => {
-                            const newPage = Math.max(1, curr - 1);
-                            setFilterOn(!filterOn);
-                            setCurr(newPage);
+                <div style={{ marginLeft: '-42px' }}>
+                    <Table
+                        columns={[
+                            {
+                                title: '', 
+                                dataIndex: 'empty',
+                                key: 'empty',
+                                render: () => null,
+                            },
+                            ...expandColumns
+                        ]}
+                        dataSource={filteredData}
+                        pagination={false}
+                        components={{
+                            header: {
+                                cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
+                                    <th
+                                        {...props}
+                                        style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                                        className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider min-w-16"
+                                    />
+                                ),
+                            },
+                            body: {
+                                cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableDataCellElement> & ThHTMLAttributes<HTMLTableDataCellElement>) => (
+                                    <td
+                                        {...props}
+                                        style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
+                                    />
+                                ),
+                            },
                         }}
-                        disabled={curr === 1}
-                        className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                    >
-                        <Icon icon="chevron-left" />
-                    </button>
-                    {generatePaginationRange().map((page, index) =>
-                        page === "..." ? (
-                            <span key={index} className="px-2 py-1 text-gray-400">...</span>
-                        ) : (
-                            <button
-                                key={index}
-                                onClick={() => handlePageClick(page)}
-                                className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
-                            >
-                                {page}
-                            </button>
-                        )
-                    )}
-                    <button
-                        onClick={() => {
-                            setFilterOn(!filterOn);
-                            setCurr(Math.min(totalPages, curr + 1));
-                        }}
-                        disabled={curr === totalPages}
-                        className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                    >
-                        <Icon icon="chevron-right" />
-                    </button>
-                </div>}
+                        scroll={{ x: "max-content" }}
+                    />
+                    {showPagination && <div className="mt-4 flex gap-2">
+                        <button
+                            onClick={() => {
+                                const newPage = Math.max(1, curr - 1);
+                                setFilterOn(!filterOn);
+                                setCurr(newPage);
+                            }}
+                            disabled={curr === 1}
+                            className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+                        >
+                            <Icon icon="chevron-left" />
+                        </button>
+                        {generatePaginationRange().map((page, index) =>
+                            page === "..." ? (
+                                <span key={index} className="px-2 py-1 text-gray-400">...</span>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => handlePageClick(page)}
+                                    className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+                        <button
+                            onClick={() => {
+                                setFilterOn(!filterOn);
+                                setCurr(Math.min(totalPages, curr + 1));
+                            }}
+                            disabled={curr === totalPages}
+                            className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+                        >
+                            <Icon icon="chevron-right" />
+                        </button>
+                    </div>}
+                </div>
             </>
         );
     };
