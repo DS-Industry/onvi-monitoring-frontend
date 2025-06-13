@@ -95,7 +95,12 @@
     "new": "New Position",
     "calc": "Calculate Salary",
     "sal": "Salary calculation (Creation)",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "financial": "Financial Accounting",
+    "reportFor": "Report for the period",
+    "articles": "Articles",
+    "direct": "Directory of articles",
+    "appo": "Directory of appointments"
   },
   "dashboard": {
     "news": "News",
