@@ -1,8 +1,8 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { useState } from "react";
 import type { TableProps } from 'antd';
-import { Card, Row, Col, Typography, Space, Form, Input, InputNumber, Popconfirm, Table } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Typography, Space, Form, Input, InputNumber, Popconfirm, Table, Button } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -22,7 +22,7 @@ interface DataType {
     address: string;
 }
 
-const originData = Array.from({ length: 100 }).map<DataType>((_, i) => ({
+const originData = Array.from({ length: 10 }).map<DataType>((_, i) => ({
     key: i.toString(),
     name: `Edward ${i}`,
     age: 32,
@@ -170,6 +170,7 @@ const Articles: React.FC = () => {
     const [form] = Form.useForm();
     const [data, setData] = useState<DataType[]>(originData);
     const [editingKey, setEditingKey] = useState('');
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -204,6 +205,36 @@ const Articles: React.FC = () => {
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
         }
+    };
+
+    // Add new row function
+    const handleAddRow = () => {
+        const newKey = Math.max(Math.max(...data.map(item => parseInt(item.key))) + 1, 0);
+        const newRow: DataType = {
+            key: newKey.toString(),
+            name: `Edward ${newKey}`,
+            age: 25,
+            address: `London Park no. ${newKey}`,
+        };
+        setData([...data, newRow]);
+    };
+
+    // Delete selected rows function
+    const handleDeleteRows = () => {
+        const newData = data.filter(item => !selectedRowKeys.includes(item.key));
+        setData(newData);
+        setSelectedRowKeys([]);
+        // Cancel editing if the edited row is being deleted
+        if (selectedRowKeys.includes(editingKey)) {
+            setEditingKey('');
+        }
+    };
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (newSelectedRowKeys: React.Key[]) => {
+            setSelectedRowKeys(newSelectedRowKeys);
+        },
     };
 
     const columns = [
@@ -279,7 +310,38 @@ const Articles: React.FC = () => {
                     ))}
                 </Row>
             </div>
+
             <div className="mt-5">
+                {/* Add/Delete buttons */}
+                <div style={{ marginBottom: 16 }}>
+                    <Space>
+                        <Popconfirm
+                            title="Are you sure you want to add the new row?"
+                            onConfirm={handleAddRow}
+                        >
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                            >
+                                Add Row
+                            </Button>
+                        </Popconfirm>
+                        <Popconfirm
+                            title="Are you sure you want to delete the selected rows?"
+                            onConfirm={handleDeleteRows}
+                            disabled={selectedRowKeys.length === 0}
+                        >
+                            <Button
+                                danger
+                                icon={<DeleteOutlined />}
+                                disabled={selectedRowKeys.length === 0}
+                            >
+                                Delete Selected ({selectedRowKeys.length})
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </div>
+
                 <Form form={form} component={false}>
                     <Table<DataType>
                         components={{
@@ -290,6 +352,7 @@ const Articles: React.FC = () => {
                         columns={mergedColumns}
                         rowClassName="editable-row"
                         pagination={{ onChange: cancel }}
+                        rowSelection={rowSelection}
                     />
                 </Form>
             </div>

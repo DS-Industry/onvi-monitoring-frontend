@@ -205,6 +205,7 @@ const ProgramDevices: React.FC = () => {
                                 deviceName: deviceProgram.name,
                                 deviceId: deviceProgram.id
                             })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
+                            showPagination={true}
                         />
                     </div>
                 ) : (
