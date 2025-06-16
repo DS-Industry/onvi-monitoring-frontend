@@ -92,7 +92,7 @@ const Deposit: React.FC = () => {
 
     const city = useCity();
 
-    const { data, error } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
+    const { data, error, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
 
     useEffect(() => {
     }, [error]);
@@ -122,6 +122,7 @@ const Deposit: React.FC = () => {
                 hideCity={true}
                 hideSearch={true}
                 hideReset={true}
+                loadingPos={isLoading || isValidating}
             />
             {isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
                 :

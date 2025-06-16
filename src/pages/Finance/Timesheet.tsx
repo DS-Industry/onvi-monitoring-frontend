@@ -94,7 +94,7 @@ const Timesheet: React.FC = () => {
 
     const city = useCity();
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -127,6 +127,7 @@ const Timesheet: React.FC = () => {
                 posesSelect={poses}
                 hideSearch={true}
                 handleDataFilter={handleDataFilter}
+                loadingPos={isLoading || isValidating}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsShifts.length} />)
                 :

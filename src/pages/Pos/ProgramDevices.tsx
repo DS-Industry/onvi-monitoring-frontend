@@ -102,7 +102,7 @@ const ProgramDevices: React.FC = () => {
             size: pageSize
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const totalRecords = filter?.length || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
@@ -167,6 +167,7 @@ const ProgramDevices: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
+                loadingPos={isLoading || isValidating}
             />
             {isTableLoading || filterLoading ? (
                 <div className="mt-8 space-y-6">

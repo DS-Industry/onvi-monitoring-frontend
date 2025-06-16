@@ -99,7 +99,7 @@ const ChemicalConsumption: React.FC = () => {
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     useEffect(() => {
         chemicalMutate().then(() => setIsTableLoading(false));
@@ -123,6 +123,7 @@ const ChemicalConsumption: React.FC = () => {
                 posesSelect={poses}
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
+                loadingPos={loadingPos || validatingPos}
             />
             {isTableLoading || chemicalLoading ? (
                 <TableSkeleton columnCount={columnsChemicalConsumption.length} />

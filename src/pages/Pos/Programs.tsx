@@ -105,7 +105,7 @@ const Programs: React.FC = () => {
 
     const city = useCity();
 
-    const { data } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
+    const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
 
 
     useEffect(() => {
@@ -169,6 +169,7 @@ const Programs: React.FC = () => {
                 hideCity={true}
                 hideSearch={true}
                 hideReset={true}
+                loadingPos={isLoading || isValidating}
             />
             {isTableLoading || filterLoading ? (
                 <div className="mt-8 space-y-6">

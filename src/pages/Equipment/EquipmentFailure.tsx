@@ -124,7 +124,7 @@ const EquipmentFailure: React.FC = () => {
 
     const [formData, setFormData] = useState(defaultValues);
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -283,6 +283,7 @@ const EquipmentFailure: React.FC = () => {
                 posesSelect={[...poses, posesAllObj]}
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
+                loadingPos={loadingPos || validatingPos}
             />
             {isTableLoading || incidentLoading ? (
                 <TableSkeleton columnCount={columnsEquipmentFailure.length} />

@@ -86,7 +86,7 @@ const Collection: React.FC = () => {
             setTotalCount(filter?.totalCount)
     }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -190,6 +190,7 @@ const Collection: React.FC = () => {
                 posesSelect={poses}
                 hideSearch={true}
                 handleDataFilter={handleDataFilter}
+                loadingPos={loadingPos || validatingPos}
             />
             {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columns.length} />)
                 :

@@ -27,6 +27,7 @@ type Props = {
     hideCity?: boolean;
     hideSearch?: boolean;
     hideReset?: boolean;
+    loadingPos?: boolean;
 };
 
 const { Search } = Input;
@@ -41,7 +42,8 @@ const FilterMonitoring: React.FC<Props> = ({
     handleDataFilter,
     hideCity = false,
     hideSearch = false,
-    hideReset = false
+    hideReset = false,
+    loadingPos
 }: Props) => {
 
     const today = new Date();
@@ -175,6 +177,7 @@ const FilterMonitoring: React.FC<Props> = ({
                         options={posesSelect}
                         value={posType}
                         onChange={setPosType}
+                        loading={loadingPos}
                     />
                 )}
                 {usersSelect && usersSelect.length > 0 && (

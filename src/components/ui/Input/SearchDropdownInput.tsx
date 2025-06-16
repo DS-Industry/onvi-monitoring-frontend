@@ -1,5 +1,5 @@
 import React from "react";
-import { Select } from "antd";
+import { Select, Spin } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 type Option = {
@@ -18,6 +18,7 @@ type SearchableDropdownProps = {
     classname?: string;
     title?: string;
     allowClear?: boolean;
+    loading?: boolean;
 };
 
 const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
@@ -30,18 +31,18 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
     errorText = "",
     classname,
     title = "",
-    allowClear = false
+    allowClear = false,
+    loading = false
 }) => {
-    const formattedOptions = options.map((option) => ({
-        label: option.name,
-        value: option.value,
-    }));
+    const formattedOptions = loading
+        ? [] // Show no options when loading
+        : options.map((option) => ({
+              label: option.name,
+              value: option.value,
+          }));
 
     const validOptionValues = options.map((opt) => opt.value);
-
-    const sanitizedValue = validOptionValues.includes(value)
-        ? value
-        : undefined;
+    const sanitizedValue = validOptionValues.includes(value) ? value : undefined;
 
     return (
         <div className={`flex flex-col ${classname}`}>
@@ -55,7 +56,10 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
                 placeholder={placeholder}
                 onChange={onChange}
                 options={formattedOptions}
-                className={`w-full h-10 ${error ? "border-errorFill" : "border-primary02 border-opacity-30"}`}
+                notFoundContent={loading ? <div className="flex items-center justify-center"><Spin size="small" /></div> : "No options"}
+                className={`w-full h-10 ${
+                    error ? "border-errorFill" : "border-primary02 border-opacity-30"
+                }`}
                 optionFilterProp="label"
                 filterOption={(input, option) =>
                     option?.label?.toLowerCase().includes(input.toLowerCase())

@@ -122,7 +122,7 @@ const DepositDevices: React.FC = () => {
         }
     }, [maxPages, currentPage, setCurrentPage]);
 
-    const { data, error } = useSWR(
+    const { data, error, isLoading, isValidating } = useSWR(
         [`get-pos`, city],
         () => getPoses({ placementId: city }),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
@@ -179,6 +179,7 @@ const DepositDevices: React.FC = () => {
                 posesSelect={posOptional}
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
+                loadingPos={isLoading || isValidating}
             />
             {
                 isTableLoading || filterLoading ? (
