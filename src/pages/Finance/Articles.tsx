@@ -1,8 +1,19 @@
 import Filter from "@/components/ui/Filter/Filter";
-import React, { useState } from "react";
+import React, { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import type { TableProps } from 'antd';
-import { Card, Row, Col, Typography, Space, Form, Input, InputNumber, Popconfirm, Table, Button } from 'antd';
+import { Card, Row, Col, Typography, Space, Form, InputNumber, Popconfirm, Table, Button as AntDButton } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import Modal from "@/components/ui/Modal/Modal";
+import Close from "@icons/close.svg?react";
+import { useTranslation } from "react-i18next";
+import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
+import useSWR from "swr";
+import { getPoses } from "@/services/api/equipment";
+import { useCity } from "@/hooks/useAuthStore";
+import Input from "@/components/ui/Input/Input";
+import Button from "@/components/ui/Button/Button";
+import useFormHook from "@/hooks/useFormHook";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -49,7 +60,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
 
     return (
-        <td {...restProps}>
+        <td
+            {...restProps}
+            style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
+        >
             {editing ? (
                 <Form.Item
                     name={dataIndex}
@@ -167,10 +181,12 @@ const Articles: React.FC = () => {
         },
     ];
 
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [data, setData] = useState<DataType[]>(originData);
     const [editingKey, setEditingKey] = useState('');
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [isOpenModal, setIsOpenModal] = useState(false);
 
     const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -182,6 +198,12 @@ const Articles: React.FC = () => {
     const cancel = () => {
         setEditingKey('');
     };
+
+    const city = useCity();
+
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const poses: { name: string; value: number | string; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     const save = async (key: React.Key) => {
         try {
@@ -209,14 +231,15 @@ const Articles: React.FC = () => {
 
     // Add new row function
     const handleAddRow = () => {
-        const newKey = Math.max(Math.max(...data.map(item => parseInt(item.key))) + 1, 0);
-        const newRow: DataType = {
-            key: newKey.toString(),
-            name: `Edward ${newKey}`,
-            age: 25,
-            address: `London Park no. ${newKey}`,
-        };
-        setData([...data, newRow]);
+        setIsOpenModal(true);
+        // const newKey = Math.max(Math.max(...data.map(item => parseInt(item.key))) + 1, 0);
+        // const newRow: DataType = {
+        //     key: newKey.toString(),
+        //     name: `Edward ${newKey}`,
+        //     age: 25,
+        //     address: `London Park no. ${newKey}`,
+        // };
+        // setData([...data, newRow]);
     };
 
     // Delete selected rows function
@@ -295,12 +318,128 @@ const Articles: React.FC = () => {
         };
     });
 
+    const defaultValues = {
+        groupId: 0,
+        posId: 0,
+        income: 0,
+        date: '',
+        amount: 0
+    };
+
+    const [formData, setFormData] = useState(defaultValues);
+
+    const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
+
+    type FieldType = "groupId" | "posId" | "income" | "date" | "amount";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        const numericFields = ["groupId", "posId", "income", "amount"];
+        const updatedValue = numericFields.includes(field) ? Number(value) : value;
+        setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+        setValue(field, value);
+    };
+
+    const resetForm = () => {
+        setFormData(defaultValues);
+        // setIsEditMode(false);
+        reset();
+        // setEditIncidentId(0);
+        setIsOpenModal(false);
+    };
+
+    const onSubmit = async () => {
+
+    }
+
     return (
         <div>
             <Filter count={0}>
                 <div></div>
             </Filter>
-
+            <Modal isOpen={isOpenModal}>
+                <div className="flex flex-row items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("roles.create")}</h2>
+                    <Close
+                        onClick={() => { setIsOpenModal(false); }}
+                        className="cursor-pointer text-text01"
+                    />
+                </div>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="flex flex-col space-y-4 text-text02">
+                        <SearchDropdownInput
+                            title={"Group"}
+                            classname="w-full sm:w-80"
+                            placeholder="Выберите объект"
+                            options={[]}
+                            {...register('groupId', {
+                                required: 'Group ID is required',
+                                validate: (value) =>
+                                    (value !== 0) || "Group ID is required"
+                            })}
+                            value={formData.groupId}
+                            onChange={(value) => { handleInputChange('groupId', value); }}
+                            error={!!errors.groupId}
+                        />
+                        <SearchDropdownInput
+                            title={t("analysis.posId")}
+                            classname="w-full sm:w-80"
+                            placeholder="Выберите объект"
+                            options={poses}
+                            {...register('posId', {
+                                required: 'Pos ID is required',
+                                validate: (value) =>
+                                    (value !== 0) || "Pos ID is required"
+                            })}
+                            value={formData.posId}
+                            onChange={(value) => { handleInputChange('posId', value); }}
+                            error={!!errors.posId}
+                        />
+                        <Input
+                            title="Expanse/Income"
+                            type="number"
+                            classname="w-full sm:w-80"
+                            showIcon={true}
+                            IconComponent={<div className="text-text02 text-xl">₽</div>}
+                            value={formData.income}
+                            changeValue={(e) => handleInputChange('income', e.target.value)}
+                            error={!!errors.income}
+                            {...register('income', { required: 'income is required' })}
+                            helperText={errors.income?.message || ''}
+                        />
+                        <Input
+                            title="Date"
+                            type="date"
+                            classname="w-full sm:w-40"
+                            value={formData.date ? dayjs(formData.date) : null}
+                            changeValue={(date) => handleInputChange("date", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
+                            error={!!errors.date}
+                            {...register('date', { required: 'Date is required' })}
+                            helperText={errors.date?.message || ''}
+                        />
+                        <Input
+                            title="Amount"
+                            type="number"
+                            classname="w-full sm:w-80"
+                            showIcon={true}
+                            IconComponent={<div className="text-text02 text-xl">₽</div>}
+                            value={formData.amount}
+                            changeValue={(e) => handleInputChange('amount', e.target.value)}
+                            error={!!errors.amount}
+                            {...register('amount', { required: 'amount is required' })}
+                            helperText={errors.amount?.message || ''}
+                        />
+                        <Input
+                            title="User"
+                            classname="w-full sm:w-80"
+                            value={"User 1"}
+                        />
+                        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+                            <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
+                            <Button title={t("organizations.save")} form={true} handleClick={() => { }} />
+                        </div>
+                    </div>
+                </form>
+            </Modal>
             <div style={{ marginTop: '24px' }}>
                 <Row gutter={[16, 16]}>
                     {financialData.map((data, index) => (
@@ -315,44 +454,51 @@ const Articles: React.FC = () => {
                 {/* Add/Delete buttons */}
                 <div style={{ marginBottom: 16 }}>
                     <Space>
-                        <Popconfirm
-                            title="Are you sure you want to add the new row?"
-                            onConfirm={handleAddRow}
+                        <AntDButton
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={handleAddRow}
                         >
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                            >
-                                Add Row
-                            </Button>
-                        </Popconfirm>
+                            Add Row
+                        </AntDButton>
                         <Popconfirm
                             title="Are you sure you want to delete the selected rows?"
                             onConfirm={handleDeleteRows}
                             disabled={selectedRowKeys.length === 0}
                         >
-                            <Button
+                            <AntDButton
                                 danger
                                 icon={<DeleteOutlined />}
                                 disabled={selectedRowKeys.length === 0}
                             >
                                 Delete Selected ({selectedRowKeys.length})
-                            </Button>
+                            </AntDButton>
                         </Popconfirm>
                     </Space>
                 </div>
 
                 <Form form={form} component={false}>
                     <Table<DataType>
-                        components={{
-                            body: { cell: EditableCell },
-                        }}
-                        bordered
                         dataSource={data}
                         columns={mergedColumns}
                         rowClassName="editable-row"
                         pagination={{ onChange: cancel }}
                         rowSelection={rowSelection}
+                        components={{
+                            header: {
+                                cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
+                                    <th
+                                        {...props}
+                                        style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                                        className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
+                                    />
+                                ),
+                            },
+                            body: {
+                                cell: EditableCell
+                            },
+                        }}
+                        scroll={{ x: "max-content" }}
                     />
                 </Form>
             </div>
