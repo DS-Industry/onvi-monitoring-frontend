@@ -2,7 +2,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
 import type { TableProps } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, InputNumber, Popconfirm, Table, Button as AntDButton } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -324,6 +324,7 @@ const Articles: React.FC = () => {
         posId: 0,
         income: 0,
         date: '',
+        state: '',
         amount: 0
     };
 
@@ -331,7 +332,7 @@ const Articles: React.FC = () => {
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    type FieldType = "groupId" | "posId" | "income" | "date" | "amount";
+    type FieldType = "groupId" | "posId" | "income" | "date" | "amount" | "state";
 
     const handleInputChange = (field: FieldType, value: string) => {
         const numericFields = ["groupId", "posId", "income", "amount"];
@@ -352,30 +353,29 @@ const Articles: React.FC = () => {
 
     }
 
-    const stateTypeOptions = [
+    const stateTypeOptions = useMemo(() => [
         { label: "Active", value: "active" },
         { label: "Pending", value: "pending" },
         { label: "Completed", value: "completed" },
         { label: "Cancelled", value: "cancelled" },
         { label: "Archived", value: "archived" },
         { label: "In Progress", value: "in_progress" },
-    ];
+    ], []);
 
     const [searchText, setSearchText] = useState("");
-    const [selected, setSelected] = useState<string | undefined>();
 
     const filteredOptions = useMemo(() => {
         return stateTypeOptions.filter((opt) =>
             opt.label.toLowerCase().includes(searchText.toLowerCase())
         );
-    }, [searchText]);
+    }, [searchText, stateTypeOptions]);
 
     const handleSelect = (value: string) => {
-        setSelected(value);
+        setFormData((prev) => ({ ...prev, ["state"]: value }));
+        setValue("state", value);
     };
 
     const handleConfirm = () => {
-        console.log("Selected:", selected);
         setIsStateOpen(false);
     };
 
@@ -406,7 +406,7 @@ const Articles: React.FC = () => {
                             <div
                                 key={opt.value}
                                 onClick={() => handleSelect(opt.value)}
-                                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${selected === opt.value ? "bg-primary02 text-white" : ""
+                                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.state === opt.value ? "text-primary02" : ""
                                     }`}
                             >
                                 {opt.label}
@@ -419,8 +419,8 @@ const Articles: React.FC = () => {
 
                 {/* Buttons */}
                 <div className="flex justify-end gap-2 mt-4">
-                    <Button handleClick={() => setIsStateOpen(false)} title="Cancel" />
-                    <Button  disabled={!selected} handleClick={handleConfirm} title="Confirm" />
+                    <Button type="outline" handleClick={() => setIsStateOpen(false)} title="Cancel" />
+                    <Button  disabled={!formData.state} handleClick={handleConfirm} title="Confirm" />
                 </div>
             </Modal>
             <Modal isOpen={isOpenModal} classname="w-[400px]">
@@ -461,7 +461,11 @@ const Articles: React.FC = () => {
                             onChange={(value) => { handleInputChange('posId', value); }}
                             error={!!errors.posId}
                         />
-                        <div className="flex">
+                        <div className="flex space-x-2">
+                            <Input 
+                                value={formData.state}
+                                disabled={true}
+                            />
                             <Button
                                 title="Open State Modal"
                                 handleClick={() => setIsStateOpen(true)}
@@ -548,6 +552,13 @@ const Articles: React.FC = () => {
                                 Delete Selected ({selectedRowKeys.length})
                             </AntDButton>
                         </Popconfirm>
+                        <AntDButton
+                            icon={<CheckOutlined />}
+                            onClick={() => {}}
+                            className="bg-successFill text-white"
+                        >
+                            Save
+                        </AntDButton>
                     </Space>
                 </div>
 

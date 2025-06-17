@@ -6,8 +6,8 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import { Table, Button as AntButton, Input as AntInput, Select, DatePicker, Space } from 'antd';
-import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import { Table, Input as AntInput, Select, DatePicker, Space } from 'antd';
+import { EditOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
@@ -255,33 +255,27 @@ const MonthlyExpanse: React.FC = () => {
             render: (_: any, record: DataRecord) => {
                 const editable = isEditing(record);
                 return editable ? (
-                    <Space>
-                        <AntButton
-                            type="primary"
-                            size="small"
-                            icon={<SaveOutlined />}
-                            onClick={() => save(record.id)}
-                        >
-                            Сохранить
-                        </AntButton>
-                        <AntButton
-                            size="small"
-                            icon={<CloseOutlined />}
+                    <Space className="flex space-x-4">
+                        <div
+                            className="cursor-pointer text-errorFill"
                             onClick={cancel}
                         >
-                            Отмена
-                        </AntButton>
+                            <CloseOutlined />
+                        </div>
+                        <div
+                            className="cursor-pointer text-successFill"
+                            onClick={() => save(record.id)}
+                        >
+                            <CheckOutlined />
+                        </div>
                     </Space>
                 ) : (
-                    <AntButton
-                        type="primary"
-                        size="small"
-                        icon={<EditOutlined />}
-                        disabled={editingKey !== ''}
+                    <div
+                        className="cursor-pointer text-primary02"
                         onClick={() => edit(record)}
                     >
-                        Редактировать
-                    </AntButton>
+                        <EditOutlined />
+                    </div>
                 );
             }
         }
