@@ -322,7 +322,6 @@ const Articles: React.FC = () => {
     const defaultValues = {
         groupId: 0,
         posId: 0,
-        income: 0,
         date: '',
         state: '',
         amount: 0
@@ -332,10 +331,10 @@ const Articles: React.FC = () => {
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    type FieldType = "groupId" | "posId" | "income" | "date" | "amount" | "state";
+    type FieldType = "groupId" | "posId" | "date" | "amount" | "state";
 
     const handleInputChange = (field: FieldType, value: string) => {
-        const numericFields = ["groupId", "posId", "income", "amount"];
+        const numericFields = ["groupId", "posId", "amount"];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
@@ -474,14 +473,9 @@ const Articles: React.FC = () => {
                         <Input
                             title="Expanse/Income"
                             type="number"
-                            classname="w-full sm:w-80"
-                            showIcon={true}
-                            IconComponent={<div className="text-text02 text-xl">₽</div>}
-                            value={formData.income}
-                            changeValue={(e) => handleInputChange('income', e.target.value)}
-                            error={!!errors.income}
-                            {...register('income', { required: 'income is required' })}
-                            helperText={errors.income?.message || ''}
+                            classname="w-full sm:w-44"
+                            value={100}
+                            disabled={true}
                         />
                         <Input
                             title="Date"
