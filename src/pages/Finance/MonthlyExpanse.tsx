@@ -4,13 +4,28 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import dayjs from "dayjs";
-import React, { useMemo, useState } from "react";
+import { Table, Button as AntButton, Input as AntInput, Select, DatePicker, Space } from 'antd';
+import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs, { Dayjs } from 'dayjs';
+import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
+import { useNavigate } from "react-router-dom";
+
+const { Option } = Select;
+
+interface DataRecord {
+    id: number;
+    posName: string;
+    name: string;
+    period: string;
+    status: string;
+    type: string;
+    startDate: string;
+}
 
 const MonthlyExpanse: React.FC = () => {
 
@@ -33,40 +48,7 @@ const MonthlyExpanse: React.FC = () => {
         endAmount: 0
     };
 
-    const columnsExpanse = [
-        {
-            label: "Автомойка/ Филиал",
-            key: "posName"
-        },
-        {
-            label: "Наименование работ",
-            key: "name"
-        },
-        {
-            label: "Периодичность",
-            key: "period"
-        },
-        {
-            label: "Статус",
-            key: "status"
-        },
-        {
-            label: "Тип работы",
-            key: "type"
-        },
-        {
-            label: "Теги",
-            key: "tags",
-            type: "tags"
-        },
-        {
-            label: "Дата начала работ",
-            key: "startDate",
-            type: "date"
-        },
-    ]
-
-    const demoExpanse = [
+    const [data, setData] = useState<DataRecord[]>([
         {
             id: 1,
             posName: "Автомойка №1 - Москва",
@@ -74,10 +56,6 @@ const MonthlyExpanse: React.FC = () => {
             period: "Period 1",
             status: "Запланировано",
             type: "Техническое обслуживание",
-            tags: [
-                { id: 1, color: "blue", name: "вода" },
-                { id: 2, color: "green", name: "фильтр" }
-            ],
             startDate: "2025-06-15T09:00:00Z"
         },
         {
@@ -87,9 +65,6 @@ const MonthlyExpanse: React.FC = () => {
             period: "Period 2",
             status: "В процессе",
             type: "Диагностика",
-            tags: [
-                { id: 3, color: "gold", name: "оборудование" }
-            ],
             startDate: "2025-06-18T10:00:00Z"
         },
         {
@@ -99,10 +74,6 @@ const MonthlyExpanse: React.FC = () => {
             period: "Period 3",
             status: "Завершено",
             type: "Обновление",
-            tags: [
-                { id: 4, color: "volcano", name: "ПО" },
-                { id: 5, color: "purple", name: "система" }
-            ],
             startDate: "2025-06-10T08:30:00Z"
         },
         {
@@ -112,10 +83,210 @@ const MonthlyExpanse: React.FC = () => {
             period: "Period 4",
             status: "Ожидает подтверждения",
             type: "Тестирование",
-            tags: [],
             startDate: "2025-06-20T14:00:00Z"
         }
+    ]);
+
+    const [editingKey, setEditingKey] = useState<string>('');
+    const [editingData, setEditingData] = useState<Partial<DataRecord>>({});
+
+    const isEditing = (record: DataRecord): boolean => record.id.toString() === editingKey;
+
+    const edit = (record: DataRecord): void => {
+        setEditingKey(record.id.toString());
+        setEditingData({ ...record });
+    };
+
+    const cancel = (): void => {
+        setEditingKey('');
+        setEditingData({});
+    };
+
+    const save = async (id: number): Promise<void> => {
+        try {
+            const newData = [...data];
+            const index = newData.findIndex((item) => id === item.id);
+            if (index > -1) {
+                const item = newData[index];
+                newData.splice(index, 1, { ...item, ...editingData } as DataRecord);
+                setData(newData);
+                setEditingKey('');
+                setEditingData({});
+            }
+        } catch (errInfo) {
+            console.log('Validate Failed:', errInfo);
+        }
+    };
+
+    const handleInputTableChange = (field: keyof DataRecord, value: string | null): void => {
+        setEditingData({
+            ...editingData,
+            [field]: value
+        });
+    };
+
+    const statusOptions: string[] = [
+        "Запланировано",
+        "В процессе",
+        "Завершено",
+        "Ожидает подтверждения"
     ];
+
+    const typeOptions: string[] = [
+        "Техническое обслуживание",
+        "Диагностика",
+        "Обновление",
+        "Тестирование"
+    ];
+
+    const navigate = useNavigate();
+
+    const columnsExpanse: ColumnsType<DataRecord> = [
+        {
+            title: "Автомойка/ Филиал",
+            dataIndex: "posName",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <AntInput
+                            value={editingData.posName || text}
+                            onChange={(e) => handleInputTableChange('posName', e.target.value)}
+                        />
+                    );
+                }
+                return text;
+            }
+        },
+        {
+            title: "Наименование работ",
+            dataIndex: "name",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <AntInput
+                            value={editingData.name || text}
+                            onChange={(e) => handleInputTableChange('name', e.target.value)}
+                        />
+                    );
+                }
+                return text;
+            }
+        },
+        {
+            title: "Периодичность",
+            dataIndex: "period",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <AntInput
+                            value={editingData.period || text}
+                            onChange={(e) => handleInputTableChange('period', e.target.value)}
+                        />
+                    );
+                }
+                return (
+                    <div className="text-primary02 hover:text-primary02_Hover cursor-pointer font-semibold" onClick={() => navigate("/finance/report/period/edit")}>
+                        {text}
+                    </div>
+                );
+            }
+        },
+        {
+            title: "Статус",
+            dataIndex: "status",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <Select
+                            value={editingData.status || text}
+                            onChange={(value: string) => handleInputTableChange('status', value)}
+                            style={{ width: '100%' }}
+                        >
+                            {statusOptions.map((option: string) => (
+                                <Option key={option} value={option}>{option}</Option>
+                            ))}
+                        </Select>
+                    );
+                }
+                return text;
+            }
+        },
+        {
+            title: "Тип работы",
+            dataIndex: "type",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <Select
+                            value={editingData.type || text}
+                            onChange={(value: string) => handleInputTableChange('type', value)}
+                            style={{ width: '100%' }}
+                        >
+                            {typeOptions.map((option: string) => (
+                                <Option key={option} value={option}>{option}</Option>
+                            ))}
+                        </Select>
+                    );
+                }
+                return text;
+            }
+        },
+        {
+            title: "Дата начала работ",
+            dataIndex: "startDate",
+            render: (text: string, record: DataRecord) => {
+                if (isEditing(record)) {
+                    return (
+                        <DatePicker
+                            showTime
+                            value={editingData.startDate ? dayjs(editingData.startDate) : dayjs(text)}
+                            onChange={(date: Dayjs | null) => handleInputTableChange('startDate', date ? date.toISOString() : null)}
+                            format="YYYY-MM-DD HH:mm:ss"
+                            style={{ width: '100%' }}
+                        />
+                    );
+                }
+                return dayjs(text).format('YYYY-MM-DD HH:mm:ss');
+            }
+        },
+        {
+            title: "Действия",
+            dataIndex: "actions",
+            render: (_: any, record: DataRecord) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <Space>
+                        <AntButton
+                            type="primary"
+                            size="small"
+                            icon={<SaveOutlined />}
+                            onClick={() => save(record.id)}
+                        >
+                            Сохранить
+                        </AntButton>
+                        <AntButton
+                            size="small"
+                            icon={<CloseOutlined />}
+                            onClick={cancel}
+                        >
+                            Отмена
+                        </AntButton>
+                    </Space>
+                ) : (
+                    <AntButton
+                        type="primary"
+                        size="small"
+                        icon={<EditOutlined />}
+                        disabled={editingKey !== ''}
+                        onClick={() => edit(record)}
+                    >
+                        Редактировать
+                    </AntButton>
+                );
+            }
+        }
+    ];
+
 
     const [formData, setFormData] = useState(defaultValues);
 
@@ -154,10 +325,29 @@ const MonthlyExpanse: React.FC = () => {
                 />
             </Filter>
             <div className="mt-8">
-                <DynamicTable
-                    data={demoExpanse}
+                <Table
+                    dataSource={data}
                     columns={columnsExpanse}
-                    navigableFields={[{ key: "period", getPath: () => "/finance/report/period/edit" }]}
+                    components={{
+                        header: {
+                            cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
+                                <th
+                                    {...props}
+                                    style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                                    className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
+                                />
+                            ),
+                        },
+                        body: {
+                            cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableDataCellElement> & ThHTMLAttributes<HTMLTableDataCellElement>) => (
+                                <td
+                                    {...props}
+                                    style={{ paddingLeft: "9px", paddingTop: "10px", paddingBottom: "10px" }}
+                                />
+                            ),
+                        },
+                    }}
+                    scroll={{ x: "max-content" }}
                 />
             </div>
             <DrawerCreate>

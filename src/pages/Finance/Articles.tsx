@@ -1,5 +1,5 @@
 import Filter from "@/components/ui/Filter/Filter";
-import React, { ClassAttributes, ThHTMLAttributes, useState } from "react";
+import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
 import type { TableProps } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, InputNumber, Popconfirm, Table, Button as AntDButton } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -187,6 +187,7 @@ const Articles: React.FC = () => {
     const [editingKey, setEditingKey] = useState('');
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isStateOpen, setIsStateOpen] = useState(false);
 
     const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -351,12 +352,78 @@ const Articles: React.FC = () => {
 
     }
 
+    const stateTypeOptions = [
+        { label: "Active", value: "active" },
+        { label: "Pending", value: "pending" },
+        { label: "Completed", value: "completed" },
+        { label: "Cancelled", value: "cancelled" },
+        { label: "Archived", value: "archived" },
+        { label: "In Progress", value: "in_progress" },
+    ];
+
+    const [searchText, setSearchText] = useState("");
+    const [selected, setSelected] = useState<string | undefined>();
+
+    const filteredOptions = useMemo(() => {
+        return stateTypeOptions.filter((opt) =>
+            opt.label.toLowerCase().includes(searchText.toLowerCase())
+        );
+    }, [searchText]);
+
+    const handleSelect = (value: string) => {
+        setSelected(value);
+    };
+
+    const handleConfirm = () => {
+        console.log("Selected:", selected);
+        setIsStateOpen(false);
+    };
+
     return (
         <div>
             <Filter count={0}>
                 <div></div>
             </Filter>
-            <Modal isOpen={isOpenModal}>
+            <Modal isOpen={isStateOpen} classname="w-[500px]">
+                <div className="flex flex-row items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">Add New State Type</h2>
+                    <Close
+                        onClick={() => { setIsStateOpen(false); }}
+                        className="cursor-pointer text-text01"
+                    />
+                </div>
+                <Input
+                    placeholder="Search state type..."
+                    value={searchText}
+                    changeValue={(e) => setSearchText(e.target.value)}
+                    classname="mb-3"
+                />
+
+                {/* Filtered List */}
+                <div className="max-h-48 overflow-y-auto border rounded p-2 space-y-1">
+                    {filteredOptions.length > 0 ? (
+                        filteredOptions.map((opt) => (
+                            <div
+                                key={opt.value}
+                                onClick={() => handleSelect(opt.value)}
+                                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${selected === opt.value ? "bg-primary02 text-white" : ""
+                                    }`}
+                            >
+                                {opt.label}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-sm text-gray-400">No matches found.</div>
+                    )}
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end gap-2 mt-4">
+                    <Button handleClick={() => setIsStateOpen(false)} title="Cancel" />
+                    <Button  disabled={!selected} handleClick={handleConfirm} title="Confirm" />
+                </div>
+            </Modal>
+            <Modal isOpen={isOpenModal} classname="w-[400px]">
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("roles.create")}</h2>
                     <Close
@@ -394,6 +461,12 @@ const Articles: React.FC = () => {
                             onChange={(value) => { handleInputChange('posId', value); }}
                             error={!!errors.posId}
                         />
+                        <div className="flex">
+                            <Button
+                                title="Open State Modal"
+                                handleClick={() => setIsStateOpen(true)}
+                            />
+                        </div>
                         <Input
                             title="Expanse/Income"
                             type="number"
@@ -432,8 +505,9 @@ const Articles: React.FC = () => {
                             title="User"
                             classname="w-full sm:w-80"
                             value={"User 1"}
+                            disabled={true}
                         />
-                        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+                        <div className="flex flex-col sm:flex-row gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
                             <Button title={t("organizations.save")} form={true} handleClick={() => { }} />
                         </div>
