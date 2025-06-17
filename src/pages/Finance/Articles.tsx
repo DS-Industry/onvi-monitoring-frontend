@@ -420,7 +420,7 @@ const Articles: React.FC = () => {
                 {/* Buttons */}
                 <div className="flex justify-end gap-2 mt-4">
                     <Button type="outline" handleClick={() => setIsStateOpen(false)} title="Cancel" />
-                    <Button  disabled={!formData.state} handleClick={handleConfirm} title="Confirm" />
+                    <Button disabled={!formData.state} handleClick={handleConfirm} title="Confirm" />
                 </div>
             </Modal>
             <Modal isOpen={isOpenModal} classname="w-[400px]">
@@ -446,6 +446,7 @@ const Articles: React.FC = () => {
                             value={formData.groupId}
                             onChange={(value) => { handleInputChange('groupId', value); }}
                             error={!!errors.groupId}
+                            errorText={errors.groupId?.message}
                         />
                         <SearchDropdownInput
                             title={t("analysis.posId")}
@@ -460,16 +461,20 @@ const Articles: React.FC = () => {
                             value={formData.posId}
                             onChange={(value) => { handleInputChange('posId', value); }}
                             error={!!errors.posId}
+                            errorText={errors.posId?.message}
                         />
-                        <div className="flex space-x-2">
-                            <Input 
+                        <div className="flex space-x-2 items-center">
+                            <Input
                                 value={formData.state}
                                 disabled={true}
                             />
-                            <Button
-                                title="Open State Modal"
-                                handleClick={() => setIsStateOpen(true)}
-                            />
+                            <AntDButton
+                                onClick={() => setIsStateOpen(true)}
+                                type="primary"
+                                className="h-10"
+                            >
+                                Open State Button
+                            </AntDButton>
                         </div>
                         <Input
                             title="Expanse/Income"
@@ -548,7 +553,7 @@ const Articles: React.FC = () => {
                         </Popconfirm>
                         <AntDButton
                             icon={<CheckOutlined />}
-                            onClick={() => {}}
+                            onClick={() => { }}
                             className="bg-successFill text-white"
                         >
                             Save

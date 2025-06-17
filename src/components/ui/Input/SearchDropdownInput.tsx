@@ -37,9 +37,9 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
     const formattedOptions = loading
         ? [] // Show no options when loading
         : options.map((option) => ({
-              label: option.name,
-              value: option.value,
-          }));
+            label: option.name,
+            value: option.value,
+        }));
 
     const validOptionValues = options.map((opt) => opt.value);
     const sanitizedValue = validOptionValues.includes(value) ? value : undefined;
@@ -57,9 +57,7 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
                 onChange={onChange}
                 options={formattedOptions}
                 notFoundContent={loading ? <div className="flex items-center justify-center"><Spin size="small" /></div> : "No options"}
-                className={`w-full h-10 ${
-                    error ? "border-errorFill" : "border-primary02 border-opacity-30"
-                }`}
+                className={`w-full h-10`}
                 optionFilterProp="label"
                 filterOption={(input, option) =>
                     option?.label?.toLowerCase().includes(input.toLowerCase())
@@ -73,6 +71,7 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
                         backgroundColor: isDisabled ? "#f5f5f5" : "#fff",
                     },
                 }}
+                status={error ? 'error' : ''}
             />
 
             {error && errorText && (
