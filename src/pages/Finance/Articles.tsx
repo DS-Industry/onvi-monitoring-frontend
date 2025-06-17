@@ -14,6 +14,7 @@ import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
 import dayjs from "dayjs";
+import DateInput from "@/components/ui/Input/DateInput";
 
 const { Title, Text } = Typography;
 
@@ -477,9 +478,8 @@ const Articles: React.FC = () => {
                             value={100}
                             disabled={true}
                         />
-                        <Input
+                        <DateInput
                             title="Date"
-                            type="date"
                             classname="w-full sm:w-40"
                             value={formData.date ? dayjs(formData.date) : null}
                             changeValue={(date) => handleInputChange("date", date ? date.format("YYYY-MM-DDTHH:mm") : "")}

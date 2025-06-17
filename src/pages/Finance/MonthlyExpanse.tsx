@@ -14,6 +14,7 @@ import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "rea
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { useNavigate } from "react-router-dom";
+import DateInput from "@/components/ui/Input/DateInput";
 
 const { Option } = Select;
 
@@ -347,9 +348,8 @@ const MonthlyExpanse: React.FC = () => {
             <DrawerCreate>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-2xl mx-auto p-4">
                     <span className="font-semibold text-xl md:text-3xl text-text01 mb-5">{t("pos.creating")}</span>
-                    <Input
+                    <DateInput
                         title={t("equipment.start")}
-                        type="date"
                         classname="w-44"
                         value={formData.startDate ? dayjs(formData.startDate) : null}
                         changeValue={(date) => handleInputChange("startDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
@@ -357,9 +357,8 @@ const MonthlyExpanse: React.FC = () => {
                         {...register('startDate', { required: 'Start Date is required' })}
                         helperText={errors.startDate?.message || ''}
                     />
-                    <Input
+                    <DateInput
                         title={t("equipment.end")}
-                        type="date"
                         classname="w-44"
                         value={formData.endDate ? dayjs(formData.endDate) : null}
                         changeValue={(date) => handleInputChange("endDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
