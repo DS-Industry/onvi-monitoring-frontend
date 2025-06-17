@@ -95,6 +95,25 @@ type DepositResponse = {
     cashbackSumMub: number;
 }
 
+type DepositPosResponse = {
+    oper: {
+        id: number;
+        name: string;
+        city: string;
+        counter: number;
+        cashSum: number;
+        virtualSum: number;
+        yandexSum: number;
+        mobileSum: number;
+        cardSum: number;
+        lastOper: Date;
+        discountSum: number;
+        cashbackSumCard: number;
+        cashbackSumMub: number;
+    }[]
+    totalCount: number;
+}
+
 type DepositDeviceResponse = {
     oper: {
         id: number;
@@ -124,6 +143,25 @@ type Program = {
     }[]
 }
 
+type ProgramPosResponse = {
+    prog: {
+        id: number;
+        name: string;
+        posType?: CarWashPosType;
+        programsInfo:
+        {
+            programName: string;
+            counter: number;
+            totalTime: number;
+            averageTime: string;
+            totalProfit?: number;
+            averageProfit?: number;
+            lastOper?: Date;
+        }[]
+    }[]
+    totalCount: number;
+}
+
 type ProgramDevice = {
     prog: {
         id: number;
@@ -151,14 +189,17 @@ type DeviceParams = {
 }
 
 type PlanFactResponse = {
-    posId: number;
-    plan: number;
-    cashFact: number;
-    virtualSumFact: number;
-    yandexSumFact: number;
-    sumFact: number;
-    completedPercent: number;
-    notCompletedPercent: number;
+    plan: {
+        posId: number;
+        plan: number;
+        cashFact: number;
+        virtualSumFact: number;
+        yandexSumFact: number;
+        sumFact: number;
+        completedPercent: number;
+        notCompletedPercent: number;
+    }[]
+    totalCount: number;
 }
 
 export async function getPos(userId: number): Promise<Pos[]> {
@@ -177,8 +218,8 @@ export async function getDeposit(posId: number | string, params: DevicesParams):
     return response.data;
 }
 
-export async function getDepositPos(params: DepositParam): Promise<DepositResponse[]> {
-    const response: AxiosResponse<DepositResponse[]> = await api.get(POS.GET_DEPOSIT, { params });
+export async function getDepositPos(params: DepositParam): Promise<DepositPosResponse> {
+    const response: AxiosResponse<DepositPosResponse> = await api.get(POS.GET_DEPOSIT, { params });
     return response.data;
 }
 
@@ -192,8 +233,8 @@ export async function getPrograms(posId: number | string, params: DevicesParams)
     return response.data;
 }
 
-export async function getProgramPos(params: DepositParam): Promise<Program[]> {
-    const response: AxiosResponse<Program[]> = await api.get(POS.GET_PROGRAMS, { params });
+export async function getProgramPos(params: DepositParam): Promise<ProgramPosResponse> {
+    const response: AxiosResponse<ProgramPosResponse> = await api.get(POS.GET_PROGRAMS, { params });
     return response.data;
 }
 
@@ -203,8 +244,8 @@ export async function getProgramDevice(deviceId: number, params: DeviceParams): 
     return response.data;
 }
 
-export async function getPlanFact(params: DepositParam): Promise<PlanFactResponse[]> {
-    const response: AxiosResponse<PlanFactResponse[]> = await api.get(POS.POST_POS + "/plan-fact", { params });
+export async function getPlanFact(params: DepositParam): Promise<PlanFactResponse> {
+    const response: AxiosResponse<PlanFactResponse> = await api.get(POS.POST_POS + "/plan-fact", { params });
     return response.data;
 }
 

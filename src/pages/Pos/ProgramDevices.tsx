@@ -104,7 +104,7 @@ const ProgramDevices: React.FC = () => {
 
     const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const totalRecords = filter?.length || 0;
+    const totalRecords = filter?.totalCount || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
 
     useEffect(() => {
@@ -137,11 +137,11 @@ const ProgramDevices: React.FC = () => {
     }, [dataFilter, filterMutate]);
 
     useEffect(() => {
-        if (!filterLoading && filter?.length)
-            setTotalCount(filter?.length)
+        if (!filterLoading && filter?.totalCount)
+            setTotalCount(filter?.totalCount)
     }, [filter, filterLoading, setTotalCount]);
 
-    const devicePrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
+    const devicePrograms: PosPrograms[] = filter?.prog.map((item: PosPrograms) => {
         return item;
     }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 

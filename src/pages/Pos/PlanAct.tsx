@@ -86,7 +86,7 @@ const PlanAct: React.FC = () => {
 
     const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const totalRecords = filter?.length || 0;
+    const totalRecords = filter?.totalCount || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
 
     useEffect(() => {
@@ -119,8 +119,8 @@ const PlanAct: React.FC = () => {
     }, [dataFilter, filterMutate]);
 
     useEffect(() => {
-        if (!filterLoading && filter?.length)
-            setTotalCount(filter?.length)
+        if (!filterLoading && filter?.totalCount)
+            setTotalCount(filter?.totalCount)
     }, [filter, filterLoading, setTotalCount]);
 
     const posOptional: { name: string; value: number | string; }[] = data?.map(
@@ -134,7 +134,7 @@ const PlanAct: React.FC = () => {
 
     posOptional.unshift(posesAllObj);
 
-    const planFacts: PlanFactResponse[] = filter?.map((item: PlanFactResponse) => ({
+    const planFacts: PlanFactResponse[] = filter?.plan.map((item: PlanFactResponse) => ({
         ...item,
         posName: posOptional.find((pos) => pos.value === item.posId)?.name
     })) || [];

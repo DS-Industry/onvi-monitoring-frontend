@@ -109,7 +109,7 @@ const DepositDevices: React.FC = () => {
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
-    const totalRecords = filter?.length || 0;
+    const totalRecords = filter?.totalCount || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
 
     useEffect(() => {
@@ -148,11 +148,11 @@ const DepositDevices: React.FC = () => {
     }, [dataFilter, filterMutate]);
 
     useEffect(() => {
-        if (!filterLoading && filter?.length)
-            setTotalCount(filter?.length)
+        if (!filterLoading && filter?.totalCount)
+            setTotalCount(filter?.totalCount)
     }, [filter, filterLoading, setTotalCount]);
 
-    const devicesMonitoring: DevicesMonitoring[] = filter?.map((item: DevicesMonitoring) => {
+    const devicesMonitoring: DevicesMonitoring[] = filter?.oper.map((item: DevicesMonitoring) => {
         return item;
     }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
