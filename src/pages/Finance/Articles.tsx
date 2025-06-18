@@ -1,8 +1,8 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
-import { DatePicker, TableProps, Upload, UploadFile } from 'antd';
-import { Card, Row, Col, Typography, Space, Form, InputNumber, Popconfirm, Table, Button as AntDButton } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
+import { DatePicker, TableProps, Tag, Upload, UploadFile } from 'antd';
+import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined, UserOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,7 @@ import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
 import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
 
 const { Title, Text } = Typography;
 
@@ -38,6 +39,12 @@ interface DataType {
     note: string;
 }
 
+type StateObject = {
+    label: string;
+    value: string;
+    color: string;
+}
+
 const originData = Array.from({ length: 10 }).map<DataType>((_, i) => ({
     key: i.toString(),
     id: i,
@@ -45,7 +52,7 @@ const originData = Array.from({ length: 10 }).map<DataType>((_, i) => ({
     name: `Edward ${i}`,
     article: `Article ${i}`,
     date: dayjs(),
-    sum: 32,
+    sum: 1000,
     note: `London Park no. ${i}`,
 }));
 
@@ -66,7 +73,17 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     children,
     ...restProps
 }) => {
-    const inputNode = inputType === 'date' ? <DatePicker format={"DD-MM-YYYY"} style={{ width: "150px" }} /> : inputType === 'number' ? <InputNumber /> : <Input />;
+    const inputNode = inputType === 'date' ? <DatePicker
+        format={"DD-MM-YYYY"}
+        style={{ width: "150px" }}
+    /> : inputType === 'number' ?
+        <Input
+            type="number"
+            classname="w-40"
+            showIcon={true}
+            IconComponent={<div className="text-text02 text-xl">₽</div>}
+        /> :
+        <Input />;
 
     return (
         <td
@@ -197,6 +214,7 @@ const Articles: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isStateOpen, setIsStateOpen] = useState(false);
+    const [stateColor, setStateColor] = useState("");
 
     const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -275,49 +293,51 @@ const Articles: React.FC = () => {
         {
             title: 'ID',
             dataIndex: 'id',
-            width: '15%',
+            width: '5%',
             editable: false,
         },
         {
             title: 'Группа',
             dataIndex: 'group',
-            width: '15%',
+            width: '10%',
             editable: true,
         },
         {
             title: 'Назначение',
             dataIndex: 'name',
-            width: '15%',
+            width: '10%',
             editable: true,
         },
         {
             title: 'Статья',
             dataIndex: 'article',
-            width: '15%',
+            width: '10%',
             editable: true,
         },
         {
             title: 'Дата',
             dataIndex: 'date',
-            width: '15%',
+            width: '10%',
             editable: true,
             render: (value: Dayjs) => value?.format("DD-MM-YYYY")
         },
         {
             title: 'Сумма',
             dataIndex: 'sum',
-            width: '15%',
+            width: '5%',
             editable: true,
+            render: (value: number) => `${value.toLocaleString('ru-RU')} ₽`,
         },
         {
             title: 'Примечание',
             dataIndex: 'note',
-            width: '40%',
+            width: '35%',
             editable: true,
         },
         {
             title: 'operation',
             dataIndex: 'operation',
+            width: '15%',
             render: (_: any, record: DataType) => {
                 const editable = isEditing(record);
                 return editable ? (
@@ -396,12 +416,12 @@ const Articles: React.FC = () => {
     }
 
     const stateTypeOptions = useMemo(() => [
-        { label: "Active", value: "active" },
-        { label: "Pending", value: "pending" },
-        { label: "Completed", value: "completed" },
-        { label: "Cancelled", value: "cancelled" },
-        { label: "Archived", value: "archived" },
-        { label: "In Progress", value: "in_progress" },
+        { label: "Active", value: "active", color: "#52c41a" },      // Green
+        { label: "Pending", value: "pending", color: "#faad14" },     // Orange
+        { label: "Completed", value: "completed", color: "#1890ff" }, // Blue
+        { label: "Cancelled", value: "cancelled", color: "#f5222d" }, // Red
+        { label: "Archived", value: "archived", color: "#8c8c8c" },   // Gray
+        { label: "In Progress", value: "in_progress", color: "#13c2c2" }, // Cyan
     ], []);
 
     const [searchText, setSearchText] = useState("");
@@ -412,9 +432,10 @@ const Articles: React.FC = () => {
         );
     }, [searchText, stateTypeOptions]);
 
-    const handleSelect = (value: string) => {
-        setFormData((prev) => ({ ...prev, ["state"]: value }));
-        setValue("state", value);
+    const handleSelect = (value: StateObject) => {
+        setFormData((prev) => ({ ...prev, ["state"]: value.label }));
+        setValue("state", value.label);
+        setStateColor(value.color);
     };
 
     const handleConfirm = () => {
@@ -423,8 +444,32 @@ const Articles: React.FC = () => {
 
     return (
         <div>
-            <Filter count={0}>
-                <div></div>
+            <Filter count={0} hideSearch={true}>
+                <SearchDropdownInput
+                    title={t("analysis.posId")}
+                    classname="w-80"
+                    options={poses}
+                    value={""}
+                    onChange={() => { }}
+                />
+                <DropdownInput
+                    title="Группа"
+                    classname="w-80"
+                    value={""}
+                    options={[]}
+                />
+                <DropdownInput
+                    title="Назначение"
+                    classname="w-80"
+                    value={""}
+                    options={[]}
+                />
+                <DropdownInput
+                    title="Статья"
+                    classname="w-80"
+                    value={""}
+                    options={[]}
+                />
             </Filter>
             <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
                 <div className="flex flex-row items-center justify-between mb-4">
@@ -447,7 +492,7 @@ const Articles: React.FC = () => {
                         filteredOptions.map((opt) => (
                             <div
                                 key={opt.value}
-                                onClick={() => handleSelect(opt.value)}
+                                onClick={() => handleSelect(opt)}
                                 className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.state === opt.value ? "text-primary02" : ""
                                     }`}
                             >
@@ -520,13 +565,10 @@ const Articles: React.FC = () => {
                             </AntDButton>
                         </Space.Compact>
                         <Space className="w-full">
-                            <Input
-                                title="Expanse/Income"
-                                type="number"
-                                classname="w-full sm:w-44"
-                                value={100}
-                                disabled={true}
-                            />
+                            <div>
+                                <div className="text-text02 text-sm">Expanse</div>
+                                <Tag color={stateColor} className="h-10 w-40 flex items-center justify-center">{formData.state}</Tag>
+                            </div>
                             <DateInput
                                 title="Date"
                                 classname="w-full sm:w-40"
@@ -551,10 +593,6 @@ const Articles: React.FC = () => {
                         />
                         <div>
                             <div className="text-text02 text-sm">Upload</div>
-                            <div className="text-text01">User</div>
-                        </div>
-                        <div>
-                            <div className="text-text02 text-sm">Upload</div>
                             <Upload
                                 listType="picture-card"
                                 showUploadList={true}
@@ -569,6 +607,13 @@ const Articles: React.FC = () => {
                                     </div>
                                 )}
                             </Upload>
+                        </div>
+                        <div>
+                            <div className="text-text02 text-sm">User</div>
+                            <div className="text-text02 flex items-center space-x-1">
+                                <UserOutlined style={{ fontSize: "24px" }} />
+                                <span className="text-text01">User 1</span>
+                            </div>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
