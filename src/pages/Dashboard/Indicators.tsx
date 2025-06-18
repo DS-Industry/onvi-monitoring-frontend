@@ -86,7 +86,7 @@ const Indicators: React.FC = () => {
 
   const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-  const posMonitoring: PosMonitoring[] = filter?.map((item: PosMonitoring) => {
+  const posMonitoring: PosMonitoring[] = filter?.oper?.map((item: PosMonitoring) => {
     return item;
   }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
 
