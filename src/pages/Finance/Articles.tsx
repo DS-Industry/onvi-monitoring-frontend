@@ -458,12 +458,12 @@ const Articles: React.FC = () => {
                         <div className="text-sm text-gray-400">No matches found.</div>
                     )}
                 </div>
-
-                {/* Buttons */}
-                <div className="flex justify-end gap-2 mt-4">
-                    <Button type="outline" handleClick={() => setIsStateOpen(false)} title="Cancel" />
-                    <Button disabled={!formData.state} handleClick={handleConfirm} title="Confirm" />
-                </div>
+                <Button
+                    disabled={!formData.state}
+                    handleClick={handleConfirm}
+                    title="Confirm"
+                    classname="mt-4 w-full"
+                />
             </Modal>
             <Modal isOpen={isOpenModal} classname="w-full sm:w-[600px]">
                 <div className="flex flex-row items-center justify-between mb-4">
