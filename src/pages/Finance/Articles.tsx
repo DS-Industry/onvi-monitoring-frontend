@@ -570,7 +570,7 @@ const Articles: React.FC = () => {
                                 )}
                             </Upload>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
                             <Button title={t("organizations.save")} form={true} handleClick={() => { }} />
                         </div>
