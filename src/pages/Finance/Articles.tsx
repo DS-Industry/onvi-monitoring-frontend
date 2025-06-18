@@ -275,31 +275,31 @@ const Articles: React.FC = () => {
         {
             title: 'ID',
             dataIndex: 'id',
-            width: '25%',
+            width: '15%',
             editable: false,
         },
         {
             title: 'Группа',
             dataIndex: 'group',
-            width: '25%',
+            width: '15%',
             editable: true,
         },
         {
             title: 'Назначение',
             dataIndex: 'name',
-            width: '25%',
+            width: '15%',
             editable: true,
         },
         {
             title: 'Статья',
             dataIndex: 'article',
-            width: '25%',
+            width: '15%',
             editable: true,
         },
         {
             title: 'Дата',
             dataIndex: 'date',
-            width: '25%',
+            width: '15%',
             editable: true,
             render: (value: Dayjs) => value?.format("DD-MM-YYYY")
         },
