@@ -145,7 +145,7 @@ const Input: React.FC<InputProps> = ({
     );
 
     const CustomIcon = () => (
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <div className="absolute inset-y-0 right-0 pr-10 flex items-center">
             {IconComponent || (
                 <UserOutlined
                     style={{

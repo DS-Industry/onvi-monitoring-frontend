@@ -6,8 +6,8 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import { Table, Input as AntInput, Select, DatePicker, Space } from 'antd';
-import { EditOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
+import { Table, Input as AntInput, Select, DatePicker, Space, Menu, Dropdown, Modal, message } from 'antd';
+import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
@@ -142,6 +142,25 @@ const MonthlyExpanse: React.FC = () => {
 
     const navigate = useNavigate();
 
+    const handleDelete = (id: string | number) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this record?',
+            content: 'This action cannot be undone.',
+            okText: 'Yes, delete it',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk() {
+                const newData = data.filter(item => item.id !== id);
+                setData(newData);
+                message.success('Record deleted successfully');
+            },
+            onCancel() {
+                message.info('Delete cancelled');
+            }
+        });
+    };
+
+
     const columnsExpanse: ColumnsType<DataRecord> = [
         {
             title: "Автомойка/ Филиал",
@@ -255,28 +274,47 @@ const MonthlyExpanse: React.FC = () => {
             dataIndex: "actions",
             render: (_: any, record: DataRecord) => {
                 const editable = isEditing(record);
-                return editable ? (
-                    <Space className="flex space-x-4">
-                        <div
-                            className="cursor-pointer text-errorFill"
-                            onClick={cancel}
-                        >
-                            <CloseOutlined />
+
+                if (editable) {
+                    return (
+                        <Space className="flex space-x-4">
+                            <div
+                                className="cursor-pointer text-errorFill"
+                                onClick={cancel}
+                            >
+                                <CloseOutlined />
+                            </div>
+                            <div
+                                className="cursor-pointer text-successFill"
+                                onClick={() => save(record.id)}
+                            >
+                                <CheckOutlined />
+                            </div>
+                        </Space>
+                    );
+                }
+
+                const menu = (
+                    <Menu
+                        onClick={({ key }) => {
+                            if (key === 'edit') edit(record);
+                            else if (key === 'delete') handleDelete(record.id); // you need to implement `handleDelete`
+                            else if (key === 'save') save(record.id);
+                        }}
+                        items={[
+                            { key: 'edit', label: 'Edit' },
+                            { key: 'save', label: 'Save' },
+                            { key: 'delete', label: 'Delete', danger: true }
+                        ]}
+                    />
+                );
+
+                return (
+                    <Dropdown overlay={menu} trigger={['click']}>
+                        <div className="cursor-pointer text-primary02">
+                            <MoreOutlined style={{ fontSize: 18 }} />
                         </div>
-                        <div
-                            className="cursor-pointer text-successFill"
-                            onClick={() => save(record.id)}
-                        >
-                            <CheckOutlined />
-                        </div>
-                    </Space>
-                ) : (
-                    <div
-                        className="cursor-pointer text-primary02"
-                        onClick={() => edit(record)}
-                    >
-                        <EditOutlined />
-                    </div>
+                    </Dropdown>
                 );
             }
         }

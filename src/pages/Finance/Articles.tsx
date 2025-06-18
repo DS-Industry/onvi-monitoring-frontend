@@ -1,6 +1,6 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
-import type { TableProps } from 'antd';
+import { DatePicker, TableProps, Upload, UploadFile } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, InputNumber, Popconfirm, Table, Button as AntDButton } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
@@ -13,7 +13,7 @@ import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
 
 const { Title, Text } = Typography;
@@ -29,23 +29,31 @@ interface FinancialCardProps {
 
 interface DataType {
     key: string;
+    id: number;
+    group: string;
     name: string;
-    age: number;
-    address: string;
+    article: string;
+    date: Dayjs;
+    sum: number;
+    note: string;
 }
 
 const originData = Array.from({ length: 10 }).map<DataType>((_, i) => ({
     key: i.toString(),
+    id: i,
+    group: `Car Wash ${i}`,
     name: `Edward ${i}`,
-    age: 32,
-    address: `London Park no. ${i}`,
+    article: `Article ${i}`,
+    date: dayjs(),
+    sum: 32,
+    note: `London Park no. ${i}`,
 }));
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: any;
-    inputType: 'number' | 'text';
+    inputType: 'number' | 'text' | 'date';
     record: DataType;
     index: number;
 }
@@ -58,7 +66,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     children,
     ...restProps
 }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+    const inputNode = inputType === 'date' ? <DatePicker format={"DD-MM-YYYY"} style={{ width: "150px" }} /> : inputType === 'number' ? <InputNumber /> : <Input />;
 
     return (
         <td
@@ -193,7 +201,7 @@ const Articles: React.FC = () => {
     const isEditing = (record: DataType) => record.key === editingKey;
 
     const edit = (record: Partial<DataType> & { key: React.Key }) => {
-        form.setFieldsValue({ name: '', age: '', address: '', ...record });
+        form.setFieldsValue({ ...record, date: dayjs(record.date) });
         setEditingKey(record.key);
     };
 
@@ -218,6 +226,7 @@ const Articles: React.FC = () => {
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
+                    date: row.date ? row.date : item.date,
                 });
                 setData(newData);
                 setEditingKey('');
@@ -264,20 +273,45 @@ const Articles: React.FC = () => {
 
     const columns = [
         {
-            title: 'name',
+            title: 'ID',
+            dataIndex: 'id',
+            width: '25%',
+            editable: false,
+        },
+        {
+            title: 'Группа',
+            dataIndex: 'group',
+            width: '25%',
+            editable: true,
+        },
+        {
+            title: 'Назначение',
             dataIndex: 'name',
             width: '25%',
             editable: true,
         },
         {
-            title: 'age',
-            dataIndex: 'age',
+            title: 'Статья',
+            dataIndex: 'article',
+            width: '25%',
+            editable: true,
+        },
+        {
+            title: 'Дата',
+            dataIndex: 'date',
+            width: '25%',
+            editable: true,
+            render: (value: Dayjs) => value?.format("DD-MM-YYYY")
+        },
+        {
+            title: 'Сумма',
+            dataIndex: 'sum',
             width: '15%',
             editable: true,
         },
         {
-            title: 'address',
-            dataIndex: 'address',
+            title: 'Примечание',
+            dataIndex: 'note',
             width: '40%',
             editable: true,
         },
@@ -312,7 +346,7 @@ const Articles: React.FC = () => {
             ...col,
             onCell: (record: DataType) => ({
                 record,
-                inputType: col.dataIndex === 'age' ? 'number' : 'text',
+                inputType: col.dataIndex === 'date' ? 'date' : col.dataIndex === "sum" ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
@@ -320,21 +354,29 @@ const Articles: React.FC = () => {
         };
     });
 
-    const defaultValues = {
+    const defaultValues: {
+        groupId: number;
+        posId: number;
+        date: string;
+        state: string;
+        amount: number;
+        images: UploadFile<any>[]
+    } = {
         groupId: 0,
         posId: 0,
         date: '',
         state: '',
-        amount: 0
+        amount: 0,
+        images: []
     };
 
     const [formData, setFormData] = useState(defaultValues);
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    type FieldType = "groupId" | "posId" | "date" | "amount" | "state";
+    type FieldType = "groupId" | "posId" | "date" | "amount" | "state" | "images";
 
-    const handleInputChange = (field: FieldType, value: string) => {
+    const handleInputChange = (field: FieldType, value: string | UploadFile<any>[]) => {
         const numericFields = ["groupId", "posId", "amount"];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
@@ -384,7 +426,7 @@ const Articles: React.FC = () => {
             <Filter count={0}>
                 <div></div>
             </Filter>
-            <Modal isOpen={isStateOpen} classname="w-[500px]">
+            <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">Add New State Type</h2>
                     <Close
@@ -423,7 +465,7 @@ const Articles: React.FC = () => {
                     <Button disabled={!formData.state} handleClick={handleConfirm} title="Confirm" />
                 </div>
             </Modal>
-            <Modal isOpen={isOpenModal} classname="w-[400px]">
+            <Modal isOpen={isOpenModal} classname="w-full sm:w-[600px]">
                 <div className="flex flex-row items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("roles.create")}</h2>
                     <Close
@@ -435,7 +477,7 @@ const Articles: React.FC = () => {
                     <div className="flex flex-col space-y-4 text-text02">
                         <SearchDropdownInput
                             title={"Group"}
-                            classname="w-full sm:w-80"
+                            classname="w-full"
                             placeholder="Выберите объект"
                             options={[]}
                             {...register('groupId', {
@@ -450,7 +492,7 @@ const Articles: React.FC = () => {
                         />
                         <SearchDropdownInput
                             title={t("analysis.posId")}
-                            classname="w-full sm:w-80"
+                            classname="w-full"
                             placeholder="Выберите объект"
                             options={poses}
                             {...register('posId', {
@@ -463,39 +505,42 @@ const Articles: React.FC = () => {
                             error={!!errors.posId}
                             errorText={errors.posId?.message}
                         />
-                        <div className="flex space-x-2 items-center">
+                        <Space.Compact className="w-full">
                             <Input
                                 value={formData.state}
                                 disabled={true}
+                                classname="w-full"
                             />
                             <AntDButton
                                 onClick={() => setIsStateOpen(true)}
                                 type="primary"
                                 className="h-10"
                             >
-                                Open State Button
+                                Open
                             </AntDButton>
-                        </div>
-                        <Input
-                            title="Expanse/Income"
-                            type="number"
-                            classname="w-full sm:w-44"
-                            value={100}
-                            disabled={true}
-                        />
-                        <DateInput
-                            title="Date"
-                            classname="w-full sm:w-40"
-                            value={formData.date ? dayjs(formData.date) : null}
-                            changeValue={(date) => handleInputChange("date", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
-                            error={!!errors.date}
-                            {...register('date', { required: 'Date is required' })}
-                            helperText={errors.date?.message || ''}
-                        />
+                        </Space.Compact>
+                        <Space className="w-full">
+                            <Input
+                                title="Expanse/Income"
+                                type="number"
+                                classname="w-full sm:w-44"
+                                value={100}
+                                disabled={true}
+                            />
+                            <DateInput
+                                title="Date"
+                                classname="w-full sm:w-40"
+                                value={formData.date ? dayjs(formData.date) : null}
+                                changeValue={(date) => handleInputChange("date", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
+                                error={!!errors.date}
+                                {...register('date', { required: 'Date is required' })}
+                                helperText={errors.date?.message || ''}
+                            />
+                        </Space>
                         <Input
                             title="Amount"
                             type="number"
-                            classname="w-full sm:w-80"
+                            classname="w-full"
                             showIcon={true}
                             IconComponent={<div className="text-text02 text-xl">₽</div>}
                             value={formData.amount}
@@ -504,12 +549,27 @@ const Articles: React.FC = () => {
                             {...register('amount', { required: 'amount is required' })}
                             helperText={errors.amount?.message || ''}
                         />
-                        <Input
-                            title="User"
-                            classname="w-full sm:w-80"
-                            value={"User 1"}
-                            disabled={true}
-                        />
+                        <div>
+                            <div className="text-text02 text-sm">Upload</div>
+                            <div className="text-text01">User</div>
+                        </div>
+                        <div>
+                            <div className="text-text02 text-sm">Upload</div>
+                            <Upload
+                                listType="picture-card"
+                                showUploadList={true}
+                                beforeUpload={() => false} // prevent auto upload
+                                onChange={({ fileList }) => handleInputChange("images", fileList)}
+                                fileList={formData.images || []}
+                            >
+                                {formData.images?.length >= 1 ? null : (
+                                    <div className="text-text02">
+                                        <PlusOutlined />
+                                        <div className="mt-2">Upload</div>
+                                    </div>
+                                )}
+                            </Upload>
+                        </div>
                         <div className="flex flex-col sm:flex-row gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
                             <Button title={t("organizations.save")} form={true} handleClick={() => { }} />
