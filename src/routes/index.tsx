@@ -14,6 +14,7 @@ import React from "react";
 import Articles from "@/pages/Finance/Articles";
 import MonthlyExpanse from "@/pages/Finance/MonthlyExpanse";
 import MonthlyExpanseEdit from "@/pages/Finance/MonthlyExpanseEdit";
+import DirectoryArticles from "@/pages/Finance/DirectoryArticles";
 const Pos = React.lazy(() => import("@/pages/Pos/Pos"));
 const Organization = React.lazy(() => import("@/pages/Organization/Organization"));
 const DepositDevice = React.lazy(() => import("@/pages/Pos/DepositDevice"));
@@ -184,7 +185,7 @@ const routes = [
       {
         name: "financial", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/financial/accounting", component: Default, permissions: [{ action: "manage", subject: "CashCollection" }, { action: "read", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }, { action: "update", subject: "CashCollection" }, { action: "delete", subject: "CashCollection" }], isSidebar: true, isHr: true, titleName: "", subNav: [
           { name: "articles", filter: true, addButton: false, addButtonText: "add", isVisible: true, path: "/finance/financial/accounting/articles", component: Articles, permissions: [{ action: "manage", subject: "CashCollection" }, { action: "read", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }, { action: "update", subject: "CashCollection" }, { action: "delete", subject: "CashCollection" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
-          { name: "direct", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/financial/accounting/directory/articles", component: Default, permissions: [{ action: "manage", subject: "CashCollection" }, { action: "read", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }, { action: "update", subject: "CashCollection" }, { action: "delete", subject: "CashCollection" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
+          { name: "direct", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/financial/accounting/directory/articles", component: DirectoryArticles, permissions: [{ action: "manage", subject: "CashCollection" }, { action: "read", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }, { action: "update", subject: "CashCollection" }, { action: "delete", subject: "CashCollection" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false },
           { name: "appo", filter: true, addButton: true, addButtonText: "add", isVisible: true, path: "/finance/financial/accounting/directory/appointments", component: Default, permissions: [{ action: "manage", subject: "CashCollection" }, { action: "read", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }, { action: "update", subject: "CashCollection" }, { action: "delete", subject: "CashCollection" }], isSidebar: true, isHr: false, titleName: "", subNav: [], subMenu: false }
         ], subMenu: true
       },
