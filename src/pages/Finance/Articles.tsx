@@ -1,13 +1,13 @@
 import Filter from "@/components/ui/Filter/Filter";
-import React, { ClassAttributes, ThHTMLAttributes, useMemo, useState } from "react";
-import { DatePicker, TableProps, Tag, Upload, UploadFile } from 'antd';
+import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
+import { DatePicker, message, TableProps, Tag, Upload } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined, UserOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getPoses } from "@/services/api/equipment";
 import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
@@ -16,6 +16,13 @@ import useFormHook from "@/hooks/useFormHook";
 import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
+import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperTypes, updateManagerPaper } from "@/services/api/finance";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { useUser } from "@/hooks/useUserStore";
+import useSWRMutation from "swr/mutation";
+import MultilineInput from "@/components/ui/Input/MultilineInput";
+import { getWorkers } from "@/services/api/hr";
+import { useFilterOn } from "@/components/context/useContext";
 
 const { Title, Text } = Typography;
 
@@ -32,29 +39,53 @@ interface DataType {
     key: string;
     id: number;
     group: string;
-    name: string;
-    article: string;
-    date: Dayjs;
+    posId: number;
+    paperTypeId: number;
+    eventDate: Dayjs;
     sum: number;
-    note: string;
+    comment: string;
 }
 
-type StateObject = {
-    label: string;
-    value: string;
-    color: string;
+enum ManagerPaperGroup {
+    RENT = "RENT",
+    REVENUE = "REVENUE",
+    WAGES = "WAGES",
+    INVESTMENT_DEVIDENTS = "INVESTMENT_DEVIDENTS",
+    UTILITY_BILLS = "UTILITY_BILLS",
+    TAXES = "TAXES",
+    ACCOUNTABLE_FUNDS = "ACCOUNTABLE_FUNDS",
+    REPRESENTATIVE_EXPENSES = "REPRESENTATIVE_EXPENSES",
+    SALE_EQUIPMENT = "SALE_EQUIPMENT",
+    MANUFACTURE = "MANUFACTURE",
+    OTHER = "OTHER",
+    SUPPLIES = "SUPPLIES",
+    P_C = "P_C",
+    WAREHOUSE = "WAREHOUSE",
+    CONSTRUCTION = "CONSTRUCTION",
+    MAINTENANCE_REPAIR = "MAINTENANCE_REPAIR",
+    TRANSPORTATION_COSTS = "TRANSPORTATION_COSTS"
 }
 
-const originData = Array.from({ length: 10 }).map<DataType>((_, i) => ({
-    key: i.toString(),
-    id: i,
-    group: `Car Wash ${i}`,
-    name: `Edward ${i}`,
-    article: `Article ${i}`,
-    date: dayjs(),
-    sum: 1000,
-    note: `London Park no. ${i}`,
-}));
+type ManagerPaperBody = {
+    group: ManagerPaperGroup;
+    posId: number;
+    paperTypeId: number;
+    eventDate: Date;
+    sum: number;
+    userId: number;
+    comment?: string;
+}
+
+type ManagerParams = {
+    group: ManagerPaperGroup | '*';
+    posId: number | '*';
+    paperTypeId: number | '*';
+    userId: number | '*';
+    dateStartEvent?: Date;
+    dateEndEvent?: Date;
+    page?: number;
+    size?: number;
+}
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
@@ -73,17 +104,77 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     children,
     ...restProps
 }) => {
-    const inputNode = inputType === 'date' ? <DatePicker
-        format={"DD-MM-YYYY"}
-        style={{ width: "150px" }}
-    /> : inputType === 'number' ?
-        <Input
-            type="number"
-            classname="w-40"
-            showIcon={true}
-            IconComponent={<div className="text-text02 text-xl">₽</div>}
-        /> :
-        <Input />;
+    const { t } = useTranslation();
+    const city = useCity();
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: paperTypeData } = useSWR([`get-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const poses: { name: string; value: number | string; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const paperTypes: { name: string; value: number; }[] = (paperTypeData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const groups: { name: string; value: string; }[] = [
+        { value: ManagerPaperGroup.RENT, name: t("finance.RENT") },
+        { value: ManagerPaperGroup.REVENUE, name: t("finance.REVENUE") },
+        { value: ManagerPaperGroup.WAGES, name: t("finance.WAGES") },
+        { value: ManagerPaperGroup.INVESTMENT_DEVIDENTS, name: t("finance.INVESTMENT_DEVIDENTS") },
+        { value: ManagerPaperGroup.UTILITY_BILLS, name: t("finance.UTILITY_BILLS") },
+        { value: ManagerPaperGroup.TAXES, name: t("finance.TAXES") },
+        { value: ManagerPaperGroup.ACCOUNTABLE_FUNDS, name: t("finance.ACCOUNTABLE_FUNDS") },
+        { value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES, name: t("finance.REPRESENTATIVE_EXPENSES") },
+        { value: ManagerPaperGroup.SALE_EQUIPMENT, name: t("finance.SALE_EQUIPMENT") },
+        { value: ManagerPaperGroup.MANUFACTURE, name: t("finance.MANUFACTURE") },
+        { value: ManagerPaperGroup.OTHER, name: t("finance.OTHER") },
+        { value: ManagerPaperGroup.SUPPLIES, name: t("finance.SUPPLIES") },
+        { value: ManagerPaperGroup.P_C, name: t("finance.P_C") },
+        { value: ManagerPaperGroup.WAREHOUSE, name: t("finance.WAREHOUSE") },
+        { value: ManagerPaperGroup.CONSTRUCTION, name: t("finance.CONSTRUCTION") },
+        { value: ManagerPaperGroup.MAINTENANCE_REPAIR, name: t("finance.MAINTENANCE_REPAIR") },
+        { value: ManagerPaperGroup.TRANSPORTATION_COSTS, name: t("finance.TRANSPORTATION_COSTS") }
+    ];
+
+    // Get current form instance to access form values
+    const form = Form.useFormInstance();
+
+    const inputNode =
+        dataIndex === "group" ?
+            <SearchDropdownInput
+                options={groups}
+                value={form.getFieldValue(dataIndex)}
+                onChange={(value) => form.setFieldValue(dataIndex, value)}
+            />
+            : dataIndex === "posId" ?
+                <SearchDropdownInput
+                    options={poses}
+                    value={form.getFieldValue(dataIndex)}
+                    onChange={(value) => form.setFieldValue(dataIndex, value)}
+                />
+                : dataIndex === "paperTypeId" ?
+                    <SearchDropdownInput
+                        options={paperTypes}
+                        value={form.getFieldValue(dataIndex)}
+                        onChange={(value) => form.setFieldValue(dataIndex, value)}
+                    />
+                    : inputType === 'date' ?
+                        <DatePicker
+                            format={"DD-MM-YYYY"}
+                            style={{ width: "150px" }}
+                            value={form.getFieldValue(dataIndex)}
+                            onChange={(date) => form.setFieldValue(dataIndex, date)}
+                        /> : inputType === 'number' ?
+                            <Input
+                                type="number"
+                                classname="w-40"
+                                showIcon={true}
+                                IconComponent={<div className="text-text02 text-xl">₽</div>}
+                                value={form.getFieldValue(dataIndex)}
+                                changeValue={(e) => form.setFieldValue(dataIndex, parseFloat(e.target.value))}
+                            /> :
+                            <Input
+                                value={form.getFieldValue(dataIndex)}
+                                changeValue={(e) => form.setFieldValue(dataIndex, e.target.value)}
+                            />;
 
     return (
         <td
@@ -209,17 +300,31 @@ const Articles: React.FC = () => {
 
     const { t } = useTranslation();
     const [form] = Form.useForm();
-    const [data, setData] = useState<DataType[]>(originData);
+    const [data, setData] = useState<DataType[]>([]);
     const [editingKey, setEditingKey] = useState('');
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isStateOpen, setIsStateOpen] = useState(false);
-    const [stateColor, setStateColor] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [fileList, setFileList] = useState<any[]>([]);
+    const [group, setGroup] = useState<ManagerPaperGroup | '*'>("*");
+    const [posId, setPosId] = useState<number | "*">("*");
+    const [paperTypeId, setPaperTypeId] = useState<number | "*">("*");
+    const [userId, setUserId] = useState<number | "*">("*");
+    const [isTableLoading, setIsTableLoading] = useState(false);
+    const { filterOn } = useFilterOn();
+
+    const initialFilter = {
+        group: group,
+        posId: posId,
+        paperTypeId: paperTypeId,
+        userId: userId
+    }
 
     const isEditing = (record: DataType) => record.key === editingKey;
 
     const edit = (record: Partial<DataType> & { key: React.Key }) => {
-        form.setFieldsValue({ ...record, date: dayjs(record.date) });
+        form.setFieldsValue({ ...record, date: dayjs(record.eventDate) });
         setEditingKey(record.key);
     };
 
@@ -229,9 +334,50 @@ const Articles: React.FC = () => {
 
     const city = useCity();
 
+    const { data: allManagersData, isLoading: loadingManagerData, mutate: managerMutating } = useSWR([`get-manager-data`], () => getAllManagerPaper({
+        group: dataFilter.group,
+        posId: dataFilter.posId,
+        paperTypeId: dataFilter.paperTypeId,
+        userId: dataFilter.userId
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
+    const { data: paperTypeData } = useSWR([`get-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
+        placementId: "*",
+        hrPositionId: "*",
+        organizationId: "*"
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const workers: { name: string; value: number | "*"; }[] = [
+        { name: t("hr.all"), value: "*" },
+        ...(workersData?.map((work) => ({
+            name: work.props.name,
+            value: work.props.id
+        })) || [])
+    ];
+
     const poses: { name: string; value: number | string; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    const paperTypes: { name: string; value: number; }[] = (paperTypeData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
+    useEffect(() => {
+        if (allManagersData) {
+            const temporaryData: DataType[] = allManagersData.managerPapers.map((man) => ({
+                key: `${man.props.id}`,
+                id: man.props.id,
+                group: man.props.group,
+                posId: man.props.posId,
+                paperTypeId: man.props.paperTypeId,
+                eventDate: dayjs(man.props.eventDate),
+                sum: man.props.sum,
+                comment: man.props.comment || ""
+            }));
+            setData(temporaryData);
+        }
+    }, [allManagersData]);
 
     const save = async (key: React.Key) => {
         try {
@@ -239,22 +385,58 @@ const Articles: React.FC = () => {
 
             const newData = [...data];
             const index = newData.findIndex((item) => key === item.key);
+
             if (index > -1) {
                 const item = newData[index];
-                newData.splice(index, 1, {
+                const updatedItem = {
                     ...item,
                     ...row,
-                    date: row.date ? row.date : item.date,
-                });
-                setData(newData);
-                setEditingKey('');
+                    eventDate: row.eventDate ? row.eventDate : item.eventDate,
+                };
+
+                // Prepare API payload with correct types
+                const apiPayload = {
+                    managerPaperId: item.id,
+                    group: updatedItem.group !== item.group ? updatedItem.group as ManagerPaperGroup : undefined,
+                    posId: updatedItem.posId !== item.posId
+                        ? updatedItem.posId
+                        : undefined,
+                    paperTypeId: updatedItem.paperTypeId !== item.paperTypeId
+                        ? updatedItem.paperTypeId
+                        : undefined,
+                    eventDate: updatedItem.eventDate !== item.eventDate
+                        ? (dayjs.isDayjs(updatedItem.eventDate) ? updatedItem.eventDate.toDate() : updatedItem.eventDate)
+                        : undefined,
+                    sum: updatedItem.sum !== item.sum ? updatedItem.sum : undefined,
+                    comment: updatedItem.comment !== item.comment ? updatedItem.comment : undefined,
+                };
+
+                console.log('API Payload:', apiPayload);
+                console.log('Selected File:', selectedFile);
+                console.log('Item ID:', item.id);
+
+                // Call the API
+                const result = await updateManager(apiPayload);
+
+                if (result) {
+                    mutate([`get-manager-data`]);
+                    newData.splice(index, 1, updatedItem);
+                    setData(newData);
+                    setEditingKey('');
+
+                    // Clear selected file after successful update
+                    setSelectedFile(null);
+                    message.success('Record updated successfully');
+                }
+
             } else {
                 newData.push(row);
                 setData(newData);
                 setEditingKey('');
             }
-        } catch (errInfo) {
-            console.log('Validate Failed:', errInfo);
+        } catch (error) {
+            console.log('Update Failed:', error);
+            message.error('Failed to update record');
         }
     };
 
@@ -272,13 +454,23 @@ const Articles: React.FC = () => {
     };
 
     // Delete selected rows function
-    const handleDeleteRows = () => {
-        const newData = data.filter(item => !selectedRowKeys.includes(item.key));
-        setData(newData);
-        setSelectedRowKeys([]);
-        // Cancel editing if the edited row is being deleted
-        if (selectedRowKeys.includes(editingKey)) {
-            setEditingKey('');
+    const handleDeleteRow = async () => {
+        try {
+            const result = await mutate(
+                [`delete-manager-data`],
+                () => deleteManagerPaper(Number(selectedRowKeys[0])),
+                false
+            );
+
+            if (result) {
+                mutate([`get-manager-data`]);
+                setSelectedRowKeys([]);
+                if (selectedRowKeys.includes(editingKey)) {
+                    setEditingKey('');
+                }
+            }
+        } catch (error) {
+            console.error("Error deleting nomenclature:", error);
         }
     };
 
@@ -287,6 +479,7 @@ const Articles: React.FC = () => {
         onChange: (newSelectedRowKeys: React.Key[]) => {
             setSelectedRowKeys(newSelectedRowKeys);
         },
+        type: 'radio' as const,
     };
 
     const columns = [
@@ -301,22 +494,25 @@ const Articles: React.FC = () => {
             dataIndex: 'group',
             width: '10%',
             editable: true,
+            render: (value: string) => groups.find((pos) => pos.value === value)?.name
         },
         {
             title: 'Назначение',
-            dataIndex: 'name',
+            dataIndex: 'posId',
             width: '10%',
             editable: true,
+            render: (value: number) => poses.find((pos) => pos.value === value)?.name
         },
         {
             title: 'Статья',
-            dataIndex: 'article',
+            dataIndex: 'paperTypeId',
             width: '10%',
             editable: true,
+            render: (value: number) => paperTypes.find((pos) => pos.value === value)?.name
         },
         {
             title: 'Дата',
-            dataIndex: 'date',
+            dataIndex: 'eventDate',
             width: '10%',
             editable: true,
             render: (value: Dayjs) => value?.format("DD-MM-YYYY")
@@ -330,7 +526,7 @@ const Articles: React.FC = () => {
         },
         {
             title: 'Примечание',
-            dataIndex: 'note',
+            dataIndex: 'comment',
             width: '35%',
             editable: true,
         },
@@ -341,13 +537,19 @@ const Articles: React.FC = () => {
             render: (_: any, record: DataType) => {
                 const editable = isEditing(record);
                 return editable ? (
-                    <span>
-                        <Typography.Link onClick={() => save(record.key)} style={{ marginInlineEnd: 8 }}>
-                            Save
-                        </Typography.Link>
-                        <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
-                        </Popconfirm>
+                    <span className="flex space-x-4">
+                        <Button
+                            title="Cancel"
+                            handleClick={cancel}
+                            type="outline"
+                            classname="h-10"
+                        />
+                        <Button
+                            title="Save"
+                            handleClick={() => save(record.key)}
+                            isLoading={updatingManager}
+                            classname="h-10"
+                        />
                     </span>
                 ) : (
                     <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
@@ -366,7 +568,7 @@ const Articles: React.FC = () => {
             ...col,
             onCell: (record: DataType) => ({
                 record,
-                inputType: col.dataIndex === 'date' ? 'date' : col.dataIndex === "sum" ? 'number' : 'text',
+                inputType: col.dataIndex === 'eventDate' ? 'date' : col.dataIndex === "sum" ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
@@ -374,30 +576,54 @@ const Articles: React.FC = () => {
         };
     });
 
-    const defaultValues: {
-        groupId: number;
-        posId: number;
-        date: string;
-        state: string;
-        amount: number;
-        images: UploadFile<any>[]
-    } = {
-        groupId: 0,
+    const user = useUser();
+
+    const defaultValues: ManagerPaperBody = {
+        group: ManagerPaperGroup.WAGES,
         posId: 0,
-        date: '',
-        state: '',
-        amount: 0,
-        images: []
+        paperTypeId: 0,
+        eventDate: new Date(),
+        sum: 0,
+        userId: user.id,
+        comment: undefined
     };
 
     const [formData, setFormData] = useState(defaultValues);
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    type FieldType = "groupId" | "posId" | "date" | "amount" | "state" | "images";
+    const { trigger: createManager, isMutating } = useSWRMutation(['create-manager'], async () => createManagerPaper({
+        group: formData.group,
+        posId: formData.posId,
+        paperTypeId: formData.paperTypeId,
+        eventDate: formData.eventDate,
+        sum: formData.sum,
+        userId: formData.userId,
+        comment: formData.comment
+    }, selectedFile));
 
-    const handleInputChange = (field: FieldType, value: string | UploadFile<any>[]) => {
-        const numericFields = ["groupId", "posId", "amount"];
+    const { trigger: updateManager, isMutating: updatingManager } = useSWRMutation(
+        ['update-manager'],
+        async (_, { arg }: {
+            arg: {
+                managerPaperId: number;
+                group?: ManagerPaperGroup;
+                posId?: number;
+                paperTypeId?: number;
+                eventDate?: Date;
+                sum?: number;
+                userId?: number;
+                comment?: string;
+            };
+        }) => {
+            return updateManagerPaper(arg, null);
+        }
+    );
+
+    type FieldType = "group" | "sum" | "posId" | "paperTypeId" | "eventDate" | "userId" | "comment";
+
+    const handleInputChange = (field: FieldType, value: string) => {
+        const numericFields = ["paperTypeId", "posId", "sum"];
         const updatedValue = numericFields.includes(field) ? Number(value) : value;
         setFormData((prev) => ({ ...prev, [field]: updatedValue }));
         setValue(field, value);
@@ -412,63 +638,142 @@ const Articles: React.FC = () => {
     };
 
     const onSubmit = async () => {
-
+        try {
+            const result = await createManager();
+            if (result) {
+                mutate([`get-manager-data`]);
+                resetForm();
+            } else {
+                throw new Error('Invalid response from API');
+            }
+        } catch (error) {
+            console.error("Error during form submission: ", error);
+        }
     }
 
-    const stateTypeOptions = useMemo(() => [
-        { label: "Active", value: "active", color: "#52c41a" },      // Green
-        { label: "Pending", value: "pending", color: "#faad14" },     // Orange
-        { label: "Completed", value: "completed", color: "#1890ff" }, // Blue
-        { label: "Cancelled", value: "cancelled", color: "#f5222d" }, // Red
-        { label: "Archived", value: "archived", color: "#8c8c8c" },   // Gray
-        { label: "In Progress", value: "in_progress", color: "#13c2c2" }, // Cyan
-    ], []);
+    // const stateTypeOptions = useMemo(() => [
+    //     { label: "Active", value: "active", color: "#52c41a" },      // Green
+    //     { label: "Pending", value: "pending", color: "#faad14" },     // Orange
+    //     { label: "Completed", value: "completed", color: "#1890ff" }, // Blue
+    //     { label: "Cancelled", value: "cancelled", color: "#f5222d" }, // Red
+    //     { label: "Archived", value: "archived", color: "#8c8c8c" },   // Gray
+    //     { label: "In Progress", value: "in_progress", color: "#13c2c2" }, // Cyan
+    // ], []);
 
     const [searchText, setSearchText] = useState("");
 
     const filteredOptions = useMemo(() => {
-        return stateTypeOptions.filter((opt) =>
-            opt.label.toLowerCase().includes(searchText.toLowerCase())
+        return paperTypes.filter((opt) =>
+            opt.name.toLowerCase().includes(searchText.toLowerCase())
         );
-    }, [searchText, stateTypeOptions]);
+    }, [searchText, paperTypes]);
 
-    const handleSelect = (value: StateObject) => {
-        setFormData((prev) => ({ ...prev, ["state"]: value.label }));
-        setValue("state", value.label);
-        setStateColor(value.color);
+    const handleSelect = (value: number) => {
+        setFormData((prev) => ({ ...prev, ["paperTypeId"]: value }));
+        setValue("paperTypeId", value);
     };
 
     const handleConfirm = () => {
         setIsStateOpen(false);
     };
 
+    const handleFileChange = (info: any) => {
+        const { fileList: newFileList } = info;
+        setFileList(newFileList);
+
+        // Get the actual file from the fileList
+        const file = newFileList[0]?.originFileObj || null;
+        setSelectedFile(file);
+
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+        } else {
+            setSelectedFile(null);
+        }
+    };
+
+    const groups: { name: string; value: string; }[] = [
+        { value: ManagerPaperGroup.RENT, name: t("finance.RENT") },
+        { value: ManagerPaperGroup.REVENUE, name: t("finance.REVENUE") },
+        { value: ManagerPaperGroup.WAGES, name: t("finance.WAGES") },
+        { value: ManagerPaperGroup.INVESTMENT_DEVIDENTS, name: t("finance.INVESTMENT_DEVIDENTS") },
+        { value: ManagerPaperGroup.UTILITY_BILLS, name: t("finance.UTILITY_BILLS") },
+        { value: ManagerPaperGroup.TAXES, name: t("finance.TAXES") },
+        { value: ManagerPaperGroup.ACCOUNTABLE_FUNDS, name: t("finance.ACCOUNTABLE_FUNDS") },
+        { value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES, name: t("finance.REPRESENTATIVE_EXPENSES") },
+        { value: ManagerPaperGroup.SALE_EQUIPMENT, name: t("finance.SALE_EQUIPMENT") },
+        { value: ManagerPaperGroup.MANUFACTURE, name: t("finance.MANUFACTURE") },
+        { value: ManagerPaperGroup.OTHER, name: t("finance.OTHER") },
+        { value: ManagerPaperGroup.SUPPLIES, name: t("finance.SUPPLIES") },
+        { value: ManagerPaperGroup.P_C, name: t("finance.P_C") },
+        { value: ManagerPaperGroup.WAREHOUSE, name: t("finance.WAREHOUSE") },
+        { value: ManagerPaperGroup.CONSTRUCTION, name: t("finance.CONSTRUCTION") },
+        { value: ManagerPaperGroup.MAINTENANCE_REPAIR, name: t("finance.MAINTENANCE_REPAIR") },
+        { value: ManagerPaperGroup.TRANSPORTATION_COSTS, name: t("finance.TRANSPORTATION_COSTS") }
+    ];
+
+    const [dataFilter, setDataFilter] = useState<ManagerParams>(initialFilter);
+
+    const handleDataFilter = (newFilterData: Partial<ManagerParams>) => {
+        setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
+        setIsTableLoading(true);
+        if (newFilterData.group) setGroup(newFilterData.group);
+        if (newFilterData.posId) setPosId(newFilterData.posId);
+        if (newFilterData.paperTypeId) setPaperTypeId(newFilterData.paperTypeId);
+        if (newFilterData.userId) setUserId(newFilterData.userId);
+    }
+
+    useEffect(() => {
+        handleDataFilter({
+            group: group,
+            posId: posId,
+            paperTypeId: paperTypeId,
+            userId: userId
+        })
+    }, [filterOn]);
+
+    useEffect(() => {
+        managerMutating().then(() => setIsTableLoading(false));
+    }, [dataFilter, managerMutating]);
+
+    const handleClear = () => {
+        setGroup("*");
+        setPosId("*");
+        setPaperTypeId("*");
+        setUserId("*");
+    }
+
     return (
         <div>
-            <Filter count={0} hideSearch={true}>
+            <Filter count={data.length} hideSearch={true} handleClear={handleClear}>
                 <SearchDropdownInput
                     title={t("analysis.posId")}
                     classname="w-80"
-                    options={poses}
-                    value={""}
-                    onChange={() => { }}
+                    options={[...poses,{ name: t("warehouse.all"), value: "*"}]}
+                    value={posId}
+                    onChange={(value) => setPosId(value)}
                 />
                 <DropdownInput
                     title="Группа"
                     classname="w-80"
-                    value={""}
-                    options={[]}
+                    value={group}
+                    options={[...groups,{ name: t("warehouse.all"), value: "*"}]}
+                    onChange={(value) => setGroup(value)}
                 />
                 <DropdownInput
                     title="Назначение"
                     classname="w-80"
-                    value={""}
-                    options={[]}
+                    value={paperTypeId}
+                    options={[...paperTypes,{ name: t("warehouse.all"), value: "*"}]}
+                    onChange={(value) => setPaperTypeId(value)}
                 />
                 <DropdownInput
                     title="Статья"
                     classname="w-80"
-                    value={""}
-                    options={[]}
+                    value={userId}
+                    options={[...workers, { name: t("warehouse.all"), value: "*"}]}
+                    onChange={(value) => setUserId(value)}
                 />
             </Filter>
             <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
@@ -492,11 +797,11 @@ const Articles: React.FC = () => {
                         filteredOptions.map((opt) => (
                             <div
                                 key={opt.value}
-                                onClick={() => handleSelect(opt)}
-                                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.state === opt.value ? "text-primary02" : ""
+                                onClick={() => handleSelect(opt.value)}
+                                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.paperTypeId === opt.value ? "text-primary02" : ""
                                     }`}
                             >
-                                {opt.label}
+                                {opt.name}
                             </div>
                         ))
                     ) : (
@@ -504,7 +809,7 @@ const Articles: React.FC = () => {
                     )}
                 </div>
                 <Button
-                    disabled={!formData.state}
+                    disabled={!formData.paperTypeId}
                     handleClick={handleConfirm}
                     title="Confirm"
                     classname="mt-4 w-full"
@@ -524,16 +829,14 @@ const Articles: React.FC = () => {
                             title={"Group"}
                             classname="w-full"
                             placeholder="Выберите объект"
-                            options={[]}
-                            {...register('groupId', {
+                            options={groups}
+                            {...register('group', {
                                 required: 'Group ID is required',
-                                validate: (value) =>
-                                    (value !== 0) || "Group ID is required"
                             })}
-                            value={formData.groupId}
-                            onChange={(value) => { handleInputChange('groupId', value); }}
-                            error={!!errors.groupId}
-                            errorText={errors.groupId?.message}
+                            value={formData.group}
+                            onChange={(value) => { handleInputChange('group', value); }}
+                            error={!!errors.group}
+                            errorText={errors.group?.message}
                         />
                         <SearchDropdownInput
                             title={t("analysis.posId")}
@@ -552,7 +855,7 @@ const Articles: React.FC = () => {
                         />
                         <Space.Compact className="w-full">
                             <Input
-                                value={formData.state}
+                                value={formData.paperTypeId}
                                 disabled={true}
                                 classname="w-full"
                             />
@@ -567,29 +870,36 @@ const Articles: React.FC = () => {
                         <Space className="w-full">
                             <div>
                                 <div className="text-text02 text-sm">Expanse</div>
-                                <Tag color={stateColor} className="h-10 w-40 flex items-center justify-center">{formData.state}</Tag>
+                                <Tag className="h-10 w-40 flex items-center justify-center">{formData.paperTypeId}</Tag>
                             </div>
                             <DateInput
                                 title="Date"
                                 classname="w-full sm:w-40"
-                                value={formData.date ? dayjs(formData.date) : null}
-                                changeValue={(date) => handleInputChange("date", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
-                                error={!!errors.date}
-                                {...register('date', { required: 'Date is required' })}
-                                helperText={errors.date?.message || ''}
+                                value={formData.eventDate ? dayjs(formData.eventDate) : null}
+                                changeValue={(eventDate) => handleInputChange("eventDate", eventDate ? eventDate.format("YYYY-MM-DDTHH:mm") : "")}
+                                error={!!errors.eventDate}
+                                {...register('eventDate', { required: 'eventDate is required' })}
+                                helperText={errors.eventDate?.message || ''}
                             />
                         </Space>
                         <Input
-                            title="Amount"
+                            title={t("finance.sum")}
                             type="number"
                             classname="w-full"
                             showIcon={true}
                             IconComponent={<div className="text-text02 text-xl">₽</div>}
-                            value={formData.amount}
-                            changeValue={(e) => handleInputChange('amount', e.target.value)}
-                            error={!!errors.amount}
-                            {...register('amount', { required: 'amount is required' })}
-                            helperText={errors.amount?.message || ''}
+                            value={formData.sum}
+                            changeValue={(e) => handleInputChange('sum', e.target.value)}
+                            error={!!errors.sum}
+                            {...register('sum', { required: 'sum is required' })}
+                            helperText={errors.sum?.message || ''}
+                        />
+                        <MultilineInput
+                            title={t("equipment.comment")}
+                            classname="w-96"
+                            value={formData.comment}
+                            changeValue={(e) => handleInputChange('comment', e.target.value)}
+                            {...register('comment')}
                         />
                         <div>
                             <div className="text-text02 text-sm">Upload</div>
@@ -597,10 +907,11 @@ const Articles: React.FC = () => {
                                 listType="picture-card"
                                 showUploadList={true}
                                 beforeUpload={() => false} // prevent auto upload
-                                onChange={({ fileList }) => handleInputChange("images", fileList)}
-                                fileList={formData.images || []}
+                                onChange={handleFileChange}
+                                fileList={fileList}
+                                maxCount={1}
                             >
-                                {formData.images?.length >= 1 ? null : (
+                                {fileList.length >= 1 ? null : (
                                     <div className="text-text02">
                                         <PlusOutlined />
                                         <div className="mt-2">Upload</div>
@@ -617,7 +928,7 @@ const Articles: React.FC = () => {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
-                            <Button title={t("organizations.save")} form={true} handleClick={() => { }} />
+                            <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
                         </div>
                     </div>
                 </form>
@@ -645,7 +956,7 @@ const Articles: React.FC = () => {
                         </AntDButton>
                         <Popconfirm
                             title="Are you sure you want to delete the selected rows?"
-                            onConfirm={handleDeleteRows}
+                            onConfirm={handleDeleteRow}
                             disabled={selectedRowKeys.length === 0}
                         >
                             <AntDButton
@@ -667,28 +978,31 @@ const Articles: React.FC = () => {
                 </div>
 
                 <Form form={form} component={false}>
-                    <Table<DataType>
-                        dataSource={data}
-                        columns={mergedColumns}
-                        rowClassName="editable-row"
-                        pagination={{ onChange: cancel }}
-                        rowSelection={rowSelection}
-                        components={{
-                            header: {
-                                cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
-                                    <th
-                                        {...props}
-                                        style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
-                                        className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
-                                    />
-                                ),
-                            },
-                            body: {
-                                cell: EditableCell
-                            },
-                        }}
-                        scroll={{ x: "max-content" }}
-                    />
+                    {loadingManagerData || isTableLoading ?
+                        <TableSkeleton columnCount={mergedColumns.length} />
+                        :
+                        <Table<DataType>
+                            dataSource={data}
+                            columns={mergedColumns}
+                            rowClassName="editable-row"
+                            pagination={{ onChange: cancel }}
+                            rowSelection={rowSelection}
+                            components={{
+                                header: {
+                                    cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
+                                        <th
+                                            {...props}
+                                            style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                                            className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
+                                        />
+                                    ),
+                                },
+                                body: {
+                                    cell: EditableCell
+                                },
+                            }}
+                            scroll={{ x: "max-content" }}
+                        />}
                 </Form>
             </div>
         </div>

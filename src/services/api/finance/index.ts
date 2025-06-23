@@ -4,7 +4,8 @@ import api from "@/config/axiosConfig";
 enum FINANCE {
     POST_CASH_COLLECTION = 'user/finance/cash-collection',
     TIME_STAMP = 'user/finance/time-stamp',
-    SHIFT_REPORT = 'user/finance/shift-report'
+    SHIFT_REPORT = 'user/finance/shift-report',
+    MANAGER_PAPER = 'user/manager-paper'
 }
 
 enum TypeWorkDay {
@@ -32,6 +33,31 @@ enum StatusWorkDayShiftReport {
 enum TypeWorkDayShiftReportCashOper {
     REFUND = "REFUND",
     REPLENISHMENT = "REPLENISHMENT"
+}
+
+enum ManagerPaperGroup {
+    RENT = "RENT",
+    REVENUE = "REVENUE",
+    WAGES = "WAGES",
+    INVESTMENT_DEVIDENTS = "INVESTMENT_DEVIDENTS",
+    UTILITY_BILLS = "UTILITY_BILLS",
+    TAXES = "TAXES",
+    ACCOUNTABLE_FUNDS = "ACCOUNTABLE_FUNDS",
+    REPRESENTATIVE_EXPENSES = "REPRESENTATIVE_EXPENSES",
+    SALE_EQUIPMENT = "SALE_EQUIPMENT",
+    MANUFACTURE = "MANUFACTURE",
+    OTHER = "OTHER",
+    SUPPLIES = "SUPPLIES",
+    P_C = "P_C",
+    WAREHOUSE = "WAREHOUSE",
+    CONSTRUCTION = "CONSTRUCTION",
+    MAINTENANCE_REPAIR = "MAINTENANCE_REPAIR",
+    TRANSPORTATION_COSTS = "TRANSPORTATION_COSTS"
+}
+
+enum ManagerPaperTypeClass {
+    RECEIPT = "RECEIPT",
+    EXPENDITURE = "EXPENDITURE"
 }
 
 type CollectionBody = {
@@ -280,6 +306,86 @@ type ReturnCashCollectionResponse = {
     status: string
 }
 
+type ManagerPaperBody = {
+    group: ManagerPaperGroup;
+    posId: number;
+    paperTypeId: number;
+    eventDate: Date;
+    sum: number;
+    userId: number;
+    comment?: string;
+}
+
+type ManagerPaperResponse = {
+    props: {
+        id: number;
+        group: ManagerPaperGroup;
+        posId: number;
+        paperTypeId: number;
+        eventDate: Date;
+        sum: number;
+        userId: number;
+        imageProductReceipt?: string;
+        comment?: string;
+        createdAt: Date;
+        updatedAt: Date;
+        reatedById: number;
+        updatedById: number;
+    }
+}
+
+type UpdateManagerBody = {
+    managerPaperId: number;
+    group?: ManagerPaperGroup;
+    posId?: number;
+    paperTypeId?: number;
+    eventDate?: Date;
+    sum?: number;
+    userId?: number;
+    comment?: string;
+}
+
+type ManagerParams = {
+    group: ManagerPaperGroup | '*';
+    posId: number | '*';
+    paperTypeId: number | '*';
+    userId: number | '*';
+    dateStartEvent?: Date;
+    dateEndEvent?: Date;
+    page?: number;
+    size?: number;
+}
+
+type ManagersResponse = {
+    managerPapers: {
+        props:
+        {
+            id: number;
+            group: ManagerPaperGroup;
+            posId: number;
+            paperTypeId: number;
+            eventDate: Date;
+            sum: number;
+            userId: number;
+            imageProductReceipt?: string;
+            comment?: string;
+            createdAt: Date;
+            updatedAt: Date;
+            createdById: number;
+            updatedById: number;
+        }
+    }[],
+    totalCount: number;
+}
+
+type ManagerPaperTypeResponse = {
+    props: {
+        id: number;
+        name: string;
+        type: ManagerPaperTypeClass;
+    }
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
     return response.data;
@@ -387,5 +493,66 @@ export async function getCashOperCleanById(id: number): Promise<GetDayReportClea
 
 export async function getCashOperSuspiciousById(id: number): Promise<GetDayReportSuspResponse[]> {
     const response: AxiosResponse<GetDayReportSuspResponse[]> = await api.get(FINANCE.SHIFT_REPORT + `/day-report/suspiciously/${id}`);
+    return response.data;
+}
+
+export async function createManagerPaper(body: ManagerPaperBody, file?: File | null): Promise<ManagerPaperResponse> {
+    const formData = new FormData();
+
+    for (const key in body) {
+        const value = body[key as keyof ManagerPaperBody];
+        if (value !== undefined) {
+            // Convert value to a string if it's a number
+            formData.append(key, value.toString());
+        }
+    }
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    const response: AxiosResponse<ManagerPaperResponse> = await api.post(FINANCE.MANAGER_PAPER, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+}
+
+export async function updateManagerPaper(body: UpdateManagerBody, file?: File | null): Promise<ManagerPaperResponse> {
+    const formData = new FormData();
+
+    for (const key in body) {
+        const value = body[key as keyof UpdateManagerBody];
+        if (value !== undefined) {
+            // Convert value to a string if it's a number
+            formData.append(key, value.toString());
+        }
+    }
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    const response: AxiosResponse<ManagerPaperResponse> = await api.patch(FINANCE.MANAGER_PAPER, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+}
+
+export async function getAllManagerPaper(params: ManagerParams): Promise<ManagersResponse> {
+    const response: AxiosResponse<ManagersResponse> = await api.get(FINANCE.MANAGER_PAPER, { params });
+    return response.data;
+}
+
+export async function deleteManagerPaper(id: number): Promise<ReturnCashCollectionResponse> {
+    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.delete(FINANCE.MANAGER_PAPER + `/${id}`);
+    return response.data;
+}
+
+export async function getAllManagerPaperTypes(): Promise<ManagerPaperTypeResponse[]> {
+    const response: AxiosResponse<ManagerPaperTypeResponse[]> = await api.get(FINANCE.MANAGER_PAPER + '/type');
     return response.data;
 }
