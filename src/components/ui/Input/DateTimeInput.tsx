@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { DatePicker, TimePicker } from "antd";
 import { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -32,27 +32,45 @@ const DateTimeInput: React.FC<InputProps> = ({
     const [date, setDate] = useState<Dayjs | null>(value ? value.startOf("day") : null);
     const [time, setTime] = useState<Dayjs | null>(value ? value : null);
 
+    // Memoize the value timestamp to prevent unnecessary updates
+    const valueTimestamp = useMemo(() => value?.valueOf() || null, [value]);
+
     useEffect(() => {
         if (value) {
-            setDate(value.startOf("day"));
-            setTime(value);
-        } else {
+            const newDate = value.startOf("day");
+            const newTime = value;
+            
+            // Only update if the actual values are different
+            if (!date?.isSame(newDate, 'day') || !time?.isSame(newTime, 'minute')) {
+                setDate(newDate);
+                setTime(newTime);
+            }
+        } else if (date !== null || time !== null) {
             setDate(null);
             setTime(null);
         }
-    }, [value]);
+    }, [valueTimestamp]); // Use valueTimestamp instead of value
 
-    useEffect(() => {
-        if (date && time) {
-            const combined = date
-                .hour(time.hour())
-                .minute(time.minute())
-                .second(time.second());
+    // Handle internal changes (when user interacts with date/time pickers)
+    const handleDateChange = (d: Dayjs | null) => {
+        setDate(d);
+        if (d && time) {
+            const combined = d.hour(time.hour()).minute(time.minute()).second(time.second());
             changeValue?.(combined, combined.format(format));
-        } else {
+        } else if (!d) {
             changeValue?.(null, "");
         }
-    }, [date, time]);
+    };
+
+    const handleTimeChange = (t: Dayjs | null) => {
+        setTime(t);
+        if (date && t) {
+            const combined = date.hour(t.hour()).minute(t.minute()).second(t.second());
+            changeValue?.(combined, combined.format(format));
+        } else if (!t) {
+            changeValue?.(null, "");
+        }
+    };
 
     const containerClassName = `relative ${classname || ""}`;
 
@@ -74,7 +92,7 @@ const DateTimeInput: React.FC<InputProps> = ({
             <div className="flex gap-2 items-center">
                 <DatePicker
                     value={date}
-                    onChange={(d) => setDate(d)}
+                    onChange={handleDateChange}
                     disabled={disabled}
                     placeholder={label || t("finance.sel")}
                     style={{ width: "100%", height: 40 }}
@@ -82,7 +100,7 @@ const DateTimeInput: React.FC<InputProps> = ({
                 />
                 <TimePicker
                     value={time}
-                    onChange={(t) => setTime(t)}
+                    onChange={handleTimeChange}
                     disabled={disabled}
                     placeholder={t("finance.selTime")}
                     format="HH:mm"

@@ -5,7 +5,13 @@ enum FINANCE {
     POST_CASH_COLLECTION = 'user/finance/cash-collection',
     TIME_STAMP = 'user/finance/time-stamp',
     SHIFT_REPORT = 'user/finance/shift-report',
-    MANAGER_PAPER = 'user/manager-paper'
+    MANAGER_PAPER = 'user/manager-paper',
+    GET_WORKER = 'user/permission/worker-by-pos'
+}
+
+enum ManagerReportPeriodStatus {
+    SAVE = "SAVE",
+    SENT = "SENT"
 }
 
 enum TypeWorkDay {
@@ -386,6 +392,108 @@ type ManagerPaperTypeResponse = {
     }
 }
 
+type ManagerPaperPeriodBody = {
+    startPeriod: Date;
+    endPeriod: Date;
+    sumStartPeriod: number;
+    sumEndPeriod: number;
+    userId: number;
+}
+
+type ManagerPaperPeriodResponse = {
+    id: number;
+    status: ManagerReportPeriodStatus;
+    startPeriod: Date;
+    endPeriod: Date;
+    sumStartPeriod: number;
+    sumEndPeriod: number;
+    userId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById?: number
+    updatedById?: number;
+}
+
+type ManagerPeriodUpdateBody = {
+    managerReportPeriodId: number;
+    status?: ManagerReportPeriodStatus;
+    startPeriod?: Date;
+    endPeriod?: Date;
+    sumStartPeriod?: number;
+    sumEndPeriod?: number;
+}
+
+type ManagerPeriodParams = {
+    startPeriod: Date;
+    endPeriod: Date;
+    userId: number;
+    page?: number;
+    size?: number;
+}
+
+type ManagersPeriodResponse = {
+    managerReportPeriods: {
+        id: number;
+        period: string;
+        sumStartPeriod: number;
+        sumEndPeriod: number;
+        shortage: number;
+        userId: number;
+        status: ManagerReportPeriodStatus;
+    }[],
+    totalCount: number;
+}
+
+type ManagerPeriodIdResponse = {
+    id: number;
+    status: ManagerReportPeriodStatus;
+    startPeriod: Date;
+    endPeriod: Date;
+    sumStartPeriod: number;
+    sumEndPeriod: number;
+    shortage: number;
+    userId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    createdById?: number;
+    updatedById?: number;
+    managerPaper: {
+        group: ManagerPaperGroup;
+        posId: number;
+        paperTypeId: number;
+        paperTypeName: string;
+        paperTypeType: ManagerPaperTypeClass;
+        eventDate: Date;
+        sum: number;
+        imageProductReceipt?: string;
+    }[]
+}
+
+type AllWorkersResponse = {
+    props: {
+        id: number;
+        userRoleId: number;
+        name: string;
+        surname: string;
+        middlename?: string;
+        birthday?: Date;
+        phone?: string;
+        email: string;
+        password: string;
+        gender: string;
+        position: string;
+        status: string;
+        avatar?: string;
+        country: string;
+        countryCode: number;
+        timezone: number;
+        refreshTokenId: string;
+        receiveNotifications: number;
+        createdAt: Date;
+        updatedAt: Date;
+    }
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
     return response.data;
@@ -554,5 +662,35 @@ export async function deleteManagerPaper(id: number): Promise<ReturnCashCollecti
 
 export async function getAllManagerPaperTypes(): Promise<ManagerPaperTypeResponse[]> {
     const response: AxiosResponse<ManagerPaperTypeResponse[]> = await api.get(FINANCE.MANAGER_PAPER + '/type');
+    return response.data;
+}
+
+export async function createManagerPaperPeriod(body: ManagerPaperPeriodBody): Promise<ManagerPaperPeriodResponse> {
+    const response: AxiosResponse<ManagerPaperPeriodResponse> = await api.post(FINANCE.MANAGER_PAPER + `/period`, body);
+    return response.data;
+}
+
+export async function updateManagerPaperPeriod(body: ManagerPeriodUpdateBody): Promise<ManagerPaperPeriodResponse> {
+    const response: AxiosResponse<ManagerPaperPeriodResponse> = await api.patch(FINANCE.MANAGER_PAPER + `/period`, body);
+    return response.data;
+}
+
+export async function getAllManagerPeriods(params: ManagerPeriodParams): Promise<ManagersPeriodResponse> {
+    const response: AxiosResponse<ManagersPeriodResponse> = await api.get(FINANCE.MANAGER_PAPER + `/period`, { params });
+    return response.data;
+}
+
+export async function deleteManagerPaperPeriod(id: number): Promise<ReturnCashCollectionResponse> {
+    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.delete(FINANCE.MANAGER_PAPER + `/period/${id}`);
+    return response.data;
+}
+
+export async function getManagerPeriodById(id: number): Promise<ManagerPeriodIdResponse> {
+    const response: AxiosResponse<ManagerPeriodIdResponse> = await api.get(FINANCE.MANAGER_PAPER + `/period/${id}`);
+    return response.data;
+}
+
+export async function getAllWorkers(id: number): Promise<AllWorkersResponse[]> {
+    const response: AxiosResponse<AllWorkersResponse[]> = await api.get(FINANCE.GET_WORKER + `/${id}`);
     return response.data;
 }

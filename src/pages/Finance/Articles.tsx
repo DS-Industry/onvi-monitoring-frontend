@@ -2,27 +2,29 @@ import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
 import { DatePicker, message, TableProps, Tag, Upload } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined, UserOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import useSWR, { mutate } from "swr";
 import { getPoses } from "@/services/api/equipment";
-import { useCity } from "@/hooks/useAuthStore";
+import { useCity, useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
 import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperTypes, updateManagerPaper } from "@/services/api/finance";
+import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperTypes, getAllWorkers, updateManagerPaper } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useUser } from "@/hooks/useUserStore";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import { getWorkers } from "@/services/api/hr";
 import { useFilterOn } from "@/components/context/useContext";
+import DateTimeInput from "@/components/ui/Input/DateTimeInput";
+import { useLocation } from "react-router-dom";
+import Icon from "feather-icons-react";
 
 const { Title, Text } = Typography;
 
@@ -311,14 +313,61 @@ const Articles: React.FC = () => {
     const [posId, setPosId] = useState<number | "*">("*");
     const [paperTypeId, setPaperTypeId] = useState<number | "*">("*");
     const [userId, setUserId] = useState<number | "*">("*");
+    const [startPeriod, setStartPeriod] = useState<Dayjs>(dayjs().startOf('month'));
+    const [endPeriod, setEndPeriod] = useState<Dayjs>(dayjs().endOf('month'));
     const [isTableLoading, setIsTableLoading] = useState(false);
-    const { filterOn } = useFilterOn();
+    const { filterOn, setFilterOn } = useFilterOn();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageNumber();
+    const location = useLocation();
+    const curr = useCurrentPage();
+    const setCurr = useSetCurrentPage();
+    const rowsPerPage = usePageNumber();
+    const totalCount = usePageSize();
+    const totalPages = Math.ceil(totalCount / rowsPerPage);
+
+    const generatePaginationRange = () => {
+        const range: (number | string)[] = [];
+
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) range.push(i);
+        } else {
+            range.push(1);
+
+            if (curr > 3) range.push("...");
+
+            const start = Math.max(2, curr - 1);
+            const end = Math.min(totalPages - 1, curr + 1);
+            for (let i = start; i <= end; i++) range.push(i);
+
+            if (curr < totalPages - 2) range.push("...");
+
+            range.push(totalPages);
+        }
+
+        return range;
+    };
+
+    const handlePageClick = (page: number | string) => {
+        if (typeof page === "number") {
+            setFilterOn(!filterOn);
+            setCurr(page);
+        }
+    };
+
+    const setCurrentPage = useSetCurrentPage();
+    const setPageSize = useSetPageNumber();
+    const setTotalCount = useSetPageSize();
 
     const initialFilter = {
         group: group,
         posId: posId,
         paperTypeId: paperTypeId,
-        userId: userId
+        userId: userId,
+        dateStartEvent: startPeriod ? startPeriod.toDate() : undefined,
+        dateEndEvent: endPeriod ? endPeriod.toDate() : undefined,
+        page: currentPage,
+        size: pageSize
     }
 
     const isEditing = (record: DataType) => record.key === editingKey;
@@ -338,7 +387,11 @@ const Articles: React.FC = () => {
         group: dataFilter.group,
         posId: dataFilter.posId,
         paperTypeId: dataFilter.paperTypeId,
-        userId: dataFilter.userId
+        userId: dataFilter.userId,
+        dateStartEvent: dataFilter.dateStartEvent,
+        dateEndEvent: dataFilter.dateEndEvent,
+        page: currentPage,
+        size: pageSize
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -410,10 +463,6 @@ const Articles: React.FC = () => {
                     sum: updatedItem.sum !== item.sum ? updatedItem.sum : undefined,
                     comment: updatedItem.comment !== item.comment ? updatedItem.comment : undefined,
                 };
-
-                console.log('API Payload:', apiPayload);
-                console.log('Selected File:', selectedFile);
-                console.log('Item ID:', item.id);
 
                 // Call the API
                 const result = await updateManager(apiPayload);
@@ -576,19 +625,26 @@ const Articles: React.FC = () => {
         };
     });
 
-    const user = useUser();
-
     const defaultValues: ManagerPaperBody = {
         group: ManagerPaperGroup.WAGES,
         posId: 0,
         paperTypeId: 0,
         eventDate: new Date(),
         sum: 0,
-        userId: user.id,
+        userId: 0,
         comment: undefined
     };
 
     const [formData, setFormData] = useState(defaultValues);
+
+    const { data: allWorkersData } = useSWR(formData.posId !== 0 ? [`get-all-workers`] : null, () => getAllWorkers(formData.posId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const allWorkers: { name: string; value: number; }[] = [
+        ...(allWorkersData?.map((work) => ({
+            name: work.props.name,
+            value: work.props.id
+        })) || [])
+    ];
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
@@ -631,9 +687,7 @@ const Articles: React.FC = () => {
 
     const resetForm = () => {
         setFormData(defaultValues);
-        // setIsEditMode(false);
         reset();
-        // setEditIncidentId(0);
         setIsOpenModal(false);
     };
 
@@ -715,6 +769,27 @@ const Articles: React.FC = () => {
 
     const [dataFilter, setDataFilter] = useState<ManagerParams>(initialFilter);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setDataFilter((prevFilter) => ({
+            ...prevFilter,
+            page: 1
+        }));
+    }, [location, setCurrentPage]);
+
+    const totalRecords = allManagersData?.totalCount || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
+
+    useEffect(() => {
+        if (currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+            setDataFilter((prevFilter) => ({
+                ...prevFilter,
+                page: maxPages > 0 ? maxPages : 1
+            }));
+        }
+    }, [maxPages, currentPage, setCurrentPage]);
+
     const handleDataFilter = (newFilterData: Partial<ManagerParams>) => {
         setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
         setIsTableLoading(true);
@@ -722,6 +797,10 @@ const Articles: React.FC = () => {
         if (newFilterData.posId) setPosId(newFilterData.posId);
         if (newFilterData.paperTypeId) setPaperTypeId(newFilterData.paperTypeId);
         if (newFilterData.userId) setUserId(newFilterData.userId);
+        if (newFilterData.dateStartEvent) setStartPeriod(dayjs(newFilterData.dateStartEvent));
+        if (newFilterData.dateEndEvent) setEndPeriod(dayjs(newFilterData.dateEndEvent));
+        if (newFilterData.page) setCurrentPage(newFilterData.page);
+        if (newFilterData.size) setPageSize(newFilterData.size);
     }
 
     useEffect(() => {
@@ -729,7 +808,9 @@ const Articles: React.FC = () => {
             group: group,
             posId: posId,
             paperTypeId: paperTypeId,
-            userId: userId
+            userId: userId,
+            dateStartEvent: startPeriod ? startPeriod.toDate() : undefined,
+            dateEndEvent: endPeriod ? endPeriod.toDate() : undefined
         })
     }, [filterOn]);
 
@@ -737,20 +818,29 @@ const Articles: React.FC = () => {
         managerMutating().then(() => setIsTableLoading(false));
     }, [dataFilter, managerMutating]);
 
+    useEffect(() => {
+        if (!loadingManagerData && allManagersData?.totalCount)
+            setTotalCount(allManagersData?.totalCount)
+    }, [allManagersData, loadingManagerData, setTotalCount]);
+
     const handleClear = () => {
         setGroup("*");
         setPosId("*");
         setPaperTypeId("*");
         setUserId("*");
+        setStartPeriod(dayjs().startOf('month'));
+        setEndPeriod(dayjs().endOf('month'));
+        setPageSize(15);
+        setCurrentPage(1);
     }
 
     return (
         <div>
-            <Filter count={data.length} hideSearch={true} handleClear={handleClear}>
+            <Filter count={data.length} hideSearch={true} hideDateTime={true} handleClear={handleClear}>
                 <SearchDropdownInput
                     title={t("analysis.posId")}
                     classname="w-80"
-                    options={[...poses,{ name: t("warehouse.all"), value: "*"}]}
+                    options={[...poses, { name: t("warehouse.all"), value: "*" }]}
                     value={posId}
                     onChange={(value) => setPosId(value)}
                 />
@@ -758,22 +848,34 @@ const Articles: React.FC = () => {
                     title="Группа"
                     classname="w-80"
                     value={group}
-                    options={[...groups,{ name: t("warehouse.all"), value: "*"}]}
+                    options={[...groups, { name: t("warehouse.all"), value: "*" }]}
                     onChange={(value) => setGroup(value)}
                 />
                 <DropdownInput
                     title="Назначение"
                     classname="w-80"
                     value={paperTypeId}
-                    options={[...paperTypes,{ name: t("warehouse.all"), value: "*"}]}
+                    options={[...paperTypes, { name: t("warehouse.all"), value: "*" }]}
                     onChange={(value) => setPaperTypeId(value)}
                 />
                 <DropdownInput
                     title="Статья"
                     classname="w-80"
                     value={userId}
-                    options={[...workers, { name: t("warehouse.all"), value: "*"}]}
+                    options={[...workers, { name: t("warehouse.all"), value: "*" }]}
                     onChange={(value) => setUserId(value)}
+                />
+                <DateTimeInput
+                    title={t("hr.startPaymentDate")}
+                    classname="w-64"
+                    value={startPeriod}
+                    changeValue={(date) => setStartPeriod(dayjs(date))}
+                />
+                <DateTimeInput
+                    title={t("hr.endPaymentDate")}
+                    classname="w-64"
+                    value={endPeriod}
+                    changeValue={(date) => setEndPeriod(dayjs(date))}
                 />
             </Filter>
             <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
@@ -826,7 +928,7 @@ const Articles: React.FC = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-col space-y-4 text-text02">
                         <SearchDropdownInput
-                            title={"Group"}
+                            title={t("finance.group")}
                             classname="w-full"
                             placeholder="Выберите объект"
                             options={groups}
@@ -855,25 +957,26 @@ const Articles: React.FC = () => {
                         />
                         <Space.Compact className="w-full">
                             <Input
-                                value={formData.paperTypeId}
+                                title={t("finance.article")}
+                                value={paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name || ""}
                                 disabled={true}
                                 classname="w-full"
                             />
                             <AntDButton
                                 onClick={() => setIsStateOpen(true)}
                                 type="primary"
-                                className="h-10"
+                                className="h-10 mt-5"
                             >
                                 Open
                             </AntDButton>
                         </Space.Compact>
                         <Space className="w-full">
                             <div>
-                                <div className="text-text02 text-sm">Expanse</div>
-                                <Tag className="h-10 w-40 flex items-center justify-center">{formData.paperTypeId}</Tag>
+                                <div className="text-text02 text-sm">{t("finance.articleType")}</div>
+                                <Tag className="h-10 w-40 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name}</Tag>
                             </div>
                             <DateInput
-                                title="Date"
+                                title={t("finance.dat")}
                                 classname="w-full sm:w-40"
                                 value={formData.eventDate ? dayjs(formData.eventDate) : null}
                                 changeValue={(eventDate) => handleInputChange("eventDate", eventDate ? eventDate.format("YYYY-MM-DDTHH:mm") : "")}
@@ -919,13 +1022,28 @@ const Articles: React.FC = () => {
                                 )}
                             </Upload>
                         </div>
-                        <div>
-                            <div className="text-text02 text-sm">User</div>
+                        <SearchDropdownInput
+                            title={t("equipment.user")}
+                            classname="w-full"
+                            placeholder="Выберите объект"
+                            options={allWorkers}
+                            {...register('userId', {
+                                required: 'User ID is required',
+                                validate: (value) =>
+                                    (value !== 0) || "User ID is required"
+                            })}
+                            value={formData.userId}
+                            onChange={(value) => { handleInputChange('userId', value); }}
+                            error={!!errors.userId}
+                            errorText={errors.userId?.message}
+                        />
+                        {/* <div>
+                            <div className="text-text02 text-sm">{t("equipment.user")}</div>
                             <div className="text-text02 flex items-center space-x-1">
                                 <UserOutlined style={{ fontSize: "24px" }} />
-                                <span className="text-text01">User 1</span>
+                                <span className="text-text01">{user.name}</span>
                             </div>
-                        </div>
+                        </div> */}
                         <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
                             <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setIsOpenModal(false); resetForm(); }} />
                             <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
@@ -981,28 +1099,67 @@ const Articles: React.FC = () => {
                     {loadingManagerData || isTableLoading ?
                         <TableSkeleton columnCount={mergedColumns.length} />
                         :
-                        <Table<DataType>
-                            dataSource={data}
-                            columns={mergedColumns}
-                            rowClassName="editable-row"
-                            pagination={{ onChange: cancel }}
-                            rowSelection={rowSelection}
-                            components={{
-                                header: {
-                                    cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
-                                        <th
-                                            {...props}
-                                            style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
-                                            className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
-                                        />
-                                    ),
-                                },
-                                body: {
-                                    cell: EditableCell
-                                },
-                            }}
-                            scroll={{ x: "max-content" }}
-                        />}
+                        <div>
+                            <Table<DataType>
+                                dataSource={data}
+                                columns={mergedColumns}
+                                rowClassName="editable-row"
+                                pagination={false}
+                                rowSelection={rowSelection}
+                                components={{
+                                    header: {
+                                        cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
+                                            <th
+                                                {...props}
+                                                style={{ backgroundColor: "#E4F0FF", fontWeight: "semi-bold", paddingLeft: "9px", paddingTop: "20px", paddingBottom: "20px", textAlign: "left", borderRadius: "0px" }}
+                                                className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
+                                            />
+                                        ),
+                                    },
+                                    body: {
+                                        cell: EditableCell
+                                    },
+                                }}
+                                scroll={{ x: "max-content" }}
+                            />
+                            <div className="mt-4 flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        const newPage = Math.max(1, curr - 1);
+                                        setFilterOn(!filterOn);
+                                        setCurr(newPage);
+                                    }}
+                                    disabled={curr === 1}
+                                    className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+                                >
+                                    <Icon icon="chevron-left" />
+                                </button>
+                                {generatePaginationRange().map((page, index) =>
+                                    page === "..." ? (
+                                        <span key={index} className="px-2 py-1 text-gray-400">...</span>
+                                    ) : (
+                                        <button
+                                            key={index}
+                                            onClick={() => handlePageClick(page)}
+                                            className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
+                                        >
+                                            {page}
+                                        </button>
+                                    )
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setFilterOn(!filterOn);
+                                        setCurr(Math.min(totalPages, curr + 1));
+                                    }}
+                                    disabled={curr === totalPages}
+                                    className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
+                                >
+                                    <Icon icon="chevron-right" />
+                                </button>
+                            </div>
+                        </div>
+                    }
                 </Form>
             </div>
         </div>
