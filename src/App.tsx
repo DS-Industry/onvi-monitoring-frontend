@@ -39,11 +39,9 @@ const App: React.FC = () => {
     requestFirebaseNotificationPermission();
   }, []);
 
-  const basename = import.meta.env.MODE === 'development' ? '/' : '/onvi-monitoring-frontend'
-
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <BrowserRouter basename={basename}>
+      <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route element={<PublicRoute element={<PublicLayout />} />}>
