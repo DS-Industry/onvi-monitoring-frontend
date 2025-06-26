@@ -1,0 +1,1 @@
+import{d as s,j as a,H as e}from"./index-C24s9YLx.js";import{S as l}from"./Saly-11-DFjf1Uz-.js";const i=()=>{const{t}=s();return a.jsx("div",{children:a.jsx(e,{title:t("default.default"),description:t("default.come"),children:a.jsx("img",{src:l,className:"mx-auto",loading:"lazy",alt:"DEFAULT"})})})};export{i as default};

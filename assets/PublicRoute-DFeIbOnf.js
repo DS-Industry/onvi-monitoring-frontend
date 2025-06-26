@@ -1,0 +1,1 @@
+import{u as n,a as c,j as u,N as i}from"./index-C24s9YLx.js";const x=({element:o})=>{const r=n(e=>{var s;return(s=e.tokens)==null?void 0:s.accessToken}),t=n(e=>{var s;return(s=e.tokens)==null?void 0:s.accessTokenExp}),a=c(e=>e.user);return r&&a&&!(()=>{if(!t)return!1;const e=new Date,s=new Date(t);return e>=s})()?u.jsx(i,{to:"/",replace:!0}):o};export{x as default};

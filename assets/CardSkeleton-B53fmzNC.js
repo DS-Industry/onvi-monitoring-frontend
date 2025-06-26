@@ -1,0 +1,1 @@
+import{j as e,bN as l}from"./index-C24s9YLx.js";const i=({cardCount:a=1,cardHeight:r="200px",cardWidth:s="100%"})=>e.jsx("div",{className:`table-skeleton bg-white w-[${s}]`,children:[...Array(a)].map((o,t)=>e.jsx("div",{className:"bg-opacity01 border rounded-2xl animate-pulse",children:e.jsx(l,{height:r,width:s,className:"rounded w-full"})},t))});export{i as C};

@@ -1,0 +1,1 @@
+import{bK as s}from"./index-C24s9YLx.js";async function n(t,e){return(await s.post(`user/report/apply/${e}`,t)).data}async function o(t){return(await s.get("user/report/all",{params:t})).data}async function p(t){return(await s.get(`user/report/${t}`)).data}async function c(t){return(await s.get("user/report/transaction",{params:t})).data}export{n as a,o as b,c,p as g};

@@ -1,0 +1,1 @@
+import{j as e,C as s,r as t,O as r,S as i}from"./index-C24s9YLx.js";const a=()=>e.jsx(s,{children:e.jsx(t.Suspense,{fallback:e.jsx("div",{style:{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center"},children:e.jsx(i,{size:"large"})}),children:e.jsx("main",{children:e.jsx(r,{})})})});export{a as default};
