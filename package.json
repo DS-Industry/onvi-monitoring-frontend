@@ -8,7 +8,7 @@
     "dev": "vite --mode development",
     "staging": "vite --mode staging",
     "build:staging": "vite build --mode staging",
-    "build": "vite build && cp dist/index.html dist/404.html --mode development",
+    "build": "vite build --mode development && cp dist/index.html dist/404.html",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy": "npm run build:staging && gh-pages -d dist"
