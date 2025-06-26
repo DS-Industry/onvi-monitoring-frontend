@@ -7,7 +7,7 @@ import viteCompression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/onvi-monitoring-frontend/',
+  base: '/',
   build: {
     outDir: 'dist', // Ensure this matches your deployment settings
     // target: 'es2015',
