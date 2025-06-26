@@ -164,6 +164,7 @@ type UPDATEUSERBODY = {
     phone?: string;
     email?: string;
     receiveNotifications?: number;
+    fcmToken?: string;
 }
 
 type UPDATEUSERRESPONSE = {
@@ -186,6 +187,7 @@ type UPDATEUSERRESPONSE = {
         timezone: number;
         refreshTokenId: string;
         receiveNotifications: number;
+        fcmToken?: string;
         createdAt: Date;
         updatedAt: Date;
     }

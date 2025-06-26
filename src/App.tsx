@@ -13,6 +13,8 @@ import { requestFirebaseNotificationPermission } from "./utils/requestPermission
 const PublicLayout = React.lazy(() => import("./layout/PublicLayout"));
 const PublicRoute = React.lazy(() => import("@/routes/PublicRoute"));
 import PrivateRoute from "@/routes/PrivateRoute";
+import useSWRMutation from "swr/mutation";
+import { updateUserProfile } from "./services/api/platform";
 const DashboardLayout = React.lazy(() => import("@/layout/DashboardLayout"));
 
 type ErrorFallbackProps = {
@@ -35,9 +37,24 @@ const App: React.FC = () => {
 
   useFirebaseMessaging();
 
+  const { trigger: updateUser } = useSWRMutation('user', async () => updateUserProfile({
+    fcmToken: localStorage.getItem("fcmToken") || "",
+  }, null));
+
+
   useEffect(() => {
-    requestFirebaseNotificationPermission();
-  }, []);
+      const getTokenAndUpdate = async () => {
+        const result = await requestFirebaseNotificationPermission();
+        if(result) {
+          localStorage.setItem("fcmToken", result);
+          datadogLogs.logger.info("FCM Token received", {
+            fcmToken: result,
+          });
+          updateUser();
+        }
+      };
+      getTokenAndUpdate();
+    }, [updateUser]);
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
