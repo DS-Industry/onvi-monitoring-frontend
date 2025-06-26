@@ -41,7 +41,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <BrowserRouter>
+      <BrowserRouter basename="/onvi-monitoring-frontend">
           <Routes>
             {/* Public Routes */}
             <Route element={<PublicRoute element={<PublicLayout />} />}>
