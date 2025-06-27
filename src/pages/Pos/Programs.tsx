@@ -5,7 +5,7 @@ import { columnsProgramsPos, columnsProgramsPosPortal } from "@/utils/OverFlowTa
 import NoDataUI from "@ui/NoDataUI.tsx";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, usePosType } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
@@ -67,7 +67,6 @@ const Programs: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
-    const navigate = useNavigate();
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
@@ -287,22 +286,13 @@ const Programs: React.FC = () => {
                                 titleColumns={[{
                                     label: "Device Name",
                                     key: "deviceName",
-                                    render: (text: string, record: any) => (
-                                        <span
-                                            className="font-semibold text-primary02 hover:text-primary02_Hover cursor-pointer"
-                                            onClick={() => navigate("/station/programs/device", {
-                                                state: { ownerId: record.deviceId }
-                                            })}
-                                        >
-                                            {text}
-                                        </span>
-                                    ),
                                 }]}
                                 titleData={posPrograms.map(deviceProgram => ({
                                     title: deviceProgram.name,
                                     deviceName: deviceProgram.name,
                                     deviceId: deviceProgram.id
                                 })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
+                                navigableFields={[{ key: "deviceName", getPath: () => '/station/programs/device' }]}
                             />
                         </div>
                     </div>

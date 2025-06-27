@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
@@ -71,7 +71,6 @@ const ProgramDevices: React.FC = () => {
     const setCurrentPage = useSetCurrentPage();
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
-    const navigate = useNavigate();
 
     const initialFilter = {
         dateStart: startDate || `${formattedDate} 00:00`,
@@ -190,16 +189,6 @@ const ProgramDevices: React.FC = () => {
                             titleColumns={[{
                                 label: "Device Name",
                                 key: "deviceName",
-                                render: (text: string, record: any) => (
-                                    <span
-                                        className="font-semibold text-primary02 hover:text-primary02_Hover cursor-pointer"
-                                        onClick={() => navigate("/station/programs/devices", {
-                                            state: { ownerId: record.deviceId }
-                                        })}
-                                    >
-                                        {text}
-                                    </span>
-                                ),
                             }]}
                             titleData={devicePrograms.map(deviceProgram => ({
                                 title: deviceProgram.name,
@@ -207,6 +196,7 @@ const ProgramDevices: React.FC = () => {
                                 deviceId: deviceProgram.id
                             })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
                             showPagination={true}
+                            navigableFields={[{ key: "deviceName", getPath: () => '/station/programs/devices' }]}
                         />
                     </div>
                 ) : (

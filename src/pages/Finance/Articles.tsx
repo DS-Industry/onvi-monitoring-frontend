@@ -145,18 +145,21 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 options={groups}
                 value={form.getFieldValue(dataIndex)}
                 onChange={(value) => form.setFieldValue(dataIndex, value)}
+                classname="w-80"
             />
             : dataIndex === "posId" ?
                 <SearchDropdownInput
                     options={poses}
                     value={form.getFieldValue(dataIndex)}
                     onChange={(value) => form.setFieldValue(dataIndex, value)}
+                    classname="w-44"
                 />
                 : dataIndex === "paperTypeId" ?
                     <SearchDropdownInput
                         options={paperTypes}
                         value={form.getFieldValue(dataIndex)}
                         onChange={(value) => form.setFieldValue(dataIndex, value)}
+                        classname="w-44"
                     />
                     : inputType === 'date' ?
                         <DatePicker
@@ -414,7 +417,7 @@ const Articles: React.FC = () => {
 
     const poses: { name: string; value: number | string; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const paperTypes: { name: string; value: number; }[] = (paperTypeData?.map((item) => ({ name: item.props.name, value: item.props.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
+    const paperTypes: { name: string; value: number; type: string; }[] = (paperTypeData?.map((item) => ({ name: item.props.name, value: item.props.id, type: item.props.type })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
     useEffect(() => {
         if (allManagersData) {
@@ -580,7 +583,7 @@ const Articles: React.FC = () => {
             editable: true,
         },
         {
-            title: 'operation',
+            title: 'Операции',
             dataIndex: 'operation',
             width: '15%',
             render: (_: any, record: DataType) => {
@@ -588,13 +591,13 @@ const Articles: React.FC = () => {
                 return editable ? (
                     <span className="flex space-x-4">
                         <Button
-                            title="Cancel"
+                            title="Отмена"
                             handleClick={cancel}
                             type="outline"
                             classname="h-10"
                         />
                         <Button
-                            title="Save"
+                            title="Сохранять"
                             handleClick={() => save(record.key)}
                             isLoading={updatingManager}
                             classname="h-10"
@@ -602,7 +605,7 @@ const Articles: React.FC = () => {
                     </span>
                 ) : (
                     <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-                        Edit
+                        Редактировать
                     </Typography.Link>
                 );
             },
@@ -880,7 +883,7 @@ const Articles: React.FC = () => {
             </Filter>
             <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
                 <div className="flex flex-row items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">Add New State Type</h2>
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">{t("finance.addN")}</h2>
                     <Close
                         onClick={() => { setIsStateOpen(false); }}
                         className="cursor-pointer text-text01"
@@ -913,7 +916,7 @@ const Articles: React.FC = () => {
                 <Button
                     disabled={!formData.paperTypeId}
                     handleClick={handleConfirm}
-                    title="Confirm"
+                    title={t("finance.confirm")}
                     classname="mt-4 w-full"
                 />
             </Modal>
@@ -965,15 +968,15 @@ const Articles: React.FC = () => {
                             <AntDButton
                                 onClick={() => setIsStateOpen(true)}
                                 type="primary"
-                                className="h-10 mt-5"
+                                className="h-10 mt-[22px]"
                             >
-                                Open
+                                {t("finance.op")}
                             </AntDButton>
                         </Space.Compact>
                         <Space className="w-full">
                             <div>
                                 <div className="text-text02 text-sm">{t("finance.articleType")}</div>
-                                <Tag className="h-10 w-40 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name}</Tag>
+                                <Tag color={paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "EXPENDITURE" ? "green" : paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "RECEIPT" ? "red" : ""} className="h-10 w-40 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name}</Tag>
                             </div>
                             <DateInput
                                 title={t("finance.dat")}
@@ -1005,7 +1008,7 @@ const Articles: React.FC = () => {
                             {...register('comment')}
                         />
                         <div>
-                            <div className="text-text02 text-sm">Upload</div>
+                            <div className="text-text02 text-sm">{t("hr.upload")}</div>
                             <Upload
                                 listType="picture-card"
                                 showUploadList={true}
@@ -1017,7 +1020,7 @@ const Articles: React.FC = () => {
                                 {fileList.length >= 1 ? null : (
                                     <div className="text-text02">
                                         <PlusOutlined />
-                                        <div className="mt-2">Upload</div>
+                                        <div className="mt-2">{t("hr.upload")}</div>
                                     </div>
                                 )}
                             </Upload>
@@ -1070,7 +1073,7 @@ const Articles: React.FC = () => {
                             icon={<PlusOutlined />}
                             onClick={handleAddRow}
                         >
-                            Add Row
+                            {t("finance.addRow")}
                         </AntDButton>
                         <Popconfirm
                             title="Are you sure you want to delete the selected rows?"
@@ -1082,7 +1085,7 @@ const Articles: React.FC = () => {
                                 icon={<DeleteOutlined />}
                                 disabled={selectedRowKeys.length === 0}
                             >
-                                Delete Selected ({selectedRowKeys.length})
+                                {t("finance.del")} ({selectedRowKeys.length})
                             </AntDButton>
                         </Popconfirm>
                         <AntDButton
@@ -1090,7 +1093,7 @@ const Articles: React.FC = () => {
                             onClick={() => { }}
                             className="bg-successFill text-white"
                         >
-                            Save
+                           {t("routes.save")}
                         </AntDButton>
                     </Space>
                 </div>
