@@ -800,7 +800,12 @@
     "group": "Group",
     "article": "Article",
     "articleType": "Article Type",
-    "dat": "Date"
+    "dat": "Date",
+    "addRow": "Add Row",
+    "del": "Delete Selected",
+    "op": "Open",
+    "confirm": "Confirm",
+    "addN": "Add New Paper Type"
   },
   "analysis": {
     "search": "Search",

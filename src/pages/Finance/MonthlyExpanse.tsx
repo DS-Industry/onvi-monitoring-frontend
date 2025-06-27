@@ -22,6 +22,7 @@ import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
+import TableUtils from "@/utils/TableUtils.tsx";
 
 const { Option } = Select;
 
@@ -100,9 +101,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
                             style={{ margin: 0 }}
                             rules={[{ required: true, message: `Введите дату начала!` }]}
                         >
-                            <DatePicker 
-                                format="DD.MM.YYYY" 
-                                style={{ width: 130 }} 
+                            <DatePicker
+                                format="DD.MM.YYYY"
+                                style={{ width: 130 }}
                                 placeholder="Start Date"
                             />
                         </Form.Item>
@@ -111,9 +112,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
                             style={{ margin: 0 }}
                             rules={[{ required: true, message: `Введите дату окончания!` }]}
                         >
-                            <DatePicker 
-                                format="DD.MM.YYYY" 
-                                style={{ width: 130 }} 
+                            <DatePicker
+                                format="DD.MM.YYYY"
+                                style={{ width: 130 }}
                                 placeholder="End Date"
                             />
                         </Form.Item>
@@ -160,6 +161,16 @@ const MonthlyExpanse: React.FC = () => {
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
     const totalPages = Math.ceil(totalCount / rowsPerPage);
+
+    const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
+        if (num === null || num === undefined || isNaN(num)) return "-";
+
+        return new Intl.NumberFormat("ru-RU", {
+            minimumFractionDigits: type === 'double' ? 2 : 0,
+            maximumFractionDigits: type === 'double' ? 2 : 0,
+            useGrouping: true,
+        }).format(num);
+    };
 
     const generatePaginationRange = () => {
         const range: (number | string)[] = [];
@@ -371,7 +382,7 @@ const MonthlyExpanse: React.FC = () => {
                         <div
                             className="text-text01"
                         >
-                            {text}
+                            {TableUtils.createCurrencyFormat(formatNumber(text))}
                         </div>
                     );
                 }
@@ -394,7 +405,7 @@ const MonthlyExpanse: React.FC = () => {
                         <div
                             className="text-text01"
                         >
-                            {text}
+                            {TableUtils.createCurrencyFormat(formatNumber(text))}
                         </div>
                     );
                 }
@@ -427,6 +438,13 @@ const MonthlyExpanse: React.FC = () => {
         {
             title: "Недостача",
             dataIndex: "shortage",
+            render: (text: number) => {
+                return (
+                    <div className={`${text < 0 ? "text-errorFill" : "text-text01"}`}>
+                        {formatNumber(text)}
+                    </div>
+                )
+            },
             onCell: (record: DataRecord) => ({
                 record,
                 inputType: 'number',
@@ -482,8 +500,8 @@ const MonthlyExpanse: React.FC = () => {
                             else if (key === 'delete') handleDelete(record.id);
                         }}
                         items={[
-                            { key: 'edit', label: 'Edit' },
-                            { key: 'delete', label: 'Delete', danger: true }
+                            { key: 'edit', label: 'Редактировать' },
+                            { key: 'delete', label: 'Удалить', danger: true }
                         ]}
                     />
                 );

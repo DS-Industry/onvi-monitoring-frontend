@@ -4,7 +4,9 @@ import { Table, Tag } from 'antd';
 import Icon from "feather-icons-react";
 import TableUtils from "@/utils/TableUtils.tsx";
 import { ClassAttributes, ThHTMLAttributes } from 'react';
-
+import { ArrowUpOutlined } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface TableColumn {
     label: string;
@@ -25,6 +27,7 @@ type Props<T> = {
     data: T[];
     columns: TableColumn[];
     titleData: { title: string; }[];
+    navigableFields?: { key: keyof T; getPath: (record: T) => string }[];
     titleColumns: TableColumn[];
     showPagination?: boolean;
     handleChange?: (id: number, key: string, value: string | number) => void;
@@ -44,9 +47,11 @@ const ExpandableTable = <T extends TableRow>({
     titleData,
     titleColumns,
     showPagination,
-    handleChange
+    handleChange,
+    navigableFields
 }: Props<T>) => {
 
+    const { t } = useTranslation();
     const dataSource = data;
     const dataTable = titleData;
     const curr = useCurrentPage();
@@ -55,6 +60,7 @@ const ExpandableTable = <T extends TableRow>({
     const totalCount = usePageSize();
     const { filterOn, setFilterOn } = useFilterOn();
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const navigate = useNavigate();
 
     const totalPages = Math.ceil(totalCount / rowsPerPage);
 
@@ -113,14 +119,87 @@ const ExpandableTable = <T extends TableRow>({
         return `${parseDate(startStr)} - ${parseDate(endStr)}`;
     };
 
+    const getStatusTag = (status: string) => {
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS"))
+            return <Tag color="green">{status}</Tag>;
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE"))
+            return <Tag color="red">{status}</Tag>;
+        if (status === t("tables.SAVED") || status === t("tables.VERIFICATE") || status === t("tables.SAVE"))
+            return <Tag color="orange">{status}</Tag>;
+        else return <Tag color="default">{status}</Tag>;
+    };
+
     // FIX: Include the render function in enhancedColumns
     const enhancedColumns: EnhancedTableColumn[] = titleColumns.map((col) => {
+        const navigableField = navigableFields?.find((nf) => nf.key === col.key);
         return {
             title: col.label,
             dataIndex: col.key,
             key: col.key,
             type: col.type,
-            render: col.render, // This was missing!
+            render: (value: any, record: T) => {
+                if (col.key.toLowerCase().includes("status")) {
+                    return getStatusTag(value);
+                }
+
+                if (col.type === "date") {
+
+                    let date = null;
+
+                    if (value === null || value === undefined) {
+                        date = "-";
+                    } else {
+                        date = TableUtils.createDateTimeWithoutComma(value, userTimezone);
+                    }
+
+                    return date;
+                }
+
+                if (col.type === "period") {
+                    return formatPeriodType(value);
+                }
+
+                if (col.type === "number" || col.type === "double") {
+                    return value !== undefined && value !== null ? (
+                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
+                            {formatNumber(value, col.type)}
+                        </div>
+                    ) : "-";
+                }
+
+                if (col.type === "tags") {
+                    return value.length > 0 ? (
+                        <div className="flex flex-wrap max-w-64 gap-4">
+                            {value.map((tag: { id: number; color: string; name: string; }) => (
+                                <Tag key={tag.id} color={tag.color ? tag.color : "cyan"}>
+                                    {tag.name}
+                                </Tag>
+                            ))}
+                        </div>
+                    ) : (
+                        "—"
+                    )
+                }
+
+                if (col.type === "currency") {
+                    const number = formatNumber(value);
+                    return TableUtils.createCurrencyFormat(number);
+                }
+
+                if (col.type === "percent") {
+                    return TableUtils.createPercentFormat(value);
+                }
+
+                return navigableField ? (
+                    <span
+                        className="text-primary02 cursor-pointer hover:underline"
+                        onClick={() => { navigate(navigableField.getPath(record), { state: { ownerId: record.deviceId, name: record.name, status: record.status, type: record.type } }); }}
+                    >
+                        {value}
+                        <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
+                    </span>
+                ) : col.render ? col.render(record, handleChange) : value;
+            },
         };
     });
 
@@ -132,6 +211,10 @@ const ExpandableTable = <T extends TableRow>({
             key: col.key,
             type: col.type,
             render: (value: any, record: T) => {
+                if (col.key.toLowerCase().includes("status")) {
+                    return getStatusTag(value);
+                }
+
                 if (col.type === "date") {
 
                     let date = null;
@@ -185,7 +268,7 @@ const ExpandableTable = <T extends TableRow>({
     });
 
     const expandedRowRender = (record: any) => {
-        const filteredData = dataSource.filter((item) => item.deviceId === record.deviceId);
+        const filteredData = dataSource && dataSource.filter((item) => item.deviceId === record.deviceId);
 
         return (
             <>

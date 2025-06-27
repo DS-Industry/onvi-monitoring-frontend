@@ -62,12 +62,12 @@ const MonthlyExpanseEdit: React.FC = () => {
 
     const poses: { name: string; value: number; }[] = (posData?.map((item) => ({ name: item.name, value: item.id })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
-    const { data: managerPeriodData, isLoading: periodsLoading } = useSWR([`get-manager-period`], () => getManagerPeriodById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: managerPeriodData, isLoading: periodsLoading, isValidating: periodsValidating } = useSWR(location.state.ownerId ? [`get-manager-period`, location.state.ownerId] : null, () => getManagerPeriodById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const groupedData = useMemo(() => {
         if (!managerPeriodData) return { items: [], titles: [] };
 
-        const items = managerPeriodData.managerPaper.map((item) => ({
+        const items = managerPeriodData.managerPaper?.map((item) => ({
             id: item.paperTypeId,
             deviceId: managerPeriodData.id, // 🔁 Must match the title's `deviceId`
             group: groups.find(group => group.value === item.group)?.name || item.group,
@@ -156,24 +156,24 @@ const MonthlyExpanseEdit: React.FC = () => {
         {
             label: "ПериоСумма на начало периодад",
             key: "sumStartPeriod",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Сумма на конец периода",
             key: "sumEndPeriod",
-            type: "number"
+            type: "currency"
         },
         {
             label: "Недостача",
             key: "shortage",
-            type: "currency"
+            type: "number"
         }
     ];
 
     return (
         <div>
             <div className="mt-8">
-                {periodsLoading ? (
+                {periodsLoading || periodsValidating ? (
                     <TableSkeleton columnCount={categoryColumns.length} />
                 )
                     : <ExpandableTable
