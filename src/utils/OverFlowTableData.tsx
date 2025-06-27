@@ -1535,3 +1535,18 @@ export const columnsPaymentsCreation = [
     type: "double"
   }
 ]
+
+export const columnsPaperTypes = [
+  {
+    label: "№",
+    key: "id"
+  },
+  {
+    label: "Ниименование",
+    key: "name"
+  },
+  {
+    label: "Тип статьи",
+    key: "typeName"
+  },
+];

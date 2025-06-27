@@ -494,6 +494,32 @@ type AllWorkersResponse = {
     }
 }
 
+type ManagerGraphParams = {
+    group: ManagerPaperGroup | '*';
+    posId: number | '*';
+    paperTypeId: number | '*';
+    userId: number | '*';
+    dateStartEvent?: Date;
+    dateEndEvent?: Date;
+}
+
+type ManagerGraphResponse = {
+    receipt: number;
+    expenditure: number;
+    balance: number;
+}
+
+type ManagerPaperTypeBody = {
+    name: string;
+    type: ManagerPaperTypeClass;
+}
+
+type UpdateManagerPaperTypeBody = {
+    id: number;
+    name?: string;
+    type?: ManagerPaperTypeClass;
+}
+
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
     const response: AxiosResponse<CollectionResponse> = await api.post(FINANCE.POST_CASH_COLLECTION, body);
     return response.data;
@@ -694,3 +720,19 @@ export async function getAllWorkers(id: number): Promise<AllWorkersResponse[]> {
     const response: AxiosResponse<AllWorkersResponse[]> = await api.get(FINANCE.GET_WORKER + `/${id}`);
     return response.data;
 }
+
+export async function getAllManagerPaperGraph(params: ManagerGraphParams): Promise<ManagerGraphResponse> {
+    const response: AxiosResponse<ManagerGraphResponse> = await api.get(FINANCE.MANAGER_PAPER + '/statistic', { params });
+    return response.data;
+}
+
+export async function createManagerPaperType(body: ManagerPaperTypeBody): Promise<ManagerPaperTypeResponse> {
+    const response: AxiosResponse<ManagerPaperTypeResponse> = await api.post(FINANCE.MANAGER_PAPER + `/type`, body);
+    return response.data;
+}
+
+export async function updateManagerPaperType(body: UpdateManagerPaperTypeBody): Promise<ManagerPaperTypeResponse> {
+    const response: AxiosResponse<ManagerPaperTypeResponse> = await api.patch(FINANCE.MANAGER_PAPER + `/type`, body);
+    return response.data;
+}
+
