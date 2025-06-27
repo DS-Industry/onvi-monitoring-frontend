@@ -1,6 +1,6 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
-import { DatePicker, message, TableProps, Tag, Upload } from 'antd';
+import { DatePicker, message, Skeleton, TableProps, Tag, Upload } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
@@ -16,7 +16,7 @@ import useFormHook from "@/hooks/useFormHook";
 import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperTypes, getAllWorkers, updateManagerPaper } from "@/services/api/finance";
+import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperGraph, getAllManagerPaperTypes, getAllWorkers, updateManagerPaper } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
@@ -30,11 +30,12 @@ const { Title, Text } = Typography;
 
 interface FinancialCardProps {
     title: string;
-    amount: string;
+    amount: number;
     currency: string;
     trend: 'up' | 'down' | 'neutral';
     color: string;
     backgroundColor: string;
+    loading?: boolean;
 }
 
 interface DataType {
@@ -212,7 +213,8 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
     currency,
     trend,
     color,
-    backgroundColor
+    backgroundColor,
+    loading
 }) => {
     const getTrendIcon = () => {
         switch (trend) {
@@ -250,8 +252,11 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
                                 fontSize: '28px',
                                 fontWeight: 700
                             }}
-                        >
-                            {currency} {amount}
+                        >{loading ? (
+                            <Skeleton.Button active={true} size={"default"} shape={"default"} block={false} />
+                        ) :
+                            <>{currency} {amount}</>
+                            }
                         </Title>
                     </div>
                     <div
@@ -276,32 +281,6 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
 };
 
 const Articles: React.FC = () => {
-    const financialData = [
-        {
-            title: 'Доходы',
-            amount: '485,230',
-            currency: '₽',
-            trend: 'up' as const,
-            color: '#52c41a',
-            backgroundColor: '#f6ffed',
-        },
-        {
-            title: 'Расходы',
-            amount: '125,450',
-            currency: '₽',
-            trend: 'down' as const,
-            color: '#ff4d4f',
-            backgroundColor: '#fff2f0',
-        },
-        {
-            title: 'Баланс',
-            amount: '359,780',
-            currency: '₽',
-            trend: 'neutral' as const,
-            color: '#1890ff',
-            backgroundColor: '#f0f5ff',
-        },
-    ];
 
     const { t } = useTranslation();
     const [form] = Form.useForm();
@@ -396,6 +375,46 @@ const Articles: React.FC = () => {
         page: currentPage,
         size: pageSize
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: allManagersGraphData, isLoading: loadingGraphData } = useSWR([`get-manager-graph-data`], () => getAllManagerPaperGraph({
+        group: dataFilter.group,
+        posId: dataFilter.posId,
+        paperTypeId: dataFilter.paperTypeId,
+        userId: dataFilter.userId,
+        dateStartEvent: dataFilter.dateStartEvent,
+        dateEndEvent: dataFilter.dateEndEvent,
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const financialData = [
+        {
+            title: 'Доходы',
+            amount: allManagersGraphData?.receipt || 0,
+            currency: '₽',
+            trend: 'up' as const,
+            color: '#52c41a',
+            backgroundColor: '#f6ffed',
+            loading: loadingGraphData || isTableLoading
+        },
+        {
+            title: 'Расходы',
+            amount: allManagersGraphData?.expenditure || 0,
+            currency: '₽',
+            trend: 'down' as const,
+            color: '#ff4d4f',
+            backgroundColor: '#fff2f0',
+            loading: loadingGraphData || isTableLoading
+        },
+        {
+            title: 'Баланс',
+            amount: allManagersGraphData?.balance || 0,
+            currency: '₽',
+            trend: 'neutral' as const,
+            color: '#1890ff',
+            backgroundColor: '#f0f5ff',
+            loading: loadingGraphData || isTableLoading
+        },
+    ];
+
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -560,7 +579,11 @@ const Articles: React.FC = () => {
             dataIndex: 'paperTypeId',
             width: '10%',
             editable: true,
-            render: (value: number) => paperTypes.find((pos) => pos.value === value)?.name
+            render: (value: number) => (
+                <div>
+                    <Tag color={paperTypes.find((pap) => pap.value === value)?.type === "EXPENDITURE" ? "green" : paperTypes.find((pap) => pap.value === value)?.type === "RECEIPT" ? "red" : ""}>{paperTypes.find((pap) => pap.value === value)?.name}</Tag>
+                </div>
+            )
         },
         {
             title: 'Дата',
@@ -1093,7 +1116,7 @@ const Articles: React.FC = () => {
                             onClick={() => { }}
                             className="bg-successFill text-white"
                         >
-                           {t("routes.save")}
+                            {t("routes.save")}
                         </AntDButton>
                     </Space>
                 </div>

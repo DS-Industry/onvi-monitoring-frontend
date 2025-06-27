@@ -8,59 +8,98 @@ import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
 import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
-import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsSupplier } from "@/utils/OverFlowTableData";
-import Filter from "@/components/ui/Filter/Filter";
+import { columnsPaperTypes } from "@/utils/OverFlowTableData";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { createManagerPaperType, getAllManagerPaperTypes, updateManagerPaperType } from "@/services/api/finance";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
+
+enum ManagerPaperTypeClass {
+    RECEIPT = "RECEIPT",
+    EXPENDITURE = "EXPENDITURE"
+}
 
 const DirectoryArticles: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const [searchName, setSearchName] = useState("");
-    const { data: supplierData, isLoading: loadingSupplier } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editPaperId, setEditPaperId] = useState<number>(0);
+    const { data: paperTypeData, isLoading: loadingPaperType } = useSWR([`get-manager-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const supplier = supplierData?.map((sup) => sup.props)
-        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchName.toLowerCase()))
-        || [];
+    const paperTypes = paperTypeData?.map((type) => ({
+        ...type.props,
+        typeName: t(`finance.${type.props.type}`)
+    })) || [];
 
     const defaultValues = {
         name: "",
-        contact: ""
+        type: ""
     }
 
     const [formData, setFormData] = useState(defaultValues);
 
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
-    const { trigger: createSup, isMutating } = useSWRMutation(['create-supplier'], async () => createSupplier({
+    const { trigger: createPap, isMutating } = useSWRMutation(['create-paper'], async () => createManagerPaperType({
         name: formData.name,
-        contact: formData.contact
+        type: formData.type as ManagerPaperTypeClass
     }));
 
-    type FieldType = "name" | "contact";
+    const { trigger: updatePaperType, isMutating: updatingPaperType } = useSWRMutation(['update-paper'], async () => updateManagerPaperType({
+        id: editPaperId,
+        name: formData.name,
+        type: formData.type as ManagerPaperTypeClass
+    }));
+
+    type FieldType = "name" | "type";
 
     const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
 
+    const handleUpdate = async (id: number) => {
+        setEditPaperId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+
+        const paperToEdit = paperTypes.find((paper) => paper.id === id);
+
+        if (paperToEdit) {
+            setFormData({
+                name: paperToEdit.name,
+                type: paperToEdit.type as ManagerPaperTypeClass
+            });
+        }
+    };
+
     const resetForm = () => {
         setFormData(defaultValues);
+        setIsEditMode(false);
         reset();
+        setEditPaperId(0);
         setButtonOn(!buttonOn);
     };
 
     const onSubmit = async () => {
         try {
-
-            const result = await createSup();
-            if (result) {
-                mutate([`get-supplier`]);
-                resetForm();
+            if (editPaperId) {
+                const result = await updatePaperType();
+                if (result) {
+                    mutate([`get-manager-paper-type`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
             } else {
-                throw new Error('Invalid response from API');
+                const result = await createPap();
+                if (result) {
+                    mutate([`get-manager-paper-type`]);
+                    resetForm();
+                } else {
+                    throw new Error('Invalid response from API');
+                }
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
@@ -70,16 +109,14 @@ const DirectoryArticles: React.FC = () => {
 
     return (
         <>
-            <Filter children={undefined} count={supplier.length} hideDateTime={true} hideCity={true} hidePage={true} search={searchName} setSearch={setSearchName}>
-
-            </Filter>
-            {loadingSupplier ? (
-                <TableSkeleton columnCount={columnsSupplier.length} />
-            ) : supplier.length > 0 ?
+            {loadingPaperType ? (
+                <TableSkeleton columnCount={columnsPaperTypes.length} />
+            ) : paperTypes.length > 0 ?
                 <div className="mt-8">
                     <DynamicTable
-                        data={supplier}
-                        columns={columnsSupplier}
+                        data={paperTypes}
+                        columns={columnsPaperTypes}
+                        onEdit={handleUpdate}
                     />
                 </div> :
                 <div className="flex flex-col justify-center items-center">
@@ -93,7 +130,7 @@ const DirectoryArticles: React.FC = () => {
             }
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.suppliers")}</div>
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("finance.articleType")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>
                     <div className="font-semibold text-2xl mb-5 text-text01">{t("warehouse.basic")}</div>
                     <Input
@@ -104,19 +141,24 @@ const DirectoryArticles: React.FC = () => {
                         value={formData.name}
                         changeValue={(e) => handleInputChange('name', e.target.value)}
                         error={!!errors.name}
-                        {...register('name', { required: 'Name is required' })}
+                        {...register('name', { required: !isEditMode && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                     />
-                    <Input
-                        type={""}
-                        title={`${t("profile.telephone")}*`}
-                        label={t("warehouse.enterPhone")}
+                    <DropdownInput
+                        title={`${t("finance.article")}*`}
+                        label={t("finance.articleType")}
                         classname="w-80"
-                        value={formData.contact}
-                        changeValue={(e) => handleInputChange('contact', e.target.value)}
-                        error={!!errors.contact}
-                        {...register('contact', { required: 'Contact is required' })}
-                        helperText={errors.contact?.message || ''}
+                        options={
+                            Object.values(ManagerPaperTypeClass).map((type) => ({
+                                name: t(`finance.${type}`),
+                                value: type as ManagerPaperTypeClass
+                            }))
+                        }
+                        {...register('type', { required: !isEditMode && 'Type is required' })}
+                        value={formData.type}
+                        onChange={(value) => handleInputChange('type', value)}
+                        error={!!errors.type}
+                        helperText={errors.type?.message || ''}
                     />
                     <div className="flex space-x-4">
                         <Button
@@ -129,7 +171,7 @@ const DirectoryArticles: React.FC = () => {
                         <Button
                             title={t("organizations.save")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingPaperType : isMutating}
                             handleClick={() => { }} />
                     </div>
                 </form>
