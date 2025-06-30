@@ -1547,6 +1547,7 @@ export const columnsPaperTypes = [
   },
   {
     label: "Тип статьи",
-    key: "typeName"
+    key: "typeName",
+    type: "status"
   },
 ];

@@ -6,7 +6,7 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import { Table, Select, Space, Menu, Dropdown, Modal, message, InputNumber, Form, Input as AntInput, DatePicker } from 'antd';
+import { Table, Select, Space, Menu, Dropdown, Modal, message, InputNumber, Form, Input as AntInput, DatePicker, Tag } from 'antd';
 import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
@@ -280,7 +280,6 @@ const MonthlyExpanse: React.FC = () => {
 
             const result = await updateManagerPer({
                 managerReportPeriodId: id,
-                status: row.status,
                 sumStartPeriod: row.sumStartPeriod,
                 sumEndPeriod: row.sumEndPeriod,
                 startPeriod: row.startPeriod ? row.startPeriod.toDate() : undefined,
@@ -297,6 +296,16 @@ const MonthlyExpanse: React.FC = () => {
             console.log('Validate Failed:', errInfo);
             message.error('Please check the form fields');
         }
+    };
+
+    const getStatusTag = (status: string) => {
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS"))
+            return <Tag color="green">{status}</Tag>;
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE"))
+            return <Tag color="red">{status}</Tag>;
+        if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
+            return <Tag color="orange">{status}</Tag>;
+        else return <Tag color="default">{status}</Tag>;
     };
 
     const statusOptions: { name: string, value: ManagerReportPeriodStatus }[] = [
@@ -359,7 +368,7 @@ const MonthlyExpanse: React.FC = () => {
                 return (
                     <div
                         className="text-primary02 hover:text-primary02_Hover cursor-pointer font-semibold"
-                        onClick={() => navigate("/finance/report/period/edit", { state: { ownerId: record.id } })}
+                        onClick={() => navigate("/finance/report/period/edit", { state: { ownerId: record.id, status: record.status } })}
                     >
                         {`${start} - ${end}`}
                     </div>
@@ -424,16 +433,8 @@ const MonthlyExpanse: React.FC = () => {
             dataIndex: "status",
             render: (text: string) => {
                 const statusOption = statusOptions.find(option => option.value === text);
-                return statusOption ? statusOption.name : text;
-            },
-            onCell: (record: DataRecord) => ({
-                record,
-                inputType: 'select',
-                dataIndex: 'status',
-                title: 'Статус',
-                editing: isEditing(record),
-                selectOptions: statusOptions,
-            }),
+                return statusOption ? getStatusTag(statusOption.name) : text;
+            }
         },
         {
             title: "Недостача",
@@ -545,7 +546,6 @@ const MonthlyExpanse: React.FC = () => {
         async (_, { arg }: {
             arg: {
                 managerReportPeriodId: number;
-                status?: ManagerReportPeriodStatus;
                 startPeriod?: Date;
                 endPeriod?: Date;
                 sumStartPeriod?: number;

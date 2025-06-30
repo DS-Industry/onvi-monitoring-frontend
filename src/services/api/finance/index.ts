@@ -401,22 +401,23 @@ type ManagerPaperPeriodBody = {
 }
 
 type ManagerPaperPeriodResponse = {
-    id: number;
-    status: ManagerReportPeriodStatus;
-    startPeriod: Date;
-    endPeriod: Date;
-    sumStartPeriod: number;
-    sumEndPeriod: number;
-    userId: number;
-    createdAt: Date;
-    updatedAt: Date;
-    createdById?: number
-    updatedById?: number;
+    props: {
+        id: number;
+        status: ManagerReportPeriodStatus;
+        startPeriod: Date;
+        endPeriod: Date;
+        sumStartPeriod: number;
+        sumEndPeriod: number;
+        userId: number;
+        createdAt: Date;
+        updatedAt: Date;
+        createdById?: number
+        updatedById?: number;
+    }
 }
 
 type ManagerPeriodUpdateBody = {
     managerReportPeriodId: number;
-    status?: ManagerReportPeriodStatus;
     startPeriod?: Date;
     endPeriod?: Date;
     sumStartPeriod?: number;
@@ -518,6 +519,10 @@ type UpdateManagerPaperTypeBody = {
     id: number;
     name?: string;
     type?: ManagerPaperTypeClass;
+}
+
+type DeleteManagerPapersBody = {
+    ids: number[];
 }
 
 export async function postCollection(body: CollectionBody): Promise<CollectionResponse> {
@@ -681,8 +686,8 @@ export async function getAllManagerPaper(params: ManagerParams): Promise<Manager
     return response.data;
 }
 
-export async function deleteManagerPaper(id: number): Promise<ReturnCashCollectionResponse> {
-    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.delete(FINANCE.MANAGER_PAPER + `/${id}`);
+export async function deleteManagerPapers(body: DeleteManagerPapersBody): Promise<ReturnCashCollectionResponse> {
+    const response: AxiosResponse<ReturnCashCollectionResponse> = await api.delete(FINANCE.MANAGER_PAPER + '/many', { data: body });
     return response.data;
 }
 
@@ -698,6 +703,16 @@ export async function createManagerPaperPeriod(body: ManagerPaperPeriodBody): Pr
 
 export async function updateManagerPaperPeriod(body: ManagerPeriodUpdateBody): Promise<ManagerPaperPeriodResponse> {
     const response: AxiosResponse<ManagerPaperPeriodResponse> = await api.patch(FINANCE.MANAGER_PAPER + `/period`, body);
+    return response.data;
+}
+
+export async function sendManagerPaperPeriod(id: number): Promise<ManagerPaperPeriodResponse> {
+    const response: AxiosResponse<ManagerPaperPeriodResponse> = await api.patch(FINANCE.MANAGER_PAPER + `/period/send/${id}`);
+    return response.data;
+}
+
+export async function returnManagerPaperPeriod(id: number): Promise<ManagerPaperPeriodResponse> {
+    const response: AxiosResponse<ManagerPaperPeriodResponse> = await api.patch(FINANCE.MANAGER_PAPER + `/period/return/${id}`);
     return response.data;
 }
 

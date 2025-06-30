@@ -1,12 +1,13 @@
+import Button from "@/components/ui/Button/Button";
 import ExpandableTable from "@/components/ui/Table/ExpandableTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity } from "@/hooks/useAuthStore";
 import { getPoses } from "@/services/api/equipment";
-import { getManagerPeriodById } from "@/services/api/finance";
-import React, { useMemo } from "react";
+import { getManagerPeriodById, returnManagerPaperPeriod, sendManagerPaperPeriod } from "@/services/api/finance";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
-import useSWR from "swr";
+import { useLocation, useNavigate } from "react-router-dom";
+import useSWR, { mutate } from "swr";
 
 enum ManagerPaperGroup {
     RENT = "RENT",
@@ -82,7 +83,7 @@ const MonthlyExpanseEdit: React.FC = () => {
 
         const titles = [{
             id: managerPeriodData.id,
-            deviceId: managerPeriodData.id, 
+            deviceId: managerPeriodData.id,
             title: managerPeriodData.status,
             status: t(`tables.${managerPeriodData.status}`),
             startPeriod: managerPeriodData.startPeriod,
@@ -118,7 +119,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         {
             label: "Тип статьи",
             key: "paperTypeType",
-            type: "string",
+            type: "status",
         },
         {
             label: "Дата",
@@ -166,9 +167,52 @@ const MonthlyExpanseEdit: React.FC = () => {
         {
             label: "Недостача",
             key: "shortage",
-            type: "number"
+            type: "currency"
         }
     ];
+
+    const navigate = useNavigate();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isReturning, setIsReturning] = useState(false);
+
+    const sendManagerPeriod = async () => {
+        try {
+            setIsLoading(true);
+            const result = await mutate(
+                [`send-manager-period`],
+                () => sendManagerPaperPeriod(location.state.ownerId),
+                false
+            );
+
+            if (result) {
+                navigate(-1);
+            }
+        } catch (error) {
+            console.error("Error deleting nomenclature:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const returnManagerPeriod = async () => {
+        try {
+            setIsReturning(true);
+            const result = await mutate(
+                [`return-manager-period`],
+                () => returnManagerPaperPeriod(location.state.ownerId),
+                false
+            );
+
+            if (result) {
+                navigate(-1);
+            }
+        } catch (error) {
+            console.error("Error deleting nomenclature:", error);
+        } finally {
+            setIsReturning(false);
+        }
+    };
 
     return (
         <div>
@@ -176,12 +220,28 @@ const MonthlyExpanseEdit: React.FC = () => {
                 {periodsLoading || periodsValidating ? (
                     <TableSkeleton columnCount={categoryColumns.length} />
                 )
-                    : <ExpandableTable
-                        data={groupedData.items}
-                        columns={expenseColumns}
-                        titleColumns={categoryColumns}
-                        titleData={groupedData.titles}
-                    />}
+                    :
+                    <div className="space-y-4">
+                        <div className="flex justify-end">
+                            {location.state.status === "SAVE" && <Button
+                                title={t("finance.send")}
+                                handleClick={sendManagerPeriod}
+                                isLoading={isLoading}
+                            />}
+                            {location.state.status === "SENT" && <Button
+                                title={t("finance.returns")}
+                                handleClick={returnManagerPeriod}
+                                isLoading={isReturning}
+                            />}
+                        </div>
+                        <ExpandableTable
+                            data={groupedData.items}
+                            columns={expenseColumns}
+                            titleColumns={categoryColumns}
+                            titleData={groupedData.titles}
+                        />
+                    </div>
+                }
             </div>
         </div>
     )
