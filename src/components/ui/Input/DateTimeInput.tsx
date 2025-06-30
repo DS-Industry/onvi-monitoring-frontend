@@ -36,7 +36,7 @@ const DateTimeInput: React.FC<InputProps> = ({
     const valueTimestamp = useMemo(() => value?.valueOf() || null, [value]);
 
     useEffect(() => {
-        if (value) {
+        if (value && value.isValid()) {
             const newDate = value.startOf("day");
             const newTime = value;
             
@@ -53,23 +53,43 @@ const DateTimeInput: React.FC<InputProps> = ({
 
     // Handle internal changes (when user interacts with date/time pickers)
     const handleDateChange = (d: Dayjs | null) => {
+        // Check if date is null or invalid
+        if (!d || !d.isValid()) {
+            setDate(null);
+            setTime(null);
+            changeValue?.(null, "");
+            return;
+        }
+        
         setDate(d);
-        if (d && time) {
+        
+        // If we have both date and time, combine them
+        if (d && time && time.isValid()) {
             const combined = d.hour(time.hour()).minute(time.minute()).second(time.second());
             changeValue?.(combined, combined.format(format));
-        } else if (!d) {
-            changeValue?.(null, "");
         }
+        // If we only have date but no time, don't call changeValue yet
+        // Wait for user to select time
     };
 
     const handleTimeChange = (t: Dayjs | null) => {
+        // Check if time is null or invalid
+        if (!t || !t.isValid()) {
+            setDate(null);
+            setTime(null);
+            changeValue?.(null, "");
+            return;
+        }
+        
         setTime(t);
-        if (date && t) {
+        
+        // If we have both date and time, combine them
+        if (date && date.isValid() && t) {
             const combined = date.hour(t.hour()).minute(t.minute()).second(t.second());
             changeValue?.(combined, combined.format(format));
-        } else if (!t) {
-            changeValue?.(null, "");
         }
+        // If we only have time but no date, don't call changeValue yet
+        // Wait for user to select date
     };
 
     const containerClassName = `relative ${classname || ""}`;

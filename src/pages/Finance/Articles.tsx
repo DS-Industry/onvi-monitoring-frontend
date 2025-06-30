@@ -2,7 +2,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
 import { DatePicker, message, Skeleton, TableProps, Tag, Upload } from 'antd';
 import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ import useFormHook from "@/hooks/useFormHook";
 import dayjs, { Dayjs } from "dayjs";
 import DateInput from "@/components/ui/Input/DateInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { createManagerPaper, deleteManagerPaper, getAllManagerPaper, getAllManagerPaperGraph, getAllManagerPaperTypes, getAllWorkers, updateManagerPaper } from "@/services/api/finance";
+import { createManagerPaper, deleteManagerPapers, getAllManagerPaper, getAllManagerPaperGraph, getAllManagerPaperTypes, getAllWorkers, updateManagerPaper } from "@/services/api/finance";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
@@ -25,6 +25,7 @@ import { useFilterOn } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
 import Icon from "feather-icons-react";
+import { useUser } from "@/hooks/useUserStore";
 
 const { Title, Text } = Typography;
 
@@ -491,6 +492,7 @@ const Articles: React.FC = () => {
 
                 if (result) {
                     mutate([`get-manager-data`]);
+                    mutate([`get-manager-graph-data`]);
                     newData.splice(index, 1, updatedItem);
                     setData(newData);
                     setEditingKey('');
@@ -529,12 +531,13 @@ const Articles: React.FC = () => {
         try {
             const result = await mutate(
                 [`delete-manager-data`],
-                () => deleteManagerPaper(Number(selectedRowKeys[0])),
+                () => deleteManagerPapers({ ids: selectedRowKeys.map((key) => Number(key)) }),
                 false
             );
 
             if (result) {
                 mutate([`get-manager-data`]);
+                mutate([`get-manager-graph-data`]);
                 setSelectedRowKeys([]);
                 if (selectedRowKeys.includes(editingKey)) {
                     setEditingKey('');
@@ -550,7 +553,6 @@ const Articles: React.FC = () => {
         onChange: (newSelectedRowKeys: React.Key[]) => {
             setSelectedRowKeys(newSelectedRowKeys);
         },
-        type: 'radio' as const,
     };
 
     const columns = [
@@ -651,13 +653,15 @@ const Articles: React.FC = () => {
         };
     });
 
+    const user = useUser();
+
     const defaultValues: ManagerPaperBody = {
         group: ManagerPaperGroup.WAGES,
         posId: 0,
         paperTypeId: 0,
         eventDate: new Date(),
         sum: 0,
-        userId: 0,
+        userId: user.id,
         comment: undefined
     };
 
@@ -722,6 +726,7 @@ const Articles: React.FC = () => {
             const result = await createManager();
             if (result) {
                 mutate([`get-manager-data`]);
+                mutate([`get-manager-graph-data`]);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -878,14 +883,14 @@ const Articles: React.FC = () => {
                     onChange={(value) => setGroup(value)}
                 />
                 <DropdownInput
-                    title="Назначение"
+                    title="Статья"
                     classname="w-80"
                     value={paperTypeId}
                     options={[...paperTypes, { name: t("warehouse.all"), value: "*" }]}
                     onChange={(value) => setPaperTypeId(value)}
                 />
                 <DropdownInput
-                    title="Статья"
+                    title={t("equipment.user")}
                     classname="w-80"
                     value={userId}
                     options={[...workers, { name: t("warehouse.all"), value: "*" }]}
@@ -999,7 +1004,7 @@ const Articles: React.FC = () => {
                         <Space className="w-full">
                             <div>
                                 <div className="text-text02 text-sm">{t("finance.articleType")}</div>
-                                <Tag color={paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "EXPENDITURE" ? "green" : paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "RECEIPT" ? "red" : ""} className="h-10 w-40 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name}</Tag>
+                                <Tag color={paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "EXPENDITURE" ? "green" : paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type === "RECEIPT" ? "red" : ""} className="h-10 w-40 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type ? t(`finance.${paperTypes.find((pap) => pap.value === formData.paperTypeId)?.type}`) : ""}</Tag>
                             </div>
                             <DateInput
                                 title={t("finance.dat")}
@@ -1025,7 +1030,7 @@ const Articles: React.FC = () => {
                         />
                         <MultilineInput
                             title={t("equipment.comment")}
-                            classname="w-96"
+                            classname="w-full"
                             value={formData.comment}
                             changeValue={(e) => handleInputChange('comment', e.target.value)}
                             {...register('comment')}
@@ -1039,15 +1044,32 @@ const Articles: React.FC = () => {
                                 onChange={handleFileChange}
                                 fileList={fileList}
                                 maxCount={1}
+                                className="w-full upload-full-width"
                             >
                                 {fileList.length >= 1 ? null : (
-                                    <div className="text-text02">
+                                    <div className="text-text02 w-full">
                                         <PlusOutlined />
                                         <div className="mt-2">{t("hr.upload")}</div>
                                     </div>
                                 )}
                             </Upload>
                         </div>
+                        <style>{`
+    .upload-full-width .ant-upload.ant-upload-select {
+        width: 100% !important;
+        height: auto;
+    }
+    
+    .upload-full-width .ant-upload-list {
+        width: 100%;
+    }
+    
+    .upload-full-width .ant-upload-list-picture-card .ant-upload-list-item {
+        width: 100%;
+        height: auto;
+    }
+`}
+                        </style>
                         <SearchDropdownInput
                             title={t("equipment.user")}
                             classname="w-full"
@@ -1111,13 +1133,6 @@ const Articles: React.FC = () => {
                                 {t("finance.del")} ({selectedRowKeys.length})
                             </AntDButton>
                         </Popconfirm>
-                        <AntDButton
-                            icon={<CheckOutlined />}
-                            onClick={() => { }}
-                            className="bg-successFill text-white"
-                        >
-                            {t("routes.save")}
-                        </AntDButton>
                     </Space>
                 </div>
 

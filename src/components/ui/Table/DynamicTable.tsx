@@ -113,9 +113,9 @@ const DynamicTable = <T extends TableRow>({
     };
 
     const getStatusTag = (status: string) => {
-        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS"))
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS") || status === t("finance.RECEIPT"))
             return <Tag color="green">{status}</Tag>;
-        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE"))
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE") || status === t("finance.EXPENDITURE"))
             return <Tag color="red">{status}</Tag>;
         if (status === t("tables.SAVED") || status === t("tables.VERIFICATE"))
             return <Tag color="orange">{status}</Tag>;
@@ -252,7 +252,7 @@ const DynamicTable = <T extends TableRow>({
             type: col.type,
             render: (value: any, record: T) => {
                 // If column is 'status', show tags
-                if (col.key.toLowerCase().includes("status")) {
+                if (col.key.toLowerCase().includes("status") || col.type === "status") {
                     return getStatusTag(value);
                 }
 

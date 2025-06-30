@@ -34,6 +34,7 @@ type Props<T> = {
 }
 
 type TableRow = {
+    paperTypeType: string;
     deviceId: number;
     id: number | string;
     name?: string;
@@ -120,9 +121,9 @@ const ExpandableTable = <T extends TableRow>({
     };
 
     const getStatusTag = (status: string) => {
-        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS"))
+        if (status === t("tables.ACTIVE") || status === t("tables.SENT") || status === t("tables.In Progress") || status === t("analysis.PROGRESS") || status === t("finance.RECEIPT"))
             return <Tag color="green">{status}</Tag>;
-        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE"))
+        if (status === t("tables.OVERDUE") || status === t("tables.Done") || status === t("tables.FINISHED") || status === t("tables.PAUSE") || status === t("analysis.DONE") || status === t("finance.EXPENDITURE"))
             return <Tag color="red">{status}</Tag>;
         if (status === t("tables.SAVED") || status === t("tables.VERIFICATE") || status === t("tables.SAVE"))
             return <Tag color="orange">{status}</Tag>;
@@ -183,7 +184,13 @@ const ExpandableTable = <T extends TableRow>({
 
                 if (col.type === "currency") {
                     const number = formatNumber(value);
-                    return TableUtils.createCurrencyFormat(number);
+                    const formattedCurrency = TableUtils.createCurrencyFormat(number);
+
+                    return (
+                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
+                            {formattedCurrency}
+                        </div>
+                    );
                 }
 
                 if (col.type === "percent") {
@@ -211,7 +218,7 @@ const ExpandableTable = <T extends TableRow>({
             key: col.key,
             type: col.type,
             render: (value: any, record: T) => {
-                if (col.key.toLowerCase().includes("status")) {
+                if (col.key.toLowerCase().includes("status") || col.type === "status") {
                     return getStatusTag(value);
                 }
 
@@ -256,7 +263,24 @@ const ExpandableTable = <T extends TableRow>({
 
                 if (col.type === "currency") {
                     const number = formatNumber(value);
-                    return TableUtils.createCurrencyFormat(number);
+                    const formattedCurrency = TableUtils.createCurrencyFormat(number);
+
+                    const paperTypeType = record.paperTypeType;
+
+                    if (paperTypeType === t("finance.RECEIPT")) {
+                        return (
+                            <div className="text-successFill">
+                                +{formattedCurrency}
+                            </div>
+                        );
+                    } else if (paperTypeType === t("finance.EXPENDITURE")) {
+                        return (
+                            <div className="text-errorFill">
+                                -{formattedCurrency}
+                            </div>
+                        );
+                    }
+                    return formattedCurrency;
                 }
 
                 if (col.type === "percent") {
