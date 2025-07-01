@@ -341,7 +341,7 @@ const EquipmentFailure: React.FC = () => {
                     <DateTimeInput
                         title={t("equipment.call")}
                         classname="w-64"
-                        value={formData.appearanceDate ? dayjs(formData.appearanceDate) : null}
+                        value={formData.appearanceDate ? dayjs(formData.appearanceDate) : undefined}
                         changeValue={(date) => handleInputChange("appearanceDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.appearanceDate}
                         {...register('appearanceDate', { required: !isEditMode && 'Appearance Date is required' })}
@@ -350,7 +350,7 @@ const EquipmentFailure: React.FC = () => {
                     <DateTimeInput
                         title={t("equipment.start")}
                         classname="w-64"
-                        value={formData.startDate ? dayjs(formData.startDate) : null}
+                        value={formData.startDate ? dayjs(formData.startDate) : undefined}
                         changeValue={(date) => handleInputChange("startDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.startDate}
                         {...register('startDate', { required: !isEditMode && 'Start Date is required' })}
@@ -359,7 +359,7 @@ const EquipmentFailure: React.FC = () => {
                     <DateTimeInput
                         title={t("equipment.end")}
                         classname="w-64"
-                        value={formData.finishDate ? dayjs(formData.finishDate) : null}
+                        value={formData.finishDate ? dayjs(formData.finishDate) : undefined}
                         changeValue={(date) => handleInputChange("finishDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.finishDate}
                         {...register('finishDate', { required: !isEditMode && 'Finish Date is required' })}

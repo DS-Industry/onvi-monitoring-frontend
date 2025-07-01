@@ -4,8 +4,8 @@ import { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
 
 type InputProps = {
-    value?: Dayjs | null;
-    changeValue?: (dateTime: Dayjs | null, formatted: string) => void;
+    value?: Dayjs;
+    changeValue?: (dateTime: Dayjs | undefined, formatted: string) => void;
     error?: boolean;
     label?: string;
     helperText?: string;
@@ -18,7 +18,7 @@ type InputProps = {
 };
 
 const DateTimeInput: React.FC<InputProps> = ({
-    value = null,
+    value = undefined,
     changeValue,
     error = false,
     label,
@@ -29,11 +29,11 @@ const DateTimeInput: React.FC<InputProps> = ({
     format = "YYYY-MM-DD HH:mm",
 }) => {
     const { t } = useTranslation();
-    const [date, setDate] = useState<Dayjs | null>(value ? value.startOf("day") : null);
-    const [time, setTime] = useState<Dayjs | null>(value ? value : null);
+    const [date, setDate] = useState<Dayjs | undefined>(value ? value.startOf("day") : undefined);
+    const [time, setTime] = useState<Dayjs | undefined>(value ? value : undefined);
 
     // Memoize the value timestamp to prevent unnecessary updates
-    const valueTimestamp = useMemo(() => value?.valueOf() || null, [value]);
+    const valueTimestamp = useMemo(() => value?.valueOf() || undefined, [value]);
 
     useEffect(() => {
         if (value && value.isValid()) {
@@ -45,9 +45,9 @@ const DateTimeInput: React.FC<InputProps> = ({
                 setDate(newDate);
                 setTime(newTime);
             }
-        } else if (date !== null || time !== null) {
-            setDate(null);
-            setTime(null);
+        } else if (date !== undefined || time !== undefined) {
+            setDate(undefined);
+            setTime(undefined);
         }
     }, [valueTimestamp]); // Use valueTimestamp instead of value
 
@@ -55,9 +55,9 @@ const DateTimeInput: React.FC<InputProps> = ({
     const handleDateChange = (d: Dayjs | null) => {
         // Check if date is null or invalid
         if (!d || !d.isValid()) {
-            setDate(null);
-            setTime(null);
-            changeValue?.(null, "");
+            setDate(undefined);
+            setTime(undefined);
+            changeValue?.(undefined, "");
             return;
         }
         
@@ -75,9 +75,9 @@ const DateTimeInput: React.FC<InputProps> = ({
     const handleTimeChange = (t: Dayjs | null) => {
         // Check if time is null or invalid
         if (!t || !t.isValid()) {
-            setDate(null);
-            setTime(null);
-            changeValue?.(null, "");
+            setDate(undefined);
+            setTime(undefined);
+            changeValue?.(undefined, "");
             return;
         }
         

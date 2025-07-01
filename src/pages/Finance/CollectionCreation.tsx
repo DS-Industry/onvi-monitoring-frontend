@@ -335,7 +335,7 @@ const CollectionCreation: React.FC = () => {
                     <div className="flex space-x-4">
                         <DateTimeInput
                             title={t("finance.start") + "*"}
-                            value={formData.cashCollectionDate ? dayjs(formData.cashCollectionDate) : null}
+                            value={formData.cashCollectionDate ? dayjs(formData.cashCollectionDate) : undefined}
                             changeValue={(date) =>
                                 handleInputChange("cashCollectionDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
                             }

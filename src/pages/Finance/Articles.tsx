@@ -1,7 +1,7 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
 import { DatePicker, message, Skeleton, TableProps, Tag, Upload } from 'antd';
-import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton } from 'antd';
+import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton, Input as AntInput } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
@@ -94,7 +94,6 @@ type ManagerParams = {
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
-    title: any;
     inputType: 'number' | 'text' | 'date';
     record: DataType;
     index: number;
@@ -103,7 +102,6 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     editing,
     dataIndex,
-    title,
     inputType,
     children,
     ...restProps
@@ -148,6 +146,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 value={form.getFieldValue(dataIndex)}
                 onChange={(value) => form.setFieldValue(dataIndex, value)}
                 classname="w-80"
+                noHeight={true}
             />
             : dataIndex === "posId" ?
                 <SearchDropdownInput
@@ -155,6 +154,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                     value={form.getFieldValue(dataIndex)}
                     onChange={(value) => form.setFieldValue(dataIndex, value)}
                     classname="w-44"
+                    noHeight={true}
                 />
                 : dataIndex === "paperTypeId" ?
                     <SearchDropdownInput
@@ -162,6 +162,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                         value={form.getFieldValue(dataIndex)}
                         onChange={(value) => form.setFieldValue(dataIndex, value)}
                         classname="w-44"
+                        noHeight={true}
                     />
                     : inputType === 'date' ?
                         <DatePicker
@@ -170,17 +171,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                             value={form.getFieldValue(dataIndex)}
                             onChange={(date) => form.setFieldValue(dataIndex, date)}
                         /> : inputType === 'number' ?
-                            <Input
+                            <AntInput
                                 type="number"
-                                classname="w-40"
-                                showIcon={true}
-                                IconComponent={<div className="text-text02 text-xl">₽</div>}
+                                className="w-32"
+                                suffix={<div className="text-text02">₽</div>}
                                 value={form.getFieldValue(dataIndex)}
-                                changeValue={(e) => form.setFieldValue(dataIndex, parseFloat(e.target.value))}
+                                onChange={(e) => form.setFieldValue(dataIndex, parseFloat(e.target.value))}
                             /> :
-                            <Input
+                            <AntInput
                                 value={form.getFieldValue(dataIndex)}
-                                changeValue={(e) => form.setFieldValue(dataIndex, e.target.value)}
+                                onChange={(e) => form.setFieldValue(dataIndex, e.target.value)}
                             />;
 
     return (
@@ -192,12 +192,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 <Form.Item
                     name={dataIndex}
                     style={{ margin: 0 }}
-                    rules={[
-                        {
-                            required: true,
-                            message: `Please Input ${title}!`,
-                        },
-                    ]}
                 >
                     {inputNode}
                 </Form.Item>
@@ -296,8 +290,8 @@ const Articles: React.FC = () => {
     const [posId, setPosId] = useState<number | "*">("*");
     const [paperTypeId, setPaperTypeId] = useState<number | "*">("*");
     const [userId, setUserId] = useState<number | "*">("*");
-    const [startPeriod, setStartPeriod] = useState<Dayjs>(dayjs().startOf('month'));
-    const [endPeriod, setEndPeriod] = useState<Dayjs>(dayjs().endOf('month'));
+    const [startPeriod, setStartPeriod] = useState<Dayjs | undefined>(undefined);
+    const [endPeriod, setEndPeriod] = useState<Dayjs | undefined>(undefined);
     const [isTableLoading, setIsTableLoading] = useState(false);
     const { filterOn, setFilterOn } = useFilterOn();
     const currentPage = useCurrentPage();
@@ -583,7 +577,7 @@ const Articles: React.FC = () => {
             editable: true,
             render: (value: number) => (
                 <div>
-                    <Tag color={paperTypes.find((pap) => pap.value === value)?.type === "EXPENDITURE" ? "green" : paperTypes.find((pap) => pap.value === value)?.type === "RECEIPT" ? "red" : ""}>{paperTypes.find((pap) => pap.value === value)?.name}</Tag>
+                    <Tag color={paperTypes.find((pap) => pap.value === value)?.type === "EXPENDITURE" ? "red" : paperTypes.find((pap) => pap.value === value)?.type === "RECEIPT" ? "green" : ""}>{paperTypes.find((pap) => pap.value === value)?.name}</Tag>
                 </div>
             )
         },
@@ -615,18 +609,18 @@ const Articles: React.FC = () => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span className="flex space-x-4">
-                        <Button
-                            title="Отмена"
-                            handleClick={cancel}
-                            type="outline"
-                            classname="h-10"
-                        />
-                        <Button
-                            title="Сохранять"
-                            handleClick={() => save(record.key)}
-                            isLoading={updatingManager}
-                            classname="h-10"
-                        />
+                        <AntDButton
+                            type="primary"
+                            onClick={cancel}
+                        >
+                            Отмена
+                        </AntDButton>
+                        <AntDButton
+                            onClick={() => save(record.key)}
+                            loading={updatingManager}
+                        >
+                            Сохранять
+                        </AntDButton>
                     </span>
                 ) : (
                     <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
@@ -863,8 +857,8 @@ const Articles: React.FC = () => {
         setPosId("*");
         setPaperTypeId("*");
         setUserId("*");
-        setStartPeriod(dayjs().startOf('month'));
-        setEndPeriod(dayjs().endOf('month'));
+        setStartPeriod(undefined);
+        setEndPeriod(undefined);
         setPageSize(15);
         setCurrentPage(1);
     }
