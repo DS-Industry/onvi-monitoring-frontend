@@ -110,7 +110,7 @@ const TimeSheetCreation: React.FC = () => {
                 <div className="flex space-x-4">
                     <DateTimeInput
                         title={t("finance.start") + "*"}
-                        value={formData.startDate ? dayjs(formData.startDate) : null}
+                        value={formData.startDate ? dayjs(formData.startDate) : undefined}
                         changeValue={(date) =>
                             handleInputChange("startDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
                         }
@@ -122,7 +122,7 @@ const TimeSheetCreation: React.FC = () => {
 
                     <DateTimeInput
                         title={t("finance.end") + "*"}
-                        value={formData.endDate ? dayjs(formData.endDate) : null}
+                        value={formData.endDate ? dayjs(formData.endDate) : undefined}
                         changeValue={(date) =>
                             handleInputChange("endDate", date ? date.format("YYYY-MM-DDTHH:mm") : "")
                         }

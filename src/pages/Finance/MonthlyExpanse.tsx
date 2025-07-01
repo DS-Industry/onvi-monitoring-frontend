@@ -56,14 +56,13 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     inputType: 'number' | 'text' | 'select' | 'period';
     record: DataRecord;
     index: number;
-    selectOptions?: Array<{ name: string; value: any }>;
+    selectOptions?: Array<{ name: string; value: string | number }>;
     children: React.ReactNode;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
     editing,
     dataIndex,
-    title,
     inputType,
     selectOptions,
     children,
@@ -123,12 +122,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     <Form.Item
                         name={dataIndex}
                         style={{ margin: 0 }}
-                        rules={[
-                            {
-                                required: true,
-                                message: `Please Input ${title}!`,
-                            },
-                        ]}
                     >
                         {getInputNode()}
                     </Form.Item>
@@ -472,7 +465,7 @@ const MonthlyExpanse: React.FC = () => {
         {
             title: "Действия",
             dataIndex: "actions",
-            render: (_: any, record: DataRecord) => {
+            render: (_, record: DataRecord) => {
                 const editable = isEditing(record);
 
                 if (editable) {

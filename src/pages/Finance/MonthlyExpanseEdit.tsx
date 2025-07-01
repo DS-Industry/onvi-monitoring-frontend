@@ -1,13 +1,15 @@
-import Button from "@/components/ui/Button/Button";
 import ExpandableTable from "@/components/ui/Table/ExpandableTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity } from "@/hooks/useAuthStore";
 import { getPoses } from "@/services/api/equipment";
 import { getManagerPeriodById, returnManagerPaperPeriod, sendManagerPaperPeriod } from "@/services/api/finance";
+import { Space, Button as AntDButton } from "antd";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
+import { CheckOutlined, UndoOutlined } from '@ant-design/icons';
+
 
 enum ManagerPaperGroup {
     RENT = "RENT",
@@ -222,18 +224,24 @@ const MonthlyExpanseEdit: React.FC = () => {
                 )
                     :
                     <div className="space-y-4">
-                        <div className="flex justify-end">
-                            {location.state.status === "SAVE" && <Button
-                                title={t("finance.send")}
-                                handleClick={sendManagerPeriod}
-                                isLoading={isLoading}
-                            />}
-                            {location.state.status === "SENT" && <Button
-                                title={t("finance.returns")}
-                                handleClick={returnManagerPeriod}
-                                isLoading={isReturning}
-                            />}
-                        </div>
+                        <Space>
+                            {location.state.status === "SAVE" && <AntDButton
+                                type="primary"
+                                icon={<CheckOutlined />}
+                                onClick={sendManagerPeriod}
+                                loading={isLoading}
+                            >
+                                {t("finance.send")}
+                            </AntDButton>}
+                            {location.state.status === "SENT" && <AntDButton
+                                type="primary"
+                                icon={<UndoOutlined />}
+                                onClick={returnManagerPeriod}
+                                loading={isReturning}
+                            >
+                                {t("finance.returns")}
+                            </AntDButton>}
+                        </Space>
                         <ExpandableTable
                             data={groupedData.items}
                             columns={expenseColumns}

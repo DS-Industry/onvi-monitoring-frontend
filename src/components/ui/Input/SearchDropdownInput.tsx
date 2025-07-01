@@ -19,6 +19,7 @@ type SearchableDropdownProps = {
     title?: string;
     allowClear?: boolean;
     loading?: boolean;
+    noHeight?: boolean;
 };
 
 const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
@@ -32,7 +33,8 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
     classname,
     title = "",
     allowClear = false,
-    loading = false
+    loading = false,
+    noHeight = false,
 }) => {
     const formattedOptions = loading
         ? [] // Show no options when loading
@@ -57,7 +59,7 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
                 onChange={onChange}
                 options={formattedOptions}
                 notFoundContent={loading ? <div className="flex items-center justify-center"><Spin size="small" /></div> : "No options"}
-                className={`w-full h-10`}
+                className={`w-full ${noHeight ? "" : "h-10"}`}
                 optionFilterProp="label"
                 filterOption={(input, option) =>
                     option?.label?.toLowerCase().includes(input.toLowerCase())

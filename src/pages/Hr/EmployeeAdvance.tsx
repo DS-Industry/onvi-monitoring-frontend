@@ -28,8 +28,8 @@ const EmployeeAdvance: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { buttonOn } = useButtonCreate();
-    const [startPaymentDate, setStartPaymentDate] = useState<Dayjs | null>(null);
-    const [endPaymentDate, setEndPaymentDate] = useState<Dayjs | null>(null);
+    const [startPaymentDate, setStartPaymentDate] = useState<Dayjs | undefined>(undefined);
+    const [endPaymentDate, setEndPaymentDate] = useState<Dayjs | undefined>(undefined);
     const [workerId, setWorkerId] = useState<number | string>("*");
     const [isTableLoading, setIsTableLoading] = useState(false);
     const pageNumber = usePageNumber();
@@ -105,8 +105,8 @@ const EmployeeAdvance: React.FC = () => {
     }, [dataFilter, paymentsMutating]);
 
     const handleClear = () => {
-        setStartPaymentDate(null);
-        setEndPaymentDate(null);
+        setStartPaymentDate(undefined);
+        setEndPaymentDate(undefined);
         setWorkerId("*");
     }
 
