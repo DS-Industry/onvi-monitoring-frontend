@@ -987,16 +987,14 @@ const Articles: React.FC = () => {
                             errorText={errors.posId?.message}
                         />
                         <Space.Compact className="w-full">
-                            <Input
-                                title={t("finance.article")}
-                                value={paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name || ""}
-                                disabled={true}
-                                classname="w-full"
-                            />
+                            <div className="w-full">
+                                <div className="text-sm text-text02">{t("finance.article")}</div>
+                                <div className="w-full border h-10 flex items-center justify-center">{paperTypes.find((pap) => pap.value === formData.paperTypeId)?.name || ""}</div>
+                            </div>
                             <AntDButton
                                 onClick={() => setIsStateOpen(true)}
                                 type="primary"
-                                className="h-10 mt-[22px]"
+                                className="h-10 mt-[20px]"
                             >
                                 {t("finance.op")}
                             </AntDButton>
