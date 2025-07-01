@@ -377,7 +377,7 @@ const Articles: React.FC = () => {
         size: pageSize
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: allManagersGraphData, isLoading: loadingGraphData } = useSWR([`get-manager-graph-data`], () => getAllManagerPaperGraph({
+    const { data: allManagersGraphData, isLoading: loadingGraphData, mutate: managerGraphMutating } = useSWR([`get-manager-graph-data`], () => getAllManagerPaperGraph({
         group: dataFilter.group,
         posId: dataFilter.posId,
         paperTypeId: dataFilter.paperTypeId,
@@ -848,6 +848,10 @@ const Articles: React.FC = () => {
     useEffect(() => {
         managerMutating().then(() => setIsTableLoading(false));
     }, [dataFilter, managerMutating]);
+
+    useEffect(() => {
+        managerGraphMutating().then(() => setIsTableLoading(false));
+    }, [dataFilter, managerGraphMutating]);
 
     useEffect(() => {
         if (!loadingManagerData && allManagersData?.totalCount)
