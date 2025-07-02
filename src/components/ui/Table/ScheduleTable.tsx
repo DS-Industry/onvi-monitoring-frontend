@@ -372,6 +372,8 @@ const ScheduleTable: React.FC<Props> = ({
                     newFilledData[modalKey] = {
                         typeWorkDay: work.typeWorkDay,
                         timeWorkedOut: work.timeWorkedOut,
+                        startWorkingTime: work.startWorkingTime,
+                        endWorkingTime: work.endWorkingTime,
                         estimation: work.estimation,
                         prize: work.prize,
                         fine: work.fine
@@ -528,32 +530,58 @@ const ScheduleTable: React.FC<Props> = ({
                                     </td>
                                     {dates.map((d, index) => {
                                         const cellKey = `${emp.userId}-${d.workDate}`;
-                                        const nextDay = dates[index - 1]?.workDate;
-                                        const nextCellKey = `${emp.userId}-${nextDay}`;
                                         const currentData = filledData[cellKey];
-                                        const nextData = filledData[nextCellKey];
+
+                                        const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
+                                        const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+
+                                        const isCrossDayShift = start && end && start > end;
+
+                                        const splitWorkedTime = { current: "", next: "" };
+
+                                        if (isCrossDayShift && start && end && currentData) {
+                                            const hoursWorked = currentData.timeWorkedOut
+                                                ? parseFloat(currentData.timeWorkedOut.split(":")[0])
+                                                : 0;
+                                            const currentDayHours = 24 - start.getHours();
+                                            const nextDayHours = hoursWorked - currentDayHours;
+
+                                            splitWorkedTime.current = `${currentDayHours}:00`;
+                                            splitWorkedTime.next = `${nextDayHours}:00`;
+                                        }
+
 
                                         const isWorking = currentData?.typeWorkDay === "WORKING";
 
-                                        const hasRightHalf = isWorking;
-                                        const hasLeftHalf = nextData?.typeWorkDay === "WORKING"; // Next cell should also be colored
+                                        const leftHalfForIndex = new Set();
+
+                                        dates.forEach((d, index) => {
+                                            const cellKey = `${emp.userId}-${d.workDate}`;
+                                            const currentData = filledData[cellKey];
+                                            const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
+                                            const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+
+                                            const isCross = start && end && start > end;
+
+                                            if (isCross && index + 1 < dates.length) {
+                                                leftHalfForIndex.add(index + 1);
+                                            }
+                                        });
+
+                                        const hasLeftHalf = leftHalfForIndex.has(index);
 
                                         // Set style for split background
-                                        const cellStyle = hasRightHalf
-                                            ? {
-                                                background: 'linear-gradient(to right, transparent 50%, #DDF5FF 50%)'
-                                            }
+                                        const cellStyle = isCrossDayShift
+                                            ? { background: 'linear-gradient(to right, transparent 50%, #DDF5FF 50%)' }
                                             : hasLeftHalf
-                                                ? {
-                                                    background: 'linear-gradient(to left, transparent 50%, #DDF5FF 50%)'
-                                                }
+                                                ? { background: 'linear-gradient(to left, transparent 50%, #DDF5FF 50%)' }
                                                 : {};
 
                                         return (
                                             <td
                                                 key={index}
                                                 className={`relative border border-borderFill w-16 h-16
-                cursor-pointer hover:bg-background05 text-sm text-text01`}
+                cursor-pointer hover:bg-background05 text-sm text-text01 ${isWorking ? "bg-background06" : ""}`}
                                                 style={cellStyle}
                                                 onClick={() => handleOpenModal(emp, d.workDate)}
                                             >
@@ -596,7 +624,6 @@ const ScheduleTable: React.FC<Props> = ({
                                             </td>
                                         );
                                     })}
-
                                 </tr>
                             ))}
                         </tbody>
