@@ -47,45 +47,6 @@ type FormData = {
     comment?: string;
 }
 
-// const emps: Employee[] = [
-//     {
-//         id: 1,
-//         branch: "Мойка_1",
-//         name: "Иванов Иван Иванович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-//     {
-//         id: 2,
-//         branch: "Мойка_1",
-//         name: "Петров Петр Петрович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-//     {
-//         id: 3,
-//         branch: "Мойка_1",
-//         name: "Сидоров Игнат Артемович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-// ];
-
-// const dates = [
-//     { day: "СР", date: "1" },
-//     { day: "ЧТ", date: "2" },
-//     { day: "ПТ", date: "3" },
-//     { day: "СБ", date: "4" },
-//     { day: "ВС", date: "5" },
-//     { day: "ПН", date: "6" },
-//     { day: "ВТ", date: "7" },
-//     { day: "СР", date: "8" },
-//     { day: "ЧТ", date: "9" },
-//     { day: "ПТ", date: "10" },
-//     { day: "СБ", date: "11" },
-//     { day: "ВС", date: "12" },
-// ];
-
 type TimeSheet = {
     props: {
         id: number;
@@ -421,7 +382,6 @@ const ScheduleTable: React.FC<Props> = ({
 
     const dates = generateDates(startDate, endDate);
 
-
     const handleModalSubmit = async () => {
         if (userId) {
 
@@ -453,13 +413,21 @@ const ScheduleTable: React.FC<Props> = ({
 
 
     const onSubmit = async () => {
+        const start = watchFields["startWorkingTime"] ? new Date(watchFields["startWorkingTime"]) : undefined;
+        const end = watchFields["endWorkingTime"] ? new Date(watchFields["endWorkingTime"]) : undefined;
+
+        // 🔁 Shift end time to next day if it’s before start
+        if (start && end && end <= start) {
+            end.setDate(end.getDate() + 1);
+        }
+
         // Call API
         const result = await updateDay({
             id: openModalId,
             typeWorkDay: typeWorkDay as TypeWorkDay,
             timeWorkedOut: watchFields["timeWorkedOut"],
-            startWorkingTime: watchFields["startWorkingTime"] ? new Date(watchFields["startWorkingTime"]) : undefined,
-            endWorkingTime: watchFields["endWorkingTime"] ? new Date(watchFields["endWorkingTime"]) : undefined,
+            startWorkingTime: start,
+            endWorkingTime: end,
             estimation: estimation as unknown as TypeEstimation,
             prize: Number(prize),
             fine: Number(fine),
@@ -479,14 +447,25 @@ const ScheduleTable: React.FC<Props> = ({
                 fine: result.fine,
                 comment: result.comment
             });
+
             if (result.typeWorkDay === "WORKING") {
                 const name = workers.find((work) => work.value === result.workerId)?.name;
                 const surname = workers.find((work) => work.value === result.workerId)?.surname;
-                navigate("/finance/timesheet/view", { state: { ownerId: result.id, posId: posId, name: `${name} ${surname}`, date: result.workDate, status: result.status } });
+                navigate("/finance/timesheet/view", {
+                    state: {
+                        ownerId: result.id,
+                        posId: posId,
+                        name: `${name} ${surname}`,
+                        date: result.workDate,
+                        status: result.status
+                    }
+                });
             }
+
             mutate([`get-shift-data`]);
         }
-    }
+    };
+
 
     // const addNewRow = async (value: React.SetStateAction<number>) => {
     //     setUserId(value)
@@ -523,101 +502,152 @@ const ScheduleTable: React.FC<Props> = ({
                         <tbody>
                             {employees.map((emp) => (
                                 <tr key={emp.id}>
-                                    <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02 w-32 h-16">{emp.branch}</td>
+                                    <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm font-semibold text-primary02 w-32 h-16">
+                                        {emp.branch}
+                                    </td>
                                     <td className="border-b border-b-[#E4E5E7] bg-background02 py-2 px-2.5 text-start text-sm text-text01 w-60 h-16">
-                                        <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
+                                        <span className="text-primary02 font-semibold text-sm">{emp.name}</span>
+                                        <br />
                                         <span className="text-text02 text-sm">{emp.position}</span>
                                     </td>
-                                    {dates.map((d, index) => {
+                                    {dates.map((d, dateIndex) => {
                                         const cellKey = `${emp.userId}-${d.workDate}`;
                                         const currentData = filledData[cellKey];
 
-                                        const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
-                                        const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+                                        const currentStart = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
+                                        const currentEnd = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
 
-                                        const isCrossDayShift = start && end && start > end;
+                                        // Check if current work session crosses midnight
+                                        const isCurrentCrossDay = currentStart && currentEnd &&
+                                            currentStart.toDateString() !== currentEnd.toDateString();
 
-                                        const splitWorkedTime = { current: "", next: "" };
+                                        // For cross-day sessions, check if the current cell date matches the end date
+                                        const isCurrentCellEndDate = isCurrentCrossDay &&
+                                            currentEnd && new Date(d.workDate).toDateString() === currentEnd.toDateString();
 
-                                        if (isCrossDayShift && start && end && currentData) {
-                                            const hoursWorked = currentData.timeWorkedOut
-                                                ? parseFloat(currentData.timeWorkedOut.split(":")[0])
-                                                : 0;
-                                            const currentDayHours = 24 - start.getHours();
-                                            const nextDayHours = hoursWorked - currentDayHours;
+                                        // Check previous date for cross-day session
+                                        const prevDateIndex = dateIndex - 1;
+                                        const prevDate = prevDateIndex >= 0 ? dates[prevDateIndex] : null;
+                                        const prevCellKey = prevDate ? `${emp.userId}-${prevDate.workDate}` : null;
+                                        const prevData = prevCellKey ? filledData[prevCellKey] : null;
 
-                                            splitWorkedTime.current = `${currentDayHours}:00`;
-                                            splitWorkedTime.next = `${nextDayHours}:00`;
-                                        }
+                                        const prevStart = prevData?.startWorkingTime ? new Date(prevData.startWorkingTime) : null;
+                                        const prevEnd = prevData?.endWorkingTime ? new Date(prevData.endWorkingTime) : null;
 
+                                        // Check if previous work session crosses to current date
+                                        const isPrevCrossDay = prevStart && prevEnd &&
+                                            prevStart.toDateString() !== prevEnd.toDateString() &&
+                                            new Date(d.workDate).toDateString() === prevEnd.toDateString();
 
-                                        const isWorking = currentData?.typeWorkDay === "WORKING";
+                                        // Background colors
+                                        const rightHalfBg = currentData?.typeWorkDay === 'WORKING' ? 'bg-background06' :
+                                            currentData?.typeWorkDay ? 'bg-background05' : 'bg-white';
 
-                                        const leftHalfForIndex = new Set();
+                                        const leftHalfBg = isPrevCrossDay ? 'bg-background06' : 'bg-white';
 
-                                        dates.forEach((d, index) => {
-                                            const cellKey = `${emp.userId}-${d.workDate}`;
-                                            const currentData = filledData[cellKey];
-                                            const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
-                                            const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+                                        // Parse worked time for splitting
+                                        const currentWorked = currentData?.timeWorkedOut?.split(":");
+                                        const prevWorked = prevData?.timeWorkedOut?.split(":");
 
-                                            const isCross = start && end && start > end;
-
-                                            if (isCross && index + 1 < dates.length) {
-                                                leftHalfForIndex.add(index + 1);
-                                            }
+                                        const currentStartTime = currentStart?.toLocaleTimeString('en-US', {
+                                            hour12: false,
+                                            hour: '2-digit',
+                                            minute: '2-digit'
                                         });
 
-                                        const hasLeftHalf = leftHalfForIndex.has(index);
-
-                                        // Set style for split background
-                                        const cellStyle = isCrossDayShift
-                                            ? { background: 'linear-gradient(to right, transparent 50%, #DDF5FF 50%)' }
-                                            : hasLeftHalf
-                                                ? { background: 'linear-gradient(to left, transparent 50%, #DDF5FF 50%)' }
-                                                : {};
+                                        const prevEndTime = prevEnd?.toLocaleTimeString('en-US', {
+                                            hour12: false,
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        });
 
                                         return (
-                                            <td
-                                                key={index}
-                                                className={`relative border border-borderFill w-16 h-16
-                cursor-pointer hover:bg-background05 text-sm text-text01 ${isWorking ? "bg-background06" : ""}`}
-                                                style={cellStyle}
-                                                onClick={() => handleOpenModal(emp, d.workDate)}
-                                            >
-                                                <div className="flex flex-col justify-between overflow-hidden">
-                                                    <div className="flex items-center justify-center">
-                                                        {currentData?.timeWorkedOut ? (
-                                                            <div>{currentData.timeWorkedOut}</div>
-                                                        ) : currentData?.typeWorkDay === "MEDICAL" ? (
-                                                            <BN />
-                                                        ) : currentData?.typeWorkDay === "VACATION" ? (
-                                                            <OTN />
-                                                        ) : currentData?.typeWorkDay === "TIMEOFF" ? (
-                                                            <O />
-                                                        ) : currentData?.typeWorkDay === "TRUANCY" ? (
-                                                            <NP />
-                                                        ) : (
-                                                            <></>
-                                                        )}
+                                            <td key={dateIndex} className="relative border border-borderFill w-16 h-16 p-0">
+                                                <div
+                                                    className={`absolute top-0 left-0 w-1/2 h-full cursor-pointer z-10 ${leftHalfBg} hover:bg-background03`}
+                                                    onClick={() => handleOpenModal(emp, d.workDate)}
+                                                />
+
+                                                <div
+                                                    className={`absolute top-0 right-0 w-1/2 h-full cursor-pointer z-10 ${rightHalfBg} hover:bg-background07`}
+                                                    onClick={() => handleOpenModal(emp, d.workDate)}
+                                                />
+
+                                                {/* Show line for cross-day sessions */}
+                                                {(isCurrentCrossDay || isPrevCrossDay) && (
+                                                    <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 bg-background06 z-15 -translate-y-1/2" />
+                                                )}
+
+                                                <div className="relative z-20 flex h-full pointer-events-none">
+                                                    {/* Left half - for previous day's cross-day session end */}
+                                                    <div className="w-1/2 flex flex-col justify-between px-0.5 py-0.5 overflow-hidden">
+                                                        <div className="flex items-center justify-center h-1/2 text-xs text-text01">
+                                                            {isPrevCrossDay ? (
+                                                                prevWorked?.[1] ? (
+                                                                    <span className="font-semibold">{prevWorked[1]}</span>
+                                                                ) : (
+                                                                    <span>{prevEndTime}</span>
+                                                                )
+                                                            ) : (
+                                                                <>&nbsp;</>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center justify-center h-1/2">
+                                                            {isPrevCrossDay && prevData?.estimation && (
+                                                                prevData.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
+                                                                    prevData.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
+                                                                        prevData.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> : null
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        {currentData?.estimation === "GROSS_VIOLATION" ? (
-                                                            <RedDot className="w-2 h-2" />
-                                                        ) : currentData?.estimation === "MINOR_VIOLATION" ? (
-                                                            <OrangeDot className="w-2 h-2" />
-                                                        ) : currentData?.estimation === "ONE_REMARK" ? (
-                                                            <GreenDot className="w-2 h-2" />
-                                                        ) : (
-                                                            <></>
-                                                        )}
-                                                        <div className="flex ml-auto space-x-1">
-                                                            <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                {currentData?.prize ? `+${currentData.prize}` : ""}
-                                                            </div>
-                                                            <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                {currentData?.fine ? `-${currentData.fine}` : ""}
-                                                            </div>
+
+                                                    {/* Right half - for current day's work session */}
+                                                    <div className="w-1/2 flex flex-col justify-between px-0.5 py-0.5 overflow-hidden">
+                                                        <div className="flex items-center justify-center h-1/2 text-xs text-text01">
+                                                            {currentData?.typeWorkDay === "WORKING" ? (
+                                                                isCurrentCrossDay ? (
+                                                                    // If this is a cross-day session
+                                                                    isCurrentCellEndDate ? (
+                                                                        // This cell represents the end date - show minutes (second part)
+                                                                        currentWorked?.[1] ? (
+                                                                            <span className="font-semibold">{currentWorked[1]}</span>
+                                                                        ) : (
+                                                                            <span>{prevEndTime}</span>
+                                                                        )
+                                                                    ) : (
+                                                                        // This cell represents the start date - show hours (first part)
+                                                                        currentWorked?.[0] ? (
+                                                                            <span className="font-semibold">{currentWorked[0]}</span>
+                                                                        ) : (
+                                                                            <span>{currentStartTime}</span>
+                                                                        )
+                                                                    )
+                                                                ) : (
+                                                                    // Normal single-day session
+                                                                    currentData?.timeWorkedOut ? (
+                                                                        <span className="font-semibold">{currentData.timeWorkedOut}</span>
+                                                                    ) : currentStartTime ? (
+                                                                        <span>{currentStartTime}</span>
+                                                                    ) : (
+                                                                        <>&nbsp;</>
+                                                                    )
+                                                                )
+                                                            ) : currentData?.typeWorkDay === "MEDICAL" ? (
+                                                                <BN />
+                                                            ) : currentData?.typeWorkDay === "VACATION" ? (
+                                                                <OTN />
+                                                            ) : currentData?.typeWorkDay === "TIMEOFF" ? (
+                                                                <O />
+                                                            ) : currentData?.typeWorkDay === "TRUANCY" ? (
+                                                                <NP />
+                                                            ) : (
+                                                                <>&nbsp;</>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center justify-center h-1/2">
+                                                            {currentData?.estimation === "GROSS_VIOLATION" && <RedDot className="w-2 h-2" />}
+                                                            {currentData?.estimation === "MINOR_VIOLATION" && <OrangeDot className="w-2 h-2" />}
+                                                            {currentData?.estimation === "ONE_REMARK" && <GreenDot className="w-2 h-2" />}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -627,6 +657,7 @@ const ScheduleTable: React.FC<Props> = ({
                                 </tr>
                             ))}
                         </tbody>
+
                     </table>
                 </div>)}
             {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setOpenAddRow(true)}>
