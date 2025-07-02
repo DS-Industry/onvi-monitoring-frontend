@@ -27,8 +27,5 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": [
-    "src",
-    "src/config/i18n/locales/**/*.json"
-  ]
+  "include": ["src", "src/config/i18n/locales/**/*.json"]
 }
