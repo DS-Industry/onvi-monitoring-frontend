@@ -8,7 +8,7 @@ import babel from "vite-plugin-babel";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',
+  base: '/onvi-monitoring-frontend/',
   build: {
     outDir: 'dist', // Ensure this matches your deployment settings
     // target: 'es2015',
