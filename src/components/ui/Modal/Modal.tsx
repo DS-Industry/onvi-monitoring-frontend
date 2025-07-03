@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { Modal as AntdModal } from "antd";
 import Button from "../Button/Button";
+import AntdModal from "antd/es/modal";
 
 interface ModalProps {
   isOpen: boolean;

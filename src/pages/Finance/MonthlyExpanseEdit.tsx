@@ -3,13 +3,13 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useCity } from "@/hooks/useAuthStore";
 import { getPoses } from "@/services/api/equipment";
 import { getManagerPeriodById, returnManagerPaperPeriod, sendManagerPaperPeriod } from "@/services/api/finance";
-import { Space, Button as AntDButton } from "antd";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { CheckOutlined, UndoOutlined } from '@ant-design/icons';
-
+import Space from 'antd/es/space';
+import AntDButton from 'antd/es/button';
 
 enum ManagerPaperGroup {
     RENT = "RENT",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useId } from "react";
-import { DatePicker } from "antd";
 import { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
+import DatePicker from "antd/es/date-picker";
 
 type InputProps = {
     value?: Dayjs | null;

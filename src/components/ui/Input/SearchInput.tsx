@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Icon from 'feather-icons-react';
 
-
 type SearchInputProps = {
     placeholder?: string;
     value: string;

@@ -7,9 +7,10 @@ import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hoo
 import Button from "../Button/Button";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device";
-import { Select, Input } from "antd";
 import { useTranslation } from "react-i18next";
 import SearchDropdownInput from "../Input/SearchDropdownInput";
+import Select from "antd/es/select";
+import Input from "antd/es/input";
 
 
 type Props = {

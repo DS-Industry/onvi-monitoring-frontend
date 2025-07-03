@@ -1,4 +1,3 @@
-import { Table, Tooltip, Tag, Button as AntDButton } from "antd";
 import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ClassAttributes, ThHTMLAttributes, useState } from "react";
@@ -16,6 +15,11 @@ import SentIcon from "@icons/SentIcon.png";
 import routes from "@/routes/index.tsx";
 import hasPermission from "@/permissions/hasPermission.tsx";
 import TableUtils from "@/utils/TableUtils.tsx";
+import Table from 'antd/es/table';
+import Tooltip from 'antd/es/tooltip';
+import Tag from 'antd/es/tag';
+import AntDButton from 'antd/es/button';
+
 
 interface TableColumn {
     label: string;

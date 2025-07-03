@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { DatePicker, TimePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
+import DatePicker from "antd/es/date-picker";
+import TimePicker from "antd/es/time-picker";
 
 type InputDateGapProps = {
     defaultDateStart: Date | string;

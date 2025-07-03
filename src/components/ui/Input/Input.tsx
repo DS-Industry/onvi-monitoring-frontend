@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useId } from "react";
-import { Input as AntInput } from "antd";
 import { EyeOutlined, EyeInvisibleOutlined, UserOutlined } from "@ant-design/icons";
+import AntInput from "antd/es/input";
 
 type InputProps = {
     type?: string;

@@ -1,12 +1,13 @@
 import { useFilterOn } from '@/components/context/useContext';
 import { useCurrentPage, useSetCurrentPage, usePageNumber, usePageSize } from '@/hooks/useAuthStore';
-import { Table, Tag } from 'antd';
 import Icon from "feather-icons-react";
 import TableUtils from "@/utils/TableUtils.tsx";
 import { ClassAttributes, ThHTMLAttributes } from 'react';
 import { ArrowUpOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Table from "antd/es/table";
+import Tag from "antd/es/tag";
 
 interface TableColumn {
     label: string;

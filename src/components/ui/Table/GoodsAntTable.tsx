@@ -1,7 +1,9 @@
 import React, { ClassAttributes, ThHTMLAttributes, useState } from "react";
-import { Table, Button, Card } from "antd";
 import { useTranslation } from "react-i18next";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import Table from "antd/es/table";
+import Button from "antd/es/button";
+import Card from "antd/es/card";
 
 interface TableRow {
     id: number;

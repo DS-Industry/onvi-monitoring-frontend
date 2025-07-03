@@ -1,7 +1,7 @@
 // src/hooks/useFirebaseMessaging.ts
 import { useEffect } from "react";
 import { onMessage, messaging } from "@/utils/firebase";
-import { notification } from "antd"; // Import antd's notification API
+import notification from "antd/es/notification"; // Import antd's notification API
 
 export const useFirebaseMessaging = () => {
   useEffect(() => {
