@@ -22,7 +22,6 @@ import { getWorkers } from "@/services/api/hr";
 import { useFilterOn } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
-import Icon from "feather-icons-react";
 import { useUser } from "@/hooks/useUserStore";
 import Card from 'antd/es/card';
 import Row from 'antd/es/row';
@@ -40,6 +39,7 @@ import Skeleton from 'antd/es/skeleton';
 import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
 import type { TableProps } from 'antd';
+import type { TablePaginationConfig } from 'antd/es/table';
 
 const { Title, Text } = Typography;
 
@@ -315,35 +315,26 @@ const Articles: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
-    const generatePaginationRange = () => {
-        const range: (number | string)[] = [];
-
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
-        } else {
-            range.push(1);
-
-            if (curr > 3) range.push("...");
-
-            const start = Math.max(2, curr - 1);
-            const end = Math.min(totalPages - 1, curr + 1);
-            for (let i = start; i <= end; i++) range.push(i);
-
-            if (curr < totalPages - 2) range.push("...");
-
-            range.push(totalPages);
-        }
-
-        return range;
-    };
-
-    const handlePageClick = (page: number | string) => {
-        if (typeof page === "number") {
+    const paginationConfig: TablePaginationConfig =  {
+        current: curr,
+        pageSize: rowsPerPage,
+        total: totalCount,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        pageSizeOptions: ['15', '50', '100', '120'],
+        onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
+            setPageSize(pageSize);
             setCurr(page);
-        }
+        },
+        onShowSizeChange: (_current, size) => {
+            setCurr(1); // Reset to first page when changing page size
+            setPageSize(size);
+            setFilterOn(!filterOn);
+        },
+        position: ['bottomLeft'],
+        size: 'default',
     };
 
     const setCurrentPage = useSetCurrentPage();
@@ -1155,7 +1146,7 @@ const Articles: React.FC = () => {
                                 dataSource={data}
                                 columns={mergedColumns}
                                 rowClassName="editable-row"
-                                pagination={false}
+                                pagination={paginationConfig}
                                 rowSelection={rowSelection}
                                 components={{
                                     header: {
@@ -1173,42 +1164,6 @@ const Articles: React.FC = () => {
                                 }}
                                 scroll={{ x: "max-content" }}
                             />
-                            <div className="mt-4 flex gap-2">
-                                <button
-                                    onClick={() => {
-                                        const newPage = Math.max(1, curr - 1);
-                                        setFilterOn(!filterOn);
-                                        setCurr(newPage);
-                                    }}
-                                    disabled={curr === 1}
-                                    className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                                >
-                                    <Icon icon="chevron-left" />
-                                </button>
-                                {generatePaginationRange().map((page, index) =>
-                                    page === "..." ? (
-                                        <span key={index} className="px-2 py-1 text-gray-400">...</span>
-                                    ) : (
-                                        <button
-                                            key={index}
-                                            onClick={() => handlePageClick(page)}
-                                            className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
-                                        >
-                                            {page}
-                                        </button>
-                                    )
-                                )}
-                                <button
-                                    onClick={() => {
-                                        setFilterOn(!filterOn);
-                                        setCurr(Math.min(totalPages, curr + 1));
-                                    }}
-                                    disabled={curr === totalPages}
-                                    className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                                >
-                                    <Icon icon="chevron-right" />
-                                </button>
-                            </div>
                         </div>
                     }
                 </Form>

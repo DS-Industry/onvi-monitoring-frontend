@@ -1,6 +1,5 @@
 import { useFilterOn } from '@/components/context/useContext';
 import { useCurrentPage, useSetCurrentPage, usePageNumber, usePageSize } from '@/hooks/useAuthStore';
-import Icon from "feather-icons-react";
 import TableUtils from "@/utils/TableUtils.tsx";
 import { ClassAttributes, ThHTMLAttributes } from 'react';
 import { ArrowUpOutlined } from "@ant-design/icons";
@@ -8,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Table from "antd/es/table";
 import Tag from "antd/es/tag";
+import type { TablePaginationConfig } from 'antd/es/table';
 
 interface TableColumn {
     label: string;
@@ -32,6 +32,9 @@ type Props<T> = {
     titleColumns: TableColumn[];
     showPagination?: boolean;
     handleChange?: (id: number, key: string, value: string | number) => void;
+    // New props for pagination control
+    onPageChange?: (page: number, pageSize: number) => void;
+    loading?: boolean;
 }
 
 type TableRow = {
@@ -50,7 +53,9 @@ const ExpandableTable = <T extends TableRow>({
     titleColumns,
     showPagination,
     handleChange,
-    navigableFields
+    navigableFields,
+    onPageChange,
+    loading = false
 }: Props<T>) => {
 
     const { t } = useTranslation();
@@ -64,38 +69,6 @@ const ExpandableTable = <T extends TableRow>({
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const navigate = useNavigate();
 
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
-
-
-    const generatePaginationRange = () => {
-        const range: (number | string)[] = [];
-
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
-        } else {
-            range.push(1);
-
-            if (curr > 3) range.push("...");
-
-            const start = Math.max(2, curr - 1);
-            const end = Math.min(totalPages - 1, curr + 1);
-            for (let i = start; i <= end; i++) range.push(i);
-
-            if (curr < totalPages - 2) range.push("...");
-
-            range.push(totalPages);
-        }
-
-        return range;
-    };
-
-    const handlePageClick = (page: number | string) => {
-        if (typeof page === "number") {
-            setFilterOn(!filterOn);
-            setCurr(page);
-        }
-    };
-
     const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
         if (num === null || num === undefined || isNaN(num)) return "-";
 
@@ -107,15 +80,14 @@ const ExpandableTable = <T extends TableRow>({
     };
 
     const formatPeriodType = (periodString: string) => {
-        if (!periodString) return ""; // Handle empty values
+        if (!periodString) return "";
 
         const [startStr, endStr] = periodString.split("-").map(s => s.trim());
 
         const parseDate = (dateString: string) => {
-            // Extract only the first part (before GMT) to ensure compatibility
             const datePart = dateString.split("GMT")[0].trim();
             const date = new Date(datePart);
-            return date.toLocaleDateString("ru-RU"); // Formats to DD.MM.YYYY
+            return date.toLocaleDateString("ru-RU");
         };
 
         return `${parseDate(startStr)} - ${parseDate(endStr)}`;
@@ -336,6 +308,36 @@ const ExpandableTable = <T extends TableRow>({
         );
     };
 
+    // Ant Design pagination configuration
+    const paginationConfig: TablePaginationConfig | false = showPagination ? {
+        current: curr,
+        pageSize: rowsPerPage,
+        total: totalCount,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: (total, range) => 
+            `${range[0]}-${range[1]} из ${total} записей`,
+        pageSizeOptions: ['15', '50', '100', '120'],
+        onChange: (page, pageSize) => {
+            setFilterOn(!filterOn);
+            setCurr(page);
+            // Call external page change handler if provided
+            if (onPageChange) {
+                onPageChange(page, pageSize);
+            }
+        },
+        onShowSizeChange: (_current, size) => {
+            setCurr(1); // Reset to first page when changing page size
+            setFilterOn(!filterOn);
+            // Call external page change handler if provided
+            if (onPageChange) {
+                onPageChange(1, size);
+            }
+        },
+        position: ['bottomRight'],
+        size: 'default',
+    } : false;
+
     return (
         <>
             <Table
@@ -345,7 +347,8 @@ const ExpandableTable = <T extends TableRow>({
                     ...item,
                     key: `${item.title || index}` // Ensure unique keys
                 }))}
-                pagination={false}
+                pagination={paginationConfig}
+                loading={loading}
                 components={{
                     header: {
                         cell: (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLTableHeaderCellElement> & ThHTMLAttributes<HTMLTableHeaderCellElement>) => (
@@ -367,43 +370,6 @@ const ExpandableTable = <T extends TableRow>({
                 }}
                 scroll={{ x: "max-content" }}
             />
-
-            {showPagination && <div className="mt-4 flex gap-2">
-                <button
-                    onClick={() => {
-                        const newPage = Math.max(1, curr - 1);
-                        setFilterOn(!filterOn);
-                        setCurr(newPage);
-                    }}
-                    disabled={curr === 1}
-                    className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                >
-                    <Icon icon="chevron-left" />
-                </button>
-                {generatePaginationRange().map((page, index) =>
-                    page === "..." ? (
-                        <span key={index} className="px-2 py-1 text-gray-400">...</span>
-                    ) : (
-                        <button
-                            key={index}
-                            onClick={() => handlePageClick(page)}
-                            className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
-                        >
-                            {page}
-                        </button>
-                    )
-                )}
-                <button
-                    onClick={() => {
-                        setFilterOn(!filterOn);
-                        setCurr(Math.min(totalPages, curr + 1));
-                    }}
-                    disabled={curr === totalPages}
-                    className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                >
-                    <Icon icon="chevron-right" />
-                </button>
-            </div>}
         </>
     )
 };
