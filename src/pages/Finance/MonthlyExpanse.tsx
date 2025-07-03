@@ -6,7 +6,6 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import { Table, Select, Space, Menu, Dropdown, Modal, message, InputNumber, Form, Input as AntInput, DatePicker, Tag } from 'antd';
 import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
@@ -23,6 +22,19 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import Icon from "feather-icons-react";
 import TableUtils from "@/utils/TableUtils.tsx";
+import Table from 'antd/es/table';
+import Select from 'antd/es/select';
+import Space from 'antd/es/space';
+import Menu from 'antd/es/menu';
+import Dropdown from 'antd/es/dropdown';
+import Modal from 'antd/es/modal';
+import message from 'antd/es/message';
+import InputNumber from 'antd/es/input-number';
+import Form from 'antd/es/form';
+import AntInput from 'antd/es/input';
+import DatePicker from 'antd/es/date-picker';
+import Tag from 'antd/es/tag';
+
 
 const { Option } = Select;
 

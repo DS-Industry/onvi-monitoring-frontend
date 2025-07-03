@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build
+        run: npm run build && cp dist/index.html dist/404.html
         env:
             VITE_API_URL: https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net
             VITE_MODE: development

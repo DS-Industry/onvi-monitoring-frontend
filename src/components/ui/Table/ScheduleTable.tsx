@@ -194,7 +194,7 @@ const ScheduleTable: React.FC<Props> = ({
     });
 
     const { trigger: addWork, isMutating: addingWorker } = useSWRMutation(
-        userId !==0 ?['add-worker'] : null,
+        userId !== 0 ? ['add-worker'] : null,
         (_, { arg }: { arg: { userId: number; } }) => addWorker(arg, id)
     );
 
@@ -372,6 +372,8 @@ const ScheduleTable: React.FC<Props> = ({
                     newFilledData[modalKey] = {
                         typeWorkDay: work.typeWorkDay,
                         timeWorkedOut: work.timeWorkedOut,
+                        startWorkingTime: work.startWorkingTime,
+                        endWorkingTime: work.endWorkingTime,
                         estimation: work.estimation,
                         prize: work.prize,
                         fine: work.fine
@@ -526,44 +528,102 @@ const ScheduleTable: React.FC<Props> = ({
                                         <span className="text-primary02 font-semibold text-sm">{emp.name}</span> <br />
                                         <span className="text-text02 text-sm">{emp.position}</span>
                                     </td>
-                                    {dates.map((d, index) => (
-                                        <td
-                                            key={index}
-                                            className={`border border-borderFill w-16 h-16
-                                    ${filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "WORKING" ? "bg-[#DDF5FF]" : "bg-background02"} 
-                                    cursor-pointer hover:bg-background05 text-sm text-text01`}
-                                            onClick={() => handleOpenModal(emp, d.workDate)}
-                                        >
-                                            <div className="flex flex-col justify-between overflow-hidden">
-                                                <div className="flex items-center justify-center"> {/* Center top div */}
-                                                    {filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut ? <div>{filledData[`${emp.userId}-${d.workDate}`]?.timeWorkedOut}</div> :
-                                                        filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "MEDICAL" ? <BN /> :
-                                                            filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "VACATION" ? <OTN /> :
-                                                                filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TIMEOFF" ? <O /> :
-                                                                    filledData[`${emp.userId}-${d.workDate}`]?.typeWorkDay === "TRUANCY" ? <NP /> :
-                                                                        <></>
-                                                    }
-                                                </div>
-                                                <div className="flex items-center justify-between mt-2"> {/* Push bottom div to bottom */}
-                                                    {filledData[`${emp.userId}-${d.workDate}`]?.estimation === "GROSS_VIOLATION" ? <RedDot className="w-2 h-2" /> :
-                                                        filledData[`${emp.userId}-${d.workDate}`]?.estimation === "MINOR_VIOLATION" ? <OrangeDot className="w-2 h-2" /> :
-                                                            filledData[`${emp.userId}-${d.workDate}`]?.estimation === "ONE_REMARK" ? <GreenDot className="w-2 h-2" /> :
-                                                                <></>
-                                                    }
-                                                    <div className="flex ml-auto space-x-1">
-                                                        <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                            {filledData[`${emp.userId}-${d.workDate}`]?.prize ? `+${filledData[`${emp.userId}-${d.workDate}`]?.prize}` : ""}
-                                                        </div>
-                                                        <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                            {filledData[`${emp.userId}-${d.workDate}`]?.fine ? `-${filledData[`${emp.userId}-${d.workDate}`]?.fine}` : ""}
+                                    {dates.map((d, index) => {
+                                        const cellKey = `${emp.userId}-${d.workDate}`;
+                                        const currentData = filledData[cellKey];
+
+                                        const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
+                                        const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+
+                                        const isCrossDayShift = start && end && start > end;
+
+                                        const splitWorkedTime = { current: "", next: "" };
+
+                                        if (isCrossDayShift && start && end && currentData) {
+                                            const hoursWorked = currentData.timeWorkedOut
+                                                ? parseFloat(currentData.timeWorkedOut.split(":")[0])
+                                                : 0;
+                                            const currentDayHours = 24 - start.getHours();
+                                            const nextDayHours = hoursWorked - currentDayHours;
+
+                                            splitWorkedTime.current = `${currentDayHours}:00`;
+                                            splitWorkedTime.next = `${nextDayHours}:00`;
+                                        }
+
+
+                                        const isWorking = currentData?.typeWorkDay === "WORKING";
+
+                                        const leftHalfForIndex = new Set();
+
+                                        dates.forEach((d, index) => {
+                                            const cellKey = `${emp.userId}-${d.workDate}`;
+                                            const currentData = filledData[cellKey];
+                                            const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
+                                            const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
+
+                                            const isCross = start && end && start > end;
+
+                                            if (isCross && index + 1 < dates.length) {
+                                                leftHalfForIndex.add(index + 1);
+                                            }
+                                        });
+
+                                        const hasLeftHalf = leftHalfForIndex.has(index);
+
+                                        // Set style for split background
+                                        const cellStyle = isCrossDayShift
+                                            ? { background: 'linear-gradient(to right, transparent 50%, #DDF5FF 50%)' }
+                                            : hasLeftHalf
+                                                ? { background: 'linear-gradient(to left, transparent 50%, #DDF5FF 50%)' }
+                                                : {};
+
+                                        return (
+                                            <td
+                                                key={index}
+                                                className={`relative border border-borderFill w-16 h-16
+                cursor-pointer hover:bg-background05 text-sm text-text01 ${isWorking ? "bg-background06" : ""}`}
+                                                style={cellStyle}
+                                                onClick={() => handleOpenModal(emp, d.workDate)}
+                                            >
+                                                <div className="flex flex-col justify-between overflow-hidden">
+                                                    <div className="flex items-center justify-center">
+                                                        {currentData?.timeWorkedOut ? (
+                                                            <div>{currentData.timeWorkedOut}</div>
+                                                        ) : currentData?.typeWorkDay === "MEDICAL" ? (
+                                                            <BN />
+                                                        ) : currentData?.typeWorkDay === "VACATION" ? (
+                                                            <OTN />
+                                                        ) : currentData?.typeWorkDay === "TIMEOFF" ? (
+                                                            <O />
+                                                        ) : currentData?.typeWorkDay === "TRUANCY" ? (
+                                                            <NP />
+                                                        ) : (
+                                                            <></>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        {currentData?.estimation === "GROSS_VIOLATION" ? (
+                                                            <RedDot className="w-2 h-2" />
+                                                        ) : currentData?.estimation === "MINOR_VIOLATION" ? (
+                                                            <OrangeDot className="w-2 h-2" />
+                                                        ) : currentData?.estimation === "ONE_REMARK" ? (
+                                                            <GreenDot className="w-2 h-2" />
+                                                        ) : (
+                                                            <></>
+                                                        )}
+                                                        <div className="flex ml-auto space-x-1">
+                                                            <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                {currentData?.prize ? `+${currentData.prize}` : ""}
+                                                            </div>
+                                                            <div className="text-text02 text-xs max-w-[25px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                {currentData?.fine ? `-${currentData.fine}` : ""}
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                 </div>
-                                            </div>
-                                        </td>
-
-                                    ))}
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </tbody>

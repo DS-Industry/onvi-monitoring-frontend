@@ -1,7 +1,5 @@
 import Filter from "@/components/ui/Filter/Filter";
 import React, { ClassAttributes, ThHTMLAttributes, useEffect, useMemo, useState } from "react";
-import { DatePicker, message, Skeleton, TableProps, Tag, Upload } from 'antd';
-import { Card, Row, Col, Typography, Space, Form, Popconfirm, Table, Button as AntDButton, Input as AntInput } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, LineChartOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
@@ -26,6 +24,22 @@ import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
 import Icon from "feather-icons-react";
 import { useUser } from "@/hooks/useUserStore";
+import Card from 'antd/es/card';
+import Row from 'antd/es/row';
+import Col from 'antd/es/col';
+import Typography from 'antd/es/typography';
+import Space from 'antd/es/space';
+import Form from 'antd/es/form';
+import Popconfirm from 'antd/es/popconfirm';
+import Table from 'antd/es/table';
+import AntDButton from 'antd/es/button';
+import AntInput from 'antd/es/input';
+import DatePicker from 'antd/es/date-picker';
+import message from 'antd/es/message';
+import Skeleton from 'antd/es/skeleton';
+import Tag from 'antd/es/tag';
+import Upload from 'antd/es/upload';
+import type { TableProps } from 'antd';
 
 const { Title, Text } = Typography;
 

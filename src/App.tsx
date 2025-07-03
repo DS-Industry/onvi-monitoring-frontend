@@ -12,7 +12,7 @@ import { useFirebaseMessaging } from "./hooks/useFirebaseMessaging";
 import { requestFirebaseNotificationPermission } from "./utils/requestPermission";
 const PublicLayout = React.lazy(() => import("./layout/PublicLayout"));
 const PublicRoute = React.lazy(() => import("@/routes/PublicRoute"));
-import PrivateRoute from "@/routes/PrivateRoute";
+const PrivateRoute = React.lazy(() => import("@/routes/PrivateRoute"));
 import useSWRMutation from "swr/mutation";
 import { updateUserProfile } from "./services/api/platform";
 const DashboardLayout = React.lazy(() => import("@/layout/DashboardLayout"));
@@ -43,7 +43,7 @@ const App: React.FC = () => {
     }, null)
   );
 
-  const jwtToken = useAuthStore.getState().tokens?.accessToken;
+  const jwtToken = useAuthStore((state) => state.tokens)?.accessToken;
 
   useEffect(() => {
     const getTokenAndUpdate = async () => {
@@ -64,7 +64,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <BrowserRouter>
+      <BrowserRouter basename="/onvi-monitoring-frontend">
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicRoute element={<PublicLayout />} />}>
