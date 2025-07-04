@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import useSWR from "swr";
 import { getDepositPos } from "@/services/api/pos";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
@@ -75,102 +75,84 @@ const DepositDevices: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
 
-    const [isTableLoading, setIsTableLoading] = useState(false);
-
-    const initialFilter = {
+    const filterParams = useMemo(() => ({
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId,
+        posId: posType || location.state?.ownerId || "*",
         placementId: city,
         page: currentPage,
         size: pageSize
-    };
+    }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
+    const swrKey = useMemo(() => 
+        `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+        [filterParams]
+    );
 
+    // Reset page to 1 when location changes
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({
-            ...prevFilter,
-            page: 1
-        }));
     }, [location, setCurrentPage]);
 
-    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        [`get-pos-deposits-pos-${dataFilter.posId}`],
-        () => getDepositPos({
-            dateStart: dataFilter.dateStart,
-            dateEnd: dataFilter.dateEnd,
-            posId: dataFilter?.posId,
-            placementId: dataFilter?.placementId,
-            page: currentPage,
-            size: pageSize
-        }),
-        { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+    const { data: filter, isLoading: filterLoading } = useSWR(
+        swrKey,
+        () => getDepositPos(filterParams),
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true 
+        }
     );
 
     const totalRecords = filter?.totalCount || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
 
     useEffect(() => {
-        if (currentPage > maxPages) {
+        if (totalRecords > 0 && currentPage > maxPages) {
             setCurrentPage(maxPages > 0 ? maxPages : 1);
-            setIsDataFilter((prevFilter) => ({
-                ...prevFilter,
-                page: maxPages > 0 ? maxPages : 1
-            }));
         }
-    }, [maxPages, currentPage, setCurrentPage]);
+    }, [maxPages, currentPage, setCurrentPage, totalRecords]);
 
-    const { data, error, isLoading, isValidating } = useSWR(
-        [`get-pos`, city],
+    const { data, isLoading, isValidating } = useSWR(
+        `get-pos-${city}`,
         () => getPoses({ placementId: city }),
-        { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: false, 
+            keepPreviousData: true 
+        }
     );
 
-    const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
-
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.placementId) setCity(newFilterData.placementId);
-        if (newFilterData.page) setCurrentPage(newFilterData.page);
-        if (newFilterData.size) setPageSize(newFilterData.size);
-    };
-
     useEffect(() => {
-    }, [error]);
+        if (!filterLoading && filter?.totalCount) {
+            setTotalCount(filter.totalCount);
+        }
+    }, [filter?.totalCount, filterLoading, setTotalCount]);
 
-    useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
+        if (newFilterData.posId !== undefined) setPosType(newFilterData.posId);
+        if (newFilterData.dateStart !== undefined) setStartDate(newFilterData.dateStart);
+        if (newFilterData.dateEnd !== undefined) setEndDate(newFilterData.dateEnd);
+        if (newFilterData.placementId !== undefined) setCity(newFilterData.placementId);
+        if (newFilterData.page !== undefined) setCurrentPage(newFilterData.page);
+        if (newFilterData.size !== undefined) setPageSize(newFilterData.size);
+    }, [setPosType, setStartDate, setEndDate, setCity, setCurrentPage, setPageSize]);
 
-    useEffect(() => {
-        if (!filterLoading && filter?.totalCount)
-            setTotalCount(filter?.totalCount)
-    }, [filter, filterLoading, setTotalCount]);
+    const devicesMonitoring: DevicesMonitoring[] = useMemo(() => {
+        return filter?.oper?.map((item: DevicesMonitoring) => item)
+            .sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
+    }, [filter?.oper]);
 
-    const devicesMonitoring: DevicesMonitoring[] = filter?.oper.map((item: DevicesMonitoring) => {
-        return item;
-    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
+    const posData: PosMonitoring[] = useMemo(() => {
+        return data?.map((item: PosMonitoring) => item)
+            .sort((a, b) => a.id - b.id) || [];
+    }, [data]);
 
-    const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
-
-    const posOptional: { name: string; value: number | string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id })
-    );
-
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    posOptional.unshift(posesAllObj);
-
+    const posOptional = useMemo(() => {
+        const options = posData.map(item => ({ name: item.name, value: item.id }));
+        const posesAllObj = { name: allCategoriesText, value: "*" };
+        return [posesAllObj, ...options];
+    }, [posData, allCategoriesText]);
 
     return (
         <>
@@ -182,7 +164,7 @@ const DepositDevices: React.FC = () => {
                 loadingPos={isLoading || isValidating}
             />
             {
-                isTableLoading || filterLoading ? (
+                filterLoading ? (
                     <TableSkeleton columnCount={columnsMonitoringPos.length} />
                 ) : devicesMonitoring.length > 0 ? (
                     <div className="mt-8">

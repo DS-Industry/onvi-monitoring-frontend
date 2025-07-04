@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { getProgramPos } from "@/services/api/pos";
 import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
@@ -48,7 +48,6 @@ type PosMonitoring = {
     name: string;
 }
 
-
 const ProgramDevices: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
@@ -56,7 +55,6 @@ const ProgramDevices: React.FC = () => {
     const formattedDate = today.toISOString().slice(0, 10);
 
     const location = useLocation();
-    const [isTableLoading, setIsTableLoading] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
     const endDate = useEndDate();
@@ -72,34 +70,26 @@ const ProgramDevices: React.FC = () => {
     const setPageSize = useSetPageNumber();
     const setTotalCount = useSetPageSize();
 
-    const initialFilter = {
+    const filterParams = useMemo(() => ({
         dateStart: startDate || `${formattedDate} 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId,
+        posId: posType || location.state?.ownerId || "*",
         placementId: city,
         page: currentPage,
         size: pageSize
-    };
+    }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
+    const swrKey = useMemo(() =>
+        `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+        [filterParams]
+    );
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({
-            ...prevFilter,
-            page: 1
-        }));
     }, [location, setCurrentPage]);
 
-    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR([`get-pos-programs-pos-${dataFilter.posId ? dataFilter.posId : location.state?.ownerId}`], () => getProgramPos(
-        {
-            dateStart: dataFilter.dateStart,
-            dateEnd: dataFilter.dateEnd,
-            posId: dataFilter?.posId,
-            placementId: dataFilter?.placementId,
-            page: currentPage,
-            size: pageSize
-        }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: filter, isLoading: filterLoading } = useSWR(swrKey, () =>
+        getProgramPos(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -109,16 +99,10 @@ const ProgramDevices: React.FC = () => {
     useEffect(() => {
         if (currentPage > maxPages) {
             setCurrentPage(maxPages > 0 ? maxPages : 1);
-            setIsDataFilter((prevFilter) => ({
-                ...prevFilter,
-                page: maxPages > 0 ? maxPages : 1
-            }));
         }
     }, [maxPages, currentPage, setCurrentPage]);
 
-    const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
 
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
@@ -126,27 +110,23 @@ const ProgramDevices: React.FC = () => {
         if (newFilterData.placementId) setCity(newFilterData.placementId);
         if (newFilterData.page) setCurrentPage(newFilterData.page);
         if (newFilterData.size) setPageSize(newFilterData.size);
-    };
-
-    useEffect(() => {
-    }, [filterErtot]);
-
-    useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
+    },[setCity, setCurrentPage, setEndDate, setPageSize, setPosType, setStartDate]);
 
     useEffect(() => {
         if (!filterLoading && filter?.totalCount)
             setTotalCount(filter?.totalCount)
     }, [filter, filterLoading, setTotalCount]);
 
-    const devicePrograms: PosPrograms[] = filter?.prog.map((item: PosPrograms) => {
-        return item;
-    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
+    const devicePrograms: PosPrograms[] = useMemo(() => {
+        return filter?.prog.map((item: PosPrograms) => {
+            return item;
+        }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || []
+    }, [filter?.prog]);
 
-    const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    const posData: PosMonitoring[] = useMemo(() => {
+        return data?.map((item: PosMonitoring) => item)
+            .sort((a, b) => a.id - b.id) || [];
+    }, [data]);
 
     const posOptional: { name: string; value: number | string }[] = posData.map(
         (item) => ({ name: item.name, value: item.id })
@@ -168,7 +148,7 @@ const ProgramDevices: React.FC = () => {
                 hideSearch={true}
                 loadingPos={isLoading || isValidating}
             />
-            {isTableLoading || filterLoading ? (
+            {filterLoading ? (
                 <div className="mt-8 space-y-6">
                     <div>
                         <TableSkeleton columnCount={columnsProgramsPos.length} />
@@ -179,11 +159,12 @@ const ProgramDevices: React.FC = () => {
                         <ExpandableTable
                             data={devicePrograms.flatMap((deviceProgram, deviceIndex) =>
                                 deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, programIndex) => ({
-                                        id: `${deviceIndex}-${programIndex}`,
-                                        deviceId: deviceProgram.id,
-                                        deviceName: deviceProgram.name,
-                                        ...p
-                                    })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
+                                    id: `${deviceIndex}-${programIndex}`,
+                                    deviceId: deviceProgram.id,
+                                    deviceName: deviceProgram.name,
+                                    paperTypeType: "",
+                                    ...p
+                                })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
                             )}
                             columns={columnsProgramsPos}
                             titleColumns={[{

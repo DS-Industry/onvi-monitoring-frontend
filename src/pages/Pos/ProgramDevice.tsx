@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { getProgramDevice } from "@/services/api/pos";
 import {
@@ -64,80 +64,79 @@ const ProgramDevice: React.FC = () => {
         }
     }, [location.state?.ownerId, setDeviceId]);
 
-    const [isTableLoading, setIsTableLoading] = useState(false);
-    const initialFilter = {
-        dateStart: startDate || `${formattedDate} 00:00`,
+    const filterParams = useMemo(() => ({
+        dateStart: startDate || `2024-10-01 00:00`,
         dateEnd: endDate || `${formattedDate} 23:59`,
         page: currentPage,
         size: pageSize,
         deviceId: deviceId,
-    };
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositDevice>(initialFilter);
+    }), [startDate, endDate, currentPage, pageSize, deviceId, formattedDate]);
+
+    const swrKey = useMemo(() => {
+        if (!deviceId) return null;
+        return [
+            'get-pos-deposits-pos-devices',
+            deviceId,
+            filterParams.dateStart,
+            filterParams.dateEnd,
+            filterParams.page,
+            filterParams.size
+        ];
+    }, [deviceId, filterParams]);
 
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({
-            ...prevFilter,
-            page: 1
-        }));
-    }, [location, setCurrentPage]);
+    }, [location.pathname, setCurrentPage]);
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR(deviceId ? [`get-pos-program-pos-devices`, deviceId] : null, () => getProgramDevice(
-        deviceId ? deviceId : 0, {
-        dateStart: dataFilter.dateStart,
-        dateEnd: dataFilter.dateEnd,
-        page: dataFilter.page,
-        size: dataFilter.size
-    }));
+    const { data: filter, isLoading: filterIsLoading } = useSWR(swrKey,
+        () => getProgramDevice(
+            deviceId!, {
+            dateStart: filterParams.dateStart,
+            dateEnd: filterParams.dateEnd,
+            page: filterParams.page,
+            size: filterParams.size
+        }));
 
     const totalRecords = filter?.totalCount || 0;
     const maxPages = Math.ceil(totalRecords / pageSize);
 
     useEffect(() => {
-        if (currentPage > maxPages) {
+        if (totalRecords > 0 && currentPage > maxPages) {
             setCurrentPage(maxPages > 0 ? maxPages : 1);
-            setIsDataFilter((prevFilter) => ({
-                ...prevFilter,
-                page: maxPages > 0 ? maxPages : 1
-            }));
         }
-    }, [maxPages, currentPage, setCurrentPage]);
+    }, [totalRecords, maxPages, currentPage, setCurrentPage]);
 
     const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
 
-    const handleDataFilter = (newFilterData: Partial<FilterDepositDevice>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
-
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositDevice>) => {
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
         if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
         if (newFilterData.page) setCurrentPage(newFilterData.page);
         if (newFilterData.size) setPageSize(newFilterData.size);
-    };
-    useEffect(() => {
-    }, [filterError]);
+    }, [setStartDate, setEndDate, setDeviceId, setCurrentPage, setPageSize]);
 
     useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
-
-    useEffect(() => {
-        if (!filterIsLoading && filter?.totalCount)
+        if (filter?.totalCount)
             setTotalCount(filter?.totalCount)
-    }, [filter?.totalCount, filterIsLoading, setTotalCount]);
+    }, [filter?.totalCount, setTotalCount]);
 
-    const deviceProgram: DeviceProgram[] = filter?.prog?.map((item: DeviceProgram) => {
-        return item;
-    }).sort((a: { dateBegin: string | number | Date; }, b: { dateBegin: string | number | Date; }) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || [];
+    const deviceProgram: DeviceProgram[] = useMemo(() => {
+        return filter?.prog?.map((item: DeviceProgram) => {
+            return item;
+        }).sort((a: { dateBegin: string | number | Date; }, b: { dateBegin: string | number | Date; }) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || []
+    }, [filter?.prog]);
 
-    const deviceData: DeviceMonitoring[] = data?.map((item: DeviceMonitoring) => {
-        return item;
-    }).sort((a, b) => a.props.id - b.props.id) || [];
+    const deviceData: DeviceMonitoring[] = useMemo(() => {
+        return data?.map((item: DeviceMonitoring) => item)
+            .sort((a, b) => a.props.id - b.props.id) || [];
+    }, [data]);
 
-    const deviceOptional: { name: string; value: number; }[] = deviceData.map(
-        (item) => ({ name: item.props.name, value: item.props.id })
-    );
+    const deviceOptional: { name: string; value: number; }[] = useMemo(() => {
+        return deviceData.map(
+            (item) => ({ name: item.props.name, value: item.props.id })
+        )
+    }, [deviceData]);
 
     return (
         <>
@@ -150,7 +149,7 @@ const ProgramDevice: React.FC = () => {
                 hideReset={true}
             />
             {
-                isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
+                filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
                     :
                     deviceProgram.length > 0 ? (
                         <div className="mt-8 overflow-hidden">

@@ -66,7 +66,6 @@ type TableRow = {
     type?: string;
     startWorkDate?: string | Date;
     endSpecifiedDate?: string | Date;
-    [key: string]: string | number | Date | undefined | null;
 };
 
 const DynamicTable = <T extends TableRow>({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import SalyIamge from "@/assets/Saly-45.svg?react";
@@ -57,61 +57,78 @@ const Deposit: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
-    const [isReady, setIsReady] = useState(false);
+    const city = useCity();
 
+    // Initialize posType from location state only once
     useEffect(() => {
-        if (location.state?.ownerId) {
+        if (location.state?.ownerId && !posType) {
             setPosType(location.state.ownerId);
-            setIsReady(true);
         }
-    }, [location.state?.ownerId, setPosType]);
+    }, [location.state?.ownerId, setPosType, posType]);
 
-    const [isTableLoading, setIsTableLoading] = useState(false);
-    const initialFilter = {
+    // Memoize the filter parameters to prevent unnecessary re-renders
+    const filterParams = useMemo(() => ({
         dateStart: startDate,
         dateEnd: endDate,
         posId: posType,
-    };
+    }), [startDate, endDate, posType]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
+    // Create a stable key for SWR that changes only when filter params change
+    const swrKey = useMemo(() => {
+        if (!posType) return null;
+        return [
+            'get-pos-deposits',
+            posType,
+            filterParams.dateStart,
+            filterParams.dateEnd
+        ];
+    }, [posType, filterParams]);
 
-    const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    // Single SWR call with stable key for deposit data
+    const { data: filter, isLoading: filterLoading } = useSWR(
+        swrKey,
+        () => getDeposit(posType, {
+            dateStart: filterParams.dateStart,
+            dateEnd: filterParams.dateEnd
+        }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
 
+    // SWR call for pos data
+    const { data, isLoading, isValidating } = useSWR(
+        [`get-pos`, city],
+        () => getPoses({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
+
+    // Optimized filter handler
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
+        // Update store values
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-    };
+    }, [setPosType, setStartDate, setEndDate]);
 
-    const { data: filter, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        isReady ? ['get-pos-deposits'] : null, () => getDeposit(posType, {
-        dateStart: dataFilter?.dateStart,
-        dateEnd: dataFilter?.dateEnd
-    }));
+    // Memoize processed data to prevent unnecessary recalculations
+    const posMonitoring: DepositMonitoring[] = useMemo(() => {
+        return filter?.map((item: DepositMonitoring) => item)
+            .sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
+    }, [filter]);
 
-    const city = useCity();
+    const posData: PosMonitoring[] = useMemo(() => {
+        return data?.map((item: PosMonitoring) => item)
+            .sort((a, b) => a.id - b.id) || [];
+    }, [data]);
 
-    const { data, error, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
-
-    useEffect(() => {
-    }, [error]);
-
-    useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
-
-    const posMonitoring: DepositMonitoring[] = filter?.map((item: DepositMonitoring) => {        
-        return item;
-    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
-
-    const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
-
-    const posOptional: { name: string; value: number }[] = [
-        ...posData.map((item) => ({ name: item.name, value: item.id }))
-    ];
+    const posOptional: { name: string; value: number }[] = useMemo(() => {
+        return posData.map((item) => ({ name: item.name, value: item.id }));
+    }, [posData]);
 
     return (
         <>
@@ -124,27 +141,25 @@ const Deposit: React.FC = () => {
                 hideReset={true}
                 loadingPos={isLoading || isValidating}
             />
-            {isTableLoading || filterLoading ? (<TableSkeleton columnCount={columnsMonitoringPos.length} />)
-                :
-                posMonitoring.length > 0 ? (
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={posMonitoring}
-                            columns={columnsMonitoringPos}
-                            isDisplayEdit={true}
-                            navigableFields={[{ key: "name", getPath: () => '/station/enrollments/device' }]}
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <NoDataUI
-                            title="В этом разделе представленны операции"
-                            description="У вас пока нету операций"
-                        >
-                            <SalyIamge className="mx-auto" />
-                        </NoDataUI>
-                    </>
-                )}
+            {filterLoading ? (
+                <TableSkeleton columnCount={columnsMonitoringPos.length} />
+            ) : posMonitoring.length > 0 ? (
+                <div className="mt-8">
+                    <DynamicTable
+                        data={posMonitoring}
+                        columns={columnsMonitoringPos}
+                        isDisplayEdit={true}
+                        navigableFields={[{ key: "name", getPath: () => '/station/enrollments/device' }]}
+                    />
+                </div>
+            ) : (
+                <NoDataUI
+                    title="В этом разделе представленны операции"
+                    description="У вас пока нету операций"
+                >
+                    <SalyIamge className="mx-auto" />
+                </NoDataUI>
+            )}
         </>
     )
 }
