@@ -1,7 +1,7 @@
 import { useButtonCreate } from "@/components/context/useContext";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Modal from "@/components/ui/Modal/Modal";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -35,9 +35,6 @@ const Documents: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
-    const [isTableLoading, setIsTableLoading] = useState(false);
     // const isTriggered = useRef(false);
 
     const wareHouseId = useWareHouseId();
@@ -86,40 +83,26 @@ const Documents: React.FC = () => {
 
     warehouses.unshift(warehousesAllObj);
 
-    const initialFilter = {
-        dateStart: new Date(startDate.toString().slice(0, 10) || "2024-01-01"),
-        dateEnd: new Date(endDate.toString().slice(0, 10) || `${formattedDate}`),
+    const filterParams = useMemo(() => ({
+        dateStart: new Date(startDate),
+        dateEnd: new Date(endDate),
         warehouseId: wareHouseId,
         placementId: city
-    };
+    }), [city, endDate, startDate, wareHouseId]);
 
-    const [dataFilter, setIsDataFilter] = useState<DocumentParams>(initialFilter);
+    const swrKey = useMemo(() =>
+        wareHouseId ? `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}` : null,
+        [filterParams.dateEnd, filterParams.dateStart, filterParams.placementId, filterParams.warehouseId, wareHouseId]
+    );
 
-    const handleDataFilter = (newFilterData: Partial<DocumentParams>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    const handleDataFilter = useCallback((newFilterData: Partial<DocumentParams>) => {
         if (newFilterData.warehouseId) setWareHouseId(newFilterData.warehouseId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-        if(newFilterData.placementId) setCity(newFilterData.placementId);
-    };
+        if (newFilterData.placementId) setCity(newFilterData.placementId);
+    }, [setCity, setEndDate, setStartDate, setWareHouseId]);
 
-    const { data: allDocuments, isLoading: documentsLoading, mutate: documentsMutating } = useSWR(wareHouseId ? [`get-all-documents`] : null, () => getAllDocuments({
-        dateStart: dataFilter.dateStart,
-        dateEnd: dataFilter.dateEnd,
-        warehouseId: dataFilter.warehouseId,
-        placementId: dataFilter.placementId
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    useEffect(() => {
-        documentsMutating().then(() => setIsTableLoading(false));
-    }, [dataFilter, documentsMutating]);
-
-    useEffect(() => {
-        if (!documentsLoading) {
-            setIsTableLoading(false);
-        }
-    }, [documentsLoading]);    
+    const { data: allDocuments, isLoading: documentsLoading } = useSWR(swrKey, () => getAllDocuments(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const data = allDocuments?.map((item) => ({
         ...item,
@@ -193,7 +176,7 @@ const Documents: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 hideSearch={true}
             />
-            {isTableLoading || documentsLoading ? (
+            {documentsLoading ? (
                 <TableSkeleton columnCount={columnsAllDocuments.length} />
             ) :
                 data.length > 0 ?

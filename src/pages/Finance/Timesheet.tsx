@@ -1,9 +1,9 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
 import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
+import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity, useSetPageNumber } from "@/hooks/useAuthStore";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
@@ -24,8 +24,6 @@ interface FilterCollection {
 const Timesheet: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
 
@@ -35,90 +33,116 @@ const Timesheet: React.FC = () => {
     const currentPage = useCurrentPage();
     const pageSize = usePageNumber();
     const location = useLocation();
-
+    const city = useCity();
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
     const setCurrentPage = useSetCurrentPage();
     const setTotalCount = useSetPageSize();
-    const [isTableLoading, setIsTableLoading] = useState(false);
+    const setPageSize = useSetPageNumber();
 
-
-    const initialFilter = {
-        dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
-        dateEnd: endDate.toString().slice(0, 10) || `${formattedDate}`,
+    // Create stable initial filter
+    const filterParams = useMemo(() => ({
+        dateStart: startDate,
+        dateEnd: endDate,
         page: currentPage,
         size: pageSize,
         posId: posType || 1,
-    };
+        placementId: city
+    }), [startDate, endDate, currentPage, pageSize, posType, city]);
 
+    // Reset page when location changes
     useEffect(() => {
         setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({
-            ...prevFilter,
-            page: 1
-        }));
     }, [location, setCurrentPage]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
+    // Create stable SWR key
+    const swrKey = useMemo(() =>
+        `get-shifts-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+        [filterParams]
+    );
 
-    const { data: filter, error: filterError, isLoading: filterIsLoading, mutate: filterMutate } = useSWR([`get-shifts`], () => getShifts({
-        dateStart: new Date(dataFilter.dateStart),
-        dateEnd: new Date(dataFilter.dateEnd),
-        posId: dataFilter.posId,
-        placementId: city,
-        page: dataFilter.page,
-        size: dataFilter.size
-    }));
+    const { data: filter, isLoading: filterIsLoading } = useSWR(
+        swrKey,
+        () => getShifts(filterParams),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
+        }
+    );
 
-    const handleDataFilter = (newFilterData: Partial<FilterCollection>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    const totalRecords = filter?.totalCount || 0;
+    const maxPages = Math.ceil(totalRecords / pageSize);
 
-        if (newFilterData.posId) setPosType(newFilterData.posId);
+    useEffect(() => {
+        if (totalRecords > 0 && currentPage > maxPages) {
+            setCurrentPage(maxPages > 0 ? maxPages : 1);
+        }
+    }, [maxPages, currentPage, setCurrentPage, totalRecords]);
+
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterCollection>) => {
+        if (newFilterData.posId !== undefined) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-    };
+        if (newFilterData.page !== undefined) setCurrentPage(newFilterData.page);
+        if (newFilterData.size !== undefined) setPageSize(newFilterData.size);
 
-    useEffect(() => {
-    }, [filterError]);
+    }, [setPosType, setStartDate, setEndDate, setCurrentPage, setPageSize]);
 
+    // Update total count when data changes
     useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
-
-    useEffect(() => {
-        if (!filterIsLoading && filter?.totalCount)
-            setTotalCount(filter?.totalCount)
+        if (!filterIsLoading && filter?.totalCount) {
+            setTotalCount(filter.totalCount);
+        }
     }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
-    const city = useCity();
+    const { data: posData, isLoading, isValidating } = useSWR(
+        [`get-pos`, city],
+        () => getPoses({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
+        }
+    );
 
-    const { data: posData, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: workerData } = useSWR(
+        [`get-worker`],
+        () => getWorkers(),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
+        }
+    );
 
-    const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const poses: { name: string; value: number | string; }[] = useMemo(() => {
+        const mappedPoses = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+        const posesAllObj = {
+            name: allCategoriesText,
+            value: "*"
+        };
+        return [posesAllObj, ...mappedPoses];
+    }, [posData, allCategoriesText]);
 
-    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    poses.unshift(posesAllObj);
-
-    const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const workers: { name: string; value: number; }[] = useMemo(() => {
+        return workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    }, [workerData]);
 
     useEffect(() => {
-        if (buttonOn)
+        if (buttonOn) {
             navigate("/finance/timesheet/creation", { state: { ownerId: 0 } });
+        }
     }, [buttonOn, navigate]);
 
-    const shifts = filter?.shiftReportsData.map((item) => ({
-        ...item,
-        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
-        createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
-    })) || [];
+    const shifts = useMemo(() => {
+        return filter?.shiftReportsData.map((item) => ({
+            ...item,
+            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+            createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
+        })) || [];
+    }, [filter?.shiftReportsData, poses, workers]);
 
     return (
         <div>
@@ -129,8 +153,9 @@ const Timesheet: React.FC = () => {
                 handleDataFilter={handleDataFilter}
                 loadingPos={isLoading || isValidating}
             />
-            {isTableLoading || filterIsLoading ? (<TableSkeleton columnCount={columnsShifts.length} />)
-                :
+            {filterIsLoading ? (
+                <TableSkeleton columnCount={columnsShifts.length} />
+            ) : (
                 shifts.length > 0 ? (
                     <div className="mt-8">
                         <DynamicTable
@@ -150,9 +175,10 @@ const Timesheet: React.FC = () => {
                             <img src={NoTimeSheet} className="mx-auto" loading="lazy" alt="No Timesheet" />
                         </NoDataUI>
                     </div>
-                )}
+                )
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default Timesheet;

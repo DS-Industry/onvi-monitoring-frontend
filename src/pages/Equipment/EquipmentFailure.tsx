@@ -1,5 +1,5 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SalyImage from "@/assets/NoEquipment.png"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
@@ -70,7 +70,6 @@ const EquipmentFailure: React.FC = () => {
     const [editIncidentId, setEditIncidentId] = useState<number>(0);
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
-    const [isTableLoading, setIsTableLoading] = useState(false);
     const [deviceCheck, setDeviceCheck] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
@@ -81,30 +80,26 @@ const EquipmentFailure: React.FC = () => {
     const city = useCity();
     const setCity = useSetCity();
 
-    const initialFilter = {
-        dateStart: startDate.toString().slice(0, 10) || "2024-01-01",
-        dateEnd: endDate.toString().slice(0, 10) || `${formattedDate}`,
-        posId: posType || 1,
+    const filterParams = useMemo(() => ({
+        dateStart: startDate ? (typeof startDate === "string" ? startDate : dayjs(startDate).format("YYYY-MM-DD HH:mm")) : `${formattedDate} 00:00`,
+        dateEnd: endDate ? (typeof endDate === "string" ? endDate : dayjs(endDate).format("YYYY-MM-DD HH:mm")) : `${formattedDate} 23:59`,
+        posId: posType || "*",
         placementId: city
-    };
+    }), [startDate, endDate, posType, city, formattedDate]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterIncidentPos>(initialFilter);
+    const swrKey = useMemo(() =>
+        `get-incidents-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`,
+        [filterParams]
+    );
 
-    const handleDataFilter = (newFilterData: Partial<FilterIncidentPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterIncidentPos>) => {
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
         if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
         if (newFilterData.placementId) setCity(newFilterData.placementId);
-    };
-    const { data, isLoading: incidentLoading, mutate: incidentMutate } = useSWR([`get-incident`], () => getIncident({
-        dateStart: dataFilter.dateStart,
-        dateEnd: dataFilter.dateEnd,
-        posId: dataFilter.posId,
-        placementId: city
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    },[setCity, setEndDate, setPosType, setStartDate]);
 
+    const { data, isLoading: incidentLoading } = useSWR(swrKey, () => getIncident(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
     const defaultValues: IncidentBody = {
         posId: 0,
@@ -156,9 +151,6 @@ const EquipmentFailure: React.FC = () => {
         }))
         .sort((a, b) => a.id - b.id) || [];
 
-    useEffect(() => {
-        incidentMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, incidentMutate]);
 
     const devices: { name: string; value: string; }[] = formData.posId === 0 ? [] : (deviceData?.map((item) => ({ name: item.props.name, value: item.props.name })) || []).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -257,7 +249,7 @@ const EquipmentFailure: React.FC = () => {
             if (editIncidentId) {
                 const result = await updateInc();
                 if (result) {
-                    mutate([`get-incident`]);
+                    mutate(swrKey);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -265,7 +257,7 @@ const EquipmentFailure: React.FC = () => {
             } else {
                 const result = await createInc();
                 if (result) {
-                    mutate([`get-incident`]);
+                    mutate(swrKey);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -285,7 +277,7 @@ const EquipmentFailure: React.FC = () => {
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />
-            {isTableLoading || incidentLoading ? (
+            {incidentLoading ? (
                 <TableSkeleton columnCount={columnsEquipmentFailure.length} />
             ) :
                 incidents.length > 0 ?

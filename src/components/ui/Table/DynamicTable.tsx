@@ -41,7 +41,7 @@ type Props<T> = {
     tableTitle?: string;
     rowKey?: keyof T;
     onEdit?: (id: number) => void;
-    navigableFields?: { key: keyof T; getPath: (record: T) => string }[];
+    navigableFields?: { key: string; getPath: (record: T) => string }[];
     headerBgColor?: string;
     isCheck?: boolean;
     isDisplayEdit?: boolean;
