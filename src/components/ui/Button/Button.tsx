@@ -1,6 +1,7 @@
 import React from "react";
-import { Button as AntdButton, Spin } from "antd";
 import Icon from "feather-icons-react";
+import AntdButton from "antd/es/button";
+import Spin from "antd/es/spin";
 
 type ButtonCreateProps = {
     title: string;

@@ -1,9 +1,10 @@
 import React, { ClassAttributes, ThHTMLAttributes, useState } from "react";
-import { Table, Button } from "antd";
 import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import type { ColumnsType } from "antd/es/table";
+import Table from "antd/es/table";
+import Button from "antd/es/button";
 
 interface TableColumn {
     label: string;

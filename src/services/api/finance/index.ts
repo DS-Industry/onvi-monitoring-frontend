@@ -207,6 +207,8 @@ type ShiftWorkerResponse = {
             workDayId: number;
             workDate: Date;
             typeWorkDay: TypeWorkDay;
+            startWorkingTime?: Date;
+            endWorkingTime?: Date;
             estimation: TypeEstimation;
             timeWorkedOut?: string;
             prize?: number;

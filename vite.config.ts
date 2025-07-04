@@ -4,6 +4,7 @@ import svgr from "vite-plugin-svgr";
 import path from 'path';
 import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
+import babel from "vite-plugin-babel";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -25,6 +26,30 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    babel({
+      babelConfig: {
+        plugins: [
+          [
+            'import',
+            {
+              libraryName: 'antd',
+              libraryDirectory: 'es',
+              style: true,
+            },
+            'antd',
+          ],
+          [
+            'import',
+            {
+              libraryName: '@ant-design/icons',
+              libraryDirectory: 'es/icons',
+              camel2DashComponentName: false,
+            },
+            'ant-design-icons',
+          ],
+        ],
+      },
+    }),
     svgr(),
     viteImagemin({
       gifsicle: {

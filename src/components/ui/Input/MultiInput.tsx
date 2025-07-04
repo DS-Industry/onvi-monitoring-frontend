@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Select, Input, Button as AntButton, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import Select from 'antd/es/select';
+import Input from 'antd/es/input';
+import AntButton from 'antd/es/button';
+import Spin from 'antd/es/spin';
 
 const { Option } = Select;
 

@@ -6,7 +6,6 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import useFormHook from "@/hooks/useFormHook";
 import { getWorkers } from "@/services/api/equipment";
-import { Table, Select, Space, Menu, Dropdown, Modal, message, InputNumber, Form, Input as AntInput, DatePicker, Tag } from 'antd';
 import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
@@ -21,8 +20,20 @@ import { createManagerPaperPeriod, deleteManagerPaperPeriod, getAllManagerPeriod
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
-import Icon from "feather-icons-react";
 import TableUtils from "@/utils/TableUtils.tsx";
+import Table from 'antd/es/table';
+import Select from 'antd/es/select';
+import Space from 'antd/es/space';
+import Menu from 'antd/es/menu';
+import Dropdown from 'antd/es/dropdown';
+import Modal from 'antd/es/modal';
+import message from 'antd/es/message';
+import InputNumber from 'antd/es/input-number';
+import Form from 'antd/es/form';
+import AntInput from 'antd/es/input';
+import DatePicker from 'antd/es/date-picker';
+import Tag from 'antd/es/tag';
+import type { TablePaginationConfig } from 'antd/es/table';
 
 const { Option } = Select;
 
@@ -153,7 +164,6 @@ const MonthlyExpanse: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
     const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
         if (num === null || num === undefined || isNaN(num)) return "-";
@@ -165,33 +175,25 @@ const MonthlyExpanse: React.FC = () => {
         }).format(num);
     };
 
-    const generatePaginationRange = () => {
-        const range: (number | string)[] = [];
-
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
-        } else {
-            range.push(1);
-
-            if (curr > 3) range.push("...");
-
-            const start = Math.max(2, curr - 1);
-            const end = Math.min(totalPages - 1, curr + 1);
-            for (let i = start; i <= end; i++) range.push(i);
-
-            if (curr < totalPages - 2) range.push("...");
-
-            range.push(totalPages);
-        }
-
-        return range;
-    };
-
-    const handlePageClick = (page: number | string) => {
-        if (typeof page === "number") {
+    const paginationConfig: TablePaginationConfig = {
+        current: curr,
+        pageSize: rowsPerPage,
+        total: totalCount,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        pageSizeOptions: ['15', '50', '100', '120'],
+        onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
+            setPageSize(pageSize);
             setCurr(page);
-        }
+        },
+        onShowSizeChange: (_current, size) => {
+            setCurr(1); // Reset to first page when changing page size
+            setPageSize(size);
+            setFilterOn(!filterOn);
+        },
+        position: ['bottomLeft'],
+        size: 'default',
     };
 
     const setCurrentPage = useSetCurrentPage();
@@ -695,46 +697,10 @@ const MonthlyExpanse: React.FC = () => {
                             dataSource={data}
                             columns={memoizedColumns}
                             rowClassName="editable-row"
-                            pagination={false}
+                            pagination={paginationConfig}
                             rowKey="id"
                             scroll={{ x: "max-content" }}
                         />
-                        <div className="mt-4 flex gap-2">
-                            <button
-                                onClick={() => {
-                                    const newPage = Math.max(1, curr - 1);
-                                    setFilterOn(!filterOn);
-                                    setCurr(newPage);
-                                }}
-                                disabled={curr === 1}
-                                className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                            >
-                                <Icon icon="chevron-left" />
-                            </button>
-                            {generatePaginationRange().map((page, index) =>
-                                page === "..." ? (
-                                    <span key={index} className="px-2 py-1 text-gray-400">...</span>
-                                ) : (
-                                    <button
-                                        key={index}
-                                        onClick={() => handlePageClick(page)}
-                                        className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
-                                    >
-                                        {page}
-                                    </button>
-                                )
-                            )}
-                            <button
-                                onClick={() => {
-                                    setFilterOn(!filterOn);
-                                    setCurr(Math.min(totalPages, curr + 1));
-                                }}
-                                disabled={curr === totalPages}
-                                className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                            >
-                                <Icon icon="chevron-right" />
-                            </button>
-                        </div>
                     </Form>
                 )}
             </div>

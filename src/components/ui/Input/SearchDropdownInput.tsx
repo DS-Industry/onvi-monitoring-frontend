@@ -1,6 +1,7 @@
 import React from "react";
-import { Select, Spin } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import Select from "antd/es/select";
+import Spin from "antd/es/spin";
 
 type Option = {
   name: any;

@@ -1,21 +1,24 @@
-import { Table, Tooltip, Tag, Button as AntDButton } from "antd";
 import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import { JSX } from "react/jsx-runtime";
-import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType } from "@/hooks/useAuthStore";
+import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType, useSetPageNumber } from "@/hooks/useAuthStore";
 import { useTranslation } from "react-i18next";
 import Modal from "../Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
 import Edit from "@icons/edit.svg?react";
 import { useFilterOn } from "@/components/context/useContext.tsx";
-import Icon from "feather-icons-react";
 import Button from "@ui/Button/Button.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import routes from "@/routes/index.tsx";
 import hasPermission from "@/permissions/hasPermission.tsx";
 import TableUtils from "@/utils/TableUtils.tsx";
+import Table from 'antd/es/table';
+import Tooltip from 'antd/es/tooltip';
+import Tag from 'antd/es/tag';
+import AntDButton from 'antd/es/button';
+import type { TablePaginationConfig } from 'antd/es/table';
 
 interface TableColumn {
     label: string;
@@ -39,7 +42,7 @@ type Props<T> = {
     rowKey?: keyof T;
     onEdit?: (id: number) => void;
     navigableFields?: { key: keyof T; getPath: (record: T) => string }[];
-    headerBgColor?: string; // New prop for header background color
+    headerBgColor?: string;
     isCheck?: boolean;
     isDisplayEdit?: boolean;
     showPagination?: boolean;
@@ -51,6 +54,9 @@ type Props<T> = {
     renderCell?: (column: TableColumn, row: any) => React.ReactNode;
     isStatus?: boolean;
     showTotalClean?: boolean;
+    // New props for pagination control
+    onPageChange?: (page: number, pageSize: number) => void;
+    loading?: boolean;
 };
 
 type TableRow = {
@@ -60,8 +66,8 @@ type TableRow = {
     type?: string;
     startWorkDate?: string | Date;
     endSpecifiedDate?: string | Date;
+    [key: string]: string | number | Date | undefined | null;
 };
-
 
 const DynamicTable = <T extends TableRow>({
     data,
@@ -70,7 +76,7 @@ const DynamicTable = <T extends TableRow>({
     rowKey = "id",
     onEdit,
     navigableFields = [],
-    headerBgColor = "#E4F0FF", // Default header background color
+    headerBgColor = "#E4F0FF",
     isCheck = false,
     isDisplayEdit = false,
     showPagination = false,
@@ -81,19 +87,22 @@ const DynamicTable = <T extends TableRow>({
     showTotal,
     renderCell,
     isStatus,
-    showTotalClean
+    showTotalClean,
+    onPageChange,
+    loading = false
 }: Props<T>) => {
     const navigate = useNavigate();
     const curr = useCurrentPage();
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
+    const setPageSize = useSetPageNumber();
     const { t } = useTranslation();
     const location = useLocation();
     const { filterOn, setFilterOn } = useFilterOn();
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const routePath = location.pathname;
-    const autoTableId = `${routePath}-default-table`; // fallback ID
+    const autoTableId = `${routePath}-default-table`;
     const storageKey = `columns-${autoTableId}`;
 
     const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
@@ -104,7 +113,6 @@ const DynamicTable = <T extends TableRow>({
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const displayedColumns = columns.filter((column) => selectedColumns.includes(column.key));
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
     const handleColumnToggle = (key: string) => {
         setSelectedColumns((prev) =>
@@ -133,47 +141,17 @@ const DynamicTable = <T extends TableRow>({
     };
 
     const formatPeriodType = (periodString: string) => {
-        if (!periodString) return ""; // Handle empty values
+        if (!periodString) return "";
 
         const [startStr, endStr] = periodString.split("-").map(s => s.trim());
 
         const parseDate = (dateString: string) => {
-            // Extract only the first part (before GMT) to ensure compatibility
             const datePart = dateString.split("GMT")[0].trim();
             const date = new Date(datePart);
-            return date.toLocaleDateString("ru-RU"); // Formats to DD.MM.YYYY
+            return date.toLocaleDateString("ru-RU");
         };
 
         return `${parseDate(startStr)} - ${parseDate(endStr)}`;
-    };
-
-    const generatePaginationRange = () => {
-        const range: (number | string)[] = [];
-
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
-        } else {
-            range.push(1);
-
-            if (curr > 3) range.push("...");
-
-            const start = Math.max(2, curr - 1);
-            const end = Math.min(totalPages - 1, curr + 1);
-            for (let i = start; i <= end; i++) range.push(i);
-
-            if (curr < totalPages - 2) range.push("...");
-
-            range.push(totalPages);
-        }
-
-        return range;
-    };
-
-    const handlePageClick = (page: number | string) => {
-        if (typeof page === "number") {
-            setFilterOn(!filterOn);
-            setCurr(page);
-        }
     };
 
     const getActivePage = () => {
@@ -237,7 +215,6 @@ const DynamicTable = <T extends TableRow>({
                 { action: "manage", subject: "Hr" },
                 { action: "update", subject: "Hr" },
             ];
-        // Add cases for other components as needed
         else
             return [];
     };
@@ -251,18 +228,15 @@ const DynamicTable = <T extends TableRow>({
             key: col.key,
             type: col.type,
             render: (value: any, record: T) => {
-                // If column is 'status', show tags
                 if (col.key.toLowerCase().includes("status") || col.type === "status") {
                     return getStatusTag(value);
                 }
-
 
                 if (renderCell) {
                     return renderCell(col, record);
                 }
 
                 if (col.type === "date") {
-
                     let date = null;
 
                     if (value === null || value === undefined) {
@@ -350,10 +324,9 @@ const DynamicTable = <T extends TableRow>({
             render: (_: any, record: T) =>
                 record.status === t("tables.FINISHED") ? (
                     <CheckCircleOutlined className="text-green-500 text-lg" />
-                ) : null, // Show nothing if status is not "FINISHED"
+                ) : null,
         });
     }
-
 
     if (isStatus) {
         enhancedColumns.unshift({
@@ -366,9 +339,10 @@ const DynamicTable = <T extends TableRow>({
                     : <img src={SavedIcon} loading="lazy" alt="SAVED" />
         });
     }
+
     const totalRow = showTotal
         ? {
-            key: "total", // Ensure unique key for the row
+            key: "total",
             [displayedColumns[0].key]: t("finance.total"),
             ...Object.fromEntries(
                 displayedColumns.slice(3).map((column) => [
@@ -388,7 +362,7 @@ const DynamicTable = <T extends TableRow>({
 
     const totalClean = showTotalClean
         ? {
-            key: "total", // Ensure unique key for the row
+            key: "total",
             [displayedColumns[0].key]: t("finance.total"),
             ...Object.fromEntries(
                 displayedColumns.slice(2).map((column) => [
@@ -406,7 +380,6 @@ const DynamicTable = <T extends TableRow>({
         }
         : null;
 
-    // Append the total row to the data source
     const dataSource = showTotal && totalRow ? [...data, totalRow] : totalClean ? [...data, totalClean] : data;
 
     const documentTypes = [
@@ -416,6 +389,35 @@ const DynamicTable = <T extends TableRow>({
         { name: t("routes.INVENTORY"), value: "INVENTORY" },
         { name: t("routes.RECEIPT"), value: "RECEIPT" },
     ];
+
+    // Ant Design pagination configuration
+    const paginationConfig: TablePaginationConfig | false = showPagination ? {
+        current: curr,
+        pageSize: rowsPerPage,
+        total: totalCount,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        pageSizeOptions: ['15', '50', '100', '120'],
+        onChange: (page, pageSize) => {
+            setFilterOn(!filterOn);
+            setPageSize(pageSize);
+            setCurr(page);
+            // Call external page change handler if provided
+            if (onPageChange) {
+                onPageChange(page, pageSize);
+            }
+        },
+        onShowSizeChange: (_current, size) => {
+            setCurr(1); // Reset to first page when changing page size
+            setFilterOn(!filterOn);
+            // Call external page change handler if provided
+            if (onPageChange) {
+                onPageChange(1, size);
+            }
+        },
+        position: ['bottomLeft'],
+        size: 'default',
+    } : false;
 
     return (
         <div>
@@ -437,7 +439,8 @@ const DynamicTable = <T extends TableRow>({
                 columns={enhancedColumns}
                 dataSource={dataSource}
                 rowKey={rowKey as string}
-                pagination={false}
+                pagination={paginationConfig}
+                loading={loading}
                 tableLayout="fixed"
                 components={{
                     header: {
@@ -460,42 +463,6 @@ const DynamicTable = <T extends TableRow>({
                 }}
                 scroll={{ x: "max-content" }}
             />
-            {showPagination && <div className="mt-4 flex gap-2">
-                <button
-                    onClick={() => {
-                        const newPage = Math.max(1, curr - 1);
-                        setFilterOn(!filterOn);
-                        setCurr(newPage);
-                    }}
-                    disabled={curr === 1}
-                    className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                >
-                    <Icon icon="chevron-left" />
-                </button>
-                {generatePaginationRange().map((page, index) =>
-                    page === "..." ? (
-                        <span key={index} className="px-2 py-1 text-gray-400">...</span>
-                    ) : (
-                        <button
-                            key={index}
-                            onClick={() => handlePageClick(page)}
-                            className={`px-4 py-2 font-semibold ${curr === page ? "bg-white text-primary02 rounded-lg border border-primary02" : "text-text01"}`}
-                        >
-                            {page}
-                        </button>
-                    )
-                )}
-                <button
-                    onClick={() => {
-                        setFilterOn(!filterOn);
-                        setCurr(Math.min(totalPages, curr + 1));
-                    }}
-                    disabled={curr === totalPages}
-                    className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
-                >
-                    <Icon icon="chevron-right" />
-                </button>
-            </div>}
             {isDisplayEdit && <>
                 <button
                     onClick={() => setIsModalOpen(true)}
