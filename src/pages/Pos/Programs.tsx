@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { getPrograms } from "@/services/api/pos";
 import { columnsProgramsPos, columnsProgramsPosPortal } from "@/utils/OverFlowTableData.tsx";
@@ -67,37 +67,41 @@ const Programs: React.FC = () => {
     const setPosType = useSetPosType();
     const setStartDate = useSetStartDate();
     const setEndDate = useSetEndDate();
-    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         if (location.state?.ownerId) {
             setPosType(location.state.ownerId);
-            setIsReady(true);
         }
     }, [location.state?.ownerId, setPosType]);
 
-    const [isTableLoading, setIsTableLoading] = useState(false);
-    const initialFilter = {
+    const filterParams = useMemo(() => ({
         dateStart: startDate,
         dateEnd: endDate,
         posId: posType,
-    };
-    const [dataFilter, setIsDataFilter] = useState<FilterDepositPos>(initialFilter);
+    }), [startDate, endDate, posType]);
 
-    const handleDataFilter = (newFilterData: Partial<FilterDepositPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
+    const swrKey = useMemo(() => {
+        if (!posType) return null;
+        return [
+            'get-pos-deposits',
+            posType,
+            filterParams.dateStart,
+            filterParams.dateEnd
+        ];
+    }, [posType, filterParams]);
+
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
 
         if (newFilterData.posId) setPosType(newFilterData.posId);
         if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
         if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-    };
+    }, [setPosType, setStartDate, setEndDate]);
 
-    const { data: filter, error: filterErtot, isLoading: filterLoading, mutate: filterMutate } = useSWR(
-        isReady ? ['get-pos-programs'] : null,
+    const { data: filter, isLoading: filterLoading } = useSWR(
+        swrKey,
         () => getPrograms(posType, {
-            dateStart: dataFilter?.dateStart,
-            dateEnd: dataFilter?.dateEnd,
+            dateStart: filterParams?.dateStart,
+            dateEnd: filterParams?.dateEnd,
         }),
         { revalidateOnFocus: false }
     );
@@ -106,21 +110,16 @@ const Programs: React.FC = () => {
 
     const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }))
 
+    const posPrograms: PosPrograms[] = useMemo(() => {
+        return filter?.map((item: PosPrograms) => {
+            return item;
+        }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || []
+    }, [filter]);
 
-    useEffect(() => {
-    }, [filterErtot]);
-
-    useEffect(() => {
-        filterMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, filterMutate]);
-
-    const posPrograms: PosPrograms[] = filter?.map((item: PosPrograms) => {
-        return item;
-    }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
-
-    const posData: PosMonitoring[] = data?.map((item: PosMonitoring) => {
-        return item;
-    }).sort((a, b) => a.id - b.id) || [];
+    const posData: PosMonitoring[] = useMemo(() => {
+        return data?.map((item: PosMonitoring) => item)
+            .sort((a, b) => a.id - b.id) || [];
+    }, [data]);
 
     const posOptional: { name: string; value: number }[] = [
         ...posData.map((item) => ({ name: item.name, value: item.id }))
@@ -170,7 +169,7 @@ const Programs: React.FC = () => {
                 hideReset={true}
                 loadingPos={isLoading || isValidating}
             />
-            {isTableLoading || filterLoading ? (
+            {filterLoading ? (
                 <div className="mt-8 space-y-6">
                     {/* Skeleton for Bar Chart Cards */}
                     <div className="space-y-6">
@@ -279,6 +278,7 @@ const Programs: React.FC = () => {
                                         id: `${deviceIndex}-${programIndex}`,
                                         deviceId: deviceProgram.id,
                                         deviceName: deviceProgram.name,
+                                        paperTypeType: "",
                                         ...p
                                     })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
                                 )}
