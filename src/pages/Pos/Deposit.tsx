@@ -61,7 +61,7 @@ const Deposit: React.FC = () => {
 
     // Initialize posType from location state only once
     useEffect(() => {
-        if (location.state?.ownerId && !posType) {
+        if (location.state?.ownerId && posType === "*") {
             setPosType(location.state.ownerId);
         }
     }, [location.state?.ownerId, setPosType, posType]);
@@ -75,7 +75,7 @@ const Deposit: React.FC = () => {
 
     // Create a stable key for SWR that changes only when filter params change
     const swrKey = useMemo(() => {
-        if (!posType) return null;
+        if (posType === "*") return null;
         return [
             'get-pos-deposits',
             posType,

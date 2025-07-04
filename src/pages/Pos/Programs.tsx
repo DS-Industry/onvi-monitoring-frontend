@@ -69,10 +69,10 @@ const Programs: React.FC = () => {
     const setEndDate = useSetEndDate();
 
     useEffect(() => {
-        if (location.state?.ownerId) {
+        if (location.state?.ownerId && posType === "*") {
             setPosType(location.state.ownerId);
         }
-    }, [location.state?.ownerId, setPosType]);
+    }, [location.state?.ownerId, setPosType, posType]);
 
     const filterParams = useMemo(() => ({
         dateStart: startDate,
@@ -81,7 +81,7 @@ const Programs: React.FC = () => {
     }), [startDate, endDate, posType]);
 
     const swrKey = useMemo(() => {
-        if (!posType) return null;
+        if (posType === "*") return null;
         return [
             'get-pos-deposits',
             posType,
