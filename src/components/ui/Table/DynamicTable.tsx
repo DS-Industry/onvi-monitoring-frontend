@@ -1,6 +1,6 @@
-import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ClassAttributes, ThHTMLAttributes, useState } from "react";
+import { ClassAttributes, ThHTMLAttributes, useState, useRef } from "react";
 import { JSX } from "react/jsx-runtime";
 import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType, useSetPageNumber } from "@/hooks/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -18,20 +18,26 @@ import Table from 'antd/es/table';
 import Tooltip from 'antd/es/tooltip';
 import Tag from 'antd/es/tag';
 import AntDButton from 'antd/es/button';
-import type { TablePaginationConfig } from 'antd/es/table';
+import Input from 'antd/es/input';
+import Space from 'antd/es/space';
+import type { TablePaginationConfig, TableProps, ColumnType } from 'antd/es/table';
+import type { FilterDropdownProps } from 'antd/es/table/interface';
+import type { InputRef } from 'antd/es/input';
 
 interface TableColumn {
     label: string;
     key: string;
-    type?: "date" | "string" | "number" | string;
+    type?: "date" | "string" | "number" | "currency" | "percent" | "period" | "tags" | "double" | "status" | string;
     render?: any;
+    filterable?: boolean; // New prop to enable filtering
+    sortable?: boolean;   // New prop to enable sorting
 }
 
-interface EnhancedTableColumn {
+interface EnhancedTableColumn extends ColumnType<any> {
     title: string;
     dataIndex: string;
     key: string;
-    type?: "date" | "string" | "number" | string;
+    type?: "date" | "string" | "number" | "currency" | "percent" | "period" | "tags" | "double" | "status" | string;
     render?: any;
 }
 
@@ -57,7 +63,7 @@ type Props<T> = {
     // New props for pagination control
     onPageChange?: (page: number, pageSize: number) => void;
     loading?: boolean;
-};
+} & Omit<TableProps<T>, 'columns' | 'dataSource' | 'pagination' | 'expandable'>;
 
 type TableRow = {
     id: number;
@@ -104,6 +110,9 @@ const DynamicTable = <T extends TableRow>({
     const autoTableId = `${routePath}-default-table`;
     const storageKey = `columns-${autoTableId}`;
 
+    // Search functionality refs and states
+    const searchInput = useRef<InputRef>(null);
+
     const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
         const stored = localStorage.getItem(storageKey);
         return stored ? JSON.parse(stored) : columns.map((col) => col.key);
@@ -117,6 +126,108 @@ const DynamicTable = <T extends TableRow>({
         setSelectedColumns((prev) =>
             prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
         );
+    };
+
+    // Search functionality
+    const handleSearch = (_selectedKeys: string[], confirm: (param?: any) => void) => {
+        confirm();
+    };
+
+    const handleReset = (clearFilters: (() => void) | undefined) => {
+        if (clearFilters) {
+            clearFilters();
+        }
+    };
+
+    const getColumnSearchProps = (dataIndex: string, columnType?: string): Partial<ColumnType<any>> => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: FilterDropdownProps) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm)}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <AntDButton
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys as string[], confirm)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Search
+                    </AntDButton>
+                    <AntDButton
+                        onClick={() => {
+                            if (clearFilters) {
+                                clearFilters();
+                            }
+                            setSelectedKeys([]);
+                            handleReset(clearFilters);
+                        }}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Reset
+                    </AntDButton>
+                    <AntDButton
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({ closeDropdown: false });
+                        }}
+                    >
+                        Filter
+                    </AntDButton>
+                    <AntDButton
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        Close
+                    </AntDButton>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+        ),
+        onFilter: (value, record) => {
+            const recordValue = record[dataIndex];
+            if (recordValue === null || recordValue === undefined) return false;
+            
+            // Handle different column types for filtering
+            if (columnType === 'number' || columnType === 'double' || columnType === 'currency') {
+                return recordValue.toString().includes(value as string);
+            }
+            
+            return recordValue.toString().toLowerCase().includes((value as string).toLowerCase());
+        },
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+    });
+
+    // Sorting functionality
+    const getSorterProps = (columnKey: string, columnType?: string): Partial<ColumnType<any>> => {
+        if (columnType === 'number' || columnType === 'double' || columnType === 'currency') {
+            return {
+                sorter: (a, b) => {
+                    const aVal = parseFloat(a[columnKey]) || 0;
+                    const bVal = parseFloat(b[columnKey]) || 0;
+                    return aVal - bVal;
+                },
+                sortDirections: ['descend', 'ascend'],
+            };
+        }
+        return {};
     };
 
     const getStatusTag = (status: string) => {
@@ -220,8 +331,9 @@ const DynamicTable = <T extends TableRow>({
 
     const enhancedColumns: EnhancedTableColumn[] = displayedColumns.map((col) => {
         const navigableField = navigableFields.find((nf) => nf.key === col.key);
-
-        return {
+        
+        // Base column configuration
+        const baseColumn: EnhancedTableColumn = {
             title: col.label,
             dataIndex: col.key,
             key: col.key,
@@ -293,6 +405,18 @@ const DynamicTable = <T extends TableRow>({
                 ) : col.render ? col.render(record, handleChange) : value;
             },
         };
+
+        // Add filtering if enabled
+        if (col.filterable !== false) { // Default to true unless explicitly disabled
+            Object.assign(baseColumn, getColumnSearchProps(col.key, col.type));
+        }
+
+        // Add sorting if enabled for number/currency columns
+        if (col.sortable !== false && (col.type === 'number' || col.type === 'double' || col.type === 'currency')) {
+            Object.assign(baseColumn, getSorterProps(col.key, col.type));
+        }
+
+        return baseColumn;
     });
 
     const allowed = hasPermission(userPermissions, getRequiredPermissions(activePage?.path || ""));
