@@ -1,5 +1,5 @@
 import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import SalyImage from "@/assets/NoEquipment.png"
 import useSWR from "swr";
@@ -66,7 +66,6 @@ const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
 const ChemicalConsumption: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const [isTableLoading, setIsTableLoading] = useState(false);
     const posType = usePosType();
     const startDate = useStartDate();
     const endDate = useEndDate();
@@ -75,46 +74,67 @@ const ChemicalConsumption: React.FC = () => {
     const setEndDate = useSetEndDate();
     const city = useCity();
 
-    const initialFilter = {
-        dateStart: startDate.toString().slice(0, 10),
-        dateEnd: endDate.toString().slice(0, 10),
+    const dataFilter = useMemo<FilterChemicalPos>(() => ({
+        dateStart: new Date(startDate).toISOString().slice(0, 10),
+        dateEnd: new Date(endDate).toISOString().slice(0, 10),
         posId: posType,
         placementId: city
-    };
+    }), [startDate, endDate, posType, city]);
 
-    const [dataFilter, setIsDataFilter] = useState<FilterChemicalPos>(initialFilter);
 
-    const handleDataFilter = (newFilterData: Partial<FilterChemicalPos>) => {
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
-        if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-    };
+    // Create a stable SWR key that includes all filter parameters
+    const chemicalReportKey = posType !== "*" ?
+        `chemical-report-${dataFilter.dateStart}-${dataFilter.dateEnd}-${dataFilter.posId}-${dataFilter.placementId}` :
+        null;
 
-    const { data: chemicalReports, isLoading: chemicalLoading, mutate: chemicalMutate } = useSWR(posType !== "*" ? [`get-chemical-consumption`] : null, () => getChemicalReport({
-        dateStart: dataFilter.dateStart,
-        dateEnd: dataFilter.dateEnd,
-        posId: posType,
-        placementId: city
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: chemicalReports, isLoading: chemicalLoading } = useSWR(
+        chemicalReportKey,
+        () => getChemicalReport({
+            dateStart: dataFilter.dateStart,
+            dateEnd: dataFilter.dateEnd,
+            posId: dataFilter.posId,
+            placementId: dataFilter.placementId
+        }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
 
-    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR(
+        [`get-pos`, city],
+        () => getPoses({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
+        }
+    );
 
-    useEffect(() => {
-        chemicalMutate().then(() => setIsTableLoading(false));
-    }, [dataFilter, chemicalMutate]);
+    const handleDataFilter = useCallback((newFilterData: Partial<FilterChemicalPos>) => {
+        if (newFilterData.posId !== undefined) {
+            setPosType(newFilterData.posId);
+        }
+        if (newFilterData.dateStart) {
+            setStartDate(new Date(newFilterData.dateStart));
+        }
+        if (newFilterData.dateEnd) {
+            setEndDate(new Date(newFilterData.dateEnd));
+        }
+    }, [setPosType, setStartDate, setEndDate]);
+
 
     const data: TechTask[] = chemicalReports || [];
     const tableRows = transformDataToTableRows(data);
-    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    poses.unshift(posesAllObj);
+    const poses: { name: string; value: number | string; }[] = useMemo(() => {
+        const mappedPoses = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+        const posesAllObj = {
+            name: allCategoriesText,
+            value: "*"
+        };
+        return [posesAllObj, ...mappedPoses];
+    }, [posData, allCategoriesText]);
 
     return (
         <>
@@ -125,7 +145,7 @@ const ChemicalConsumption: React.FC = () => {
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />
-            {isTableLoading || chemicalLoading ? (
+            {chemicalLoading ? (
                 <TableSkeleton columnCount={columnsChemicalConsumption.length} />
             ) :
                 tableRows.length > 0 ?
