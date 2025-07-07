@@ -110,7 +110,7 @@ const ProgramDevices: React.FC = () => {
         if (newFilterData.placementId) setCity(newFilterData.placementId);
         if (newFilterData.page) setCurrentPage(newFilterData.page);
         if (newFilterData.size) setPageSize(newFilterData.size);
-    },[setCity, setCurrentPage, setEndDate, setPageSize, setPosType, setStartDate]);
+    }, [setCity, setCurrentPage, setEndDate, setPageSize, setPosType, setStartDate]);
 
     useEffect(() => {
         if (!filterLoading && filter?.totalCount)
@@ -118,7 +118,7 @@ const ProgramDevices: React.FC = () => {
     }, [filter, filterLoading, setTotalCount]);
 
     const devicePrograms: PosPrograms[] = useMemo(() => {
-        return filter?.prog.map((item: PosPrograms) => {
+        return filter?.prog?.map((item: PosPrograms) => {
             return item;
         }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || []
     }, [filter?.prog]);
@@ -138,6 +138,8 @@ const ProgramDevices: React.FC = () => {
     };
 
     posOptional.unshift(posesAllObj);
+
+    const poses: { text: string; value: string; }[] = posData.map((pos) => ({ text: pos.name, value: pos.name }));
 
     return (
         <>
@@ -170,6 +172,7 @@ const ProgramDevices: React.FC = () => {
                             titleColumns={[{
                                 label: "Device Name",
                                 key: "deviceName",
+                                filters: poses
                             }]}
                             titleData={devicePrograms.map(deviceProgram => ({
                                 title: deviceProgram.name,

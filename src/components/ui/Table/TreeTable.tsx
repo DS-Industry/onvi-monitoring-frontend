@@ -17,7 +17,7 @@ type TreeData = {
     description?: string;
     children?: TreeData[];
     isExpanded?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 type Props = {
@@ -92,7 +92,7 @@ const TreeTable: React.FC<Props> = ({
                                     <span className="flex justify-center items-center">{row[column.key]}</span>
                                 </div>
                             ) : (
-                                <span>{row[column.key] || "-"}</span>
+                                <span>{typeof row[column.key] === "undefined" || row[column.key] === null ? "-" : String(row[column.key])}</span>
                             )}
                         </td>
                     ))}

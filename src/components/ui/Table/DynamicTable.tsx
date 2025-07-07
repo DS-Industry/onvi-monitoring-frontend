@@ -1,6 +1,6 @@
-import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { ArrowUpOutlined, CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ClassAttributes, ThHTMLAttributes, useState, useRef } from "react";
+import { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import { JSX } from "react/jsx-runtime";
 import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType, useSetPageNumber } from "@/hooks/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -18,30 +18,52 @@ import Table from 'antd/es/table';
 import Tooltip from 'antd/es/tooltip';
 import Tag from 'antd/es/tag';
 import AntDButton from 'antd/es/button';
-import Input from 'antd/es/input';
-import Space from 'antd/es/space';
 import type { TablePaginationConfig, TableProps, ColumnType } from 'antd/es/table';
-import type { FilterDropdownProps } from 'antd/es/table/interface';
-import type { InputRef } from 'antd/es/input';
+
+// Define tag interface
+interface TagItem {
+    id: number;
+    color?: string;
+    name: string;
+}
+
+// Define document type interface
+interface DocumentType {
+    name: string;
+    value: string;
+}
+
+// Define permission interface
+interface Permission {
+    action: string;
+    subject: string;
+}
+
+// Define route interface
+interface Route {
+    path: string;
+    subMenu?: boolean;
+    subNav?: Route[];
+}
 
 interface TableColumn {
     label: string;
     key: string;
     type?: "date" | "string" | "number" | "currency" | "percent" | "period" | "tags" | "double" | "status" | string;
-    render?: any;
-    filterable?: boolean; // New prop to enable filtering
-    sortable?: boolean;   // New prop to enable sorting
+    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
+    sortable?: boolean;
+    filters?: { text: string; value: string; }[];
 }
 
-interface EnhancedTableColumn extends ColumnType<any> {
+interface EnhancedTableColumn<T extends TableRow = TableRow> extends ColumnType<T> {
     title: string;
     dataIndex: string;
     key: string;
     type?: "date" | "string" | "number" | "currency" | "percent" | "period" | "tags" | "double" | "status" | string;
-    render?: any;
+    render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-type Props<T> = {
+type Props<T extends TableRow> = {
     data: T[];
     columns: TableColumn[];
     tableTitle?: string;
@@ -57,7 +79,7 @@ type Props<T> = {
     urlTitleId?: number;
     handleChange?: (id: number, key: string, value: string | number) => void;
     showTotal?: boolean;
-    renderCell?: (column: TableColumn, row: any) => React.ReactNode;
+    renderCell?: (column: TableColumn, row: TableRow) => React.ReactNode;
     isStatus?: boolean;
     showTotalClean?: boolean;
     // New props for pagination control
@@ -110,9 +132,6 @@ const DynamicTable = <T extends TableRow>({
     const autoTableId = `${routePath}-default-table`;
     const storageKey = `columns-${autoTableId}`;
 
-    // Search functionality refs and states
-    const searchInput = useRef<InputRef>(null);
-
     const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
         const stored = localStorage.getItem(storageKey);
         return stored ? JSON.parse(stored) : columns.map((col) => col.key);
@@ -128,100 +147,13 @@ const DynamicTable = <T extends TableRow>({
         );
     };
 
-    // Search functionality
-    const handleSearch = (_selectedKeys: string[], confirm: (param?: any) => void) => {
-        confirm();
-    };
-
-    const handleReset = (clearFilters: (() => void) | undefined) => {
-        if (clearFilters) {
-            clearFilters();
-        }
-    };
-
-    const getColumnSearchProps = (dataIndex: string, columnType?: string): Partial<ColumnType<any>> => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: FilterDropdownProps) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm)}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <AntDButton
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys as string[], confirm)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Search
-                    </AntDButton>
-                    <AntDButton
-                        onClick={() => {
-                            if (clearFilters) {
-                                clearFilters();
-                            }
-                            setSelectedKeys([]);
-                            handleReset(clearFilters);
-                        }}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Reset
-                    </AntDButton>
-                    <AntDButton
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({ closeDropdown: false });
-                        }}
-                    >
-                        Filter
-                    </AntDButton>
-                    <AntDButton
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        Close
-                    </AntDButton>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
-        ),
-        onFilter: (value, record) => {
-            const recordValue = record[dataIndex];
-            if (recordValue === null || recordValue === undefined) return false;
-            
-            // Handle different column types for filtering
-            if (columnType === 'number' || columnType === 'double' || columnType === 'currency') {
-                return recordValue.toString().includes(value as string);
-            }
-            
-            return recordValue.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-    });
-
     // Sorting functionality
-    const getSorterProps = (columnKey: string, columnType?: string): Partial<ColumnType<any>> => {
+    const getSorterProps = (columnKey: string, columnType?: string): Partial<ColumnType<TableRow>> => {
         if (columnType === 'number' || columnType === 'double' || columnType === 'currency') {
             return {
                 sorter: (a, b) => {
-                    const aVal = parseFloat(a[columnKey]) || 0;
-                    const bVal = parseFloat(b[columnKey]) || 0;
+                    const aVal = a[columnKey as keyof TableRow] as number;
+                    const bVal = b[columnKey as keyof TableRow] as number;
                     return aVal - bVal;
                 },
                 sortDirections: ['descend', 'ascend'],
@@ -264,8 +196,8 @@ const DynamicTable = <T extends TableRow>({
         return `${parseDate(startStr)} - ${parseDate(endStr)}`;
     };
 
-    const getActivePage = () => {
-        for (const item of routes) {
+    const getActivePage = (): Route | undefined => {
+        for (const item of routes as Route[]) {
             if (location.pathname === item.path) {
                 return item;
             } else if (item.subMenu && item.subNav) {
@@ -282,12 +214,13 @@ const DynamicTable = <T extends TableRow>({
                 }
             }
         }
+        return undefined;
     };
 
-    const userPermissions = usePermissions();
+    const userPermissions = usePermissions() as Permission[];
     const activePage = getActivePage();
 
-    const getRequiredPermissions = (path: string) => {
+    const getRequiredPermissions = (path: string): Permission[] => {
         if (path.includes("administration"))
             return [
                 { action: "manage", subject: "Organization" },
@@ -329,18 +262,18 @@ const DynamicTable = <T extends TableRow>({
             return [];
     };
 
-    const enhancedColumns: EnhancedTableColumn[] = displayedColumns.map((col) => {
+    const enhancedColumns: EnhancedTableColumn<T>[] = displayedColumns.map((col) => {
         const navigableField = navigableFields.find((nf) => nf.key === col.key);
-        
+
         // Base column configuration
-        const baseColumn: EnhancedTableColumn = {
+        const baseColumn: EnhancedTableColumn<T> = {
             title: col.label,
             dataIndex: col.key,
             key: col.key,
             type: col.type,
-            render: (value: any, record: T) => {
+            render: (value: unknown, record: T) => {
                 if (col.key.toLowerCase().includes("status") || col.type === "status") {
-                    return getStatusTag(value);
+                    return getStatusTag(String(value));
                 }
 
                 if (renderCell) {
@@ -353,28 +286,30 @@ const DynamicTable = <T extends TableRow>({
                     if (value === null || value === undefined) {
                         date = "-";
                     } else {
-                        date = TableUtils.createDateTimeWithoutComma(value, userTimezone);
+                        date = TableUtils.createDateTimeWithoutComma(value as string | Date, userTimezone);
                     }
 
                     return date;
                 }
 
                 if (col.type === "period") {
-                    return formatPeriodType(value);
+                    return formatPeriodType(String(value));
                 }
 
                 if (col.type === "number" || col.type === "double") {
-                    return value !== undefined && value !== null ? (
-                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
-                            {formatNumber(value, col.type)}
+                    const numValue = Number(value);
+                    return value !== undefined && value !== null && !isNaN(numValue) ? (
+                        <div className={`${numValue < 0 ? "text-errorFill" : ""}`}>
+                            {formatNumber(numValue, col.type)}
                         </div>
                     ) : "-";
                 }
 
                 if (col.type === "tags") {
-                    return value.length > 0 ? (
+                    const tags = value as TagItem[];
+                    return tags && tags.length > 0 ? (
                         <div className="flex flex-wrap max-w-64 gap-4">
-                            {value.map((tag: { id: number; color: string; name: string; }) => (
+                            {tags.map((tag: TagItem) => (
                                 <Tag key={tag.id} color={tag.color ? tag.color : "cyan"}>
                                     {tag.name}
                                 </Tag>
@@ -386,32 +321,57 @@ const DynamicTable = <T extends TableRow>({
                 }
 
                 if (col.type === "currency") {
-                    const number = formatNumber(value);
+                    const number = formatNumber(Number(value));
                     return TableUtils.createCurrencyFormat(number);
                 }
 
                 if (col.type === "percent") {
-                    return TableUtils.createPercentFormat(value);
+                    return TableUtils.createPercentFormat(Number(value));
                 }
 
                 return navigableField ? (
                     <span
                         className="text-primary02 cursor-pointer hover:underline"
-                        onClick={() => { navigate(navigableField.getPath(record), { state: { ownerId: record.id, name: record.name, status: record.status, type: record.type, workDate: record.startWorkDate, endDate: record.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === record.type)?.value || ""); }}
+                        onClick={() => {
+                            navigate(navigableField.getPath(record), {
+                                state: {
+                                    ownerId: record.id,
+                                    name: record.name,
+                                    status: record.status,
+                                    type: record.type,
+                                    workDate: record.startWorkDate,
+                                    endDate: record.endSpecifiedDate
+                                }
+                            });
+                            setDocumentType(documentTypes.find((doc) => doc.name === record.type)?.value || "");
+                        }}
                     >
-                        {value}
+                        {String(value)}
                         <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
-                ) : col.render ? col.render(record, handleChange) : value;
+                ) : col.render ? col.render(record, handleChange) : String(value);
             },
         };
 
-        // Add filtering if enabled
-        if (col.filterable !== false) { // Default to true unless explicitly disabled
-            Object.assign(baseColumn, getColumnSearchProps(col.key, col.type));
+        if (col.filters && col.filters.length > 0) {
+            Object.assign(baseColumn, {
+                filters: col.filters,
+                onFilter: (value: string | number | boolean, record: T) => {
+                    const key = col.key as keyof T;
+                    const recordValue = record[key];
+
+                    if (Array.isArray(recordValue)) {
+                        return recordValue.some((v: TagItem) =>
+                            v.name?.toLowerCase().includes(String(value).toLowerCase())
+                        );
+                    }
+                    return String(recordValue).toLowerCase().includes(String(value).toLowerCase());
+                },
+
+                filterMultiple: true,
+            });
         }
 
-        // Add sorting if enabled for number/currency columns
         if (col.sortable !== false && (col.type === 'number' || col.type === 'double' || col.type === 'currency')) {
             Object.assign(baseColumn, getSorterProps(col.key, col.type));
         }
@@ -426,7 +386,7 @@ const DynamicTable = <T extends TableRow>({
             title: "",
             dataIndex: "actions",
             key: "actions",
-            render: (_: any, record: T) => (
+            render: (_: unknown, record: T) => (
                 <Tooltip title="Редактировать">
                     <AntDButton
                         type="text"
@@ -444,7 +404,7 @@ const DynamicTable = <T extends TableRow>({
             title: "",
             dataIndex: "statusCheck",
             key: "statusCheck",
-            render: (_: any, record: T) =>
+            render: (_: unknown, record: T) =>
                 record.status === t("tables.FINISHED") ? (
                     <CheckCircleOutlined className="text-green-500 text-lg" />
                 ) : null,
@@ -456,56 +416,41 @@ const DynamicTable = <T extends TableRow>({
             title: "",
             dataIndex: "statusCheck",
             key: "statusCheck",
-            render: (_: any, record: T) =>
+            render: (_: unknown, record: T) =>
                 record.status === "SENT" ?
                     <img src={SentIcon} loading="lazy" alt="SENT" />
                     : <img src={SavedIcon} loading="lazy" alt="SAVED" />
         });
     }
 
-    const totalRow = showTotal
-        ? {
+    const createTotalRow = (sliceStart: number) => {
+        const totalEntries = Object.fromEntries(
+            displayedColumns.slice(sliceStart).map((column) => [
+                column.key,
+                column.type === "number"
+                    ? formatNumber(
+                        data.reduce(
+                            (sum, row) => sum + (Number(row[column.key as keyof T]) || 0),
+                            0
+                        )
+                    )
+                    : "-",
+            ])
+        );
+
+        return {
             key: "total",
             [displayedColumns[0].key]: t("finance.total"),
-            ...Object.fromEntries(
-                displayedColumns.slice(3).map((column) => [
-                    column.key,
-                    column.type === "number"
-                        ? formatNumber(
-                            data.reduce(
-                                (sum, row) => sum + (Number(row[column.key]) || 0),
-                                0
-                            )
-                        )
-                        : "-",
-                ])
-            ),
-        }
-        : null;
+            ...totalEntries,
+        } as unknown as T;
+    };
 
-    const totalClean = showTotalClean
-        ? {
-            key: "total",
-            [displayedColumns[0].key]: t("finance.total"),
-            ...Object.fromEntries(
-                displayedColumns.slice(2).map((column) => [
-                    column.key,
-                    column.type === "number"
-                        ? formatNumber(
-                            data.reduce(
-                                (sum, row) => sum + (Number(row[column.key]) || 0),
-                                0
-                            )
-                        )
-                        : "-",
-                ])
-            ),
-        }
-        : null;
+    const totalRow = showTotal ? createTotalRow(3) : null;
+    const totalClean = showTotalClean ? createTotalRow(2) : null;
 
-    const dataSource = showTotal && totalRow ? [...data, totalRow] : totalClean ? [...data, totalClean] : data;
+    const dataSource: T[] = showTotal && totalRow ? [...data, totalRow as T] : totalClean ? [...data, totalClean as T] : data;
 
-    const documentTypes = [
+    const documentTypes: DocumentType[] = [
         { name: t("routes.COMMISSIONING"), value: "COMMISSIONING" },
         { name: t("routes.WRITEOFF"), value: "WRITEOFF" },
         { name: t("routes.MOVING"), value: "MOVING" },
@@ -518,22 +463,19 @@ const DynamicTable = <T extends TableRow>({
         current: curr,
         pageSize: rowsPerPage,
         total: totalCount,
-        showSizeChanger: true,
         showQuickJumper: true,
         pageSizeOptions: ['15', '50', '100', '120'],
         onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
             setPageSize(pageSize);
             setCurr(page);
-            // Call external page change handler if provided
             if (onPageChange) {
                 onPageChange(page, pageSize);
             }
         },
         onShowSizeChange: (_current, size) => {
-            setCurr(1); // Reset to first page when changing page size
+            setCurr(1);
             setFilterOn(!filterOn);
-            // Call external page change handler if provided
             if (onPageChange) {
                 onPageChange(1, size);
             }

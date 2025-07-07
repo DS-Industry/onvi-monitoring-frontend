@@ -7,7 +7,7 @@ import Card from "antd/es/card";
 
 interface TableRow {
     id: number;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface ColumnConfig {
@@ -15,8 +15,8 @@ interface ColumnConfig {
     label: string;
     isEditable?: boolean;
     type?: "string" | "number" | "checkbox" | "date" | string;
-    options?: { name: string; value: any }[];
-    render?: any;
+    options?: { name: string; value: unknown }[];
+    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
 }
 
 type Props = {
@@ -53,8 +53,8 @@ const GoodsAntTable: React.FC<Props> = ({
         title: column.label,
         dataIndex: column.key,
         key: column.key,
-        render: (value: any, row: any) =>
-            column.render ? column.render(row, handleChange) : value,
+        render: (value: unknown, row: TableRow): React.ReactNode =>
+            column.render ? column.render(row, handleChange) : value as React.ReactNode,
     }));
 
     return (

@@ -7,21 +7,29 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Table from "antd/es/table";
 import Tag from "antd/es/tag";
-import type { TablePaginationConfig } from 'antd/es/table';
+import type { TablePaginationConfig, ColumnType } from 'antd/es/table';
 
+interface TagItem {
+    id: number;
+    color?: string;
+    name: string;
+}
 interface TableColumn {
     label: string;
     key: string;
     type?: "date" | "string" | "number" | string;
-    render?: any;
+    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
+    sortable?: boolean;
+    filters?: { text: string; value: string; }[];
 }
 
-interface EnhancedTableColumn {
+interface EnhancedTableColumn<T extends TableRow = TableRow> extends ColumnType<T> {
     title: string;
     dataIndex: string;
     key: string;
     type?: "date" | "string" | "number" | string;
-    render?: any;
+    render?: (value: unknown, record: T) => React.ReactNode;
+    sortable?: boolean;
 }
 
 type Props<T> = {
@@ -44,6 +52,7 @@ type TableRow = {
     name?: string;
     status?: string;
     type?: string;
+    [key: string]: unknown; // Allow indexing with string keys
 };
 
 const ExpandableTable = <T extends TableRow>({
@@ -103,48 +112,64 @@ const ExpandableTable = <T extends TableRow>({
         else return <Tag color="default">{status}</Tag>;
     };
 
+    const getSorterProps = (columnKey: string, columnType?: string): Partial<ColumnType<TableRow>> => {
+        if (columnType === 'number' || columnType === 'double' || columnType === 'currency') {
+            return {
+                sorter: (a, b) => {
+                    const aVal = parseFloat(String(a[columnKey])) || 0;
+                    const bVal = parseFloat(String(b[columnKey])) || 0;
+                    return aVal - bVal;
+                },
+                sortDirections: ['descend', 'ascend'],
+            };
+        }
+        return {};
+    };
+
     // FIX: Include the render function in enhancedColumns
-    const enhancedColumns: EnhancedTableColumn[] = titleColumns.map((col) => {
+    const enhancedColumns: EnhancedTableColumn<T>[] = titleColumns.map((col) => {
         const navigableField = navigableFields?.find((nf) => nf.key === col.key);
-        return {
+        const baseColumn: EnhancedTableColumn<T> = {
             title: col.label,
             dataIndex: col.key,
             key: col.key,
             type: col.type,
-            render: (value: any, record: T) => {
+            render: (value: unknown, record: T): React.ReactNode => {
                 if (col.key.toLowerCase().includes("status")) {
-                    return getStatusTag(value);
+                    return getStatusTag(String(value));
                 }
 
                 if (col.type === "date") {
 
-                    let date = null;
+                    let date: React.ReactNode = null;
 
                     if (value === null || value === undefined) {
                         date = "-";
                     } else {
-                        date = TableUtils.createDateTimeWithoutComma(value, userTimezone);
+                        date = TableUtils.createDateTimeWithoutComma(value as string | Date, userTimezone);
                     }
 
                     return date;
                 }
 
                 if (col.type === "period") {
-                    return formatPeriodType(value);
+                    return formatPeriodType(String(value));
                 }
 
                 if (col.type === "number" || col.type === "double") {
-                    return value !== undefined && value !== null ? (
-                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
-                            {formatNumber(value, col.type)}
+                    const numValue = Number(value);
+                    return value !== undefined && value !== null && !isNaN(numValue) ? (
+                        <div className={`${numValue < 0 ? "text-errorFill" : ""}`}>
+                            {formatNumber(numValue, col.type)}
                         </div>
                     ) : "-";
                 }
 
                 if (col.type === "tags") {
-                    return value.length > 0 ? (
+                    const tags = value as TagItem[];
+                    return tags && tags.length > 0 ? (
                         <div className="flex flex-wrap max-w-64 gap-4">
-                            {value.map((tag: { id: number; color: string; name: string; }) => (
+                            {tags.map((tag: TagItem) => (
                                 <Tag key={tag.id} color={tag.color ? tag.color : "cyan"}>
                                     {tag.name}
                                 </Tag>
@@ -156,18 +181,18 @@ const ExpandableTable = <T extends TableRow>({
                 }
 
                 if (col.type === "currency") {
-                    const number = formatNumber(value);
+                    const number = formatNumber(Number(value));
                     const formattedCurrency = TableUtils.createCurrencyFormat(number);
 
                     return (
-                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
+                        <div className={`${Number(value) < 0 ? "text-errorFill" : ""}`}>
                             {formattedCurrency}
                         </div>
                     );
                 }
 
                 if (col.type === "percent") {
-                    return TableUtils.createPercentFormat(value);
+                    return TableUtils.createPercentFormat(Number(value));
                 }
 
                 return navigableField ? (
@@ -175,55 +200,75 @@ const ExpandableTable = <T extends TableRow>({
                         className="text-primary02 cursor-pointer hover:underline"
                         onClick={() => { navigate(navigableField.getPath(record), { state: { ownerId: record.deviceId, name: record.name, status: record.status, type: record.type } }); }}
                     >
-                        {value}
+                        {String(value)}
                         <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
-                ) : col.render ? col.render(record, handleChange) : value;
+                ) : col.render ? col.render(record, handleChange) as React.ReactNode : value as React.ReactNode;
             },
         };
+
+        if (col.filters && col.filters.length > 0) {
+            Object.assign(baseColumn, {
+                filters: col.filters,
+                onFilter: (value: string, record: T) => {
+                    const recordValue = record[col.key];
+                    if (Array.isArray(recordValue)) {
+                        return recordValue.some((v: TagItem) =>
+                            v.name?.toLowerCase().includes(value.toLowerCase())
+                        );
+                    }
+                    return String(recordValue).toLowerCase().includes(value.toLowerCase());
+                },
+                filterMultiple: true,
+            });
+        }
+
+        return baseColumn;
     });
 
     // Also fix expandColumns to include render functions
-    const expandColumns: EnhancedTableColumn[] = columns.map((col) => {
-        return {
+    const expandColumns: EnhancedTableColumn<T>[] = columns.map((col) => {
+        const baseColumns: EnhancedTableColumn<T> = {
             title: col.label,
             dataIndex: col.key,
             key: col.key,
             type: col.type,
-            render: (value: any, record: T) => {
+            render: (value: unknown, record: T): React.ReactNode => {
                 if (col.key.toLowerCase().includes("status") || col.type === "status") {
-                    return getStatusTag(value);
+                    return getStatusTag(String(value));
                 }
 
                 if (col.type === "date") {
 
-                    let date = null;
+                    let date: React.ReactNode = null;
 
                     if (value === null || value === undefined) {
                         date = "-";
                     } else {
-                        date = TableUtils.createDateTimeWithoutComma(value, userTimezone);
+                        date = TableUtils.createDateTimeWithoutComma(value as string | Date, userTimezone);
                     }
 
                     return date;
                 }
 
                 if (col.type === "period") {
-                    return formatPeriodType(value);
+                    return formatPeriodType(String(value));
                 }
 
                 if (col.type === "number" || col.type === "double") {
-                    return value !== undefined && value !== null ? (
-                        <div className={`${value < 0 ? "text-errorFill" : ""}`}>
-                            {formatNumber(value, col.type)}
+                    const numValue = Number(value);
+                    return value !== undefined && value !== null && !isNaN(numValue) ? (
+                        <div className={`${numValue < 0 ? "text-errorFill" : ""}`}>
+                            {formatNumber(numValue, col.type)}
                         </div>
                     ) : "-";
                 }
 
                 if (col.type === "tags") {
-                    return value.length > 0 ? (
+                    const tags = value as TagItem[];
+                    return tags && tags.length > 0 ? (
                         <div className="flex flex-wrap max-w-64 gap-4">
-                            {value.map((tag: { id: number; color: string; name: string; }) => (
+                            {tags.map((tag: TagItem) => (
                                 <Tag key={tag.id} color={tag.color ? tag.color : "cyan"}>
                                     {tag.name}
                                 </Tag>
@@ -234,11 +279,12 @@ const ExpandableTable = <T extends TableRow>({
                     )
                 }
 
+
                 if (col.type === "currency") {
-                    const number = formatNumber(value);
+                    const number = formatNumber(Number(value));
                     const formattedCurrency = TableUtils.createCurrencyFormat(number);
 
-                    const paperTypeType = record.paperTypeType;
+                    const paperTypeType = (record as TableRow).paperTypeType;
 
                     if (paperTypeType === t("finance.RECEIPT")) {
                         return (
@@ -257,14 +303,21 @@ const ExpandableTable = <T extends TableRow>({
                 }
 
                 if (col.type === "percent") {
-                    return TableUtils.createPercentFormat(value);
+                    return TableUtils.createPercentFormat(Number(value));
                 }
-                return col.render ? col.render(record, handleChange) : value;
+
+                return col.render ? col.render(record, handleChange) : (value as React.ReactNode);
             },
         };
+
+        if (col.sortable !== false && (col.type === 'number' || col.type === 'double' || col.type === 'currency')) {
+            Object.assign(baseColumns, getSorterProps(col.key, col.type));
+        }
+
+        return baseColumns;
     });
 
-    const expandedRowRender = (record: any) => {
+    const expandedRowRender = (record: TableRow) => {
         const filteredData = dataSource && dataSource.filter((item) => item.deviceId === record.deviceId);
 
         return (
@@ -313,10 +366,7 @@ const ExpandableTable = <T extends TableRow>({
         current: curr,
         pageSize: rowsPerPage,
         total: totalCount,
-        showSizeChanger: true,
         showQuickJumper: true,
-        showTotal: (total, range) => 
-            `${range[0]}-${range[1]} из ${total} записей`,
         pageSizeOptions: ['15', '50', '100', '120'],
         onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
@@ -334,7 +384,7 @@ const ExpandableTable = <T extends TableRow>({
                 onPageChange(1, size);
             }
         },
-        position: ['bottomRight'],
+        position: ['bottomLeft'],
         size: 'default',
     } : false;
 
@@ -343,10 +393,7 @@ const ExpandableTable = <T extends TableRow>({
             <Table
                 columns={enhancedColumns}
                 expandable={{ expandedRowRender }}
-                dataSource={dataTable.map((item, index) => ({
-                    ...item,
-                    key: `${item.title || index}` // Ensure unique keys
-                }))}
+                dataSource={dataTable as unknown as T[]}
                 pagination={paginationConfig}
                 loading={loading}
                 components={{

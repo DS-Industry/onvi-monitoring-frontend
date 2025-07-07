@@ -18,7 +18,7 @@ type TreeData = {
     description?: string;
     children?: TreeData[];
     isExpanded?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 type Props = {
@@ -54,7 +54,7 @@ const DynamicTreeTable: React.FC<Props> = ({
             dataIndex: "expand",
             key: "expand",
             width: 50, // Small width to keep it compact
-            render: (_: any, record: TreeData) => (
+            render: (_: unknown, record: TreeData) => (
                 record.children && record.children.length > 0 ? (
                     <Button
                         type="text"
@@ -71,19 +71,26 @@ const DynamicTreeTable: React.FC<Props> = ({
             title: col.label,
             dataIndex: col.key,
             key: col.key,
-            render: (value: any, record: TreeData) => {
+            render: (value: unknown, record: TreeData): React.ReactNode => {
                 // Only apply indent to the first column
                 if (index === 0) {
                     const level = record._level ?? 0;
                     return (
-                        <div style={{ paddingLeft: level * 20 }}>
-                            {value}
+                        <div style={{ paddingLeft: (typeof level === "number" ? level : 0) * 20 }}>
+                            {typeof value === "string" || typeof value === "number" ? value : String(value)}
                         </div>
                     );
                 }
-                return value;
+                // Ensure always returning ReactNode
+                if (typeof value === "string" || typeof value === "number") {
+                    return value;
+                }
+                if (value === undefined || value === null) {
+                    return "";
+                }
+                return String(value);
             }
-        }));        
+        }));
 
         // Actions Column (Last Column)
         const actionColumn = {
@@ -91,7 +98,7 @@ const DynamicTreeTable: React.FC<Props> = ({
             dataIndex: "actions",
             key: "actions",
             width: 80, // Ensure it's at the end
-            render: (_: any, record: TreeData) => (
+            render: (_: unknown, record: TreeData) => (
                 <Can
                     requiredPermissions={[
                         { action: "manage", subject: "Warehouse" },
