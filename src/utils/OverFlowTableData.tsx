@@ -220,6 +220,7 @@ export const columnsDevice = [
     key: "carWashPosName",
   },
 ]
+
 export const columnsMonitoringPos = [
   {
     label: "id",

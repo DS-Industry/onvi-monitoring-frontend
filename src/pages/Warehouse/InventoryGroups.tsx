@@ -23,7 +23,7 @@ type TreeData = {
     description?: string;
     children?: TreeData[];
     isExpanded?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 type CATEGORY = {
@@ -32,19 +32,21 @@ type CATEGORY = {
     ownerCategoryId?: number;
 }
 
-const buildTree = (data: any[]): TreeData[] => {
+const buildTree = (data: unknown[]): TreeData[] => {
     const map: Record<number, TreeData> = {};
     const roots: TreeData[] = [];
 
     data.forEach((item) => {
-        map[item.id] = { ...item, children: [] };
+        const typedItem = item as TreeData;
+        map[typedItem.id] = { ...typedItem, children: [] };
     });
 
     data.forEach((item) => {
-        if (item.ownerCategoryId === null) {
-            roots.push(map[item.id]);
-        } else if (map[item.ownerCategoryId]) {
-            map[item.ownerCategoryId]?.children?.push(map[item.id]);
+        const typedItem = item as TreeData;
+        if (typedItem.ownerCategoryId === null || typeof typedItem.ownerCategoryId !== "number") {
+            roots.push(map[typedItem.id]);
+        } else if (typeof typedItem.ownerCategoryId === "number" && map[typedItem.ownerCategoryId]) {
+            map[typedItem.ownerCategoryId]?.children?.push(map[typedItem.id]);
         }
     });
 

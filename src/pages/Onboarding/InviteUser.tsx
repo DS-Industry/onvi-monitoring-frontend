@@ -45,8 +45,14 @@ const InviteUser: React.FC = () => {
         async () => {
             try {
                 return await getWorkerStatus(key);
-            } catch (error: any) {
-                if (error.response?.status === 404) {
+            } catch (error: unknown) {
+                if (
+                    typeof error === "object" &&
+                    error !== null &&
+                    "response" in error &&
+                    typeof (error as { response?: { status?: number } }).response === "object" &&
+                    (error as { response?: { status?: number } }).response?.status === 404
+                ) {
                     return null; 
                 }
                 throw error; 

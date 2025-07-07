@@ -40,6 +40,7 @@ import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
 import type { TableProps } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
+import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 
 const { Title, Text } = Typography;
 
@@ -299,7 +300,7 @@ const Articles: React.FC = () => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isStateOpen, setIsStateOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [group, setGroup] = useState<ManagerPaperGroup | '*'>("*");
     const [posId, setPosId] = useState<number | "*">("*");
     const [paperTypeId, setPaperTypeId] = useState<number | "*">("*");
@@ -316,11 +317,10 @@ const Articles: React.FC = () => {
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
 
-    const paginationConfig: TablePaginationConfig =  {
+    const paginationConfig: TablePaginationConfig = {
         current: curr,
         pageSize: rowsPerPage,
         total: totalCount,
-        showSizeChanger: true,
         showQuickJumper: true,
         pageSizeOptions: ['15', '50', '100', '120'],
         onChange: (page, pageSize) => {
@@ -610,7 +610,7 @@ const Articles: React.FC = () => {
             title: 'Операции',
             dataIndex: 'operation',
             width: '15%',
-            render: (_: any, record: DataType) => {
+            render: (_: unknown, record: DataType) => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span className="flex space-x-4">
@@ -761,12 +761,13 @@ const Articles: React.FC = () => {
         setIsStateOpen(false);
     };
 
-    const handleFileChange = (info: any) => {
+
+    const handleFileChange = (info: UploadChangeParam<UploadFile>) => {
         const { fileList: newFileList } = info;
         setFileList(newFileList);
 
         // Get the actual file from the fileList
-        const file = newFileList[0]?.originFileObj || null;
+        const file = (newFileList[0]?.originFileObj as File) || null;
         setSelectedFile(file);
 
         if (file) {

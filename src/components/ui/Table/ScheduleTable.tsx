@@ -365,18 +365,25 @@ const ScheduleTable: React.FC<Props> = ({
                 userId: workers.find((work) => work.surname === item.surname)?.value || 0
             }));
 
-            const newFilledData: { [key: string]: any } = {};
+            const newFilledData: Record<string, FormData> = {};
             shiftData.workers.forEach((worker) => {
                 worker.workDays?.forEach((work) => {  // Ensure workDays exists before iterating
                     const modalKey = `${worker.workerId}-${work.workDate}`;
                     newFilledData[modalKey] = {
                         typeWorkDay: work.typeWorkDay,
                         timeWorkedOut: work.timeWorkedOut,
-                        startWorkingTime: work.startWorkingTime,
-                        endWorkingTime: work.endWorkingTime,
+                        startWorkingTime: work.startWorkingTime ? new Date(work.startWorkingTime).toISOString() : undefined,
+                        endWorkingTime: work.endWorkingTime ? new Date(work.endWorkingTime).toISOString() : undefined,
                         estimation: work.estimation,
                         prize: work.prize,
-                        fine: work.fine
+                        fine: work.fine,
+                        comment: work.comment || "",
+                        hours_timeWorkedOut: work.timeWorkedOut?.split(":")[0] || "",
+                        minutes_timeWorkedOut: work.timeWorkedOut?.split(":")[1] || "",
+                        hours_startWorkingTime: work.startWorkingTime ? new Date(work.startWorkingTime).getUTCHours().toString().padStart(2, "0") : "",
+                        minutes_startWorkingTime: work.startWorkingTime ? new Date(work.startWorkingTime).getUTCMinutes().toString().padStart(2, "0") : "",
+                        hours_endWorkingTime: work.endWorkingTime ? new Date(work.endWorkingTime).getUTCHours().toString().padStart(2, "0") : "",
+                        minutes_endWorkingTime: work.endWorkingTime ? new Date(work.endWorkingTime).getUTCMinutes().toString().padStart(2, "0") : ""
                     };
                 });
             });

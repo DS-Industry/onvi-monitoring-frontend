@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from "react";
 import useSWR from "swr";
 import { getDepositPos } from "@/services/api/pos";
-import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
@@ -11,6 +10,7 @@ import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, u
 import { getPoses } from "@/services/api/equipment";
 import { useTranslation } from "react-i18next";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { getPlacement } from "@/services/api/device";
 
 interface FilterDepositPos {
     dateStart: Date;
@@ -84,7 +84,7 @@ const DepositDevices: React.FC = () => {
         size: pageSize
     }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
 
-    const swrKey = useMemo(() => 
+    const swrKey = useMemo(() =>
         `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
         [filterParams]
     );
@@ -97,10 +97,10 @@ const DepositDevices: React.FC = () => {
     const { data: filter, isLoading: filterLoading } = useSWR(
         swrKey,
         () => getDepositPos(filterParams),
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
-            keepPreviousData: true 
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
         }
     );
 
@@ -116,12 +116,16 @@ const DepositDevices: React.FC = () => {
     const { data, isLoading, isValidating } = useSWR(
         `get-pos-${city}`,
         () => getPoses({ placementId: city }),
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
-            keepPreviousData: true 
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
         }
     );
+
+    const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const cities: { text: string; value: string; }[] = cityData?.map((item) => ({ text: item.region, value: item.region })) || [];
 
     useEffect(() => {
         if (!filterLoading && filter?.totalCount) {
@@ -153,6 +157,60 @@ const DepositDevices: React.FC = () => {
         const posesAllObj = { name: allCategoriesText, value: "*" };
         return [posesAllObj, ...options];
     }, [posData, allCategoriesText]);
+
+    const poses: { text: string; value: string; }[] = posData.map((pos) => ({ text: pos.name, value: pos.name }));
+
+    const columnsMonitoringPos = [
+        {
+            label: "id",
+            key: "id",
+        },
+        {
+            label: "Наименование",
+            key: "name",
+            filters: poses
+        },
+        {
+            label: "Город",
+            key: "city",
+            filters: cities
+        },
+        {
+            label: "Последняя операция",
+            key: "lastOper",
+            type: "date",
+        },
+        {
+            label: "Наличные",
+            key: "cashSum",
+            type: "currency"
+        },
+        {
+            label: "Безналичные",
+            key: "virtualSum",
+            type: "currency"
+        },
+        {
+            label: "Сashback по картам",
+            key: "cashbackSumCard",
+            type: "currency"
+        },
+        {
+            label: "Сумма скидки",
+            key: "discountSum",
+            type: "currency"
+        },
+        {
+            label: "Кол-во опреаций",
+            key: "counter",
+            type: "number"
+        },
+        {
+            label: "Яндекс Сумма",
+            key: "yandexSum",
+            type: "currency"
+        },
+    ];
 
     return (
         <>

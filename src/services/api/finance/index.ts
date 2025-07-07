@@ -204,6 +204,7 @@ type ShiftWorkerResponse = {
         middlename: string;
         position: string;
         workDays: {
+            comment: string;
             workDayId: number;
             workDate: Date;
             typeWorkDay: TypeWorkDay;
