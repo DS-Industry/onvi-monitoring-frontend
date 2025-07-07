@@ -179,6 +179,8 @@ const MonthlyExpanse: React.FC = () => {
         current: curr,
         pageSize: rowsPerPage,
         total: totalCount,
+        showSizeChanger: false,
+        showQuickJumper: false,
         onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
             setPageSize(pageSize);
