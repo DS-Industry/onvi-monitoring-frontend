@@ -463,8 +463,6 @@ const DynamicTable = <T extends TableRow>({
         current: curr,
         pageSize: rowsPerPage,
         total: totalCount,
-        showQuickJumper: true,
-        pageSizeOptions: ['15', '50', '100', '120'],
         onChange: (page, pageSize) => {
             setFilterOn(!filterOn);
             setPageSize(pageSize);
