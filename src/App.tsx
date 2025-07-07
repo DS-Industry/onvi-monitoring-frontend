@@ -37,13 +37,13 @@ const App: React.FC = () => {
 
   useFirebaseMessaging();
 
-  const { trigger: updateUser } = useSWRMutation('user', async () =>
+  const jwtToken = useAuthStore((state) => state.tokens)?.accessToken;
+
+  const { trigger: updateUser } = useSWRMutation(jwtToken ? 'user' : null, async () =>
     updateUserProfile({
       fcmToken: localStorage.getItem("fcmToken") || "",
     }, null)
   );
-
-  const jwtToken = useAuthStore((state) => state.tokens)?.accessToken;
 
   useEffect(() => {
     const getTokenAndUpdate = async () => {
