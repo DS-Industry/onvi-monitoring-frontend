@@ -13,8 +13,19 @@ import SearchDropdownInput from "../Input/SearchDropdownInput.tsx";
 
 type Optional = {
     name: string;
-    value: any;
-}
+    value: string | number;
+};
+
+type FilterPayload = {
+    dateStart: Date;
+    dateEnd: Date;
+    posId?: string | number;
+    deviceId?: number;
+    warehouseId?: string | number;
+    placementId?: string | number;
+    page?: number;
+    size?: number;
+};
 
 type Props = {
     count: number;
@@ -23,7 +34,7 @@ type Props = {
     devicesSelect?: Optional[];
     wareHousesSelect?: Optional[];
     usersSelect?: Optional[];
-    handleDataFilter?: any;
+    handleDataFilter?: (filter: FilterPayload) => void;
     hideCity?: boolean;
     hideSearch?: boolean;
     hideReset?: boolean;
@@ -112,6 +123,8 @@ const FilterMonitoring: React.FC<Props> = ({
     }, [filterOpen, buttonOn]);
 
     useEffect(() => {
+        if (!handleDataFilter) return;
+
         posesSelect && handleDataFilter({
             dateStart: startDate,
             dateEnd: endDate,
