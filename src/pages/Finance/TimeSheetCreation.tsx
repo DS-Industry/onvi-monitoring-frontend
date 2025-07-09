@@ -2,7 +2,9 @@ import Button from "@/components/ui/Button/Button";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 // import Input from "@/components/ui/Input/Input";
+// import ScheduleCalendar from "@/components/ui/Table/ScheduleCalendar";
 import ScheduleTable from "@/components/ui/Table/ScheduleTable";
+import GenericTabs from "@/components/ui/Tabs/GenericTab";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
@@ -103,6 +105,19 @@ const TimeSheetCreation: React.FC = () => {
     //     });
     // };
 
+    const tabItems = [
+        {
+            key: "0",
+            label: t("equipment.table"),
+            content: <></>,
+        },
+        {
+            key: "1",
+            label: t("equipment.card"),
+            content: <ScheduleTable id={shiftId} shift={shift} />,
+        }
+    ];
+
     return (
         <div>
             {location.state?.ownerId === 0 && <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -155,7 +170,7 @@ const TimeSheetCreation: React.FC = () => {
                 </div>
             </form>}
             <div className="mt-10">
-                <ScheduleTable id={shiftId} shift={shift} />
+                <GenericTabs tabs={tabItems} />
             </div>
         </div>
     )
