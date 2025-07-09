@@ -1,9 +1,10 @@
 import Button from "@/components/ui/Button/Button";
+import ReactBigCalendar from "@/components/ui/Calendar/ReactBigCalendar";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 // import Input from "@/components/ui/Input/Input";
 // import ScheduleCalendar from "@/components/ui/Table/ScheduleCalendar";
-import ScheduleTable from "@/components/ui/Table/ScheduleTable";
+// import ScheduleTable from "@/components/ui/Table/ScheduleTable";
 import GenericTabs from "@/components/ui/Tabs/GenericTab";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
@@ -12,22 +13,9 @@ import { createShift, getShiftById } from "@/services/api/finance";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-
-type TimeSheet = {
-    props: {
-        id: number;
-        posId: number;
-        startDate: Date;
-        endDate: Date;
-        createdAt: Date;
-        updatedAt: Date;
-        createdById: number;
-        updatedById: number;
-    }
-}
 
 const TimeSheetCreation: React.FC = () => {
     const { t } = useTranslation();
@@ -45,8 +33,8 @@ const TimeSheetCreation: React.FC = () => {
 
     const [formData, setFormData] = useState(defaultValues);
     const [shiftId, setShiftId] = useState(0);
-    const [shift, setShift] = useState<TimeSheet>({} as TimeSheet);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -81,7 +69,7 @@ const TimeSheetCreation: React.FC = () => {
             const result = await postShift();
             if (result) {
                 setShiftId(result.props.id);
-                setShift(result);
+                navigate(-1);
             } else {
                 throw new Error('Invalid update data.');
             }
@@ -90,20 +78,6 @@ const TimeSheetCreation: React.FC = () => {
             console.error("Error during form submission: ", error);
         }
     }
-
-    // const handleDateTimeChange = (value: string, field: "startDate" | "endDate", type: "date" | "time") => {
-    //     setFormData((prev) => {
-    //         const currentDate = prev[field] ? prev[field].split("T") : ["", ""];
-    //         const updatedDateTime =
-    //             type === "date" ? value + "T" + (currentDate[1] || "00:00") : currentDate[0] + "T" + value;
-
-    //         const updatedFormData = { ...prev, [field]: updatedDateTime };
-
-    //         setValue(field, updatedDateTime);
-
-    //         return updatedFormData;
-    //     });
-    // };
 
     const tabItems = [
         {
@@ -114,7 +88,9 @@ const TimeSheetCreation: React.FC = () => {
         {
             key: "1",
             label: t("equipment.card"),
-            content: <ScheduleTable id={shiftId} shift={shift} />,
+            content: <ReactBigCalendar
+                shiftReportId={shiftId}
+            />,
         }
     ];
 
@@ -169,9 +145,9 @@ const TimeSheetCreation: React.FC = () => {
                     />
                 </div>
             </form>}
-            <div className="mt-10">
+            {location.state?.ownerId !== 0 &&<div className="mt-10">
                 <GenericTabs tabs={tabItems} />
-            </div>
+            </div>}
         </div>
     )
 }
