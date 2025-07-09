@@ -495,22 +495,6 @@ const ScheduleTable: React.FC<Props> = ({
         }
     }
 
-    // const addNewRow = async (value: React.SetStateAction<number>) => {
-    //     setUserId(value)
-    //     const result = await addWork();
-    //     let newEmployee: Employee[] = [];
-    //     if (result) {
-    //         newEmployee = result.workers.map((item) => ({
-    //             id: item.workerId,
-    //             name: item.name + " " + item.middlename + " " + item.surname,
-    //             branch: poses.find((pos) => pos.value === result.posId)?.name || "",
-    //             position: item.position,
-    //             schedule: {}
-    //         }))
-    //     }
-    //     setEmployees([...newEmployee]);
-    // };
-
     return (
         <div>
             {id !== 0 && employees && (
@@ -542,7 +526,12 @@ const ScheduleTable: React.FC<Props> = ({
                                         const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
                                         const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
 
-                                        const isCrossDayShift = start && end && start > end;
+                                        const isCrossDayShift =
+                                            start &&
+                                            end &&
+                                            end.getDate() !== start.getDate() &&
+                                            end > start &&
+                                            end.getDate() === new Date(start.getTime() + 24 * 60 * 60 * 1000).getDate();
 
                                         const splitWorkedTime = { current: "", next: "" };
 
@@ -568,7 +557,12 @@ const ScheduleTable: React.FC<Props> = ({
                                             const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
                                             const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
 
-                                            const isCross = start && end && start > end;
+                                            const isCross = start &&
+                                                end &&
+                                                end.getDate() !== start.getDate() &&
+                                                end > start &&
+                                                end.getDate() === new Date(start.getTime() + 24 * 60 * 60 * 1000).getDate();
+
 
                                             if (isCross && index + 1 < dates.length) {
                                                 leftHalfForIndex.add(index + 1);
@@ -697,74 +691,6 @@ const ScheduleTable: React.FC<Props> = ({
                         <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="text-text02">
-                        {/* <div className="flex items-center space-x-2">
-                            <input type="checkbox" className="w-[18px] h-[18px]" />
-                            <div>{t("finance.set")}</div>
-                        </div> */}
-                        {/* {isSet && (<div className="space-y-4">
-                            <div className="flex items-center space-x-4">
-                                <div>{t("finance.sch")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                                <div>{t("finance.thr")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                            </div>
-                            <div className="flex space-x-4">
-                                <div>{t("finance.sta")}</div>
-                                <div className="flex text-primary02_Hover font-semibold">
-                                    <div>{t("finance.sel")}</div>
-                                    <Icon icon="chevron-down" />
-                                </div>
-                            </div>
-                            <div className="flex space-x-2 items-center">
-                                <div>{t("finance.open")}</div>
-                                <Input
-                                    type="number"
-                                    placeholder="09 ч"
-                                    classname="w-[68px]"
-                                    inputType="secondary"
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="00 м"
-                                    classname="w-[70px]"
-                                    inputType="secondary"
-                                />
-                                <div>-</div>
-                                <Input
-                                    type="number"
-                                    placeholder="09 ч"
-                                    classname="w-[68px]"
-                                    inputType="secondary"
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="00 м"
-                                    classname="w-[70px]"
-                                    inputType="secondary"
-                                />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <div>{t("finance.ex")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                                <div>{t("finance.a")}</div>
-                            </div>
-                            <Button
-                                title={t("finance.fill")}
-                            />
-                        </div>
-                        )} */}
                         <DropdownInput
                             title={t("finance.day")}
                             {...register("typeWorkDay")}
