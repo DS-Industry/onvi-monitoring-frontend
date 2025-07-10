@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { CalendarEvent } from "./ReactBigCalendar";
 import { TypeWorkDay, TypeEstimation, UpdateDayShiftBody } from "@/services/api/finance";
 import Modal from "@/components/ui/Modal/Modal";
@@ -18,62 +18,75 @@ interface Props {
     event: CalendarEvent;
 }
 
+type ShiftFormData = {
+    typeWorkDay: TypeWorkDay | undefined;
+    estimation: TypeEstimation | null;
+    prize: string | number;
+    fine: string | number;
+    comment: string;
+    hours_start: number;
+    minutes_start: number;
+    hours_end: number;
+    minutes_end: number;
+};
+
 const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) => {
     const { t } = useTranslation();
 
     const {
-        register,
-        setValue,
+        control,
         handleSubmit,
         watch,
         reset,
     } = useForm({
         defaultValues: {
-            typeWorkDay: event?.typeWorkDay || "",
+            typeWorkDay: event?.typeWorkDay || undefined,
             estimation: event?.estimation || null,
             prize: event?.prize ?? "",
             fine: event?.fine ?? "",
             comment: event?.comment ?? "",
-            hours_start: dayjs(event.startWorkingTime).toDate().getHours(),
-            minutes_start: dayjs(event.startWorkingTime).toDate().getMinutes(),
-            hours_end: dayjs(event.endWorkingTime).toDate().getHours(),
-            minutes_end: dayjs(event.endWorkingTime).toDate().getMinutes(),
+            hours_start: dayjs(event.startWorkingTime).hour(),
+            minutes_start: dayjs(event.startWorkingTime).minute(),
+            hours_end: dayjs(event.endWorkingTime).hour(),
+            minutes_end: dayjs(event.endWorkingTime).minute(),
         },
     });
 
     const watchType = watch("typeWorkDay");
-    const watchEstimation = watch("estimation");
-    const watchComment = watch("comment");
 
     useEffect(() => {
         reset({
-            typeWorkDay: event?.typeWorkDay || "",
+            typeWorkDay: event?.typeWorkDay || undefined,
             estimation: event?.estimation || null,
             prize: event?.prize ?? "",
             fine: event?.fine ?? "",
             comment: event?.comment ?? "",
-            hours_start: dayjs(event.startWorkingTime).toDate().getHours(),
-            minutes_start: dayjs(event.startWorkingTime).toDate().getMinutes(),
-            hours_end: dayjs(event.endWorkingTime).toDate().getHours(),
-            minutes_end: dayjs(event.endWorkingTime).toDate().getMinutes(),
+            hours_start: dayjs(event.startWorkingTime).hour(),
+            minutes_start: dayjs(event.startWorkingTime).minute(),
+            hours_end: dayjs(event.endWorkingTime).hour(),
+            minutes_end: dayjs(event.endWorkingTime).minute(),
         });
     }, [event, reset]);
 
-    const handleModalSubmit = (data: any) => {
-        const start = dayjs(event.startWorkingTime).toDate();
-        start.setHours(data.hours_start);
-        start.setMinutes(data.minutes_start);
+    const handleModalSubmit = (data: ShiftFormData) => {
+        const start = dayjs(event.startWorkingTime)
+            .set("hour", Number(data.hours_start))
+            .set("minute", Number(data.minutes_start))
+            .toDate();
 
-        const end = dayjs(event.endWorkingTime).toDate();
-        end.setHours(data.hours_end);
-        end.setMinutes(data.minutes_end);
+        const end = dayjs(event.endWorkingTime)
+            .set("hour", Number(data.hours_end))
+            .set("minute", Number(data.minutes_end))
+            .toDate();
 
-        const duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
+        const totalMinutes = dayjs(end).diff(dayjs(start), "minutes");
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
 
         const payload: UpdateDayShiftBody = {
             startWorkingTime: start,
             endWorkingTime: end,
-            timeWorkedOut: `${duration} mins`,
+            timeWorkedOut: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`,
             typeWorkDay: data.typeWorkDay,
             estimation: data.estimation,
             prize: data.prize ? Number(data.prize) : null,
@@ -95,40 +108,55 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
 
             <form onSubmit={handleSubmit(handleModalSubmit)} className="text-text02">
                 {/* Type of Day */}
-                <DropdownInput
-                    title={t("finance.day")}
-                    value={watch("typeWorkDay")}
-                    options={Object.values(TypeWorkDay).map((type) => ({
-                        name: t(`finance.${type}`),
-                        value: type,
-                    }))}
-                    classname="w-80 sm:w-96 mb-4"
-                    onChange={(value) => setValue("typeWorkDay", value)}
+                <Controller
+                    name="typeWorkDay"
+                    control={control}
+                    render={({ field }) => (
+                        <DropdownInput
+                            title={t("finance.day")}
+                            value={field.value}
+                            options={Object.values(TypeWorkDay).map((type) => ({
+                                name: t(`finance.${type}`),
+                                value: type,
+                            }))}
+                            classname="w-80 sm:w-96 mb-4"
+                            onChange={field.onChange}
+                        />
+                    )}
                 />
 
                 {/* Working shift fields */}
                 {watchType === "WORKING" && (
                     <>
-                        {/* Time Inputs */}
                         <div className="flex space-x-4 mb-4">
                             <div>
                                 <div>{t("finance.start")}</div>
                                 <div className="flex space-x-2">
-                                    <Input
-                                        type="number"
-                                        placeholder="HH"
-                                        classname="w-[70px]"
-                                        {...register("hours_start")}
-                                        value={watch("hours_start")}
-                                        changeValue={(e) => setValue("hours_start", e.target.value)}
+                                    <Controller
+                                        name="hours_start"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                type="number"
+                                                placeholder="HH"
+                                                classname="w-[70px]"
+                                                value={field.value}
+                                                changeValue={field.onChange}
+                                            />
+                                        )}
                                     />
-                                    <Input
-                                        type="number"
-                                        placeholder="MM"
-                                        classname="w-[70px]"
-                                        {...register("minutes_start")}
-                                        value={watch("minutes_start")}
-                                        changeValue={(e) => setValue("minutes_start", e.target.value)}
+                                    <Controller
+                                        name="minutes_start"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                type="number"
+                                                placeholder="MM"
+                                                classname="w-[70px]"
+                                                value={field.value}
+                                                changeValue={field.onChange}
+                                            />
+                                        )}
                                     />
                                 </div>
                             </div>
@@ -136,70 +164,98 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                             <div>
                                 <div>{t("finance.endOf")}</div>
                                 <div className="flex space-x-2">
-                                    <Input
-                                        type="number"
-                                        placeholder="HH"
-                                        classname="w-[70px]"
-                                        {...register("hours_end")}
-                                        value={watch("hours_end")}
-                                        changeValue={(e) => setValue("hours_end", e.target.value)}
+                                    <Controller
+                                        name="hours_end"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                type="number"
+                                                placeholder="HH"
+                                                classname="w-[70px]"
+                                                value={field.value}
+                                                changeValue={field.onChange}
+                                            />
+                                        )}
                                     />
-                                    <Input
-                                        type="number"
-                                        placeholder="MM"
-                                        classname="w-[70px]"
-                                        {...register("minutes_end")}
-                                        value={watch("minutes_end")}
-                                        changeValue={(e) => setValue("minutes_end", e.target.value)}
+                                    <Controller
+                                        name="minutes_end"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                type="number"
+                                                placeholder="MM"
+                                                classname="w-[70px]"
+                                                value={field.value}
+                                                changeValue={field.onChange}
+                                            />
+                                        )}
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Prize & Fine */}
                         <div className="flex space-x-4 mb-4">
-                            <Input
-                                title={t("finance.prize")}
-                                type="number"
-                                {...register("prize")}
-                                classname="w-44"
-                                value={watch("prize")}
-                                changeValue={(e) => setValue("prize", e.target.value)}
+                            <Controller
+                                name="prize"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        title={t("finance.prize")}
+                                        type="number"
+                                        classname="w-44"
+                                        value={field.value}
+                                        changeValue={field.onChange}
+                                    />
+                                )}
                             />
-                            <Input
-                                title={t("finance.fine")}
-                                type="number"
-                                {...register("fine")}
-                                classname="w-44"
-                                value={watch("fine")}
-                                changeValue={(e) => setValue("fine", e.target.value)}
+                            <Controller
+                                name="fine"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        title={t("finance.fine")}
+                                        type="number"
+                                        classname="w-44"
+                                        value={field.value}
+                                        changeValue={field.onChange}
+                                    />
+                                )}
                             />
                         </div>
 
-                        {/* Estimation */}
-                        <DropdownInput
-                            title={t("finance.grade")}
-                            value={watchEstimation}
-                            options={Object.values(TypeEstimation).map((type) => ({
-                                name: t(`finance.${type}`),
-                                value: type,
-                            }))}
-                            onChange={(value) => setValue("estimation", value)}
-                            classname="w-80 sm:w-96 mb-4"
+                        <Controller
+                            name="estimation"
+                            control={control}
+                            render={({ field }) => (
+                                <DropdownInput
+                                    title={t("finance.grade")}
+                                    value={field.value}
+                                    options={Object.values(TypeEstimation).map((type) => ({
+                                        name: t(`finance.${type}`),
+                                        value: type,
+                                    }))}
+                                    onChange={field.onChange}
+                                    classname="w-80 sm:w-96 mb-4"
+                                />
+                            )}
                         />
 
-                        {/* Comment */}
-                        <MultilineInput
-                            title={t("equipment.comment")}
-                            value={watchComment}
-                            changeValue={(e) => setValue("comment", e.target.value)}
-                            classname="w-80 sm:w-96"
-                            inputType="secondary"
+                        <Controller
+                            name="comment"
+                            control={control}
+                            render={({ field }) => (
+                                <MultilineInput
+                                    title={t("equipment.comment")}
+                                    value={field.value}
+                                    changeValue={field.onChange}
+                                    classname="w-80 sm:w-96"
+                                    inputType="secondary"
+                                />
+                            )}
                         />
                     </>
                 )}
 
-                {/* Footer */}
                 <div className="flex gap-3 mt-10">
                     <Button title={t("warehouse.reset")} handleClick={onClose} type="outline" />
                     <Button title={t("routes.save")} form />
