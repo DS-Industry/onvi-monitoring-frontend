@@ -4,7 +4,6 @@ import AntInput from "antd/es/input";
 
 type InputProps = {
     type?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value?: any;
     changeValue?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: boolean;

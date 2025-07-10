@@ -16,7 +16,6 @@ interface ColumnConfig {
     isEditable?: boolean;
     type?: "string" | "number" | "checkbox" | "date" | string;
     options?: { name: string; value: unknown }[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: any;
 }
 

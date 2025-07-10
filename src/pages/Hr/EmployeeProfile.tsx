@@ -271,7 +271,6 @@ const EmployeeProfile: React.FC = () => {
         if (buttonOn) {
             handleSubmit(onSubmit)();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [buttonOn]);
 
     const saveScheduleData = () => {

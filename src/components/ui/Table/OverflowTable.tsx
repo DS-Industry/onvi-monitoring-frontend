@@ -25,7 +25,6 @@ interface TableColumn {
   label: string;
   key: string;
   type?: "date" | "string" | "number" | string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: any;
 }
 

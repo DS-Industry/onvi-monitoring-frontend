@@ -171,7 +171,6 @@ const OverheadCosts: React.FC = () => {
             warehouseId: warehouseId,
             placementId: city
         })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn])
 
     useEffect(() => {

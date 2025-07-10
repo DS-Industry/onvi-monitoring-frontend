@@ -158,7 +158,6 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             warehouseId: warehouseId
         })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn]);
 
     useEffect(() => {
@@ -195,7 +194,6 @@ const FilterMonitoring: React.FC<Props> = ({
                 warehouseId
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn]);
 
     return (

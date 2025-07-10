@@ -843,7 +843,6 @@ const Articles: React.FC = () => {
             dateStartEvent: startPeriod ? startPeriod.toDate() : undefined,
             dateEndEvent: endPeriod ? endPeriod.toDate() : undefined
         })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn]);
 
     useEffect(() => {

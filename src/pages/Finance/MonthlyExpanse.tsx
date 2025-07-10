@@ -629,7 +629,6 @@ const MonthlyExpanse: React.FC = () => {
             page: currentPage,
             size: pageNumber
         })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn]);
 
     useEffect(() => {

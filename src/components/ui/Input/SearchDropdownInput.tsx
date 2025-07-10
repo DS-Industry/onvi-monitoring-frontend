@@ -12,7 +12,6 @@ type SearchableDropdownProps = {
     options: Option[];
     placeholder?: string;
     value: string | number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onChange: (value: any) => void;
     isDisabled?: boolean;
     error?: boolean;

@@ -50,7 +50,6 @@ const DateTimeInput: React.FC<InputProps> = ({
             setDate(undefined);
             setTime(undefined);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [valueTimestamp]); // Use valueTimestamp instead of value
 
     // Handle internal changes (when user interacts with date/time pickers)
