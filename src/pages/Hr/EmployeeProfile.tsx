@@ -138,24 +138,31 @@ const EmployeeProfile: React.FC = () => {
     };
 
     useEffect(() => {
-        if (employee)
+        if (employee) {
             setFormData({
                 ...employee,
-                workerId: employee.id,
-                inn: employee.inn === null ? undefined : employee.inn,
-                snils: employee.snils === null ? undefined : employee.snils,
-                phone: employee.phone === null ? undefined : employee.phone,
-                email: employee.email === null ? undefined : employee.email,
-                gender: employee.gender === null ? undefined : employee.gender,
-                description: employee.description === null ? undefined : employee.description,
-                citizenship: employee.citizenship === null ? undefined : employee.citizenship,
-                passportSeries: employee.passportSeries === null ? undefined : employee.passportSeries,
-                passportExtradition: employee.passportExtradition === null ? undefined : employee.passportExtradition,
-                passportNumber: employee.passportNumber === null ? undefined : employee.passportNumber,
-                startWorkDate: employee.startWorkDate ? employee.startWorkDate.slice(0, 10) : undefined,
-                passportDateIssue: employee.passportDateIssue ? employee.passportDateIssue.slice(0, 10) : undefined,
+                workerId: String(employee.id),
+                hrPositionId: employee.hrPositionId ? String(employee.hrPositionId) : undefined,
+                placementId: employee.placementId ? String(employee.placementId) : undefined,
+                monthlySalary: employee.monthlySalary ? String(employee.monthlySalary) : undefined,
+                dailySalary: employee.dailySalary ? String(employee.dailySalary) : undefined,
+                percentageSalary: employee.percentageSalary ? String(employee.percentageSalary) : undefined,
+                inn: employee.inn ?? undefined,
+                snils: employee.snils ?? undefined,
+                phone: employee.phone ?? undefined,
+                email: employee.email ?? undefined,
+                gender: employee.gender ?? undefined,
+                description: employee.description ?? undefined,
+                citizenship: employee.citizenship ?? undefined,
+                passportSeries: employee.passportSeries ?? undefined,
+                passportExtradition: employee.passportExtradition ?? undefined,
+                passportNumber: employee.passportNumber ?? undefined,
+                startWorkDate: employee.startWorkDate ? dayjs(String(employee.startWorkDate).slice(0, 10)).toDate() : undefined,
+                passportDateIssue: employee.passportDateIssue ? dayjs(String(employee.passportDateIssue).slice(0, 10)).toDate() : undefined,
             });
+        }
     }, [employee]);
+
 
     const { register, handleSubmit, setValue } = useFormHook(formData);
 

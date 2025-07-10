@@ -57,10 +57,10 @@ const IncomeReport: React.FC = () => {
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     // State for dynamic inputs
-    const [formData, setFormData] = useState<{ [key: string]: any }>({});
+    const [formData, setFormData] = useState<{ [key: string]: string | number }>({});
 
     // Handle input changes dynamically
-    const handleInputChange = (key: string, value: any) => {
+    const handleInputChange = (key: string, value: string | number) => {
         setFormData(prev => ({ ...prev, [key]: value }));
     };
 

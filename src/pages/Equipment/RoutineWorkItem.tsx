@@ -3,7 +3,7 @@ import { useCity } from "@/hooks/useAuthStore";
 import { createTechTaskShape, getPoses, getTechTaskShapeItem } from "@/services/api/equipment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Location, useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { CalendarOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
@@ -15,6 +15,7 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
 import { TFunction } from "i18next";
 import dayjs from "dayjs";
+import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 
 interface TechTaskItem {
     id: number;
@@ -30,7 +31,7 @@ interface DynamicInputProps {
     type: string;
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
-    location: any;
+    location: Location;
     t: TFunction;
 }
 
@@ -188,7 +189,7 @@ const RoutineWorkItem: React.FC = () => {
 
     const [uploadedFiles, setUploadedFiles] = useState<Record<number, File | string | null>>({});
 
-    const handleUpload = (itemId: number) => async (options: any) => {
+    const handleUpload = (itemId: number) => async (options: RcCustomRequestOptions) => {
         const { file, onSuccess, onError } = options;
 
         try {

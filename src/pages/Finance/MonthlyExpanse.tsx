@@ -732,7 +732,7 @@ const MonthlyExpanse: React.FC = () => {
                         showIcon={true}
                         IconComponent={<div className="text-text02 text-xl">₽</div>}
                         value={formData.sumStartPeriod}
-                        changeValue={(e) => handleInputChange('sumStartPeriod', e.target.value)}
+                        changeValue={(e) => handleInputChange('sumStartPeriod', Number(e.target.value))}
                         error={!!errors.sumStartPeriod}
                         {...register('sumStartPeriod', { required: 'sumStartPeriod is required' })}
                         helperText={errors.sumStartPeriod?.message || ''}
@@ -744,7 +744,7 @@ const MonthlyExpanse: React.FC = () => {
                         showIcon={true}
                         IconComponent={<div className="text-text02 text-xl">₽</div>}
                         value={formData.sumEndPeriod}
-                        changeValue={(e) => handleInputChange('sumEndPeriod', e.target.value)}
+                        changeValue={(e) => handleInputChange('sumEndPeriod', Number(e.target.value))}
                         error={!!errors.sumEndPeriod}
                         {...register('sumEndPeriod', { required: 'sumEndPeriod is required' })}
                         helperText={errors.sumEndPeriod?.message || ''}

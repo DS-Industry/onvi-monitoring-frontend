@@ -18,6 +18,19 @@ type StockParams = {
     placementId: number | string;
 }
 
+type StockLevel = {
+    nomenclatureId: number;
+    nomenclatureName: string;
+    categoryName: string;
+    measurement: string;
+    sum?: number;
+    inventoryItems: {
+        warehouseName: string;
+        quantity?: number;
+    }[];
+    [key: string]: unknown; // Allow dynamic keys for collection columns
+}
+
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
@@ -113,7 +126,7 @@ const OverheadCosts: React.FC = () => {
 
         const warehouseColumns: { label: string; key: string }[] = [];
         const transformedStockLevels = stockLevels.map((level) => {
-            const transformedLevel = { ...level };
+            const transformedLevel: StockLevel = { ...level };
             level.inventoryItems.forEach((item, index) => {
                 const columnKey = `warehouse_${index}`;
                 const columnLabel = item.warehouseName || `Склад ${index + 1}`;

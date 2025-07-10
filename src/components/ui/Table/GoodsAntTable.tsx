@@ -16,7 +16,7 @@ interface ColumnConfig {
     isEditable?: boolean;
     type?: "string" | "number" | "checkbox" | "date" | string;
     options?: { name: string; value: unknown }[];
-    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
+    render?: any;
 }
 
 type Props = {

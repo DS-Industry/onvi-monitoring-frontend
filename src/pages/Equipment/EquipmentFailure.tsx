@@ -273,7 +273,7 @@ const EquipmentFailure: React.FC = () => {
             <FilterMonitoring
                 count={incidents.length}
                 posesSelect={[...poses, posesAllObj]}
-                handleDataFilter={handleDataFilter}
+                handleDateFilter={handleDataFilter}
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />

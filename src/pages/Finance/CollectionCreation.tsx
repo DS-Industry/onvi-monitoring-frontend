@@ -435,15 +435,13 @@ const CollectionCreation: React.FC = () => {
                                 columns={columnsDeviceData}
                                 // isUpdateLeft={true}
                                 onEdit={handleUpdate}
-                                renderCell={(column, row) => {
+                                renderCell={(column: { type: string; key: string; }, row: { [x: string]: string | number | null; id: number | null; deviceId: number; }) => {
                                     if (column.type === "date") {
                                         if (editingRow === row.id && column.key === "tookMoneyTime") {
-                                            // Get the original value and ensure it is formatted without conversion to UTC
                                             const originalDate = row[column.key] || "";
 
-                                            // If the originalDate is valid, use it directly in the 'datetime-local' format
                                             const formattedDate = originalDate
-                                                ? originalDate.slice(0, 16) // Extract 'YYYY-MM-DDTHH:MM' format
+                                                ? String(originalDate).slice(0, 16) 
                                                 : "";
 
                                             return (
@@ -452,9 +450,9 @@ const CollectionCreation: React.FC = () => {
                                                     value={formattedDate}
                                                     className="w-full px-3 py-1 rounded-md caret-primary02 text-black border outline-none border-primary02 border-opacity-30 hover:border-primary02"
                                                     onChange={(e) => handleDateChange(e, row.deviceId, column.key)}
-                                                    onBlur={() => setEditingRow(null)} // Exit edit mode on blur
+                                                    onBlur={() => setEditingRow(null)} 
                                                     autoFocus
-                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)} // Exit edit mode on Enter
+                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)} 
                                                     disabled={location.state?.status === t("tables.SENT")}
                                                 />
                                             );

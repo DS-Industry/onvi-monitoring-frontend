@@ -714,7 +714,7 @@ const ScheduleTable: React.FC<Props> = ({
                                     classname="w-44"
                                     {...register("prize")}
                                     value={prize}
-                                    changeValue={(e) => setValue("prize", e.target.value)}
+                                    changeValue={(e) => setValue("prize", Number(e.target.value))}
                                     disabled={status === "SENT"}
                                 />
                                 <Input
@@ -723,7 +723,7 @@ const ScheduleTable: React.FC<Props> = ({
                                     classname="w-44"
                                     {...register("fine")}
                                     value={fine}
-                                    changeValue={(e) => setValue("fine", e.target.value)}
+                                    changeValue={(e) => setValue("fine", Number(e.target.value))}
                                     disabled={status === "SENT"}
                                 />
                             </div>

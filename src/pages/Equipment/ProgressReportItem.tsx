@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Location, useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
@@ -14,6 +14,7 @@ import { Card, List, Descriptions, Upload, message } from "antd";
 import type { DescriptionsProps } from 'antd';
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 
 interface TechTaskItem {
     id: number;
@@ -28,7 +29,7 @@ interface DynamicInputProps {
     type: string;
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
-    location: any;
+    location: Location;
     t: TFunction<"translation", undefined>;
 }
 
@@ -115,25 +116,22 @@ const ProgressReportItem: React.FC = () => {
             key: '3',
             label: 'End Work Date',
             children: dayjs(location.state.endDate).format("DD.MM.YYYY"),
-        },
-        // {
-        //   key: '4',
-        //   label: 'Remark',
-        //   children: 'empty',
-        // },
-        // {
-        //   key: '5',
-        //   label: 'Address',
-        //   children: 'No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China',
-        // },
+        }
     ];
 
-    const handleUpload = ({ file, onSuccess }: any) => {
+    const handleUpload = ({ file, onSuccess }: RcCustomRequestOptions) => {
+        const fileName = typeof file === "string"
+            ? file
+            : "name" in file
+                ? file.name
+                : "Unnamed File";
+
         setTimeout(() => {
-            message.success(`${file.name} uploaded successfully.`);
-            onSuccess("ok");
+            message.success(`${fileName} uploaded successfully.`);
+            onSuccess?.("ok"); 
         }, 1000);
     };
+
 
     const uploadProps = {
         customRequest: handleUpload,
