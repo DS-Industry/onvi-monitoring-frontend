@@ -47,45 +47,6 @@ type FormData = {
     comment?: string;
 }
 
-// const emps: Employee[] = [
-//     {
-//         id: 1,
-//         branch: "Мойка_1",
-//         name: "Иванов Иван Иванович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-//     {
-//         id: 2,
-//         branch: "Мойка_1",
-//         name: "Петров Петр Петрович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-//     {
-//         id: 3,
-//         branch: "Мойка_1",
-//         name: "Сидоров Игнат Артемович",
-//         position: "Мойщик",
-//         schedule: {},
-//     },
-// ];
-
-// const dates = [
-//     { day: "СР", date: "1" },
-//     { day: "ЧТ", date: "2" },
-//     { day: "ПТ", date: "3" },
-//     { day: "СБ", date: "4" },
-//     { day: "ВС", date: "5" },
-//     { day: "ПН", date: "6" },
-//     { day: "ВТ", date: "7" },
-//     { day: "СР", date: "8" },
-//     { day: "ЧТ", date: "9" },
-//     { day: "ПТ", date: "10" },
-//     { day: "СБ", date: "11" },
-//     { day: "ВС", date: "12" },
-// ];
-
 type TimeSheet = {
     props: {
         id: number;
@@ -495,22 +456,6 @@ const ScheduleTable: React.FC<Props> = ({
         }
     }
 
-    // const addNewRow = async (value: React.SetStateAction<number>) => {
-    //     setUserId(value)
-    //     const result = await addWork();
-    //     let newEmployee: Employee[] = [];
-    //     if (result) {
-    //         newEmployee = result.workers.map((item) => ({
-    //             id: item.workerId,
-    //             name: item.name + " " + item.middlename + " " + item.surname,
-    //             branch: poses.find((pos) => pos.value === result.posId)?.name || "",
-    //             position: item.position,
-    //             schedule: {}
-    //         }))
-    //     }
-    //     setEmployees([...newEmployee]);
-    // };
-
     return (
         <div>
             {id !== 0 && employees && (
@@ -538,58 +483,13 @@ const ScheduleTable: React.FC<Props> = ({
                                     {dates.map((d, index) => {
                                         const cellKey = `${emp.userId}-${d.workDate}`;
                                         const currentData = filledData[cellKey];
-
-                                        const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
-                                        const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
-
-                                        const isCrossDayShift = start && end && start > end;
-
-                                        const splitWorkedTime = { current: "", next: "" };
-
-                                        if (isCrossDayShift && start && end && currentData) {
-                                            const hoursWorked = currentData.timeWorkedOut
-                                                ? parseFloat(currentData.timeWorkedOut.split(":")[0])
-                                                : 0;
-                                            const currentDayHours = 24 - start.getHours();
-                                            const nextDayHours = hoursWorked - currentDayHours;
-
-                                            splitWorkedTime.current = `${currentDayHours}:00`;
-                                            splitWorkedTime.next = `${nextDayHours}:00`;
-                                        }
-
-
                                         const isWorking = currentData?.typeWorkDay === "WORKING";
-
-                                        const leftHalfForIndex = new Set();
-
-                                        dates.forEach((d, index) => {
-                                            const cellKey = `${emp.userId}-${d.workDate}`;
-                                            const currentData = filledData[cellKey];
-                                            const start = currentData?.startWorkingTime ? new Date(currentData.startWorkingTime) : null;
-                                            const end = currentData?.endWorkingTime ? new Date(currentData.endWorkingTime) : null;
-
-                                            const isCross = start && end && start > end;
-
-                                            if (isCross && index + 1 < dates.length) {
-                                                leftHalfForIndex.add(index + 1);
-                                            }
-                                        });
-
-                                        const hasLeftHalf = leftHalfForIndex.has(index);
-
-                                        // Set style for split background
-                                        const cellStyle = isCrossDayShift
-                                            ? { background: 'linear-gradient(to right, transparent 50%, #DDF5FF 50%)' }
-                                            : hasLeftHalf
-                                                ? { background: 'linear-gradient(to left, transparent 50%, #DDF5FF 50%)' }
-                                                : {};
 
                                         return (
                                             <td
                                                 key={index}
                                                 className={`relative border border-borderFill w-16 h-16
                 cursor-pointer hover:bg-background05 text-sm text-text01 ${isWorking ? "bg-background06" : ""}`}
-                                                style={cellStyle}
                                                 onClick={() => handleOpenModal(emp, d.workDate)}
                                             >
                                                 <div className="flex flex-col justify-between overflow-hidden">
@@ -697,74 +597,6 @@ const ScheduleTable: React.FC<Props> = ({
                         <Close onClick={handleCloseModal} className="cursor-pointer text-text01" />
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="text-text02">
-                        {/* <div className="flex items-center space-x-2">
-                            <input type="checkbox" className="w-[18px] h-[18px]" />
-                            <div>{t("finance.set")}</div>
-                        </div> */}
-                        {/* {isSet && (<div className="space-y-4">
-                            <div className="flex items-center space-x-4">
-                                <div>{t("finance.sch")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                                <div>{t("finance.thr")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                            </div>
-                            <div className="flex space-x-4">
-                                <div>{t("finance.sta")}</div>
-                                <div className="flex text-primary02_Hover font-semibold">
-                                    <div>{t("finance.sel")}</div>
-                                    <Icon icon="chevron-down" />
-                                </div>
-                            </div>
-                            <div className="flex space-x-2 items-center">
-                                <div>{t("finance.open")}</div>
-                                <Input
-                                    type="number"
-                                    placeholder="09 ч"
-                                    classname="w-[68px]"
-                                    inputType="secondary"
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="00 м"
-                                    classname="w-[70px]"
-                                    inputType="secondary"
-                                />
-                                <div>-</div>
-                                <Input
-                                    type="number"
-                                    placeholder="09 ч"
-                                    classname="w-[68px]"
-                                    inputType="secondary"
-                                />
-                                <Input
-                                    type="number"
-                                    placeholder="00 м"
-                                    classname="w-[70px]"
-                                    inputType="secondary"
-                                />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <div>{t("finance.ex")}</div>
-                                <Input
-                                    type="number"
-                                    classname="w-24"
-                                    inputType="secondary"
-                                />
-                                <div>{t("finance.a")}</div>
-                            </div>
-                            <Button
-                                title={t("finance.fill")}
-                            />
-                        </div>
-                        )} */}
                         <DropdownInput
                             title={t("finance.day")}
                             {...register("typeWorkDay")}

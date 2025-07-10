@@ -19,6 +19,7 @@ import useSWRMutation from "swr/mutation";
 import NoDataUI from "@/components/ui/NoDataUI";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
+import dayjs from "dayjs";
 
 enum TypeWorkDayShiftReportCashOper {
     REFUND = "REFUND",
@@ -141,7 +142,7 @@ const TimesheetView: React.FC = () => {
     };
 
     const onSubmit = async () => {
-        
+
         const result = await createCash();
 
         if (result) {
@@ -183,30 +184,16 @@ const TimesheetView: React.FC = () => {
                             <div className="text-text01 font-semibold">{t("finance.shiftOver")}</div>
                             <div>
                                 <div className="text-sm text-text02 font-semibold">{t("finance.curr")}</div>
-                                <div className="flex space-x-2 text-text01">
+                                <div className="flex space-x-2">
                                     <div>
                                         {dayShiftData?.startWorkingTime
-                                            ? (() => {
-                                                const date = new Date(dayShiftData.startWorkingTime);
-                                                const hours = date.getUTCHours();
-                                                const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-                                                const period = hours >= 12 ? 'PM' : 'AM';
-                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0');
-                                                return `${formattedHours}:${minutes} ${period}`;
-                                            })()
+                                            ? dayjs(dayShiftData.startWorkingTime).format("hh:mm A")
                                             : "09:00 AM"}
                                     </div>
                                     <div>-</div>
                                     <div>
                                         {dayShiftData?.endWorkingTime
-                                            ? (() => {
-                                                const date = new Date(dayShiftData.endWorkingTime);
-                                                const hours = date.getUTCHours();
-                                                const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-                                                const period = hours >= 12 ? 'PM' : 'AM';
-                                                const formattedHours = ((hours % 12) || 12).toString().padStart(2, '0');
-                                                return `${formattedHours}:${minutes} ${period}`;
-                                            })()
+                                            ? dayjs(dayShiftData.endWorkingTime).format("hh:mm A")
                                             : "05:30 PM"}
                                     </div>
                                 </div>

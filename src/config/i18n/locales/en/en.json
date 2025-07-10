@@ -805,7 +805,8 @@
     "del": "Delete Selected",
     "op": "Open",
     "confirm": "Confirm",
-    "addN": "Add New Paper Type"
+    "addN": "Add New Paper Type",
+    "scheduleCalendar": "Schedule Calendar"
   },
   "analysis": {
     "search": "Search",
@@ -971,5 +972,15 @@
     "master": "Mastercard, visa, Yandex.money, SBP",
     "enter": "Enter promotional code",
     "3": "3 months"
+  },
+  "calendar": {
+    "MONTH": "Month",
+    "WEEK": "Week",
+    "DAY": "Day",
+    "AGENDA": "Agenda",
+    "TODAY": "Today",
+    "BACK": "Back",
+    "NEXT": "Next",
+    "addEvent": "Add Event"
   }
 }

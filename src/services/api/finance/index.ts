@@ -14,7 +14,7 @@ enum ManagerReportPeriodStatus {
     SENT = "SENT"
 }
 
-enum TypeWorkDay {
+export enum TypeWorkDay {
     WORKING = "WORKING",
     WEEKEND = "WEEKEND",
     MEDICAL = "MEDICAL",
@@ -23,7 +23,7 @@ enum TypeWorkDay {
     TRUANCY = "TRUANCY"
 }
 
-enum TypeEstimation {
+export enum TypeEstimation {
     NO_VIOLATION = "NO_VIOLATION",
     GROSS_VIOLATION = "GROSS_VIOLATION",
     MINOR_VIOLATION = "MINOR_VIOLATION",
@@ -254,7 +254,7 @@ type DayShiftResponse = {
     comment?: string;
 }
 
-type UpdateDayShiftBody = {
+export type UpdateDayShiftBody = {
     typeWorkDay?: TypeWorkDay;
     timeWorkedOut?: string;
     startWorkingTime?: Date;
