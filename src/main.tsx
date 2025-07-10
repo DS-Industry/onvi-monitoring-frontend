@@ -7,6 +7,9 @@ import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 import { datadogLogs } from "@datadog/browser-logs";
 
+const ENV = import.meta.env.VITE_MODE;
+
+if (ENV === "staging") {
 datadogRum.init({
   applicationId: import.meta.env.VITE_DATADOG_APPLICATION_ID,
   clientToken: import.meta.env.VITE_DATADOG_CLIENT_TOKEN,
@@ -25,13 +28,14 @@ datadogRum.init({
 
 datadogRum.startSessionReplayRecording();
 
-datadogLogs.init({
-  clientToken: import.meta.env.VITE_DATADOG_CLIENT_TOKEN,
-  site: import.meta.env.VITE_DATADOG_SITE || "datadoghq.eu",
-  service: import.meta.env.VITE_DATADOG_SERVICE || "onvi-app",
-  forwardErrorsToLogs: true,
-  sessionSampleRate: 100,
-});
+  datadogLogs.init({
+    clientToken: import.meta.env.VITE_DATADOG_CLIENT_TOKEN,
+    site: import.meta.env.VITE_DATADOG_SITE || "datadoghq.eu",
+    service: import.meta.env.VITE_DATADOG_SERVICE || "onvi-app",
+    forwardErrorsToLogs: true,
+    sessionSampleRate: 100,
+  });
+}
 
 // main.tsx or App.tsx
 if ("serviceWorker" in navigator) {
