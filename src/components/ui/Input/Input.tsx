@@ -4,8 +4,9 @@ import AntInput from "antd/es/input";
 
 type InputProps = {
     type?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value?: any;
-    changeValue?: (e: any) => void;
+    changeValue?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: boolean;
     label?: string;
     helperText?: string;
@@ -217,11 +218,12 @@ const Input: React.FC<InputProps> = ({
                         placeholder={isLabelFloating ? "" : label}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
-                        onAnimationStart={(e: any) => {
+                        onAnimationStart={(e: React.AnimationEvent<HTMLInputElement>) => {
                             if (e.animationName === "onAutoFill") {
                                 setIsPreFilled(true);
                             }
                         }}
+
                         {...inputConfig}
                         style={{
                             padding: 0,

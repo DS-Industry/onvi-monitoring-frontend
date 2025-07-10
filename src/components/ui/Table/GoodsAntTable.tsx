@@ -16,7 +16,8 @@ interface ColumnConfig {
     isEditable?: boolean;
     type?: "string" | "number" | "checkbox" | "date" | string;
     options?: { name: string; value: unknown }[];
-    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: any;
 }
 
 type Props = {

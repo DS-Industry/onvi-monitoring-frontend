@@ -31,7 +31,7 @@ const Period: React.FC = () => {
         posId: posType || 1,
     };
 
-    const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
+    const [, setIsDataFilter] = useState<FilterCollection>(initialFilter);
 
     const handleDataFilter = (newFilterData: Partial<FilterCollection>) => {
         setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
@@ -51,7 +51,7 @@ const Period: React.FC = () => {
                 count={0}
                 posesSelect={poses}
                 hideSearch={true}
-                handleDataFilter={handleDataFilter}
+                handleDateFilter={handleDataFilter}
             />
             <div className="flex flex-col justify-center items-center">
                 <NoDataUI

@@ -141,7 +141,7 @@ const ChemicalConsumption: React.FC = () => {
             <FilterMonitoring
                 count={tableRows.length}
                 posesSelect={poses}
-                handleDataFilter={handleDataFilter}
+                handleDateFilter={handleDataFilter}
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />

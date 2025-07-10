@@ -150,7 +150,7 @@ const Timesheet: React.FC = () => {
                 count={shifts.length}
                 posesSelect={poses}
                 hideSearch={true}
-                handleDataFilter={handleDataFilter}
+                handleDateFilter={handleDataFilter}
                 loadingPos={isLoading || isValidating}
             />
             {filterIsLoading ? (

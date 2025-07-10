@@ -16,15 +16,21 @@ import { useTranslation } from "react-i18next";
 import Button from "../Button/Button.tsx";
 import TableUtils from "@/utils/TableUtils.tsx";
 
+type TableRow = {
+  id: number;
+  [key: string]: string | number | boolean | Date;
+
+};
 interface TableColumn {
   label: string;
   key: string;
   type?: "date" | "string" | "number" | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: any;
 }
 
-type Props = {
-  tableData: any;
+type Props<T extends TableRow> = {
+  tableData: T[];
   columns: TableColumn[];
   isUpdate?: boolean;
   isUpdateLeft?: boolean;
@@ -38,12 +44,12 @@ type Props = {
   handleChange?: (id: number, key: string, value: string | number) => void;
   isCheck?: boolean;
   showTotal?: boolean;
-  renderCell?: (column: any, row: any) => React.ReactNode;
+  renderCell?: (column: TableColumn, row: TableRow) => React.ReactNode;
   showPagination?: boolean;
   showTotalClean?: boolean;
 };
 
-const OverflowTable: React.FC<Props> = ({
+const OverflowTable = <T extends TableRow>({
   tableData,
   columns,
   isUpdate,
@@ -61,7 +67,7 @@ const OverflowTable: React.FC<Props> = ({
   renderCell,
   showPagination,
   showTotalClean = false
-}: Props) => {
+}: Props<T>) => {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     columns.map((col) => col.key)
@@ -123,13 +129,6 @@ const OverflowTable: React.FC<Props> = ({
 
   const userPermissions = usePermissions();
   const activePage = getActivePage();
-  // const handlePrevious = () => {
-  //   setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
-  // };
-
-  // const handleNext = () => {
-  //   setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
-  // };
 
   const generatePaginationRange = () => {
     const range: (number | string)[] = [];
@@ -273,7 +272,7 @@ const OverflowTable: React.FC<Props> = ({
               </tr>
             </thead>
             <tbody>
-              {currentData?.map((row: any) => (
+              {currentData?.map((row: TableRow) => (
                 <tr key={row.id}>
                   {isCheck && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
@@ -282,7 +281,7 @@ const OverflowTable: React.FC<Props> = ({
                   )}
                   {isStatus && (
                     <td className="border-b border-[#E4E5E7] bg-background02 py-2 px-2.5 text-start">
-                      {row.status === "SENT" ? <img src={SentIcon} loading="lazy" alt="SENT" /> : <img src={SavedIcon} loading="lazy" alt="SAVED"/>}
+                      {row.status === "SENT" ? <img src={SentIcon} loading="lazy" alt="SENT" /> : <img src={SavedIcon} loading="lazy" alt="SAVED" />}
                     </td>
                   )}
                   <Can
@@ -305,15 +304,15 @@ const OverflowTable: React.FC<Props> = ({
                           onClick={() => { navigate(`${nameUrl}`, { state: { ownerId: row.id, name: row.name, status: row.status, type: row.type, workDate: row.startWorkDate, endDate: row.endSpecifiedDate } }); setDocumentType(documentTypes.find((doc) => doc.name === row.type)?.value || "") }}
                         >
                           <div className="whitespace-nowrap flex items-center space-x-2 text-ellipsis overflow-hidden text-primary02 hover:text-primary02_Hover hover:underline">
-                            {row[column.key]}
+                            {String(row[column.key])}
                             <Icon icon="arrow-up-right" className="w-4 h-4" />
                           </div>
                         </span>
                       ) : (column.type === 'number' || column.type === 'double') ? (
-                        row[column.key] ? <div className={`${(row[column.key] < 0 || (column.key === "shortageDeviceType" && row[column.key] > 0)) ? "text-errorFill" : ""}`}>{formatNumber(row[column.key], column.type)}</div> : '-'
+                        row[column.key] ? <div className={`${(Number(row[column.key]) < 0 || (column.key === "shortageDeviceType" && Number(row[column.key]) > 0)) ? "text-errorFill" : ""}`}>{formatNumber(Number(row[column.key]), column.type)}</div> : '-'
                       ) :
                         column.type === 'percent' ? (
-                          row[column.key] ? <div className={`${(row[column.key] < 0) ? "text-errorFill" : ""}`}>{`${formatNumber(row[column.key])}%`}</div> : '-'
+                          row[column.key] ? <div className={`${(Number(row[column.key]) < 0) ? "text-errorFill" : ""}`}>{`${formatNumber(Number(row[column.key]))}%`}</div> : '-'
                         )
                           : column.render ? column.render(row, handleChange)
                             : renderCell ? renderCell(column, row)
@@ -329,21 +328,25 @@ const OverflowTable: React.FC<Props> = ({
                                   {row[column.key] === t("tables.SAVED") && (
                                     <span className="w-2 h-2 bg-[#FF9066] rounded-full"></span>
                                   )}
-                                  {row[column.key]}
+                                  {String(row[column.key])}
                                 </div>
                               ) : (
                                 <div className="whitespace-nowrap text-ellipsis overflow-hidden">
-                                  {column.type === 'date' ? (
-                                    row[column.key]
-                                      ? TableUtils.createDateTimeWithoutComma(row[column.key], userTimezone)
-                                      : '-'
-                                  ) : column.type === "period" ? (
-                                    row[column.key] ? formatPeriodType(row[column.key]) : '-'
-                                  ) : typeof row[column.key] === 'object' ? (
-                                    `${row[column.key]?.name || ''} ${row[column.key]?.city || ''} ${row[column.key]?.location || ''} ${row[column.key]?.lat || ''} ${row[column.key]?.lon || ''}`
-                                  ) : (
-                                    row[column.key]
-                                  )}
+                                  <div className="whitespace-nowrap text-ellipsis overflow-hidden">
+                                    {column.type === 'date' ? (
+                                      row[column.key]
+                                        ? TableUtils.createDateTimeWithoutComma(row[column.key] as Date | string, userTimezone)
+                                        : '-'
+                                    ) : column.type === 'period' ? (
+                                      row[column.key] ? formatPeriodType(String(row[column.key])) : '-'
+                                    ) : typeof row[column.key] === 'object' && row[column.key] !== null ? (
+                                      `${(row[column.key] as unknown as Record<string, unknown>)?.name || ''} ${(row[column.key] as unknown as Record<string, unknown>)?.city || ''} ${(row[column.key] as unknown as Record<string, unknown>)?.location || ''} ${(row[column.key] as unknown as Record<string, unknown>)?.lat || ''} ${(row[column.key] as unknown as Record<string, unknown>)?.lon || ''}`
+                                    ) : (
+                                      // 🛠️ Ensure primitive types are safe for rendering
+                                      String(row[column.key] ?? '-')
+                                    )}
+                                  </div>
+
                                 </div>
                               )}
                     </td>

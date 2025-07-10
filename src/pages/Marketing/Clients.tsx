@@ -169,6 +169,7 @@ const Clients: React.FC = () => {
             page: currentPage,
             size: pageNumber
         })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn])
 
     useEffect(() => {
@@ -298,7 +299,7 @@ const Clients: React.FC = () => {
         if (clientData) {
             setFormData((prevData) => ({
                 ...prevData,
-                birthday: clientData.birthday ? clientData.birthday.split("T")[0] : undefined,
+                birthday: clientData.birthday ? dayjs(String(clientData.birthday).split("T")[0]).toDate() : undefined,
                 email: clientData.email,
                 inn: clientData.inn,
                 gender: clientData.gender,

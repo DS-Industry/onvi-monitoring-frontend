@@ -3,7 +3,7 @@ import Input from "antd/es/input";
 
 type MultilineInputProps = {
   value?: string;
-  changeValue: (e: any) => void;
+  changeValue?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   error?: boolean;
   label?: string;
   disabled?: boolean;
@@ -29,15 +29,15 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
   const isLabelFloating = isFocused || value?.length > 0;
 
   const paddingClass = "py-2";
-    
+
 
   const borderColor = disabled
     ? "outline-none"
     : error
-    ? "border-errorFill"
-    : isFocused
-    ? "border-primary02"
-    : "border";
+      ? "border-errorFill"
+      : isFocused
+        ? "border-primary02"
+        : "border";
 
   const hoverBorder = disabled ? "" : "hover:border-primary02";
   const bgColor = disabled ? "bg-disabledFill" : "bg-background02";
@@ -91,9 +91,8 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
 
       {helperText && (
         <div
-          className={`text-[11px] font-normal mt-1 ${
-            error ? "text-errorFill" : "text-text02"
-          }`}
+          className={`text-[11px] font-normal mt-1 ${error ? "text-errorFill" : "text-text02"
+            }`}
         >
           {helperText}
         </div>

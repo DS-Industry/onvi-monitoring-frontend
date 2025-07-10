@@ -27,6 +27,17 @@ type FilterPayload = {
     size?: number;
 };
 
+type FilterStringPayload = {
+    dateStart: string;
+    dateEnd: string;
+    posId?: string | number;
+    deviceId?: number;
+    warehouseId?: string | number;
+    placementId?: string | number;
+    page?: number;
+    size?: number;
+};
+
 type Props = {
     count: number;
     organizationsSelect?: Optional[];
@@ -35,6 +46,7 @@ type Props = {
     wareHousesSelect?: Optional[];
     usersSelect?: Optional[];
     handleDataFilter?: (filter: FilterPayload) => void;
+    handleDateFilter?: (filter: FilterStringPayload) => void;
     hideCity?: boolean;
     hideSearch?: boolean;
     hideReset?: boolean;
@@ -51,6 +63,7 @@ const FilterMonitoring: React.FC<Props> = ({
     wareHousesSelect,
     usersSelect,
     handleDataFilter,
+    handleDateFilter,
     hideCity = false,
     hideSearch = false,
     hideReset = false,
@@ -145,6 +158,44 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             warehouseId: warehouseId
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterOn]);
+
+    useEffect(() => {
+        if (!handleDateFilter) return;
+
+        const safeStartDate = new Date(startDate);
+        const safeEndDate = new Date(endDate);
+
+        if (posesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                posId,
+                page: currentPage,
+                size: pageNumber,
+                placementId: city
+            });
+        }
+
+        if (devicesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                deviceId,
+                page: currentPage,
+                size: pageNumber
+            });
+        }
+
+        if (wareHousesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                warehouseId
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterOn]);
 
     return (

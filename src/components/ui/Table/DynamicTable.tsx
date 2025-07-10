@@ -50,7 +50,8 @@ interface TableColumn {
     label: string;
     key: string;
     type?: "date" | "string" | "number" | "currency" | "percent" | "period" | "tags" | "double" | "status" | string;
-    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: any;
     sortable?: boolean;
     filters?: { text: string; value: string; }[];
 }
@@ -79,7 +80,8 @@ type Props<T extends TableRow> = {
     urlTitleId?: number;
     handleChange?: (id: number, key: string, value: string | number) => void;
     showTotal?: boolean;
-    renderCell?: (column: TableColumn, row: TableRow) => React.ReactNode;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renderCell?: any;
     isStatus?: boolean;
     showTotalClean?: boolean;
     // New props for pagination control
