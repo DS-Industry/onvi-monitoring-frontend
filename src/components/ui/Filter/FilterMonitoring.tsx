@@ -13,8 +13,30 @@ import SearchDropdownInput from "../Input/SearchDropdownInput.tsx";
 
 type Optional = {
     name: string;
-    value: any;
-}
+    value: string | number;
+};
+
+type FilterPayload = {
+    dateStart: Date;
+    dateEnd: Date;
+    posId?: string | number;
+    deviceId?: number;
+    warehouseId?: string | number;
+    placementId?: string | number;
+    page?: number;
+    size?: number;
+};
+
+type FilterStringPayload = {
+    dateStart: string;
+    dateEnd: string;
+    posId?: string | number;
+    deviceId?: number;
+    warehouseId?: string | number;
+    placementId?: string | number;
+    page?: number;
+    size?: number;
+};
 
 type Props = {
     count: number;
@@ -23,7 +45,8 @@ type Props = {
     devicesSelect?: Optional[];
     wareHousesSelect?: Optional[];
     usersSelect?: Optional[];
-    handleDataFilter?: any;
+    handleDataFilter?: (filter: FilterPayload) => void;
+    handleDateFilter?: (filter: FilterStringPayload) => void;
     hideCity?: boolean;
     hideSearch?: boolean;
     hideReset?: boolean;
@@ -40,6 +63,7 @@ const FilterMonitoring: React.FC<Props> = ({
     wareHousesSelect,
     usersSelect,
     handleDataFilter,
+    handleDateFilter,
     hideCity = false,
     hideSearch = false,
     hideReset = false,
@@ -112,6 +136,8 @@ const FilterMonitoring: React.FC<Props> = ({
     }, [filterOpen, buttonOn]);
 
     useEffect(() => {
+        if (!handleDataFilter) return;
+
         posesSelect && handleDataFilter({
             dateStart: startDate,
             dateEnd: endDate,
@@ -132,6 +158,42 @@ const FilterMonitoring: React.FC<Props> = ({
             dateEnd: endDate,
             warehouseId: warehouseId
         })
+    }, [filterOn]);
+
+    useEffect(() => {
+        if (!handleDateFilter) return;
+
+        const safeStartDate = new Date(startDate);
+        const safeEndDate = new Date(endDate);
+
+        if (posesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                posId,
+                page: currentPage,
+                size: pageNumber,
+                placementId: city
+            });
+        }
+
+        if (devicesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                deviceId,
+                page: currentPage,
+                size: pageNumber
+            });
+        }
+
+        if (wareHousesSelect) {
+            handleDateFilter({
+                dateStart: safeStartDate.toISOString(),
+                dateEnd: safeEndDate.toISOString(),
+                warehouseId
+            });
+        }
     }, [filterOn]);
 
     return (

@@ -81,7 +81,7 @@ const Timestamps: React.FC = () => {
             const body = { dateTimeStamp: new Date() }; // Send current timestamp
             const response = await postTime({ body, id: deviceId }); // Call API
 
-            if(response) {
+            if (response) {
                 setDisabledButtons((prev) => ({ ...prev, [deviceId]: true }));
             }
 
@@ -99,6 +99,8 @@ const Timestamps: React.FC = () => {
         }
     };
 
+    const timestamps = timestampData || [];
+
     return (
         <div>
             <SearchDropdownInput
@@ -114,9 +116,15 @@ const Timestamps: React.FC = () => {
                     <TableSkeleton columnCount={columnsTimestamp.length} />
                     :
                     <OverflowTable
-                        tableData={timestampData?.sort((a, b) => a.deviceId - b.deviceId)}
+                        tableData={timestamps
+                            ?.map((item) => ({
+                                ...item,
+                                id: item.deviceId, // inject required `id` field
+                            }))
+                            .sort((a, b) => a.deviceId - b.deviceId)}
                         columns={columnsTimestamp}
                     />
+
                 }
             </div>
         </div>

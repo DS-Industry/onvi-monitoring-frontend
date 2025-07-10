@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 interface TableRow {
     id: number;
-    [key: string]: any;
+    [key: string]: string | number | boolean;
 }
 
 interface ColumnConfig {
@@ -16,8 +16,8 @@ interface ColumnConfig {
     label: string;
     isEditable?: boolean;
     type?: "string" | "number" | "checkbox" | "date" | string;
-    options?: { name: string; value: any }[];
-    render?: any;
+    options?: { name: string; value: unknown }[];
+    render?: (record: TableRow, handleChange?: (id: number, key: string, value: string | number) => void) => React.ReactNode;
 }
 
 // const initialColumns: ColumnConfig[] = [
@@ -66,7 +66,7 @@ const initialData: TableRow[] = [
 ];
 
 type Props = {
-    tableData: any;
+    tableData: TableRow[];
     columns: ColumnConfig[];
     handleChange?: (id: number, key: string, value: string | number) => void;
     addRow?: () => void;
@@ -93,7 +93,7 @@ const GoodsTable: React.FC<Props> = ({
     // const [columnss] = useState<ColumnConfig[]>(initialColumns);
     const [, setTableData] = useState<TableRow[]>(initialData);
 
-    const handleInputChange = (id: number, key: string, value: any) => {
+    const handleInputChange = (id: number, key: string, value: string | number | boolean) => {
         setTableData((prevData) =>
             prevData.map((row) =>
                 row.id === id ? { ...row, [key]: value } : row
@@ -163,7 +163,7 @@ const GoodsTable: React.FC<Props> = ({
                                 </tr>
                             </thead>
                             <tbody>
-                                {tableData?.map((row: any) => (
+                                {tableData?.map((row: TableRow) => (
                                     <tr key={row.id}>
                                         {columns?.map((column) => (
                                             <td key={column.key}
@@ -171,13 +171,13 @@ const GoodsTable: React.FC<Props> = ({
                                                 {column.type === "checkbox" ? (
                                                     <input
                                                         type="checkbox"
-                                                        checked={row[column.key]}
+                                                        checked={Boolean(row[column.key])}
                                                         onChange={() => handleInputChange(row.id, column.key, !row[column.key])}
                                                     />
                                                 )
                                                     : column.render ? column.render(row, handleChange)
                                                         : column.type === 'number' ? (
-                                                            row[column.key] ? formatNumber(row[column.key]) : '-'
+                                                            row[column.key] ? formatNumber(Number(row[column.key])) : '-'
                                                         ) : (
                                                             row[column.key]
                                                         )}
@@ -188,18 +188,6 @@ const GoodsTable: React.FC<Props> = ({
                             </tbody>
                         </table>
                     </div>
-
-                    {/* Summary */}
-                    {/* <div className="flex flex-wrap gap-4 sm:gap-10 justify-end mt-6 p-2 sm:p-4">
-                        <div className="flex">
-                            <span className="font-semibold text-sm text-text02 flex justify-center items-center">Всего: </span>
-                            <div className="border border-opacity01 rounded-md px-1 py-1.5 font-normal text-sm text-text02">{total.toFixed(2)}</div>
-                        </div>
-                        <div className="flex">
-                            <span className="font-semibold text-sm text-text02 flex justify-center items-center">НДС в т.ч.: </span>
-                            <div className="border border-opacity01 rounded-md px-1 py-1.5 font-normal text-sm text-text02">{vat.toFixed(2)}</div>
-                        </div>
-                    </div> */}
                 </div>
             )}
 

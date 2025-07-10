@@ -4,8 +4,8 @@ import Select from "antd/es/select";
 import Spin from "antd/es/spin";
 
 type Option = {
-    name: any;
-    value: any;
+    name: string;
+    value: string | number;
 };
 
 type SearchableDropdownProps = {
@@ -62,18 +62,12 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
                 notFoundContent={loading ? <div className="flex items-center justify-center"><Spin size="small" /></div> : "No options"}
                 className={`w-full ${noHeight ? "" : "h-10"}`}
                 optionFilterProp="label"
-                filterOption={(input, option) =>
-                    option?.label?.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined className="text-text02" />}
-                styles={{
-                    control: {
-                        height: 40,
-                        padding: "0 10px",
-                        borderRadius: 6,
-                        backgroundColor: isDisabled ? "#f5f5f5" : "#fff",
-                    },
+                filterOption={(input, option) => {
+                    if (!option || !option.label) return false;
+                    return option.label.toLowerCase().includes(input.toLowerCase());
                 }}
+
+                suffixIcon={<SearchOutlined className="text-text02" />}
                 status={error ? 'error' : ''}
             />
 

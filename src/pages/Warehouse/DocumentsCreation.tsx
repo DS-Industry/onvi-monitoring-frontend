@@ -523,7 +523,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Кол-во",
             key: "quantity",
-            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     type="number"
                     value={row.quantity}
@@ -535,7 +535,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Комментарий",
             key: "comment",
-            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     value={row.comment}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
@@ -545,7 +545,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Кол-во учет",
             key: "oldQuantity",
-            render: (row: { oldQuantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { oldQuantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     type="number"
                     value={row.oldQuantity}
@@ -557,7 +557,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Отклонение",
             key: "deviation",
-            render: (row: { deviation: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { deviation: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     type="number"
                     value={row.deviation}
@@ -618,7 +618,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Кол-во",
             key: "quantity",
-            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     type="number"
                     value={row.quantity}
@@ -630,7 +630,7 @@ const DocumentsCreation: React.FC = () => {
         {
             label: "Комментарий",
             key: "comment",
-            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
+            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
                 <Input
                     value={row.comment}
                     changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
@@ -714,9 +714,13 @@ const DocumentsCreation: React.FC = () => {
                         <div className="mt-4 overflow-x-auto">
                             {documentType === "RECEIPT" ? (
                                 nomenclatureItems.length > 0 ? (<OverflowTable
-                                    tableData={nomenclatureItems}
+                                    tableData={nomenclatureItems.map(item => ({
+                                        ...item,
+                                        id: item.nomenclatureId, // map nomenclatureId -> id
+                                    }))}
                                     columns={columnsInventoryItems}
-                                />) : (
+                                />
+                                ) : (
                                     <div className="flex flex-col justify-center items-center">
                                         <NoDataUI
                                             title={t("roles.invent")}
@@ -728,7 +732,10 @@ const DocumentsCreation: React.FC = () => {
                             ) : (
                                 inventoryItems.length > 0 ? (
                                     <OverflowTable
-                                        tableData={inventoryItems}
+                                        tableData={inventoryItems.map(item => ({
+                                            ...item,
+                                            id: item.nomenclatureId, // map nomenclatureId -> id
+                                        }))}
                                         columns={columnsInventoryItems}
                                     />) : (
                                     <div className="flex flex-col justify-center items-center">

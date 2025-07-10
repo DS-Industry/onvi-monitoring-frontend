@@ -364,7 +364,7 @@ const Pos: React.FC = () => {
                                     type="number"
                                     classname="w-40"
                                     value={startHour !== null ? startHour : ''}
-                                    changeValue={(e) => handleTimeWorkChange('startHour', e.target.value)}
+                                    changeValue={(e) => handleTimeWorkChange('startHour', Number(e.target.value))}
                                     {...register('timeWork', { required: 'Time Work is required' })}
                                     error={!!errors.timeWork}
                                     helperText={errors.timeWork?.message}
@@ -374,7 +374,7 @@ const Pos: React.FC = () => {
                                     type="number"
                                     classname="w-40"
                                     value={endHour !== null ? endHour : ''}
-                                    changeValue={(e) => handleTimeWorkChange('endHour', e.target.value)}
+                                    changeValue={(e) => handleTimeWorkChange('endHour', Number(e.target.value))}
                                     {...register('timeWork', { required: 'Time Work is required' })}
                                     error={!!errors.timeWork}
                                     helperText={errors.timeWork?.message}
