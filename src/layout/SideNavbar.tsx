@@ -74,10 +74,10 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const [openSubNav, setOpenSubNav] = useState<string | null>(null);
   const [openSubNavItem, setOpenSubNavItem] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const screens = useBreakpoint();
   const isMobile = !screens.sm; // sm breakpoint is 576px in Ant Design
-  
+
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { filterOpen, setFilterOpen } = useFilterOpen();
   const { t } = useTranslation();
@@ -96,7 +96,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   // Combined useEffect for initialization
   useEffect(() => {
     setSnackbarFunction(showSnackbar);
-    
+
     datadogRum.addAction("Navigated", { pathname: location.pathname });
     datadogLogs.logger.info("Route loaded", { pathname: location.pathname });
   }, [location.pathname, showSnackbar]);
@@ -111,7 +111,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       const sideBar = document.getElementById('sidebar');
       const sideNavs = document.querySelectorAll('.side-nav');
       let isInsideSidebar = false;
-      
+
       sideNavs.forEach(element => {
         if (element.contains(e.target as Node)) isInsideSidebar = true;
       });
@@ -156,7 +156,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
     const greenStatuses = [t("tables.ACTIVE"), t("tables.SENT"), t("tables.In Progress")];
     const redStatuses = [t("tables.OVERDUE"), t("tables.Done"), t("tables.FINISHED"), t("tables.PAUSE")];
     const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
-    
+
     if (greenStatuses.includes(status)) return <Tag color="green">{status}</Tag>;
     if (redStatuses.includes(status)) return <Tag color="red">{status}</Tag>;
     if (orangeStatuses.includes(status)) return <Tag color="orange">{status}</Tag>;
@@ -164,17 +164,31 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   };
 
   const getRequiredPermissions = (path: string): Permission[] => {
-    const permissionMap: Record<string, Permission[]> = {
-      administration: [{ action: "manage", subject: "Organization" }, { action: "create", subject: "Organization" }],
-      station: [{ action: "manage", subject: "Pos" }, { action: "create", subject: "Pos" }],
-      equipment: [{ action: "manage", subject: "Incident" }, { action: "create", subject: "Incident" }, { action: "manage", subject: "TechTask" }, { action: "create", subject: "TechTask" }],
-      warehouse: [{ action: "manage", subject: "Warehouse" }, { action: "create", subject: "Warehouse" }],
-      finance: [{ action: "manage", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }],
-      analysis: [{ action: "manage", subject: "ShiftReport" }, { action: "create", subject: "ShiftReport" }],
-    };
-    
-    const key = Object.keys(permissionMap).find(k => path.includes(k));
-    return key ? permissionMap[key] : [];
+    const permissionMap: [string, Permission[]][] = [
+      ["hr/salary", [{ action: "manage", subject: "Hr" }, { action: "create", subject: "Hr" }]],
+      ["hr/employee/advance", [{ action: "manage", subject: "Hr" }, { action: "create", subject: "Hr" }]],
+      ["hr", [{ action: "manage", subject: "Hr" }, { action: "update", subject: "Hr" }]],
+      ["administration", [{ action: "manage", subject: "Organization" }, { action: "create", subject: "Organization" }]],
+      ["station", [{ action: "manage", subject: "Pos" }, { action: "create", subject: "Pos" }]],
+      ["equipment/routine", [
+        { action: "manage", subject: "TechTask" },
+        { action: "create", subject: "TechTask" }
+      ]],
+      ["equipment/failure", [
+        { action: "manage", subject: "Incident" },
+        { action: "create", subject: "Incident" }
+      ]],
+      ["warehouse/documents", [{ action: "manage", subject: "Warehouse" }, { action: "create", subject: "Warehouse" }]],
+      ["warehouse", [{ action: "manage", subject: "Warehouse" }, { action: "update", subject: "Warehouse" }]],
+      ["finance/timesheet", [{ action: "manage", subject: "ShiftReport" }, { action: "create", subject: "ShiftReport" }]],
+      ["finance/financial/accounting", [{ action: "manage", subject: "ManagerPaper" }, { action: "create", subject: "ManagerPaper" }]],
+      ["finance/report/period", [{ action: "manage", subject: "ManagerPaper" }]],
+      ["finance", [{ action: "manage", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }]],
+      ["analysis", [{ action: "manage", subject: "ShiftReport" }, { action: "create", subject: "ShiftReport" }]]
+    ];
+
+    const entry = permissionMap.find(([key]) => path.includes(key));
+    return entry ? entry[1] : [];
   };
 
   const handleNavItemClick = (item: string): void => {
@@ -224,9 +238,9 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
             className={({ isActive }) =>
               item.subMenu
                 ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
-                  ${isParentActive(item.subNav) ? 'bg-opacity01/30 text-primary01' : 
-                    (!isMobile && activeNavItem === item.name) ? 'bg-opacity01/30 text-primary01' : 'text-text02'
-                  } hover:bg-opacity01/30 hover:text-primary01`
+                  ${isParentActive(item.subNav) ? 'bg-opacity01/30 text-primary01' :
+                  (!isMobile && activeNavItem === item.name) ? 'bg-opacity01/30 text-primary01' : 'text-text02'
+                } hover:bg-opacity01/30 hover:text-primary01`
                 : isActive
                   ? `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
                   : `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
@@ -342,7 +356,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                       subItem.subMenu
                         ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
                           ${isParentActive(subItem.subNav) ? 'bg-opacity01/30 text-text01' : 'text-text02'
-                          } hover:bg-opacity01/30 hover:text-text01`
+                        } hover:bg-opacity01/30 hover:text-text01`
                         : isActive
                           ? `flex items-center p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
                           : `flex items-center p-2 mx-4 font-semibold text-sm rounded transition duration-200 
@@ -514,15 +528,23 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               </div>
 
               <div className="flex flex-wrap justify-end">
-                {activePage?.name === "nomenclature" && (
-                  <Button
-                    title={isMobile ? "" : t("warehouse.import")}
-                    iconUpload={true}
-                    type="outline"
-                    classname={`mr-2 ${isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""}`}
-                    handleClick={() => navigate('/warehouse/inventory/import')}
-                  />
-                )}
+                <Can
+                  requiredPermissions={[
+                    { action: "manage", subject: "Warehouse" },
+                    { action: "update", subject: "Warehouse" },
+                  ]}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) => allowed && activePage?.name === "nomenclature" && (
+                    <Button
+                      title={isMobile ? "" : t("warehouse.import")}
+                      iconUpload={true}
+                      type="outline"
+                      classname={`mr-2 ${isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""}`}
+                      handleClick={() => navigate('/warehouse/inventory/import')}
+                    />
+                  )}
+                </Can>
                 <Can
                   requiredPermissions={getRequiredPermissions(activePage?.path || "")}
                   userPermissions={userPermissions}

@@ -18,6 +18,8 @@ import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { Descriptions, Divider } from "antd";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 type TableRow = {
     id: number;
@@ -82,6 +84,7 @@ const CollectionCreation: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const city = useCity();
+    const userPermissions = usePermissions();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -441,7 +444,7 @@ const CollectionCreation: React.FC = () => {
                                             const originalDate = row[column.key] || "";
 
                                             const formattedDate = originalDate
-                                                ? String(originalDate).slice(0, 16) 
+                                                ? String(originalDate).slice(0, 16)
                                                 : "";
 
                                             return (
@@ -450,9 +453,9 @@ const CollectionCreation: React.FC = () => {
                                                     value={formattedDate}
                                                     className="w-full px-3 py-1 rounded-md caret-primary02 text-black border outline-none border-primary02 border-opacity-30 hover:border-primary02"
                                                     onChange={(e) => handleDateChange(e, row.deviceId, column.key)}
-                                                    onBlur={() => setEditingRow(null)} 
+                                                    onBlur={() => setEditingRow(null)}
                                                     autoFocus
-                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)} 
+                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)}
                                                     disabled={location.state?.status === t("tables.SENT")}
                                                 />
                                             );
@@ -474,24 +477,48 @@ const CollectionCreation: React.FC = () => {
                     title={t("organizations.cancel")}
                     handleClick={() => navigate('/finance/collection')}
                 />
-                {location.state?.status !== t("tables.SENT") && <Button
-                    type="outline"
-                    title={t("finance.recal")}
-                    isLoading={isMutating}
-                    form={true}
-                    handleClick={handleRecalculation}
-                />}
-                {location.state?.status !== t("tables.SENT") && <Button
+                <Can
+                    requiredPermissions={[
+                        { action: "manage", subject: "CashCollection" },
+                        { action: "create", subject: "CashCollection" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                    {(allowed) => allowed && location.state?.status !== t("tables.SENT") && <Button
+                        type="outline"
+                        title={t("finance.recal")}
+                        isLoading={isMutating}
+                        form={true}
+                        handleClick={handleRecalculation}
+                    />}
+                </Can>
+                <Can
+                    requiredPermissions={[
+                        { action: "manage", subject: "CashCollection" },
+                        { action: "create", subject: "CashCollection" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                {(allowed) => allowed && location.state?.status !== t("tables.SENT") && <Button
                     title={t("finance.recalSend")}
                     isLoading={sendingColl}
                     form={true}
                     handleClick={handleSend}
                 />}
-                {location.state?.status === t("tables.SENT") && <Button
+                </Can>
+                <Can
+                    requiredPermissions={[
+                        { action: "manage", subject: "CashCollection" },
+                        { action: "update", subject: "CashCollection" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                {(allowed) => allowed && location.state?.status === t("tables.SENT") && <Button
                     title={t("finance.refund")}
                     isLoading={returningColl}
                     handleClick={handleReturn}
                 />}
+                </Can>
             </div>}
         </div>
     )

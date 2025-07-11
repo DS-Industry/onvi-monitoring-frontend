@@ -34,6 +34,7 @@ import AntInput from 'antd/es/input';
 import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
 import type { TablePaginationConfig } from 'antd/es/table';
+import { usePermissions } from "@/hooks/useAuthStore";
 
 const { Option } = Select;
 
@@ -164,6 +165,7 @@ const MonthlyExpanse: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
+    const userPermissions = usePermissions();
 
     const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
         if (num === null || num === undefined || isNaN(num)) return "-";
@@ -466,7 +468,7 @@ const MonthlyExpanse: React.FC = () => {
         {
             title: "Действия",
             dataIndex: "actions",
-            render: (_, record: DataRecord) => {
+            render: (_: unknown, record: DataRecord) => {
                 const editable = isEditing(record);
 
                 if (editable) {
@@ -488,21 +490,36 @@ const MonthlyExpanse: React.FC = () => {
                     );
                 }
 
-                const menu = (
-                    <Menu
-                        onClick={({ key }) => {
-                            if (key === 'edit') edit(record);
-                            else if (key === 'delete') handleDelete(record.id);
-                        }}
-                        items={[
-                            { key: 'edit', label: 'Редактировать' },
-                            { key: 'delete', label: 'Удалить', danger: true }
-                        ]}
-                    />
+                const canEdit = userPermissions.some(
+                    (perm) => perm.action === "create" && perm.subject === "ManagerPaper"
+                );
+                const canDelete = userPermissions.some(
+                    (perm) => perm.action === "delete" && perm.subject === "ManagerPaper"
                 );
 
+                const menuItems = [];
+                if (canEdit) {
+                    menuItems.push({ key: 'edit', label: 'Редактировать' });
+                }
+                if (canDelete) {
+                    menuItems.push({ key: 'delete', label: 'Удалить', danger: true });
+                }
+
+                if (menuItems.length === 0) return null; // User has no access
+
                 return (
-                    <Dropdown overlay={menu} trigger={['click']}>
+                    <Dropdown
+                        overlay={
+                            <Menu
+                                onClick={({ key }) => {
+                                    if (key === 'edit') edit(record);
+                                    else if (key === 'delete') handleDelete(record.id);
+                                }}
+                                items={menuItems}
+                            />
+                        }
+                        trigger={['click']}
+                    >
                         <div className="cursor-pointer text-primary02">
                             <MoreOutlined style={{ fontSize: 18 }} />
                         </div>
@@ -510,6 +527,7 @@ const MonthlyExpanse: React.FC = () => {
                 );
             },
         }
+
     ];
 
     const memoizedColumns =

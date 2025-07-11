@@ -10,6 +10,8 @@ import useSWR, { mutate } from "swr";
 import { CheckOutlined, UndoOutlined } from '@ant-design/icons';
 import Space from 'antd/es/space';
 import AntDButton from 'antd/es/button';
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 enum ManagerPaperGroup {
     RENT = "RENT",
@@ -35,6 +37,7 @@ const MonthlyExpanseEdit: React.FC = () => {
 
     const location = useLocation();
     const { t } = useTranslation();
+    const userPermissions = usePermissions();
 
     const groups = useMemo(
         () => [
@@ -225,15 +228,29 @@ const MonthlyExpanseEdit: React.FC = () => {
                     :
                     <div className="space-y-4">
                         <Space>
-                            {location.state.status === "SAVE" && <AntDButton
-                                type="primary"
-                                icon={<CheckOutlined />}
-                                onClick={sendManagerPeriod}
-                                loading={isLoading}
+                            <Can
+                                requiredPermissions={[
+                                    { action: "manage", subject: "ManagerPaper" },
+                                    { action: "create", subject: "ManagerPaper" },
+                                ]}
+                                userPermissions={userPermissions}
                             >
-                                {t("finance.send")}
-                            </AntDButton>}
-                            {location.state.status === "SENT" && <AntDButton
+                                {(allowed) => allowed && location.state.status === "SAVE" && <AntDButton
+                                    type="primary"
+                                    icon={<CheckOutlined />}
+                                    onClick={sendManagerPeriod}
+                                    loading={isLoading}
+                                >
+                                    {t("finance.send")}
+                                </AntDButton>}
+                            </Can>
+                            <Can
+                                requiredPermissions={[
+                                    { action: "manage", subject: "ManagerPaper" }
+                                ]}
+                                userPermissions={userPermissions}
+                            >
+                            {(allowed) => allowed && location.state.status === "SENT" && <AntDButton
                                 type="primary"
                                 icon={<UndoOutlined />}
                                 onClick={returnManagerPeriod}
@@ -241,6 +258,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                             >
                                 {t("finance.returns")}
                             </AntDButton>}
+                            </Can>
                         </Space>
                         <ExpandableTable
                             data={groupedData.items}

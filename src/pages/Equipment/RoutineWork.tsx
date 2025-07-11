@@ -28,6 +28,8 @@ import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 const { Text, Title } = Typography;
 
@@ -111,6 +113,7 @@ const RoutineWork: React.FC = () => {
     const [techStatus, setTechStatus] = useState("");
     const navigate = useNavigate();
     const [searchValue, setSearchValue] = useState("");
+    const userPermissions = usePermissions();
 
     const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
         posId: searchPosId,
@@ -354,7 +357,7 @@ const RoutineWork: React.FC = () => {
 
     const handleSelectionTagChange = (selected: typeof options) => {
         const selectedIds = selected.map((sel) => sel.id);
-        setFormData((prev) => ({...prev, tagIds: selectedIds}));
+        setFormData((prev) => ({ ...prev, tagIds: selectedIds }));
         setTagIds(selectedIds);
     };
 
@@ -544,28 +547,35 @@ const RoutineWork: React.FC = () => {
                                             }}
                                         >
                                             {/* Check Button */}
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    padding: '0 16px',
-                                                    height: '100%',
-                                                    width: '150px'
-                                                }}
+                                            <Can
+                                                requiredPermissions={[
+                                                    { action: "manage", subject: "TechTask" },
+                                                    { action: "update", subject: "TechTask" },
+                                                ]}
+                                                userPermissions={userPermissions}
                                             >
-                                                <AntDButton
-                                                    type="text"
-                                                    loading={tech.id === techId && updatingStatus}
-                                                    icon={tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
-                                                    onClick={() => {
-                                                        setIsModalOpen(true);
-                                                        setTechId(tech.id);
-                                                        setTechStatus(tech.status);
+                                                {(allowed) => allowed && <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        padding: '0 16px',
+                                                        height: '100%',
+                                                        width: '150px'
                                                     }}
-                                                />
-                                            </div>
-
+                                                >
+                                                    <AntDButton
+                                                        type="text"
+                                                        loading={tech.id === techId && updatingStatus}
+                                                        icon={tech.status !== t("tables.ACTIVE") ? <UndoOutlined style={{ color: 'orange', fontSize: '16px' }} /> : <CheckOutlined style={{ color: '#52c41a', fontSize: '16px' }} />}
+                                                        onClick={() => {
+                                                            setIsModalOpen(true);
+                                                            setTechId(tech.id);
+                                                            setTechStatus(tech.status);
+                                                        }}
+                                                    />
+                                                </div>}
+                                            </Can>
                                             {/* Divider */}
                                             <div
                                                 style={{
@@ -578,21 +588,29 @@ const RoutineWork: React.FC = () => {
                                             />
 
                                             {/* Delete Button */}
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    padding: '0 16px',
-                                                    height: '100%',
-                                                    width: '150px'
-                                                }}
+                                            <Can
+                                                requiredPermissions={[
+                                                    { action: "manage", subject: "TechTask" },
+                                                    { action: "delete", subject: "TechTask" },
+                                                ]}
+                                                userPermissions={userPermissions}
                                             >
-                                                <AntDButton
-                                                    type="text"
-                                                    icon={<DeleteOutlined style={{ color: '#f5222d', fontSize: '16px' }} />}
-                                                />
-                                            </div>
+                                                {(allowed) => allowed && <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        padding: '0 16px',
+                                                        height: '100%',
+                                                        width: '150px'
+                                                    }}
+                                                >
+                                                    <AntDButton
+                                                        type="text"
+                                                        icon={<DeleteOutlined style={{ color: '#f5222d', fontSize: '16px' }} />}
+                                                    />
+                                                </div>}
+                                            </Can>
                                         </Row>
                                     </Card>
                                 </div>
