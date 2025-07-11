@@ -12,6 +12,8 @@ import SalyImage from "@/assets/NoEquipment.png"
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Select } from "antd";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 const ConsumptionRate: React.FC = () => {
     const { t } = useTranslation();
@@ -19,16 +21,16 @@ const ConsumptionRate: React.FC = () => {
     const posType = usePosType();
     const [searchPosId, setSearchPosId] = useState(posType);
     const city = useCity();
-
+    const userPermissions = usePermissions();
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
-        searchPosId !== "*" ? [`get-consumption-rate`, searchPosId] : null, 
-        () => getConsumptionRate(searchPosId), 
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
-            keepPreviousData: true 
+        searchPosId !== "*" ? [`get-consumption-rate`, searchPosId] : null,
+        () => getConsumptionRate(searchPosId),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true
         });
 
     const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(['patch-program-coeff', searchPosId],
@@ -41,9 +43,9 @@ const ConsumptionRate: React.FC = () => {
     const posesAllObj = {
         name: allCategoriesText,
         value: "*"
-      };
-    
-      poses.unshift(posesAllObj);
+    };
+
+    poses.unshift(posesAllObj);
 
     // const mockData = [
     //     { id: 1, programTypeName: "Ополаскивание", literRate: "", concentration: "" },
@@ -146,13 +148,21 @@ const ConsumptionRate: React.FC = () => {
                     handleClick={() => { }}
                     classname="w-[168px]"
                 />
-                <Button
-                    title={t("organizations.save")}
-                    form={true}
-                    isLoading={isMutating}
-                    handleClick={handleSubmit}
-                    classname="w-[168px]"
-                />
+                <Can
+                    requiredPermissions={[
+                        { action: "manage", subject: "TechTask" },
+                        { action: "update", subject: "TechTask" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                    {(allowed) => allowed && <Button
+                        title={t("organizations.save")}
+                        form={true}
+                        isLoading={isMutating}
+                        handleClick={handleSubmit}
+                        classname="w-[168px]"
+                    />}
+                </Can>
             </div>}
         </div>
     )

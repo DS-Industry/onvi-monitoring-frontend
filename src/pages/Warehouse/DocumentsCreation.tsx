@@ -20,6 +20,8 @@ import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { Select, Skeleton } from "antd";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -48,6 +50,7 @@ const DocumentsCreation: React.FC = () => {
     const setEndDate = useSetEndDate();
     const user = useUser();
     const [searchNomen, setSearchNomen] = useState("");
+    const userPermissions = usePermissions();
 
     const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
 
@@ -814,26 +817,34 @@ const DocumentsCreation: React.FC = () => {
                             sortAscending={sortAscending}
                             sortDescending={sortDescending}
                         />
-                        <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
-                            <Button
-                                type="outline"
-                                title={t("organizations.cancel")}
-                                handleClick={() => navigate('/warehouse/documents')}
-                            />
-                            <Button
-                                type="outline"
-                                title={t("warehouse.saveDraft")}
-                                form={true}
-                                isLoading={isMutating}
-                                handleClick={handleSubmit}
-                            />
-                            <Button
-                                title={t("warehouse.saveAccept")}
-                                form={true}
-                                isLoading={sendingDoc}
-                                handleClick={handleSubmitSend}
-                            />
-                        </div>
+                        <Can
+                            requiredPermissions={[
+                                { action: "manage", subject: "Warehouse" },
+                                { action: "create", subject: "Warehouse" },
+                            ]}
+                            userPermissions={userPermissions}
+                        >
+                            {(allowed) => allowed && <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
+                                <Button
+                                    type="outline"
+                                    title={t("organizations.cancel")}
+                                    handleClick={() => navigate('/warehouse/documents')}
+                                />
+                                <Button
+                                    type="outline"
+                                    title={t("warehouse.saveDraft")}
+                                    form={true}
+                                    isLoading={isMutating}
+                                    handleClick={handleSubmit}
+                                />
+                                <Button
+                                    title={t("warehouse.saveAccept")}
+                                    form={true}
+                                    isLoading={sendingDoc}
+                                    handleClick={handleSubmitSend}
+                                />
+                            </div>}
+                        </Can>
                     </div>
                 }
             </div>

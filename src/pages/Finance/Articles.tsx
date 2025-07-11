@@ -41,6 +41,8 @@ import Upload from 'antd/es/upload';
 import type { TableProps } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 const { Title, Text } = Typography;
 
@@ -612,26 +614,37 @@ const Articles: React.FC = () => {
             width: '15%',
             render: (_: unknown, record: DataType) => {
                 const editable = isEditing(record);
-                return editable ? (
-                    <span className="flex space-x-4">
-                        <AntDButton
-                            type="primary"
-                            onClick={cancel}
-                        >
-                            Отмена
-                        </AntDButton>
-                        <AntDButton
-                            onClick={() => save(record.key)}
-                            loading={updatingManager}
-                        >
-                            Сохранять
-                        </AntDButton>
-                    </span>
-                ) : (
-                    <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-                        Редактировать
-                    </Typography.Link>
-                );
+                return (
+                    <Can
+                        requiredPermissions={[
+                            { action: "manage", subject: "ManagerPaper" },
+                            { action: "update", subject: "ManagerPaper" },
+                        ]}
+                        userPermissions={userPermissions}
+                    >
+                        {(allowed) => allowed && <div>
+                            {editable ? (
+                                <span className="flex space-x-4">
+                                    <AntDButton
+                                        type="primary"
+                                        onClick={cancel}
+                                    >
+                                        Отмена
+                                    </AntDButton>
+                                    <AntDButton
+                                        onClick={() => save(record.key)}
+                                        loading={updatingManager}
+                                    >
+                                        Сохранять
+                                    </AntDButton>
+                                </span>
+                            ) : (
+                                <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+                                    Редактировать
+                                </Typography.Link>
+                            )}
+                        </div>}
+                    </Can>);
             },
         },
     ];
@@ -868,6 +881,8 @@ const Articles: React.FC = () => {
         setPageSize(15);
         setCurrentPage(1);
     }
+
+    const userPermissions = usePermissions();
 
     return (
         <div>
@@ -1115,26 +1130,43 @@ const Articles: React.FC = () => {
                 {/* Add/Delete buttons */}
                 <div style={{ marginBottom: 16 }}>
                     <Space>
-                        <AntDButton
-                            type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={handleAddRow}
+                        <Can
+                            requiredPermissions={[
+                                { action: "manage", subject: "ManagerPaper" },
+                                { action: "create", subject: "ManagerPaper" },
+                            ]}
+                            userPermissions={userPermissions}
                         >
-                            {t("finance.addRow")}
-                        </AntDButton>
-                        <Popconfirm
-                            title="Are you sure you want to delete the selected rows?"
-                            onConfirm={handleDeleteRow}
-                            disabled={selectedRowKeys.length === 0}
-                        >
-                            <AntDButton
-                                danger
-                                icon={<DeleteOutlined />}
-                                disabled={selectedRowKeys.length === 0}
+                            {(allowed) => allowed && (<AntDButton
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={handleAddRow}
                             >
-                                {t("finance.del")} ({selectedRowKeys.length})
-                            </AntDButton>
-                        </Popconfirm>
+                                {t("finance.addRow")}
+                            </AntDButton>)}
+                        </Can>
+                        <Can
+                            requiredPermissions={[
+                                { action: "manage", subject: "ManagerPaper" },
+                                { action: "delete", subject: "ManagerPaper" },
+                            ]}
+                            userPermissions={userPermissions}
+                        >
+                            {(allowed) => allowed && (
+                                <Popconfirm
+                                    title="Are you sure you want to delete the selected rows?"
+                                    onConfirm={handleDeleteRow}
+                                    disabled={selectedRowKeys.length === 0}
+                                >
+                                    <AntDButton
+                                        danger
+                                        icon={<DeleteOutlined />}
+                                        disabled={selectedRowKeys.length === 0}
+                                    >
+                                        {t("finance.del")} ({selectedRowKeys.length})
+                                    </AntDButton>
+                                </Popconfirm>)}
+                        </Can>
                     </Space>
                 </div>
 

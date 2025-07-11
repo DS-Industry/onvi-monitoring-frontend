@@ -19,6 +19,8 @@ import Filter from "@/components/ui/Filter/Filter";
 import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Select } from "antd";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
 
 enum PurposeType {
     SALE = "SALE",
@@ -50,28 +52,29 @@ const InventoryCreation: React.FC = () => {
     const [name, setName] = useState("");
     const [orgId, setOrgId] = useState<number | null>(null);
     const city = useCity();
+    const userPermissions = usePermissions();
 
     const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
-        orgId ? [`get-inventory`, category, orgId] : null, 
+        orgId ? [`get-inventory`, category, orgId] : null,
         () => {
             return getNomenclature(orgId!);
-        }, 
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
+        },
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
             keepPreviousData: true
-        }) 
+        })
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR(
-        [`get-organization`], 
-        () => getOrganization({ placementId: city }), 
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: false, 
+        [`get-organization`],
+        () => getOrganization({ placementId: city }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
             keepPreviousData: true,
             onSuccess: (data) => {
                 if (data && data.length > 0) {
@@ -81,7 +84,7 @@ const InventoryCreation: React.FC = () => {
         });
 
     const inventories = inventoryData?.map((item) => item.props)
-        ?.filter((item: { categoryId: number }) => category === allCategoriesText || item.categoryId === category) 
+        ?.filter((item: { categoryId: number }) => category === allCategoriesText || item.categoryId === category)
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))
         ?.map((item) => item) || [];
 
@@ -454,11 +457,19 @@ const InventoryCreation: React.FC = () => {
                                 resetForm();
                             }}
                         />
-                        {isEditMode && (<Button
-                            title={t("warehouse.deletePos")}
-                            handleClick={handleDelete}
-                            classname="bg-red-600 hover:bg-red-300"
-                        />)}
+                        <Can
+                            requiredPermissions={[
+                                { action: "manage", subject: "Warehouse" },
+                                { action: "delete", subject: "Warehouse" },
+                            ]}
+                            userPermissions={userPermissions}
+                        >
+                            {(allowed) => allowed && isEditMode && (<Button
+                                title={t("warehouse.deletePos")}
+                                handleClick={handleDelete}
+                                classname="bg-red-600 hover:bg-red-300"
+                            />)}
+                        </Can>
                         <Button
                             title={t("organizations.save")}
                             form={true}
