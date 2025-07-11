@@ -221,10 +221,16 @@ const DynamicTable = <T extends TableRow>({
     const activePage = getActivePage();
 
     const getRequiredPermissions = (path: string): Permission[] => {
+        if (path.includes("finance/financial/accounting")) {
+            return [
+                { action: "manage", subject: "ManagerPaper" },
+                { action: "update", subject: "ManagerPaper" },
+            ];
+        }
         if (path.includes("administration"))
             return [
                 { action: "manage", subject: "Organization" },
-                { action: "update", subject: "Organization" },
+                { action: "create", subject: "Organization" },
             ];
         if (path.includes("station"))
             return [
