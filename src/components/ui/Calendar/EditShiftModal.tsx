@@ -72,20 +72,27 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
         const start = dayjs(event.startWorkingTime)
             .set("hour", Number(data.hours_start))
             .set("minute", Number(data.minutes_start))
-            .toDate();
+            .set("second", 0)
+            .set("millisecond", 0);
 
-        const end = dayjs(event.endWorkingTime)
+        let end = dayjs(event.startWorkingTime)
             .set("hour", Number(data.hours_end))
             .set("minute", Number(data.minutes_end))
-            .toDate();
+            .set("second", 0)
+            .set("millisecond", 0);
 
-        const totalMinutes = dayjs(end).diff(dayjs(start), "minutes");
+        // Handle cross-day shifts
+        if (end.isBefore(start)) {
+            end = end.add(1, "day");
+        }
+
+        const totalMinutes = end.diff(start, "minutes");
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
 
         const payload: UpdateDayShiftBody = {
-            startWorkingTime: start,
-            endWorkingTime: end,
+            startWorkingTime: start.toDate(),
+            endWorkingTime: end.toDate(),
             timeWorkedOut: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`,
             typeWorkDay: data.typeWorkDay,
             estimation: data.estimation,
@@ -258,7 +265,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
 
                 <div className="flex gap-3 mt-10">
                     <Button title={t("warehouse.reset")} handleClick={onClose} type="outline" />
-                    <Button title={t("routes.save")} form />
+                    <Button title={t("routes.save")} form={true} />
                 </div>
             </form>
         </Modal>

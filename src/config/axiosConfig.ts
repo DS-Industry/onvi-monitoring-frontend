@@ -64,10 +64,16 @@ api.interceptors.response.use(
       message: error.message,
       timestamp: new Date().toISOString(),
     });
-    
+
     if (!showSnackbar) {
       console.error("Snackbar function is not initialized.");
       return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401) {
+      const logout = useAuthStore.getState().clearTokens;
+      logout();
+      window.location.href = '/login';
     }
 
     const endpoint = error.config?.url;

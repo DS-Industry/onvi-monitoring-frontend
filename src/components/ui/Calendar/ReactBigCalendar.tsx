@@ -31,10 +31,11 @@ import CustomEvent from "./CustomEvent"
 import { useNavigate } from "react-router-dom";
 import { getWorkers } from "@/services/api/equipment";
 import { usePosType } from "@/hooks/useAuthStore";
-import Button from "../Button/Button";
 import AddWorkerModal from "./AddWorkerModal";
 import CustomSlotWrapper from "./CustomSlotWrapper";
 import CustomToolbar from "./CustomToolbar";
+import AntDButton from "antd/es/button";
+import { PlusOutlined } from "@ant-design/icons";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -101,7 +102,9 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
     const handleSelectSlot = useCallback(
         async ({ start, end }: SlotInfo) => {
             if (!shiftData) return;
+
             const userId = user.id;
+
             try {
                 const created = await createDayShift({
                     shiftReportId,
@@ -117,7 +120,7 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                     title: "",
                     startWorkingTime: start,
                     endWorkingTime: end,
-                    timeWorkedOut: ``,
+                    timeWorkedOut: "",
                     workerId: userId,
                     name: name,
                     typeWorkDay: TypeWorkDay.WEEKEND,
@@ -129,7 +132,6 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
 
                 setSelectedEvent(newEvent);
                 setModalOpen(true);
-                setCalendarEvents(prev => [...prev, newEvent]);
 
             } catch (e) {
                 console.error("Shift creation failed", e);
@@ -184,11 +186,12 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
         };
 
         setCalendarEvents(prev =>
-            prev.map((e) => (e.id === updated.id ? updated : e))
+            prev.some((e) => e.id === updated.id)
+                ? prev.map((e) => (e.id === updated.id ? updated : e))
+                : [...prev, updated]
         );
 
         setModalOpen(false);
-        mutate(); // optional background refresh
     };
 
     const calendarRange = useMemo(() => {
@@ -213,126 +216,133 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
     };
 
     const handleSlotAddEvent = async (date: Date) => {
-        const start = dayjs(date).toDate(); 
-        const end = dayjs(date).toDate(); 
+        const start = dayjs(date).toDate();
+        const end = dayjs(date).toDate();
 
         await handleSelectSlot({ start, end } as SlotInfo); // reuse existing logic
     };
 
     return (
-        <div className="p-4 bg-white rounded shadow-lg h-[600px] relative">
-            <div className="flex justify-end mb-2">
-                <Button title="Add Worker" handleClick={() => setIsAddWorkerOpen(true)} classname="mb-2" />
+        <div>
+            <div className="flex mb-2">
+                <AntDButton
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsAddWorkerOpen(true)}
+                >
+                    {t("calendar.addWorker")}
+                </AntDButton>
             </div>
-            <BigCalendar
-                localizer={localizer}
-                events={calendarEvents.map((event) => ({
-                    ...event,
-                    start: event.startWorkingTime,
-                    end: event.endWorkingTime,
-                }))}
-                defaultView={Views.WEEK}
-                selectable
-                onSelectSlot={handleSelectSlot}
-                onSelectEvent={handleSelectEvent}
-                style={{ height: "100%" }}
-                {...calendarRange}
-                components={{
-                    toolbar: CustomToolbar,
-                    event: CustomEvent,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    dateCellWrapper: (props: any) => (
-                        <CustomSlotWrapper
-                            value={props.value}
-                            onAddEvent={(date) => handleSlotAddEvent(date)}
-                        >
-                            {props.children}
-                        </CustomSlotWrapper>
-                    )
-                }}
-                eventPropGetter={(event: CalendarEvent) => {
-                    if (event.typeWorkDay === TypeWorkDay.WORKING) {
-                        return {
-                            style: {
-                                backgroundColor: "#DDF5FF",
-                                border: "1px solid #0066cc",
-                                color: "#000",
-                            },
-                        };
-                    } else {
-                        return {
-                            style: {
-                                backgroundColor: "#FFFFFF",
-                                border: "1px solid #0066cc",
-                                color: "#000",
-                            },
-                        };
-                    }
+            <div className="p-4 bg-white rounded shadow-lg h-[600px] relative">
+                <BigCalendar
+                    localizer={localizer}
+                    events={calendarEvents.map((event) => ({
+                        ...event,
+                        start: event.startWorkingTime,
+                        end: event.endWorkingTime,
+                    }))}
+                    defaultView={Views.WEEK}
+                    selectable
+                    onSelectSlot={handleSelectSlot}
+                    onSelectEvent={handleSelectEvent}
+                    style={{ height: "100%" }}
+                    {...calendarRange}
+                    components={{
+                        toolbar: CustomToolbar,
+                        event: CustomEvent,
+                        dateCellWrapper: (props: any) => (
+                            <CustomSlotWrapper
+                                value={props.value}
+                                onAddEvent={(date) => handleSlotAddEvent(date)}
+                            >
+                                {props.children}
+                            </CustomSlotWrapper>
+                        )
+                    }}
+                    eventPropGetter={(event: CalendarEvent) => {
+                        if (event.typeWorkDay === TypeWorkDay.WORKING) {
+                            return {
+                                style: {
+                                    backgroundColor: "#DDF5FF",
+                                    border: "1px solid #0066cc",
+                                    color: "#000",
+                                },
+                            };
+                        } else {
+                            return {
+                                style: {
+                                    backgroundColor: "#FFFFFF",
+                                    border: "1px solid #0066cc",
+                                    color: "#000",
+                                },
+                            };
+                        }
 
-                    return {}; // default styling for other types
-                }}
-            />
-            <div className="mt-8 space-y-4">
-                <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
-                    <div className="flex space-x-2 items-center">
-                        <RedDot />
-                        <div className="text-text01">{t("finance.GROSS_VIOLATION")}</div>
+                        return {}; // default styling for other types
+                    }}
+                />
+                <div className="mt-8 space-y-4">
+                    <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
+                        <div className="flex space-x-2 items-center">
+                            <RedDot />
+                            <div className="text-text01">{t("finance.GROSS_VIOLATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <OrangeDot />
+                            <div className="text-text01">{t("finance.MINOR_VIOLATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <GreenDot />
+                            <div className="text-text01">{t("finance.ONE_REMARK")}</div>
+                        </div>
                     </div>
-                    <div className="flex space-x-2 items-center">
-                        <OrangeDot />
-                        <div className="text-text01">{t("finance.MINOR_VIOLATION")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <GreenDot />
-                        <div className="text-text01">{t("finance.ONE_REMARK")}</div>
+
+                    <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
+                        <div className="flex space-x-2 items-center">
+                            <div className="w-4 h-4 bg-[#DDF5FF] border border-[#0066cc]"></div>
+                            <div className="text-text01">{t("finance.WORKING")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <div className="w-4 h-4 bg-[#f0f0f0] border border-[#ccc]"></div>
+                            <div className="text-text01">{t("finance.WEEKEND")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <BN />
+                            <div className="text-text01">{t("finance.MEDICAL")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <OTN />
+                            <div className="text-text01">{t("finance.VACATION")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <O />
+                            <div className="text-text01">{t("finance.TIMEOFF")}</div>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <NP />
+                            <div className="text-text01">{t("finance.TRUANCY")}</div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
-                    <div className="flex space-x-2 items-center">
-                        <div className="w-4 h-4 bg-[#DDF5FF] border border-[#0066cc]"></div>
-                        <div className="text-text01">{t("finance.WORKING")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <div className="w-4 h-4 bg-[#f0f0f0] border border-[#ccc]"></div>
-                        <div className="text-text01">{t("finance.WEEKEND")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <BN />
-                        <div className="text-text01">{t("finance.MEDICAL")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <OTN />
-                        <div className="text-text01">{t("finance.VACATION")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <O />
-                        <div className="text-text01">{t("finance.TIMEOFF")}</div>
-                    </div>
-                    <div className="flex space-x-2 items-center">
-                        <NP />
-                        <div className="text-text01">{t("finance.TRUANCY")}</div>
-                    </div>
-                </div>
+                {modalOpen && selectedEvent && (
+                    <EditShiftModal
+                        isOpen={modalOpen}
+                        onClose={() => setModalOpen(false)}
+                        event={selectedEvent}
+                        onSubmit={handleModalSubmit}
+                    />
+                )}
+                {isAddWorkerOpen && (
+                    <AddWorkerModal
+                        isOpen={isAddWorkerOpen}
+                        onClose={() => setIsAddWorkerOpen(false)}
+                        onSubmit={handleAddWorkerSubmit}
+                        workers={workers}
+                    />
+                )}
+
             </div>
-
-            {modalOpen && selectedEvent && (
-                <EditShiftModal
-                    isOpen={modalOpen}
-                    onClose={() => setModalOpen(false)}
-                    event={selectedEvent}
-                    onSubmit={handleModalSubmit}
-                />
-            )}
-            {isAddWorkerOpen && (
-                <AddWorkerModal
-                    isOpen={isAddWorkerOpen}
-                    onClose={() => setIsAddWorkerOpen(false)}
-                    onSubmit={handleAddWorkerSubmit}
-                    workers={workers}
-                />
-            )}
-
         </div>
     );
 };
