@@ -145,9 +145,9 @@ const TimeSheetCreation: React.FC = () => {
                     />
                 </div>
             </form>}
-            {location.state?.ownerId !== 0 &&<div className="mt-10">
+            {location.state?.ownerId !== 0 && shiftId !== 0 && (<div className="mt-10">
                 <GenericTabs tabs={tabItems} />
-            </div>}
+            </div>)}
         </div>
     )
 }
