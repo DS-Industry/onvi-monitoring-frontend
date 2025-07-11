@@ -981,6 +981,7 @@
     "TODAY": "Today",
     "BACK": "Back",
     "NEXT": "Next",
-    "addEvent": "Add Event"
+    "addEvent": "Add Event",
+    "addWorker": "Add Worker"
   }
 }

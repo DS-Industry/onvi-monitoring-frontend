@@ -1,5 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import Button from "antd/es/button";
+import { PlusOutlined } from "@ant-design/icons";
 
 interface Props {
   children?: React.ReactNode;
@@ -8,24 +10,24 @@ interface Props {
 }
 
 const CustomSlotWrapper: React.FC<Props> = ({ children, value, onAddEvent }) => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+
   return (
     <div className="relative group w-full h-full">
       {children}
-      <div
-        className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 z-10 transition-opacity"
-      >
-        <button
-          type="button"
+      <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 z-10 transition-opacity">
+        <Button
+          icon={<PlusOutlined />}
+          type="default"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onAddEvent(value);
           }}
-          className="text-[10px] px-1 py-0.5 bg-blue-100 border border-blue-400 rounded text-blue-800 hover:bg-blue-200"
+          className="!text-xs !px-1 !py-0.5"
         >
-          + {t("calendar.addEvent")}
-        </button>
+          <span className="hidden md:inline">{t("calendar.addEvent")}</span>
+        </Button>
       </div>
     </div>
   );
