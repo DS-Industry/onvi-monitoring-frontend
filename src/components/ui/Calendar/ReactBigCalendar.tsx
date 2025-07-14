@@ -18,7 +18,6 @@ import {
     addWorker,
 } from "@/services/api/finance";
 import EditShiftModal from "./EditShiftModal";
-import { useUser } from "@/hooks/useUserStore";
 import RedDot from "@icons/RedDot.svg?react";
 import OrangeDot from "@icons/OrangeDot.svg?react";
 import GreenDot from "@icons/GreenDot.svg?react";
@@ -33,6 +32,7 @@ import { getWorkers } from "@/services/api/equipment";
 import { usePosType } from "@/hooks/useAuthStore";
 import CustomSlotWrapper from "./CustomSlotWrapper";
 import CustomToolbar from "./CustomToolbar";
+import AddWorkerModal from "./AddWorkerModal";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -58,17 +58,18 @@ type Props = {
 const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
     const { t } = useTranslation();
     const [modalOpen, setModalOpen] = useState(false);
+    const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
     const posType = usePosType();
     const [posId, setPosId] = useState(posType);
+    const [pendingSlot, setPendingSlot] = useState<SlotInfo | null>(null);
+
 
     const { data: shiftData, mutate } = useSWR(
         `/api/shift-report/${shiftReportId}`,
         () => getShiftById(shiftReportId)
     );
-
-    const user = useUser();
 
     // Populate calendarEvents from shiftData
     useEffect(() => {
@@ -79,7 +80,7 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                 .filter((d) => d.startWorkingTime && d.endWorkingTime)
                 .map((d) => ({
                     id: d.workDayId,
-                    title: d.typeWorkDay === TypeWorkDay.WORKING ? `${d.timeWorkedOut}` : "",
+                    title: d.typeWorkDay === TypeWorkDay.WORKING ? `${d.timeWorkedOut} ${worker.surname} ${worker.name[0]}.` : `${worker.surname} ${worker.name[0]}.`,
                     startWorkingTime: dayjs(d.startWorkingTime!).toDate(),
                     endWorkingTime: dayjs(d.endWorkingTime!).toDate(),
                     timeWorkedOut: d.timeWorkedOut ?? "",
@@ -97,45 +98,51 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
     }, [shiftData]);
 
     const handleSelectSlot = useCallback(
-        async ({ start, end }: SlotInfo) => {
-            if (!shiftData) return;
-
-            const userId = user.id;
-
-            try {
-                const created = await createDayShift({
-                    shiftReportId,
-                    userId,
-                    workDate: dayjs(start).startOf("day").toDate(),
-                });
-
-                const worker = shiftData.workers.find(w => w.workerId === userId);
-                const name = worker ? `${worker.name} ${worker.surname}` : "User";
-
-                const newEvent: CalendarEvent = {
-                    id: created.id,
-                    title: "",
-                    startWorkingTime: start,
-                    endWorkingTime: end,
-                    timeWorkedOut: "",
-                    workerId: userId,
-                    name: name,
-                    typeWorkDay: TypeWorkDay.WEEKEND,
-                    estimation: null,
-                    prize: null,
-                    fine: null,
-                    comment: "",
-                };
-
-                setSelectedEvent(newEvent);
-                setModalOpen(true);
-
-            } catch (e) {
-                console.error("Shift creation failed", e);
-            }
+        (slotInfo: SlotInfo) => {
+            setPendingSlot(slotInfo);         // Save slot info
+            setIsAddWorkerOpen(true);         // Open the worker selection modal
         },
-        [shiftData, user.id, shiftReportId]
+        []
     );
+
+    // const handleSelectSlot = useCallback(
+    //     async ({ start, end }: SlotInfo) => {
+    //         if (!shiftData) return;
+
+    //         try {
+    //             const created = await createDayShift({
+    //                 shiftReportId,
+    //                 userId: selectedUserId,
+    //                 workDate: dayjs(start).startOf("day").toDate(),
+    //             });
+
+    //             const worker = shiftData.workers.find(w => w.workerId === selectedUserId);
+    //             const name = worker ? `${worker.surname} ${worker.name}.` : "User";
+
+    //             const newEvent: CalendarEvent = {
+    //                 id: created.id,
+    //                 title: ``,
+    //                 startWorkingTime: start,
+    //                 endWorkingTime: end,
+    //                 timeWorkedOut: "",
+    //                 workerId: selectedUserId,
+    //                 name: name,
+    //                 typeWorkDay: TypeWorkDay.WEEKEND,
+    //                 estimation: null,
+    //                 prize: null,
+    //                 fine: null,
+    //                 comment: "",
+    //             };
+
+    //             setSelectedEvent(newEvent);
+    //             setModalOpen(true);
+
+    //         } catch (e) {
+    //             console.error("Shift creation failed", e);
+    //         }
+    //     },
+    //     [shiftData, shiftReportId]
+    // );
 
     const handleSelectEvent = (event: CalendarEvent) => {
         setSelectedEvent(event);
@@ -202,10 +209,43 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
 
     const handleAddWorkerSubmit = async (userId: number) => {
         try {
-            await addWorker({ userId }, shiftReportId);
-            mutate();
+            setIsAddWorkerOpen(false);
+
+            if (pendingSlot) {
+                const created = await createDayShift({
+                    shiftReportId,
+                    userId,
+                    workDate: dayjs(pendingSlot.start).startOf("day").toDate(),
+                });
+
+                const worker = workers.find(w => w.value === userId); 
+                const name = worker ? `${worker.surname} ${worker.name[0]}.` : "User";
+
+                const newEvent: CalendarEvent = {
+                    id: created.id,
+                    title: name,
+                    startWorkingTime: pendingSlot.start,
+                    endWorkingTime: pendingSlot.end,
+                    timeWorkedOut: "",
+                    workerId: userId,
+                    name: name,
+                    typeWorkDay: TypeWorkDay.WEEKEND,
+                    estimation: null,
+                    prize: null,
+                    fine: null,
+                    comment: "",
+                };
+
+                setSelectedEvent(newEvent);
+                setModalOpen(true);
+                setPendingSlot(null);
+                mutate(); // still call mutate to keep data in sync
+            } else {
+                await addWorker({ userId }, shiftReportId);
+                mutate();
+            }
         } catch (e) {
-            console.error("Failed to add worker:", e);
+            console.error("Failed to handle worker add or shift create:", e);
         }
     };
 
@@ -226,7 +266,7 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                         start: event.startWorkingTime,
                         end: event.endWorkingTime,
                     }))}
-                    defaultView={Views.WEEK}
+                    defaultView={Views.MONTH}
                     selectable
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
@@ -277,15 +317,15 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                 <div className="mt-8 space-y-4">
                     <div className="flex flex-wrap justify-center gap-x-10 sm:gap-x-5 gap-y-3">
                         <div className="flex space-x-2 items-center">
-                            <RedDot />
+                            <RedDot style={{ color: "#ffffff" }} />
                             <div className="text-text01">{t("finance.GROSS_VIOLATION")}</div>
                         </div>
                         <div className="flex space-x-2 items-center">
-                            <OrangeDot />
+                            <OrangeDot style={{ color: "#ffffff" }} />
                             <div className="text-text01">{t("finance.MINOR_VIOLATION")}</div>
                         </div>
                         <div className="flex space-x-2 items-center">
-                            <GreenDot />
+                            <GreenDot style={{ color: "#ffffff" }} />
                             <div className="text-text01">{t("finance.ONE_REMARK")}</div>
                         </div>
                     </div>
@@ -326,6 +366,16 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                         onSubmit={handleModalSubmit}
                         workers={workers}
                         onSubmitWorker={handleAddWorkerSubmit}
+                    />
+                )}
+                {isAddWorkerOpen && (
+                    <AddWorkerModal
+                        isOpen={isAddWorkerOpen}
+                        onClose={() => {
+                            setIsAddWorkerOpen(false);
+                            setPendingSlot(null);
+                        }} onSubmit={handleAddWorkerSubmit}
+                        workers={workers}
                     />
                 )}
             </div>

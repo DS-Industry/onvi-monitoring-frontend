@@ -10,41 +10,41 @@ import O from "@icons/О.svg?react";
 import NP from "@icons/Пр.svg?react";
 
 const CustomEvent: React.FC<{ event: CalendarEvent }> = ({ event }) => {
-  const renderEstimationIcon = () => {
-    switch (event.estimation) {
-      case "GROSS_VIOLATION":
-        return <RedDot />;
-      case "MINOR_VIOLATION":
-        return <OrangeDot />;
-      case "ONE_REMARK":
-        return <GreenDot />;
-      default:
-        return null;
-    }
-  };
+    const renderEstimationIcon = () => {
+        switch (event.estimation) {
+            case "GROSS_VIOLATION":
+                return <RedDot style={{ color: "#DDF5FF" }} />;
+            case "MINOR_VIOLATION":
+                return <OrangeDot style={{ color: "#DDF5FF" }} />;
+            case "ONE_REMARK":
+                return <GreenDot style={{ color: "#DDF5FF" }} />;
+            default:
+                return null;
+        }
+    };
 
-  const renderTypeWorkDayIcon = () => {
-    switch (event.typeWorkDay) {
-      case "MEDICAL":
-        return <BN />;
-      case "VACATION":
-        return <OTN />;
-      case "TIMEOFF":
-        return <O />;
-      case "TRUANCY":
-        return <NP />;
-      default:
-        return null;
-    }
-  };
+    const renderTypeWorkDayIcon = () => {
+        switch (event.typeWorkDay) {
+            case "MEDICAL":
+                return <BN />;
+            case "VACATION":
+                return <OTN />;
+            case "TIMEOFF":
+                return <O />;
+            case "TRUANCY":
+                return <NP />;
+            default:
+                return null;
+        }
+    };
 
-  return (
-    <div className="flex items-center space-x-1">
-      {renderEstimationIcon()}
-      {renderTypeWorkDayIcon()}
-      <span>{event.title}</span>
-    </div>
-  );
+    return (
+        <div className="flex items-center space-x-1">
+            {renderEstimationIcon()}
+            {renderTypeWorkDayIcon()}
+            <span>{event.title}</span>
+        </div>
+    );
 };
 
 export default CustomEvent;
