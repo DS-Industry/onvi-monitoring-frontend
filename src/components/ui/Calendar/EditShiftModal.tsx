@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { CalendarEvent } from "./ReactBigCalendar";
 import { TypeWorkDay, TypeEstimation, UpdateDayShiftBody } from "@/services/api/finance";
@@ -16,6 +16,8 @@ interface Props {
     onClose: () => void;
     onSubmit: (data: UpdateDayShiftBody) => void;
     event: CalendarEvent;
+    onSubmitWorker: (userId: number) => void;
+    workers: { name: string; surname: string; value: number }[];
 }
 
 type ShiftFormData = {
@@ -30,8 +32,9 @@ type ShiftFormData = {
     minutes_end: number;
 };
 
-const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) => {
+const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event, workers, onSubmitWorker }) => {
     const { t } = useTranslation();
+    const [selectedUserId, setSelectedUserId] = useState(0);
 
     const {
         control,
@@ -106,14 +109,28 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
 
     return (
         <Modal isOpen={isOpen} classname="max-h-[650px] px-8 py-8 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-text01">
-                    {event.name}
+                    {t("calendar.sch")}
                 </h2>
                 <Close onClick={onClose} className="cursor-pointer text-text01" />
             </div>
 
-            <form onSubmit={handleSubmit(handleModalSubmit)} className="text-text02">
+            <form onSubmit={handleSubmit(handleModalSubmit)} className="text-text02 space-y-4 mt-4">
+                {watchType === TypeWorkDay.WEEKEND && (<DropdownInput
+                    title={t("calendar.addWorker")}
+                    label={t("calendar.select")}
+                    options={workers.map(w => ({
+                        name: `${w.name} ${w.surname}`,
+                        value: w.value,
+                    }))}
+                    value={selectedUserId}
+                    onChange={(val) => {
+                        setSelectedUserId(val);
+                        onSubmitWorker(val);
+                    }}
+                    classname="w-80 sm:w-96"
+                />)}
                 {/* Type of Day */}
                 <Controller
                     name="typeWorkDay"
@@ -126,7 +143,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                                 name: t(`finance.${type}`),
                                 value: type,
                             }))}
-                            classname="w-80 sm:w-96 mb-4"
+                            classname="w-80 sm:w-96"
                             onChange={field.onChange}
                         />
                     )}
@@ -135,7 +152,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                 {/* Working shift fields */}
                 {watchType === "WORKING" && (
                     <>
-                        <div className="flex space-x-4 mb-4">
+                        <div className="flex space-x-4">
                             <div>
                                 <div>{t("finance.start")}</div>
                                 <div className="flex space-x-2">
@@ -201,7 +218,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                             </div>
                         </div>
 
-                        <div className="flex space-x-4 mb-4">
+                        <div className="flex space-x-4">
                             <Controller
                                 name="prize"
                                 control={control}
@@ -242,7 +259,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                                         value: type,
                                     }))}
                                     onChange={field.onChange}
-                                    classname="w-80 sm:w-96 mb-4"
+                                    classname="w-80 sm:w-96"
                                 />
                             )}
                         />
@@ -263,7 +280,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event }) =
                     </>
                 )}
 
-                <div className="flex gap-3 mt-10">
+                <div className="flex gap-3">
                     <Button title={t("warehouse.reset")} handleClick={onClose} type="outline" />
                     <Button title={t("routes.save")} form={true} />
                 </div>

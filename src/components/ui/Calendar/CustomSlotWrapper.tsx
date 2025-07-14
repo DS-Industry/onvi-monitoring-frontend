@@ -15,7 +15,7 @@ const CustomSlotWrapper: React.FC<Props> = ({ children, value, onAddEvent }) => 
   return (
     <div className="relative group w-full h-full">
       {children}
-      <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 z-10 transition-opacity">
+      <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 z-10 transition-opacity">
         <Button
           icon={<PlusOutlined />}
           type="default"
@@ -26,7 +26,7 @@ const CustomSlotWrapper: React.FC<Props> = ({ children, value, onAddEvent }) => 
           }}
           className="!text-xs !px-1 !py-0.5"
         >
-          <span className="hidden md:inline">{t("calendar.addEvent")}</span>
+          <span className="hidden md:inline">{t("routes.add")}</span>
         </Button>
       </div>
     </div>

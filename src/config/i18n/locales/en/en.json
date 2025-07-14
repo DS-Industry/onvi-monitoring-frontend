@@ -982,6 +982,8 @@
     "BACK": "Back",
     "NEXT": "Next",
     "addEvent": "Add Event",
-    "addWorker": "Add Worker"
+    "addWorker": "Add Worker",
+    "sch": "Schedule Shift",
+    "select": "Select Worker"
   }
 }
