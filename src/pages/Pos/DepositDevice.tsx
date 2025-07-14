@@ -8,7 +8,7 @@ import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import { getDeviceByPosId } from "@/services/api/device";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/Saly-45.svg?react";
+import SalyIamge from "@/assets/NoCollection.png";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import DynamicTable from "@/components/ui/Table/DynamicTable";
@@ -186,7 +186,7 @@ const DepositDevice: React.FC = () => {
                     title="В этом разделе представленны операции"
                     description="У вас пока нету операций"
                 >
-                    <SalyIamge className="mx-auto" />
+                    <img src={SalyIamge} alt="No" className="mx-auto" />
                 </NoDataUI>
             )}
         </>

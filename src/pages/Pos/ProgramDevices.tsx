@@ -5,7 +5,7 @@ import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import { useLocation } from "react-router-dom";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/Saly-45.svg?react";
+import SalyIamge from "@/assets/NoCollection.png";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
@@ -189,7 +189,7 @@ const ProgramDevices: React.FC = () => {
                             title={t("pos.this")}
                             description={t("pos.you")}
                         >
-                            <SalyIamge className="mx-auto" />
+                            <img src={SalyIamge} alt="No" className="mx-auto" />
                         </NoDataUI>
                     </>
                 )}
