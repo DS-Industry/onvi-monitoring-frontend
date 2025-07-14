@@ -31,11 +31,8 @@ import CustomEvent from "./CustomEvent"
 import { useNavigate } from "react-router-dom";
 import { getWorkers } from "@/services/api/equipment";
 import { usePosType } from "@/hooks/useAuthStore";
-import AddWorkerModal from "./AddWorkerModal";
 import CustomSlotWrapper from "./CustomSlotWrapper";
 import CustomToolbar from "./CustomToolbar";
-import AntDButton from "antd/es/button";
-import { PlusOutlined } from "@ant-design/icons";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -203,13 +200,10 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
         };
     }, [shiftData]);
 
-    const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false);
-
     const handleAddWorkerSubmit = async (userId: number) => {
         try {
             await addWorker({ userId }, shiftReportId);
             mutate();
-            setIsAddWorkerOpen(false);
         } catch (e) {
             console.error("Failed to add worker:", e);
         }
@@ -224,15 +218,6 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
 
     return (
         <div>
-            <div className="flex mb-2">
-                <AntDButton
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsAddWorkerOpen(true)}
-                >
-                    {t("calendar.addWorker")}
-                </AntDButton>
-            </div>
             <div className="p-4 bg-white rounded shadow-lg h-[600px] relative">
                 <BigCalendar
                     localizer={localizer}
@@ -264,6 +249,14 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                             return {
                                 style: {
                                     backgroundColor: "#DDF5FF",
+                                    border: "1px solid #0066cc",
+                                    color: "#000",
+                                },
+                            };
+                        } else if (event.typeWorkDay === TypeWorkDay.WEEKEND) {
+                            return {
+                                style: {
+                                    backgroundColor: "#f0f0f0",
                                     border: "1px solid #0066cc",
                                     color: "#000",
                                 },
@@ -331,17 +324,10 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
                         onClose={() => setModalOpen(false)}
                         event={selectedEvent}
                         onSubmit={handleModalSubmit}
-                    />
-                )}
-                {isAddWorkerOpen && (
-                    <AddWorkerModal
-                        isOpen={isAddWorkerOpen}
-                        onClose={() => setIsAddWorkerOpen(false)}
-                        onSubmit={handleAddWorkerSubmit}
                         workers={workers}
+                        onSubmitWorker={handleAddWorkerSubmit}
                     />
                 )}
-
             </div>
         </div>
     );
