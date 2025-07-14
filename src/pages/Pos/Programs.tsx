@@ -4,7 +4,7 @@ import { getPrograms } from "@/services/api/pos";
 import { columnsProgramsPos, columnsProgramsPosPortal } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/Saly-45.svg?react";
+import SalyIamge from "@/assets/NoCollection.png";
 import { useLocation } from "react-router-dom";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, usePosType } from '@/hooks/useAuthStore';
@@ -302,7 +302,7 @@ const Programs: React.FC = () => {
                             title="В этом разделе представленны программы"
                             description="По данной выборке программ не обнаружено"
                         >
-                            <SalyIamge className="mx-auto" />
+                            <img src={SalyIamge} alt="No" className="mx-auto" />
                         </NoDataUI>
                     </>
                 )}

@@ -9,8 +9,8 @@ import DiamondImage from "@icons/DiamondIcon.svg?react";
 // import Conversion from "@/assets/ConversionRate.png";
 import Input from "@/components/ui/Input/Input";
 import Alert from "@icons/AlertTriangle.svg?react";
-import DiamondOne from "@/assets/DiamondOne.svg?react";
-import TwoArrow from "@/assets/TwoArrow.svg?react";
+import DiamondOne from "@/assets/DiamondOne.png";
+import TwoArrow from "@/assets/TwoArrow.png";
 import { Select, Skeleton } from 'antd';
 import useSWR, { mutate } from "swr";
 import { getPlacement } from "@/services/api/device";
@@ -350,11 +350,11 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
                             <div className="flex justify-center sm:justify-start">
-                                <DiamondOne />
+                                <img src={DiamondOne} />
                             </div>
 
                             <div className="flex justify-center sm:justify-start">
-                                <TwoArrow />
+                                <img src={TwoArrow} />
                             </div>
 
                             <Input

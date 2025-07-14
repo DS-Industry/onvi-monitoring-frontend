@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useMemo } from "react";
 import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
 import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/Saly-45.svg?react";
+import SalyIamge from "@/assets/NoCollection.png";
 import useSWR from "swr";
 import { getDeposit } from "@/services/api/pos";
 import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
@@ -157,7 +157,7 @@ const Deposit: React.FC = () => {
                     title="В этом разделе представленны операции"
                     description="У вас пока нету операций"
                 >
-                    <SalyIamge className="mx-auto" />
+                    <img src={SalyIamge} alt="No" className="mx-auto" />
                 </NoDataUI>
             )}
         </>

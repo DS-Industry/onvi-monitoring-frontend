@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Toast from "@ui/Toast";
 import Notification from "@ui/Notification";
-import FactoryLetterS from "@/assets/Factory Letter S.svg?react";
-import Attention from "@/assets/attention.svg?react";
+import FactoryLetterS from "@/assets/Factory Letter S.png";
+import Attention from "@/assets/Attention.png";
 import { useTranslation } from "react-i18next";
 import { Row, Col, Card, Typography } from "antd";
 
@@ -61,7 +61,7 @@ const News: React.FC = () => {
             <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
               <Text>{t("news.upToDate")}</Text>
               <div style={{ marginLeft: "auto" }}>
-                <FactoryLetterS />
+                <img src={FactoryLetterS} alt="Factory" />
               </div>
             </div>
           </Card>
@@ -83,7 +83,7 @@ const News: React.FC = () => {
             <Title level={4} style={{ margin: "8px 0" }}>{t("news.chemistry")}</Title>
             <div style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
               <Text>{t("news.chemistryText")}</Text>
-              <div style={{ marginLeft: "auto" }}><Attention /></div>
+              <div style={{ marginLeft: "auto" }}><img src={Attention} alt="Attention" className="h-20" /></div>
             </div>
           </Card>
         </Col>
