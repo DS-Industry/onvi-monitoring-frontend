@@ -34,7 +34,7 @@ type ShiftFormData = {
 
 const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event, workers, onSubmitWorker }) => {
     const { t } = useTranslation();
-    const [selectedUserId, setSelectedUserId] = useState(0);
+    const [selectedUserId, setSelectedUserId] = useState(event.workerId);
 
     const {
         control,
@@ -117,7 +117,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event, wor
             </div>
 
             <form onSubmit={handleSubmit(handleModalSubmit)} className="text-text02 space-y-4 mt-4">
-                {watchType === TypeWorkDay.WEEKEND && (<DropdownInput
+                <DropdownInput
                     title={t("calendar.addWorker")}
                     label={t("calendar.select")}
                     options={workers.map(w => ({
@@ -130,7 +130,7 @@ const EditShiftModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, event, wor
                         onSubmitWorker(val);
                     }}
                     classname="w-80 sm:w-96"
-                />)}
+                />
                 {/* Type of Day */}
                 <Controller
                     name="typeWorkDay"
