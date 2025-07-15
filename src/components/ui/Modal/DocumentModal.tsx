@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { createPortal } from "react-dom";
-import Button from "../Button/Button";
+import Button from "@ui/Button/Button";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 

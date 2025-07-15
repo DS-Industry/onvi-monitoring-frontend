@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
-import InputDateGap from "../InputLine/InputDateGap";
+import InputDateGap from "@ui/InputLine/InputDateGap";
 import { useStartDate, useEndDate, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore.ts";
-// import SearchInput from "../Input/SearchInput";
-// import DropdownInput from "../Input/DropdownInput";
-import Button from "../Button/Button";
+import Button from "@ui/Button/Button";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device";
 import { useTranslation } from "react-i18next";
-import SearchDropdownInput from "../Input/SearchDropdownInput";
+import SearchDropdownInput from "@ui/Input/SearchDropdownInput";
 import Select from "antd/es/select";
 import Input from "antd/es/input";
 

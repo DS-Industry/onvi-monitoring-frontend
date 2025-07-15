@@ -4,7 +4,7 @@ import { ClassAttributes, ThHTMLAttributes, useState } from "react";
 import { JSX } from "react/jsx-runtime";
 import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType, useSetPageNumber } from "@/hooks/useAuthStore";
 import { useTranslation } from "react-i18next";
-import Modal from "../Modal/Modal.tsx";
+import Modal from "@ui/Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
 import Edit from "@icons/edit.svg?react";
 import { useFilterOn } from "@/components/context/useContext.tsx";

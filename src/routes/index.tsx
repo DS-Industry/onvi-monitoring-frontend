@@ -1,6 +1,3 @@
-// import Hr from "../pages/Hr/Hr";
-// import Administration from "../pages/Administration/Administration";
-// import Analysis from "../pages/Analysis/Analysis";
 import ReviewIcon from "@icons/review-icon.svg?react";
 import AdministrationIcon from "@icons/administration-icon.svg?react"
 import CarWashIcon from "@icons/car_wash-icon.svg?react"
@@ -74,7 +71,7 @@ const Notifications = React.lazy(() => import("@/pages/Notifications/Notificatio
 const RewardsCreation = React.lazy(() => import("@/pages/Marketing/RewardsCreation"));
 const EmployeeAdvanceCreation = React.lazy(() => import("@/pages/Hr/EmployeeAdvanceCreation"));
 const Subscriptions = React.lazy(() => import("@/pages/Organization/Subscriptions"));
-const Analysis = React.lazy(() => import("../pages/Analysis/Analysis"));
+const Analysis = React.lazy(() => import("@/pages/Analysis/Analysis"));
 const Warehouse = React.lazy(() => import("@/pages/Warehouse/Warehouse"));
 
 const routes = [
