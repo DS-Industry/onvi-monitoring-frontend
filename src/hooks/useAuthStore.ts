@@ -1,5 +1,5 @@
-import useAuthStore from '../config/store/authSlice';
-import { Tokens } from '../config/store/authSlice';
+import useAuthStore from '@/config/store/authSlice';
+import { Tokens } from '@/config/store/authSlice';
 
 export const useTokens = () => {
   return useAuthStore((state) => state.tokens as Tokens);

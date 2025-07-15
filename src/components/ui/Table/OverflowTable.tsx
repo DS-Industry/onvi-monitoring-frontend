@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Edit from "@icons/edit.svg?react";
 import UpdateIcon from "@icons/PencilIcon.png";
 import { useLocation, useNavigate } from "react-router-dom";
-import Modal from "../Modal/Modal.tsx";
+import Modal from "@ui/Modal/Modal.tsx";
 import TableSettings from "./TableSettings.tsx";
 import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
@@ -12,7 +12,7 @@ import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
 import { useTranslation } from "react-i18next";
-import Button from "../Button/Button.tsx";
+import Button from "@ui/Button/Button.tsx";
 import TableUtils from "@/utils/TableUtils.tsx";
 import {
     ArrowRightOutlined,

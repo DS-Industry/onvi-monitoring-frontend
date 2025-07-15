@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Modal from "../Modal/Modal";
+import Modal from "@ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
-import DropdownInput from "../Input/DropdownInput";
-import Input from "../Input/Input";
-import MultilineInput from "../Input/MultilineInput";
+import DropdownInput from "@ui/Input/DropdownInput";
+import Input from "@ui/Input/Input";
+import MultilineInput from "@ui/Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import Button from "../Button/Button";
+import Button from "@ui/Button/Button";
 import RedDot from "@icons/RedDot.svg?react";
 import OrangeDot from "@icons/OrangeDot.svg?react";
 import GreenDot from "@icons/GreenDot.svg?react";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Close from "@icons/close.svg?react";
-import SearchInput from "../Input/SearchInput";
+import SearchInput from "@ui/Input/SearchInput";
 import { useTranslation } from "react-i18next";
 
 interface TableColumn {

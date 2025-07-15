@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useButtonCreate, useFilterOn, useFilterOpen } from "@/components/context/useContext.tsx";
-import InputDateGap from "../InputLine/InputDateGap.tsx";
-import Button from "../Button/Button.tsx";
-// import DropdownInput from "../Input/DropdownInput.tsx";
+import InputDateGap from "@ui/InputLine/InputDateGap.tsx";
+import Button from "@ui/Button/Button.tsx";
 import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useWareHouseId, useSetWareHouseId, usePageNumber, useSetPageNumber, useCurrentPage, useCity, useSetCity, useDeviceId, useSetDeviceId } from "@/hooks/useAuthStore.ts";
-// import SearchInput from "../Input/SearchInput.tsx";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
 import { Select, Input } from "antd";
 import { useTranslation } from "react-i18next";
-import SearchDropdownInput from "../Input/SearchDropdownInput.tsx";
+import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
 
 type Optional = {
     name: string;

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import Input from "../Input/Input";
-import MultilineInput from "../Input/MultilineInput";
+import Input from "@ui/Input/Input";
+import MultilineInput from "@ui/Input/MultilineInput";
 import ArrowUp from "@icons/ArrowUp.png";
 import ArrowDown from "@icons/ArrowDown.png";
 import { useTranslation } from "react-i18next";
-// import DropdownInput from "../Input/DropdownInput";
 
 interface TableRow {
     id: number;

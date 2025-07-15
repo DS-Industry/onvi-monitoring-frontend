@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import useAuthStore from '../config/store/authSlice';
-import useUserStore from '../config/store/userSlice';
+import useAuthStore from '@/config/store/authSlice';
+import useUserStore from '@/config/store/userSlice';
 
 type Props = {
   element: React.ReactNode;
