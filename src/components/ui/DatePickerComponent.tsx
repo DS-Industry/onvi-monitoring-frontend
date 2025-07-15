@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-// @ts-expect-error - this component is not used
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 
 type DatePickerProps = {
