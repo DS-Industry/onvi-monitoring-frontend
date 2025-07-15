@@ -1,7 +1,6 @@
 import SearchInput from "@/components/ui/Input/SearchInput";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Icon from 'feather-icons-react';
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
@@ -17,6 +16,10 @@ import { getPositions, getWorkerById, getWorkers, updateWorker } from "@/service
 import useSWRMutation from "swr/mutation";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import {
+    ArrowRightOutlined,
+    ArrowLeftOutlined
+} from "@ant-design/icons";
 
 type UpdateWorkerRequest = {
     workerId: string;
@@ -282,7 +285,7 @@ const EmployeeProfile: React.FC = () => {
             <div className="flex flex-col md:flex-row">
                 <div className="md:w-72 w-full border-r border-opacity01 min-h-screen p-4 space-y-4">
                     <div className="flex space-x-2 text-primary02 cursor-pointer" onClick={() => navigate(-1)}>
-                        <Icon icon="chevron-left" className="h-6 w-6" />
+                        <ArrowLeftOutlined className="h-6 w-6" />
                         <div>{t("login.back")}</div>
                     </div>
                     <SearchInput
@@ -556,10 +559,6 @@ const EmployeeProfile: React.FC = () => {
                                     </div>
                                     <div className="flex space-x-3 items-center">
                                         <div className="text-sm text-text01 font-semibold">{t("finance.sta")}</div>
-                                        {/* <div className="flex space-x-1 text-primary02_Hover items-center cursor-pointer">
-                                            <div className="text-sm font-semibold">{t("finance.sel")}</div>
-                                            <Icon icon="chevron-down" className="w-5 h-5" />
-                                        </div> */}
                                         <DatePicker onChange={onChange} />
                                     </div>
                                     <div className="flex space-x-2 items-center">
@@ -617,14 +616,14 @@ const EmployeeProfile: React.FC = () => {
                                         onClick={handlePrevYear}
                                         className="p-2 rounded-full bg-background05 text-text03"
                                     >
-                                        <Icon icon="chevron-left" size={20} />
+                                        <ArrowLeftOutlined size={20} />
                                     </button>
                                     <div className="text-xl font-semibold">{year}</div>
                                     <button
                                         onClick={handleNextYear}
                                         className="p-2 rounded-full bg-background05 text-text03"
                                     >
-                                        <Icon icon="chevron-right" size={20} />
+                                        <ArrowRightOutlined size={20} />
                                     </button>
                                 </div>
                                 <div className="flex flex-col md:flex-row items-center space-x-4">
@@ -634,7 +633,7 @@ const EmployeeProfile: React.FC = () => {
                                         className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
                                         disabled={startIndex === 0}
                                     >
-                                        <Icon icon="chevron-left" size={20} />
+                                        <ArrowLeftOutlined size={20} />
                                     </button>
 
                                     {/* Calendars */}
@@ -663,7 +662,7 @@ const EmployeeProfile: React.FC = () => {
                                         className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
                                         disabled={startIndex >= months.length - 3}
                                     >
-                                        <Icon icon="chevron-right" size={20} />
+                                        <ArrowRightOutlined size={20} />
                                     </button>
                                 </div>
                             </div>)}

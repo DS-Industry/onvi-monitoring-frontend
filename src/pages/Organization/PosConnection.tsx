@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Icon from 'feather-icons-react';
 import { useUser } from "@/hooks/useUserStore";
 import useSWR from "swr";
 import { connectPosPermission, getPosPermission, getPosPermissionUser } from "@/services/api/organization";
@@ -9,7 +8,10 @@ import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
 import { useSnackbar } from "@/components/context/useContext";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
-
+import {
+    ArrowRightOutlined,
+    ArrowLeftOutlined
+} from "@ant-design/icons";
 interface Item {
     id: number;
     name: string;
@@ -132,7 +134,7 @@ const PosConnection: React.FC = () => {
                         disabled={selected.length === 0}
                         title={"→"}
                     >
-                        <Icon icon="chevrons-right" />
+                        <ArrowRightOutlined />
                     </button>
                     <button
                         className="border border-t-0 bg-white text-black cursor-pointer p-2"
@@ -140,7 +142,7 @@ const PosConnection: React.FC = () => {
                         disabled={selected.length === 0}
                         title={"←"}
                     >
-                        <Icon icon="chevrons-left" />
+                        <ArrowLeftOutlined />
                     </button>
                 </div>
 

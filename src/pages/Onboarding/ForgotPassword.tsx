@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ArrowLeft from 'feather-icons-react';
 import OTPImage from '@/assets/OTPImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
 const ForgotEmailForm = React.lazy(() => import('./ForgotEmailForm'));
@@ -7,6 +6,9 @@ const ForgotOTPForm = React.lazy(() => import('./ForgotOTPForm'));
 const ForgotPasswordForm = React.lazy(() => import('./ForgotPasswordForm'));
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {
+    ArrowLeftOutlined
+} from "@ant-design/icons";
 
 const ForgotPassword: React.FC = () => {
     const { t } = useTranslation();
@@ -27,7 +29,7 @@ const ForgotPassword: React.FC = () => {
             <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
                 <div className="lg:w-5/12 p-8 lg:ml-40">
                     <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleLoginNavigate}>
-                        <ArrowLeft icon={'arrow-left'} />
+                        <ArrowLeftOutlined />
                         <p>{t("login.back")}</p>
                     </div>
                     <div className='flex mb-5'>

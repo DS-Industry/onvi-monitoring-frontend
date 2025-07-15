@@ -14,7 +14,6 @@ import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
 import Filter from "@/components/ui/Filter/Filter";
-import Icon from 'feather-icons-react';
 import { useCity, usePosType, useSetPosType } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Select, Tooltip } from "antd";
@@ -22,7 +21,7 @@ import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import { Card, Tag, Button as AntDButton, Typography, Space, Row, Col } from 'antd';
-import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined } from '@ant-design/icons';
+import { FolderOutlined, CheckOutlined, DeleteOutlined, UndoOutlined, ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
@@ -784,7 +783,7 @@ const RoutineWork: React.FC = () => {
                                         disabled={selected.length === 0}
                                         title={"→"}
                                     >
-                                        <Icon icon="chevrons-down" />
+                                        <ArrowDownOutlined />
                                     </button>
                                     <button
                                         className="border border-l-0 bg-white text-black cursor-pointer"
@@ -792,7 +791,7 @@ const RoutineWork: React.FC = () => {
                                         disabled={selected.length === 0}
                                         title={"→"}
                                     >
-                                        <Icon icon="chevrons-up" />
+                                        <ArrowUpOutlined />
                                     </button>
                                 </div>
 

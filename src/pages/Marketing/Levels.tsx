@@ -5,7 +5,6 @@ import ExpandedCard from "@ui/Card/ExpandedCard";
 import Input from "@/components/ui/Input/Input";
 // import PercentageIcon from "@icons/Percentage.svg?react";
 // import DiamondIcon from "@icons/Diamond.svg?react";
-import Icon from 'feather-icons-react';
 import { useLocation } from "react-router-dom";
 import useFormHook from "@/hooks/useFormHook";
 import { createTier, getBenefits, getTierById, getTiers, updateTier } from "@/services/api/marketing";
@@ -16,7 +15,7 @@ import useSWR, { mutate } from "swr";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { Transfer, List, Typography, Tag, Skeleton, message } from "antd";
-import { GiftOutlined } from "@ant-design/icons";
+import { GiftOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -408,7 +407,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
 
                 <div className="flex flex-col md:flex-row space-x-2">
                     <div className="flex space-x-2 items-center text-primary02 cursor-pointer" onClick={addTier}>
-                        <Icon icon="plus" />
+                        <PlusOutlined />
                         <div>{t("marketing.addLevel")}</div>
                     </div>
                 </div>

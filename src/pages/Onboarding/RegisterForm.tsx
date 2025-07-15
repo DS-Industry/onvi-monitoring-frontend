@@ -2,7 +2,6 @@ import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
-// import { Calendar } from 'feather-icons-react';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from "swr/mutation";
 import { registerPlatformUser } from "@/services/api/platform";

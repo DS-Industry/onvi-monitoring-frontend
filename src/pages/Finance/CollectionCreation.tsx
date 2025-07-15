@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import Icon from "feather-icons-react";
 import { useCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
@@ -20,6 +19,10 @@ import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { Descriptions, Divider } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
+import {
+    UpOutlined,
+    DownOutlined
+} from "@ant-design/icons";
 
 type TableRow = {
     id: number;
@@ -407,7 +410,7 @@ const CollectionCreation: React.FC = () => {
                         <div>
                             <div className="flex items-center space-x-2">
                                 <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => setOpenCashColl(!openCashColl)}>
-                                    {openCashColl ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                    {openCashColl ? <UpOutlined /> : <DownOutlined />}
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
@@ -429,7 +432,7 @@ const CollectionCreation: React.FC = () => {
                         <div>
                             <div className="flex items-center space-x-2">
                                 <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => setOpenCollDevice(!openCollDevice)}>
-                                    {openCollDevice ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                    {openCollDevice ? <UpOutlined /> : <DownOutlined />}
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.collDev")}</div>
                             </div>

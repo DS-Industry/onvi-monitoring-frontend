@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import { useTranslation } from "react-i18next";
-import Icon from "feather-icons-react";
 import SegmentsDialog from "@/components/ui/Dialog/SegmentsDialog";
 import Button from "@/components/ui/Button/Button";
+import {
+    PlusOutlined
+} from "@ant-design/icons";
 
 const columns = [
     { label: "Тип клиента", key: "clientType" },
@@ -101,7 +103,7 @@ const NewSegment: React.FC = () => {
                     className="flex text-primary02 cursor-pointer items-center justify-center font-semibold space-x-1"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    <Icon icon="plus" className="w-6 h-6" />
+                    <PlusOutlined className="w-6 h-6" />
                     <div>{t("marketing.addSel")}</div>
                 </div>
             </div>}

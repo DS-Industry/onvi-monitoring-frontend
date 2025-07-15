@@ -8,13 +8,17 @@ import SavedIcon from "@icons/SavedIcon.png";
 import SentIcon from "@icons/SentIcon.png";
 import CheckIcon from "@icons/checkSuccess.png";
 import { useCurrentPage, usePageNumber, usePageSize, usePermissions, useSetCurrentPage, useSetDocumentType } from "@/hooks/useAuthStore.ts";
-import Icon from 'feather-icons-react';
 import { Can } from "@/permissions/Can.tsx";
 import routes from "@/routes/index.tsx";
 import { useFilterOn } from "@/components/context/useContext.tsx";
 import { useTranslation } from "react-i18next";
 import Button from "../Button/Button.tsx";
 import TableUtils from "@/utils/TableUtils.tsx";
+import {
+    ArrowRightOutlined,
+    ExportOutlined,
+    ArrowLeftOutlined,
+} from "@ant-design/icons";
 
 type TableRow = {
   id: number;
@@ -304,7 +308,7 @@ const OverflowTable = <T extends TableRow>({
                         >
                           <div className="whitespace-nowrap flex items-center space-x-2 text-ellipsis overflow-hidden text-primary02 hover:text-primary02_Hover hover:underline">
                             {String(row[column.key])}
-                            <Icon icon="arrow-up-right" className="w-4 h-4" />
+                            <ExportOutlined className="w-4 h-4" />
                           </div>
                         </span>
                       ) : (column.type === 'number' || column.type === 'double') ? (
@@ -403,7 +407,7 @@ const OverflowTable = <T extends TableRow>({
           disabled={curr === 1}
           className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
-          <Icon icon="chevron-left" />
+          <ArrowLeftOutlined />
         </button>
         {generatePaginationRange().map((page, index) =>
           page === "..." ? (
@@ -426,7 +430,7 @@ const OverflowTable = <T extends TableRow>({
           disabled={curr === totalPages}
           className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
         >
-          <Icon icon="chevron-right" />
+          <ArrowRightOutlined />
         </button>
       </div>}
       {isDisplayEdit && <>

@@ -9,10 +9,9 @@ import { createTechTaskShape, getTechTaskShapeItem } from "@/services/api/equipm
 import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { TFunction } from "i18next";
-import Icon from 'feather-icons-react';
 import { Card, List, Descriptions, Upload, message } from "antd";
 import type { DescriptionsProps } from 'antd';
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 
@@ -231,7 +230,7 @@ const ProgressReportItem: React.FC = () => {
                                     <div className="flex items-center space-x-2 mb-4">
                                         <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center"
                                             onClick={() => toggleGroup(groupName)}>
-                                            {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                            {openSettings[groupName] ? <UpOutlined /> : <DownOutlined />}
                                         </div>
                                         <div className="text-lg md:text-2xl font-semibold text-text01">{t(`chemical.${groupName}`)}</div>
                                     </div>

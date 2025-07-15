@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Row, Col, Card, Typography, Divider, List, Checkbox } from "antd";
 import Button from "@/components/ui/Button/Button";
-import Icon from "feather-icons-react";
+import {
+    UpOutlined,
+    DownOutlined
+} from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -102,7 +105,7 @@ const CurrentTariff: React.FC<Props> = ({
                                                 onClick={() => toggleItem(item.key)}
                                             >
                                                 <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center">
-                                                    {isOpen ? <Icon icon="chevron-up" className="w-4 h-4" /> : <Icon icon="chevron-down" className="w-4 h-4" />}
+                                                    {isOpen ? <UpOutlined className="w-4 h-4" /> : <DownOutlined className="w-4 h-4" />}
                                                 </div>
                                                 <Title level={4} style={{ margin: 0 }}>
                                                     {item.label}

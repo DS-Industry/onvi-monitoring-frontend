@@ -17,7 +17,6 @@ import { useTranslation } from "react-i18next";
 import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
-import Icon from "feather-icons-react";
 import Avatar from "@/components/ui/Avatar";
 import OnviLogo from "@/assets/OnviLogo.svg";
 import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
@@ -26,6 +25,10 @@ import { datadogLogs } from "@datadog/browser-logs";
 import Layout from "antd/es/layout";
 import Tag from "antd/es/tag";
 import Grid from "antd/es/grid";
+import {
+    CloseOutlined,
+    MenuOutlined
+} from "@ant-design/icons";
 
 const { Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -473,7 +476,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               onClick={() => setIsOpen(!isOpen)}
               className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md z-40"
             >
-              {isOpen ? <Icon icon="x" className="w-6 h-6" /> : <Icon icon="menu" className="w-6 h-6" />}
+              {isOpen ? <CloseOutlined className="w-6 h-6" /> : <MenuOutlined className="w-6 h-6" />}
             </button>
           )}
 

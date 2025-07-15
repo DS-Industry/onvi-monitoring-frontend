@@ -1,7 +1,15 @@
 import React from "react";
-import Icon from "feather-icons-react";
 import AntdButton from "antd/es/button";
 import Spin from "antd/es/spin";
+import {
+    PlusOutlined,
+    DownloadOutlined,
+    UploadOutlined,
+    ArrowUpOutlined,
+    ArrowDownOutlined,
+    ArrowRightOutlined,
+    ExportOutlined,
+} from "@ant-design/icons";
 
 type ButtonCreateProps = {
     title: string;
@@ -35,7 +43,7 @@ const Button: React.FC<ButtonCreateProps> = ({
     iconUp = false,
     iconUpload = false,
     iconArrowDiognal = false,
-}: ButtonCreateProps) => {
+}) => {
     const typeButton = {
         basic: "bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center",
         outline: "bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center",
@@ -53,14 +61,14 @@ const Button: React.FC<ButtonCreateProps> = ({
             disabled={disabled}
             htmlType={typeForm}
         >
-            {iconPlus && <Icon icon="plus" size={20} />}
-            {iconDownload && <Icon icon="download" size={20} />}
-            {iconUpload && <Icon icon="upload" size={20} />}
-            {isLoading ? <Spin size="small" /> : title}
-            {iconRight && <Icon icon="chevron-right" size={20} />}
-            {iconDown && <Icon icon="chevron-down" size={20} />}
-            {iconUp && <Icon icon="chevron-up" size={20} />}
-            {iconArrowDiognal && <Icon icon="arrow-up-right" size={20} />}
+            {iconPlus && <PlusOutlined />}
+            {iconDownload && <DownloadOutlined />}
+            {iconUpload && <UploadOutlined />}
+            {iconUp && <ArrowUpOutlined />}
+            {iconDown && <ArrowDownOutlined />}
+            {iconRight && <ArrowRightOutlined />}
+            {iconArrowDiognal && <ExportOutlined />}
+            {isLoading ? <Spin size="small" className="ml-2" /> : <span className="ml-2">{title}</span>}
         </AntdButton>
     );
 };

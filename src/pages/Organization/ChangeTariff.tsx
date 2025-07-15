@@ -3,10 +3,13 @@ import { Card, Row, Col, Typography, List, Checkbox, Radio, RadioChangeEvent } f
 import Button from "@/components/ui/Button/Button";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import Icon from "feather-icons-react";
 import { useButtonCreate } from "@/components/context/useContext";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
+import {
+    UpOutlined,
+    DownOutlined
+} from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -103,7 +106,7 @@ const TariffCard: React.FC<TariffType> = ({
                                         onClick={() => toggleItem(item.key)}
                                     >
                                         <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex justify-center items-center">
-                                            {isOpen ? <Icon icon="chevron-up" className="w-4 h-4" /> : <Icon icon="chevron-down" className="w-4 h-4" />}
+                                            {isOpen ? <UpOutlined className="w-4 h-4" /> : <DownOutlined className="w-4 h-4" />}
                                         </div>
                                         <Title level={4} style={{ margin: 0 }}>
                                             {item.label}
