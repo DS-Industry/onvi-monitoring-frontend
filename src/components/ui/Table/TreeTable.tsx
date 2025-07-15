@@ -54,7 +54,7 @@ const TreeTable: React.FC<Props> = ({
 
     const userPermissions = usePermissions();
 
-    const renderRows = (data: TreeData[], level: number = 0): JSX.Element[] => {
+    const renderRows = (data: TreeData[], level: number = 0): React.ReactNode[] => {
         return data.map((row) => (
             <React.Fragment key={row.id}>
                 <tr>

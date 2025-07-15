@@ -155,7 +155,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const isParentActive = (subMenu: RouteItem[] | undefined): boolean =>
     subMenu ? subMenu.some((child) => child.path === location.pathname) : false;
 
-  const getStatusTag = (status: string): JSX.Element => {
+  const getStatusTag = (status: string): React.ReactNode => {
     const greenStatuses = [t("tables.ACTIVE"), t("tables.SENT"), t("tables.In Progress")];
     const redStatuses = [t("tables.OVERDUE"), t("tables.Done"), t("tables.FINISHED"), t("tables.PAUSE")];
     const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
@@ -222,7 +222,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
 
-  const renderNavItem = (item: RouteItem): JSX.Element => (
+  const renderNavItem = (item: RouteItem): React.ReactNode => (
     <Can key={item.name} requiredPermissions={item.permissions || []} userPermissions={userPermissions}>
       {(allowed) => allowed && (
         <div key={item.name} className="side-nav">
@@ -261,7 +261,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
     </Can>
   );
 
-  const renderMobileSubNav = (item: RouteItem): JSX.Element | null => (
+  const renderMobileSubNav = (item: RouteItem): React.ReactNode | null => (
     isMobile && openSubNav === item.name ? (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
         <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg p-5">
@@ -329,7 +329,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
     ) : null
   );
 
-  const renderDesktopSubNav = (item: RouteItem): JSX.Element | null => (
+  const renderDesktopSubNav = (item: RouteItem): React.ReactNode | null => (
     !isMobile && activeNavItem === item.name && item.subNav ? (
       <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
         {item.subNavHeading !== "" && (
