@@ -9,6 +9,7 @@
     "staging": "vite --mode staging",
     "build:staging": "vite build --mode staging",
     "build": "vite build --mode development",
+    "type-check": "tsc --noEmit -p tsconfig.app.json",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy": "npm run build:staging && gh-pages -d dist",
