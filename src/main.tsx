@@ -6,6 +6,22 @@ import "./config/i18n/index.ts";
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 import { datadogLogs } from "@datadog/browser-logs";
+import { unstableSetRender } from 'antd';
+import { createRoot, Root } from 'react-dom/client';
+
+unstableSetRender((node, container) => {
+  const element = container as Element & { _reactRoot?: Root };
+
+  element._reactRoot ||= createRoot(element);
+  const root = element._reactRoot;
+
+  root.render(node);
+
+  return async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    root.unmount();
+  };
+});
 
 const ENV = import.meta.env.VITE_MODE;
 
