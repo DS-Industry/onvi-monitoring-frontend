@@ -19,7 +19,7 @@ type DropdownInputProps = {
     classname?: string;
     error?: boolean;
     helperText?: string;
-    renderOption?: (option: Option) => JSX.Element;
+    renderOption?: (option: Option) => React.ReactNode;
     inputType?: string;
 };
 

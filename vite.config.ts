@@ -10,19 +10,26 @@ import babel from "vite-plugin-babel";
 export default defineConfig({
   base: '/',
   build: {
-    outDir: 'dist', // Ensure this matches your deployment settings
-    // target: 'es2015',
-    // minify: 'terser',
-    // rollupOptions: {
-    //   output: {
-    //     manualChunks(id) {
-    //       if (id.includes('node_modules')) {
-    //         // Split vendor packages
-    //         return id.toString().split('node_modules/')[1].split('/')[0].toString();
-    //       }
-    //     },
-    //   },
-    // },
+    outDir: 'dist', 
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'react';
+            if (id.includes('antd') || id.includes('@ant-design/icons')) return 'antd';
+            if (id.includes('@tiptap')) return 'tiptap';
+            if (id.includes('dayjs')) return 'dayjs';
+            if (id.includes('lodash-es')) return 'lodash';
+            if (id.includes('chart.js') || id.includes('react-chartjs-2')) return 'chartjs';
+            if (id.includes('@datadog')) return 'datadog';
+            if (id.includes('i18next')) return 'i18n';
+            if (id.includes('zustand') || id.includes('swr')) return 'state';
+            if (id.includes('react-hook-form') || id.includes('datepicker')) return 'form';
+          }
+        }
+
+      }
+    }
   },
   plugins: [
     react(),

@@ -1,4 +1,4 @@
-import memoize from 'lodash/memoize'; // ✅ Better, but custom version is leaner
+import memoize from 'lodash-es/memoize'; // ✅ Better, but custom version is leaner
 
 /**
  * Determines if the user has the required object-action permissions.
