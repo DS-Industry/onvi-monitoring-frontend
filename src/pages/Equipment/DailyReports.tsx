@@ -6,7 +6,10 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import Icon from 'feather-icons-react';
+import {
+    ArrowUpOutlined,
+    ArrowDownOutlined
+} from "@ant-design/icons";
 
 const DailyReports: React.FC = () => {
     const { t } = useTranslation();
@@ -80,7 +83,7 @@ const DailyReports: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                         <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => setOpenSetting(!openSetting)}>
-                            {openSetting ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                            {openSetting ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
                         </div>
                         <div className="text-text01 font-semibold text-2xl">{t("daily.setting")}</div>
                     </div>

@@ -1,13 +1,17 @@
 import Notification from "@/components/ui/Notification";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Icon from 'feather-icons-react';
 import Button from "@/components/ui/Button/Button";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import { createNomenclatureFile } from "@/services/api/warehouse";
 import { useNavigate } from "react-router-dom";
+import {
+    DownloadOutlined,
+    FileOutlined,
+    CloseOutlined
+} from "@ant-design/icons";
 
 const InventoryImport: React.FC = () => {
     const { t } = useTranslation();
@@ -73,7 +77,7 @@ const InventoryImport: React.FC = () => {
                         className={`w-full sm:w-80 h-40 flex flex-col justify-center items-center cursor-pointer ${buttonOn ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}
                     >
                         <div className={`flex items-center space-x-2 ${buttonOn ? "text-primary02" : "text-text01"}`}>
-                            <Icon icon="file" />
+                            <FileOutlined />
                             <div className="font-semibold text-lg">{t("warehouse.use")}</div>
                         </div>
                         <div
@@ -92,7 +96,7 @@ const InventoryImport: React.FC = () => {
                         {!selectedFile ? (
                             <div className="flex flex-wrap justify-center items-center gap-2">
                                 <label htmlFor="file-upload" className="flex items-center text-primary02 cursor-pointer space-x-2">
-                                    <Icon icon="download" />
+                                    <DownloadOutlined />
                                     <div>{t("warehouse.select")}</div>
                                 </label>
                                 <input
@@ -111,7 +115,7 @@ const InventoryImport: React.FC = () => {
                                     <div className="text-text01 ml-2">({(selectedFile.size / 1024).toFixed(2)} kB)</div>
                                 </div>
                                 <button className="text-text02" onClick={handleFileRemove}>
-                                    <Icon icon="x" />
+                                    <CloseOutlined />
                                 </button>
                             </div>
                         )}

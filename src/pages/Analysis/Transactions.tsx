@@ -6,11 +6,13 @@ import { getAllReports, getTransactions } from "@/services/api/reports";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
-import Icon from 'feather-icons-react';
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Button } from "antd";
 import { UndoOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
+import {
+    DownloadOutlined
+} from "@ant-design/icons";
 
 const Transactions: React.FC = () => {
     const { t } = useTranslation();
@@ -105,7 +107,7 @@ const Transactions: React.FC = () => {
                 row.status === t("analysis.DONE") && (<div>
                     <button onClick={() => handleDownload(row.reportKey, row.userId)} className="flex space-x-2 items-center text-primary02">
                         <div>{t("tables.Download")}</div>
-                        <Icon icon="download" className="w-5 h-5" />
+                        <DownloadOutlined className="w-5 h-5" />
                     </button>
                 </div>)
             ),

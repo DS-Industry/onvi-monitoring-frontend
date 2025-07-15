@@ -6,7 +6,6 @@ import DropdownInput from "../Input/DropdownInput";
 import Input from "../Input/Input";
 import MultilineInput from "../Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import Icon from "feather-icons-react";
 import Button from "../Button/Button";
 import RedDot from "@icons/RedDot.svg?react";
 import OrangeDot from "@icons/OrangeDot.svg?react";
@@ -21,6 +20,7 @@ import useSWRMutation from "swr/mutation";
 import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/services/api/finance";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCity, usePosType } from "@/hooks/useAuthStore";
+import { PlusOutlined } from "@ant-design/icons";
 
 interface Employee {
     id: number;
@@ -537,7 +537,7 @@ const ScheduleTable: React.FC<Props> = ({
                     </table>
                 </div>)}
             {id !== 0 && <div className="mt-5 flex space-x-1 text-primary02 items-center cursor-pointer" onClick={() => setOpenAddRow(true)}>
-                <Icon icon="plus" className="w-5 h-5" />
+                <PlusOutlined className="w-5 h-5" />
                 <div>{t("finance.addE")}</div>
             </div>}
             {id !== 0 && (

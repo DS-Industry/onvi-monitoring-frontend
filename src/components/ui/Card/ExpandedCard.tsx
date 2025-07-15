@@ -1,7 +1,7 @@
 import React, { FunctionComponent, SVGProps, useState } from "react";
 import { Button, Card, Row, Col } from "antd";
 import { useTranslation } from "react-i18next";
-import Icon from "feather-icons-react";
+import { DownOutlined, UpOutlined } from "@ant-design/icons"; // 👈 Add these
 
 type Props = {
     children: React.ReactNode;
@@ -37,12 +37,7 @@ const ExpandedCard: React.FC<Props> = ({
                 }
             }}
         >
-            <Row
-                align="middle"
-                justify="space-between"
-                gutter={[16, 16]}
-                wrap
-            >
+            <Row align="middle" justify="space-between" gutter={[16, 16]} wrap>
                 <Col flex="none">
                     <Component className="w-10 h-10" />
                 </Col>
@@ -53,14 +48,8 @@ const ExpandedCard: React.FC<Props> = ({
                     <div className="text-text02">{secondText}</div>
                 </Col>
                 <Col flex="none">
-                    <div
-                        onClick={toggleExpand}
-                        className="cursor-pointer"
-                    >
-                        <Icon
-                            icon={isExpanded ? "chevron-up" : "chevron-down"}
-                            className="w-6 h-6 text-text01"
-                        />
+                    <div onClick={toggleExpand} className="cursor-pointer text-text01 text-lg">
+                        {isExpanded ? <UpOutlined /> : <DownOutlined />}
                     </div>
                 </Col>
             </Row>
@@ -68,26 +57,16 @@ const ExpandedCard: React.FC<Props> = ({
             {isExpanded && (
                 <>
                     <div>{children}</div>
-                    <Row
-                        gutter={[16, 16]}
-                        justify="start"
-                        className="pl-0 sm:pl-14"
-                    >
+                    <Row gutter={[16, 16]} justify="start" className="pl-0 sm:pl-14">
                         {handleClick && (
                             <Col>
-                                <Button
-                                    type="primary"
-                                    onClick={handleClick}
-                                >
+                                <Button type="primary" onClick={handleClick}>
                                     {buttonText || t("organizations.save")}
                                 </Button>
                             </Col>
                         )}
                         <Col>
-                            <Button
-                                type="default"
-                                onClick={toggleExpand}
-                            >
+                            <Button type="default" onClick={toggleExpand}>
                                 {t("marketing.close")}
                             </Button>
                         </Col>

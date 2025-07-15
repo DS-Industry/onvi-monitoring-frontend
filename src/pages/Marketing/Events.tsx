@@ -7,7 +7,6 @@ import PresentIcon from "@icons/Present.svg?react";
 // import PercentageIcon from "@icons/Percentage.svg?react";
 // import DiamondIcon from "@icons/Diamond.svg?react";
 import Input from "@/components/ui/Input/Input";
-import Icon from "feather-icons-react";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWR, { mutate } from "swr";
 import { createBenefit, getBenefitActions, getBenefitById, getBenefits, updateBenefit } from "@/services/api/marketing";
@@ -17,6 +16,9 @@ import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import Button from "@/components/ui/Button/Button";
 import { Descriptions, Tag, Skeleton } from "antd";
+import {
+    PlusOutlined
+} from "@ant-design/icons";
 
 enum BenefitType {
     CASHBACK = "CASHBACK",
@@ -535,7 +537,7 @@ const Events: React.FC = () => {
                     </ExpandedCard>
                 ))}
                 <div className="flex space-x-2 items-center text-primary02 cursor-pointer" onClick={addBenefit}>
-                    <Icon icon="plus" />
+                    <PlusOutlined />
                     <div>{t("marketing.addBen")}</div>
                 </div>
             </div>

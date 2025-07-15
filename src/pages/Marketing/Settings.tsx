@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import BonusImage from "@icons/BasicBonus.svg?react";
 import { useTranslation } from "react-i18next";
-// import Icon from "feather-icons-react";
 import DropdownInput from "@ui/Input/DropdownInput";
 import ExpandedCard from "@ui/Card/ExpandedCard";
 import DiamondImage from "@icons/DiamondIcon.svg?react";
-// import GiftImage from "@icons/GiftIcon.svg?react";
-// import Conversion from "@/assets/ConversionRate.png";
 import Input from "@/components/ui/Input/Input";
 import Alert from "@icons/AlertTriangle.svg?react";
 import DiamondOne from "@/assets/DiamondOne.png";

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClockImage from "@icons/ClockImage.svg?react";
-import Icon from 'feather-icons-react';
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { createCashOper, getCashOperById, getCashOperCleanById, getCashOperRefundById, getCashOperSuspiciousById, getDayShiftById, returnDayShift, sendDayShift } from "@/services/api/finance";
@@ -20,6 +19,10 @@ import NoDataUI from "@/components/ui/NoDataUI";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import dayjs from "dayjs";
+import {
+    MailOutlined,
+    StarOutlined
+} from "@ant-design/icons";
 
 enum TypeWorkDayShiftReportCashOper {
     REFUND = "REFUND",
@@ -204,7 +207,7 @@ const TimesheetView: React.FC = () => {
                         </div>
                     </div>
                     <div className="w-full h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
-                        <Icon icon="mail" className="w-[22px] h-[18px]" />
+                        <MailOutlined className="w-[22px] h-[18px]" />
                         <div>{t("finance.status")}</div>
                         <div className="font-bold">{location.state?.status ? t(`tables.${location.state.status}`) : ""}</div>
                     </div>
@@ -215,7 +218,7 @@ const TimesheetView: React.FC = () => {
                     <div className="flex justify-between">
                         <div className="text-text01 font-semibold">{t("finance.grade")}</div>
                         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#fef9c3] flex items-center justify-center">
-                            <Icon icon="star" className="text-[#ff9066] w-6 h-6 sm:w-8 sm:h-8" />
+                            <StarOutlined className="text-[#ff9066] w-6 h-6 sm:w-8 sm:h-8" />
                         </div>
                     </div>
                     <div className={`w-full sm:w-[182px] h-14 ${dayShiftData?.estimation === "GROSS_VIOLATION" ? "bg-[#fef2f2] text-[#dc2626]" : dayShiftData?.estimation === "MINOR_VIOLATION" ? "bg-[#fff7ed] text-[#ea580c]" : dayShiftData?.estimation === "ONE_REMARK" ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-background05"} rounded-lg flex items-center justify-center text-sm px-2`}>

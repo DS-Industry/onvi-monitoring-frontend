@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import ArrowLeft from 'feather-icons-react';
 import RegisterImage from '@/assets/RegisterImage.png';
 import PostRegisterImage from '@/assets/PostRegisterImage.png';
 import OTPImage from '@/assets/OTPImage.png';
 const RegisterForm = React.lazy(() => import('./RegisterForm'));
 const OTPForm = React.lazy(() => import('./OTPForm'));
 const PostRegisterForm = React.lazy(() => import('./PostRegisterForm'));
-
 import OnviBlue from '@/assets/onvi_blue.png';
+import {
+    ArrowLeftOutlined
+} from "@ant-design/icons";
 
 type User = {
   id: number;
@@ -68,7 +69,7 @@ const Register: React.FC = () => {
 
         <div className="p-8 lg:w-full">
           <div className='flex text-primary02 mb-5'>
-            <ArrowLeft icon={'arrow-left'} />
+            <ArrowLeftOutlined />
             <p>{t("login.back")}</p>
           </div>
           <div className='flex mb-5'>

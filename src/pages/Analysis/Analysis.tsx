@@ -7,9 +7,12 @@ import useSWR from "swr";
 import { getAllReports } from "@/services/api/reports";
 import { useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageSize } from "@/hooks/useAuthStore";
 import { useFilterOn } from "@/components/context/useContext";
-import Icon from 'feather-icons-react';
 import CardSkeleton from "@/components/ui/Card/CardSkeleton";
 import { Select } from "antd";
+import {
+    ArrowRightOutlined,
+    ArrowLeftOutlined,
+} from "@ant-design/icons";
 
 enum CategoryReportTemplate {
     POS = "POS"
@@ -119,7 +122,7 @@ const Analysis: React.FC = () => {
                             cardWidth="456px"
                         /> : reportsData.map((report) => (
                             <AnalysisCard
-                                iconText="file-text"
+                                iconText="file"
                                 firstText={report.name}
                                 secondText={report.description || ""}
                                 reports={report}
@@ -137,7 +140,7 @@ const Analysis: React.FC = () => {
                     disabled={curr === 1}
                     className={`px-2 py-1 ${curr === 1 ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
                 >
-                    <Icon icon="chevron-left" />
+                    <ArrowLeftOutlined />
                 </button>
                 {generatePaginationRange().map((page, index) =>
                     page === "..." ? (
@@ -160,7 +163,7 @@ const Analysis: React.FC = () => {
                     disabled={curr === totalPages}
                     className={`px-2 py-1 ${curr === totalPages ? "text-gray-400 cursor-not-allowed" : "text-text01"}`}
                 >
-                    <Icon icon="chevron-right" />
+                    <ArrowRightOutlined />
                 </button>
             </div>
         </div>

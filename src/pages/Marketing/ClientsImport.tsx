@@ -1,13 +1,17 @@
 import Notification from "@/components/ui/Notification";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Icon from 'feather-icons-react';
 import Button from "@/components/ui/Button/Button";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import { createNomenclatureFile } from "@/services/api/warehouse";
 import { useNavigate } from "react-router-dom";
+import {
+    DownloadOutlined,
+    FileOutlined,
+    CloseOutlined
+} from "@ant-design/icons";
 
 const ClientsImport: React.FC = () => {
     const { t } = useTranslation();
@@ -66,7 +70,7 @@ const ClientsImport: React.FC = () => {
                 <div className="flex mt-5">
                     <div onClick={() => { setButtonOn(!buttonOn); }} className={`w-80 h-40 flex flex-col justify-center text-center cursor-pointer ${buttonOn ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}>
                         <div className={`flex justify-center text-center ${buttonOn ? "text-primary02" : "text-text01"}`}>
-                            <Icon icon="file" />
+                            <FileOutlined />
                             <div className="ml-2 font-semibold text-lg">{t("warehouse.use")}</div>
                         </div>
                         <div className={`mt-2 ml-5 text-base ${buttonOn ? "text-text01" : "text-text02"} font-normal`}>{t("warehouse.download")}</div>
@@ -80,7 +84,7 @@ const ClientsImport: React.FC = () => {
                     <div className="border rounded-lg h-24 flex justify-center text-center flex-col">
                         {!selectedFile && (<div className={`flex m-auto`}>
                             <label htmlFor="file-upload" className="flex text-primary02 cursor-pointer space-x-2">
-                                <Icon icon="download" />
+                                <DownloadOutlined />
                                 <div>{t("warehouse.select")}</div>
                             </label>
                             <input
@@ -105,7 +109,7 @@ const ClientsImport: React.FC = () => {
                                         className="text-text02 justify-end"
                                         onClick={handleFileRemove}
                                     >
-                                        <Icon icon="x" />
+                                        <CloseOutlined />
                                     </button>
                                 </div>
                             </div>

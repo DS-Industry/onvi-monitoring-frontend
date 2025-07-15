@@ -5,11 +5,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Location, useLocation, useNavigate } from "react-router-dom";
 import useSWR, { mutate } from "swr";
-import { CalendarOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
+import { CalendarOutlined, CloseOutlined, FileImageOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import Button from "@/components/ui/Button/Button";
 import { Card, Checkbox, List, Tag, Tooltip, Upload } from "antd";
-import Icon from "feather-icons-react";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
@@ -317,7 +316,7 @@ const RoutineWorkItem: React.FC = () => {
                                                 <div
                                                     className="cursor-pointer w-6 h-6 text-primary02_Hover flex justify-center items-center"
                                                 >
-                                                    {openSettings[groupName] ? <Icon icon="chevron-up" /> : <Icon icon="chevron-down" />}
+                                                    {openSettings[groupName] ? <UpOutlined /> : <DownOutlined />}
                                                 </div>
                                             </div>
 

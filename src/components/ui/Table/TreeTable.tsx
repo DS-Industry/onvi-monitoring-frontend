@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import UpdateIcon from "@icons/PencilIcon.png";
 import FolderIcon from "@icons/folder.svg?react";
-import Icon from 'feather-icons-react';
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
+import {
+    MinusCircleOutlined,
+    PlusCircleOutlined
+} from "@ant-design/icons";
 
 interface TableColumn {
     label: string;
@@ -85,7 +88,7 @@ const TreeTable: React.FC<Props> = ({
                                             className="text-text02"
                                             onClick={() => toggleRowExpansion(row.id)}
                                         >
-                                            {expandedRows.has(row.id) ? <Icon icon="minus-circle" className="h-4 w-4" /> : <Icon icon="plus-circle" className="h-4 w-4" />}
+                                            {expandedRows.has(row.id) ? <MinusCircleOutlined className="h-4 w-4" /> : <PlusCircleOutlined className="h-4 w-4" />}
                                         </button>
                                     )}
                                     <FolderIcon />
