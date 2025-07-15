@@ -23,11 +23,11 @@ ChartJS.register(
 type StatGraphResponse = {
   date: Date;
   sum: number;
-}
+};
 
 type Props = {
-  revenueData: StatGraphResponse[]
-}
+  revenueData: StatGraphResponse[];
+};
 
 const LineChart = ({ revenueData }: Props) => {
   const options = {
@@ -39,6 +39,8 @@ const LineChart = ({ revenueData }: Props) => {
       },
     },
   };
+
+  console.log(options.lol);
 
   const data = {
     labels: revenueData.map((item) => new Date(item.date).toLocaleDateString()),
