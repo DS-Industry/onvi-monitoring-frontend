@@ -8,7 +8,11 @@ import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
 import NotificationYes from "@icons/Notification_Yes.svg?react";
 import ArrowDown from "@icons/keyboard_arrow_down.svg?react";
 import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
-import { useButtonCreate, useFilterOpen, useSnackbar } from "@/components/context/useContext";
+import {
+  useButtonCreate,
+  useFilterOpen,
+  useSnackbar,
+} from "@/components/context/useContext";
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
@@ -20,15 +24,12 @@ import useAuthStore from "@/config/store/authSlice";
 import Avatar from "@/components/ui/Avatar";
 import OnviLogo from "@/assets/OnviLogo.svg";
 import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
-import { datadogRum } from '@datadog/browser-rum';
+import { datadogRum } from "@datadog/browser-rum";
 import { datadogLogs } from "@datadog/browser-logs";
 import Layout from "antd/es/layout";
 import Tag from "antd/es/tag";
 import Grid from "antd/es/grid";
-import {
-    CloseOutlined,
-    MenuOutlined
-} from "@ant-design/icons";
+import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 
 const { Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -111,11 +112,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
 
     const handleClickOutside = (e: MouseEvent) => {
       if (isMobile) return;
-      const sideBar = document.getElementById('sidebar');
-      const sideNavs = document.querySelectorAll('.side-nav');
+      const sideBar = document.getElementById("sidebar");
+      const sideNavs = document.querySelectorAll(".side-nav");
       let isInsideSidebar = false;
 
-      sideNavs.forEach(element => {
+      sideNavs.forEach((element) => {
         if (element.contains(e.target as Node)) isInsideSidebar = true;
       });
 
@@ -125,8 +126,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isHovered, isMobile, isOpen]);
 
   // Close submenus when navigating
@@ -155,39 +156,125 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const isParentActive = (subMenu: RouteItem[] | undefined): boolean =>
     subMenu ? subMenu.some((child) => child.path === location.pathname) : false;
 
-  const getStatusTag = (status: string): JSX.Element => {
-    const greenStatuses = [t("tables.ACTIVE"), t("tables.SENT"), t("tables.In Progress")];
-    const redStatuses = [t("tables.OVERDUE"), t("tables.Done"), t("tables.FINISHED"), t("tables.PAUSE")];
+  const getStatusTag = (status: string): React.ReactElement => {
+    const greenStatuses = [
+      t("tables.ACTIVE"),
+      t("tables.SENT"),
+      t("tables.In Progress"),
+    ];
+    const redStatuses = [
+      t("tables.OVERDUE"),
+      t("tables.Done"),
+      t("tables.FINISHED"),
+      t("tables.PAUSE"),
+    ];
     const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
 
-    if (greenStatuses.includes(status)) return <Tag color="green">{status}</Tag>;
+    if (greenStatuses.includes(status))
+      return <Tag color="green">{status}</Tag>;
     if (redStatuses.includes(status)) return <Tag color="red">{status}</Tag>;
-    if (orangeStatuses.includes(status)) return <Tag color="orange">{status}</Tag>;
+    if (orangeStatuses.includes(status))
+      return <Tag color="orange">{status}</Tag>;
     return <Tag color="default">{status}</Tag>;
   };
 
   const getRequiredPermissions = (path: string): Permission[] => {
     const permissionMap: [string, Permission[]][] = [
-      ["hr/salary", [{ action: "manage", subject: "Hr" }, { action: "create", subject: "Hr" }]],
-      ["hr/employee/advance", [{ action: "manage", subject: "Hr" }, { action: "create", subject: "Hr" }]],
-      ["hr", [{ action: "manage", subject: "Hr" }, { action: "update", subject: "Hr" }]],
-      ["administration", [{ action: "manage", subject: "Organization" }, { action: "create", subject: "Organization" }]],
-      ["station", [{ action: "manage", subject: "Pos" }, { action: "create", subject: "Pos" }]],
-      ["equipment/routine", [
-        { action: "manage", subject: "TechTask" },
-        { action: "create", subject: "TechTask" }
-      ]],
-      ["equipment/failure", [
-        { action: "manage", subject: "Incident" },
-        { action: "create", subject: "Incident" }
-      ]],
-      ["warehouse/documents", [{ action: "manage", subject: "Warehouse" }, { action: "create", subject: "Warehouse" }]],
-      ["warehouse", [{ action: "manage", subject: "Warehouse" }, { action: "update", subject: "Warehouse" }]],
-      ["finance/timesheet", [{ action: "manage", subject: "ShiftReport" }, { action: "create", subject: "ShiftReport" }]],
-      ["finance/financial/accounting", [{ action: "manage", subject: "ManagerPaper" }, { action: "create", subject: "ManagerPaper" }]],
-      ["finance/report/period", [{ action: "manage", subject: "ManagerPaper" }]],
-      ["finance", [{ action: "manage", subject: "CashCollection" }, { action: "create", subject: "CashCollection" }]],
-      ["analysis", [{ action: "manage", subject: "ShiftReport" }, { action: "create", subject: "ShiftReport" }]]
+      [
+        "hr/salary",
+        [
+          { action: "manage", subject: "Hr" },
+          { action: "create", subject: "Hr" },
+        ],
+      ],
+      [
+        "hr/employee/advance",
+        [
+          { action: "manage", subject: "Hr" },
+          { action: "create", subject: "Hr" },
+        ],
+      ],
+      [
+        "hr",
+        [
+          { action: "manage", subject: "Hr" },
+          { action: "update", subject: "Hr" },
+        ],
+      ],
+      [
+        "administration",
+        [
+          { action: "manage", subject: "Organization" },
+          { action: "create", subject: "Organization" },
+        ],
+      ],
+      [
+        "station",
+        [
+          { action: "manage", subject: "Pos" },
+          { action: "create", subject: "Pos" },
+        ],
+      ],
+      [
+        "equipment/routine",
+        [
+          { action: "manage", subject: "TechTask" },
+          { action: "create", subject: "TechTask" },
+        ],
+      ],
+      [
+        "equipment/failure",
+        [
+          { action: "manage", subject: "Incident" },
+          { action: "create", subject: "Incident" },
+        ],
+      ],
+      [
+        "warehouse/documents",
+        [
+          { action: "manage", subject: "Warehouse" },
+          { action: "create", subject: "Warehouse" },
+        ],
+      ],
+      [
+        "warehouse",
+        [
+          { action: "manage", subject: "Warehouse" },
+          { action: "update", subject: "Warehouse" },
+        ],
+      ],
+      [
+        "finance/timesheet",
+        [
+          { action: "manage", subject: "ShiftReport" },
+          { action: "create", subject: "ShiftReport" },
+        ],
+      ],
+      [
+        "finance/financial/accounting",
+        [
+          { action: "manage", subject: "ManagerPaper" },
+          { action: "create", subject: "ManagerPaper" },
+        ],
+      ],
+      [
+        "finance/report/period",
+        [{ action: "manage", subject: "ManagerPaper" }],
+      ],
+      [
+        "finance",
+        [
+          { action: "manage", subject: "CashCollection" },
+          { action: "create", subject: "CashCollection" },
+        ],
+      ],
+      [
+        "analysis",
+        [
+          { action: "manage", subject: "ShiftReport" },
+          { action: "create", subject: "ShiftReport" },
+        ],
+      ],
     ];
 
     const entry = permissionMap.find(([key]) => path.includes(key));
@@ -222,114 +309,148 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const activePage = getActivePage();
   const activePageName = activePage?.name || "Home";
 
-  const renderNavItem = (item: RouteItem): JSX.Element => (
-    <Can key={item.name} requiredPermissions={item.permissions || []} userPermissions={userPermissions}>
-      {(allowed) => allowed && (
-        <div key={item.name} className="side-nav">
-          <NavLink
-            to={item.subMenu ? '#' : item.path}
-            onClick={(e) => {
-              if (item.subMenu) {
-                e.preventDefault();
-                if (isMobile) {
-                  setOpenSubNav(openSubNav === item.name ? null : item.name);
-                } else {
-                  handleNavItemClick(item.name);
+  const renderNavItem = (item: RouteItem): React.ReactElement => (
+    <Can
+      key={item.name}
+      requiredPermissions={item.permissions || []}
+      userPermissions={userPermissions}
+    >
+      {(allowed) =>
+        allowed && (
+          <div key={item.name} className="side-nav">
+            <NavLink
+              to={item.subMenu ? "#" : item.path}
+              onClick={(e) => {
+                if (item.subMenu) {
+                  e.preventDefault();
+                  if (isMobile) {
+                    setOpenSubNav(openSubNav === item.name ? null : item.name);
+                  } else {
+                    handleNavItemClick(item.name);
+                  }
                 }
-              }
-            }}
-            className={({ isActive }) =>
-              item.subMenu
-                ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
-                  ${isParentActive(item.subNav) ? 'bg-opacity01/30 text-primary01' :
-                  (!isMobile && activeNavItem === item.name) ? 'bg-opacity01/30 text-primary01' : 'text-text02'
-                } hover:bg-opacity01/30 hover:text-primary01`
-                : isActive
+              }}
+              className={({ isActive }) =>
+                item.subMenu
+                  ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
+                  ${
+                    isParentActive(item.subNav)
+                      ? "bg-opacity01/30 text-primary01"
+                      : !isMobile && activeNavItem === item.name
+                      ? "bg-opacity01/30 text-primary01"
+                      : "text-text02"
+                  } hover:bg-opacity01/30 hover:text-primary01`
+                  : isActive
                   ? `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
                   : `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
                     hover:bg-opacity01/30 hover:text-primary01 text-text02`
-            }
-          >
-            {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
-            {isOpen && <span>{t(`routes.${item.name}`)}</span>}
-            {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
-          </NavLink>
-          {renderMobileSubNav(item)}
-          {renderDesktopSubNav(item)}
-        </div>
-      )}
+              }
+            >
+              {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
+              {isOpen && <span>{t(`routes.${item.name}`)}</span>}
+              {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
+            </NavLink>
+            {renderMobileSubNav(item)}
+            {renderDesktopSubNav(item)}
+          </div>
+        )
+      }
     </Can>
   );
 
-  const renderMobileSubNav = (item: RouteItem): JSX.Element | null => (
+  const renderMobileSubNav = (item: RouteItem): React.ReactElement | null =>
     isMobile && openSubNav === item.name ? (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
         <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg p-5">
-          <button className="text-xl p-2" onClick={() => setOpenSubNav(null)}>✕</button>
-          {item.subNav && item.subNav.map((subItem: RouteItem) => (
-            <Can key={subItem.name} requiredPermissions={subItem.permissions || []} userPermissions={userPermissions}>
-              {(allowed) => allowed && subItem.isSidebar && (
-                <div key={subItem.name}>
-                  <NavLink
-                    to={subItem.subMenu ? "#" : subItem.path}
-                    onClick={(e) => {
-                      if (subItem.subMenu) {
-                        e.preventDefault();
-                        setOpenSubNavItem(openSubNavItem === subItem.name ? null : subItem.name);
-                      } else {
-                        setOpenSubNav(null);
-                        setOpenSubNavItem(null);
-                      }
-                    }}
-                    className={({ isActive }) =>
-                      subItem.subMenu
-                        ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
-                          ${isParentActive(subItem.subNav) ? 'bg-opacity01/30 text-text01' : 'text-text02'}
+          <button className="text-xl p-2" onClick={() => setOpenSubNav(null)}>
+            ✕
+          </button>
+          {item.subNav &&
+            item.subNav.map((subItem: RouteItem) => (
+              <Can
+                key={subItem.name}
+                requiredPermissions={subItem.permissions || []}
+                userPermissions={userPermissions}
+              >
+                {(allowed) =>
+                  allowed &&
+                  subItem.isSidebar && (
+                    <div key={subItem.name}>
+                      <NavLink
+                        to={subItem.subMenu ? "#" : subItem.path}
+                        onClick={(e) => {
+                          if (subItem.subMenu) {
+                            e.preventDefault();
+                            setOpenSubNavItem(
+                              openSubNavItem === subItem.name
+                                ? null
+                                : subItem.name
+                            );
+                          } else {
+                            setOpenSubNav(null);
+                            setOpenSubNavItem(null);
+                          }
+                        }}
+                        className={({ isActive }) =>
+                          subItem.subMenu
+                            ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
+                          ${
+                            isParentActive(subItem.subNav)
+                              ? "bg-opacity01/30 text-text01"
+                              : "text-text02"
+                          }
                           hover:bg-opacity01/30 hover:text-text01`
-                        : isActive
-                          ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
-                          : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
+                            : isActive
+                            ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                            : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
                             hover:bg-opacity01/30 hover:text-text01 text-text02`
-                    }
-                  >
-                    {t(`routes.${subItem.name}`)}
-                    {subItem.subMenu && <ArrowRight className="ml-auto" />}
-                  </NavLink>
-                  {openSubNavItem === subItem.name && subItem.subNav && (
-                    <div className="ml-5 mt-2 border-l pl-3">
-                      {subItem.subNav.map((subSubItem: RouteItem) => (
-                        <Can key={subSubItem.name} requiredPermissions={subSubItem.permissions || []} userPermissions={userPermissions}>
-                          {(allowed) => allowed && subSubItem.isSidebar && (
-                            <NavLink
-                              to={subSubItem.path}
-                              className={({ isActive }) =>
-                                isActive
-                                  ? `block py-1.5 px-2 rounded bg-opacity01/30 text-text01`
-                                  : `block py-1.5 px-2 rounded transition duration-200 
-                                    hover:bg-opacity01/30 hover:text-text01 text-text02`
-                              }
-                              onClick={() => {
-                                setOpenSubNav(null);
-                                setOpenSubNavItem(null);
-                              }}
+                        }
+                      >
+                        {t(`routes.${subItem.name}`)}
+                        {subItem.subMenu && <ArrowRight className="ml-auto" />}
+                      </NavLink>
+                      {openSubNavItem === subItem.name && subItem.subNav && (
+                        <div className="ml-5 mt-2 border-l pl-3">
+                          {subItem.subNav.map((subSubItem: RouteItem) => (
+                            <Can
+                              key={subSubItem.name}
+                              requiredPermissions={subSubItem.permissions || []}
+                              userPermissions={userPermissions}
                             >
-                              {t(`routes.${subSubItem.name}`)}
-                            </NavLink>
-                          )}
-                        </Can>
-                      ))}
+                              {(allowed) =>
+                                allowed &&
+                                subSubItem.isSidebar && (
+                                  <NavLink
+                                    to={subSubItem.path}
+                                    className={({ isActive }) =>
+                                      isActive
+                                        ? `block py-1.5 px-2 rounded bg-opacity01/30 text-text01`
+                                        : `block py-1.5 px-2 rounded transition duration-200 
+                                    hover:bg-opacity01/30 hover:text-text01 text-text02`
+                                    }
+                                    onClick={() => {
+                                      setOpenSubNav(null);
+                                      setOpenSubNavItem(null);
+                                    }}
+                                  >
+                                    {t(`routes.${subSubItem.name}`)}
+                                  </NavLink>
+                                )
+                              }
+                            </Can>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              )}
-            </Can>
-          ))}
+                  )
+                }
+              </Can>
+            ))}
         </div>
       </div>
-    ) : null
-  );
+    ) : null;
 
-  const renderDesktopSubNav = (item: RouteItem): JSX.Element | null => (
+  const renderDesktopSubNav = (item: RouteItem): React.ReactElement | null =>
     !isMobile && activeNavItem === item.name && item.subNav ? (
       <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
         {item.subNavHeading !== "" && (
@@ -337,77 +458,101 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
             {t(`routes.${item.subNavHeading}`)}
           </div>
         )}
-        {item.subNav.map((subItem: RouteItem) => (
-          subItem.isSidebar && (
-            <div key={subItem.name} className="side-nav">
-              {subItem.titleName && (
-                <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
-                  {t(`routes.${subItem.titleName}`)}
-                </div>
-              )}
-              <Can requiredPermissions={subItem.permissions || []} userPermissions={userPermissions}>
-                {(allowed) => allowed && (
-                  <NavLink
-                    to={subItem.path}
-                    onClick={(e) => {
-                      if (subItem.subMenu) {
-                        e.preventDefault();
-                        handleSubNavItemClick(subItem.name);
-                      }
-                    }}
-                    className={({ isActive }) =>
-                      subItem.subMenu
-                        ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
-                          ${isParentActive(subItem.subNav) ? 'bg-opacity01/30 text-text01' : 'text-text02'
-                        } hover:bg-opacity01/30 hover:text-text01`
-                        : isActive
-                          ? `flex items-center p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
-                          : `flex items-center p-2 mx-4 font-semibold text-sm rounded transition duration-200 
-                            hover:bg-opacity01/30 hover:text-text01 text-text02`
-                    }
-                  >
-                    {t(`routes.${subItem.name}`)}
-                    {subItem.subMenu && <ArrowRight className="ml-auto" />}
-                  </NavLink>
+        {item.subNav.map(
+          (subItem: RouteItem) =>
+            subItem.isSidebar && (
+              <div key={subItem.name} className="side-nav">
+                {subItem.titleName && (
+                  <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
+                    {t(`routes.${subItem.titleName}`)}
+                  </div>
                 )}
-              </Can>
-              {subItem.isHr && <hr className="my-3" />}
-              {!isMobile && activeSubNavItem === subItem.name && subItem.subMenu && subItem.subNav && (
-                <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01 side-nav">
-                  {subItem.subNav.map((subSubItem: RouteItem) => (
-                    subSubItem.isSidebar && (
-                      <Can key={subSubItem.name} requiredPermissions={subSubItem.permissions || []} userPermissions={userPermissions}>
-                        {(allowed) => allowed && (
-                          <NavLink
-                            to={subSubItem.path}
-                            className={({ isActive }) =>
-                              isActive
-                                ? `flex items-center p-2 mx-4 rounded bg-opacity01/30 text-text01 font-semibold text-sm`
-                                : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-semibold text-sm`
-                            }
-                          >
-                            {t(`routes.${subSubItem.name}`)}
-                          </NavLink>
-                        )}
-                      </Can>
+                <Can
+                  requiredPermissions={subItem.permissions || []}
+                  userPermissions={userPermissions}
+                >
+                  {(allowed) =>
+                    allowed && (
+                      <NavLink
+                        to={subItem.path}
+                        onClick={(e) => {
+                          if (subItem.subMenu) {
+                            e.preventDefault();
+                            handleSubNavItemClick(subItem.name);
+                          }
+                        }}
+                        className={({ isActive }) =>
+                          subItem.subMenu
+                            ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
+                          ${
+                            isParentActive(subItem.subNav)
+                              ? "bg-opacity01/30 text-text01"
+                              : "text-text02"
+                          } hover:bg-opacity01/30 hover:text-text01`
+                            : isActive
+                            ? `flex items-center p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
+                            : `flex items-center p-2 mx-4 font-semibold text-sm rounded transition duration-200 
+                            hover:bg-opacity01/30 hover:text-text01 text-text02`
+                        }
+                      >
+                        {t(`routes.${subItem.name}`)}
+                        {subItem.subMenu && <ArrowRight className="ml-auto" />}
+                      </NavLink>
                     )
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        ))}
+                  }
+                </Can>
+                {subItem.isHr && <hr className="my-3" />}
+                {!isMobile &&
+                  activeSubNavItem === subItem.name &&
+                  subItem.subMenu &&
+                  subItem.subNav && (
+                    <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 border border-l-opacity01 side-nav">
+                      {subItem.subNav.map(
+                        (subSubItem: RouteItem) =>
+                          subSubItem.isSidebar && (
+                            <Can
+                              key={subSubItem.name}
+                              requiredPermissions={subSubItem.permissions || []}
+                              userPermissions={userPermissions}
+                            >
+                              {(allowed) =>
+                                allowed && (
+                                  <NavLink
+                                    to={subSubItem.path}
+                                    className={({ isActive }) =>
+                                      isActive
+                                        ? `flex items-center p-2 mx-4 rounded bg-opacity01/30 text-text01 font-semibold text-sm`
+                                        : `flex items-center p-2 mx-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-text01 text-text02 font-semibold text-sm`
+                                    }
+                                  >
+                                    {t(`routes.${subSubItem.name}`)}
+                                  </NavLink>
+                                )
+                              }
+                            </Can>
+                          )
+                      )}
+                    </div>
+                  )}
+              </div>
+            )
+        )}
       </div>
-    ) : null
-  );
+    ) : null;
 
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
       {activeNavItem && !isMobile && (
-        <div className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none" aria-hidden="true" />
+        <div
+          className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
+          aria-hidden="true"
+        />
       )}
       {isOpen && isMobile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
       )}
 
       <Sider
@@ -423,14 +568,22 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
           background: "#1c1917",
           height: "100%",
           left: isMobile ? (isOpen ? 0 : -80) : 0,
-          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s"
+          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
         }}
         {...handleSiderHover}
       >
         <div className="h-full flex flex-col justify-between relative">
           <div>
-            <div className={`flex items-center ${isOpen ? "" : "justify-center"} py-5 px-4`}>
-              {isOpen ? <img src={OnviLogo} alt="ONVI" loading="lazy" /> : <img src={OnviSmallLogo} alt="ONVI" loading="lazy" />}
+            <div
+              className={`flex items-center ${
+                isOpen ? "" : "justify-center"
+              } py-5 px-4`}
+            >
+              {isOpen ? (
+                <img src={OnviLogo} alt="ONVI" loading="lazy" />
+              ) : (
+                <img src={OnviSmallLogo} alt="ONVI" loading="lazy" />
+              )}
               {isMobile && (
                 <button
                   onClick={() => setIsOpen(!isOpen)}
@@ -441,18 +594,25 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               )}
             </div>
             <nav className="mt-5 text-sm grid gap-y-1">
-              {routes.map((item) => item.isSidebar ? renderNavItem(item) : null)}
+              {routes.map((item) =>
+                item.isSidebar ? renderNavItem(item) : null
+              )}
             </nav>
           </div>
           <div>
             <div
-              className={`flex items-center ${!isOpen && "justify-center"} py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
-              onClick={() => navigate('/notifications')}
+              className={`flex items-center ${
+                !isOpen && "justify-center"
+              } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+              onClick={() => navigate("/notifications")}
             >
               <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
               {isOpen && <span>{t("routes.notifications")}</span>}
             </div>
-            <div className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer" onClick={() => navigate('/profile')}>
+            <div
+              className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer"
+              onClick={() => navigate("/profile")}
+            >
               {user.avatar ? (
                 <img
                   src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user.avatar}`}
@@ -463,27 +623,42 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               ) : (
                 <Avatar type="sidebar" userName={userName} />
               )}
-              {isOpen && <p className="text-text02 text-sm sm:hidden md:block">{user.name}</p>}
+              {isOpen && (
+                <p className="text-text02 text-sm sm:hidden md:block">
+                  {user.name}
+                </p>
+              )}
             </div>
           </div>
         </div>
       </Sider>
 
-      <Layout style={{ marginLeft: isMobile ? 80 : (isOpen ? 256 : 80), transition: "all 0.3s" }}>
+      <Layout
+        style={{
+          marginLeft: isMobile ? 80 : isOpen ? 256 : 80,
+          transition: "all 0.3s",
+        }}
+      >
         <Content className="min-h-screen bg-white">
           {isMobile && (
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="fixed top-5 left-4 p-1.5 bg-opacity01 text-white rounded-md z-40"
             >
-              {isOpen ? <CloseOutlined className="w-6 h-6" /> : <MenuOutlined className="w-6 h-6" />}
+              {isOpen ? (
+                <CloseOutlined className="w-6 h-6" />
+              ) : (
+                <MenuOutlined className="w-6 h-6" />
+              )}
             </button>
           )}
 
           <div className="px-4 sm:px-6 relative min-h-screen z-10">
-            {(!isMobile && (activeNavItem === "Администрирование" || activeNavItem === "Мониторинг")) && (
-              <div className="absolute z-10 inset-0 bg-background01/65" />
-            )}
+            {!isMobile &&
+              (activeNavItem === "Администрирование" ||
+                activeNavItem === "Мониторинг") && (
+                <div className="absolute z-10 inset-0 bg-background01/65" />
+              )}
 
             <div className="flex flex-wrap items-start sm:items-center justify-between pt-5 pb-2">
               <div className="flex items-center">
@@ -497,20 +672,28 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 )}
                 <div className="ml-3 lg:ml-12 flex flex-col items-start">
                   {activePageName === "bonus" && (
-                    <span className="text-sm text-text02">{t("routes.loyalty")}</span>
+                    <span className="text-sm text-text02">
+                      {t("routes.loyalty")}
+                    </span>
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
                       {location.pathname === "/equipment/routine/work/list/item"
                         ? locationState?.name
                         : location.pathname === "/finance/timesheet/view"
-                          ? `${locationState?.name} : ${locationState?.date?.slice(0, 10)}`
-                          : activePageName === "createDo"
-                            ? t(`routes.${doc}`)
-                            : t(`routes.${activePageName}`)}
+                        ? `${
+                            locationState?.name
+                          } : ${locationState?.date?.slice(0, 10)}`
+                        : activePageName === "createDo"
+                        ? t(`routes.${doc}`)
+                        : t(`routes.${activePageName}`)}
                     </span>
-                    {location.pathname === "/equipment/routine/work/list/item" && locationState?.status ? (
-                      <div className="ml-5">{getStatusTag(locationState.status)}</div>
+                    {location.pathname ===
+                      "/equipment/routine/work/list/item" &&
+                    locationState?.status ? (
+                      <div className="ml-5">
+                        {getStatusTag(locationState.status)}
+                      </div>
                     ) : activePageName === "bonus" ? (
                       <EditIcon className="text-text02 ml-2" />
                     ) : (
@@ -538,18 +721,27 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   ]}
                   userPermissions={userPermissions}
                 >
-                  {(allowed) => allowed && activePage?.name === "nomenclature" && (
-                    <Button
-                      title={isMobile ? "" : t("warehouse.import")}
-                      iconUpload={true}
-                      type="outline"
-                      classname={`mr-2 ${isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""}`}
-                      handleClick={() => navigate('/warehouse/inventory/import')}
-                    />
-                  )}
+                  {(allowed) =>
+                    allowed &&
+                    activePage?.name === "nomenclature" && (
+                      <Button
+                        title={isMobile ? "" : t("warehouse.import")}
+                        iconUpload={true}
+                        type="outline"
+                        classname={`mr-2 ${
+                          isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""
+                        }`}
+                        handleClick={() =>
+                          navigate("/warehouse/inventory/import")
+                        }
+                      />
+                    )
+                  }
                 </Can>
                 <Can
-                  requiredPermissions={getRequiredPermissions(activePage?.path || "")}
+                  requiredPermissions={getRequiredPermissions(
+                    activePage?.path || ""
+                  )}
                   userPermissions={userPermissions}
                 >
                   {(allowed) =>
@@ -557,10 +749,18 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                     activePage?.addButton &&
                     locationState?.status !== t("tables.SENT") && (
                       <Button
-                        title={isMobile ? "" : t(`routes.${activePage?.addButtonText}`)}
+                        title={
+                          isMobile
+                            ? ""
+                            : t(`routes.${activePage?.addButtonText}`)
+                        }
                         iconPlus={true}
                         handleClick={() => setButtonOn(!buttonOn)}
-                        classname={isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : "min-w-[166px]"}
+                        classname={
+                          isMobile
+                            ? "h-[36px] gap-0 px-[12px] py-[9px]"
+                            : "min-w-[166px]"
+                        }
                       />
                     )
                   }
@@ -568,7 +768,9 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               </div>
             </div>
 
-            <div className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}>
+            <div
+              className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}
+            >
               {children}
             </div>
           </div>

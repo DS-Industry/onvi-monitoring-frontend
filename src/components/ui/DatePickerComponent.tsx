@@ -1,8 +1,13 @@
 import React, { useState } from "react";
+
+// @ts-expect-error - this component is not used
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
 
 type DatePickerProps = {
-  onDateChange?: (dateRange: { startDate: Date | null; endDate: Date | null }) => void;
+  onDateChange?: (dateRange: {
+    startDate: Date | null;
+    endDate: Date | null;
+  }) => void;
 };
 
 const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
@@ -17,10 +22,11 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
 
     // Notify parent component with parsed Date objects
     if (newValue?.startDate && newValue?.endDate) {
-      onDateChange && onDateChange({
-        startDate: new Date(newValue.startDate),
-        endDate: new Date(newValue.endDate),
-      });
+      onDateChange &&
+        onDateChange({
+          startDate: new Date(newValue.startDate),
+          endDate: new Date(newValue.endDate),
+        });
     } else {
       onDateChange && onDateChange({ startDate: null, endDate: null });
     }
