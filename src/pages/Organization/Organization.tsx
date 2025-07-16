@@ -50,12 +50,18 @@ const Organization: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const user = useUser();
 
+    const legalOptions = [
+        { name: t("organizations.legalEntity"), value: "LegalEntity" },
+        { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
+    ];
+
     const organizations: OrganizationResponse[] = data
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .map((item: OrganizationResponse) => ({
             ...item,
             ownerName: user.name,
-            organizationStatus: t(`tables.${item.organizationStatus}`)
+            organizationStatus: t(`tables.${item.organizationStatus}`),
+            organizationType: legalOptions.find((leg) => leg.value === item.organizationType)?.name || "-"
         }))
         .sort((a, b) => a.id - b.id) || [];
 
@@ -235,10 +241,7 @@ const Organization: React.FC = () => {
                     <div className="grid grid-cols-1 gap-4">
                         <DropdownInput
                             title={t("organizations.typeLegal")}
-                            options={[
-                                { name: t("organizations.legalEntity"), value: "LegalEntity" },
-                                { name: t("organizations.ip"), value: "IndividualEntrepreneur" }
-                            ]}
+                            options={legalOptions}
                             inputType="secondary"
                             classname="w-80"
                             {...register('organizationType', { required: !isEditMode && 'Organization Type is required' })}

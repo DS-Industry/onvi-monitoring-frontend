@@ -359,7 +359,7 @@ const DynamicTable = <T extends TableRow>({
                         {String(value)}
                         <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
-                ) : col.render ? col.render(record, handleChange) : String(value);
+                ) : col.render ? col.render(record, handleChange) : value ? String(value) : "-";
             },
         };
 

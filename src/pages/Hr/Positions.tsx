@@ -37,49 +37,6 @@ const Positions: React.FC = () => {
 
     const { data: positionData, isLoading: positionLoading, isValidating } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    // const positions: { name: string, value: string, render: JSX.Element }[] = [
-    //     {
-    //         name: t("hr.admin"),
-    //         value: "Admin",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.admin")}</div>
-    //                 <div className="text-text02">{t("hr.accessTo")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.accountant"),
-    //         value: "Accountant",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.accountant")}</div>
-    //                 <div className="text-text02">{t("hr.sec")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.lineOperator"),
-    //         value: "lineOperator",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.lineOperator")}</div>
-    //                 <div className="text-text02">{t("hr.sec")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.washer"),
-    //         value: "washer",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.washer")}</div>
-    //                 <div className="text-text02">{t("hr.secti")}</div>
-    //             </div>
-    //         )
-    //     }
-    // ];
-
     const defaultValues: PositionRequest = {
         name: "",
         organizationId: 0,
@@ -180,7 +137,7 @@ const Positions: React.FC = () => {
             )}
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("hr.update") : t("hr.pos")}</div>
                     <div className="flex">
                         <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
                         <span className="text-errorFill">*</span>
@@ -203,9 +160,9 @@ const Positions: React.FC = () => {
                         options={organizations}
                         classname="w-64"
                         {...register('organizationId', {
-                            required: 'Organization Id is required',
+                            required: !isEditMode && 'Organization Id is required',
                             validate: (value) =>
-                                (value !== 0) || "Organization Id is required"
+                                (value !== 0 || isEditMode) || "Organization Id is required"
                         })}
                         value={formData.organizationId}
                         onChange={(value) => handleInputChange('organizationId', value)}
@@ -222,27 +179,6 @@ const Positions: React.FC = () => {
                         changeValue={(e) => handleInputChange('description', e.target.value)}
                         {...register('description')}
                     />
-                    {/* <div className="flex space-x-2 items-center">
-                        <input
-                            type="checkbox"
-                            className="w-[18px] h-[18px]"
-                            checked={formData.access === "Yes"}
-                            onChange={() => handleInputChange("access", formData.access === "Yes" ? "No" : "Yes")}
-                        />
-                        <div className="text-text01">{t("roles.acc")}</div>
-                    </div>
-                    <DropdownInput
-                        title={`${t("hr.the")}*`}
-                        label={t("hr.select")}
-                        options={positions}
-                        renderOption={(option) => option.render || <span>{option.name}</span>}
-                        classname="w-80"
-                        {...register('role', { required: 'role is required' })}
-                        value={formData.role}
-                        onChange={(value) => handleInputChange('role', value)}
-                        error={!!errors.role}
-                        helperText={errors.role?.message || ''}
-                    /> */}
                     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
