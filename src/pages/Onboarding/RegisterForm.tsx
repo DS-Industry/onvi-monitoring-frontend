@@ -15,7 +15,7 @@ type Props = {
     setRegisterObj: (obj: { email: string; }) => void;
 }
 
-type REGISTERBODY = {
+type RegisterBody = {
     name: string;
     surname: string;
     middlename?: string;
@@ -30,7 +30,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Prop
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
 
-    const defaultValues: REGISTERBODY = {
+    const defaultValues: RegisterBody = {
         name: '',
         surname: '',
         middlename: '',
