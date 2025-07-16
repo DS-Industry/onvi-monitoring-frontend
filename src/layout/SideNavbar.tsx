@@ -202,6 +202,13 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
         ],
       ],
       [
+        "/administration/accessRights/employees",
+        [
+          { action: "manage", subject: "Organization" },
+          { action: "update", subject: "Organization" },
+        ],
+      ],
+      [
         "administration",
         [
           { action: "manage", subject: "Organization" },
