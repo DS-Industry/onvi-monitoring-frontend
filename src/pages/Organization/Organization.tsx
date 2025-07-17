@@ -17,10 +17,10 @@ import Filter from "@/components/ui/Filter/Filter.tsx";
 // import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
-import { useUser } from "@/hooks/useUserStore";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { Input as SearchInp } from "antd";
+import { getWorkers } from "@/services/api/equipment";
 
 const { Search } = SearchInp;
 
@@ -48,7 +48,15 @@ const Organization: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const user = useUser();
+
+    const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const workers: { name: string; value: number; }[] = [
+        ...(workersData?.map((work) => ({
+            name: work.name,
+            value: work.id
+        })) || [])
+    ];
 
     const legalOptions = [
         { name: t("organizations.legalEntity"), value: "LegalEntity" },
@@ -59,7 +67,7 @@ const Organization: React.FC = () => {
         ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .map((item: OrganizationResponse) => ({
             ...item,
-            ownerName: user.name,
+            ownerName: workers.find((work) => work.value === item.ownerId)?.name || "-",
             organizationStatus: t(`tables.${item.organizationStatus}`),
             organizationType: legalOptions.find((leg) => leg.value === item.organizationType)?.name || "-"
         }))
@@ -141,7 +149,7 @@ const Organization: React.FC = () => {
         if (orgToEdit) {
             setFormData({
                 fullName: orgToEdit.name,
-                organizationType: orgToEdit.organizationType,
+                organizationType: legalOptions.find((leg) => leg.name === orgToEdit.organizationType)?.value || "",
                 rateVat: orgs?.rateVat ? orgs.rateVat : '',
                 inn: orgs?.inn ? orgs.inn : '',
                 okpo: orgs?.okpo ? orgs.okpo : '',
