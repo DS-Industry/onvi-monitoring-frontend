@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Select, Input, Collapse } from "antd";
-import InputDateGap from "@ui/InputLine/InputDateGap.tsx";
+import { Select, Input, Collapse, DatePicker, Space } from "antd";
 import Button from "@ui/Button/Button.tsx";
 import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
 
@@ -11,6 +10,7 @@ import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import { updateSearchParams } from "@/utils/updateSearchParams";
 
 type Optional = {
   name: string;
@@ -71,24 +71,16 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     })) || []),
   ];
 
-  const updateParam = (key: string, value: any) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (value === "" || value === undefined) {
-      newParams.delete(key);
-    } else {
-      newParams.set(key, String(value));
-    }
-    setSearchParams(newParams);
-  };
-
   const resetFilters = () => {
     const today = dayjs().format("YYYY-MM-DD");
-    const newParams = new URLSearchParams();
-    newParams.set("dateStart", today);
-    newParams.set("dateEnd", today);
-    newParams.set("city", "*");
-    newParams.set("page", "1");
-    setSearchParams(newParams);
+
+    updateSearchParams(searchParams, setSearchParams, {
+      dateStart: today,
+      dateEnd: today,
+      city: "*",
+      page: "1",
+      size: "15",
+    });
 
     setStartDate(dayjs());
     setEndDate(dayjs());
@@ -104,7 +96,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
       onChange={(keys) => setActiveFilterKey(keys as string[])}
       items={[
         {
-          key: "1",
+          key: "filter-1",
           label: (
             <span className="font-semibold text-base">
               {activeFilterKey.includes("1")
@@ -123,7 +115,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   <Search
                     placeholder="Поиск"
                     className="w-full sm:w-80"
-                    onSearch={(val) => updateParam("search", val)}
+                    onSearch={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        search: val,
+                        page: "1",
+                      });
+                    }}
                   />
                 )}
 
@@ -133,7 +130,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     classname="w-full sm:w-80"
                     options={cities}
                     value={getParam("city", "*")}
-                    onChange={(val) => updateParam("city", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        city: val,
+                        page: "1",
+                      });
+                    }}
                   />
                 )}
 
@@ -142,7 +144,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     className="w-full sm:w-80"
                     placeholder="Выберите организацию"
                     value={getParam("orgId", "")}
-                    onChange={(val) => updateParam("orgId", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        orgId: val,
+                        page: "1",
+                      });
+                    }}
                     options={organizationsSelect.map((item) => ({
                       label: item.name,
                       value: item.value,
@@ -160,7 +167,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                       value: String(item.value),
                     }))}
                     value={getParam("posId", "*")}
-                    onChange={(val) => updateParam("posId", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        posId: val,
+                        page: "1",
+                      });
+                    }}
                     loading={loadingPos}
                   />
                 ) : null}
@@ -170,7 +182,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     className="w-full sm:w-80"
                     placeholder="Выберите устройство"
                     value={getParam("deviceId", "")}
-                    onChange={(val) => updateParam("deviceId", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        deviceId: val,
+                        page: "1",
+                      });
+                    }}
                     options={devicesSelect.map((item) => ({
                       label: item.name,
                       value: item.value,
@@ -183,7 +200,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     className="w-full sm:w-80"
                     placeholder="Введите название склада"
                     value={getParam("warehouseId", "")}
-                    onChange={(val) => updateParam("warehouseId", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        warehouseId: val,
+                        page: "1",
+                      });
+                    }}
                     options={wareHousesSelect.map((item) => ({
                       label: item.name,
                       value: item.value,
@@ -198,7 +220,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   <Select
                     className="w-24"
                     value={Number(getParam("size", "15"))}
-                    onChange={(val) => updateParam("size", val)}
+                    onChange={(val) => {
+                      updateSearchParams(searchParams, setSearchParams, {
+                        size: val,
+                        page: "1",
+                      });
+                    }}
                     options={[15, 50, 100, 120].map((n) => ({
                       label: n,
                       value: n,
@@ -208,18 +235,36 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
               </div>
 
               <div className="mt-4">
-                <InputDateGap
-                  defaultDateStart={startDate.toDate()}
-                  defaultDateEnd={endDate.toDate()}
-                  onStartDateChange={(date) => {
-                    setStartDate(dayjs(date));
-                    updateParam("dateStart", dayjs(date).format("YYYY-MM-DD"));
-                  }}
-                  onEndDateChange={(date) => {
-                    setEndDate(dayjs(date));
-                    updateParam("dateEnd", dayjs(date).format("YYYY-MM-DD"));
-                  }}
-                />
+                <Space size="middle">
+                  <DatePicker
+                    value={startDate}
+                    format="YYYY-MM-DD"
+                    onChange={(date) => {
+                      setStartDate(date);
+                      if (date) {
+                        updateSearchParams(searchParams, setSearchParams, {
+                          dateStart: date.format("YYYY-MM-DD"),
+                          page: "1",
+                        });
+                      }
+                    }}
+                    placeholder="Start Date"
+                  />
+                  <DatePicker
+                    value={endDate}
+                    format="YYYY-MM-DD"
+                    onChange={(date) => {
+                      setEndDate(date);
+                      if (date) {
+                        updateSearchParams(searchParams, setSearchParams, {
+                          dateEnd: date.format("YYYY-MM-DD"),
+                          page: "1",
+                        });
+                      }
+                    }}
+                    placeholder="End Date"
+                  />
+                </Space>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">

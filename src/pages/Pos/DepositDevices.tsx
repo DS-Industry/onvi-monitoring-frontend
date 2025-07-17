@@ -49,7 +49,7 @@ const DepositDevices: React.FC = () => {
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page") || 1);
   const pageSize = Number(searchParams.get("size") || 15);
@@ -231,6 +231,16 @@ const DepositDevices: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns);
 
+  const updateParam = (key: string, value: any) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value === "" || value === undefined) {
+      newParams.delete(key);
+    } else {
+      newParams.set(key, String(value));
+    }
+    setSearchParams(newParams);
+  };
+
   return (
     <>
       <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
@@ -244,11 +254,22 @@ const DepositDevices: React.FC = () => {
             options={options}
             onChange={setCheckedList}
           />
+
           <Table
             rowKey="id"
             dataSource={devices}
             columns={visibleColumns}
             scroll={{ x: "max-content" }}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalPosesCount,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`,
+              onChange: (page) => {
+                updateParam("page", String(page));
+              },
+            }}
           />
         </div>
       ) : (
