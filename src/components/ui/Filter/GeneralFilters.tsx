@@ -1,0 +1,244 @@
+import React, { useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Select, Input, Collapse } from "antd";
+import InputDateGap from "@ui/InputLine/InputDateGap.tsx";
+import Button from "@ui/Button/Button.tsx";
+import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
+
+const { Search } = Input;
+
+import useSWR from "swr";
+import { getPlacement } from "@/services/api/device/index.ts";
+import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+
+type Optional = {
+  name: string;
+  value: string | number;
+};
+
+type GeneralFiltersProps = {
+  count: number;
+  organizationsSelect?: Optional[];
+  devicesSelect?: Optional[];
+  wareHousesSelect?: Optional[];
+  poses?: Optional[];
+  hideCity?: boolean;
+  hideSearch?: boolean;
+  hideReset?: boolean;
+  loadingPos?: boolean;
+};
+
+const GeneralFilters: React.FC<GeneralFiltersProps> = ({
+  count,
+  organizationsSelect,
+  devicesSelect,
+  wareHousesSelect,
+  hideCity = false,
+  hideSearch = false,
+  hideReset = false,
+  loadingPos,
+  poses,
+}) => {
+  const { t } = useTranslation();
+  const allCategoriesText = t("warehouse.all");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const getParam = (key: string, fallback = "") =>
+    searchParams.get(key) || fallback;
+
+  const [startDate, setStartDate] = useState(
+    dayjs(getParam("dateStart") || dayjs().format("YYYY-MM-DD"))
+  );
+
+  const [endDate, setEndDate] = useState(
+    dayjs(getParam("dateEnd") || dayjs().format("YYYY-MM-DD"))
+  );
+
+  const [filterToggle, setFilterToggle] = useState(false);
+
+  const { data: cityData } = useSWR("get-city", getPlacement);
+
+  const cities: Optional[] = [
+    { name: allCategoriesText, value: "*" },
+    ...(cityData?.map((item) => ({
+      name: item.region,
+      value: String(item.id),
+    })) || []),
+  ];
+
+  const updateParam = (key: string, value: any) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value === "" || value === undefined) {
+      newParams.delete(key);
+    } else {
+      newParams.set(key, String(value));
+    }
+    setSearchParams(newParams);
+  };
+
+  const resetFilters = () => {
+    const today = dayjs().format("YYYY-MM-DD");
+    const newParams = new URLSearchParams();
+    newParams.set("dateStart", today);
+    newParams.set("dateEnd", today);
+    newParams.set("city", "*");
+    newParams.set("page", "1");
+    setSearchParams(newParams);
+
+    setStartDate(dayjs());
+    setEndDate(dayjs());
+    setFilterToggle(!filterToggle);
+  };
+
+  return (
+    <Collapse
+      bordered={false}
+      ghost
+      style={{ marginBottom: 16 }}
+      activeKey={activeFilterKey}
+      onChange={(keys) => setActiveFilterKey(keys as string[])}
+      items={[
+        {
+          key: "1",
+          label: (
+            <span className="font-semibold text-base">
+              {activeFilterKey.includes("1")
+                ? t("routes.filter")
+                : t("routes.expand")}
+            </span>
+          ),
+          style: { background: "#fafafa", borderRadius: 8 },
+          children: (
+            <div
+              ref={contentRef}
+              className="overflow-hidden transition-all duration-500 ease-in-out"
+            >
+              <div className="flex flex-wrap gap-4">
+                {!hideSearch && (
+                  <Search
+                    placeholder="Поиск"
+                    className="w-full sm:w-80"
+                    onSearch={(val) => updateParam("search", val)}
+                  />
+                )}
+
+                {!hideCity && (
+                  <SearchDropdownInput
+                    title={t("pos.city")}
+                    classname="w-full sm:w-80"
+                    options={cities}
+                    value={getParam("city", "*")}
+                    onChange={(val) => updateParam("city", val)}
+                  />
+                )}
+
+                {organizationsSelect?.length ? (
+                  <Select
+                    className="w-full sm:w-80"
+                    placeholder="Выберите организацию"
+                    value={getParam("orgId", "")}
+                    onChange={(val) => updateParam("orgId", val)}
+                    options={organizationsSelect.map((item) => ({
+                      label: item.name,
+                      value: item.value,
+                    }))}
+                  />
+                ) : null}
+
+                {poses?.length ? (
+                  <SearchDropdownInput
+                    title={t("analysis.posId")}
+                    classname="w-full sm:w-80"
+                    placeholder="Выберите объект"
+                    options={poses.map((item) => ({
+                      ...item,
+                      value: String(item.value),
+                    }))}
+                    value={getParam("posId", "*")}
+                    onChange={(val) => updateParam("posId", val)}
+                    loading={loadingPos}
+                  />
+                ) : null}
+
+                {devicesSelect?.length ? (
+                  <Select
+                    className="w-full sm:w-80"
+                    placeholder="Выберите устройство"
+                    value={getParam("deviceId", "")}
+                    onChange={(val) => updateParam("deviceId", val)}
+                    options={devicesSelect.map((item) => ({
+                      label: item.name,
+                      value: item.value,
+                    }))}
+                  />
+                ) : null}
+
+                {wareHousesSelect?.length ? (
+                  <Select
+                    className="w-full sm:w-80"
+                    placeholder="Введите название склада"
+                    value={getParam("warehouseId", "")}
+                    onChange={(val) => updateParam("warehouseId", val)}
+                    options={wareHousesSelect.map((item) => ({
+                      label: item.name,
+                      value: item.value,
+                    }))}
+                  />
+                ) : null}
+
+                <div className="flex flex-col">
+                  <label className="text-sm text-text02">
+                    {t("tables.lines")}
+                  </label>
+                  <Select
+                    className="w-24"
+                    value={Number(getParam("size", "15"))}
+                    onChange={(val) => updateParam("size", val)}
+                    options={[15, 50, 100, 120].map((n) => ({
+                      label: n,
+                      value: n,
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <InputDateGap
+                  defaultDateStart={startDate.toDate()}
+                  defaultDateEnd={endDate.toDate()}
+                  onStartDateChange={(date) => {
+                    setStartDate(dayjs(date));
+                    updateParam("dateStart", dayjs(date).format("YYYY-MM-DD"));
+                  }}
+                  onEndDateChange={(date) => {
+                    setEndDate(dayjs(date));
+                    updateParam("dateEnd", dayjs(date).format("YYYY-MM-DD"));
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 mt-4">
+                {!hideReset && (
+                  <Button
+                    title="Сбросить"
+                    type="outline"
+                    handleClick={resetFilters}
+                    classname="w-[168px]"
+                  />
+                )}
+                <p className="font-semibold">Найдено: {count}</p>
+              </div>
+            </div>
+          ),
+        },
+      ]}
+    />
+  );
+};
+
+export default GeneralFilters;

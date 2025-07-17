@@ -699,7 +699,8 @@
     "ONETIME": "ONETIME",
     "REGULAR": "REGULAR",
     "In Progress": "In Progress",
-    "Done": "Done"
+    "Done": "Done",
+    "displayedColumns": "Displayed Columns"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
