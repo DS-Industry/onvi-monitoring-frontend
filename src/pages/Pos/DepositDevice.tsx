@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import dayjs from "dayjs";
@@ -60,6 +60,8 @@ const DepositDevice: React.FC = () => {
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   const filterParams: FilterDepositDevice = useMemo(
     () => ({
       dateStart,
@@ -91,6 +93,8 @@ const DepositDevice: React.FC = () => {
         dateEnd: new Date(filterParams.dateEnd),
         page: filterParams.page,
         size: filterParams.size,
+      }).finally(() => {
+        setIsInitialLoading(false);
       }),
     {
       revalidateOnFocus: false,
@@ -186,7 +190,7 @@ const DepositDevice: React.FC = () => {
         hideReset={true}
       />
 
-      {isLoading ? (
+      {isLoading || isInitialLoading ? (
         <TableSkeleton columnCount={columnsMonitoringDevice.length} />
       ) : deviceMonitoring.length > 0 ? (
         <div className="mt-8">

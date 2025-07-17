@@ -64,6 +64,8 @@ const DepositDevices: React.FC = () => {
 
   const cityParam = Number(searchParams.get("city")) || "*";
 
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   // Get poses based on the selected city
   const { data: poses } = useSWR(
     `get-pos-${cityParam}`,
@@ -133,14 +135,19 @@ const DepositDevices: React.FC = () => {
   const { data: devices, isLoading: filterLoading } = useSWR(
     swrKey,
     () =>
-      getDepositPos(filterParams).then((data) => {
-        setTotalPosesCount(data.totalCount || 0);
-        const sorted = [...(data.oper ?? [])].sort((a, b) => a.id - b.id);
-        return sorted;
-      }),
+      getDepositPos(filterParams)
+        .then((data) => {
+          setTotalPosesCount(data.totalCount || 0);
+          const sorted = [...(data.oper ?? [])].sort((a, b) => a.id - b.id);
+
+          return sorted;
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
+        }),
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
       keepPreviousData: true,
     }
   );
@@ -235,7 +242,7 @@ const DepositDevices: React.FC = () => {
     <>
       <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
 
-      {filterLoading ? (
+      {filterLoading || isInitialLoading ? (
         <TableSkeleton columnCount={columns.length} />
       ) : totalPosesCount ? (
         <div className="mt-8">

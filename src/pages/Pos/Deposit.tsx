@@ -76,21 +76,28 @@ const Deposit: React.FC = () => {
 
   const [totalCount, setTotalCount] = useState(0);
 
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   const { data: devices, isLoading: filterLoading } = useSWR(
     swrKey,
     () =>
       getDeposit(posId, {
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
-      }).then((data) => {
-        const sorted = [...(data ?? [])].sort((a, b) => a.id - b.id);
-        setTotalCount(sorted.length);
-        return sorted;
-      }),
+      })
+        .then((data) => {
+          const sorted = [...(data ?? [])].sort((a, b) => a.id - b.id);
+          setTotalCount(sorted.length);
+
+          return sorted;
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
+        }),
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+      revalidateOnReconnect: true,
       keepPreviousData: true,
+      revalidateOnFocus: true,
     }
   );
 
@@ -219,7 +226,7 @@ const Deposit: React.FC = () => {
         hideReset={true}
       />
 
-      {filterLoading ? (
+      {filterLoading || isInitialLoading ? (
         <TableSkeleton columnCount={columns.length} />
       ) : totalCount > 0 ? (
         <div className="mt-8">
