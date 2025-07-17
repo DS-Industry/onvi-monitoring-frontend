@@ -9,6 +9,7 @@ import { getPlacement } from "@/services/api/device";
 import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { getPoses } from "@/services/api/equipment";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { updateSearchParams } from "@/utils/updateSearchParams";
 
 // components
 import NoDataUI from "@ui/NoDataUI.tsx";
@@ -23,6 +24,7 @@ import { Table } from "antd";
 
 // types
 import type { ColumnsType } from "antd/es/table";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
 
 interface DevicesMonitoring {
   id: number;
@@ -51,8 +53,8 @@ const DepositDevices: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentPage = Number(searchParams.get("page") || 1);
-  const pageSize = Number(searchParams.get("size") || 15);
+  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
   const posId = searchParams.get("posId") || "*";
   const dateStart =
     searchParams.get("dateStart") ?? new Date().toISOString().slice(0, 10);
@@ -164,10 +166,7 @@ const DepositDevices: React.FC = () => {
           <Link
             to={{
               pathname: "/station/enrollments/devices",
-            }}
-            state={{
-              ownerId: record.id,
-              name: record.name,
+              search: `?posId=${record.id || "*"}`,
             }}
           >
             {text}
@@ -231,16 +230,6 @@ const DepositDevices: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns);
 
-  const updateParam = (key: string, value: any) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (value === "" || value === undefined) {
-      newParams.delete(key);
-    } else {
-      newParams.set(key, String(value));
-    }
-    setSearchParams(newParams);
-  };
-
   return (
     <>
       <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
@@ -267,7 +256,9 @@ const DepositDevices: React.FC = () => {
               showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} items`,
               onChange: (page) => {
-                updateParam("page", String(page));
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                });
               },
             }}
           />
