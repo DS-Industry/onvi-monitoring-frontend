@@ -80,6 +80,10 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
       city: "*",
       page: "1",
       size: "15",
+      orgId: "*",
+      posId: "*",
+      deviceId: "",
+      warehouseId: "",
     });
 
     setStartDate(dayjs());
