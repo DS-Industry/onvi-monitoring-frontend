@@ -147,6 +147,7 @@ const Deposit: React.FC = () => {
             pathname: "/station/enrollments/device",
             search: `?posId=${posId}&deviceId=${record.id}`,
           }}
+          className="text-blue-500 hover:text-blue-700 font-semibold"
         >
           {text}
         </Link>
