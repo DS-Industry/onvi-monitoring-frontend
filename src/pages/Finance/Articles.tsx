@@ -6,7 +6,7 @@ import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import useSWR, { mutate } from "swr";
-import { getPoses } from "@/services/api/equipment";
+import { getPoses, getWorkers } from "@/services/api/equipment";
 import { useCity, useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -18,7 +18,6 @@ import { createManagerPaper, deleteManagerPapers, getAllManagerPaper, getAllMana
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import { getWorkers } from "@/services/api/hr";
 import { useFilterOn } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
@@ -422,17 +421,13 @@ const Articles: React.FC = () => {
 
     const { data: paperTypeData } = useSWR([`get-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
-        placementId: "*",
-        hrPositionId: "*",
-        organizationId: "*"
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number | "*"; }[] = [
         { name: t("hr.all"), value: "*" },
         ...(workersData?.map((work) => ({
-            name: work.props.name,
-            value: work.props.id
+            name: work.name,
+            value: work.id
         })) || [])
     ];
 
@@ -912,7 +907,7 @@ const Articles: React.FC = () => {
                     title={t("equipment.user")}
                     classname="w-80"
                     value={userId}
-                    options={[...workers, { name: t("warehouse.all"), value: "*" }]}
+                    options={workers}
                     onChange={(value) => setUserId(value)}
                 />
                 <DateTimeInput
