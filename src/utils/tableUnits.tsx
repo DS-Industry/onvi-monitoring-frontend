@@ -1,5 +1,6 @@
 import { Tag } from "antd";
 import dayjs from "dayjs";
+import React from "react";
 
 interface TagItem {
   id: number;
@@ -8,11 +9,11 @@ interface TagItem {
 }
 
 /**
- * Render function for currency values (₸ formatted).
+ * Render function for currency values (₽ formatted).
  */
 export function getCurrencyRender() {
   return (val: number | null | undefined): string => {
-    if (val === null || val === undefined || isNaN(val)) return "-";
+    if (val === null || val === undefined || isNaN(val)) return "—";
     return `${val.toFixed(2)} ₽`;
   };
 }
@@ -22,7 +23,7 @@ export function getCurrencyRender() {
  */
 export function getDateRender() {
   return (val: Date | string | null | undefined): string => {
-    if (!val) return "-";
+    if (!val || !dayjs(val).isValid()) return "—";
     return dayjs(val).format("YYYY-MM-DD HH:mm");
   };
 }
@@ -34,7 +35,7 @@ export function formatNumber(
   num: number | null | undefined,
   type: "number" | "double" = "number"
 ): string {
-  if (num === null || num === undefined || isNaN(num)) return "-";
+  if (num === null || num === undefined || isNaN(num)) return "—";
 
   return new Intl.NumberFormat("ru-RU", {
     minimumFractionDigits: type === "double" ? 2 : 0,
@@ -46,11 +47,11 @@ export function formatNumber(
 /**
  * Render AntD tags from a list of { id, name, color } objects.
  */
-export function getTagRender(tags: TagItem[] | undefined): React.ReactNode {
+export function getTagRender(tags?: TagItem[]): React.ReactNode {
   if (!tags || tags.length === 0) return "—";
 
   return (
-    <div className="flex flex-wrap max-w-64 gap-4">
+    <div className="flex flex-wrap gap-2 max-w-64">
       {tags.map((tag) => (
         <Tag key={tag.id} color={tag.color ?? "cyan"}>
           {tag.name}
