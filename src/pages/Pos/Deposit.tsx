@@ -141,16 +141,16 @@ const Deposit: React.FC = () => {
       title: "Наименование",
       dataIndex: "name",
       key: "name",
-      render: (text, record) => {
-        return (
-          <Link
-            to="/station/enrollments/device"
-            state={{ ownerId: record.id, name: record.name }}
-          >
-            {text}
-          </Link>
-        );
-      },
+      render: (text, record) => (
+        <Link
+          to={{
+            pathname: "/station/enrollments/device",
+            search: `?posId=${posId}&deviceId=${record.id}`,
+          }}
+        >
+          {text}
+        </Link>
+      ),
     },
     {
       title: "Город",

@@ -1,196 +1,230 @@
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
+import dayjs from "dayjs";
+
+// API
 import { getDepositDevice } from "@/services/api/pos";
-import {
-    columnsMonitoringDevice,
-} from "@/utils/OverFlowTableData.tsx";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation } from "react-router-dom";
 import { getDeviceByPosId } from "@/services/api/device";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
+
+// UI + Components
+import { Table } from "antd";
+import NoDataUI from "@ui/NoDataUI";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetDeviceId, useSetStartDate, useSetEndDate, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import SalyImage from "@/assets/NoCollection.png";
 
-type DeviceMonitoring = {
-    props: {
-        id: number;
-        name: string;
-        carWashDeviceMetadata: string;
-        status: string;
-        ipAddress: string;
-        carWashDeviceTypeId: string;
-        carWashPosId: number;
-        deviceRoleId: number;
-    }
-}
+// Utils
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
+import { ColumnsType } from "antd/es/table";
+import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 
+// Types
 type FilterDepositDevice = {
-    dateStart: Date;
-    dateEnd: Date;
-    deviceId?: number;
-    page?: number;
-    size?: number;
+  dateStart: string;
+  dateEnd: string;
+  deviceId?: number;
+  page?: number;
+  size?: number;
+};
+
+interface DepositMonitoring {
+  id: number;
+  sumOper: number;
+  dateOper: Date;
+  dateLoad: Date;
+  counter: number;
+  localId: number;
+  currencyType: string;
 }
 
-type DepositDeviceResponse = {
+type DeviceOption = {
+  props: {
     id: number;
-    sumOper: number;
-    dateOper: Date;
-    dateLoad: Date;
-    counter: number;
-    localId: number;
-    currencyType: string;
-}
+    name: string;
+  };
+};
 
 const DepositDevice: React.FC = () => {
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    const deviceId = useDeviceId();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
+  const formattedDate = dayjs().format("YYYY-MM-DD");
 
-    const setDeviceId = useSetDeviceId();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCurrentPage = useSetCurrentPage();
-    const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize();
-    const posType = usePosType();
-    const location = useLocation();
+  const posId = Number(searchParams.get("posId") || 0);
+  const deviceId = Number(searchParams.get("deviceId") || 0);
+  const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
+  const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
+  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-    // Initialize device ID from location state only once
-    useEffect(() => {
-        if (location.state?.ownerId && !deviceId) {
-            setDeviceId(location.state.ownerId);
-        }
-    }, [location.state?.ownerId, setDeviceId, deviceId]);
+  const filterParams: FilterDepositDevice = useMemo(
+    () => ({
+      dateStart,
+      dateEnd,
+      page: currentPage,
+      size: pageSize,
+      deviceId,
+    }),
+    [dateStart, dateEnd, currentPage, pageSize, deviceId]
+  );
 
-    // Memoize the filter parameters to prevent unnecessary re-renders
-    const filterParams = useMemo(() => ({
-        dateStart: startDate || `2024-10-01 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        page: currentPage,
-        size: pageSize,
-        deviceId: deviceId,
-    }), [startDate, endDate, currentPage, pageSize, deviceId, formattedDate]);
+  const swrKey = useMemo(() => {
+    if (!deviceId) return null;
+    return [
+      "get-pos-deposits-pos-devices",
+      deviceId,
+      filterParams.dateStart,
+      filterParams.dateEnd,
+      filterParams.page,
+      filterParams.size,
+    ];
+  }, [deviceId, filterParams]);
 
-    // Create a stable key for SWR that changes only when filter params change
-    const swrKey = useMemo(() => {
-        if (!deviceId) return null;
-        return [
-            'get-pos-deposits-pos-devices',
-            deviceId,
-            filterParams.dateStart,
-            filterParams.dateEnd,
-            filterParams.page,
-            filterParams.size
-        ];
-    }, [deviceId, filterParams]);
+  const { data: filterData, isLoading } = useSWR(
+    swrKey,
+    () =>
+      getDepositDevice(deviceId, {
+        dateStart: new Date(filterParams.dateStart),
+        dateEnd: new Date(filterParams.dateEnd),
+        page: filterParams.page,
+        size: filterParams.size,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
-    // Single SWR call with stable key
-    const { data: filter, isLoading: filterIsLoading } = useSWR(
-        swrKey,
-        () => getDepositDevice(deviceId!, {
-            dateStart: filterParams.dateStart,
-            dateEnd: filterParams.dateEnd,
-            page: filterParams.page,
-            size: filterParams.size
-        }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
+  const { data: deviceList } = useSWR(
+    "get-device-pos",
+    () => getDeviceByPosId(posId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
-    const totalRecords = filter?.totalCount || 0; 
-    const maxPages = Math.ceil(totalRecords / pageSize); 
-
-    // Handle page overflow only when necessary
-    useEffect(() => {
-        if (totalRecords > 0 && currentPage > maxPages && maxPages > 0) {
-            setCurrentPage(maxPages);
-        }
-    }, [totalRecords, currentPage, maxPages, setCurrentPage]);
-
-    // Reset to first page when location changes
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location.pathname, setCurrentPage]);
-
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType));
-
-    // Update total count only when filter data changes
-    useEffect(() => {
-        if (filter?.totalCount) {
-            setTotalCount(filter.totalCount);
-        }
-    }, [filter?.totalCount, setTotalCount]);
-
-    // Optimized filter handler
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositDevice>) => {
-        // Update store values
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
-        if (newFilterData.page) setCurrentPage(newFilterData.page);
-        if (newFilterData.size) setPageSize(newFilterData.size);
-    }, [setStartDate, setEndDate, setDeviceId, setCurrentPage, setPageSize]);
-
-    // Memoize processed data to prevent unnecessary recalculations
-    const deviceMonitoring: DepositDeviceResponse[] = useMemo(() => {
-        return filter?.oper?.map((item: DepositDeviceResponse) => item)
-            .sort((a: { dateOper: Date; }, b: { dateOper: Date; }) => 
-                new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()
-            ) || [];
-    }, [filter?.oper]);
-
-    const deviceData: DeviceMonitoring[] = useMemo(() => {
-        return data?.map((item: DeviceMonitoring) => item)
-            .sort((a, b) => a.props.id - b.props.id) || [];
-    }, [data]);
-
-    const deviceOptional: { name: string; value: number; }[] = useMemo(() => {
-        return deviceData.map(
-            (item) => ({ name: item.props.name, value: item.props.id })
-        );
-    }, [deviceData]);
-
+  const deviceOptions = useMemo(() => {
     return (
-        <>
-            <FilterMonitoring
-                count={deviceMonitoring.length}
-                devicesSelect={deviceOptional}
-                handleDataFilter={handleDataFilter}
-                hideCity={true}
-                hideSearch={true}
-                hideReset={true}
-            />
-            {filterIsLoading ? (
-                <TableSkeleton columnCount={columnsMonitoringDevice.length} />
-            ) : deviceMonitoring.length > 0 ? (
-                <div className="mt-8">
-                    <DynamicTable
-                        data={deviceMonitoring}
-                        columns={columnsMonitoringDevice}
-                        isDisplayEdit={true}
-                        showPagination={true}
-                    />
-                </div>
-            ) : (
-                <NoDataUI
-                    title="В этом разделе представленны операции"
-                    description="У вас пока нету операций"
-                >
-                    <img src={SalyIamge} alt="No" className="mx-auto" />
-                </NoDataUI>
-            )}
-        </>
-    )
-}
+      deviceList?.map((d: DeviceOption) => ({
+        name: d.props.name,
+        value: d.props.id,
+      })) || []
+    );
+  }, [deviceList]);
+
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
+
+  const columnsMonitoringDevice: ColumnsType<DepositMonitoring> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Сумма операции",
+      dataIndex: "sumOper",
+      key: "sumOper",
+      render: currencyRender,
+    },
+    {
+      title: "Дата операции",
+      dataIndex: "dateOper",
+      key: "dateOper",
+      render: dateRender,
+    },
+    {
+      title: "Дата загрузки",
+      dataIndex: "dateLoad",
+      key: "dateLoad",
+      render: dateRender,
+    },
+    {
+      title: "Счетчик",
+      dataIndex: "counter",
+      key: "counter",
+      sorter: (a, b) => a.counter - b.counter,
+    },
+    {
+      title: "Локальный ID",
+      dataIndex: "localId",
+      key: "localId",
+    },
+    {
+      title: "Валюта",
+      dataIndex: "currencyType",
+      key: "currencyType",
+    },
+  ];
+
+  const deviceMonitoring = useMemo(() => {
+    return (
+      filterData?.oper?.sort(
+        (a, b) =>
+          new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()
+      ) || []
+    );
+  }, [filterData]);
+
+  const totalCount = filterData?.totalCount || 0;
+
+  const { checkedList, setCheckedList, options, visibleColumns } =
+    useColumnSelector(columnsMonitoringDevice);
+
+  return (
+    <>
+      <GeneralFilters
+        devicesSelect={deviceOptions}
+        count={totalCount}
+        hideCity={true}
+        hideSearch={true}
+        hideReset={true}
+      />
+
+      {isLoading ? (
+        <TableSkeleton columnCount={columnsMonitoringDevice.length} />
+      ) : deviceMonitoring.length > 0 ? (
+        <div className="mt-8">
+          <ColumnSelector
+            checkedList={checkedList}
+            options={options}
+            onChange={setCheckedList}
+          />
+
+          <Table
+            rowKey="id"
+            dataSource={deviceMonitoring}
+            columns={visibleColumns}
+            scroll={{ x: "max-content" }}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalCount,
+              showTotal: (total, range) =>
+                `${range[0]}–${range[1]} из ${total} операций`,
+              onChange: (page, size) =>
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                }),
+            }}
+          />
+        </div>
+      ) : (
+        <NoDataUI
+          title="В этом разделе представлены операции"
+          description="У вас пока нет операций"
+        >
+          <img src={SalyImage} alt="No" className="mx-auto" />
+        </NoDataUI>
+      )}
+    </>
+  );
+};
 
 export default DepositDevice;

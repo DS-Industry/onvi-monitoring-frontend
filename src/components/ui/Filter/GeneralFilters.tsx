@@ -188,21 +188,24 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 ) : null}
 
                 {devicesSelect?.length ? (
-                  <Select
-                    className="w-full sm:w-80"
-                    placeholder="Выберите устройство"
-                    value={getParam("deviceId", "")}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        deviceId: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                    options={devicesSelect.map((item) => ({
-                      label: item.name,
-                      value: item.value,
-                    }))}
-                  />
+                  <div className="flex flex-col text-gray-500">
+                    {t("analysis.deviceId")}
+                    <Select
+                      className="w-full sm:w-80"
+                      placeholder="Выберите устройство"
+                      value={Number(getParam("deviceId", ""))}
+                      onChange={(val) => {
+                        updateSearchParams(searchParams, setSearchParams, {
+                          deviceId: val,
+                          page: DEFAULT_PAGE,
+                        });
+                      }}
+                      options={devicesSelect.map((item) => ({
+                        label: item.name,
+                        value: item.value,
+                      }))}
+                    />
+                  </div>
                 ) : null}
 
                 {wareHousesSelect?.length ? (
