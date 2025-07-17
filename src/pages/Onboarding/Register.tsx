@@ -8,6 +8,9 @@ const RegisterForm = React.lazy(() => import('./RegisterForm'));
 const OTPForm = React.lazy(() => import('./OTPForm'));
 const PostRegisterForm = React.lazy(() => import('./PostRegisterForm'));
 import OnviBlue from '@/assets/onvi_blue.png';
+import {
+    ArrowLeftOutlined
+} from "@ant-design/icons";
 
 type User = {
   id: number;
@@ -65,6 +68,10 @@ const Register: React.FC = () => {
       <div className="grid lg:grid-cols-2 gap-4 w-full lg:w-[80%] p-8 lg:p-0 rounded-lg">
 
         <div className="p-8 lg:w-full">
+          <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleLoginNavigate}>
+            <ArrowLeftOutlined />
+            <p>{t("login.back")}</p>
+          </div>
           <div className='flex mb-5'>
             <img src={OnviBlue} className='h-7 w-14' loading="lazy" alt='Onvi' />
             <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t("login.business")}</div>
