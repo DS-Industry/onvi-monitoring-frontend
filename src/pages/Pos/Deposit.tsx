@@ -24,7 +24,7 @@ import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 // UI
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useTranslation } from "react-i18next";
+
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
 
 // Types
@@ -45,9 +45,6 @@ interface DepositMonitoring {
 }
 
 const Deposit: React.FC = () => {
-  const { t } = useTranslation();
-  const allCategoriesText = t("warehouse.all");
-
   const formattedDate = dayjs().format("YYYY-MM-DD");
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,8 +103,8 @@ const Deposit: React.FC = () => {
           name: item.name,
           value: item.id,
         }));
-        const allOption = { name: allCategoriesText, value: "*" };
-        return [allOption, ...options];
+
+        return options;
       }),
     {
       revalidateOnFocus: false,
