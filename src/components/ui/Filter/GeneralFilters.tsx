@@ -12,6 +12,12 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE,
+  ALL_PAGE_SIZES,
+} from "@/utils/constants.ts";
+
 type Optional = {
   name: string;
   value: string | number;
@@ -78,8 +84,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
       dateStart: today,
       dateEnd: today,
       city: "*",
-      page: "1",
-      size: "15",
+      page: DEFAULT_PAGE,
+      size: DEFAULT_PAGE_SIZE,
       orgId: "*",
       posId: "*",
       deviceId: "",
@@ -122,7 +128,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onSearch={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         search: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                   />
@@ -137,7 +143,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         city: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                   />
@@ -151,7 +157,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         orgId: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                     options={organizationsSelect.map((item) => ({
@@ -174,7 +180,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         posId: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                     loading={loadingPos}
@@ -189,7 +195,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         deviceId: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                     options={devicesSelect.map((item) => ({
@@ -207,7 +213,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         warehouseId: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
                     options={wareHousesSelect.map((item) => ({
@@ -223,14 +229,14 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   </label>
                   <Select
                     className="w-24"
-                    value={Number(getParam("size", "15"))}
+                    value={Number(getParam("size", String(DEFAULT_PAGE_SIZE)))}
                     onChange={(val) => {
                       updateSearchParams(searchParams, setSearchParams, {
                         size: val,
-                        page: "1",
+                        page: DEFAULT_PAGE,
                       });
                     }}
-                    options={[15, 50, 100, 120].map((n) => ({
+                    options={ALL_PAGE_SIZES.map((n) => ({
                       label: n,
                       value: n,
                     }))}
@@ -248,7 +254,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                       if (date) {
                         updateSearchParams(searchParams, setSearchParams, {
                           dateStart: date.format("YYYY-MM-DD"),
-                          page: "1",
+                          page: DEFAULT_PAGE,
                         });
                       }
                     }}
@@ -262,7 +268,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                       if (date) {
                         updateSearchParams(searchParams, setSearchParams, {
                           dateEnd: date.format("YYYY-MM-DD"),
-                          page: "1",
+                          page: DEFAULT_PAGE,
                         });
                       }
                     }}
