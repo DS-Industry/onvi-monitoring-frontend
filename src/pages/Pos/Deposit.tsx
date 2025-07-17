@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import useSWR from "swr";
+import dayjs from "dayjs";
 
 import { updateSearchParams } from "@/utils/updateSearchParams";
 
@@ -47,8 +48,7 @@ const Deposit: React.FC = () => {
   const { t } = useTranslation();
   const allCategoriesText = t("warehouse.all");
 
-  const today = new Date();
-  const formattedDate = today.toISOString().slice(0, 10);
+  const formattedDate = dayjs().format("YYYY-MM-DD");
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -61,8 +61,8 @@ const Deposit: React.FC = () => {
 
   const filterParams = useMemo(
     () => ({
-      dateStart: new Date(`${dateStart}T00:00:00`),
-      dateEnd: new Date(`${dateEnd}T23:59:59`),
+      dateStart: dayjs(dateStart).startOf("day").toDate(),
+      dateEnd: dayjs(dateEnd).endOf("day").toDate(),
       posId,
       placementId: cityParam,
       page: currentPage,
@@ -73,9 +73,9 @@ const Deposit: React.FC = () => {
 
   const swrKey = `get-pos-deposits-${filterParams.posId}-${
     filterParams.placementId
-  }-${filterParams.dateStart.toISOString()}-${filterParams.dateEnd.toISOString()}-${
-    filterParams.page
-  }-${filterParams.size}`;
+  }-${dayjs(filterParams.dateStart).toISOString()}-${dayjs(
+    filterParams.dateEnd
+  ).toISOString()}-${filterParams.page}-${filterParams.size}`;
 
   const [totalCount, setTotalCount] = useState(0);
 
@@ -144,14 +144,16 @@ const Deposit: React.FC = () => {
       title: "Наименование",
       dataIndex: "name",
       key: "name",
-      render: (text, record) => (
-        <Link
-          to="/station/enrollments/devices"
-          state={{ ownerId: record.id, name: record.name }}
-        >
-          {text}
-        </Link>
-      ),
+      render: (text, record) => {
+        return (
+          <Link
+            to="/station/enrollments/device"
+            state={{ ownerId: record.id, name: record.name }}
+          >
+            {text}
+          </Link>
+        );
+      },
     },
     {
       title: "Город",
@@ -166,7 +168,7 @@ const Deposit: React.FC = () => {
       key: "lastOper",
       render: dateRender,
       sorter: (a, b) =>
-        new Date(a.lastOper).getTime() - new Date(b.lastOper).getTime(),
+        dayjs(a.lastOper).valueOf() - dayjs(b.lastOper).valueOf(),
     },
     {
       title: "Наличные",
