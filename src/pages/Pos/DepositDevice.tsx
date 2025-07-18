@@ -178,7 +178,7 @@ const DepositDevice: React.FC = () => {
   const totalCount = filterData?.totalCount || 0;
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsMonitoringDevice);
+    useColumnSelector(columnsMonitoringDevice, "device-deposits-table-columns");
 
   return (
     <>

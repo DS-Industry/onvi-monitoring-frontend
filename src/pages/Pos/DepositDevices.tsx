@@ -236,7 +236,7 @@ const DepositDevices: React.FC = () => {
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columns);
+    useColumnSelector(columns, "pos-deposits-table-columns");
 
   return (
     <>
