@@ -12,9 +12,6 @@ import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 
 // components
-import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
@@ -242,45 +239,33 @@ const DepositDevices: React.FC = () => {
     <>
       <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
 
-      {filterLoading || isInitialLoading ? (
-        <TableSkeleton columnCount={columns.length} />
-      ) : totalPosesCount ? (
-        <div className="mt-8">
-          <ColumnSelector
-            checkedList={checkedList}
-            options={options}
-            onChange={setCheckedList}
-          />
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
 
-          <Table
-            rowKey="id"
-            dataSource={devices}
-            columns={visibleColumns}
-            scroll={{ x: "max-content" }}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: totalPosesCount,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} items`,
-              onChange: (page) => {
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                });
-              },
-            }}
-          />
-        </div>
-      ) : (
-        <>
-          <NoDataUI
-            title="В этом разделе представлены операции, которые фиксируются купюроприемником"
-            description="У вас пока нет операций с купюроприемником"
-          >
-            <img src={SalyIamge} alt="No" className="mx-auto" />
-          </NoDataUI>
-        </>
-      )}
+        <Table
+          rowKey="id"
+          dataSource={devices}
+          columns={visibleColumns}
+          scroll={{ x: "max-content" }}
+          loading={filterLoading || isInitialLoading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalPosesCount,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+              });
+            },
+          }}
+        />
+      </div>
     </>
   );
 };

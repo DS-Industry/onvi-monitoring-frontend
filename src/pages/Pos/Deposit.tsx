@@ -15,9 +15,7 @@ import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 
 // Components
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
+
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
@@ -226,42 +224,32 @@ const Deposit: React.FC = () => {
         hideReset={true}
       />
 
-      {filterLoading || isInitialLoading ? (
-        <TableSkeleton columnCount={columns.length} />
-      ) : totalCount > 0 ? (
-        <div className="mt-8">
-          <ColumnSelector
-            checkedList={checkedList}
-            options={options}
-            onChange={setCheckedList}
-          />
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
 
-          <Table
-            rowKey="id"
-            dataSource={devices}
-            columns={visibleColumns}
-            scroll={{ x: "max-content" }}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: totalCount,
-              showTotal: (total, range) =>
-                `${range[0]}–${range[1]} из ${total} операций`,
-              onChange: (page) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                }),
-            }}
-          />
-        </div>
-      ) : (
-        <NoDataUI
-          title="В этом разделе представлены операции"
-          description="У вас пока нет операций"
-        >
-          <img src={SalyIamge} alt="No" className="mx-auto" />
-        </NoDataUI>
-      )}
+        <Table
+          rowKey="id"
+          dataSource={devices}
+          columns={visibleColumns}
+          scroll={{ x: "max-content" }}
+          loading={filterLoading || isInitialLoading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} операций`,
+            onChange: (page) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+              }),
+          }}
+        />
+      </div>
     </>
   );
 };

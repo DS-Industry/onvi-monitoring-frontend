@@ -9,11 +9,8 @@ import { getDeviceByPosId } from "@/services/api/device";
 
 // UI + Components
 import { Table } from "antd";
-import NoDataUI from "@ui/NoDataUI";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import SalyImage from "@/assets/NoCollection.png";
 
 // Utils
 import { updateSearchParams } from "@/utils/updateSearchParams";
@@ -190,43 +187,33 @@ const DepositDevice: React.FC = () => {
         hideReset={true}
       />
 
-      {isLoading || isInitialLoading ? (
-        <TableSkeleton columnCount={columnsMonitoringDevice.length} />
-      ) : deviceMonitoring.length > 0 ? (
-        <div className="mt-8">
-          <ColumnSelector
-            checkedList={checkedList}
-            options={options}
-            onChange={setCheckedList}
-          />
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
 
-          <Table
-            rowKey="id"
-            dataSource={deviceMonitoring}
-            columns={visibleColumns}
-            scroll={{ x: "max-content" }}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: totalCount,
-              showTotal: (total, range) =>
-                `${range[0]}–${range[1]} из ${total} операций`,
-              onChange: (page, size) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                  size: String(size),
-                }),
-            }}
-          />
-        </div>
-      ) : (
-        <NoDataUI
-          title="В этом разделе представлены операции"
-          description="У вас пока нет операций"
-        >
-          <img src={SalyImage} alt="No" className="mx-auto" />
-        </NoDataUI>
-      )}
+        <Table
+          rowKey="id"
+          dataSource={deviceMonitoring}
+          columns={visibleColumns}
+          loading={isLoading || isInitialLoading}
+          scroll={{ x: "max-content" }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} операций`,
+            onChange: (page, size) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              }),
+          }}
+        />
+      </div>
     </>
   );
 };
