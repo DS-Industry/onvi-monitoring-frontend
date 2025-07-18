@@ -14,7 +14,6 @@ import useFormHook from "@/hooks/useFormHook.ts";
 import useSWRMutation from "swr/mutation";
 import { createUserOrganization } from "@/services/api/organization/index.ts";
 import Filter from "@/components/ui/Filter/Filter.tsx";
-// import SearchInput from "@/components/ui/Input/SearchInput.tsx";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useTranslation } from "react-i18next";
 import { useCity, useSetCity } from "@/hooks/useAuthStore";
@@ -111,7 +110,7 @@ const Organization: React.FC = () => {
         addressBank: formData.addressBank,
     }));
 
-    const { trigger: updateOrganization } = useSWRMutation('user/organization', async () => postUpdateOrganization({
+    const { trigger: updateOrganization, isMutating: updatingOrganization } = useSWRMutation('user/organization', async () => postUpdateOrganization({
         organizationId: editOrgId,
         fullName: formData.fullName,
         rateVat: formData.rateVat,
@@ -244,8 +243,6 @@ const Organization: React.FC = () => {
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
                         {isEditMode ? t("organizations.update") : t("organizations.new")}
                     </span>
-
-                    {/* Dropdown Inputs */}
                     <div className="grid grid-cols-1 gap-4">
                         <DropdownInput
                             title={t("organizations.typeLegal")}
@@ -408,7 +405,7 @@ const Organization: React.FC = () => {
                     {/* Buttons */}
                     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button title={t("organizations.cancel")} type="outline" handleClick={() => { setButtonOn(!buttonOn); resetForm(); }} />
-                        <Button title={t("organizations.save")} form={true} isLoading={isMutating} handleClick={() => { }} />
+                        <Button title={t("organizations.save")} form={true} isLoading={isEditMode ? updatingOrganization : isMutating} handleClick={() => { }} />
                     </div>
                 </form>
             </DrawerCreate>

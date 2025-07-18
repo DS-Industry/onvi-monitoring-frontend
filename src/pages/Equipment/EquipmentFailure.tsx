@@ -180,7 +180,7 @@ const EquipmentFailure: React.FC = () => {
         carWashDeviceProgramsTypeId: formData.carWashDeviceProgramsTypeId,
     }));
 
-    const { trigger: updateInc } = useSWRMutation(['update-incident'], async () => updateIncident({
+    const { trigger: updateInc, isMutating: updatingIncident } = useSWRMutation(['update-incident'], async () => updateIncident({
         incidentId: editIncidentId,
         workerId: formData.workerId,
         appearanceDate: formData.appearanceDate,
@@ -479,7 +479,7 @@ const EquipmentFailure: React.FC = () => {
                         <Button
                             title={t("organizations.save")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingIncident : isMutating}
                             handleClick={() => { }}
                         />
                     </div>
