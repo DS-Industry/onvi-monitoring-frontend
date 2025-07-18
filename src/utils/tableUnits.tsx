@@ -14,7 +14,7 @@ interface TagItem {
 export function getCurrencyRender() {
   return (val: number | null | undefined): string => {
     if (val === null || val === undefined || isNaN(val)) return "—";
-    return `${val.toFixed(2)} ₽`;
+    return `${formatNumber(val)} ₽`;
   };
 }
 
