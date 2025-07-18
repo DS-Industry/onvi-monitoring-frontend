@@ -6,7 +6,7 @@ import { getDepositPos } from "@/services/api/pos";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getPlacement } from "@/services/api/device";
-import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
+import { formatNumber, getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { getPoses } from "@/services/api/equipment";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { updateSearchParams } from "@/utils/updateSearchParams";
@@ -227,6 +227,7 @@ const DepositDevices: React.FC = () => {
       dataIndex: "counter",
       key: "counter",
       sorter: (a, b) => a.counter - b.counter,
+      render: (_value, record) => formatNumber(record.counter)
     },
     {
       title: "Яндекс Сумма",
