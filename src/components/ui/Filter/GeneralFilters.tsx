@@ -12,11 +12,7 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 
-import {
-  DEFAULT_PAGE_SIZE,
-  DEFAULT_PAGE,
-  ALL_PAGE_SIZES,
-} from "@/utils/constants.ts";
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
 
 type Optional = {
   name: string;
@@ -225,26 +221,6 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     }))}
                   />
                 ) : null}
-
-                <div className="flex flex-col">
-                  <label className="text-sm text-text02">
-                    {t("tables.lines")}
-                  </label>
-                  <Select
-                    className="w-24"
-                    value={Number(getParam("size", String(DEFAULT_PAGE_SIZE)))}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        size: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                    options={ALL_PAGE_SIZES.map((n) => ({
-                      label: n,
-                      value: n,
-                    }))}
-                  />
-                </div>
               </div>
 
               <div className="mt-4">

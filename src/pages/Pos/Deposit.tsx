@@ -3,29 +3,29 @@ import { useSearchParams, Link } from "react-router-dom";
 import useSWR from "swr";
 import dayjs from "dayjs";
 
-import { updateSearchParams } from "@/utils/updateSearchParams";
-
-// API
+// services
 import { getDeposit } from "@/services/api/pos";
 import { getPoses } from "@/services/api/equipment";
 import { getPlacement } from "@/services/api/device";
 
-// Utils
+// utils
+import { updateSearchParams } from "@/utils/updateSearchParams";
 import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 
-// Components
-
+// components
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-
-// UI
 import { Table } from "antd";
+
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  ALL_PAGE_SIZES,
+} from "@/utils/constants";
+
+// types
 import type { ColumnsType } from "antd/es/table";
-
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
-
-// Types
 interface DepositMonitoring {
   id: number;
   name: string;
@@ -241,11 +241,13 @@ const Deposit: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}–${range[1]} из ${total} операций`,
-            onChange: (page) =>
+            onChange: (page, size) =>
               updateSearchParams(searchParams, setSearchParams, {
                 page: String(page),
+                size: String(size),
               }),
           }}
         />

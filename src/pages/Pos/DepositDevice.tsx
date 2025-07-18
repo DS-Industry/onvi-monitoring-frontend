@@ -3,23 +3,29 @@ import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import dayjs from "dayjs";
 
-// API
+// services
 import { getDepositDevice } from "@/services/api/pos";
 import { getDeviceByPosId } from "@/services/api/device";
 
-// UI + Components
+// tables
 import { Table } from "antd";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
-// Utils
+// utils
 import { updateSearchParams } from "@/utils/updateSearchParams";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
-import { ColumnsType } from "antd/es/table";
 import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 
-// Types
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
+
+// types
+import { ColumnsType } from "antd/es/table";
+
 type FilterDepositDevice = {
   dateStart: string;
   dateEnd: string;
@@ -204,6 +210,7 @@ const DepositDevice: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}–${range[1]} из ${total} операций`,
             onChange: (page, size) =>

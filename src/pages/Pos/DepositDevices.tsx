@@ -21,7 +21,11 @@ import { Table } from "antd";
 
 // types
 import type { ColumnsType } from "antd/es/table";
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
 
 interface DevicesMonitoring {
   id: number;
@@ -256,11 +260,13 @@ const DepositDevices: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalPosesCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page) => {
+            onChange: (page, size) => {
               updateSearchParams(searchParams, setSearchParams, {
                 page: String(page),
+                size: String(size),
               });
             },
           }}
