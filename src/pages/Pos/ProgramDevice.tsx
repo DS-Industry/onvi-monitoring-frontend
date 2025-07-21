@@ -1,176 +1,234 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
+import dayjs from "dayjs";
 import { getProgramDevice } from "@/services/api/pos";
-import {
-    columnsProgramDevice,
-} from "@/utils/OverFlowTableData.tsx";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation } from "react-router-dom";
-import SalyIamge from "@/assets/NoCollection.png";
 import { getDeviceByPosId } from "@/services/api/device";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useDeviceId, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useSetDeviceId, usePosType, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 
-interface FilterDepositDevice {
-    dateStart: Date;
-    dateEnd: Date;
+import { Table } from "antd";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { formatNumber, getDateRender } from "@/utils/tableUnits";
+
+import {
+    ALL_PAGE_SIZES,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE
+} from "@/utils/constants";
+
+import { ColumnsType } from "antd/es/table";
+
+// Types
+type FilterProgramDevice = {
+    dateStart: string;
+    dateEnd: string;
     deviceId?: number;
     page?: number;
     size?: number;
-}
+};
 
-interface DeviceProgram {
+interface ProgramDeviceType {
     id: number;
     name: string;
-    dateBegin: Date;
-    dateEnd: Date;
+    dateBegin: Date | string;
+    dateEnd: Date | string;
     time: string;
     localId: number;
     payType: string;
     isCar: number;
 }
 
-interface DeviceMonitoring {
+type DeviceOption = {
     props: {
         id: number;
         name: string;
-        status: string;
     };
-}
+};
 
 const ProgramDevice: React.FC = () => {
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
-    const deviceId = useDeviceId();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setDeviceId = useSetDeviceId();
-    const setCurrentPage = useSetCurrentPage();
-    const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize();
-    const posType = usePosType();
-    const location = useLocation();
+    const formattedDate = dayjs().format("YYYY-MM-DD");
 
-    useEffect(() => {
-        if (location.state?.ownerId) {
-            setDeviceId(location.state.ownerId);
-        }
-    }, [location.state?.ownerId, setDeviceId]);
+    const posId = Number(searchParams.get("posId") || 0);
+    const deviceId = Number(searchParams.get("deviceId") || 0);
+    const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-    const filterParams = useMemo(() => ({
-        dateStart: startDate || `2024-10-01 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        page: currentPage,
-        size: pageSize,
-        deviceId: deviceId,
-    }), [startDate, endDate, currentPage, pageSize, deviceId, formattedDate]);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+    // Filter params (memoized)
+    const filterParams: FilterProgramDevice = useMemo(
+        () => ({
+            dateStart,
+            dateEnd,
+            page: currentPage,
+            size: pageSize,
+            deviceId,
+        }),
+        [dateStart, dateEnd, currentPage, pageSize, deviceId]
+    );
+
+    // SWR key and data fetch
     const swrKey = useMemo(() => {
         if (!deviceId) return null;
         return [
-            'get-pos-deposits-pos-devices',
+            "get-program-devices",
             deviceId,
             filterParams.dateStart,
             filterParams.dateEnd,
             filterParams.page,
-            filterParams.size
+            filterParams.size,
         ];
     }, [deviceId, filterParams]);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location.pathname, setCurrentPage]);
-
-    const { data: filter, isLoading: filterIsLoading } = useSWR(swrKey,
-        () => getProgramDevice(
-            deviceId!, {
-            dateStart: filterParams.dateStart,
-            dateEnd: filterParams.dateEnd,
-            page: filterParams.page,
-            size: filterParams.size
-        }));
-
-    const totalRecords = filter?.totalCount || 0;
-    const maxPages = Math.ceil(totalRecords / pageSize);
-
-    useEffect(() => {
-        if (totalRecords > 0 && currentPage > maxPages) {
-            setCurrentPage(maxPages > 0 ? maxPages : 1);
+    const { data: filterData, isLoading } = useSWR(
+        swrKey,
+        () =>
+            getProgramDevice(deviceId, {
+                dateStart: new Date(filterParams.dateStart),
+                dateEnd: new Date(filterParams.dateEnd),
+                page: filterParams.page,
+                size: filterParams.size,
+            }).finally(() => {
+                setIsInitialLoading(false);
+            }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
         }
-    }, [totalRecords, maxPages, currentPage, setCurrentPage]);
+    );
 
-    const { data } = useSWR([`get-device-pos`], () => getDeviceByPosId(posType))
+    // Device list for filter
+    const { data: deviceList } = useSWR(
+        "get-device-pos",
+        () => getDeviceByPosId(posId),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
 
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositDevice>) => {
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.deviceId) setDeviceId(newFilterData.deviceId);
-        if (newFilterData.page) setCurrentPage(newFilterData.page);
-        if (newFilterData.size) setPageSize(newFilterData.size);
-    }, [setStartDate, setEndDate, setDeviceId, setCurrentPage, setPageSize]);
+    // Options for device selection dropdown
+    const deviceOptions = useMemo(() => {
+        return (
+            deviceList?.map((d: DeviceOption) => ({
+                name: d.props.name,
+                value: d.props.id,
+            })) || []
+        );
+    }, [deviceList]);
 
-    useEffect(() => {
-        if (filter?.totalCount)
-            setTotalCount(filter?.totalCount)
-    }, [filter?.totalCount, setTotalCount]);
+    // Table columns
+    const dateRender = getDateRender();
+    const columnsProgramDevice: ColumnsType<ProgramDeviceType> = [
+        {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+            sorter: (a, b) => a.id - b.id
+        },
+        {
+            title: "Название",
+            dataIndex: "name",
+            key: "name",
+        },
+        {
+            title: "Начало программы",
+            dataIndex: "dateBegin",
+            key: "dateBegin",
+            render: dateRender,
+        },
+        {
+            title: "Конец программы",
+            dataIndex: "dateEnd",
+            key: "dateEnd",
+            render: dateRender,
+        },
+        {
+            title: "Время выполнения",
+            dataIndex: "time",
+            key: "time",
+        },
+        {
+            title: "Локальный ID",
+            dataIndex: "localId",
+            key: "localId",
+            render: (_value, record) => formatNumber(record.localId)
+        },
+        {
+            title: "Оплата",
+            dataIndex: "payType",
+            key: "payType",
+        },
+        {
+            title: "Машина",
+            dataIndex: "isCar",
+            key: "isCar",
+        },
+    ];
 
-    const deviceProgram: DeviceProgram[] = useMemo(() => {
-        return filter?.prog?.map((item: DeviceProgram) => {
-            return item;
-        }).sort((a: { dateBegin: string | number | Date; }, b: { dateBegin: string | number | Date; }) => new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()) || []
-    }, [filter?.prog]);
+    // Data: sorted by dateBegin
+    const programDevices = useMemo(() => {
+        return (
+            filterData?.prog?.sort(
+                (a: ProgramDeviceType, b: ProgramDeviceType) =>
+                    new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()
+            ) || []
+        );
+    }, [filterData]);
 
-    const deviceData: DeviceMonitoring[] = useMemo(() => {
-        return data?.map((item: DeviceMonitoring) => item)
-            .sort((a, b) => a.props.id - b.props.id) || [];
-    }, [data]);
+    const totalCount = filterData?.totalCount || 0;
 
-    const deviceOptional: { name: string; value: number; }[] = useMemo(() => {
-        return deviceData.map(
-            (item) => ({ name: item.props.name, value: item.props.id })
-        )
-    }, [deviceData]);
+    // Column selector hook
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columnsProgramDevice, "program-devices-table-columns");
 
     return (
         <>
-            <FilterMonitoring
-                count={deviceProgram.length}
-                devicesSelect={deviceOptional}
-                handleDataFilter={handleDataFilter}
+            <GeneralFilters
+                devicesSelect={deviceOptions}
+                count={totalCount}
                 hideCity={true}
                 hideSearch={true}
                 hideReset={true}
             />
-            {
-                filterIsLoading ? (<TableSkeleton columnCount={columnsProgramDevice.length} />)
-                    :
-                    deviceProgram.length > 0 ? (
-                        <div className="mt-8 overflow-hidden">
-                            <DynamicTable
-                                data={deviceProgram}
-                                columns={columnsProgramDevice}
-                                showPagination={true}
-                            />
-                        </div>
-                    ) : (
-                        <>
-                            <NoDataUI
-                                title="В этом разделе представленны операции"
-                                description="У вас пока нету операций"
-                            >
-                                <img src={SalyIamge} alt="No" className="mx-auto" />
-                            </NoDataUI>
-                        </>
-                    )}
+
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+
+                <Table
+                    rowKey="id"
+                    dataSource={programDevices}
+                    columns={visibleColumns}
+                    loading={isLoading || isInitialLoading}
+                    scroll={{ x: "max-content" }}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalCount,
+                        pageSizeOptions: ALL_PAGE_SIZES,
+                        showTotal: (total, range) =>
+                            `${range[0]}–${range[1]} из ${total} записей`,
+                        onChange: (page, size) =>
+                            updateSearchParams(searchParams, setSearchParams, {
+                                page: String(page),
+                                size: String(size),
+                            }),
+                    }}
+                />
+            </div>
         </>
-    )
-}
+    );
+};
 
 export default ProgramDevice;

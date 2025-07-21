@@ -133,30 +133,24 @@ const ProgramDevices: React.FC = () => {
         },
     ];
 
-    /**
-     * Outer device table — rows with expandable programs
-     */
-    const deviceColumns = useMemo(
-        () => [
-            {
-                title: t("Устройство"),
-                dataIndex: "name",
-                key: "name",
-                render: (text: string, record: ProgramDevice) => (
-                    <Link
-                        to={{
-                            pathname: "/station/programs/devices",
-                            search: `?posId=${record.id}&dateStart=${filterParams.dateStart}&dateEnd=${filterParams.dateEnd}`,
-                        }}
-                        className="text-blue-500 hover:text-blue-700 font-semibold"
-                    >
-                        {text}
-                    </Link>
-                ),
-            },
-        ],
-        [t]
-    );
+    const deviceColumns = [
+        {
+            title: t("Устройство"),
+            dataIndex: "name",
+            key: "name",
+            render: (text: string, record: ProgramDevice) => (
+                <Link
+                    to={{
+                        pathname: "/station/programs/devices",
+                        search: `?posId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+                    }}
+                    className="text-blue-500 hover:text-blue-700 font-semibold"
+                >
+                    {text}
+                </Link>
+            ),
+        },
+    ];
 
     const {
         checkedList,

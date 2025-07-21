@@ -150,7 +150,7 @@ const Deposit: React.FC = () => {
         <Link
           to={{
             pathname: "/station/enrollments/device",
-            search: `?posId=${posId}&deviceId=${record.id}`,
+            search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
           }}
           className="text-blue-500 hover:text-blue-700 font-semibold"
         >
