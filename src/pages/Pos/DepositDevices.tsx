@@ -174,7 +174,7 @@ const DepositDevices: React.FC = () => {
           <Link
             to={{
               pathname: "/station/enrollments/devices",
-              search: `?posId=${record.id || "*"}`,
+              search: `?posId=${record.id || "*"}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
             }}
             className="text-blue-500 hover:text-blue-700 font-semibold"
           >

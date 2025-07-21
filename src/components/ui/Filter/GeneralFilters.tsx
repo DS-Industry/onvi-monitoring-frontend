@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Select, Input, Collapse, DatePicker, Space } from "antd";
+import { Select, Input, Collapse, DatePicker, Space, TimePicker } from "antd";
 import Button from "@ui/Button/Button.tsx";
 import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
 
@@ -54,11 +54,11 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     searchParams.get(key) || fallback;
 
   const [startDate, setStartDate] = useState(
-    dayjs(getParam("dateStart") || dayjs().format("YYYY-MM-DD"))
+    dayjs(getParam("dateStart") || dayjs().format("YYYY-MM-DDTHH:mm"))
   );
 
   const [endDate, setEndDate] = useState(
-    dayjs(getParam("dateEnd") || dayjs().format("YYYY-MM-DD"))
+    dayjs(getParam("dateEnd") || dayjs().format("YYYY-MM-DDTHH:mm"))
   );
 
   const [filterToggle, setFilterToggle] = useState(false);
@@ -74,7 +74,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   ];
 
   const resetFilters = () => {
-    const today = dayjs().format("YYYY-MM-DD");
+    const today = dayjs().format("YYYY-MM-DDTHH:mm");
 
     updateSearchParams(searchParams, setSearchParams, {
       dateStart: today,
@@ -224,35 +224,82 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
               </div>
 
               <div className="mt-4">
-                <Space size="middle">
-                  <DatePicker
-                    value={startDate}
-                    format="YYYY-MM-DD"
-                    onChange={(date) => {
-                      setStartDate(date);
-                      if (date) {
-                        updateSearchParams(searchParams, setSearchParams, {
-                          dateStart: date.format("YYYY-MM-DD"),
-                          page: DEFAULT_PAGE,
-                        });
-                      }
-                    }}
-                    placeholder="Start Date"
-                  />
-                  <DatePicker
-                    value={endDate}
-                    format="YYYY-MM-DD"
-                    onChange={(date) => {
-                      setEndDate(date);
-                      if (date) {
-                        updateSearchParams(searchParams, setSearchParams, {
-                          dateEnd: date.format("YYYY-MM-DD"),
-                          page: DEFAULT_PAGE,
-                        });
-                      }
-                    }}
-                    placeholder="End Date"
-                  />
+                <Space size="middle" direction="horizontal">
+                  <div className="flex flex-row gap-1">
+                    <DatePicker
+                      value={startDate}
+                      format="YYYY-MM-DD"
+                      onChange={(date) => {
+                        if (date) {
+                          const newDateTime = startDate
+                            .set("year", date.year())
+                            .set("month", date.month())
+                            .set("date", date.date());
+                          setStartDate(newDateTime);
+                          updateSearchParams(searchParams, setSearchParams, {
+                            dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
+                            page: DEFAULT_PAGE,
+                          });
+                        }
+                      }}
+                      placeholder="Start Date"
+                    />
+                    <TimePicker
+                      value={startDate}
+                      format="HH:mm"
+                      onChange={(time) => {
+                        if (time) {
+                          const newDateTime = startDate
+                            .set("hour", time.hour())
+                            .set("minute", time.minute());
+                          setStartDate(newDateTime);
+                          updateSearchParams(searchParams, setSearchParams, {
+                            dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
+                            page: DEFAULT_PAGE,
+                          });
+                        }
+                      }}
+                      placeholder="Start Time"
+                    />
+                  </div>
+
+                  <div className="flex flex-row gap-1">
+                    <DatePicker
+                      value={endDate}
+                      format="YYYY-MM-DD"
+                      onChange={(date) => {
+                        if (date) {
+                          const newDateTime = endDate
+                            .set("year", date.year())
+                            .set("month", date.month())
+                            .set("date", date.date());
+                          setEndDate(newDateTime);
+                          updateSearchParams(searchParams, setSearchParams, {
+                            dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
+                            page: DEFAULT_PAGE,
+                          });
+                        }
+                      }}
+                      placeholder="End Date"
+                    />
+                    <TimePicker
+                      value={endDate}
+                      format="HH:mm"
+                      onChange={(time) => {
+                        if (time) {
+                          const newDateTime = endDate
+                            .set("hour", time.hour())
+                            .set("minute", time.minute());
+                          setEndDate(newDateTime);
+                          updateSearchParams(searchParams, setSearchParams, {
+                            dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
+                            page: DEFAULT_PAGE,
+                          });
+                        }
+                      }}
+                      placeholder="End Time"
+                    />
+                  </div>
                 </Space>
               </div>
 

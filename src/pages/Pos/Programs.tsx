@@ -110,9 +110,7 @@ const Programs: React.FC = () => {
         }
     );
 
-    // Column definitions
-    const deviceColumns = useMemo(
-        () => [
+    const deviceColumns = [
             {
                 title: t("ID"),
                 dataIndex: "id",
@@ -125,8 +123,8 @@ const Programs: React.FC = () => {
                 render: (text: string, record: ProgramDevice) => (
                     <Link
                         to={{
-                            pathname: "/station/programs/devices",
-                            search: `?posId=${record.id}`,
+                            pathname: "/station/programs/device",
+                            search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
                         }}
                         className="text-blue-500 hover:text-blue-700 font-semibold"
                     >
@@ -134,9 +132,7 @@ const Programs: React.FC = () => {
                     </Link>
                 ),
             },
-        ],
-        [t]
-    );
+        ];
 
     const {
         checkedList,
