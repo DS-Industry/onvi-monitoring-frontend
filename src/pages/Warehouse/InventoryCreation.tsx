@@ -1,7 +1,5 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import InventoryEmpty from "@/assets/NoInventory.png"
 import Button from "@/components/ui/Button/Button";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
@@ -13,14 +11,17 @@ import { getOrganization } from "@/services/api/organization";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsInventory } from "@/utils/OverFlowTableData";
-import Filter from "@/components/ui/Filter/Filter";
 import { useCity } from "@/hooks/useAuthStore";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
+import { Select, Table, Tooltip } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
+import { EditOutlined } from "@ant-design/icons";
+import AntDButton from "antd/es/button";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { useSearchParams } from "react-router-dom";
+import { updateSearchParams } from "@/utils/updateSearchParams";
 
 enum PurposeType {
     SALE = "SALE",
@@ -48,16 +49,34 @@ const InventoryCreation: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
-    const [category, setCategory] = useState<number | string>(allCategoriesText); //Номенклатура фильтр категории 
-    const [name, setName] = useState("");
-    const [orgId, setOrgId] = useState<number | null>(null);
     const city = useCity();
     const userPermissions = usePermissions();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+
+    const organizationId = searchParams.get("organizationId") || null;
+    const category = searchParams.get("category") || "*";
+
+    const filterParams = useMemo(
+        () => ({
+            organizationId,
+            category
+        }),
+        [organizationId, category]
+    );
+
+    const swrKey = useMemo(() => {
+        return [
+            "get-inventory",
+            filterParams.organizationId,
+            filterParams.category
+        ];
+    }, [filterParams]);
 
     const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
-        orgId ? [`get-inventory`, category, orgId] : null,
+        organizationId ? swrKey : null,
         () => {
-            return getNomenclature(orgId!);
+            return getNomenclature(Number(organizationId)!);
         },
         {
             revalidateOnFocus: false,
@@ -78,21 +97,22 @@ const InventoryCreation: React.FC = () => {
             keepPreviousData: true,
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    setOrgId(data[0].id);
+                    updateSearchParams(searchParams, setSearchParams, {
+                        organizationId: data[0].id,
+                    });
                 }
             }
         });
 
     const inventories = inventoryData?.map((item) => item.props)
-        ?.filter((item: { categoryId: number }) => category === allCategoriesText || item.categoryId === category)
-        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(name.toLowerCase()))
+        ?.filter((item: { categoryId: number }) => category === "*" || item.categoryId === Number(category))
         ?.map((item) => item) || [];
 
     const categories: { name: string; value: number | string }[] = categoryData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const categoryAllObj = {
         name: allCategoriesText,
-        value: allCategoriesText,
+        value: "*",
     };
 
     categories.unshift(categoryAllObj);
@@ -196,7 +216,7 @@ const InventoryCreation: React.FC = () => {
 
             if (result) {
                 setButtonOn(!buttonOn);
-                mutate([`get-inventory`, category, orgId]);
+                mutate(swrKey);
             }
         } catch (error) {
             console.error("Error deleting nomenclature:", error);
@@ -216,8 +236,10 @@ const InventoryCreation: React.FC = () => {
             if (editInventoryId) {
                 const result = await updateInventory();
                 if (result) {
-                    setCategory(result.props.categoryId)
-                    mutate([`get-inventory`, result.props.categoryId, orgId]);
+                    updateSearchParams(searchParams, setSearchParams, {
+                        category: result.props.categoryId,
+                    });
+                    mutate(swrKey);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -225,8 +247,10 @@ const InventoryCreation: React.FC = () => {
             } else {
                 const result = await createInventory();
                 if (result) {
-                    setCategory(result.props.categoryId)
-                    mutate([`get-inventory`, result.props.categoryId, orgId]);
+                    updateSearchParams(searchParams, setSearchParams, {
+                        category: result.props.categoryId,
+                    });
+                    mutate(swrKey);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -237,52 +261,95 @@ const InventoryCreation: React.FC = () => {
         }
     };
 
-    const handleClear = () => {
-        setCategory(allCategoriesText);
-    }
+    const columnsInventory = [
+        {
+            title: "Код",
+            dataIndex: "sku",
+            key: "sku"
+        },
+        {
+            title: "Номенклатура",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title: "Категория",
+            dataIndex: "categoryId",
+            key: "categoryId"
+        },
+        {
+            title: "",
+            dataIndex: "actions",
+            key: "actions",
+            render: (_: any, record: { id: number; }) => (
+                <Tooltip title="Редактировать">
+                    <AntDButton
+                        type="text"
+                        icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                        onClick={() => handleUpdate(record.id)}
+                        style={{ height: "24px" }}
+                    />
+                </Tooltip>
+            ),
+        }
+    ];
+
+    const {
+        checkedList,
+        setCheckedList,
+        options: columnOptions,
+        visibleColumns,
+    } = useColumnSelector(columnsInventory, "inventory-columns");
+
+    const getParam = (key: string, fallback = "") =>
+        searchParams.get(key) || fallback;
 
     return (
         <>
-            <Filter count={inventoriesDisplay.length} hideDateTime={true} handleClear={handleClear} hideCity={true} search={name} setSearch={setName}>
-                <div>
-                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={organizations.map((item) => ({ label: item.name, value: item.value }))}
-                        value={orgId}
-                        onChange={(value) => setOrgId(value)}
-                    />
+            <GeneralFilters count={inventoriesDisplay.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
+                <div className="flex space-x-4">
+                    <div>
+                        <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                        <Select
+                            className="w-full sm:w-80 h-10"
+                            options={organizations.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={getParam("organizationId", "")}
+                            onChange={(value) =>
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    organizationId: value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div>
+                        {/* здесь фильтр категории */}
+                        <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                        <Select
+                            className="w-full sm:w-80 h-10"
+                            options={categories.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={getParam("category", "*")}
+                            onChange={(value) =>
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    category: value,
+                                })
+                            }
+                        />
+                    </div>
                 </div>
-                <div>
-                    {/* здесь фильтр категории */}
-                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={categories.map((item) => ({ label: item.name, value: item.value }))}
-                        value={category}
-                        onChange={(value) => setCategory(value)}
-                    />
-                </div>
-            </Filter>
-            {inventoryLoading ? (
-                <TableSkeleton columnCount={columnsInventory.length} />
-            ) : inventoriesDisplay.length > 0 ?
-                <div className="mt-8">
-                    <DynamicTable
-                        data={inventoriesDisplay}
-                        columns={columnsInventory}
-                        onEdit={handleUpdate}
-                    />
-                </div> :
-                <div className="flex flex-col justify-center items-center">
-                    <NoDataUI
-                        title={t("warehouse.nomenclature")}
-                        description={""}
-                    >
-                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Inventory" />
-                    </NoDataUI>
-                </div>
-            }
+            </GeneralFilters>
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={columnOptions}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    dataSource={inventoriesDisplay}
+                    columns={visibleColumns}
+                    pagination={false}
+                    loading={inventoryLoading}
+                />
+            </div>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("warehouse.edit") : t("warehouse.add")}</div>

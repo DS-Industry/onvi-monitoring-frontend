@@ -29,6 +29,8 @@ type GeneralFiltersProps = {
   hideSearch?: boolean;
   hideReset?: boolean;
   loadingPos?: boolean;
+  hideDateAndTime?: boolean;
+  children?: React.ReactNode;
 };
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
@@ -41,6 +43,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   hideReset = false,
   loadingPos,
   poses,
+  hideDateAndTime = false,
+  children
 }) => {
   const { t } = useTranslation();
   const allCategoriesText = t("warehouse.all");
@@ -222,8 +226,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   />
                 ) : null}
               </div>
-
-              <div className="mt-4">
+              {children}
+              {!hideDateAndTime && (<div className="mt-4">
                 <Space size="middle" direction="horizontal">
                   <div className="flex flex-row gap-1">
                     <DatePicker
@@ -301,7 +305,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     />
                   </div>
                 </Space>
-              </div>
+              </div>)}
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
                 {!hideReset && (
