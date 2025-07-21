@@ -33,20 +33,13 @@ type FilterProgramDevice = {
 interface ProgramDeviceType {
     id: number;
     name: string;
-    dateBegin: Date | string;
-    dateEnd: Date | string;
+    dateBegin: Date;
+    dateEnd: Date;
     time: string;
     localId: number;
     payType: string;
     isCar: number;
 }
-
-type DeviceOption = {
-    props: {
-        id: number;
-        name: string;
-    };
-};
 
 const ProgramDevice: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -117,7 +110,7 @@ const ProgramDevice: React.FC = () => {
     // Options for device selection dropdown
     const deviceOptions = useMemo(() => {
         return (
-            deviceList?.map((d: DeviceOption) => ({
+            deviceList?.map((d) => ({
                 name: d.props.name,
                 value: d.props.id,
             })) || []
@@ -177,7 +170,7 @@ const ProgramDevice: React.FC = () => {
     const programDevices = useMemo(() => {
         return (
             filterData?.prog?.sort(
-                (a: ProgramDeviceType, b: ProgramDeviceType) =>
+                (a, b) =>
                     new Date(a.dateBegin).getTime() - new Date(b.dateBegin).getTime()
             ) || []
         );
