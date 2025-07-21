@@ -40,8 +40,8 @@ interface PlanFact {
 type FilterPlanFact = {
     dateStart: string;
     dateEnd: string;
-    posId: number | string;
-    placementId: number | string;
+    posId: string;
+    placementId: string;
     page: number;
     size: number;
 };
@@ -117,7 +117,7 @@ const PlanAct: React.FC = () => {
         return [{ name: allLabel, value: "*" }, ...options];
     }, [posList, allLabel]);
 
-    const planFacts: PlanFact[] = useMemo(() => {
+    const planFacts = useMemo(() => {
         return (
             planFactData?.plan?.map((item: PlanFact) => ({
                 ...item,
