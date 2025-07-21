@@ -1,28 +1,33 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import NoCollection from "@/assets/NoCollection.png";
-import NoDataUI from "@/components/ui/NoDataUI";
-import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
-import { usePosType, useStartDate, useEndDate, useCity, useSetPosType, useSetStartDate, useSetEndDate, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
+import dayjs from "dayjs";
+
 import { getPlanFact } from "@/services/api/pos";
 import { getPoses } from "@/services/api/equipment";
-import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsPlanFact } from "@/utils/OverFlowTableData";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 
-type PlanFactParams = {
-    dateStart: Date;
-    dateEnd: Date;
-    posId: number | string;
-    placementId: number | string;
-    page?: number;
-    size?: number;
-}
+import { Table } from "antd";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
-type PlanFactResponse = {
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { getCurrencyRender } from "@/utils/tableUnits";
+import TableUtils from "@/utils/TableUtils.tsx";
+
+import {
+    ALL_PAGE_SIZES,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
+
+import { ColumnsType } from "antd/es/table";
+import { useTranslation } from "react-i18next";
+
+// Types
+interface PlanFact {
     posId: number;
+    posName?: string;
     plan: number;
     cashFact: number;
     virtualSumFact: number;
@@ -32,130 +37,201 @@ type PlanFactResponse = {
     notCompletedPercent: number;
 }
 
+type FilterPlanFact = {
+    dateStart: string;
+    dateEnd: string;
+    posId: number | string;
+    placementId: number | string;
+    page: number;
+    size: number;
+};
+
 const PlanAct: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
+    const allLabel = t("warehouse.all");
 
-    const location = useLocation();
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const city = useCity();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCity = useSetCity();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const setCurrentPage = useSetCurrentPage();
-    const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize();
+    const today = dayjs().format("YYYY-MM-DD");
 
-    const filterParams = useMemo(() => ({
-        dateStart: startDate || `${formattedDate} 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId || "*",
-        placementId: city,
-        page: currentPage,
-        size: pageSize
-    }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
+    const posId = searchParams.get("posId") || "*";
+    const placementId = searchParams.get("city") || "*";
+    const dateStart = searchParams.get("dateStart") || `${today} 00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${today} 23:59`;
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-    const swrKey = useMemo(() =>
-        `get-plan-fact-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
-        [filterParams]
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    const filterParams: FilterPlanFact = useMemo(
+        () => ({
+            posId,
+            placementId,
+            dateStart,
+            dateEnd,
+            page: currentPage,
+            size: pageSize,
+        }),
+        [posId, placementId, dateStart, dateEnd, currentPage, pageSize]
     );
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location, setCurrentPage]);
+    const swrKey = useMemo(() => {
+        return [
+            "get-program-devices",
+            filterParams.posId,
+            filterParams.placementId,
+            filterParams.dateStart,
+            filterParams.dateEnd,
+            filterParams.page,
+            filterParams.size,
+        ];
+    }, [filterParams]);
 
-    const { data: filter, isLoading: filterLoading } = useSWR(swrKey, () => getPlanFact(
-        filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const totalRecords = filter?.totalCount || 0;
-    const maxPages = Math.ceil(totalRecords / pageSize);
-
-    useEffect(() => {
-        if (currentPage > maxPages) {
-            setCurrentPage(maxPages > 0 ? maxPages : 1);
+    const { data: planFactData, isLoading: isPlanLoading } = useSWR(
+        swrKey,
+        () =>
+            getPlanFact({
+                posId,
+                placementId,
+                dateStart: new Date(dateStart),
+                dateEnd: new Date(dateEnd),
+                page: currentPage,
+                size: pageSize,
+            }).finally(() => setIsInitialLoading(false)),
+        {
+            keepPreviousData: true,
         }
-    }, [maxPages, currentPage, setCurrentPage]);
+    );
 
-    const handleDataFilter = useCallback((newFilterData: Partial<PlanFactParams>) => {
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.placementId) setCity(newFilterData.placementId);
-        if (newFilterData.page) setCurrentPage(newFilterData.page);
-        if (newFilterData.size) setPageSize(newFilterData.size);
-    },[setCity, setCurrentPage, setEndDate, setPageSize, setPosType, setStartDate]);
+    const { data: posList, isLoading: isPosLoading } = useSWR(
+        ["get-poses", placementId],
+        () => getPoses({ placementId }),
+        { keepPreviousData: true }
+    );
 
-    useEffect(() => {
-        if (!filterLoading && filter?.totalCount)
-            setTotalCount(filter?.totalCount)
-    }, [filter, filterLoading, setTotalCount]);
+    const totalCount = planFactData?.totalCount || 0;
 
-    const posOptional: { name: string; value: number | string; }[] = useMemo(() => {
-        return data?.map(
-            (item) => ({ name: item.name, value: item.id })
-        ) || []
-    }, [data]);
+    const posOptions = useMemo(() => {
+        const options =
+            posList?.map((pos) => ({ name: pos.name, value: pos.id })) || [];
+        return [{ name: allLabel, value: "*" }, ...options];
+    }, [posList, allLabel]);
 
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
+    const planFacts: PlanFact[] = useMemo(() => {
+        return (
+            planFactData?.plan?.map((item: PlanFact) => ({
+                ...item,
+                posName:
+                    posOptions.find((p) => p.value === item.posId)?.name || `POS ${item.posId}`,
+            })) || []
+        );
+    }, [planFactData, posOptions]);
 
-    posOptional.unshift(posesAllObj);
+    const currencyRender = getCurrencyRender();
 
-    const planFacts: PlanFactResponse[] = useMemo(() => {
-        return filter?.plan.map((item: PlanFactResponse) => ({
-            ...item,
-            posName: posOptional.find((pos) => pos.value === item.posId)?.name
-        })) || []
-    }, [filter?.plan, posOptional]);
+    const columnsPlanFact: ColumnsType<PlanFact> = [
+        {
+            title: "ID",
+            dataIndex: "posId",
+            key: "posId",
+            sorter: (a, b) => a.posId - b.posId,
+        },
+        {
+            title: "Название",
+            dataIndex: "posName",
+            key: "posName",
+        },
+        {
+            title: "План",
+            dataIndex: "plan",
+            key: "plan",
+            render: currencyRender,
+        },
+        {
+            title: "Наличные",
+            dataIndex: "cashFact",
+            key: "cashFact",
+            render: currencyRender,
+        },
+        {
+            title: "Безналичные",
+            dataIndex: "virtualSumFact",
+            key: "virtualSumFact",
+            render: currencyRender,
+        },
+        {
+            title: "Яндекс Зачисления",
+            dataIndex: "yandexSumFact",
+            key: "yandexSumFact",
+            render: currencyRender,
+        },
+        {
+            title: "Факт (итог)",
+            dataIndex: "sumFact",
+            key: "sumFact",
+            render: currencyRender,
+        },
+        {
+            title: "Выполнен план",
+            dataIndex: "completedPercent",
+            key: "completedPercent",
+            render: (_value, record) => TableUtils.createPercentFormat(record.completedPercent)
+        },
+        {
+            title: "Не выполнен план",
+            dataIndex: "notCompletedPercent",
+            key: "notCompletedPercent",
+            render: (_value, record) => TableUtils.createPercentFormat(record.notCompletedPercent)
+        },
+    ];
 
+    const {
+        checkedList,
+        setCheckedList,
+        options: columnOptions,
+        visibleColumns,
+    } = useColumnSelector(columnsPlanFact, "plan-fact-columns");
 
     return (
-        <div>
-            <FilterMonitoring
-                count={planFacts.length}
-                posesSelect={posOptional}
-                handleDataFilter={handleDataFilter}
+        <>
+            <GeneralFilters
+                poses={posOptions}
+                count={totalCount}
                 hideSearch={true}
-                loadingPos={isLoading || isValidating}
+                loadingPos={isPosLoading}
             />
-            {filterLoading ? (
-                <div className="mt-8 space-y-6">
-                    <div>
-                        <TableSkeleton columnCount={columnsPlanFact.length} />
-                    </div>
-                </div>)
-                : planFacts.length > 0 ? (
-                    <div className="mt-8 space-y-6">
-                        <DynamicTable
-                            data={planFacts.map((p, index) => ({ id: index, ...p }))}
-                            columns={columnsPlanFact}
-                            showPagination={true}
-                        />
-                    </div>
-                ) : (
-                    <div className="flex flex-col justify-center items-center">
-                        <NoDataUI
-                            title={t("pos.thisSeg")}
-                            description={t("pos.youDo")}
-                        >
-                            <img src={NoCollection} className="mx-auto" loading="lazy" alt="Plan Act" />
-                        </NoDataUI>
-                    </div>
-                )}
-        </div>
-    )
-}
+
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={columnOptions}
+                    onChange={setCheckedList}
+                />
+
+                <Table
+                    rowKey="posId"
+                    dataSource={planFacts}
+                    columns={visibleColumns}
+                    loading={isPlanLoading || isInitialLoading}
+                    scroll={{ x: "max-content" }}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalCount,
+                        showSizeChanger: true,
+                        pageSizeOptions: ALL_PAGE_SIZES,
+                        showTotal: (total, range) =>
+                            `${range[0]}–${range[1]} из ${total} записей`,
+                        onChange: (page, size) =>
+                            updateSearchParams(searchParams, setSearchParams, {
+                                page: String(page),
+                                size: String(size),
+                            }),
+                    }}
+                />
+            </div>
+        </>
+    );
+};
 
 export default PlanAct;
