@@ -146,7 +146,7 @@ const ProgramDevices: React.FC = () => {
                     <Link
                         to={{
                             pathname: "/station/programs/devices",
-                            search: `?posId=${record.id}&&dateStart=${filterParams.dateStart}&&endstart=${filterParams.dateEnd}`,
+                            search: `?posId=${record.id}&dateStart=${filterParams.dateStart}&dateEnd=${filterParams.dateEnd}`,
                         }}
                         className="text-blue-500 hover:text-blue-700 font-semibold"
                     >
