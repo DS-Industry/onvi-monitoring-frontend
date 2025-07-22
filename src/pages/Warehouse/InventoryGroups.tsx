@@ -168,7 +168,7 @@ const InventoryGroups: React.FC = () => {
             width: "15%"
         },
         {
-            title: "Наименование",
+            title:  "Название группы",
             dataIndex: "name",
             key: "name",
         },
