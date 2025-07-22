@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
 import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
@@ -18,7 +18,6 @@ import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
-import { useDocumentType } from "@/hooks/useAuthStore";
 import { setSnackbarFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import Avatar from "@/components/ui/Avatar";
@@ -91,7 +90,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const hoverRef = useRef(false);
   const userPermissions = useAuthStore((state) => state.permissions);
   const { showSnackbar } = useSnackbar();
-  const doc = useDocumentType();
+  const [searchParams] = useSearchParams();
+  const doc = searchParams.get("document");
   const userName: UserName = { name: user.name, middlename: user.surname };
 
   // Get location state with proper typing

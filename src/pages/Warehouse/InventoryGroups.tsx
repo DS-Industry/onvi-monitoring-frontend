@@ -12,10 +12,13 @@ import { createCategory, getCategory, updateCategory } from "@/services/api/ware
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
-// import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsCategory } from "@/utils/OverFlowTableData";
-import DynamicTreeTable from "@/components/ui/Table/DynamicTreeTable";
+import Table, { ColumnsType } from "antd/es/table";
+import { usePermissions } from "@/hooks/useAuthStore";
+import AntDButton from "antd/es/button";
+import { EditOutlined } from "@ant-design/icons";
+import { Can } from "@/permissions/Can";
+import { Tooltip } from "antd";
 
 type TreeData = {
     id: number;
@@ -144,17 +147,79 @@ const InventoryGroups: React.FC = () => {
 
     const treeData = buildTree(category);
 
+    const columnsCategory = [
+        {
+            label: "Название группы",
+            key: "name"
+        },
+        {
+            label: "Описание",
+            key: "description"
+        },
+    ];
+
+    const userPermissions = usePermissions();
+
+    const generateColumns = (): ColumnsType<TreeData> => [
+        {
+            title: "",
+            dataIndex: "isExpanded",
+            key: "isExpanded",
+            width: "15%"
+        },
+        {
+            title:  "Название группы",
+            dataIndex: "name",
+            key: "name",
+        },
+        {
+            title: "Описание",
+            dataIndex: "description",
+            key: "description",
+        },
+        {
+            title: "",
+            key: "actions",
+            align: "right",
+            render: (_, record) => (
+                <Can
+                    requiredPermissions={[
+                        { action: "update", subject: "Warehouse" },
+                        { action: "manage", subject: "Warehouse" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                    {(allowed) =>
+                        allowed && (
+                            <Tooltip title={t("routes.edit")}>
+                                <AntDButton
+                                    type="link"
+                                    icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                                    onClick={() => handleUpdate(record.id)}
+                                />
+                            </Tooltip>
+                        )
+                    }
+                </Can>
+            ),
+        },
+    ];
+
     return (
         <>
             {loadingCategory ? (
                 <TableSkeleton columnCount={columnsCategory.length} />
             ) : treeData.length > 0 ?
                 <div className="mt-8">
-                    <DynamicTreeTable
-                        treeData={treeData}
-                        columns={columnsCategory}
-                        isUpdate={true}
-                        onUpdate={handleUpdate}
+                    <Table<TreeData>
+                        columns={generateColumns()}
+                        dataSource={treeData}
+                        rowKey={(record) => record.id}
+                        pagination={false}
+                        expandable={{
+                            childrenColumnName: "children"
+                        }}
+                        scroll={{ x: true }}
                     />
                 </div> :
                 <NoDataUI

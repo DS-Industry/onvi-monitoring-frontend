@@ -22,6 +22,8 @@ import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { useSearchParams } from "react-router-dom";
 import { updateSearchParams } from "@/utils/updateSearchParams";
+import hasPermission from "@/permissions/hasPermission";
+import { ColumnsType } from "antd/es/table";
 
 enum PurposeType {
     SALE = "SALE",
@@ -41,6 +43,13 @@ type INVENTORY = {
     width?: number;
     length?: number;
     purpose?: PurposeType;
+}
+
+type InventoryColumn = {
+    id: number;
+    sku: string;
+    name: string;
+    categoryId?: string;
 }
 
 const InventoryCreation: React.FC = () => {
@@ -261,7 +270,12 @@ const InventoryCreation: React.FC = () => {
         }
     };
 
-    const columnsInventory = [
+    const allowed = hasPermission(userPermissions, [
+        { action: "manage", subject: "Warehouse" },
+        { action: "update", subject: "Warehouse" },
+    ]);
+
+    const columnsInventory: ColumnsType<InventoryColumn> = [
         {
             title: "Код",
             dataIndex: "sku",
@@ -276,12 +290,15 @@ const InventoryCreation: React.FC = () => {
             title: "Категория",
             dataIndex: "categoryId",
             key: "categoryId"
-        },
-        {
+        }
+    ];
+
+    if (allowed) {
+        columnsInventory.push({
             title: "",
             dataIndex: "actions",
             key: "actions",
-            render: (_: any, record: { id: number; }) => (
+            render: (_: unknown, record: { id: number; }) => (
                 <Tooltip title="Редактировать">
                     <AntDButton
                         type="text"
@@ -291,8 +308,8 @@ const InventoryCreation: React.FC = () => {
                     />
                 </Tooltip>
             ),
-        }
-    ];
+        });
+    }
 
     const {
         checkedList,

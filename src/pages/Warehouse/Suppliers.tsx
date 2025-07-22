@@ -11,18 +11,23 @@ import useSWRMutation from "swr/mutation";
 import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsSupplier } from "@/utils/OverFlowTableData";
-import Filter from "@/components/ui/Filter/Filter";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Table } from "antd";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import { ColumnsType } from "antd/es/table";
+
+type Supplier = {
+    id: number;
+    name: string;
+    contact: string;
+}
 
 const Suppliers: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const [searchName, setSearchName] = useState("");
     const { data: supplierData, isLoading: loadingSupplier } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const supplier = supplierData?.map((sup) => sup.props)
-        ?.filter((item: { name: string }) => item.name.toLowerCase().includes(searchName.toLowerCase()))
         || [];
 
     const defaultValues = {
@@ -67,19 +72,42 @@ const Suppliers: React.FC = () => {
         }
     };
 
+    const columnsSupplier: ColumnsType<Supplier> = [
+        {
+            title: "№",
+            dataIndex: "id",
+            key: "id"
+        },
+        {
+            title: "Ниименование",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title: "Контакт",
+            dataIndex: "contact",
+            key: "contact"
+        },
+    ];
+
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columnsSupplier, "suppliers-table-columns");
 
     return (
         <>
-            <Filter children={undefined} count={supplier.length} hideDateTime={true} hideCity={true} hidePage={true} search={searchName} setSearch={setSearchName}>
-
-            </Filter>
             {loadingSupplier ? (
                 <TableSkeleton columnCount={columnsSupplier.length} />
             ) : supplier.length > 0 ?
                 <div className="mt-8">
-                    <DynamicTable
-                        data={supplier}
-                        columns={columnsSupplier}
+                    <ColumnSelector
+                        checkedList={checkedList}
+                        options={options}
+                        onChange={setCheckedList}
+                    />
+                    <Table
+                        dataSource={supplier}
+                        columns={visibleColumns}
+                        pagination={false}
                     />
                 </div> :
                 <div className="flex flex-col justify-center items-center">

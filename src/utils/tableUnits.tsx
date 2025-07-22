@@ -1,6 +1,7 @@
 import { Tag } from "antd";
 import dayjs from "dayjs";
 import React from "react";
+import { TFunction } from "i18next"; 
 
 interface TagItem {
   id: number;
@@ -60,3 +61,44 @@ export function getTagRender(tags?: TagItem[]): React.ReactNode {
     </div>
   );
 }
+
+export function getStatusTagRender(t: TFunction) {
+  return (status: string): React.ReactNode => {
+    const greenStatuses = [
+      t("tables.ACTIVE"),
+      t("tables.SENT"),
+      t("tables.In Progress"),
+      t("analysis.PROGRESS"),
+      t("finance.RECEIPT"),
+    ];
+
+    const redStatuses = [
+      t("tables.OVERDUE"),
+      t("tables.Done"),
+      t("tables.FINISHED"),
+      t("tables.PAUSE"),
+      t("analysis.DONE"),
+      t("finance.EXPENDITURE"),
+    ];
+
+    const orangeStatuses = [
+      t("tables.SAVED"),
+      t("tables.VERIFICATE"),
+    ];
+
+    if (greenStatuses.includes(status)) {
+      return <Tag color="green">{status}</Tag>;
+    }
+
+    if (redStatuses.includes(status)) {
+      return <Tag color="red">{status}</Tag>;
+    }
+
+    if (orangeStatuses.includes(status)) {
+      return <Tag color="orange">{status}</Tag>;
+    }
+
+    return <Tag color="default">{status}</Tag>;
+  };
+}
+
