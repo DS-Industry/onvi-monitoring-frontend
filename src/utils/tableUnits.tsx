@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import dayjs from "dayjs";
 import React from "react";
-import { TFunction } from "i18next"; 
+import { TFunction } from "i18next";
 
 interface TagItem {
   id: number;
@@ -102,3 +102,18 @@ export function getStatusTagRender(t: TFunction) {
   };
 }
 
+export function getFormatPeriodType() {
+  return (periodString: string | null): string => {
+    if (!periodString) return "";
+
+    const [startStr, endStr] = periodString.split("-").map(s => s.trim());
+
+    const parseDate = (dateString: string) => {
+      const datePart = dateString.split("GMT")[0].trim();
+      const date = new Date(datePart);
+      return date.toLocaleDateString("ru-RU");
+    };
+
+    return `${parseDate(startStr)} - ${parseDate(endStr)}`;
+  };
+}

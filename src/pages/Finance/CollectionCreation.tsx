@@ -8,7 +8,7 @@ import { getCollectionById, postCollection, recalculateCollection, returnCollect
 import { columnsDeviceData } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { useCity } from "@/hooks/useAuthStore";
@@ -85,13 +85,14 @@ type Collection = {
 const CollectionCreation: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
     const city = useCity();
     const userPermissions = usePermissions();
-
+    const id = searchParams.get("id");
+    const status = searchParams.get("status");
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: collections } = useSWR(location?.state?.ownerId ? [`get-collection`] : null, () => getCollectionById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: collections } = useSWR(id ? [`get-collection`] : null, () => getCollectionById(Number(id)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -109,7 +110,7 @@ const CollectionCreation: React.FC = () => {
         posId: formData.posId
     }));
 
-    const { trigger: returnColl, isMutating: returningColl } = useSWRMutation(location?.state?.ownerId ? ['return-collection'] : null, async () => returnCollection(location.state?.ownerId));
+    const { trigger: returnColl, isMutating: returningColl } = useSWRMutation(id ? ['return-collection'] : null, async () => returnCollection(Number(id)));
 
     type FieldType = "posId" | "cashCollectionDate";
 
@@ -296,7 +297,7 @@ const CollectionCreation: React.FC = () => {
                         //   error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
                         //   helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
                         changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
-                        disabled={location.state?.status === t("tables.SENT")}
+                        disabled={status === t("tables.SENT")}
                     />
             ),
         },
@@ -312,7 +313,7 @@ const CollectionCreation: React.FC = () => {
                         //   error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
                         //   helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
                         changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
-                        disabled={location.state?.status === t("tables.SENT")}
+                        disabled={status === t("tables.SENT")}
                     />
             ),
         },
@@ -335,7 +336,7 @@ const CollectionCreation: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            {((location?.state?.status === t("tables.SENT")) || (location?.state?.status === t("tables.SAVED"))) ?
+            {((status === t("tables.SENT")) || (status === t("tables.SAVED"))) ?
                 <></> :
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex space-x-4">
@@ -459,7 +460,7 @@ const CollectionCreation: React.FC = () => {
                                                     onBlur={() => setEditingRow(null)}
                                                     autoFocus
                                                     onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)}
-                                                    disabled={location.state?.status === t("tables.SENT")}
+                                                    disabled={status === t("tables.SENT")}
                                                 />
                                             );
                                         } else {
@@ -487,7 +488,7 @@ const CollectionCreation: React.FC = () => {
                     ]}
                     userPermissions={userPermissions}
                 >
-                    {(allowed) => allowed && location.state?.status !== t("tables.SENT") && <Button
+                    {(allowed) => allowed && status !== t("tables.SENT") && <Button
                         type="outline"
                         title={t("finance.recal")}
                         isLoading={isMutating}
@@ -502,7 +503,7 @@ const CollectionCreation: React.FC = () => {
                     ]}
                     userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && location.state?.status !== t("tables.SENT") && <Button
+                {(allowed) => allowed && status !== t("tables.SENT") && <Button
                     title={t("finance.recalSend")}
                     isLoading={sendingColl}
                     form={true}
@@ -516,7 +517,7 @@ const CollectionCreation: React.FC = () => {
                     ]}
                     userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && location.state?.status === t("tables.SENT") && <Button
+                {(allowed) => allowed && status === t("tables.SENT") && <Button
                     title={t("finance.refund")}
                     isLoading={returningColl}
                     handleClick={handleReturn}
