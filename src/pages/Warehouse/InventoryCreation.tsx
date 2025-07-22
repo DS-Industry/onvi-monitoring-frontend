@@ -301,9 +301,6 @@ const InventoryCreation: React.FC = () => {
         visibleColumns,
     } = useColumnSelector(columnsInventory, "inventory-columns");
 
-    const getParam = (key: string, fallback = "") =>
-        searchParams.get(key) || fallback;
-
     return (
         <>
             <GeneralFilters count={inventoriesDisplay.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
@@ -313,7 +310,7 @@ const InventoryCreation: React.FC = () => {
                         <Select
                             className="w-full sm:w-80 h-10"
                             options={organizations.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={getParam("organizationId", "")}
+                            value={searchParams.get("organizationId") || ""}
                             onChange={(value) =>
                                 updateSearchParams(searchParams, setSearchParams, {
                                     organizationId: value,
@@ -327,7 +324,7 @@ const InventoryCreation: React.FC = () => {
                         <Select
                             className="w-full sm:w-80 h-10"
                             options={categories.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={getParam("category", "*")}
+                            value={searchParams.get("category") || "*"}
                             onChange={(value) =>
                                 updateSearchParams(searchParams, setSearchParams, {
                                     category: value,

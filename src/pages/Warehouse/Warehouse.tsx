@@ -65,8 +65,6 @@ const Warehouse: React.FC = () => {
         value: "*",
     };
 
-    poses.unshift(posesAllObj);
-
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const warehouses = warehouseData?.map((item) => ({
@@ -75,7 +73,7 @@ const Warehouse: React.FC = () => {
         posName: poses.find((pos) => pos.value === item.props.posId)?.name
     })) || [];
 
-    const defaultValues: Warehouse = {
+    const defaultValues = {
         name: '',
         location: '',
         managerId: 0,
@@ -156,7 +154,7 @@ const Warehouse: React.FC = () => {
     return (
         <div>
             <GeneralFilters
-                poses={poses}
+                poses={[...poses, posesAllObj]}
                 count={warehouses.length}
                 hideSearch={true}
                 hideDateAndTime={true}
