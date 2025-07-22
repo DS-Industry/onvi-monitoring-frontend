@@ -1,12 +1,10 @@
 import { getDocument, getNomenclature, getWarehouses } from "@/services/api/warehouse";
 import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
-// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useUser } from "@/hooks/useUserStore";
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
@@ -25,16 +23,17 @@ type MovingMetaData = {
 }
 
 const DocumentView: React.FC = () => {
-    const location = useLocation();
     const { t } = useTranslation();
-    const documentType = useDocumentType();
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
-    const posType = usePosType();
-    const city = useCity();
+    const [searchParams] = useSearchParams();
+    const posId = searchParams.get("posId") || "*";
+    const city = searchParams.get("city") || "*";
+    const documentType = searchParams.get("document");
     const user = useUser();
 
-    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const documentId = searchParams.get("documentId");
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(Number(documentId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
         placementId: city
@@ -47,7 +46,7 @@ const DocumentView: React.FC = () => {
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
-        posId: posType,
+        posId: posId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -141,8 +140,8 @@ const DocumentView: React.FC = () => {
 
     useEffect(() => {
         if (buttonOn)
-            navigate("/warehouse/documents/creation", { state: { ownerId: location.state.ownerId } })
-    }, [buttonOn, location.state.ownerId, navigate])
+            navigate(`/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`, { state: { ownerId: documentId } })
+    }, [buttonOn, documentId, documentType, navigate])
 
     return (
         <div>

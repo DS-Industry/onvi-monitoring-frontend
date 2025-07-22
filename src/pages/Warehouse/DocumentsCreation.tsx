@@ -6,13 +6,12 @@ import DocumentModal from "@/components/ui/Modal/DocumentModal";
 import NoDataUI from "@/components/ui/NoDataUI";
 // import GoodsTable from "@/components/ui/Table/GoodsTable";
 import OverflowTable from "@/components/ui/Table/OverflowTable";
-import { useCity, useDocumentType, usePosType, useSetEndDate } from "@/hooks/useAuthStore";
 import { useUser } from "@/hooks/useUserStore";
 import { getOrganization } from "@/services/api/organization";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import InventoryEmpty from "@/assets/NoInventory.png"
@@ -22,6 +21,7 @@ import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
+import { updateSearchParams } from "@/utils/updateSearchParams";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -33,8 +33,8 @@ type MovingMetaData = {
 }
 
 const DocumentsCreation: React.FC = () => {
-
-    const documentType = useDocumentType();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const documentType = searchParams.get("document");
     const { t } = useTranslation();
     const location = useLocation();
     const warehouseID = location.state.wareHouseId;
@@ -47,7 +47,6 @@ const DocumentsCreation: React.FC = () => {
         return today.toISOString().split("T")[0];
     });
     const navigate = useNavigate();
-    const setEndDate = useSetEndDate();
     const user = useUser();
     const [searchNomen, setSearchNomen] = useState("");
     const userPermissions = usePermissions();
@@ -183,8 +182,8 @@ const DocumentsCreation: React.FC = () => {
         });
 
 
-    const posType = usePosType();
-    const city = useCity();
+    const posType = searchParams.get("posId") || "*";
+    const city = searchParams.get("city") || "*";
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
         placementId: city
@@ -374,7 +373,9 @@ const DocumentsCreation: React.FC = () => {
             details: detailValues
         })
 
-        setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
+        updateSearchParams(searchParams, setSearchParams, {
+            dateEnd: new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate)
+        });
 
         if (result) {
             navigate('/warehouse/documents');
@@ -467,7 +468,9 @@ const DocumentsCreation: React.FC = () => {
             details: detailValues
         })
 
-        setEndDate(new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate));
+        updateSearchParams(searchParams, setSearchParams, {
+            dateEnd: new Date(selectedDate === null ? new Date().toISOString().split("T")[0] : selectedDate)
+        });
 
         if (result) {
             navigate('/warehouse/documents');

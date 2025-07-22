@@ -86,7 +86,6 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
       city: "*",
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
-      orgId: "*",
       posId: "*",
       deviceId: "",
       warehouseId: "",
@@ -188,7 +187,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 ) : null}
 
                 {devicesSelect?.length ? (
-                  <div className="flex flex-col text-gray-500">
+                  <div className="flex flex-col text-sm text-text02">
                     {t("analysis.deviceId")}
                     <Select
                       className="w-full sm:w-80"
@@ -209,21 +208,24 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 ) : null}
 
                 {wareHousesSelect?.length ? (
-                  <Select
-                    className="w-full sm:w-80"
-                    placeholder="Введите название склада"
-                    value={getParam("warehouseId", "")}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        warehouseId: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                    options={wareHousesSelect.map((item) => ({
-                      label: item.name,
-                      value: item.value,
-                    }))}
-                  />
+                  <div className="flex flex-col text-sm text-text02">
+                    {t("analysis.warehouseId")}
+                    <Select
+                      className="w-full sm:w-80"
+                      placeholder="Введите название склада"
+                      value={getParam("warehouseId", "*")}
+                      onChange={(val) => {
+                        updateSearchParams(searchParams, setSearchParams, {
+                          warehouseId: val,
+                        });
+                      }}
+                      options={wareHousesSelect.map((item) => ({
+                        label: item.name,
+                        value: String(item.value),
+                      }))}
+                      size="large"
+                    />
+                  </div>
                 ) : null}
               </div>
               {children}

@@ -12,10 +12,12 @@ import { createCategory, getCategory, updateCategory } from "@/services/api/ware
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate } from "@/components/context/useContext";
-// import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsCategory } from "@/utils/OverFlowTableData";
-import DynamicTreeTable from "@/components/ui/Table/DynamicTreeTable";
+import Table, { ColumnsType } from "antd/es/table";
+import { usePermissions } from "@/hooks/useAuthStore";
+import AntDButton from "antd/es/button";
+import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { Can } from "@/permissions/Can";
 
 type TreeData = {
     id: number;
@@ -144,17 +146,132 @@ const InventoryGroups: React.FC = () => {
 
     const treeData = buildTree(category);
 
+    const columnsCategory = [
+        {
+            label: "Название группы",
+            key: "name"
+        },
+        {
+            label: "Описание",
+            key: "description"
+        },
+    ];
+
+    const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
+    const userPermissions = usePermissions();
+
+    const handleExpand = (id: number) => {
+        setExpandedRowKeys((prev) =>
+            prev.includes(id) ? prev.filter((key) => key !== id) : [...prev, id]
+        );
+    };
+
+    const generateColumns = (): ColumnsType<TreeData> => {
+        // Expand/Collapse Column (First Column)
+        const expandColumn = {
+            title: "", // Empty title for cleaner UI
+            dataIndex: "expand",
+            key: "expand",
+            width: 50, // Small width to keep it compact
+            render: (_: unknown, record: TreeData) => (
+                record.children && record.children.length > 0 ? (
+                    <AntDButton
+                        type="text"
+                        size="small"
+                        icon={expandedRowKeys.includes(record.id) ? <MinusCircleOutlined /> : <PlusCircleOutlined />}
+                        onClick={() => handleExpand(record.id)}
+                    />
+                ) : null
+            ),
+        };
+
+        // Data Columns (Middle Columns)
+        const dataColumns = columnsCategory.map((col, index) => ({
+            title: col.label,
+            dataIndex: col.key,
+            key: col.key,
+            render: (value: unknown, record: TreeData): React.ReactNode => {
+                // Only apply indent to the first column
+                if (index === 0) {
+                    const level = record._level ?? 0;
+                    return (
+                        <div style={{ paddingLeft: (typeof level === "number" ? level : 0) * 20 }}>
+                            {typeof value === "string" || typeof value === "number" ? value : String(value)}
+                        </div>
+                    );
+                }
+                // Ensure always returning ReactNode
+                if (typeof value === "string" || typeof value === "number") {
+                    return value;
+                }
+                if (value === undefined || value === null) {
+                    return "";
+                }
+                return String(value);
+            }
+        }));
+
+        // Actions Column (Last Column)
+        const actionColumn = {
+            title: "",
+            dataIndex: "actions",
+            key: "actions",
+            width: 80, // Ensure it's at the end
+            render: (_: unknown, record: TreeData) => (
+                <Can
+                    requiredPermissions={[
+                        { action: "manage", subject: "Warehouse" },
+                        { action: "update", subject: "Warehouse" },
+                    ]}
+                    userPermissions={userPermissions}
+                >
+                    {(allowed) =>
+                        allowed &&
+                        (
+                            <AntDButton type="link"
+                                icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                                onClick={() => handleUpdate(record.id)}
+                            />
+                        )
+                    }
+                </Can>
+            ),
+        };
+
+        return [expandColumn, ...dataColumns, actionColumn]; // Order: Expand Button → Data Columns → Edit Button
+    };
+
+    // Function to format data and include expanded state
+    const formatData = (data: TreeData[], level: number = 0): TreeData[] => {
+        return data.reduce<TreeData[]>((acc, item) => {
+            acc.push({
+                ...item,
+                key: item.id,
+                _level: level
+            });
+
+            // Add children only if this row is expanded
+            if (expandedRowKeys.includes(item.id) && item.children) {
+                acc.push(...formatData(item.children, level + 1));
+            }
+
+            return acc;
+        }, []);
+    };
+
+
     return (
         <>
             {loadingCategory ? (
                 <TableSkeleton columnCount={columnsCategory.length} />
             ) : treeData.length > 0 ?
                 <div className="mt-8">
-                    <DynamicTreeTable
-                        treeData={treeData}
-                        columns={columnsCategory}
-                        isUpdate={true}
-                        onUpdate={handleUpdate}
+                    <Table
+                        columns={generateColumns()}
+                        dataSource={formatData(treeData)}
+                        pagination={false}
+                        expandable={{ expandIcon: () => null }}
+                        scroll={{ x: "max-content" }}
                     />
                 </div> :
                 <NoDataUI

@@ -1,22 +1,15 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useMemo, useState } from "react";
-import InventoryEmpty from "@/assets/NoInventory.png"
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/warehouse";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import Filter from "@/components/ui/Filter/Filter";
-import { useFilterOn } from "@/components/context/useContext";
 import { getOrganization } from "@/services/api/organization";
-import { useCity, usePosType, useSetCity, useSetWareHouseId, useWareHouseId } from "@/hooks/useAuthStore";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
-
-type StockParams = {
-    categoryId: number | string;
-    warehouseId: number | string;
-    placementId: number | string;
-}
+import { Select, Table } from "antd";
+import { useSearchParams } from "react-router-dom";
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import { ColumnsType } from "antd/es/table";
 
 type StockLevel = {
     nomenclatureId: number;
@@ -34,40 +27,41 @@ type StockLevel = {
 const OverheadCosts: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const [orgId, setOrgId] = useState<number | null>(null);
-    const [categoryId, setCategoryId] = useState<string | number>("*");
-    const warehouseId = useWareHouseId();
-    const setWarehouseId = useSetWareHouseId();
-    const [isTableLoading, setIsTableLoading] = useState(false);
-    const { filterOn } = useFilterOn();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const orgId = searchParams.get("orgId") || null;
+    const warehouseId = searchParams.get("warehouseId") || "*";
+    const categoryId = searchParams.get("categoryId") || "*";
 
     const baseColumns = useMemo(() => [
         {
-            label: "Номенклатура",
+            title: "Номенклатура",
+            dataIndex: "nomenclatureName",
             key: "nomenclatureName"
         },
         {
-            label: "Категория",
+            title: "Категория",
+            dataIndex: "categoryName",
             key: "categoryName"
         },
         {
-            label: "Ед. измирения",
+            title: "Ед. измирения",
+            dataIndex: "measurement",
             key: "measurement"
         },
         {
-            label: "Итого по всем автомойкам",
+            title: "Итого по всем автомойкам",
+            dataIndex: "sum",
             key: "sum"
         }
     ], []);
 
-    const posType = usePosType();
-    const city = useCity();
-    const setCity = useSetCity();
+    const posId = searchParams.get("posId") || "*";
+    const city = searchParams.get("city") || "*";
 
     const { data: categoryData } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
-        posId: posType,
+        posId: posId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -80,7 +74,9 @@ const OverheadCosts: React.FC = () => {
             keepPreviousData: true,
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    setOrgId(data[0].id);                    
+                    updateSearchParams(searchParams, setSearchParams, {
+                        orgId: data[0].id.toString()
+                    });
                 }
             }
         }
@@ -105,14 +101,30 @@ const OverheadCosts: React.FC = () => {
     warehouses.unshift(warehousesAllObj);
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
-    
-    const { data: allStockLevels, isLoading: stocksLoading, mutate: stocksMutating } = useSWR(
-        orgId ? [`get-all-stock-levels`, orgId]: null,
-        () => getAllStockLevels(orgId!, {
-            warehouseId: dataFilter.warehouseId,
-            categoryId: dataFilter.categoryId,
-            placementId: dataFilter.placementId
+
+    const filterParams = useMemo(
+        () => ({
+            warehouseId: warehouseId || "*",
+            categoryId: categoryId || "*",
+            placementId: city || "*",
         }),
+        [
+            warehouseId,
+            categoryId,
+            city
+        ]
+    );
+
+    const swrKey = useMemo(
+        () =>
+            `get-all-stock-levels-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.categoryId}-${orgId}`,
+        [filterParams, orgId]
+    );
+
+
+    const { data: allStockLevels, isLoading: stocksLoading } = useSWR(
+        orgId ? swrKey : null,
+        () => getAllStockLevels(Number(orgId)!, filterParams),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -124,7 +136,7 @@ const OverheadCosts: React.FC = () => {
     const { columns, transformedData } = useMemo(() => {
         if (!stockLevels.length) return { columns: baseColumns, transformedData: stockLevels };
 
-        const warehouseColumns: { label: string; key: string }[] = [];
+        const warehouseColumns: { title: string; dataIndex: string; key: string }[] = [];
         const transformedStockLevels = stockLevels.map((level) => {
             const transformedLevel: StockLevel = { ...level };
             level.inventoryItems.forEach((item, index) => {
@@ -132,7 +144,7 @@ const OverheadCosts: React.FC = () => {
                 const columnLabel = item.warehouseName || `Склад ${index + 1}`;
 
                 if (!warehouseColumns.some((col) => col.key === columnKey)) {
-                    warehouseColumns.push({ label: columnLabel, key: columnKey });
+                    warehouseColumns.push({ title: columnLabel, dataIndex: columnKey, key: columnKey });
                 }
 
                 transformedLevel[columnKey] = item.quantity ?? 0;
@@ -141,7 +153,7 @@ const OverheadCosts: React.FC = () => {
         });
 
         return {
-            columns: [...baseColumns, ...warehouseColumns],
+            columns: [...baseColumns, ...warehouseColumns] as ColumnsType<StockLevel>,
             transformedData: transformedStockLevels.map((item) => ({
                 ...item,
                 measurement: item.measurement !== null ? t(`tables.${item.measurement}`) : ""
@@ -149,88 +161,67 @@ const OverheadCosts: React.FC = () => {
         };
     }, [stockLevels, baseColumns, t]);
 
-    const initialFilter = {
-        categoryId: categoryId,
-        warehouseId: warehouseId,
-        placementId: city
-    }
-
-    const [dataFilter, setDataFilter] = useState<StockParams>(initialFilter);
-
-    const handleDataFilter = (newFilterData: Partial<StockParams>) => {
-        setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
-        if (newFilterData.warehouseId) setWarehouseId(newFilterData.warehouseId);
-        if (newFilterData.categoryId) setCategoryId(newFilterData.categoryId);
-        if (newFilterData.placementId) setCity(newFilterData.placementId);
-    }
-
-    useEffect(() => {
-        handleDataFilter({
-            categoryId: categoryId,
-            warehouseId: warehouseId,
-            placementId: city
-        })
-    }, [filterOn])
-
-    useEffect(() => {
-        stocksMutating().then(() => setIsTableLoading(false));
-    }, [dataFilter, stocksMutating]);
-
-    const handleClear = () => {
-        setWarehouseId("*");
-        setCategoryId("*");
-        setCity(city);
-    }
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columns, "pos-deposits-table-columns");
 
     return (
         <>
-            <Filter count={transformedData.length} hideDateTime={true} handleClear={handleClear} address={city} setAddress={setCity} hideSearch={true}>
-                <div>
-                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={organizations.map((item) => ({ label: item.name, value: item.value }))}
-                        value={orgId}
-                        onChange={(value) => setOrgId(value)}
-                    />
+            <GeneralFilters count={transformedData.length} hideDateAndTime={true} hideSearch={true}>
+                <div className="flex flex-col sm:flex-row space-x-4">
+                    <div>
+                        <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                        <Select
+                            className="w-full sm:w-80 h-10"
+                            options={organizations.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={searchParams.get("orgId") || null}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    orgId: value
+                                });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                        <Select
+                            className="w-full sm:w-80 h-10"
+                            options={categories.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={searchParams.get("categoryId") || "*"}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    categoryId: value
+                                });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <div className="text-sm text-text02">{t("warehouse.ware")}</div>
+                        <Select
+                            className="w-full sm:w-80 h-10"
+                            options={warehouses.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={searchParams.get("warehouseId") || "*"}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    warehouseId: value
+                                });
+                            }}
+                        />
+                    </div>
                 </div>
-                <div>
-                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={categories.map((item) => ({ label: item.name, value: item.value }))}
-                        value={categoryId}
-                        onChange={(value) => setCategoryId(value)}
-                    />
-                </div>
-                <div>
-                    <div className="text-sm text-text02">{t("warehouse.ware")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={warehouses.map((item) => ({ label: item.name, value: item.value }))}
-                        value={warehouseId}
-                        onChange={(value) => setWarehouseId(value)}
-                    />
-                </div>
-            </Filter>
-            {isTableLoading || stocksLoading ? (
-                <TableSkeleton columnCount={columns.length} />
-            ) : transformedData.length > 0 ?
-                <div className="mt-8">
-                    <DynamicTable
-                        data={transformedData.map((tra, index) => ({ ...tra, id: index }))}
-                        columns={columns}
-                    />
-                </div> :
-                <NoDataUI
-                    title={t("warehouse.noStock")}
-                    description={""}
-                >
-                    <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Overhead" />
-                </NoDataUI>
-
-            }
+            </GeneralFilters>
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    dataSource={transformedData.map((tra, index) => ({ ...tra, id: index }))}
+                    columns={visibleColumns}
+                    loading={stocksLoading}
+                    pagination={false}
+                />
+            </div>
         </>
     )
 }
