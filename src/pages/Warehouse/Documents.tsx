@@ -17,6 +17,8 @@ import SentIcon from "@icons/SentIcon.png";
 import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import dayjs from "dayjs";
+import { ColumnsType } from "antd/es/table";
 
 enum WarehouseDocumentType {
     WRITEOFF = 'WRITEOFF',
@@ -26,12 +28,23 @@ enum WarehouseDocumentType {
     MOVING = 'MOVING'
 }
 
+type Documents = {
+    statusCheck: string;
+    id: number;
+    name: string;
+    carryingAt: Date;
+    status: string;
+    type: string;
+    warehouseName: string;
+    responsibleName: string;
+}
+
 const Documents: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
 
-    const today = new Date();
+    const today = dayjs().toDate();
     const formattedDate = today.toISOString().slice(0, 10);
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -41,9 +54,9 @@ const Documents: React.FC = () => {
     const posId = searchParams.get("posId") || "*";
     const warehouseId = searchParams.get("warehouseId") || "*";
     const dateStart =
-        searchParams.get("dateStart") ?? new Date().toISOString().slice(0, 10);
+        searchParams.get("dateStart") ?? dayjs().toDate().toISOString().slice(0, 10);
     const dateEnd =
-        searchParams.get("dateEnd") ?? new Date().toISOString().slice(0, 10);
+        searchParams.get("dateEnd") ?? dayjs().toDate().toISOString().slice(0, 10);
     const cityParam = Number(searchParams.get("city")) || "*";
 
     const navigate = useNavigate();
@@ -107,7 +120,8 @@ const Documents: React.FC = () => {
         warehouseName: warehouses.find((ware) => ware.value === item.warehouseId)?.name || "-",
         responsibleName: workers.find((wor) => wor.value === item.responsibleId)?.name || "-",
         status: t(`tables.${item.status}`),
-        type: t(`routes.${item.type}`)
+        type: t(`routes.${item.type}`),
+        statusCheck: '' 
     })) || [];
 
     const documentTypes = [
@@ -143,15 +157,7 @@ const Documents: React.FC = () => {
                     const { id, name, carryingAt, status } = result.props;
 
                     // Navigate with the correct state values
-                    navigate("/warehouse/documents/creation?documentId=" + id + "&document=" + documentType, {
-                        state: {
-                            ownerId: id,
-                            name,
-                            carryingAt,
-                            wareHouseId: warehouseId,
-                            status
-                        }
-                    });
+                    navigate(`/warehouse/documents/creation?documentId=${id}&document=${documentType}&name=${name}&carryingAt=${carryingAt}&warehouseId=${warehouseId}&status=${status}`);
                 } else {
                     console.error("Document creation did not return expected data:", result);
                 }
@@ -164,7 +170,16 @@ const Documents: React.FC = () => {
     const dateRender = getDateRender();
     const statusRender = getStatusTagRender(t);
 
-    const columnsAllDocuments: any[] = [
+    const columnsAllDocuments: ColumnsType<Documents> = [
+        {
+            title: "",
+            dataIndex: "statusCheck",
+            key: "statusCheck",
+            render: (_: unknown, record: { status: string }) =>
+                record.status === t("tables.SENT") ?
+                    <img src={SentIcon} loading="lazy" alt="SENT" />
+                    : <img src={SavedIcon} loading="lazy" alt="SAVED" />
+        },
         {
             title: "№",
             dataIndex: "id",
@@ -215,16 +230,6 @@ const Documents: React.FC = () => {
         }
     ]
 
-    columnsAllDocuments.unshift({
-        title: "",
-        dataIndex: "statusCheck",
-        key: "statusCheck",
-        render: (_: unknown, record: { status: string }) =>
-            record.status === t("tables.SENT") ?
-                <img src={SentIcon} loading="lazy" alt="SENT" />
-                : <img src={SavedIcon} loading="lazy" alt="SAVED" />
-    });
-
     const { checkedList, setCheckedList, options, visibleColumns } =
         useColumnSelector(columnsAllDocuments, "documents-table-columns");
 
@@ -241,7 +246,7 @@ const Documents: React.FC = () => {
                     options={options}
                     onChange={setCheckedList}
                 />
-                <Table
+                <Table<Documents>
                     dataSource={data}
                     columns={visibleColumns}
                     pagination={false}

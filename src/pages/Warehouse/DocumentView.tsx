@@ -140,7 +140,7 @@ const DocumentView: React.FC = () => {
 
     useEffect(() => {
         if (buttonOn)
-            navigate(`/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`, { state: { ownerId: documentId } })
+            navigate(`/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`)
     }, [buttonOn, documentId, documentType, navigate])
 
     return (

@@ -23,6 +23,7 @@ import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { useSearchParams } from "react-router-dom";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 import hasPermission from "@/permissions/hasPermission";
+import { ColumnsType } from "antd/es/table";
 
 enum PurposeType {
     SALE = "SALE",
@@ -44,11 +45,11 @@ type INVENTORY = {
     purpose?: PurposeType;
 }
 
-type TableColumn = {
-    title: string;
-    dataIndex: string;
-    key: string;
-    render?: (value: unknown, record: { id: number }) => React.ReactNode;
+type InventoryColumn = {
+    id: number;
+    sku: string;
+    name: string;
+    categoryId?: string;
 }
 
 const InventoryCreation: React.FC = () => {
@@ -274,7 +275,7 @@ const InventoryCreation: React.FC = () => {
         { action: "update", subject: "Warehouse" },
     ]);
 
-    const columnsInventory: TableColumn[] = [
+    const columnsInventory: ColumnsType<InventoryColumn> = [
         {
             title: "Код",
             dataIndex: "sku",
