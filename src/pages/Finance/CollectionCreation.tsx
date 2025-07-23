@@ -17,8 +17,8 @@ import { Can } from "@/permissions/Can";
 import {
     UpOutlined,
     DownOutlined} from "@ant-design/icons";
-import CashCollectionDeviceTypeTable from "./CashCollectionDeviceTypeTable";
-import CollectionDeviceTable from "./CollectionDeviceTable";
+import CashCollectionDeviceTypeTable from "@/pages/Finance/CashCollectionDeviceTypeTable";
+import CollectionDeviceTable from "@/pages/Finance/CollectionDeviceTable";
 
 type TableRow = {
     id: number;
