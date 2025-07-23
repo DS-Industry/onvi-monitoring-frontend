@@ -85,7 +85,7 @@ const Timestamps: React.FC = () => {
         {
             title: "Инкассация",
             key: "begin",
-            render: (_: any, record: TimestampResponse) => (
+            render: (_: unknown, record: TimestampResponse) => (
                 <div className="flex justify-start">
                     <Button
                         title="Проинкассировал"
@@ -111,12 +111,6 @@ const Timestamps: React.FC = () => {
         }
     ];
 
-    // 🧩 Prepare table data
-    const timestamps = timestampData?.map((item) => ({
-        ...item,
-        id: item.deviceId, // ensure rowKey
-    })) || [];
-
     return (
         <div>
             <SearchDropdownInput
@@ -134,7 +128,7 @@ const Timestamps: React.FC = () => {
 
             <div className="mt-8">
                 <Table
-                    dataSource={timestamps.sort((a, b) => a.deviceId - b.deviceId)}
+                    dataSource={timestampData?.sort((a, b) => a.deviceId - b.deviceId)}
                     columns={columnsTimestamp}
                     rowKey="id"
                     pagination={false}

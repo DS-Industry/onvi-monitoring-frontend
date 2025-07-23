@@ -96,7 +96,7 @@ const Collection: React.FC = () => {
     const [totalCollectionsCount, setTotalCollectionsCount] = useState(0);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const { data: filter, isLoading: filterIsLoading } = useSWR(
+    const { data: collectionsData, isLoading: collectionsLoading } = useSWR(
         swrKey,
         () => getCollections(filterParams)
             .then((data) => {
@@ -207,10 +207,9 @@ const Collection: React.FC = () => {
         }
     ], []);
 
-    const collectionsData = filter || [];
 
     const { columns, transformedData } = useMemo(() => {
-        if (!collectionsData.length) return { columns: baseColumns, transformedData: collectionsData };
+        if (!collectionsData?.length) return { columns: baseColumns, transformedData: collectionsData };
 
         const collectionColumns: { title: string; dataIndex: string; key: string; }[] = [];
         const transformedStockLevels = collectionsData.map((level) => {
@@ -250,7 +249,7 @@ const Collection: React.FC = () => {
     return (
         <div>
             <GeneralFilters
-                count={collectionsData.length}
+                count={collectionsData?.length || 0}
                 hideSearch={true}
                 poses={poses}
                 loadingPos={loadingPos || validatingPos}
@@ -265,7 +264,7 @@ const Collection: React.FC = () => {
                 <Table
                     dataSource={transformedData}
                     columns={visibleColumns}
-                    loading={filterIsLoading || isInitialLoading}
+                    loading={collectionsLoading || isInitialLoading}
                     pagination={{
                         current: currentPage,
                         pageSize: pageSize,

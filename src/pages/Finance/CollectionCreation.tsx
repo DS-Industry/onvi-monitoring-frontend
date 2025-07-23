@@ -11,19 +11,14 @@ import useSWRMutation from "swr/mutation";
 import { useCity } from "@/hooks/useAuthStore";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
-import { Descriptions, Divider, Table } from "antd";
+import { Descriptions, Divider } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import {
     UpOutlined,
-    DownOutlined,
-    EditOutlined
-} from "@ant-design/icons";
-import { TFunction } from "i18next";
-import { InputNumber } from 'antd';
-import type { InputNumberProps } from 'antd';
-import { ColumnsType } from "antd/es/table";
-
+    DownOutlined} from "@ant-design/icons";
+import CashCollectionDeviceTypeTable from "./CashCollectionDeviceTypeTable";
+import CollectionDeviceTable from "./CollectionDeviceTable";
 
 type TableRow = {
     id: number;
@@ -82,47 +77,6 @@ type Collection = {
         virtualSumDevice: number;
     }[]
 }
-
-type EditableCellProps = {
-    editable?: boolean;
-    dataIndex: string;
-    record: TableRow;
-    handleInputChange?: (id: number, key: string, value: number) => void;
-    children: React.ReactNode;
-};
-
-const EditableCell: React.FC<EditableCellProps> = ({
-    editable,
-    dataIndex,
-    record,
-    handleInputChange,
-    children,
-}) => {
-    if (!record || !dataIndex) {
-        return <td>{children}</td>;
-    }
-
-    const value = record[dataIndex as keyof typeof record] as number;
-
-    const onChange: InputNumberProps['onChange'] = (val) => {
-        if (handleInputChange) {
-            handleInputChange(record.id, dataIndex, val as number);
-        }
-    };
-
-    if (!editable) return <div>{children}</div>;
-
-    return (
-        <td>
-            <InputNumber
-                value={value}
-                onChange={onChange}
-                min={0}
-                style={{ width: '100%' }}
-            />
-        </td>
-    );
-};
 
 const CollectionCreation: React.FC = () => {
     const { t } = useTranslation();
@@ -313,156 +267,6 @@ const CollectionCreation: React.FC = () => {
         }
     };
 
-    const getCollectionDeviceTypeColumns = (
-        isDisabled: boolean
-    ) => [
-            {
-                title: 'Тип',
-                dataIndex: 'typeName',
-                key: 'typeName',
-            },
-            {
-                title: 'Купюры',
-                dataIndex: 'sumPaperDeviceType',
-                key: 'sumPaperDeviceType',
-                editable: !isDisabled,
-            },
-            {
-                title: 'Монеты',
-                dataIndex: 'sumCoinDeviceType',
-                key: 'sumCoinDeviceType',
-                editable: !isDisabled,
-            },
-            {
-                title: 'Сумма всего',
-                dataIndex: 'sumFactDeviceType',
-                key: 'sumFactDeviceType',
-            },
-            {
-                title: 'Недостача',
-                dataIndex: 'shortageDeviceType',
-                key: 'shortageDeviceType',
-                render: (value: number) => (
-                    <div className="text-errorFill">{value}</div>
-                ),
-            },
-            {
-                title: 'Безналичная оплата',
-                dataIndex: 'virtualSumDeviceType',
-                key: 'virtualSumDeviceType',
-            },
-        ];
-
-    const mergedColumns = getCollectionDeviceTypeColumns(status === t("tables.SENT"))
-        .map((col) => {
-            if (!col.editable) {
-                return col;
-            }
-            return {
-                ...col,
-                onCell: (record: TableRow) => ({
-                    editable: col.editable,
-                    dataIndex: col.dataIndex,
-                    record,
-                    handleInputChange: handleTableChange,
-                }),
-            };
-        }) as ColumnsType<TableRow>;
-
-
-    const getDeviceTableColumns = (
-        editingRow: number | null,
-        setEditingRow: (id: number | null) => void,
-        handleDateChange: (
-            e: React.ChangeEvent<HTMLInputElement>,
-            rowId: number,
-            key: string
-        ) => void,
-        t: TFunction,
-        status: string
-    ) => [
-            {
-                title: 'Имя устройства',
-                dataIndex: 'deviceName',
-                key: 'deviceName',
-            },
-            {
-                title: 'Тип устройства',
-                dataIndex: 'deviceType',
-                key: 'deviceType',
-            },
-            {
-                title: 'Время сбора (старое)',
-                dataIndex: 'oldTookMoneyTime',
-                key: 'oldTookMoneyTime',
-                render: (text: string) => dayjs(text).format('DD.MM.YYYY HH:mm:ss'),
-            },
-            {
-                title: 'Время сбора (новое)',
-                dataIndex: 'tookMoneyTime',
-                key: 'tookMoneyTime',
-                render: (_: unknown, record: CashCollectionDevice) => {
-                    const value = record.tookMoneyTime;
-                    if (editingRow === record.id && status !== t("tables.SENT")) {
-                        const formatted = value ? dayjs(value).format("YYYY-MM-DDTHH:mm") : "";
-                        return (
-                            <input
-                                type="datetime-local"
-                                className="w-full px-2 py-1 border rounded-md"
-                                value={formatted}
-                                onChange={(e) => handleDateChange(e, record.deviceId, 'tookMoneyTime')}
-                                onBlur={() => setEditingRow(null)}
-                                autoFocus
-                            />
-                        );
-                    }
-                    return (
-                        <div
-                            className="cursor-pointer"
-                            onClick={() => {
-                                if (status !== t("tables.SENT")) setEditingRow(record.id);
-                            }}
-                        >
-                            {dayjs(value).format('DD.MM.YYYY HH:mm:ss')}
-                        </div>
-                    );
-                },
-            },
-            {
-                title: 'Сумма',
-                dataIndex: 'sumDevice',
-                key: 'sumDevice',
-            },
-            {
-                title: 'Монеты',
-                dataIndex: 'sumCoinDevice',
-                key: 'sumCoinDevice',
-            },
-            {
-                title: 'Купюры',
-                dataIndex: 'sumPaperDevice',
-                key: 'sumPaperDevice',
-            },
-            {
-                title: 'Безналичная сумма',
-                dataIndex: 'virtualSumDevice',
-                key: 'virtualSumDevice',
-            },
-            {
-                title: '',
-                key: 'actions',
-                render: (_: unknown, record: CashCollectionDevice) => (
-                    <div className="text-primary02 cursor-pointer" onClick={() => {
-                        if (status !== t("tables.SENT")) {
-                            setEditingRow(record.id);
-                        }
-                    }}>
-                        <EditOutlined />
-                    </div>
-                ),
-            }
-        ];
-
     return (
         <div className="space-y-6">
             {((status === t("tables.SENT")) || (status === t("tables.SAVED"))) ?
@@ -542,42 +346,12 @@ const CollectionCreation: React.FC = () => {
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
-                            {openCashColl && <Table
-                                dataSource={tableData}
-                                columns={mergedColumns}
-                                rowKey="id"
-                                pagination={false}
+                            {openCashColl && <CashCollectionDeviceTypeTable
+                                tableData={tableData}
+                                status={String(status)}
+                                t={t}
+                                handleTableChange={handleTableChange}
                                 loading={collectionLoading}
-                                scroll={{ x: "max-content" }}
-                                components={{
-                                    body: {
-                                        cell: EditableCell,
-                                    },
-                                }}
-                                summary={() => {
-                                    const totalSumFact = tableData.reduce((acc, row) => acc + (row.sumFactDeviceType || 0), 0);
-                                    const totalShortage = tableData.reduce((acc, row) => acc + (row.shortageDeviceType || 0), 0);
-                                    const totalVirtualSum = tableData.reduce((acc, row) => acc + (row.virtualSumDeviceType || 0), 0);
-
-                                    return (
-                                        <Table.Summary fixed>
-                                            <Table.Summary.Row>
-                                                <Table.Summary.Cell index={0}><strong>{t("finance.total")}</strong></Table.Summary.Cell>
-                                                <Table.Summary.Cell index={1} />
-                                                <Table.Summary.Cell index={2} />
-                                                <Table.Summary.Cell index={3}>
-                                                    <strong>{totalSumFact}</strong>
-                                                </Table.Summary.Cell>
-                                                <Table.Summary.Cell index={4}>
-                                                    <strong>{totalShortage}</strong>
-                                                </Table.Summary.Cell>
-                                                <Table.Summary.Cell index={5}>
-                                                    <strong>{totalVirtualSum}</strong>
-                                                </Table.Summary.Cell>
-                                            </Table.Summary.Row>
-                                        </Table.Summary>
-                                    );
-                                }}
                             />}
                         </div>
                         : <></>
@@ -593,13 +367,14 @@ const CollectionCreation: React.FC = () => {
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.collDev")}</div>
                             </div>
-                            {openCollDevice && <Table
-                                dataSource={deviceData}
-                                columns={getDeviceTableColumns(editingRow, setEditingRow, handleDateChange, t, String(status))}
-                                rowKey="id"
-                                pagination={false}
+                            {openCollDevice && <CollectionDeviceTable
+                                deviceData={deviceData}
+                                editingRow={editingRow}
+                                setEditingRow={setEditingRow}
+                                handleDateChange={handleDateChange}
+                                status={String(status)}
+                                t={t}
                                 loading={collectionLoading}
-                                scroll={{ x: "max-content" }}
                             />
                             }
                         </div>

@@ -38,11 +38,13 @@ export function formatNumber(
 ): string {
   if (num === null || num === undefined || isNaN(num)) return "—";
 
-  return new Intl.NumberFormat("ru-RU", {
-    minimumFractionDigits: type === "double" ? 2 : 0,
-    maximumFractionDigits: type === "double" ? 2 : 0,
-    useGrouping: true,
-  }).format(num);
+  return (
+    new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: type === "double" ? 2 : 0,
+      maximumFractionDigits: type === "double" ? 2 : 0,
+      useGrouping: true,
+    }).format(num)
+  );
 }
 
 /**
@@ -109,11 +111,22 @@ export function getFormatPeriodType() {
     const [startStr, endStr] = periodString.split("-").map(s => s.trim());
 
     const parseDate = (dateString: string) => {
-      const datePart = dateString.split("GMT")[0].trim();
-      const date = new Date(datePart);
-      return date.toLocaleDateString("ru-RU");
+      const cleanedDate = dateString.split("GMT")[0].trim();
+      const parsed = dayjs(cleanedDate);
+
+      if (!parsed.isValid()) return "";
+      return parsed.format("DD.MM.YYYY");
     };
 
     return `${parseDate(startStr)} - ${parseDate(endStr)}`;
+  };
+}
+
+export function getNumberRender() {
+  return (val: number | null | undefined): React.ReactNode => {
+    if (val === null || val === undefined || isNaN(val)) return "—";
+    return <div className={`${val < 0 ? "text-errorFill" : "text-text01"}`}>
+      {formatNumber(val)}
+    </div>;
   };
 }
