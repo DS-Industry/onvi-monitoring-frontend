@@ -1,28 +1,29 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Input from "@/components/ui/Input/Input";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useFormHook from "@/hooks/useFormHook";
 import { getPoses } from "@/services/api/equipment";
 import { getCollectionById, postCollection, recalculateCollection, returnCollection, sendCollection } from "@/services/api/finance";
-import { columnsDeviceData } from "@/utils/OverFlowTableData";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { useCity } from "@/hooks/useAuthStore";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
-import { Descriptions, Divider } from "antd";
+import { Descriptions, Divider, Table } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import {
     UpOutlined,
-    DownOutlined
+    DownOutlined,
+    EditOutlined
 } from "@ant-design/icons";
+import { TFunction } from "i18next";
+import { InputNumber } from 'antd';
+import type { InputNumberProps } from 'antd';
+import { ColumnsType } from "antd/es/table";
+
 
 type TableRow = {
     id: number;
@@ -82,6 +83,47 @@ type Collection = {
     }[]
 }
 
+type EditableCellProps = {
+    editable?: boolean;
+    dataIndex: string;
+    record: TableRow;
+    handleInputChange?: (id: number, key: string, value: number) => void;
+    children: React.ReactNode;
+};
+
+const EditableCell: React.FC<EditableCellProps> = ({
+    editable,
+    dataIndex,
+    record,
+    handleInputChange,
+    children,
+}) => {
+    if (!record || !dataIndex) {
+        return <td>{children}</td>;
+    }
+
+    const value = record[dataIndex as keyof typeof record] as number;
+
+    const onChange: InputNumberProps['onChange'] = (val) => {
+        if (handleInputChange) {
+            handleInputChange(record.id, dataIndex, val as number);
+        }
+    };
+
+    if (!editable) return <div>{children}</div>;
+
+    return (
+        <td>
+            <InputNumber
+                value={value}
+                onChange={onChange}
+                min={0}
+                style={{ width: '100%' }}
+            />
+        </td>
+    );
+};
+
 const CollectionCreation: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -121,11 +163,6 @@ const CollectionCreation: React.FC = () => {
         setValue(field, value);
     };
 
-    // const resetForm = () => {
-    //     setFormData(defaultValues);
-    //     reset();
-    // };
-
     useEffect(() => {
         if (collections && Object.keys(collections).length > 0) {
             setTableData(collections.cashCollectionDeviceType);
@@ -164,10 +201,6 @@ const CollectionCreation: React.FC = () => {
     const [openCashColl, setOpenCashColl] = useState(true);
     const [openCollDevice, setOpenCollDevice] = useState(true);
     const [hideButton, setHideButton] = useState(false);
-
-    const handleUpdate = (id: number) => {
-        setEditingRow(id);
-    }
 
     const handleTableChange = (id: number, key: string, value: string | number) => {
         setTableData((prevData) =>
@@ -280,59 +313,155 @@ const CollectionCreation: React.FC = () => {
         }
     };
 
-    const columnsCollections = [
-        {
-            label: "Тип",
-            key: "typeName"
-        },
-        {
-            label: "Купюры",
-            key: "sumPaperDeviceType",
-            render: (row: { sumPaperDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                row.key === "total" ? "" :
-                    <Input
-                        type="number"
-                        label="00,00"
-                        value={row.sumPaperDeviceType}
-                        //   error={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT")}
-                        //   helperText={!row.sumPaperDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Paper Device type is required." : undefined}
-                        changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
-                        disabled={status === t("tables.SENT")}
-                    />
-            ),
-        },
-        {
-            label: "Монеты",
-            key: "sumCoinDeviceType",
-            render: (row: { sumCoinDeviceType: number; id: number; key: string; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                row.key === "total" ? "" :
-                    <Input
-                        type="number"
-                        label="00,00"
-                        value={row.sumCoinDeviceType}
-                        //   error={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT")}
-                        //   helperText={!row.sumCoinDeviceType && location.state?.status !== t("tables.SENT") ? "Sum Coin Device type is required." : undefined}
-                        changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
-                        disabled={status === t("tables.SENT")}
-                    />
-            ),
-        },
-        {
-            label: "Сумма всего",
-            key: "sumFactDeviceType",
-            type: "number"
-        },
-        {
-            label: "Недостача",
-            key: "shortageDeviceType",
-            type: "number"
-        },
-        {
-            label: "Безналичная оплата",
-            key: "virtualSumDeviceType",
-            type: "number"
-        }
-    ]
+    const getCollectionDeviceTypeColumns = (
+        isDisabled: boolean
+    ) => [
+            {
+                title: 'Тип',
+                dataIndex: 'typeName',
+                key: 'typeName',
+            },
+            {
+                title: 'Купюры',
+                dataIndex: 'sumPaperDeviceType',
+                key: 'sumPaperDeviceType',
+                editable: !isDisabled,
+            },
+            {
+                title: 'Монеты',
+                dataIndex: 'sumCoinDeviceType',
+                key: 'sumCoinDeviceType',
+                editable: !isDisabled,
+            },
+            {
+                title: 'Сумма всего',
+                dataIndex: 'sumFactDeviceType',
+                key: 'sumFactDeviceType',
+            },
+            {
+                title: 'Недостача',
+                dataIndex: 'shortageDeviceType',
+                key: 'shortageDeviceType',
+                render: (value: number) => (
+                    <div className="text-errorFill">{value}</div>
+                ),
+            },
+            {
+                title: 'Безналичная оплата',
+                dataIndex: 'virtualSumDeviceType',
+                key: 'virtualSumDeviceType',
+            },
+        ];
+
+    const mergedColumns = getCollectionDeviceTypeColumns(status === t("tables.SENT"))
+        .map((col) => {
+            if (!col.editable) {
+                return col;
+            }
+            return {
+                ...col,
+                onCell: (record: TableRow) => ({
+                    editable: col.editable,
+                    dataIndex: col.dataIndex,
+                    record,
+                    handleInputChange: handleTableChange,
+                }),
+            };
+        }) as ColumnsType<TableRow>;
+
+
+    const getDeviceTableColumns = (
+        editingRow: number | null,
+        setEditingRow: (id: number | null) => void,
+        handleDateChange: (
+            e: React.ChangeEvent<HTMLInputElement>,
+            rowId: number,
+            key: string
+        ) => void,
+        t: TFunction,
+        status: string
+    ) => [
+            {
+                title: 'Имя устройства',
+                dataIndex: 'deviceName',
+                key: 'deviceName',
+            },
+            {
+                title: 'Тип устройства',
+                dataIndex: 'deviceType',
+                key: 'deviceType',
+            },
+            {
+                title: 'Время сбора (старое)',
+                dataIndex: 'oldTookMoneyTime',
+                key: 'oldTookMoneyTime',
+                render: (text: string) => dayjs(text).format('DD.MM.YYYY HH:mm:ss'),
+            },
+            {
+                title: 'Время сбора (новое)',
+                dataIndex: 'tookMoneyTime',
+                key: 'tookMoneyTime',
+                render: (_: unknown, record: CashCollectionDevice) => {
+                    const value = record.tookMoneyTime;
+                    if (editingRow === record.id && status !== t("tables.SENT")) {
+                        const formatted = value ? dayjs(value).format("YYYY-MM-DDTHH:mm") : "";
+                        return (
+                            <input
+                                type="datetime-local"
+                                className="w-full px-2 py-1 border rounded-md"
+                                value={formatted}
+                                onChange={(e) => handleDateChange(e, record.deviceId, 'tookMoneyTime')}
+                                onBlur={() => setEditingRow(null)}
+                                autoFocus
+                            />
+                        );
+                    }
+                    return (
+                        <div
+                            className="cursor-pointer"
+                            onClick={() => {
+                                if (status !== t("tables.SENT")) setEditingRow(record.id);
+                            }}
+                        >
+                            {dayjs(value).format('DD.MM.YYYY HH:mm:ss')}
+                        </div>
+                    );
+                },
+            },
+            {
+                title: 'Сумма',
+                dataIndex: 'sumDevice',
+                key: 'sumDevice',
+            },
+            {
+                title: 'Монеты',
+                dataIndex: 'sumCoinDevice',
+                key: 'sumCoinDevice',
+            },
+            {
+                title: 'Купюры',
+                dataIndex: 'sumPaperDevice',
+                key: 'sumPaperDevice',
+            },
+            {
+                title: 'Безналичная сумма',
+                dataIndex: 'virtualSumDevice',
+                key: 'virtualSumDevice',
+            },
+            {
+                title: '',
+                key: 'actions',
+                render: (_: unknown, record: CashCollectionDevice) => (
+                    <div className="text-primary02 cursor-pointer" onClick={() => {
+                        if (status !== t("tables.SENT")) {
+                            setEditingRow(record.id);
+                        }
+                    }}>
+                        <EditOutlined />
+                    </div>
+                ),
+            }
+        ];
 
     return (
         <div className="space-y-6">
@@ -404,73 +533,75 @@ const CollectionCreation: React.FC = () => {
                 </>
             )}
             <div>
-                {collectionLoading ? (
-                    <TableSkeleton columnCount={columnsCollections.length} />
-                ) :
+                {
                     tableData.length > 0 ?
                         <div>
                             <div className="flex items-center space-x-2">
-                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => setOpenCashColl(!openCashColl)}>
+                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex items-center justify-center" onClick={() => setOpenCashColl(!openCashColl)}>
                                     {openCashColl ? <UpOutlined /> : <DownOutlined />}
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.cashColl")}</div>
                             </div>
-                            {openCashColl && <OverflowTable
-                                tableData={tableData.sort((a, b) => a.id - b.id)}
-                                columns={columnsCollections}
-                                handleChange={handleTableChange}
-                                showTotal={true}
+                            {openCashColl && <Table
+                                dataSource={tableData}
+                                columns={mergedColumns}
+                                rowKey="id"
+                                pagination={false}
+                                loading={collectionLoading}
+                                scroll={{ x: "max-content" }}
+                                components={{
+                                    body: {
+                                        cell: EditableCell,
+                                    },
+                                }}
+                                summary={() => {
+                                    const totalSumFact = tableData.reduce((acc, row) => acc + (row.sumFactDeviceType || 0), 0);
+                                    const totalShortage = tableData.reduce((acc, row) => acc + (row.shortageDeviceType || 0), 0);
+                                    const totalVirtualSum = tableData.reduce((acc, row) => acc + (row.virtualSumDeviceType || 0), 0);
+
+                                    return (
+                                        <Table.Summary fixed>
+                                            <Table.Summary.Row>
+                                                <Table.Summary.Cell index={0}><strong>{t("finance.total")}</strong></Table.Summary.Cell>
+                                                <Table.Summary.Cell index={1} />
+                                                <Table.Summary.Cell index={2} />
+                                                <Table.Summary.Cell index={3}>
+                                                    <strong>{totalSumFact}</strong>
+                                                </Table.Summary.Cell>
+                                                <Table.Summary.Cell index={4}>
+                                                    <strong>{totalShortage}</strong>
+                                                </Table.Summary.Cell>
+                                                <Table.Summary.Cell index={5}>
+                                                    <strong>{totalVirtualSum}</strong>
+                                                </Table.Summary.Cell>
+                                            </Table.Summary.Row>
+                                        </Table.Summary>
+                                    );
+                                }}
                             />}
                         </div>
                         : <></>
                 }
             </div>
             <div>
-                {collectionLoading ? (
-                    <TableSkeleton columnCount={columnsDeviceData.length} />
-                ) :
+                {
                     tableData.length > 0 ?
                         <div>
                             <div className="flex items-center space-x-2">
-                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01" onClick={() => setOpenCollDevice(!openCollDevice)}>
+                                <div className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex items-center justify-center" onClick={() => setOpenCollDevice(!openCollDevice)}>
                                     {openCollDevice ? <UpOutlined /> : <DownOutlined />}
                                 </div>
                                 <div className="text-2xl font-semibold text-text01">{t("finance.collDev")}</div>
                             </div>
-                            {openCollDevice && <DynamicTable
-                                data={deviceData}
-                                columns={columnsDeviceData}
-                                // isUpdateLeft={true}
-                                onEdit={handleUpdate}
-                                renderCell={(column: { type: string; key: string; }, row: { [x: string]: string | number | null; id: number | null; deviceId: number; }) => {
-                                    if (column.type === "date") {
-                                        if (editingRow === row.id && column.key === "tookMoneyTime") {
-                                            const originalDate = row[column.key] || "";
-
-                                            const formattedDate = originalDate
-                                                ? String(originalDate).slice(0, 16)
-                                                : "";
-
-                                            return (
-                                                <input
-                                                    type="datetime-local"
-                                                    value={formattedDate}
-                                                    className="w-full px-3 py-1 rounded-md caret-primary02 text-black border outline-none border-primary02 border-opacity-30 hover:border-primary02"
-                                                    onChange={(e) => handleDateChange(e, row.deviceId, column.key)}
-                                                    onBlur={() => setEditingRow(null)}
-                                                    autoFocus
-                                                    onKeyDown={(e) => e.key === "Enter" && setEditingRow(null)}
-                                                    disabled={status === t("tables.SENT")}
-                                                />
-                                            );
-                                        } else {
-                                            return dayjs(row[column.key]).format('DD.MM.YYYY HH:mm:ss') || "-";
-                                        }
-                                    }
-                                    return row[column.key] || "-";
-                                }}
-                            />}
-
+                            {openCollDevice && <Table
+                                dataSource={deviceData}
+                                columns={getDeviceTableColumns(editingRow, setEditingRow, handleDateChange, t, String(status))}
+                                rowKey="id"
+                                pagination={false}
+                                loading={collectionLoading}
+                                scroll={{ x: "max-content" }}
+                            />
+                            }
                         </div>
                         : <></>
                 }
@@ -503,12 +634,12 @@ const CollectionCreation: React.FC = () => {
                     ]}
                     userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && status !== t("tables.SENT") && <Button
-                    title={t("finance.recalSend")}
-                    isLoading={sendingColl}
-                    form={true}
-                    handleClick={handleSend}
-                />}
+                    {(allowed) => allowed && status !== t("tables.SENT") && <Button
+                        title={t("finance.recalSend")}
+                        isLoading={sendingColl}
+                        form={true}
+                        handleClick={handleSend}
+                    />}
                 </Can>
                 <Can
                     requiredPermissions={[
@@ -517,11 +648,11 @@ const CollectionCreation: React.FC = () => {
                     ]}
                     userPermissions={userPermissions}
                 >
-                {(allowed) => allowed && status === t("tables.SENT") && <Button
-                    title={t("finance.refund")}
-                    isLoading={returningColl}
-                    handleClick={handleReturn}
-                />}
+                    {(allowed) => allowed && status === t("tables.SENT") && <Button
+                        title={t("finance.refund")}
+                        isLoading={returningColl}
+                        handleClick={handleReturn}
+                    />}
                 </Can>
             </div>}
         </div>
