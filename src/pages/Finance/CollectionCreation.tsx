@@ -121,11 +121,11 @@ const CollectionCreation: React.FC = () => {
         if (collections && Object.keys(collections).length > 0) {
             setTableData(collections.cashCollectionDeviceType);
             setDeviceData(collections.cashCollectionDevice);
-            setCollection(collections);
+            setCollectionData(collections);
         } else {
             setTableData([]);
             setDeviceData([]);
-            setCollection({} as Collection);
+            setCollectionData({} as Collection);
         }
     }, [collections]);
 
@@ -135,7 +135,7 @@ const CollectionCreation: React.FC = () => {
             if (result) {
                 setTableData(result.cashCollectionDeviceType);
                 setDeviceData(result.cashCollectionDevice);
-                setCollection(result);
+                setCollectionData(result);
                 setHideButton(true);
                 // resetForm();
             } else {
@@ -149,7 +149,7 @@ const CollectionCreation: React.FC = () => {
 
     const [tableData, setTableData] = useState<TableRow[]>([]);
     const [deviceData, setDeviceData] = useState<CashCollectionDevice[]>([]);
-    const [collection, setCollection] = useState<Collection>({} as Collection);
+    const [collectionData, setCollectionData] = useState<Collection>({} as Collection);
     const [showData, setShowData] = useState(true);
     const [editingRow, setEditingRow] = useState<number | null>(null);
     const [openCashColl, setOpenCashColl] = useState(true);
@@ -189,7 +189,7 @@ const CollectionCreation: React.FC = () => {
                 }[]
             }
         }) => {
-            return recalculateCollection(arg, collection.id);
+            return recalculateCollection(arg, collectionData.id);
         });
 
     const { trigger: senCollection, isMutating: sendingColl } = useSWRMutation(['send-collection'],
@@ -206,7 +206,7 @@ const CollectionCreation: React.FC = () => {
                 }[]
             }
         }) => {
-            return sendCollection(arg, collection.id);
+            return sendCollection(arg, collectionData.id);
         });
 
     const handleRecalculation = async () => {
@@ -230,7 +230,7 @@ const CollectionCreation: React.FC = () => {
         if (result) {
             setTableData(result.cashCollectionDeviceType);
             setDeviceData(result.cashCollectionDevice);
-            setCollection(result);
+            setCollectionData(result);
         }
     };
 
@@ -254,7 +254,7 @@ const CollectionCreation: React.FC = () => {
         if (result) {
             setTableData(result.cashCollectionDeviceType);
             setDeviceData(result.cashCollectionDevice);
-            setCollection(result);
+            setCollectionData(result);
             navigate("/finance/collection");
         }
     };
@@ -308,7 +308,7 @@ const CollectionCreation: React.FC = () => {
                     </div>)}
                 </form>}
             <div className="flex justify-end">
-                {collection && Object.keys(collection).length > 0 && <Button
+                {collectionData && Object.keys(collectionData).length > 0 && <Button
                     title={t("finance.add")}
                     type="outline"
                     iconUp={showData}
@@ -316,7 +316,7 @@ const CollectionCreation: React.FC = () => {
                     handleClick={() => setShowData(!showData)}
                 />}
             </div>
-            {showData && collection && Object.keys(collection).length > 0 && (
+            {showData && collectionData && Object.keys(collectionData).length > 0 && (
                 <>
                     <Descriptions
                         title={""}
@@ -324,13 +324,13 @@ const CollectionCreation: React.FC = () => {
                         labelStyle={{ fontWeight: 500 }}
                         contentStyle={{ textAlign: "right", fontSize: "16px", fontWeight: "bold" }}
                     >
-                        <Descriptions.Item label={t("finance.no")}>{collection.id}</Descriptions.Item>
-                        <Descriptions.Item label={t("marketing.total")}>{`${collection.sumFact || "00"} ₽`}</Descriptions.Item>
-                        <Descriptions.Item label={t("finance.cars")}>{collection.countCar || 0}</Descriptions.Item>
-                        <Descriptions.Item label={t("finance.cash")}>{`${collection.virtualSum || "00"} ₽`}</Descriptions.Item>
-                        <Descriptions.Item label={t("finance.amt")}>{`${collection.sumCard || "00"} ₽`}</Descriptions.Item>
-                        <Descriptions.Item label={t("finance.short")}>{`${collection.shortage || "00"} ₽`}</Descriptions.Item>
-                        <Descriptions.Item label={t("marketing.avg")}>{`${collection.averageCheck || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.no")}>{collectionData.id}</Descriptions.Item>
+                        <Descriptions.Item label={t("marketing.total")}>{`${collectionData.sumFact || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.cars")}>{collectionData.countCar || 0}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.cash")}>{`${collectionData.virtualSum || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.amt")}>{`${collectionData.sumCard || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("finance.short")}>{`${collectionData.shortage || "00"} ₽`}</Descriptions.Item>
+                        <Descriptions.Item label={t("marketing.avg")}>{`${collectionData.averageCheck || "00"} ₽`}</Descriptions.Item>
                     </Descriptions>
 
                     <Divider />
@@ -381,7 +381,7 @@ const CollectionCreation: React.FC = () => {
                         : <></>
                 }
             </div>
-            {collection && Object.keys(collection).length > 0 && <div className="flex space-x-3">
+            {collectionData && Object.keys(collectionData).length > 0 && <div className="flex space-x-3">
                 <Button
                     type="outline"
                     title={t("organizations.cancel")}

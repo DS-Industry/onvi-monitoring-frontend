@@ -55,10 +55,10 @@ const Collection: React.FC = () => {
     const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
     const posId = searchParams.get("posId") || "*";
     const dateStart =
-        searchParams.get("dateStart") ?? new Date(`${formattedDate} 00:00`);
+        searchParams.get("dateStart") ?? dayjs(`${formattedDate} 00:00`).toDate();
 
     const dateEnd =
-        searchParams.get("dateEnd") ?? new Date(`${formattedDate} 23:59`);
+        searchParams.get("dateEnd") ?? dayjs(`${formattedDate} 23:59`).toDate();
 
     const cityParam = Number(searchParams.get("city")) || "*";
 
@@ -68,8 +68,8 @@ const Collection: React.FC = () => {
 
     const filterParams = useMemo(
         () => ({
-            dateStart: new Date(dateStart || `${formattedDate} 00:00`),
-            dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
+            dateStart: dayjs(dateStart || `${formattedDate} 00:00`).toDate(),
+            dateEnd: dayjs(dateEnd?.toString() || `${formattedDate} 23:59`).toDate(),
             posId: posId || "*",
             page: currentPage,
             size: pageSize,
@@ -86,12 +86,7 @@ const Collection: React.FC = () => {
         ]
     );
 
-
-    // Create a stable key for SWR that includes all filter parameters
-    const swrKey = useMemo(() =>
-        `get-collections-${filterParams.posId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.placementId}`,
-        [filterParams]
-    );
+    const swrKey = `get-collections-${filterParams.posId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.placementId}`;
 
     const [totalCollectionsCount, setTotalCollectionsCount] = useState(0);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -207,41 +202,44 @@ const Collection: React.FC = () => {
         }
     ], []);
 
-
     const { columns, transformedData } = useMemo(() => {
         if (!collectionsData?.length) return { columns: baseColumns, transformedData: collectionsData };
 
-        const collectionColumns: { title: string; dataIndex: string; key: string; }[] = [];
-        const transformedStockLevels = collectionsData.map((level) => {
-            const transformedLevel: CashCollectionLevel = { ...level };
-            level.cashCollectionDeviceType.forEach((item, index) => {
-                const columnKey = `collection_${index}`;
-                const columnLabel = item.typeName || `Склад ${index + 1}`;
+        const dynamicColumns: { title: string; dataIndex: string; key: string }[] = [];
 
-                if (!collectionColumns.some((col) => col.key === columnKey)) {
-                    collectionColumns.push({ title: columnLabel, key: columnKey, dataIndex: columnKey });
-                }
-
-                transformedLevel[columnKey] = item.typeShortage ?? 0;
-            });
-            return transformedLevel;
-        });
-
-        const sortedData = transformedStockLevels
-            .map((item) => ({
+        const transformedData = collectionsData.map((item) => {
+            const transformed: CashCollectionLevel & { parsedPeriod: Date } = {
                 ...item,
                 posName: poses.find((pos) => pos.value === item.posId)?.name || "",
                 status: t(`tables.${item.status}`),
-                parsedPeriod: new Date(item.period.split("-")[0]) // Extract start date
-            }))
-            .sort((a, b) => b.parsedPeriod.getTime() - a.parsedPeriod.getTime()); // Sort by most recent date
+                parsedPeriod: dayjs(item.period.split("-")[0]).toDate(),
+            };
+
+            item.cashCollectionDeviceType.forEach((deviceType, index) => {
+                const columnKey = `collection_${index}`;
+                const columnTitle = deviceType.typeName || `Склад ${index + 1}`;
+
+                if (!dynamicColumns.find(col => col.key === columnKey)) {
+                    dynamicColumns.push({
+                        title: columnTitle,
+                        dataIndex: columnKey,
+                        key: columnKey,
+                    });
+                }
+                transformed[columnKey] = deviceType.typeShortage ?? 0;
+            });
+
+            return transformed;
+        });
+        const sortedData = transformedData.sort((a, b) =>
+            (b.parsedPeriod as Date).getTime() - (a.parsedPeriod as Date).getTime()
+        );
 
         return {
-            columns: [...baseColumns, ...collectionColumns] as ColumnsType<CashCollectionLevel>,
-            transformedData: sortedData
+            columns: [...baseColumns, ...dynamicColumns] as ColumnsType<CashCollectionLevel>,
+            transformedData: sortedData,
         };
     }, [collectionsData, baseColumns, poses, t]);
-
 
     const { checkedList, setCheckedList, options, visibleColumns } =
         useColumnSelector(columns, "collections-table-columns");
