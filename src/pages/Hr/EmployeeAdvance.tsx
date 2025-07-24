@@ -9,7 +9,7 @@ import { useButtonCreate } from "@/components/context/useContext";
 import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { getPositions, getPrepayments, getWorkers } from "@/services/api/hr";
+import { getPositions, getPrepayments, getWorkers, PrepaymentResponse } from "@/services/api/hr";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -32,18 +32,8 @@ type PaymentParams = {
   size?: number;
 };
 
-type TableEmployee = {
-  id: number;
-  name: string;
-  hrPositionId: number;
-  billingMonth: Date;
-  paymentDate: Date;
-  monthlySalary: number;
-  dailySalary: number;
-  percentageSalary: number;
-  countShifts: number;
-  sum: number;
-  hrPosition: string | undefined;
+type TablePayment = PrepaymentResponse & {
+  hrPosition?: string;
 };
 
 const EmployeeAdvance: React.FC = () => {
@@ -128,7 +118,7 @@ const EmployeeAdvance: React.FC = () => {
   const dateRender = getDateRender();
   const percentRender = getPercentRender();
 
-  const columnsEmployee: ColumnsType<TableEmployee> = [
+  const columnsEmployee: ColumnsType<TablePayment> = [
     {
       title: "ФИО",
       dataIndex: "name",
@@ -188,7 +178,7 @@ const EmployeeAdvance: React.FC = () => {
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector<TableEmployee>(
+    useColumnSelector<TablePayment>(
       columnsEmployee,
       "employee-columns"
     );

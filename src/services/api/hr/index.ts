@@ -145,7 +145,7 @@ type PrepaymentFilter = {
     size?: number;
 }
 
-type PrepaymentResponse = {
+export type PrepaymentResponse = {
     hrWorkerId: number;
     name: string;
     hrPositionId: number;
