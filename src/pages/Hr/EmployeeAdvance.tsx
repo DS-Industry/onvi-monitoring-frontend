@@ -6,7 +6,7 @@ import { Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 
 import { useButtonCreate } from "@/components/context/useContext";
-import SalaryCalculationFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
+import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { getPositions, getPrepayments, getWorkers } from "@/services/api/hr";
@@ -201,7 +201,7 @@ const EmployeeAdvance: React.FC = () => {
   return (
     <div>
 
-      <SalaryCalculationFilter
+      <EmployeeSalaryFilter
         count={totalCount}
         workers={workers}
       />
