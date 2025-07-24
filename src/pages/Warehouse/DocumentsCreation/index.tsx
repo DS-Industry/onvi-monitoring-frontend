@@ -37,6 +37,17 @@ type DocumentsTableRow = {
         metaData?: InventoryMetaData | MovingMetaData;
     }
 }
+interface TableRow {
+    id: number;
+    check: boolean;
+    responsibleId: number;
+    responsibleName: string;
+    nomenclatureId: number;
+    quantity: number;
+    comment: string;
+    oldQuantity?: number;
+    deviation?: number;
+}
 
 const DocumentsCreation: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -48,8 +59,7 @@ const DocumentsCreation: React.FC = () => {
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
     const [selectedDate, setSelectedDate] = useState<string | null>(() => {
-        const today = new Date();
-        return today.toISOString().split("T")[0];
+        return dayjs().toDate().toISOString().split("T")[0];
     });
     const navigate = useNavigate();
     const user = useUser();
@@ -136,7 +146,7 @@ const DocumentsCreation: React.FC = () => {
             setDocId(documentIdParam);
 
             const baseRow = {
-                id: documentIdParam,
+                id: 1,
                 check: false,
                 responsibleId: user.id,
                 responsibleName: user.name,
@@ -213,15 +223,7 @@ const DocumentsCreation: React.FC = () => {
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const firstNomenclature = nomenclatures.length > 0 ? nomenclatures[0].value : 0;
-
-    const mockData = documentType === "INVENTORY" ? [
-        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: firstNomenclature, quantity: 0, comment: "", oldQuantity: 0, deviation: 0 }
-    ] : [
-        { id: 1, check: false, responsibleId: user.id, responsibleName: user.name, nomenclatureId: firstNomenclature, quantity: 0, comment: "" }
-    ];
-
-    const [tableData, setTableData] = useState(mockData);
+    const [tableData, setTableData] = useState<TableRow[]>([]);
 
     const updateRow = () => {
         setTableData((prevData) => {
@@ -306,11 +308,11 @@ const DocumentsCreation: React.FC = () => {
         const payload = {
             warehouseId: warehouseId == null ? 0 : Number(warehouseId),
             responsibleId: tableData[0].responsibleId,
-            carryingAt: new Date(
+            carryingAt: dayjs(
                 selectedDate === null
-                    ? new Date().toISOString().split("T")[0]
+                    ? dayjs().toDate()
                     : selectedDate
-            ),
+            ).toDate(),
             details: detailValues,
         };
 
@@ -322,11 +324,11 @@ const DocumentsCreation: React.FC = () => {
         }
 
         updateSearchParams(searchParams, setSearchParams, {
-            dateEnd: new Date(
+            dateEnd: dayjs(
                 selectedDate === null
-                    ? new Date().toISOString().split("T")[0]
+                    ? dayjs().toDate()
                     : selectedDate
-            ),
+            ).toDate(),
         });
 
         if (result) {

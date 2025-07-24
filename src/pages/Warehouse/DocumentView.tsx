@@ -194,7 +194,7 @@ const DocumentView: React.FC = () => {
                     tableData={tableData}
                     columns={columnsDocumentView}
                     documentName={document?.document.props.name}
-                    documentTime={dayjs(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                    documentTime={dayjs(document?.document.props.createdAt ?? '').format('DD.MM.YYYY HH:mm:ss')}
                 />
             </div>
             }
