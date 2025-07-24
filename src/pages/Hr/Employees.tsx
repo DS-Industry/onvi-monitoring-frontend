@@ -21,7 +21,7 @@ import Notification from "@ui/Notification.tsx";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { createWorker, getPositions, getWorkers } from "@/services/api/hr";
+import { createWorker, getPositions, getWorkers, TWorker } from "@/services/api/hr";
 import { getPlacement } from "@/services/api/device";
 import { getOrganization } from "@/services/api/organization";
 import {
@@ -32,34 +32,10 @@ import {
 import { getCurrencyRender, getPercentRender } from "@/utils/tableUnits";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 
-type TableWorker = {
-  id: number;
-  name: string;
-  hrPositionId: string;
-  placementId: string;
-  organizationId: string;
-  startWorkDate?: Date;
-  phone?: string;
-  email?: string;
-  description?: string;
-  monthlySalary: string;
-  dailySalary: string;
-  percentageSalary: string;
-  gender?: string;
-  citizenship?: string;
-  passportSeries?: string;
-  passportNumber?: string;
-  passportExtradition?: string;
-  passportDateIssue?: Date;
-  inn?: string;
-  snils?: string;
-}
-
-
 type WorkerParams = {
-  placementId: number | string;
-  hrPositionId: number | '*';
-  organizationId: number | '*';
+  placementId: number;
+  hrPositionId: number;
+  organizationId: number;
   name?: string | undefined;
   page?: number;
   size?: number;
@@ -101,19 +77,19 @@ const Employees: React.FC = () => {
 
   const positions: { name: string; value: number | string; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
 
-  const placementId = searchParams.get("placementId") || "";
-  const hrPositionId = Number(searchParams.get("hrPositionId")) || "*";
-  const organizationId = Number(searchParams.get("organizationId")) || "*";
+  const placementId = Number(searchParams.get("placementId"));
+  const hrPositionId = Number(searchParams.get("hrPositionId"));
+  const organizationId = Number(searchParams.get("organizationId"));
   const name = searchParams.get("name") || undefined;
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
   const filterParams = useMemo<WorkerParams>(
     () => ({
-      placementId: placementId || "*",
-      hrPositionId: hrPositionId || "*",
-      organizationId: organizationId || "*",
-      name: name || undefined,
+      placementId: placementId,
+      hrPositionId: hrPositionId,
+      organizationId: organizationId,
+      name: name,
       page: currentPage,
       size: pageSize,
     }),
@@ -137,10 +113,10 @@ const Employees: React.FC = () => {
     swrKey,
     () =>
       getWorkers({
-        placementId: filterParams.placementId,
-        hrPositionId: filterParams.hrPositionId,
-        organizationId: filterParams.organizationId,
-        name: filterParams.name,
+        placementId: filterParams.placementId || "*",
+        hrPositionId: filterParams.hrPositionId || "*",
+        organizationId: filterParams.organizationId || "*",
+        name: filterParams.name || undefined,
         page: filterParams.page,
         size: filterParams.size
       }),
@@ -157,19 +133,19 @@ const Employees: React.FC = () => {
     position: positions.find((pos) => pos.value === item.props.hrPositionId)?.name
   })) || [];
 
-  const defaultValues: TableWorker = {
-    id: 0,
+  const defaultValues: TWorker["props"] = {
+    id: -1,
     name: "",
-    hrPositionId: '',
-    placementId: '',
-    organizationId: '',
+    hrPositionId: -1,
+    placementId: -1,
+    organizationId: -1,
     startWorkDate: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
-    monthlySalary: '',
-    dailySalary: '',
-    percentageSalary: '',
+    monthlySalary: -1,
+    dailySalary: -1,
+    percentageSalary: -1,
     gender: undefined,
     citizenship: undefined,
     passportSeries: undefined,
@@ -185,6 +161,7 @@ const Employees: React.FC = () => {
   const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
   const { trigger: createEmp, isMutating } = useSWRMutation(['create-employee'], async () => createWorker({
+    id: -1,
     name: formData.name,
     hrPositionId: formData.hrPositionId,
     placementId: formData.placementId,
@@ -255,7 +232,7 @@ const Employees: React.FC = () => {
   const currencyRender = getCurrencyRender();
   const percentRender = getPercentRender();
 
-  const columnsEmployee: ColumnsType<TableWorker> = [
+  const columnsEmployee: ColumnsType<TWorker["props"]> = [
     {
       title: "ФИО Сотрудника",
       dataIndex: "name",
@@ -313,7 +290,7 @@ const Employees: React.FC = () => {
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector<TableWorker>(
+    useColumnSelector<TWorker["props"]>(
       columnsEmployee,
       "employee-columns"
     );
@@ -404,7 +381,7 @@ const Employees: React.FC = () => {
             {...register('hrPositionId', {
               required: 'hrPositionId is required',
               validate: (value) =>
-                (value !== '') || "Pos ID is required"
+                (value !== -1) || "Pos ID is required"
             })}
             value={formData.hrPositionId}
             onChange={(value) => handleInputChange('hrPositionId', value)}
@@ -419,7 +396,7 @@ const Employees: React.FC = () => {
             {...register('placementId', {
               required: 'Placement Id is required',
               validate: (value) =>
-                (value !== '') || "Organization ID is required"
+                (value !== -1) || "Organization ID is required"
             })}
             value={formData.placementId}
             onChange={(value) => handleInputChange('placementId', value)}
@@ -434,7 +411,7 @@ const Employees: React.FC = () => {
             {...register('organizationId', {
               required: 'Organization Id is required',
               validate: (value) =>
-                (value !== '') || "Organization ID is required"
+                (value !== -1) || "Organization ID is required"
             })}
             value={formData.organizationId}
             onChange={(value) => handleInputChange('organizationId', value)}
@@ -516,7 +493,7 @@ const Employees: React.FC = () => {
             classname="w-44"
             showIcon={true}
             IconComponent={<div className="text-text02 text-xl">₽</div>}
-            value={formData.monthlySalary}
+            value={formData.monthlySalary === -1 ? '' : formData.monthlySalary}
             changeValue={(e) => handleInputChange('monthlySalary', e.target.value)}
             error={!!errors.monthlySalary}
             {...register('monthlySalary', { required: 'monthlySalary is required' })}
@@ -526,7 +503,7 @@ const Employees: React.FC = () => {
             title={`${t("hr.daily")}*`}
             type={"number"}
             classname="w-44"
-            value={formData.dailySalary}
+            value={formData.dailySalary === -1 ? '' : formData.dailySalary}
             changeValue={(e) => handleInputChange('dailySalary', e.target.value)}
             error={!!errors.dailySalary}
             {...register('dailySalary', { required: 'dailySalary is required' })}
@@ -536,7 +513,7 @@ const Employees: React.FC = () => {
             title={`${t("marketing.per")}*`}
             type={"number"}
             classname="w-44"
-            value={formData.percentageSalary}
+            value={formData.percentageSalary === -1 ? '' : formData.percentageSalary}
             changeValue={(e) => handleInputChange('percentageSalary', e.target.value)}
             error={!!errors.percentageSalary}
             {...register('percentageSalary', { required: 'percentageSalary is required' })}

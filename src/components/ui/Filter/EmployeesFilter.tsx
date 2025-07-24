@@ -75,9 +75,9 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   const resetFilters = () => {
     setName("");
     updateSearchParams(searchParams, setSearchParams, {
-      placementId: "*",
-      hrPositionId: "*",
-      organizationId: "*",
+      placementId: undefined,
+      hrPositionId: undefined,
+      organizationId: undefined,
       name: undefined,
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
@@ -206,7 +206,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                 <p className="font-semibold">{t("analysis.found")}: {count}</p>
 
               </div>
-              
+
             </div>
           ),
         },

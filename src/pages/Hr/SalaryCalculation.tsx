@@ -81,8 +81,8 @@ const SalaryCalculation: React.FC = () => {
 
   const filterParams = useMemo<PaymentParams>(
     () => ({
-      startPaymentDate: startPaymentDate || "*",
-      endPaymentDate: endPaymentDate || "*",
+      startPaymentDate: startPaymentDate,
+      endPaymentDate: endPaymentDate,
       hrWorkerId: workerId,
       billingMonth: "*",
       page: currentPage,
@@ -107,9 +107,9 @@ const SalaryCalculation: React.FC = () => {
     swrKey,
     () =>
       getPayments({
-        startPaymentDate: filterParams.startPaymentDate,
-        endPaymentDate: filterParams.endPaymentDate,
-        hrWorkerId: filterParams.hrWorkerId,
+        startPaymentDate: filterParams.startPaymentDate || "*",
+        endPaymentDate: filterParams.endPaymentDate || "*",
+        hrWorkerId: filterParams.hrWorkerId || "*",
         billingMonth: filterParams.billingMonth,
         page: filterParams.page,
         size: filterParams.size,

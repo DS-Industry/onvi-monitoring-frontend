@@ -34,22 +34,22 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
     searchParams.get(key) || fallback;
 
   const [startDate, setStartDate] = useState<Dayjs | null>(
-    getParam("startPaymentDate") !== "*" && getParam("startPaymentDate")
+    getParam("startPaymentDate") !== undefined && getParam("startPaymentDate")
       ? dayjs(getParam("startPaymentDate"))
       : null
   );
 
   const [endDate, setEndDate] = useState<Dayjs | null>(
-    getParam("endPaymentDate") !== "*" && getParam("endPaymentDate")
+    getParam("endPaymentDate") !== undefined && getParam("endPaymentDate")
       ? dayjs(getParam("endPaymentDate"))
       : null
   );
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
-      startPaymentDate: "*",
-      endPaymentDate: "*",
-      hrWorkerId: "*",
+      startPaymentDate: undefined,
+      endPaymentDate: undefined,
+      hrWorkerId: undefined,
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
     });
@@ -72,7 +72,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
     } else {
       setStartDate(null);
       updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: "*",
+        startPaymentDate: undefined,
         page: DEFAULT_PAGE,
       });
     }
@@ -114,7 +114,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
     } else {
       setEndDate(null);
       updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: "*",
+        endPaymentDate: undefined,
         page: DEFAULT_PAGE,
       });
     }

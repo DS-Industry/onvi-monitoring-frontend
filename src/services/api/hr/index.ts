@@ -30,7 +30,7 @@ type WorkerRequest = {
     snils?: string;
 }
 
-type WorkerResponse = {
+export type TWorker = {
     props: {
         id: number;
         name: string;
@@ -209,11 +209,11 @@ type addWorkerRequest = {
     workerIds: number[];
 }
 
-export async function createWorker(body: WorkerRequest, file?: File | null): Promise<WorkerResponse> {
+export async function createWorker(body: TWorker["props"], file?: File | null): Promise<TWorker> {
     const formData = new FormData();
 
     for (const key in body) {
-        const value = body[key as keyof WorkerRequest];
+        const value = body[key as keyof TWorker["props"]];
         if (value !== undefined) {
             // Convert value to a string if it's a number
             formData.append(key, value.toString());
@@ -224,7 +224,7 @@ export async function createWorker(body: WorkerRequest, file?: File | null): Pro
         formData.append("file", file);
     }
 
-    const response: AxiosResponse<WorkerResponse> = await api.post(HR.GET_WORKERS, formData, {
+    const response: AxiosResponse<TWorker> = await api.post(HR.GET_WORKERS, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -232,7 +232,7 @@ export async function createWorker(body: WorkerRequest, file?: File | null): Pro
     return response.data;
 }
 
-export async function updateWorker(body: UpdateWorkerRequest, file?: File | null): Promise<WorkerResponse> {
+export async function updateWorker(body: UpdateWorkerRequest, file?: File | null): Promise<TWorker> {
     const formData = new FormData();
 
     for (const key in body) {
@@ -247,7 +247,7 @@ export async function updateWorker(body: UpdateWorkerRequest, file?: File | null
         formData.append("file", file);
     }
 
-    const response: AxiosResponse<WorkerResponse> = await api.patch(HR.GET_WORKERS, formData, {
+    const response: AxiosResponse<TWorker> = await api.patch(HR.GET_WORKERS, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -255,14 +255,14 @@ export async function updateWorker(body: UpdateWorkerRequest, file?: File | null
     return response.data;
 }
 
-export async function getWorkers(params: WorkerParams): Promise<WorkerResponse[]> {
-    const response: AxiosResponse<WorkerResponse[]> = await api.get(HR.GET_WORKERS + 's', { params });
+export async function getWorkers(params: WorkerParams): Promise<TWorker[]> {
+    const response: AxiosResponse<TWorker[]> = await api.get(HR.GET_WORKERS + 's', { params });
 
     return response.data;
 }
 
-export async function getWorkerById(id: number): Promise<WorkerResponse> {
-    const response: AxiosResponse<WorkerResponse> = await api.get(HR.GET_WORKERS + `/${id}`);
+export async function getWorkerById(id: number): Promise<TWorker> {
+    const response: AxiosResponse<TWorker> = await api.get(HR.GET_WORKERS + `/${id}`);
 
     return response.data;
 }
