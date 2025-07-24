@@ -75,7 +75,7 @@ const SalaryCalculation: React.FC = () => {
 
   const startPaymentDate = searchParams.get("startPaymentDate") || "";
   const endPaymentDate = searchParams.get("endPaymentDate") || "";
-  const workerId = Number(searchParams.get("hrWorkerId")) || "*";
+  const workerId = Number(searchParams.get("hrWorkerId"));
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 

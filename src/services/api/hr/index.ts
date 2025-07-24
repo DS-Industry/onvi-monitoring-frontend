@@ -8,28 +8,6 @@ enum HR {
     PAYMENT = 'user/hr/payment'
 }
 
-type WorkerRequest = {
-    name: string;
-    hrPositionId: string;
-    placementId: string;
-    organizationId: string;
-    startWorkDate?: Date;
-    phone?: string;
-    email?: string;
-    description?: string;
-    monthlySalary: string;
-    dailySalary: string;
-    percentageSalary: string;
-    gender?: string;
-    citizenship?: string;
-    passportSeries?: string;
-    passportNumber?: string;
-    passportExtradition?: string;
-    passportDateIssue?: Date;
-    inn?: string;
-    snils?: string;
-}
-
 export type TWorker = {
     props: {
         id: number;

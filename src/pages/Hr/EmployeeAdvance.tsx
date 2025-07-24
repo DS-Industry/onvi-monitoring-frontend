@@ -48,14 +48,14 @@ const EmployeeAdvance: React.FC = () => {
 
   const startPaymentDate = searchParams.get("startPaymentDate") || "";
   const endPaymentDate = searchParams.get("endPaymentDate") || "";
-  const workerId = Number(searchParams.get("hrWorkerId")) || "*";
+  const workerId = Number(searchParams.get("hrWorkerId"));
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
   const filterParams = useMemo<PaymentParams>(
     () => ({
-      startPaymentDate: startPaymentDate || "*",
-      endPaymentDate: endPaymentDate || "*",
+      startPaymentDate: startPaymentDate,
+      endPaymentDate: endPaymentDate,
       hrWorkerId: workerId,
       billingMonth: "*",
       page: currentPage,
@@ -80,9 +80,9 @@ const EmployeeAdvance: React.FC = () => {
     swrKey,
     () =>
       getPrepayments({
-        startPaymentDate: filterParams.startPaymentDate,
-        endPaymentDate: filterParams.endPaymentDate,
-        hrWorkerId: filterParams.hrWorkerId,
+        startPaymentDate: filterParams.startPaymentDate || "*",
+        endPaymentDate: filterParams.endPaymentDate || "*",
+        hrWorkerId: filterParams.hrWorkerId || "*",
         billingMonth: filterParams.billingMonth,
         page: filterParams.page,
         size: filterParams.size,
