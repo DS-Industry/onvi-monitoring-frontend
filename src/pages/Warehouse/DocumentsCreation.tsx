@@ -1,7 +1,7 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import DocumentModal from "@/components/ui/Modal/DocumentModal";
+import DocumentCreationModal from "@/pages/Warehouse/DocumentsCreation/DocumentCreationModal";
 import { useUser } from "@/hooks/useUserStore";
 import { getOrganization } from "@/services/api/organization";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
@@ -41,7 +41,7 @@ type Row = {
 type ColumnRenderer = {
     label: string;
     key: string;
-    render?: (row: Row, handleChange: (id: number, key: string, value: any) => void) => JSX.Element;
+    render?: (row: Row, handleChange: (id: number, key: string, value: string | number | boolean) => void) => JSX.Element;
 };
 
 const DocumentsCreation: React.FC = () => {
@@ -591,7 +591,7 @@ const DocumentsCreation: React.FC = () => {
     return (
         <>
             <div>
-                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} setTableData={setTableData} />
+                <DocumentCreationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onClick={setTableData} />
                 {loadingDocument || validatingDocument ? (
                     <div className="mt-16">
                         <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />

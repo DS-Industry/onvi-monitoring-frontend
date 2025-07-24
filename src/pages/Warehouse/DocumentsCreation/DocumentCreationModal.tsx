@@ -2,45 +2,39 @@ import React, { useState } from "react";
 import { Modal, Table } from "antd";
 import Button from "@ui/Button/Button";
 import { useTranslation } from "react-i18next";
-import NoDataUI from "../NoDataUI";
+import NoDataUI from "../../../components/ui/NoDataUI";
 import { useSearchParams } from "react-router-dom";
-import SearchInput from "../Input/SearchInput";
+import SearchInput from "../../../components/ui/Input/SearchInput";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import useSWR from "swr";
 import { getInventoryItems, getNomenclature } from "@/services/api/warehouse";
 import { getOrganization } from "@/services/api/organization";
 import { useUser } from "@/hooks/useUserStore";
 
-interface DocumentModalProps {
+type NomenclatureItem = {
+    oldQuantity?: number | undefined;
+    deviation?: number | undefined;
+    id: number;
+    check: boolean;
+    responsibleId: number;
+    responsibleName: string;
+    nomenclatureId: number;
+    quantity: number;
+    comment: string;
+}
+
+interface DocumentCreationModalProps {
     isOpen: boolean;
     onClose: () => void;
     classname?: string;
-    setTableData: React.Dispatch<React.SetStateAction<{
-        id: number;
-        check: boolean;
-        responsibleId: number;
-        responsibleName: string;
-        nomenclatureId: number;
-        quantity: number;
-        comment: string;
-        oldQuantity: number;
-        deviation: number;
-    }[] | {
-        id: number;
-        check: boolean;
-        responsibleId: number;
-        responsibleName: string;
-        nomenclatureId: number;
-        quantity: number;
-        comment: string;
-    }[]>>;
+    onClick: React.Dispatch<React.SetStateAction<NomenclatureItem[]>>;
 }
 
-const DocumentModal: React.FC<DocumentModalProps> = ({
+const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
     isOpen,
     onClose,
     classname,
-    setTableData
+    onClick
 }) => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -65,7 +59,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             return;
         }
 
-        setTableData((prevData) => {
+        onClick((prevData) => {
             const existingNomenclatureIds = new Set(prevData.map(item => item.nomenclatureId));
 
             const selectedData = dataSource
@@ -211,4 +205,4 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     );
 };
 
-export default DocumentModal;
+export default DocumentCreationModal;
