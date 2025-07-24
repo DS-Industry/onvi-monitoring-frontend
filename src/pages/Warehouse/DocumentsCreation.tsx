@@ -1,10 +1,7 @@
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import SearchInput from "@/components/ui/Input/SearchInput";
 import DocumentModal from "@/components/ui/Modal/DocumentModal";
-import NoDataUI from "@/components/ui/NoDataUI";
-import OverflowTable from "@/components/ui/Table/OverflowTable";
 import { useUser } from "@/hooks/useUserStore";
 import { getOrganization } from "@/services/api/organization";
 import { getDocument, getInventoryItems, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
@@ -13,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import InventoryEmpty from "@/assets/NoInventory.png"
 import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { Select, Skeleton } from "antd";
 import DateInput from "@/components/ui/Input/DateInput";
@@ -31,6 +27,23 @@ type MovingMetaData = {
     warehouseReceirId: number;
 }
 
+type Row = {
+    id: number;
+    check?: boolean;
+    quantity?: number;
+    comment?: string;
+    oldQuantity?: number;
+    deviation?: number;
+    nomenclatureId?: number;
+    responsibleName?: string;
+};
+
+type ColumnRenderer = {
+    label: string;
+    key: string;
+    render?: (row: Row, handleChange: (id: number, key: string, value: any) => void) => JSX.Element;
+};
+
 const DocumentsCreation: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const documentType = searchParams.get("document");
@@ -46,17 +59,7 @@ const DocumentsCreation: React.FC = () => {
     });
     const navigate = useNavigate();
     const user = useUser();
-    const [searchNomen, setSearchNomen] = useState("");
     const userPermissions = usePermissions();
-
-    const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
-
-    const handleCheckboxChange = (id: number) => {
-        setSelectedItems(prev => ({
-            ...prev,
-            [id]: !prev[id]
-        }));
-    };
 
     const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document-view`], () => getDocument(Number(searchParams.get("documentId"))), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -121,7 +124,7 @@ const DocumentsCreation: React.FC = () => {
                     }]
                     : [{
                         id: Number(searchParams.get("documentId")),
-                        check: false, // Add the 'check' property
+                        check: false, 
                         responsibleId: user.id,
                         responsibleName: user.name,
                         nomenclatureId: 0,
@@ -132,7 +135,6 @@ const DocumentsCreation: React.FC = () => {
             }
         }
     }, [document, documentType, searchParams, loadingDocument, user.id, user.name]);
-
 
     const [globalErrors, setGlobalErrors] = useState({
         warehouse: false,
@@ -201,10 +203,6 @@ const DocumentsCreation: React.FC = () => {
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
-
-    const nomenclatureItems: { nomenclatureId: number; nomenclatureName: string; sku: string; }[] = nomenclatureData?.map((item) => ({ nomenclatureId: item.props.id, nomenclatureName: item.props.name, sku: item.props.sku })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
-
-    const inventoryItems: { nomenclatureId: number; nomenclatureName: string; sku: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, nomenclatureName: item.nomenclatureName, sku: item.quantity })).filter((item) => item.nomenclatureName.toLowerCase().includes(searchNomen.toLowerCase())) || [];
 
     const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
 
@@ -475,286 +473,125 @@ const DocumentsCreation: React.FC = () => {
         }
     }
 
-    const columnsDocumentCreation = documentType === "INVENTORY" ? [
-        {
-            label: "",
-            key: "check",
-            render: (row: { check: boolean | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: boolean) => void) => (
-                <input
-                    type="checkbox"
-                    checked={row.check}
-                    className="w-[18px] h-[18px]"
-                    onChange={() =>
-                        handleChange(row.id, "check", !row.check)
-                    }
-                />
-            ),
-        },
-        {
-            label: "№",
-            key: "id"
-        },
-        {
-            label: "Ответственный",
-            key: "responsibleName"
-        },
-        {
-            label: "Номенклатура",
-            key: "nomenclatureId",
-            render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                // <DropdownInput
-                //     value={row.nomenclatureId}
-                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                //     options={nomenclatures}
-                //     error={errors[row.id]?.nomenclature || false}
-                //     classnameOptions="max-h-20"
-                // />
-                <Select
-                    status={errors[row.id]?.nomenclature ? 'error' : ''}
-                    value={row.nomenclatureId}
-                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                    onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={[
-                        { label: t("warehouse.notSel"), value: 0 },
-                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
-                    ]}
-                    className="w-80 h-10"
-                    listHeight={160}
-                />
-            ),
-        },
-        {
-            label: "Кол-во",
-            key: "quantity",
-            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    type="number"
-                    value={row.quantity}
-                    changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors[row.id]?.quantity || false}
-                />
-            ),
-        },
-        {
-            label: "Комментарий",
-            key: "comment",
-            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    value={row.comment}
-                    changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
-                />
-            ),
-        },
-        {
-            label: "Кол-во учет",
-            key: "oldQuantity",
-            render: (row: { oldQuantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    type="number"
-                    value={row.oldQuantity}
-                    changeValue={(e) => handleChange(row.id, "oldQuantity", e.target.value)}
-                    disabled={true}
-                />
-            ),
-        },
-        {
-            label: "Отклонение",
-            key: "deviation",
-            render: (row: { deviation: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    type="number"
-                    value={row.deviation}
-                    changeValue={(e) => handleChange(row.id, "deviation", e.target.value)}
-                    disabled={true}
-                />
-            ),
-        }
-    ] : [
-        {
-            label: "",
-            key: "check",
-            render: (row: { check: boolean | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: boolean) => void) => (
-                <input
-                    type="checkbox"
-                    checked={row.check}
-                    className="w-[18px] h-[18px]"
-                    onChange={() =>
-                        handleChange(row.id, "check", !row.check)
-                    }
-                />
-            ),
-        },
-        {
-            label: "№",
-            key: "id"
-        },
-        {
-            label: "Ответственный",
-            key: "responsibleName"
-        },
-        {
-            label: "Номенклатура",
-            key: "nomenclatureId",
-            render: (row: { nomenclatureId: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: number) => void) => (
-                // <DropdownInput
-                //     value={row.nomenclatureId}
-                //     label={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                //     onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                //     options={nomenclatures}
-                //     error={errors[row.id]?.nomenclature || false}
-                //     classnameOptions="max-h-20"
-                // />
-                <Select
-                    status={errors[row.id]?.nomenclature ? 'error' : ''}
-                    value={row.nomenclatureId}
-                    placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                    onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
-                    options={[
-                        { label: t("warehouse.notSel"), value: 0 },
-                        ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value }))
-                    ]}
-                    className="w-80 h-10"
-                    listHeight={160}
-                />
-            ),
-        },
-        {
-            label: "Кол-во",
-            key: "quantity",
-            render: (row: { quantity: number | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    type="number"
-                    value={row.quantity}
-                    changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
-                    error={errors[row.id]?.quantity || false}
-                />
-            ),
-        },
-        {
-            label: "Комментарий",
-            key: "comment",
-            render: (row: { comment: string | undefined; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
-                <Input
-                    value={row.comment}
-                    changeValue={(e) => handleChange(row.id, "comment", e.target.value)}
-                />
-            ),
-        }
-    ]
-
-    const columnsInventoryItems = [
-        {
-            label: "",
-            key: "check",
-            render: (row: { nomenclatureId: number; }) => (
-                <input
-                    type="checkbox"
-                    checked={!!selectedItems[row.nomenclatureId]}  // Use selectedItems state
-                    className="w-[18px] h-[18px]"
-                    onChange={() => handleCheckboxChange(row.nomenclatureId)}
-                />
-            ),
-        },
-        {
-            label: "Код",
-            key: "sku"
-        },
-        {
-            label: "Наименование товара",
-            key: "nomenclatureName"
-        }
-    ]
-
-    const addProductItem = () => {
-        const dataSource = documentType === "RECEIPT" ? nomenclatureItems : inventoryItems;
-
-        if (!dataSource || !selectedItems) {
-            return;
-        }
-
-        setTableData(prevData => {
-            const existingNomenclatureIds = new Set(prevData.map(item => item.nomenclatureId));
-
-            const selectedData = dataSource
-                .filter(item => selectedItems?.[item.nomenclatureId] && !existingNomenclatureIds.has(item.nomenclatureId))
-                .map(item => ({
-                    id: item.nomenclatureId,
-                    check: true,
-                    responsibleId: user.id,
-                    responsibleName: user.name,
-                    nomenclatureId: item.nomenclatureId,
-                    quantity: 0,
-                    comment: "",
-                    ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
-                }));
-
-            if (selectedData.length === 0) {
-                return prevData;
+    function getColumnsDocumentCreation({
+        documentType,
+        t,
+        errors,
+        nomenclatures,
+    }: {
+        documentType: string;
+        t: (key: string) => string;
+        errors: Record<
+            number,
+            {
+                nomenclature: boolean;
+                quantity: boolean;
             }
+        >;
+        nomenclatures: { name: string; value: number }[];
+    }): ColumnRenderer[] {
+        const commonColumns: ColumnRenderer[] = [
+            {
+                label: "",
+                key: "check",
+                render: (row, handleChange) => (
+                    <input
+                        type="checkbox"
+                        checked={row.check}
+                        className="w-[18px] h-[18px]"
+                        onChange={() => handleChange(row.id, "check", !row.check)}
+                    />
+                ),
+            },
+            {
+                label: "№",
+                key: "id",
+            },
+            {
+                label: "Ответственный",
+                key: "responsibleName",
+            },
+            {
+                label: "Номенклатура",
+                key: "nomenclatureId",
+                render: (row, handleChange) => (
+                    <Select
+                        status={errors[row.id]?.nomenclature ? "error" : ""}
+                        value={row.nomenclatureId}
+                        placeholder={nomenclatures.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                        onChange={(value) => handleChange(row.id, "nomenclatureId", value)}
+                        options={[
+                            { label: t("warehouse.notSel"), value: 0 },
+                            ...nomenclatures.map((nom) => ({ label: nom.name, value: nom.value })),
+                        ]}
+                        className="w-80 h-10"
+                        listHeight={160}
+                    />
+                ),
+            },
+            {
+                label: "Кол-во",
+                key: "quantity",
+                render: (row, handleChange) => (
+                    <Input
+                        type="number"
+                        value={row.quantity}
+                        changeValue={(e) => handleChange(row.id, "quantity", e.target.value)}
+                        error={errors[row.id]?.quantity || false}
+                    />
+                ),
+            },
+            {
+                label: "Комментарий",
+                key: "comment",
+                render: (row, handleChange) => (
+                    <Input value={row.comment} changeValue={(e) => handleChange(row.id, "comment", e.target.value)} />
+                ),
+            },
+        ];
 
-            return [...prevData, ...selectedData];
-        });
+        const inventoryColumns: ColumnRenderer[] = [
+            {
+                label: "Кол-во учет",
+                key: "oldQuantity",
+                render: (row, handleChange) => (
+                    <Input
+                        type="number"
+                        value={row.oldQuantity}
+                        changeValue={(e) => handleChange(row.id, "oldQuantity", e.target.value)}
+                        disabled
+                    />
+                ),
+            },
+            {
+                label: "Отклонение",
+                key: "deviation",
+                render: (row, handleChange) => (
+                    <Input
+                        type="number"
+                        value={row.deviation}
+                        changeValue={(e) => handleChange(row.id, "deviation", e.target.value)}
+                        disabled
+                    />
+                ),
+            },
+        ];
 
-        setIsModalOpen(false);
-    };
+        return documentType === "INVENTORY" ? [...commonColumns, ...inventoryColumns] : commonColumns;
+    }
+
+
+    const columnsDocumentCreation = getColumnsDocumentCreation({
+        documentType: documentType || "",
+        t,
+        errors,
+        nomenclatures,
+    });
 
     return (
         <>
             <div>
-                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} handleClick={addProductItem}>
-                    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-4xl h-full max-h-[90vh] overflow-y-auto flex flex-col space-y-5 p-4">
-                        {/* Search Input */}
-                        <div className="flex">
-                            <SearchInput
-                                value={searchNomen}
-                                onChange={(value) => setSearchNomen(value)}
-                                classname="w-full sm:w-64"
-                                searchType="outlined"
-                            />
-                        </div>
-
-                        {/* Table Content */}
-                        <div className="mt-4 overflow-x-auto">
-                            {documentType === "RECEIPT" ? (
-                                nomenclatureItems.length > 0 ? (<OverflowTable
-                                    tableData={nomenclatureItems.map(item => ({
-                                        ...item,
-                                        id: item.nomenclatureId, // map nomenclatureId -> id
-                                    }))}
-                                    columns={columnsInventoryItems}
-                                />
-                                ) : (
-                                    <div className="flex flex-col justify-center items-center">
-                                        <NoDataUI
-                                            title={t("roles.invent")}
-                                            description={""}
-                                        >
-                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Inventory" />
-                                        </NoDataUI>
-                                    </div>)
-                            ) : (
-                                inventoryItems.length > 0 ? (
-                                    <OverflowTable
-                                        tableData={inventoryItems.map(item => ({
-                                            ...item,
-                                            id: item.nomenclatureId, // map nomenclatureId -> id
-                                        }))}
-                                        columns={columnsInventoryItems}
-                                    />) : (
-                                    <div className="flex flex-col justify-center items-center">
-                                        <NoDataUI
-                                            title={t("roles.invent")}
-                                            description={""}
-                                        >
-                                            <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Inventory" />
-                                        </NoDataUI>
-                                    </div>)
-                            )}
-                        </div>
-                    </div>
-                </DocumentModal>
-
+                <DocumentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} setTableData={setTableData} />
                 {loadingDocument || validatingDocument ? (
                     <div className="mt-16">
                         <Skeleton.Input style={{ width: "100%", height: "300px" }} active block />
