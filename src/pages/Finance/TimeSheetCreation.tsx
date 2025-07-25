@@ -16,10 +16,12 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
+import { useSnackbar } from "@/components/context/useContext";
 
 const TimeSheetCreation: React.FC = () => {
     const { t } = useTranslation();
     const city = useCity();
+    const { showSnackbar } = useSnackbar();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -76,6 +78,7 @@ const TimeSheetCreation: React.FC = () => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showSnackbar("Error during form submission", "error");
         }
     }
 

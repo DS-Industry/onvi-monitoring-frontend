@@ -27,7 +27,6 @@ import Space from 'antd/es/space';
 import Menu from 'antd/es/menu';
 import Dropdown from 'antd/es/dropdown';
 import Modal from 'antd/es/modal';
-import message from 'antd/es/message';
 import InputNumber from 'antd/es/input-number';
 import Form from 'antd/es/form';
 import AntInput from 'antd/es/input';
@@ -35,6 +34,7 @@ import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { usePermissions } from "@/hooks/useAuthStore";
+import { useSnackbar } from "@/components/context/useContext";
 
 const { Option } = Select;
 
@@ -166,6 +166,7 @@ const MonthlyExpanse: React.FC = () => {
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
     const userPermissions = usePermissions();
+    const { showSnackbar } = useSnackbar();
 
     const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
         if (num === null || num === undefined || isNaN(num)) return "-";
@@ -284,13 +285,13 @@ const MonthlyExpanse: React.FC = () => {
 
             if (result) {
                 mutate([`get-manager-period`]);
-                message.success('Record updated successfully');
+                showSnackbar("Record updated successfully", "success");
                 setEditingKey('');
                 form.resetFields();
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
-            message.error('Please check the form fields');
+            showSnackbar("Please check the form fields", "error");
         }
     };
 
@@ -330,14 +331,14 @@ const MonthlyExpanse: React.FC = () => {
                         mutate([`get-manager-period`]);
                         const newData = data.filter(item => item.id !== id);
                         setData(newData);
-                        message.success('Record deleted successfully');
+                        showSnackbar("Record deleted successfully", "success");
                     }
                 } catch (error) {
-                    console.error("Error deleting nomenclature:", error);
+                    showSnackbar("Error deleting nomenclature", "error");
                 }
             },
             onCancel() {
-                message.info('Delete cancelled');
+              showSnackbar("Delete cancelled", "info");
             }
         });
     };
@@ -596,6 +597,7 @@ const MonthlyExpanse: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showSnackbar("Error during form submission", "error");
         }
     }
 

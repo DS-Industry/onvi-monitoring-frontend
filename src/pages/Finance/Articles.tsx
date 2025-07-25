@@ -18,7 +18,7 @@ import { createManagerPaper, deleteManagerPapers, getAllManagerPaper, getAllMana
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import { useFilterOn } from "@/components/context/useContext";
+import { useFilterOn, useSnackbar } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
@@ -33,7 +33,6 @@ import Table from 'antd/es/table';
 import AntDButton from 'antd/es/button';
 import AntInput from 'antd/es/input';
 import DatePicker from 'antd/es/date-picker';
-import message from 'antd/es/message';
 import Skeleton from 'antd/es/skeleton';
 import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
@@ -317,6 +316,7 @@ const Articles: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
+    const { showSnackbar } = useSnackbar();
 
     const paginationConfig: TablePaginationConfig = {
         current: curr,
@@ -495,7 +495,7 @@ const Articles: React.FC = () => {
 
                     // Clear selected file after successful update
                     setSelectedFile(null);
-                    message.success('Record updated successfully');
+                    showSnackbar("Record updated successfully", "success");
                 }
 
             } else {
@@ -505,7 +505,7 @@ const Articles: React.FC = () => {
             }
         } catch (error) {
             console.log('Update Failed:', error);
-            message.error('Failed to update record');
+            showSnackbar("Failed to update record", "error");
         }
     };
 
@@ -739,6 +739,7 @@ const Articles: React.FC = () => {
                 throw new Error('Invalid response from API');
             }
         } catch (error) {
+            showSnackbar("Error during form submission", "error");
             console.error("Error during form submission: ", error);
         }
     }

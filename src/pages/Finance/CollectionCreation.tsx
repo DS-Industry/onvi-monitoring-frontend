@@ -23,6 +23,7 @@ import {
     UpOutlined,
     DownOutlined
 } from "@ant-design/icons";
+import { useSnackbar } from "@/components/context/useContext";
 
 type TableRow = {
     id: number;
@@ -88,6 +89,7 @@ const CollectionCreation: React.FC = () => {
     const location = useLocation();
     const city = useCity();
     const userPermissions = usePermissions();
+    const { showSnackbar } = useSnackbar();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -151,6 +153,7 @@ const CollectionCreation: React.FC = () => {
             }
 
         } catch (error) {
+            showSnackbar("Error during form submission", "error");
             console.error("Error during form submission: ", error);
         }
     }

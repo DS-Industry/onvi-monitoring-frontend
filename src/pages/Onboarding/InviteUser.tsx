@@ -83,6 +83,7 @@ const InviteUser: React.FC = () => {
             }
         } catch (error) {
             clearData();
+            showSnackbar(t('Password change failed. Please try again.'), "error");
         }
     };
 

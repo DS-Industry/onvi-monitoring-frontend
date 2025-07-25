@@ -19,6 +19,7 @@ import PositionEmpty from "@/assets/NoPosition.png";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import dayjs from "dayjs";
+import { useSnackbar } from "@/components/context/useContext";
 
 type PaymentCalculateBody = {
     organizationId: number;
@@ -58,6 +59,7 @@ const SalaryCalculationCreation: React.FC = () => {
     const [paymentsData, setPaymentsData] = useState<PaymentsCreation[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showAddButton, setShowAddButton] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -172,6 +174,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showSnackbar("Error during form submission", "error");
         }
     }
 
@@ -393,6 +396,7 @@ const SalaryCalculationCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showSnackbar("Error during form submission", "error");
         }
     };
 

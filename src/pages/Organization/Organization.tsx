@@ -2,7 +2,7 @@ import SalyIamge from "@/assets/Saly-11.png";
 import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
-import { useButtonCreate } from "@/components/context/useContext.tsx";
+import { useButtonCreate, useSnackbar } from "@/components/context/useContext.tsx";
 import { columnsOrg } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
 import useSWR, { mutate } from "swr";
@@ -47,6 +47,7 @@ const Organization: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editOrgId, setEditOrgId] = useState<number>(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const { showSnackbar } = useSnackbar();
 
     const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -194,6 +195,7 @@ const Organization: React.FC = () => {
             }
         } catch (error) {
             console.error("Password change error: ", error);
+            showSnackbar("Password change error:", "error");
         }
     };
 

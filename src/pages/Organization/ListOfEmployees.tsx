@@ -133,6 +133,7 @@ const ListOfEmployees: React.FC = () => {
             }
         } catch (error) {
             console.error("Register error:", error);
+            showSnackbar("Register error", "error");
         }
     }
 

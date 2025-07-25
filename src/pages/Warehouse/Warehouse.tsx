@@ -12,7 +12,7 @@ import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -34,6 +34,7 @@ const Warehouse: React.FC = () => {
     const posType = usePosType();
     const [posId, setPosId] = useState(posType);
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const { showSnackbar } = useSnackbar();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -106,6 +107,7 @@ const Warehouse: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showSnackbar("Error during form submission", "error");
         }
     };
 

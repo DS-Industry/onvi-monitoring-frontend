@@ -15,6 +15,7 @@ import useSWRMutation from "swr/mutation";
 import { TFunction } from "i18next";
 import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
+import { useSnackbar } from "@/components/context/useContext";
 
 interface TechTaskItem {
     id: number;
@@ -98,6 +99,7 @@ const RoutineWorkItem: React.FC = () => {
     const city = useCity();
     const navigate = useNavigate();
     const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
+    const { showSnackbar } = useSnackbar();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -202,6 +204,7 @@ const RoutineWorkItem: React.FC = () => {
                 throw new Error("Invalid file type");
             }
         } catch (err) {
+            showSnackbar("Invalid file type", "error");
             onError?.(err as Error);
         }
     };
