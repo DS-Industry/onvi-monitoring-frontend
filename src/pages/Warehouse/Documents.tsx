@@ -6,7 +6,7 @@ import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
-import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/warehouse";
+import { createDocument, getAllDocuments, getWarehouses, WarehouseDocumentType } from "@/services/api/warehouse";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
 import { updateSearchParams } from "@/utils/updateSearchParams";
@@ -19,14 +19,6 @@ import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import dayjs from "dayjs";
 import { ColumnsType } from "antd/es/table";
-
-enum WarehouseDocumentType {
-    WRITEOFF = 'WRITEOFF',
-    INVENTORY = 'INVENTORY',
-    COMMISSIONING = 'COMMISSIONING',
-    RECEIPT = 'RECEIPT',
-    MOVING = 'MOVING'
-}
 
 type Documents = {
     statusCheck: string;
@@ -60,19 +52,6 @@ const Documents: React.FC = () => {
     const cityParam = Number(searchParams.get("city")) || "*";
 
     const navigate = useNavigate();
-
-    const getDocumentType = (document: string) => {
-        if (document === "COMMISSIONING")
-            return WarehouseDocumentType.COMMISSIONING;
-        else if (document === "WRITEOFF")
-            return WarehouseDocumentType.WRITEOFF;
-        else if (document === "MOVING")
-            return WarehouseDocumentType.MOVING;
-        else if (document === "INVENTORY")
-            return WarehouseDocumentType.INVENTORY
-        else
-            return WarehouseDocumentType.RECEIPT;
-    }
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -125,11 +104,11 @@ const Documents: React.FC = () => {
     })) || [];
 
     const documentTypes = [
-        { name: t("routes.COMMISSIONING"), value: "COMMISSIONING" },
-        { name: t("routes.WRITEOFF"), value: "WRITEOFF" },
-        { name: t("routes.MOVING"), value: "MOVING" },
-        { name: t("routes.INVENTORY"), value: "INVENTORY" },
-        { name: t("routes.RECEIPT"), value: "RECEIPT" },
+        { name: t("routes.COMMISSIONING"), value: WarehouseDocumentType.COMMISSIONING },
+        { name: t("routes.WRITEOFF"), value: WarehouseDocumentType.WRITEOFF },
+        { name: t("routes.MOVING"), value: WarehouseDocumentType.MOVING },
+        { name: t("routes.INVENTORY"), value: WarehouseDocumentType.INVENTORY },
+        { name: t("routes.RECEIPT"), value: WarehouseDocumentType.RECEIPT },
     ]
 
     const handleDropdownChange = (value: string) => {
@@ -146,17 +125,13 @@ const Documents: React.FC = () => {
 
     const handleModalSubmit = async () => {
         if (documentType) {
-            const documentTypeEnum = getDocumentType(documentType);
+            const documentTypeEnum = documentType as WarehouseDocumentType;
 
             try {
-                // Await the creation of the document
                 const result = await createDoc({ type: documentTypeEnum });
 
-                // Ensure result has the expected data
                 if (result?.props) {
                     const { id, name, carryingAt, status } = result.props;
-
-                    // Navigate with the correct state values
                     navigate(`/warehouse/documents/creation?documentId=${id}&document=${documentType}&name=${name}&carryingAt=${carryingAt}&warehouseId=${warehouseId}&status=${status}`);
                 } else {
                     console.error("Document creation did not return expected data:", result);
