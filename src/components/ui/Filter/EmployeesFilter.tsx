@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Select, Collapse, Space, Typography } from "antd";
 import AntInput from 'antd/es/input';
 import Button from "@ui/Button/Button.tsx";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { getParam, updateSearchParams } from "@/utils/searchParamsUtils";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
 import useSWR from "swr";
 import { getPlacement } from "@/services/api/device";
@@ -28,11 +28,10 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   organizations,
 }) => {
   const { t } = useTranslation();
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [activeFilterKey, setActiveFilterKey] = useState<string | string[]>([]);
+  const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [name, setName] = useState<string>("");
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
   const allCategoriesText = t("warehouse.all");
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -48,29 +47,20 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
 
   useEffect(() => {
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
       }
     };
   }, [timeoutId]);
 
   useEffect(() => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    const newTimeoutId = setTimeout(() => {
+    timeoutId.current = setTimeout(() => {
       updateSearchParams(searchParams, setSearchParams, {
         name: name || undefined,
-        page: DEFAULT_PAGE,
+        page: 1,
       });
     }, 1000);
-
-    setTimeoutId(newTimeoutId);
   }, [name]);
-
-  const getParam = (key: string, fallback: string = ""): string =>
-    searchParams.get(key) || fallback;
 
   const resetFilters = () => {
     setName("");
@@ -90,13 +80,13 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
       ghost
       style={{ marginBottom: 16 }}
       activeKey={activeFilterKey}
-      onChange={(keys: string | string[]) => setActiveFilterKey(keys)}
+      onChange={(keys) => setActiveFilterKey(keys)}
       items={[
         {
           key: "filter-1",
           label: (
             <span className="font-semibold text-base">
-              {Array.isArray(activeFilterKey) && activeFilterKey.includes("filter-1")
+              {activeFilterKey.includes("filter-1")
                 ? t("routes.filter")
                 : t("routes.expand")}
             </span>
@@ -104,7 +94,6 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
           style: { background: "#fafafa", borderRadius: 8 },
           children: (
             <div
-              ref={contentRef}
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
 
@@ -118,7 +107,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam("placementId", "*")}
+                      value={getParam(searchParams, "placementId", "*")}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           placementId: val,
@@ -140,7 +129,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                     <Select
 
                       className="w-full sm:w-80"
-                      value={getParam("hrPositionId", "*")}
+                      value={getParam(searchParams, "hrPositionId", "*")}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           hrPositionId: val,
@@ -161,7 +150,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam("organizationId", "*")}
+                      value={getParam(searchParams, "organizationId", "*")}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           organizationId: val,

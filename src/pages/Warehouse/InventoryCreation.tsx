@@ -21,7 +21,7 @@ import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import hasPermission from "@/permissions/hasPermission";
 import { ColumnsType } from "antd/es/table";
 

@@ -20,7 +20,7 @@ import {
   getDateRender,
   getPercentRender,
 } from "@/utils/tableUnits";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 
 type PaymentParams = {
@@ -128,7 +128,7 @@ const EmployeeAdvance: React.FC = () => {
       title: "Должность",
       dataIndex: "hrPosition",
       key: "hrPosition",
-      render: (value: string | undefined) => value || "-",
+      render: (value) => value || "-",
     },
     {
       title: "Расчетный месяц",
@@ -184,8 +184,9 @@ const EmployeeAdvance: React.FC = () => {
     );
 
   useEffect(() => {
-    if (buttonOn)
+    if (buttonOn) {
       navigate("/hr/employee/advance/creation");
+    }
   }, [buttonOn, navigate])
 
   return (

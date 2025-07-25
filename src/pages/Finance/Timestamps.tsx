@@ -9,7 +9,7 @@ import useSWRMutation from "swr/mutation";
 import { Table } from "antd";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 
 type TimestampResponse = {

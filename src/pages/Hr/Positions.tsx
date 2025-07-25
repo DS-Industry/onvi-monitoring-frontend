@@ -27,7 +27,7 @@ const Positions: React.FC = () => {
   const { t } = useTranslation();
   const { buttonOn, setButtonOn } = useButtonCreate();
   const [position, setPosition] = useState<string | undefined>();
-  const [originalPosition, setOriginalPosition] = useState<string | undefined>(); 
+  const [originalPosition, setOriginalPosition] = useState<string>(); 
   const city = useCity();
 
   const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
@@ -141,7 +141,7 @@ const Positions: React.FC = () => {
               setEditingRow(record.id);
             }}
           >
-            {record.description}
+            {record.description || "-"}
           </div>
         );
       },

@@ -55,7 +55,7 @@ type UpdateWorkerRequest = {
     snils?: string;
 }
 
-type WorkerParams = {
+export type WorkerParams = {
     placementId: number | string;
     hrPositionId: number | '*';
     organizationId: number | '*';

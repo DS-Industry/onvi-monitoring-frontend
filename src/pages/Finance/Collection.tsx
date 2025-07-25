@@ -13,7 +13,7 @@ import {
 } from "@/utils/constants";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { Table } from "antd";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { ColumnsType } from "antd/es/table";

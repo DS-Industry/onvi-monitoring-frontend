@@ -21,7 +21,7 @@ import Notification from "@ui/Notification.tsx";
 import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { createWorker, getPositions, getWorkers, TWorker } from "@/services/api/hr";
+import { createWorker, getPositions, getWorkers, TWorker, WorkerParams } from "@/services/api/hr";
 import { getPlacement } from "@/services/api/device";
 import { getOrganization } from "@/services/api/organization";
 import {
@@ -30,16 +30,7 @@ import {
   ALL_PAGE_SIZES,
 } from "@/utils/constants";
 import { getCurrencyRender, getPercentRender } from "@/utils/tableUnits";
-import { updateSearchParams } from "@/utils/updateSearchParams";
-
-type WorkerParams = {
-  placementId: number;
-  hrPositionId: number;
-  organizationId: number;
-  name?: string | undefined;
-  page?: number;
-  size?: number;
-}
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -133,7 +124,7 @@ const Employees: React.FC = () => {
     position: positions.find((pos) => pos.value === item.props.hrPositionId)?.name
   })) || [];
 
-  const defaultValues: TWorker["props"] = {
+  const defaultValues = {
     id: -1,
     name: "",
     hrPositionId: -1,
@@ -183,8 +174,8 @@ const Employees: React.FC = () => {
     snils: formData.snils
   }, selectedFile));
 
-  type FieldType = "name" | "description" | "hrPositionId" | "placementId" | "organizationId" | "startWorkDate" | "phone" | "email" | "monthlySalary" | "dailySalary" | "percentageSalary" | "gender" | "citizenship" | "passportSeries" | "passportNumber" | "passportExtradition" | "passportDateIssue" | "inn" | "snils";
-
+  type FieldType = keyof typeof formData;
+  
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = ["monthlySalary", "dailySalary", "percentageSalary"];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
@@ -253,19 +244,19 @@ const Employees: React.FC = () => {
       title: "Город",
       dataIndex: "placement",
       key: "placement",
-      render: (value: string | undefined) => value || "-",
+      render: (value) => value || "-",
     },
     {
       title: "Организация",
       dataIndex: "organization",
       key: "organization",
-      render: (value: string | undefined) => value || "-",
+      render: (value) => value || "-",
     },
     {
       title: "Должность",
       dataIndex: "position",
       key: "position",
-      render: (value: string | undefined) => value || "-",
+      render: (value) => value || "-",
     },
     {
       title: "Месячный оклад",

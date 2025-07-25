@@ -9,7 +9,7 @@ import useSWR from "swr";
 import { createDocument, getAllDocuments, getWarehouses } from "@/services/api/warehouse";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { Table } from "antd";
 import SavedIcon from "@icons/SavedIcon.png";

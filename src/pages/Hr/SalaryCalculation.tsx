@@ -20,7 +20,7 @@ import {
   getDateRender,
   getPercentRender,
 } from "@/utils/tableUnits";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 type PaymentParams = {
   startPaymentDate: Date | string;
@@ -184,7 +184,7 @@ const SalaryCalculation: React.FC = () => {
       title: "Должность",
       dataIndex: "hrPosition",
       key: "hrPosition",
-      render: (value: string | undefined) => value || "-",
+      render: (value) => value || "-",
     },
     {
       title: "Месяц расчёта",

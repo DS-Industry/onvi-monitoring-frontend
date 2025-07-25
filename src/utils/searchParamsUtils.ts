@@ -13,3 +13,7 @@ export const updateSearchParams = (
   });
   setSearchParams(newParams);
 };
+
+export const getParam = (searchParams: URLSearchParams, key: string, fallback: string = ""): string => {
+  return searchParams.get(key) || fallback;
+};

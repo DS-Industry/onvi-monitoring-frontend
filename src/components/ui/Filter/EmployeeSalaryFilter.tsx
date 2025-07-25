@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Select, Collapse, DatePicker, Space, TimePicker, Typography } from "antd";
 import Button from "@ui/Button/Button.tsx";
 import dayjs, { Dayjs } from "dayjs";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { getParam, updateSearchParams } from "@/utils/searchParamsUtils";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
 
 const Text = Typography.Text;
@@ -26,23 +26,18 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const [activeFilterKey, setActiveFilterKey] = useState<string | string[]>([]);
+  const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getParam = (key: string, fallback: string = ""): string =>
-    searchParams.get(key) || fallback;
-
+  const rawStart = getParam(searchParams, "startPaymentDate");
   const [startDate, setStartDate] = useState<Dayjs | null>(
-    getParam("startPaymentDate") !== undefined && getParam("startPaymentDate")
-      ? dayjs(getParam("startPaymentDate"))
-      : null
+    rawStart ? dayjs(rawStart) : null
   );
 
+  const rawEnd = getParam(searchParams, "endPaymentDate");
   const [endDate, setEndDate] = useState<Dayjs | null>(
-    getParam("endPaymentDate") !== undefined && getParam("endPaymentDate")
-      ? dayjs(getParam("endPaymentDate"))
-      : null
+    rawEnd ? dayjs(rawEnd) : null
   );
 
   const resetFilters = () => {
@@ -148,7 +143,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
       ghost
       style={{ marginBottom: 16 }}
       activeKey={activeFilterKey}
-      onChange={(keys: string | string[]) => setActiveFilterKey(keys)}
+      onChange={(keys: string[]) => setActiveFilterKey(keys)}
       items={[
         {
           key: "filter-1",
@@ -225,7 +220,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam("hrWorkerId", "*")}
+                      value={getParam(searchParams, "hrWorkerId", "*")}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           hrWorkerId: val,

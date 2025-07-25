@@ -16,7 +16,7 @@ import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 type InventoryMetaData = {
     oldQuantity: number;
