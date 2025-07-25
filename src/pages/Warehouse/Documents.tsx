@@ -41,8 +41,8 @@ const Documents: React.FC = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const document = searchParams.get("document") || "";
-    const [documentType, setDocumentType] = useState(document);
+    const document = searchParams.get("document") as WarehouseDocumentType;
+    const [documentType, setDocumentType] = useState<WarehouseDocumentType>(document);
     const posId = searchParams.get("posId") || "*";
     const warehouseId = searchParams.get("warehouseId") || "*";
     const dateStart =
@@ -111,7 +111,7 @@ const Documents: React.FC = () => {
         { name: t("routes.RECEIPT"), value: WarehouseDocumentType.RECEIPT },
     ]
 
-    const handleDropdownChange = (value: string) => {
+    const handleDropdownChange = (value: WarehouseDocumentType) => {
         setDocumentType(value);
         updateSearchParams(searchParams, setSearchParams, {
             document: value
@@ -125,7 +125,7 @@ const Documents: React.FC = () => {
 
     const handleModalSubmit = async () => {
         if (documentType) {
-            const documentTypeEnum = documentType as WarehouseDocumentType;
+            const documentTypeEnum = documentType;
 
             try {
                 const result = await createDoc({ type: documentTypeEnum });

@@ -101,10 +101,9 @@ const DocumentsCreation: React.FC = () => {
             );
             setDocId(documentsData.id);
 
-            if (documentType === WarehouseDocumentType.MOVING) {
-                if (isMovingMetaData(documentDetails[0].props.metaData)) {
-                    setWarehouseRecId(documentDetails[0].props.metaData?.warehouseReceirId);
-                }
+            const metaData = documentDetails.at(0)?.props.metaData;
+            if (documentType === WarehouseDocumentType.MOVING && metaData && isMovingMetaData(metaData)) {
+                setWarehouseRecId(metaData.warehouseReceirId);
             }
 
             const responsibleId = documentsData.responsibleId;
@@ -171,7 +170,7 @@ const DocumentsCreation: React.FC = () => {
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations[0].value), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations.at(0)?.value || 0), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
         posId: posId,
@@ -253,7 +252,7 @@ const DocumentsCreation: React.FC = () => {
 
         const payload = {
             warehouseId: warehouseId == null ? 0 : Number(warehouseId),
-            responsibleId: tableData[0].responsibleId,
+            responsibleId: tableData.at(0)?.responsibleId || user.id,
             carryingAt: dayjs(
                 selectedDate === null
                     ? dayjs().toDate()
