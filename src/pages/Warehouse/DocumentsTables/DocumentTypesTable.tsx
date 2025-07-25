@@ -4,7 +4,7 @@ import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getOrganization } from "@/services/api/organization";
-import { getInventoryItems, getNomenclature } from "@/services/api/warehouse";
+import { getInventoryItems, getNomenclature, WarehouseDocumentType } from "@/services/api/warehouse";
 import { useSearchParams } from "react-router-dom";
 import { ColumnsType } from "antd/es/table";
 import { JSX } from "react/jsx-runtime";
@@ -136,9 +136,12 @@ const DocumentTypesTable: React.FC<Props> = ({
     const organizations =
         organizationData?.map((item) => ({ label: item.name, value: item.id })) || [];
 
-    const { data: inventoryItemData } = useSWR(warehouseId !== null && !isNaN(Number(warehouseId)) ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const oldQuantityItems: { nomenclatureId: number; quantity: number; }[] = inventoryItemData?.map((item) => ({ nomenclatureId: item.nomenclatureId, quantity: item.quantity })) || [];
+    const { data: inventoryItemData } = useSWR(warehouseId !== null && !isNaN(Number(warehouseId)) ? [`get-inventory-items`] : null, () => getInventoryItems(Number(warehouseId)).then((res) => {
+    return res.map((item) => ({
+        nomenclatureId: item.nomenclatureId,
+        quantity: item.quantity,
+    }));
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: nomenclatureData } = useSWR(
         organizations ? [`get-inventory`] : null,
@@ -160,7 +163,7 @@ const DocumentTypesTable: React.FC<Props> = ({
                         return {
                             ...item,
                             [dataIndex]: value,
-                            oldQuantity: oldQuantityItems.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity ? oldQuantityItems.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity : 0,
+                            oldQuantity: inventoryItemData?.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity ? inventoryItemData.find((q) => q.nomenclatureId === item.nomenclatureId)?.quantity : 0,
                             deviation:
                                 dataIndex === "quantity" || dataIndex === "oldQuantity"
                                     ? (dataIndex === "quantity" ? Number(value) : item.quantity) -
@@ -292,7 +295,7 @@ const DocumentTypesTable: React.FC<Props> = ({
         }
     ]
 
-    const columns = (documentType === "INVENTORY"
+    const columns = (documentType === WarehouseDocumentType.INVENTORY
         ? [...baseColumns, ...inventoryColumns]
         : baseColumns) as ColumnsType<TableRow>;
 
