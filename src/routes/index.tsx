@@ -39,7 +39,7 @@ const OverheadCosts = React.lazy(() => import("@/pages/Warehouse/OverheadCosts")
 const Suppliers = React.lazy(() => import("@/pages/Warehouse/Suppliers"));
 const InventoryImport = React.lazy(() => import("@/pages/Warehouse/InventoryImport"));
 const Documents = React.lazy(() => import("@/pages/Warehouse/Documents"));
-const DocumentsCreation = React.lazy(() => import("@/pages/Warehouse/DocumentsCreation"));
+const DocumentsCreation = React.lazy(() => import("@/pages/Warehouse/DocumentsCreation/index"));
 const DocumentView = React.lazy(() => import("@/pages/Warehouse/DocumentView"));
 const Clients = React.lazy(() => import("@/pages/Marketing/Clients"));
 const ShareConstructor = React.lazy(() => import("@/pages/Marketing/ShareConstructor"));

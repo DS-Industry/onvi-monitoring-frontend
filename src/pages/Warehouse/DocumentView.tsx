@@ -7,11 +7,11 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useUser } from "@/hooks/useUserStore";
-import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { getOrganization } from "@/services/api/organization";
 import { Skeleton } from "antd";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import DocumentsViewTable from "./DocumentsTables/DocumentsViewTable";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -52,57 +52,51 @@ const DocumentView: React.FC = () => {
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const columnsDocumentView = documentType === "INVENTORY" ? [
+    const baseColumns = [
         {
-            label: "№",
-            key: "id"
+            title: "№",
+            dataIndex: "id",
+            key: "id",
         },
         {
-            label: "Ответственный",
-            key: "responsibleName"
+            title: "Ответственный",
+            dataIndex: "responsibleName",
+            key: "responsibleName",
         },
         {
-            label: "Номенклатура",
-            key: "nomenclatureName"
+            title: "Номенклатура",
+            dataIndex: "nomenclatureName",
+            key: "nomenclatureName",
         },
         {
-            label: "Кол-во",
-            key: "quantity"
+            title: "Кол-во",
+            dataIndex: "quantity",
+            key: "quantity",
         },
         {
-            label: "Комментарий",
-            key: "comment"
+            title: "Комментарий",
+            dataIndex: "comment",
+            key: "comment",
         },
-        {
-            label: "Кол-во учет",
-            key: "oldQuantity"
-        },
-        {
-            label: "Отклонение",
-            key: "deviation"
-        }
-    ] : [
-        {
-            label: "№",
-            key: "id"
-        },
-        {
-            label: "Ответственный",
-            key: "responsibleName"
-        },
-        {
-            label: "Номенклатура",
-            key: "nomenclatureName"
-        },
-        {
-            label: "Кол-во",
-            key: "quantity"
-        },
-        {
-            label: "Комментарий",
-            key: "comment"
-        }
     ];
+
+    const inventoryExtraColumns = [
+        {
+            title: "Кол-во учет",
+            dataIndex: "oldQuantity",
+            key: "oldQuantity",
+        },
+        {
+            title: "Отклонение",
+            dataIndex: "deviation",
+            key: "deviation",
+        },
+    ];
+
+    const columnsDocumentView = documentType === "INVENTORY"
+        ? [...baseColumns, ...inventoryExtraColumns]
+        : baseColumns;
+
 
     function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
         return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
@@ -196,12 +190,11 @@ const DocumentView: React.FC = () => {
                         </div>}
                     </div>
                 </div>
-                <GoodsAntTable
+                <DocumentsViewTable
                     tableData={tableData}
                     columns={columnsDocumentView}
-                    showDocument={true}
                     documentName={document?.document.props.name}
-                    documentTime={dayjs(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                    documentTime={dayjs(document?.document.props.createdAt ?? '').format('DD.MM.YYYY HH:mm:ss')}
                 />
             </div>
             }
