@@ -125,10 +125,8 @@ const Documents: React.FC = () => {
 
     const handleModalSubmit = async () => {
         if (documentType) {
-            const documentTypeEnum = documentType;
-
             try {
-                const result = await createDoc({ type: documentTypeEnum });
+                const result = await createDoc({ type: documentType });
 
                 if (result?.props) {
                     const { id, name, carryingAt, status } = result.props;
