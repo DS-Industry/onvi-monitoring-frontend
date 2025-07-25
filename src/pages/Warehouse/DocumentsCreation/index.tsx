@@ -1,42 +1,22 @@
-import Button from "@/components/ui/Button/Button";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Input from "@/components/ui/Input/Input";
+import Button from "@ui/Button/Button";
+import DropdownInput from "@ui/Input/DropdownInput";
+import Input from "@ui/Input/Input";
 import DocumentCreationModal from "@/pages/Warehouse/DocumentsCreation/DocumentCreationModal";
 import { useUser } from "@/hooks/useUserStore";
 import { getOrganization } from "@/services/api/organization";
-import { getDocument, getNomenclature, getWarehouses, saveDocument, sendDocument } from "@/services/api/warehouse";
+import { DocumentBody, DocumentsTableRow, getDocument, getNomenclature, getWarehouses, InventoryMetaData, MovingMetaData, saveDocument, sendDocument, WarehouseDocumentStatus, WarehouseDocumentType } from "@/services/api/warehouse";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { Skeleton } from "antd";
-import DateInput from "@/components/ui/Input/DateInput";
+import DateInput from "@ui/Input/DateInput";
 import dayjs from "dayjs";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 import DocumentTypesTable from "@/pages/Warehouse/DocumentsTables/DocumentTypesTable";
-
-type InventoryMetaData = {
-    oldQuantity: number;
-    deviation: number;
-}
-
-type MovingMetaData = {
-    warehouseReceirId: number;
-}
-
-type DocumentsTableRow = {
-    props: {
-        id: number;
-        warehouseDocumentId: number;
-        nomenclatureId: number;
-        quantity: number;
-        comment?: string;
-        metaData?: InventoryMetaData | MovingMetaData;
-    }
-}
 interface TableRow {
     id: number;
     check: boolean;
@@ -53,8 +33,7 @@ const DocumentsCreation: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const documentType = searchParams.get("document");
     const { t } = useTranslation();
-    const warehouseID = searchParams.get("warehouseId") || "*";
-    const [warehouseId, setWarehouseId] = useState<number | string | null>(warehouseID);
+    const [warehouseId, setWarehouseId] = useState<number | string | null>(searchParams.get("warehouseId") || "*");
     const [warehouseRecId, setWarehouseRecId] = useState(0);
     const [docId, setDocId] = useState(0);
     const [noOverhead, setNoOverHead] = useState('');
@@ -75,63 +54,67 @@ const DocumentsCreation: React.FC = () => {
         return !!metaData && 'warehouseReceirId' in metaData;
     }
 
+    const documentsData = document?.document.props;
+    const documentDetails = document?.details || [];
+
     useEffect(() => {
         if (loadingDocument) return;
 
         const isSavedOrSent =
-            document?.document.props.status === "SAVED" ||
-            document?.document.props.status === "SENT";
+            documentsData?.status === WarehouseDocumentStatus.SAVED ||
+            documentsData?.status === WarehouseDocumentStatus.SENT;
 
         const mapInventoryDetails = (details: DocumentsTableRow[], responsibleId: number, responsibleName: string) =>
-            details.map((doc) => ({
-                id: doc.props.id,
-                check: false,
-                responsibleId,
-                responsibleName,
-                nomenclatureId: doc.props.nomenclatureId,
-                quantity: doc.props.quantity,
-                comment: doc.props.comment || "",
-                oldQuantity: isInventoryMetaData(doc.props.metaData)
-                    ? doc.props.metaData.oldQuantity
-                    : 0,
-                deviation: isInventoryMetaData(doc.props.metaData)
-                    ? doc.props.metaData.deviation
-                    : 0,
-            }));
+            details.map((doc) => {
+                const detailsProps = doc.props;
+                return ({
+                    id: detailsProps.id,
+                    check: false,
+                    responsibleId,
+                    responsibleName,
+                    nomenclatureId: detailsProps.nomenclatureId,
+                    quantity: detailsProps.quantity,
+                    comment: detailsProps.comment || "",
+                    oldQuantity: isInventoryMetaData(detailsProps.metaData) ? detailsProps.metaData.oldQuantity : 0,
+                    deviation: isInventoryMetaData(detailsProps.metaData) ? detailsProps.metaData.deviation : 0,
+                })
+            });
 
         const mapOtherDetails = (details: DocumentsTableRow[], responsibleId: number, responsibleName: string) =>
-            details.map((doc) => ({
-                id: doc.props.id,
-                check: false,
-                responsibleId,
-                responsibleName,
-                nomenclatureId: doc.props.nomenclatureId,
-                quantity: doc.props.quantity,
-                comment: doc.props.comment || "",
-            }));
+            details.map((doc) => {
+                const detailsProps = doc.props;
+                return ({
+                    id: detailsProps.id,
+                    check: false,
+                    responsibleId,
+                    responsibleName,
+                    nomenclatureId: detailsProps.nomenclatureId,
+                    quantity: detailsProps.quantity,
+                    comment: detailsProps.comment || "",
+                })
+            });
 
         if (isSavedOrSent) {
-            const docProps = document.document.props;
-            setWarehouseId(docProps.warehouseId);
-            setNoOverHead(docProps.name);
+            setWarehouseId(documentsData.warehouseId);
+            setNoOverHead(documentsData.name);
             setSelectedDate(
-                new Date(docProps.carryingAt).toISOString().split("T")[0]
+                new Date(documentsData.carryingAt).toISOString().split("T")[0]
             );
-            setDocId(docProps.id);
+            setDocId(documentsData.id);
 
-            if (documentType === "MOVING") {
-                if (isMovingMetaData(document.details[0].props.metaData)) {
-                    setWarehouseRecId(document.details[0].props.metaData?.warehouseReceirId);
+            if (documentType === WarehouseDocumentType.MOVING) {
+                if (isMovingMetaData(documentDetails[0].props.metaData)) {
+                    setWarehouseRecId(documentDetails[0].props.metaData?.warehouseReceirId);
                 }
             }
 
-            const responsibleId = docProps.responsibleId;
+            const responsibleId = documentsData.responsibleId;
             const responsibleName = user.name;
 
             const tableData =
-                documentType === "INVENTORY"
-                    ? mapInventoryDetails(document.details, responsibleId, responsibleName)
-                    : mapOtherDetails(document.details, responsibleId, responsibleName);
+                documentType === WarehouseDocumentType.INVENTORY
+                    ? mapInventoryDetails(documentDetails, responsibleId, responsibleName)
+                    : mapOtherDetails(documentDetails, responsibleId, responsibleName);
 
             setTableData(tableData);
         } else {
@@ -156,7 +139,7 @@ const DocumentsCreation: React.FC = () => {
             };
 
             const inventoryRow =
-                documentType === "INVENTORY"
+                documentType === WarehouseDocumentType.INVENTORY
                     ? { ...baseRow, oldQuantity: 0, deviation: 0 }
                     : baseRow;
 
@@ -171,39 +154,16 @@ const DocumentsCreation: React.FC = () => {
     }
 
     const { trigger: saveDoc, isMutating } = useSWRMutation(['save-document'],
-        async (_, { arg }: {
-            arg: {
-                warehouseId: number;
-                responsibleId: number;
-                carryingAt: Date;
-                details: {
-                    nomenclatureId: number;
-                    quantity: number;
-                    comment?: string;
-                }[]
-            }
-        }) => {
+        async (_, { arg }: { arg: DocumentBody }) => {
             return saveDocument(arg, docId);
         });
 
     const { trigger: sendDoc, isMutating: sendingDoc } = useSWRMutation(['send-document'],
-        async (_, { arg }: {
-            arg: {
-                warehouseId: number;
-                responsibleId: number;
-                carryingAt: Date;
-                details: {
-                    nomenclatureId: number;
-                    quantity: number;
-                    comment?: string;
-                }[]
-            }
-        }) => {
+        async (_, { arg }: { arg: DocumentBody }) => {
             return sendDocument(arg, docId);
         });
 
-
-    const posType = searchParams.get("posId") || "*";
+    const posId = searchParams.get("posId") || "*";
     const city = searchParams.get("city") || "*";
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
@@ -215,7 +175,7 @@ const DocumentsCreation: React.FC = () => {
     const { data: nomenclatureData } = useSWR(organizations ? [`get-inventory`] : null, () => getNomenclature(organizations[0].value), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
-        posId: posType,
+        posId: posId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -244,7 +204,7 @@ const DocumentsCreation: React.FC = () => {
                 nomenclatureId: availableNomenclature.value,
                 quantity: 0,
                 comment: "",
-                ...(documentType === "INVENTORY" && { oldQuantity: 0, deviation: 0 })
+                ...(documentType === WarehouseDocumentType.INVENTORY && { oldQuantity: 0, deviation: 0 })
             };
 
             return [...prevData, newRow];
@@ -266,34 +226,21 @@ const DocumentsCreation: React.FC = () => {
     const handleSubmitAction = async (action: "save" | "send") => {
         const filteredTableData = tableData.filter((data) => data.check === true);
 
-        const detailValues: {
-            nomenclatureId: number;
-            quantity: number;
-            comment?: string;
-            metaData?: {
-                warehouseReceirId?: number;
-                oldQuantity?: number;
-                deviation?: number;
-            };
-        }[] = filteredTableData?.map((data) => {
+        const detailValues = filteredTableData?.map((data) => {
             const base = {
                 nomenclatureId: data.nomenclatureId,
                 quantity: Number(data.quantity),
                 comment: data.comment,
             };
 
-            if (documentType === "MOVING") {
+            if (documentType === WarehouseDocumentType.MOVING) {
                 return {
                     ...base,
                     metaData: { warehouseReceirId: warehouseRecId },
                 };
             }
 
-            if (
-                documentType === "INVENTORY" &&
-                "oldQuantity" in data &&
-                "deviation" in data
-            ) {
+            if (documentType === WarehouseDocumentType.INVENTORY) {
                 return {
                     ...base,
                     metaData: {
@@ -370,7 +317,7 @@ const DocumentsCreation: React.FC = () => {
                             </div>
                             <div className="flex flex-col space-y-6">
                                 <div className="flex space-x-2">
-                                    <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === "MOVING" ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
+                                    <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">{documentType === WarehouseDocumentType.MOVING ? t("warehouse.warehouseSend") : t("warehouse.ware")}</div>
                                     <DropdownInput
                                         value={warehouseId}
                                         options={warehouses}
@@ -379,7 +326,7 @@ const DocumentsCreation: React.FC = () => {
                                         onChange={(value) => setWarehouseId(value)}
                                     />
                                 </div>
-                                {documentType === "MOVING" && <div className="flex space-x-2">
+                                {documentType === WarehouseDocumentType.MOVING && <div className="flex space-x-2">
                                     <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">{t("warehouse.warehouseRec")}</div>
                                     <DropdownInput
                                         value={warehouseRecId}

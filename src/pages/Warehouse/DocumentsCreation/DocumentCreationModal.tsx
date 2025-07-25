@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Modal, Table } from "antd";
 import Button from "@ui/Button/Button";
 import { useTranslation } from "react-i18next";
-import NoDataUI from "../../../components/ui/NoDataUI";
+import NoDataUI from "@ui/NoDataUI";
 import { useSearchParams } from "react-router-dom";
-import SearchInput from "../../../components/ui/Input/SearchInput";
+import SearchInput from "@ui/Input/SearchInput";
 import InventoryEmpty from "@/assets/NoInventory.png"
 import useSWR from "swr";
 import { getInventoryItems, getNomenclature } from "@/services/api/warehouse";

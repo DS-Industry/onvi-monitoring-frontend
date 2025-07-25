@@ -1,4 +1,4 @@
-import React, { ClassAttributes, ThHTMLAttributes } from "react";
+import React from "react";
 import Table from "antd/es/table";
 import Card from "antd/es/card";
 
@@ -42,11 +42,7 @@ const DocumentsViewTable: React.FC<Props> = ({
                         pagination={false}
                         components={{
                             header: {
-                                cell: (
-                                    props: JSX.IntrinsicAttributes &
-                                        ClassAttributes<HTMLTableHeaderCellElement> &
-                                        ThHTMLAttributes<HTMLTableHeaderCellElement>
-                                ) => (
+                                cell: (props: JSX.IntrinsicAttributes) => (
                                     <th
                                         {...props}
                                         style={{
