@@ -316,7 +316,7 @@ type ChemicalParams = {
     placementId: number | string;
 }
 
-type ChemicalResponse = {
+export type ChemicalConsumptionResponse = {
     techTaskId: number;
     period: string;
     techRateInfos: {
@@ -493,8 +493,8 @@ export async function createTechTaskShape(
     return response.data;
 }
 
-export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalResponse[]> {
-    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
+export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalConsumptionResponse[]> {
+    const response: AxiosResponse<ChemicalConsumptionResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
 
     return response.data;
 }
