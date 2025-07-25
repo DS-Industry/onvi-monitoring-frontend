@@ -1,46 +1,24 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.png"
 import useSWR from "swr";
-import { getChemicalReport, getPoses } from "@/services/api/equipment";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsChemicalConsumption } from "@/utils/OverFlowTableData";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
-import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-
-interface TechRateInfo {
-    code: string;
-    spent: string;
-    time: string;
-    recalculation: string;
-    service: string;
-}
-
-interface TechTask {
-    techTaskId: number;
-    period: string;
-    techRateInfos: TechRateInfo[];
-}
+import { ChemicalConsumptionResponse, getChemicalReport, getPoses } from "@/services/api/equipment";
+import { useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { Table } from "antd";
+import { formatNumber } from "@/utils/tableUnits";
+import { ColumnsType } from "antd/es/table";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 interface TableRow {
     period: string;
-    [key: string]: string; // For dynamic keys (spent, time, recalculation for each chemical)
+    [key: string]: string;
 }
 
-interface FilterChemicalPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: number | string;
-    placementId: number | string;
-}
-
-const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
+const transformDataToTableRows = (data: ChemicalConsumptionResponse[]): TableRow[] => {
     return data.map((task) => {
         const row: TableRow = { period: task.period };
-
-        // Map each techRateInfo to the appropriate column based on the `code`
         task.techRateInfos.forEach((info) => {
             const prefixMap: { [key: string]: string } = {
                 SOAP: "Вода + шампунь",
@@ -65,36 +43,32 @@ const transformDataToTableRows = (data: TechTask[]): TableRow[] => {
 
 const ChemicalConsumption: React.FC = () => {
     const { t } = useTranslation();
+
+    const today = dayjs().toDate();
+    const formattedDate = today.toISOString().slice(0, 10);
+    const [searchParams] = useSearchParams();
+
     const allCategoriesText = t("warehouse.all");
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const city = useCity();
+    const posId = searchParams.get("posId") || "*";
+    const dateStart = searchParams.get("dateStart") || `${formattedDate}T00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${formattedDate}T23:59`;
 
-    const dataFilter = useMemo<FilterChemicalPos>(() => ({
-        dateStart: new Date(startDate).toISOString().slice(0, 10),
-        dateEnd: new Date(endDate).toISOString().slice(0, 10),
-        posId: posType,
-        placementId: city
-    }), [startDate, endDate, posType, city]);
+    const cityParam = Number(searchParams.get("city")) || "*";
 
+    const filterParams = {
+        dateStart,
+        dateEnd,
+        posId: posId || "*",
+        placementId: cityParam
+    }
 
-    // Create a stable SWR key that includes all filter parameters
-    const chemicalReportKey = posType !== "*" ?
-        `chemical-report-${dataFilter.dateStart}-${dataFilter.dateEnd}-${dataFilter.posId}-${dataFilter.placementId}` :
+    const swrKey = posId !== "*" ?
+        `chemical-report-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.posId}-${filterParams.placementId}` :
         null;
 
     const { data: chemicalReports, isLoading: chemicalLoading } = useSWR(
-        chemicalReportKey,
-        () => getChemicalReport({
-            dateStart: dataFilter.dateStart,
-            dateEnd: dataFilter.dateEnd,
-            posId: dataFilter.posId,
-            placementId: dataFilter.placementId
-        }),
+        swrKey,
+        () => getChemicalReport(filterParams),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -102,8 +76,8 @@ const ChemicalConsumption: React.FC = () => {
     );
 
     const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR(
-        [`get-pos`, city],
-        () => getPoses({ placementId: city }),
+        [`get-pos`, cityParam],
+        () => getPoses({ placementId: cityParam }),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -111,20 +85,7 @@ const ChemicalConsumption: React.FC = () => {
         }
     );
 
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterChemicalPos>) => {
-        if (newFilterData.posId !== undefined) {
-            setPosType(newFilterData.posId);
-        }
-        if (newFilterData.dateStart) {
-            setStartDate(new Date(newFilterData.dateStart));
-        }
-        if (newFilterData.dateEnd) {
-            setEndDate(new Date(newFilterData.dateEnd));
-        }
-    }, [setPosType, setStartDate, setEndDate]);
-
-
-    const data: TechTask[] = chemicalReports || [];
+    const data = chemicalReports || [];
     const tableRows = transformDataToTableRows(data);
 
     const poses: { name: string; value: number | string; }[] = useMemo(() => {
@@ -136,33 +97,152 @@ const ChemicalConsumption: React.FC = () => {
         return [posesAllObj, ...mappedPoses];
     }, [posData, allCategoriesText]);
 
+    const columnsChemicalConsumption: ColumnsType<TableRow> = [
+        {
+            title: "Период",
+            dataIndex: "period",
+            key: "period"
+        },
+        {
+            title: "Вода + шампунь, факт",
+            dataIndex: "Вода + шампунь, факт",
+            key: "Вода + шампунь, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Вода + шампунь, время",
+            dataIndex: "Вода + шампунь, время",
+            key: "Вода + шампунь, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Вода + шампунь, пересчет",
+            dataIndex: "Вода + шампунь, пересчет",
+            key: "Вода + шампунь, пересчет",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Активная химия, факт",
+            dataIndex: "Активная химия, факт",
+            key: "Активная химия, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Активная химия, время",
+            dataIndex: "Активная химия, время",
+            key: "Активная химия, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Активная химия, пересчет",
+            dataIndex: "Активная химия, пересчет",
+            key: "Активная химия, пересчет",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Мойка дисков, факт",
+            dataIndex: "Мойка дисков, факт",
+            key: "Мойка дисков, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Мойка дисков, время",
+            dataIndex: "Мойка дисков, время",
+            key: "Мойка дисков, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Мойка дисков, пересчет",
+            dataIndex: "Мойка дисков, пересчет",
+            key: "Мойка дисков, пересчет",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Щетка + пена, факт",
+            dataIndex: "Щетка + пена, факт",
+            key: "Щетка + пена, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Щетка + пена, время",
+            dataIndex: "Щетка + пена, время",
+            key: "Щетка + пена, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Щетка + пена, пересчет",
+            dataIndex: "Щетка + пена, пересчет",
+            key: "Щетка + пена, пересчет",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Воск + защита, факт",
+            dataIndex: "Воск + защита, факт",
+            key: "Воск + защита, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Воск + защита, время",
+            dataIndex: "Воск + защита, время",
+            key: "Воск + защита, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "Воск + защита, пересчет",
+            dataIndex: "Воск + защита, пересчет",
+            key: "Воск + защита, пересчет",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "T-POWER, факт",
+            dataIndex: "T-POWER, факт",
+            key: "T-POWER, факт",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "T-POWER, время",
+            dataIndex: "T-POWER, время",
+            key: "T-POWER, время",
+            render: (value: number) => formatNumber(value)
+        },
+        {
+            title: "T-POWER, пересчет",
+            dataIndex: "T-POWER, пересчет",
+            key: "T-POWER, пересчет",
+            render: (value: number) => formatNumber(value)
+        }
+    ]
+
+    const {
+        checkedList,
+        setCheckedList,
+        options,
+        visibleColumns,
+    } = useColumnSelector(columnsChemicalConsumption, "chemical-consumption-table-columns");
+
     return (
         <>
-            <FilterMonitoring
+            <GeneralFilters
                 count={tableRows.length}
-                posesSelect={poses}
-                handleDateFilter={handleDataFilter}
+                poses={poses}
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />
-            {chemicalLoading ? (
-                <TableSkeleton columnCount={columnsChemicalConsumption.length} />
-            ) :
-                tableRows.length > 0 ?
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={tableRows.map((row, index) => ({ ...row, id: index }))}
-                            columns={columnsChemicalConsumption}
-                            isDisplayEdit={true}
-                        />
-                    </div> :
-                    <NoDataUI
-                        title={t("chemical.noText")}
-                        description={t("chemical.dont")}
-                    >
-                        <img src={SalyImage} className="mx-auto" loading="lazy" alt="CHEMICAL" />
-                    </NoDataUI>
-            }
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    dataSource={tableRows}
+                    columns={visibleColumns}
+                    rowKey="id"
+                    pagination={false}
+                    loading={chemicalLoading}
+                    scroll={{ x: "max-content" }}
+                />
+            </div>
         </>
     )
 }
