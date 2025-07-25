@@ -15,7 +15,6 @@ import DateInput from "@ui/Input/DateInput";
 import dayjs from "dayjs";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
-import { updateSearchParams } from "@/utils/updateSearchParams";
 import DocumentTypesTable from "@/pages/Warehouse/DocumentsTables/DocumentTypesTable";
 interface TableRow {
     id: number;
@@ -30,7 +29,7 @@ interface TableRow {
 }
 
 const DocumentsCreation: React.FC = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const documentType = searchParams.get("document");
     const { t } = useTranslation();
     const [warehouseId, setWarehouseId] = useState<number | string | null>(searchParams.get("warehouseId") || "*");
@@ -269,14 +268,6 @@ const DocumentsCreation: React.FC = () => {
         } else if (action === "send") {
             result = await sendDoc(payload);
         }
-
-        updateSearchParams(searchParams, setSearchParams, {
-            dateEnd: dayjs(
-                selectedDate === null
-                    ? dayjs().toDate()
-                    : selectedDate
-            ).toDate(),
-        });
 
         if (result) {
             navigate("/warehouse/documents");
