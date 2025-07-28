@@ -27,7 +27,7 @@ type IncidentParam = {
     placementId: number | string;
 }
 
-type IncidentResponse = {
+export type Incident = {
     id: number;
     posId: number;
     workerId: number;
@@ -45,7 +45,7 @@ type IncidentResponse = {
     programId: number;
 }
 
-type IncidentBody = {
+export type IncidentBody = {
     posId: number;
     workerId: number;
     appearanceDate: string;
@@ -379,8 +379,8 @@ type CreateTagsResponse = {
     }
 }
 
-export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
-    const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
+export async function getIncident(params: IncidentParam): Promise<Incident[]> {
+    const response: AxiosResponse<Incident[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
     return response.data;
 }
