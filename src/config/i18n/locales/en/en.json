@@ -32,7 +32,7 @@
     "expand": "Expand filter",
     "daily": "Daily options",
     "chemical": "Chemical Consumption",
-    "routine": "Tasks",
+    "technicalTasks": "Technical Tasks",
     "consumption": "Consumption Rate",
     "replacing": "Replacing Programs",
     "dailyOptions": "Daily options technical services",
@@ -100,7 +100,7 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
-    "appo": "Directory of appointments",
+    "appointment": "Directory of appointments",
     "createTask": "Create a task"
   },
   "dashboard": {

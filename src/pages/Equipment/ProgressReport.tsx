@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
-import { getPoses, getTechTaskManage } from "@/services/api/equipment";
+import { getPoses, getTechTaskManage, TechTaskReadAll } from "@/services/api/equipment";
 import { Select, Table } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
@@ -11,18 +11,6 @@ import { ColumnsType } from "antd/es/table";
 import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-
-type ReadTechTasks = {
-    id: number;
-    name: string;
-    posId: number;
-    type: string;
-    status: string;
-    endSpecifiedDate?: Date;
-    startWorkDate?: Date;
-    sendWorkDate?: Date;
-    executorId?: number;
-}
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
@@ -60,10 +48,10 @@ const ProgressReport: React.FC = () => {
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
 
-    const techTasks: ReadTechTasks[] = data
+    const techTasks = data
         ?.filter((item: { posId: number }) => item.posId === Number(posIdNo))
         ?.filter((item: { status: string }) => item.status === "FINISHED")
-        ?.map((item: ReadTechTasks) => ({
+        ?.map((item) => ({
             ...item,
             posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
             type: t(`tables.${item.type}`),
@@ -74,7 +62,7 @@ const ProgressReport: React.FC = () => {
     const statusRender = getStatusTagRender(t);
     const dateRender = getDateRender();
 
-    const columnsTechTasksRead: ColumnsType<ReadTechTasks> = [
+    const columnsTechTasksRead: ColumnsType<TechTaskReadAll> = [
         {
             title: "№",
             dataIndex: "id",
@@ -149,7 +137,7 @@ const ProgressReport: React.FC = () => {
                     options={options}
                     onChange={setCheckedList}
                 />
-                <Table
+                <Table<TechTaskReadAll>
                     dataSource={techTasks}
                     columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
@@ -167,9 +155,6 @@ const ProgressReport: React.FC = () => {
                             });
                         },
                     }}
-                // isDisplayEdit={true}
-                // isCheck={true}
-                // navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/progress/item" }]}
                 />
             </div>
         </>

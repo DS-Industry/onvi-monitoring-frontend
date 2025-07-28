@@ -15,6 +15,7 @@ import { getDateRender, getStatusTagRender, getTagRender } from "@/utils/tableUn
 import { ColumnsType } from "antd/es/table";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import { CheckCircleOutlined } from "@ant-design/icons";
 
 const RoutineWork: React.FC = () => {
     const { t } = useTranslation();
@@ -77,6 +78,15 @@ const RoutineWork: React.FC = () => {
 
     const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
         {
+            title: "",
+            dataIndex: "statusCheck",
+            key: "statusCheck",
+            render: (_: unknown, record) =>
+                record.status === t("tables.FINISHED") ? (
+                    <CheckCircleOutlined className="text-green-500 text-lg" />
+                ) : null,
+        },
+        {
             title: "Автомойка/ Филиал",
             dataIndex: "posName",
             key: "posName"
@@ -119,6 +129,11 @@ const RoutineWork: React.FC = () => {
     const { checkedList, setCheckedList, options, visibleColumns } =
         useColumnSelector(columnsTechTasks, "tech-tasks-columns");
 
+    const statuses = [
+        { label: t("tables.In Progress"), value: StatusTechTask.ACTIVE },
+        { label: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE }
+    ]
+
     return (
         <>
             <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
@@ -141,10 +156,7 @@ const RoutineWork: React.FC = () => {
                         <div className="text-sm text-text02">{t("finance.status")}</div>
                         <Select
                             className="w-full sm:w-80"
-                            options={[
-                                { label: t("tables.In Progress"), value: StatusTechTask.ACTIVE },
-                                { label: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE }
-                            ]}
+                            options={statuses}
                             value={searchParams.get("status")}
                             onChange={(value) => {
                                 updateSearchParams(searchParams, setSearchParams, {
@@ -180,10 +192,6 @@ const RoutineWork: React.FC = () => {
                             });
                         },
                     }}
-                // isCheck={true}
-                // isDisplayEdit={true}
-                // onEdit={handleUpdate}
-                // navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/list/item" }]}
                 />
             </div>
         </>

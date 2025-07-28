@@ -183,7 +183,7 @@ type AllProgramsResponse = {
     }
 }
 
-type TechTaskBody = {
+export type TechTaskBody = {
     name: string;
     posId: number;
     type: string;

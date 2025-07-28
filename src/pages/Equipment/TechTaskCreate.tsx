@@ -4,7 +4,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Button from "@/components/ui/Button/Button";
-import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, TechTaskBody, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
@@ -29,18 +29,6 @@ import { ColumnsType } from "antd/es/table";
 import { EditOutlined } from "@ant-design/icons";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-
-type TechTaskBody = {
-    name: string;
-    posId: number;
-    type: string;
-    period?: number;
-    markdownDescription?: string;
-    startDate: string;
-    endSpecifiedDate?: string;
-    techTaskItem: number[];
-    tagIds: number[];
-}
 
 interface Item {
     id: number;
@@ -106,7 +94,7 @@ const TechTaskCreate: React.FC = () => {
         posId: 0,
         type: '',
         period: 0,
-        startDate: '',
+        startDate: dayjs().toDate(),
         endSpecifiedDate: undefined,
         markdownDescription: undefined,
         techTaskItem: [],
@@ -123,8 +111,8 @@ const TechTaskCreate: React.FC = () => {
         type: formData.type,
         period: formData.period,
         markdownDescription: formData.markdownDescription,
-        startDate: new Date(formData.startDate),
-        endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
+        startDate: dayjs(formData.startDate).toDate(),
+        endSpecifiedDate: formData.endSpecifiedDate ? dayjs(formData.endSpecifiedDate).toDate() : undefined,
         techTaskItem: formData.techTaskItem,
         tagIds: tagIds
     }));
@@ -132,7 +120,7 @@ const TechTaskCreate: React.FC = () => {
     const { trigger: updateTech, isMutating: updatingTechTask } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
         techTaskId: editTechTaskId,
         name: formData.name,
-        endSpecifiedDate: formData.endSpecifiedDate ? new Date(formData.endSpecifiedDate) : undefined,
+        endSpecifiedDate: formData.endSpecifiedDate ? dayjs(formData.endSpecifiedDate).toDate() : undefined,
         markdownDescription: formData.markdownDescription,
         period: formData.period,
         techTaskItem: formData.techTaskItem
@@ -174,8 +162,8 @@ const TechTaskCreate: React.FC = () => {
                 posId: techTaskToEdit.posId,
                 type: techTaskToEdit.type,
                 period: techTaskToEdit.period,
-                startDate: techTaskToEdit.startDate.toString().substring(0, 10),
-                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate.toString().substring(0, 10),
+                startDate: techTaskToEdit.startDate,
+                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
                 techTaskItem: techTaskItemNumber,
                 markdownDescription: techTaskToEdit.markdownDescription,
                 tagIds: techTaskToEdit.tags.map((tag) => tag.id)
@@ -397,10 +385,6 @@ const TechTaskCreate: React.FC = () => {
                         },
                     }}
                     scroll={{ x: "max-content" }}
-                // isCheck={true}
-                // isDisplayEdit={true}
-                // onEdit={handleUpdate}
-                // navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/list/item" }]}
                 />
             </div>
             <DrawerCreate onClose={resetForm}>
