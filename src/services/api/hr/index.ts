@@ -162,7 +162,7 @@ type PaymentCreateRequest = {
     }[]
 }
 
-type PaymentsResponse = {
+export type PaymentsResponse = {
     hrWorkerId: number;
     name: string;
     hrPositionId: number;

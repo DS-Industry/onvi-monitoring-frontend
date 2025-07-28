@@ -9,7 +9,7 @@ import { useButtonCreate } from "@/components/context/useContext";
 import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { getPayments, getPositions, getWorkers } from "@/services/api/hr";
+import { getPayments, getPositions, getWorkers, PaymentsResponse } from "@/services/api/hr";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -31,39 +31,14 @@ type PaymentParams = {
   size?: number;
 };
 
-type PositionOption = {
-  props: {
-    id: number;
-    name: string;
-  };
-};
-
-type WorkerOption = {
-  props: {
-    id: number;
-    name: string;
-  };
-};
-
-type TablePayment = {
+type TOption = {
   id: number;
-  hrWorkerId: number;
   name: string;
-  hrPositionId: number;
-  billingMonth: Date;
-  paymentDate: Date;
-  monthlySalary: number;
-  dailySalary: number;
-  percentageSalary: number;
-  countShifts: number;
-  prepaymentSum: number;
-  paymentSum: number;
-  prize: number;
-  fine: number;
-  totalPayment: number;
-  createdAt: Date;
-  createdById: number;
-  hrPosition: string | undefined;
+};
+
+type TablePayment = PaymentsResponse & {
+  id: number;
+  hrPosition?: string;
 };
 
 const SalaryCalculation: React.FC = () => {
@@ -138,22 +113,27 @@ const SalaryCalculation: React.FC = () => {
     { revalidateOnFocus: false }
   );
 
-  const workers: { name: string; value: string }[] = useMemo(() => {
+  const workers = useMemo(() => {
     const defaultOption = [{ name: t("hr.all"), value: "*" }];
     if (!workersData) return defaultOption;
     return [
       ...defaultOption,
-      ...workersData.map((worker: WorkerOption) => ({
+      ...workersData.map(worker => ({
         name: worker.props.name,
         value: String(worker.props.id),
       })),
     ];
   }, [workersData, t]);
 
+  const adaptedPositionData = positionData?.map(item => ({
+    id: item.props.id,
+    name: item.props.name
+  }));
+
   const positionsMap = useMemo(() => {
     const map = new Map<number, string>();
-    positionData?.forEach((pos: PositionOption) => {
-      map.set(pos.props.id, pos.props.name);
+    adaptedPositionData?.forEach((pos: TOption) => {
+      map.set(pos.id, pos.name);
     });
     return map;
   }, [positionData]);

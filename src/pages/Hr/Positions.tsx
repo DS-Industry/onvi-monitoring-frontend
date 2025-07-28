@@ -15,6 +15,7 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import { Table } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import AntInput from 'antd/es/input';
+import { ColumnsType } from "antd/es/table";
 
 type Positions = {
   id: number;
@@ -103,7 +104,7 @@ const Positions: React.FC = () => {
 
   const positionsData = positionData?.map((pos) => pos.props) || [];
 
-  const columns = [
+  const columns: ColumnsType<Positions> = [
     {
       title: t("Должность"),
       dataIndex: "name",
@@ -113,7 +114,7 @@ const Positions: React.FC = () => {
       title: t("Описание"),
       dataIndex: "description",
       key: "description",
-      render: (_: unknown, record: Positions) => {
+      render: (_, record) => {
         const isEditable = editingRow === record.id;
 
         return isEditable ? (
@@ -149,7 +150,7 @@ const Positions: React.FC = () => {
     {
       title: "",
       key: "actions",
-      render: (_: unknown, record: Positions) => (
+      render: (_, record) => (
         <div
           className="text-primary02 cursor-pointer"
           onClick={() => {
