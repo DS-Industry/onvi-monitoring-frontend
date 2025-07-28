@@ -9,7 +9,7 @@ import { useButtonCreate } from "@/components/context/useContext";
 import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { getPositions, getPrepayments, getWorkers, PrepaymentResponse } from "@/services/api/hr";
+import { getPositions, getPrepayments, getWorkers, PrepaymentFilter, PrepaymentResponse } from "@/services/api/hr";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -21,16 +21,6 @@ import {
   getPercentRender,
 } from "@/utils/tableUnits";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
-
-
-type PaymentParams = {
-  startPaymentDate: Date | string;
-  endPaymentDate: Date | string;
-  hrWorkerId: number | string;
-  billingMonth: Date | string;
-  page?: number;
-  size?: number;
-};
 
 type TablePayment = PrepaymentResponse & {
   hrPosition?: string;
@@ -46,16 +36,19 @@ const EmployeeAdvance: React.FC = () => {
 
   const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
 
-  const startPaymentDate = searchParams.get("startPaymentDate") || "";
-  const endPaymentDate = searchParams.get("endPaymentDate") || "";
+  const startPaymentDateParam = searchParams.get("startPaymentDate");
+  const endPaymentDateParam = searchParams.get("endPaymentDate");
   const workerId = Number(searchParams.get("hrWorkerId"));
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-  const filterParams = useMemo<PaymentParams>(
+  const startPaymentDate = startPaymentDateParam ? new Date(startPaymentDateParam) : undefined;
+  const endPaymentDate = endPaymentDateParam ? new Date(endPaymentDateParam) : undefined;
+
+  const filterParams = useMemo<PrepaymentFilter>(
     () => ({
-      startPaymentDate: startPaymentDate,
-      endPaymentDate: endPaymentDate,
+      startPaymentDate: startPaymentDate || "*",
+      endPaymentDate: endPaymentDate || "*",
       hrWorkerId: workerId,
       billingMonth: "*",
       page: currentPage,

@@ -114,11 +114,11 @@ type PrepaymentCreateResponse = {
     status: 'SUCCESS'
 }
 
-type PrepaymentFilter = {
-    startPaymentDate: Date | string;
-    endPaymentDate: Date | string;
+export type PrepaymentFilter = {
+    startPaymentDate: Date | "*";
+    endPaymentDate: Date | "*";
     hrWorkerId: number | string;
-    billingMonth: Date | string;
+    billingMonth: Date | "*";
     page?: number;
     size?: number;
 }

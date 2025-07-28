@@ -175,7 +175,7 @@ const Employees: React.FC = () => {
   }, selectedFile));
 
   type FieldType = keyof typeof formData;
-  
+
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = ["monthlySalary", "dailySalary", "percentageSalary"];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
@@ -297,43 +297,41 @@ const Employees: React.FC = () => {
           showEmp={true}
         />
       )}
-      <div className="mt-8">
 
-        <EmployeesFilter
-          count={totalCount}
-          positions={[allObj, ...positions]}
-          organizations={[allObj, ...organizations]}
-        />
+      <EmployeesFilter
+        count={totalCount}
+        positions={[allObj, ...positions]}
+        organizations={[allObj, ...organizations]}
+      />
 
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
+      <ColumnSelector
+        checkedList={checkedList}
+        options={options}
+        onChange={setCheckedList}
+      />
 
-        <Table
-          rowKey="id"
-          dataSource={tableData}
-          columns={visibleColumns}
-          scroll={{ x: "max-content" }}
-          loading={workersLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} из ${total} сотрудников`,
-            onChange: (page, size) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              });
-            },
-          }}
-        />
-
-      </div>
+      <Table
+        className="custom-ant-table"
+        rowKey="id"
+        dataSource={tableData}
+        columns={visibleColumns}
+        scroll={{ x: "max-content" }}
+        loading={workersLoading}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalCount,
+          pageSizeOptions: ALL_PAGE_SIZES,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} из ${total} сотрудников`,
+          onChange: (page, size) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            });
+          },
+        }}
+      />
 
       <DrawerCreate onClose={resetForm}>
 
@@ -598,6 +596,12 @@ const Employees: React.FC = () => {
         </form>
 
       </DrawerCreate>
+
+      <style>{`
+      .custom-ant-table .ant-table-thead th.ant-table-column-has-sorters {
+        z-index: 0 !important;
+      }
+    `}</style>
 
     </div>
   )
