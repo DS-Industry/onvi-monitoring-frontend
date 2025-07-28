@@ -23,6 +23,7 @@ import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { useLocation } from "react-router-dom";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import { useToast } from "@/components/context/useContext";
 
 type Worker = {
     name: string;
@@ -77,6 +78,7 @@ const Employees: React.FC = () => {
     const setTotalCount = useSetPageSize();
     const location = useLocation();
     const pageSize = usePageNumber();
+    const { showToast } = useToast();
 
     const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -277,6 +279,7 @@ const Employees: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

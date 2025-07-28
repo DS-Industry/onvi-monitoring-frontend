@@ -23,6 +23,7 @@ import {
     UpOutlined,
     DownOutlined
 } from "@ant-design/icons";
+import { useToast } from "@/components/context/useContext";
 
 type TableRow = {
     id: number;
@@ -88,6 +89,7 @@ const CollectionCreation: React.FC = () => {
     const location = useLocation();
     const city = useCity();
     const userPermissions = usePermissions();
+    const { showToast } = useToast();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -151,6 +153,7 @@ const CollectionCreation: React.FC = () => {
             }
 
         } catch (error) {
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
             console.error("Error during form submission: ", error);
         }
     }

@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button/Button";
 import { useTranslation } from "react-i18next";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import {
     ArrowRightOutlined,
@@ -24,7 +24,7 @@ const PosConnection: React.FC = () => {
     const [selectedItems, setSelectedItems] = useState<Item[]>([]);
     const user = useUser();
     const [workerId, setWorkerId] = useState(user.id);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: posPermissionData } = useSWR([`get-pos-permission`], () => getPosPermission(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -80,10 +80,10 @@ const PosConnection: React.FC = () => {
         try {
             const result = await connectPos();
             if (result) {
-                showSnackbar(t("analysis.the"), "success");
+                showToast(t("analysis.the"), "success");
             }
         } catch (error) {
-            showSnackbar("The operation is unsuccessful", "error");
+            showToast(t("errors.other.theOperationUnsuccessful"), "error");
         }
     };
 

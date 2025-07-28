@@ -10,8 +10,8 @@ import Input from '@ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import LoginImage from '@/assets/LoginImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
-import { useSnackbar } from '@/components/context/useContext';
-import { setSnackbarFunction } from '@/config/axiosConfig';
+import { useToast } from '@/components/context/useContext';
+import { setToastFunction } from '@/config/axiosConfig';
 import useAuthStore from '@/config/store/authSlice';
 import {
     ArrowLeftOutlined
@@ -87,11 +87,11 @@ const LogIn: React.FC = () => {
     }
   };
 
-  const { showSnackbar } = useSnackbar();
+  const { showToast } = useToast();
 
   useEffect(() => {
-    setSnackbarFunction(showSnackbar);
-  }, [showSnackbar]);
+    setToastFunction(showToast);
+  }, [showToast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">

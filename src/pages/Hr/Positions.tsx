@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
 import { columnsPositions } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
@@ -30,6 +30,7 @@ const Positions: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editPositionId, setEditPositionId] = useState<number>(0);
     const city = useCity();
+    const { showToast } = useToast();
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -108,6 +109,7 @@ const Positions: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

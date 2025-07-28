@@ -12,7 +12,7 @@ import { createNomenclature, deleteNomenclature, getCategory, getNomenclature, g
 import { getOrganization } from "@/services/api/organization";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsInventory } from "@/utils/OverFlowTableData";
 import Filter from "@/components/ui/Filter/Filter";
@@ -53,6 +53,7 @@ const InventoryCreation: React.FC = () => {
     const [orgId, setOrgId] = useState<number | null>(null);
     const city = useCity();
     const userPermissions = usePermissions();
+    const { showToast } = useToast();
 
     const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
         orgId ? [`get-inventory`, category, orgId] : null,
@@ -200,6 +201,7 @@ const InventoryCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error deleting nomenclature:", error);
+            showToast(t("errors.other.errorDeletingNomenclature"), "error");
         }
     };
 
@@ -234,6 +236,7 @@ const InventoryCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

@@ -19,6 +19,7 @@ import { Descriptions, Tag, Skeleton } from "antd";
 import {
     PlusOutlined
 } from "@ant-design/icons";
+import { useToast } from "@/components/context/useContext";
 
 enum BenefitType {
     CASHBACK = "CASHBACK",
@@ -59,7 +60,7 @@ const Events: React.FC = () => {
     // const [visit, setVisit] = useState("one");
     const [benefit, setBenefit] = useState<Benefits[]>([]);
     const [benefitId, setBenefitId] = useState(0);
-
+    const { showToast } = useToast();
     // const handleTime = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     setTime(event.target.value);
     // };
@@ -170,6 +171,7 @@ const Events: React.FC = () => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 
@@ -187,6 +189,7 @@ const Events: React.FC = () => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

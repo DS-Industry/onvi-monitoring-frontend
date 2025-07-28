@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
@@ -19,6 +19,8 @@ const Suppliers: React.FC = () => {
     const { t } = useTranslation();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchName, setSearchName] = useState("");
+    const { showToast } = useToast();
+
     const { data: supplierData, isLoading: loadingSupplier } = useSWR([`get-supplier`], () => getSupplier(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const supplier = supplierData?.map((sup) => sup.props)
@@ -64,6 +66,7 @@ const Suppliers: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

@@ -11,6 +11,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
 import Input from '@/components/ui/Input/Input';
+import { useToast } from "@/components/context/useContext";
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ const InfoTab: React.FC = () => {
   const setClearToken = useClearJwtToken();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
+  const { showToast } = useToast();
 
   const userName = { name: user.name, middlename: user.middlename };
 
@@ -102,6 +104,7 @@ const InfoTab: React.FC = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+      showToast(t("errors.other.errorUpdatingProfile"), "error");
     }
   };
 
