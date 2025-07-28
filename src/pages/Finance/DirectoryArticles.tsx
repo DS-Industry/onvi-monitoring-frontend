@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
@@ -26,7 +26,7 @@ const DirectoryArticles: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editPaperId, setEditPaperId] = useState<number>(0);
     const { data: paperTypeData, isLoading: loadingPaperType } = useSWR([`get-manager-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const paperTypes = paperTypeData?.map((type) => ({
         ...type.props,
@@ -103,7 +103,7 @@ const DirectoryArticles: React.FC = () => {
                 }
             }
         } catch (error) {
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
             console.error("Error during form submission: ", error);
         }
     };

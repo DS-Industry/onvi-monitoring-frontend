@@ -16,7 +16,7 @@ import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import { Transfer, List, Typography, Tag, Skeleton, message } from "antd";
 import { GiftOutlined, PlusOutlined } from "@ant-design/icons";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 const { Text } = Typography;
 
@@ -57,7 +57,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     const [tierId, setTierId] = useState(0);
     const location = useLocation();
     const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const addTier = () => {
         setIsModalOpen(true);
@@ -203,7 +203,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 
@@ -221,7 +221,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

@@ -29,7 +29,7 @@ import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 const { Text, Title } = Typography;
 
@@ -114,7 +114,7 @@ const RoutineWork: React.FC = () => {
     const navigate = useNavigate();
     const [searchValue, setSearchValue] = useState("");
     const userPermissions = usePermissions();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data, isLoading: techTasksLoading, isValidating } = useSWR([`get-tech-tasks`, searchPosId, city, searchStatus], () => getTechTasks({
         posId: searchPosId,
@@ -286,7 +286,7 @@ const RoutineWork: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

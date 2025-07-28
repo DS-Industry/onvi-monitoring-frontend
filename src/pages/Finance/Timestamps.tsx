@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 type TimestampResponse = {
     deviceId: number;
@@ -29,7 +29,7 @@ const Timestamps: React.FC = () => {
     const [posId, setPosId] = useState(posType);
     const [disabledButtons, setDisabledButtons] = useState<{ [key: number]: boolean }>({});
     const city = useCity();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -98,7 +98,7 @@ const Timestamps: React.FC = () => {
 
         } catch (error) {
             console.error("Error in postTimestamp:", error);
-            showSnackbar("Error in postTimestamp", "error");
+            showToast(t("errors.other.errorInPostTimestamp"), "error");
         }
     };
 

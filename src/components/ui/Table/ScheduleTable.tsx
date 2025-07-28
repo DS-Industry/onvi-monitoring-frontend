@@ -21,7 +21,7 @@ import { addWorker, createDayShift, getShiftById, updateDayShift } from "@/servi
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCity, usePosType } from "@/hooks/useAuthStore";
 import { PlusOutlined } from "@ant-design/icons";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 interface Employee {
     id: number;
@@ -91,7 +91,7 @@ const ScheduleTable: React.FC<Props> = ({
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date>(new Date());
     const city = useCity();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     useEffect(() => {
         if (shift?.props?.startDate && shift?.props?.endDate) {
@@ -413,7 +413,7 @@ const ScheduleTable: React.FC<Props> = ({
                 }
             } catch (error) {
                 console.error("Error adding worker:", error);
-                showSnackbar("Failed to handle worker add or shift create", "error");
+                showToast(t("errors.other.failedToHandleWorkerAddOrShiftCreate"), "error");
             }
         }
     };

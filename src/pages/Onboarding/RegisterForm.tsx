@@ -7,7 +7,7 @@ import useSWRMutation from "swr/mutation";
 import { registerPlatformUser } from "@/services/api/platform";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 type Props = {
     count: number;
@@ -30,7 +30,7 @@ type RegisterBody = {
 const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Props) => {
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const defaultValues: RegisterBody = {
         name: '',
@@ -80,7 +80,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Prop
             }
         } catch (error) {
             console.error("Register error:", error);
-            showSnackbar("Register error", "error");
+            showToast(t("errors.other.registerError"), "error");
         }
     }
 

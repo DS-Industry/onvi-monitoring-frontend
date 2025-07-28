@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
 import { message, Skeleton } from "antd";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 const IncomeReport: React.FC = () => {
     const { t } = useTranslation();
@@ -23,7 +23,7 @@ const IncomeReport: React.FC = () => {
     const navigate = useNavigate();
     const posType = usePosType();
     const city = useCity();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), {
         revalidateOnFocus: false,
@@ -89,7 +89,7 @@ const IncomeReport: React.FC = () => {
             navigate("/analysis/transactions");
         } catch (error) {
             console.error("Error creating report:", error);
-            showSnackbar("Error creating report", "error");
+            showToast(t("errors.other.errorCreatingReport"), "error");
         }
     };
 

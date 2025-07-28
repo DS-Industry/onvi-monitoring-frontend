@@ -18,7 +18,7 @@ import { createManagerPaper, deleteManagerPapers, getAllManagerPaper, getAllMana
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import { useFilterOn, useSnackbar } from "@/components/context/useContext";
+import { useFilterOn, useToast } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
@@ -316,7 +316,7 @@ const Articles: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const paginationConfig: TablePaginationConfig = {
         current: curr,
@@ -495,7 +495,7 @@ const Articles: React.FC = () => {
 
                     // Clear selected file after successful update
                     setSelectedFile(null);
-                    showSnackbar("Record updated successfully", "success");
+                    showToast(t("success.recordUpdated"), "success");
                 }
 
             } else {
@@ -505,7 +505,7 @@ const Articles: React.FC = () => {
             }
         } catch (error) {
             console.log('Update Failed:', error);
-            showSnackbar("Failed to update record", "error");
+            showToast(t("errors.other.failedToUpdateRecord"), "error");
         }
     };
 
@@ -739,7 +739,7 @@ const Articles: React.FC = () => {
                 throw new Error('Invalid response from API');
             }
         } catch (error) {
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
             console.error("Error during form submission: ", error);
         }
     }

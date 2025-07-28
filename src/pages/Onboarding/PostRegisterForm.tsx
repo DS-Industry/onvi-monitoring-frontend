@@ -8,7 +8,7 @@ import useSWRMutation from "swr/mutation";
 import { precreateOrganization } from "@/services/api/platform";
 import { useSetTokens, useSetPermissions } from "@/hooks/useAuthStore";
 import { useClearUserData, useSetUser } from "@/hooks/useUserStore";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 type User = {
     id: number;
@@ -62,7 +62,7 @@ const PostRegisterForm: React.FC<Props> = ({
     const setTokens = useSetTokens();
     const setPermissions = useSetPermissions();
     const clearData = useClearUserData();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const handleToggle = () => {
         setIsToggled(!isToggled);
@@ -105,7 +105,7 @@ const PostRegisterForm: React.FC<Props> = ({
         } catch (error) {
             console.error("Register error:", error);
             clearData();
-            showSnackbar("Register error", "error");
+            showToast(t("errors.other.registerError"), "error");
         }
     }
 

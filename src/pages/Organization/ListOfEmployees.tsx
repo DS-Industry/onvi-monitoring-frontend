@@ -15,7 +15,7 @@ import { addRole, getOrganization, getRoles, updateRole } from "@/services/api/o
 import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
@@ -42,7 +42,7 @@ const ListOfEmployees: React.FC = () => {
     const [roleId, setRoleId] = useState(0);
     const [workerId, setWorkerId] = useState(0);
     const { buttonOn, setButtonOn } = useButtonCreate();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: workerData, isLoading: loadingWorkers } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -128,12 +128,12 @@ const ListOfEmployees: React.FC = () => {
         try {
             const result = await addUserRole();
             if (result) {
-                showSnackbar(t("organizations.token"), "success");
+                showToast(t("organizations.token"), "success");
                 resetForm();
             }
         } catch (error) {
             console.error("Register error:", error);
-            showSnackbar("Register error", "error");
+            showToast(t("errors.other.registerError"), "error");
         }
     }
 

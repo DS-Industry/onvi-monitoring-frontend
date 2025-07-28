@@ -16,7 +16,7 @@ import OverheadsEmpty from "@/assets/NoOverhead.png"
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 type DocumentParams = {
     dateStart: Date;
@@ -50,7 +50,7 @@ const Documents: React.FC = () => {
     const setDocument = useSetDocumentType();
     const setCity = useSetCity();
     const navigate = useNavigate();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const getDocumentType = (document: string) => {
         if (document === "COMMISSIONING")
@@ -166,7 +166,7 @@ const Documents: React.FC = () => {
                 }
             } catch (error) {
               console.error("Error creating document:", error);
-              showSnackbar("Error during form submission", "error");
+              showToast(t("errors.other.errorDuringFormSubmission"), "error");
             }
         }
     };

@@ -34,7 +34,7 @@ import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { usePermissions } from "@/hooks/useAuthStore";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 const { Option } = Select;
 
@@ -166,7 +166,7 @@ const MonthlyExpanse: React.FC = () => {
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
     const userPermissions = usePermissions();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const formatNumber = (num: number, type: 'number' | 'double' = 'number'): string => {
         if (num === null || num === undefined || isNaN(num)) return "-";
@@ -285,13 +285,13 @@ const MonthlyExpanse: React.FC = () => {
 
             if (result) {
                 mutate([`get-manager-period`]);
-                showSnackbar("Record updated successfully", "success");
+                showToast(t("success.recordUpdated"), "success");
                 setEditingKey('');
                 form.resetFields();
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
-            showSnackbar("Please check the form fields", "error");
+            showToast(t("errors.other.pleaseCheckFormFields"), "error");
         }
     };
 
@@ -331,14 +331,14 @@ const MonthlyExpanse: React.FC = () => {
                         mutate([`get-manager-period`]);
                         const newData = data.filter(item => item.id !== id);
                         setData(newData);
-                        showSnackbar("Record deleted successfully", "success");
+                        showToast(t("success.recordDeleted"), "success");
                     }
                 } catch (error) {
-                    showSnackbar("Error deleting nomenclature", "error");
+                    showToast(t("errors.other.errorDeletingNomenclature"), "error");
                 }
             },
             onCancel() {
-              showSnackbar("Delete cancelled", "info");
+              showToast(t("info.deleteCancelled"), "info");
             }
         });
     };
@@ -597,7 +597,7 @@ const MonthlyExpanse: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     }
 

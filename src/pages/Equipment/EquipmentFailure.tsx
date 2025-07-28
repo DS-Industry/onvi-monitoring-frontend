@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
-import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import { columnsEquipmentFailure } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
 import { createIncident, getDevices, getEquipmentKnots, getIncident, getIncidentEquipmentKnots, getPoses, getPrograms, getWorkers, updateIncident } from "@/services/api/equipment";
@@ -79,7 +79,7 @@ const EquipmentFailure: React.FC = () => {
     const setEndDate = useSetEndDate();
     const city = useCity();
     const setCity = useSetCity();
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const filterParams = useMemo(() => ({
         dateStart: startDate ? (typeof startDate === "string" ? startDate : dayjs(startDate).format("YYYY-MM-DD HH:mm")) : `${formattedDate} 00:00`,
@@ -266,7 +266,7 @@ const EquipmentFailure: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

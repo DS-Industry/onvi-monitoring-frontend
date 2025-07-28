@@ -6,8 +6,8 @@ interface ButtonCreateProviderProps {
   children: React.ReactNode;
 }
 
-type SnackbarContextType = {
-  showSnackbar: (
+type ToastContextType = {
+  showToast: (
     message: string,
     type: "success" | "error" | "info" | "warning"
   ) => void;
@@ -31,7 +31,7 @@ export const FilterOpenContext = createContext({
     console.log(filterOn);
   },
 });
-export const SnackbarContext = createContext<SnackbarContextType | undefined>(
+export const ToastContext = createContext<ToastContextType | undefined>(
   undefined
 );
 
@@ -41,7 +41,7 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
   const [filterOn, setFilterOn] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const showSnackbar = useCallback(
+  const showToast = useCallback(
     (msg: string, type: "success" | "error" | "info" | "warning") => {
       const getMessageClassName = (type: string) => {
         switch (type) {
@@ -79,10 +79,10 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
     <ButtonCreateContext.Provider value={{ buttonOn, setButtonOn }}>
       <FilterContext.Provider value={{ filterOpen, setFilterOpen }}>
         <FilterOpenContext.Provider value={{ filterOn, setFilterOn }}>
-          <SnackbarContext.Provider value={{ showSnackbar }}>
+          <ToastContext.Provider value={{ showToast }}>
             {contextHolder}
             {children}
-          </SnackbarContext.Provider>
+          </ToastContext.Provider>
         </FilterOpenContext.Provider>
       </FilterContext.Provider>
     </ButtonCreateContext.Provider>

@@ -11,7 +11,7 @@ import useSWR, { mutate } from "swr";
 import { createCategory, getCategory, updateCategory } from "@/services/api/warehouse";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 // import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { columnsCategory } from "@/utils/OverFlowTableData";
@@ -59,7 +59,7 @@ const InventoryGroups: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editInventoryId, setEditInventoryId] = useState<number>(0);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: categoryData, isLoading: loadingCategory } = useSWR([`get-category`], () => getCategory(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -140,7 +140,7 @@ const InventoryGroups: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
-            showSnackbar("Error during form submission", "error");
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

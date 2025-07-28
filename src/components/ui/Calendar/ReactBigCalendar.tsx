@@ -33,7 +33,7 @@ import { usePosType } from "@/hooks/useAuthStore";
 import CustomSlotWrapper from "./CustomSlotWrapper";
 import CustomToolbar from "./CustomToolbar";
 import AddWorkerModal from "./AddWorkerModal";
-import { useSnackbar } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -65,7 +65,7 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
     const posType = usePosType();
     const [posId, setPosId] = useState(posType);
     const [pendingSlot, setPendingSlot] = useState<SlotInfo | null>(null);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: shiftData, mutate } = useSWR(
         `/api/shift-report/${shiftReportId}`,
@@ -247,7 +247,7 @@ const ReactBigCalendar: React.FC<Props> = ({ shiftReportId }) => {
             }
         } catch (e) {
             console.error("Failed to handle worker add or shift create:", e);
-            showSnackbar("Failed to handle worker add or shift create", "error");
+            showToast(t("errors.other.failedToHandleWorkerAddOrShiftCreate"), "error");
         }
     };
 

@@ -8,7 +8,7 @@ import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import CalendarComponent from "@/components/ui/Calendar/CalendarComponent";
-import { useButtonCreate, useSnackbar } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import type { DatePickerProps } from 'antd';
 import { DatePicker, Skeleton } from 'antd';
 import useSWR, { mutate } from "swr";
@@ -52,7 +52,7 @@ const EmployeeProfile: React.FC = () => {
     const [workerId, setWorkerId] = useState(location.state.ownerId);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -224,7 +224,7 @@ const EmployeeProfile: React.FC = () => {
             }
         } catch (error) {
           console.error("Error during form submission: ", error);
-          showSnackbar("Error during form submission", "error");
+          showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

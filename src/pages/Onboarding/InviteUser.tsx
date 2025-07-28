@@ -12,8 +12,8 @@ import OnviBlue from '@/assets/onvi_blue.png';
 import useSWR from "swr";
 import NoDataUI from "@/components/ui/NoDataUI";
 import NoToken from "@/assets/NoToken.png";
-import { useSnackbar } from "@/components/context/useContext";
-import { setSnackbarFunction } from "@/config/axiosConfig";
+import { useToast } from "@/components/context/useContext";
+import { setToastFunction } from "@/config/axiosConfig";
 
 const InviteUser: React.FC = () => {
     const { t } = useTranslation();
@@ -76,14 +76,14 @@ const InviteUser: React.FC = () => {
             if (result && result.user) {
                 const { user } = result;
                 setUser({ user: user?.props });
-                showSnackbar(t("roles.pass"), "success")
+                showToast(t("roles.pass"), "success")
                 navigate('/login');
             } else {
                 throw new Error(t('Password change failed. Please try again.'));
             }
         } catch (error) {
             clearData();
-            showSnackbar(t('Password change failed. Please try again.'), "error");
+            showToast(t("errors.other.passwordChangeFailed"), "error");
         }
     };
 
@@ -95,11 +95,11 @@ const InviteUser: React.FC = () => {
         }
     }, [validUser]);   
     
-    const { showSnackbar } = useSnackbar();
+    const { showToast } = useToast();
     
       useEffect(() => {
-        setSnackbarFunction(showSnackbar);
-      }, [showSnackbar]);
+        setToastFunction(showToast);
+      }, [showToast]);
     
     return (
         <div>
