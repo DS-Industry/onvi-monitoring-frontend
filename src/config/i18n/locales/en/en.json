@@ -100,7 +100,8 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
-    "appo": "Directory of appointments"
+    "appo": "Directory of appointments",
+    "createTask": "Create a task"
   },
   "dashboard": {
     "news": "News",
