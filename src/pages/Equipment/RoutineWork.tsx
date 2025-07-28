@@ -13,6 +13,8 @@ import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 import { getDateRender, getStatusTagRender, getTagRender } from "@/utils/tableUnits";
 import { ColumnsType } from "antd/es/table";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 const RoutineWork: React.FC = () => {
     const { t } = useTranslation();
@@ -72,7 +74,7 @@ const RoutineWork: React.FC = () => {
 
     const renderStatus = getStatusTagRender(t);
     const dateRender = getDateRender();
-    
+
     const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
         {
             title: "Автомойка/ Филиал",
@@ -114,45 +116,55 @@ const RoutineWork: React.FC = () => {
         }
     ]
 
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columnsTechTasks, "tech-tasks-columns");
+
     return (
         <>
             <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
-                <div>
-                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                    <Select
-                        className="w-full sm:w-80"
-                        options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                        value={searchParams.get("posId")}
-                        onChange={(value) => {
-                            updateSearchParams(searchParams, setSearchParams, {
-                                posId: value
-                            });
-                        }}
-                        size="large"
-                    />
-                </div>
-                <div>
-                    <div className="text-sm text-text02">{t("finance.status")}</div>
-                    <Select
-                        className="w-full sm:w-80"
-                        options={[
-                            { label: t("tables.In Progress"), value: StatusTechTask.ACTIVE },
-                            { label: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE }
-                        ]}
-                        value={searchParams.get("status")}
-                        onChange={(value) => {
-                            updateSearchParams(searchParams, setSearchParams, {
-                                status: value
-                            });
-                        }}
-                        size="large"
-                    />
+                <div className="flex space-x-2 flex-col sm:flex-row">
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={searchParams.get("posId")}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    posId: value
+                                });
+                            }}
+                            size="large"
+                        />
+                    </div>
+                    <div>
+                        <div className="text-sm text-text02">{t("finance.status")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={[
+                                { label: t("tables.In Progress"), value: StatusTechTask.ACTIVE },
+                                { label: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE }
+                            ]}
+                            value={searchParams.get("status")}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    status: value
+                                });
+                            }}
+                            size="large"
+                        />
+                    </div>
                 </div>
             </GeneralFilters>
             <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
                 <Table
                     dataSource={techTasks}
-                    columns={columnsTechTasks}
+                    columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
                     pagination={{
                         current: currentPage,

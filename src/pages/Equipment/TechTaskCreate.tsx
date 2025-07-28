@@ -4,11 +4,11 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Button from "@/components/ui/Button/Button";
-import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, StatusTechTask, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { Select, Table, Tooltip,Button as AntDButton } from "antd";
+import { Select, Table, Tooltip, Button as AntDButton } from "antd";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import { Tabs } from 'antd';
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
@@ -27,6 +27,8 @@ import { updateSearchParams } from "@/utils/updateSearchParams";
 import { getDateRender, getStatusTagRender, getTagRender } from "@/utils/tableUnits";
 import { ColumnsType } from "antd/es/table";
 import { EditOutlined } from "@ant-design/icons";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 type TechTaskBody = {
     name: string;
@@ -49,13 +51,11 @@ interface Item {
 const TechTaskCreate: React.FC = () => {
     const { TabPane } = Tabs;
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
     const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
     const posId = searchParams.get("posId") || "*";
-    const status = searchParams.get("status") || StatusTechTask.ACTIVE;
 
     const filterParams = {
         posId: Number(posId),
@@ -94,13 +94,6 @@ const TechTaskCreate: React.FC = () => {
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    poses.unshift(posesAllObj);
 
     const options = tagsData ? tagsData.map((tag) => (({
         id: tag.props.id,
@@ -226,7 +219,6 @@ const TechTaskCreate: React.FC = () => {
 
     const techTasks = data
         ?.filter((item: { posId: number }) => item.posId === Number(posId) || posId === "*")
-        ?.filter((item: { status: string }) => item.status === status)
         ?.map((item) => ({
             ...item,
             type: t(`tables.${item.type}`),
@@ -300,7 +292,7 @@ const TechTaskCreate: React.FC = () => {
 
     const renderStatus = getStatusTagRender(t);
     const dateRender = getDateRender();
-    
+
     const columnsTechTasks: ColumnsType<TechTaskManagerInfo> = [
         {
             title: "Автомойка/ Филиал",
@@ -342,6 +334,7 @@ const TechTaskCreate: React.FC = () => {
         },
         {
             title: "",
+            dataIndex: "actions",
             key: "actions",
             render: (_: unknown, record: { id: number; }) => (
                 <Tooltip title="Редактировать">
@@ -356,45 +349,38 @@ const TechTaskCreate: React.FC = () => {
         }
     ]
 
+    const { checkedList, setCheckedList, options: optionsColumns, visibleColumns } =
+        useColumnSelector(columnsTechTasks, "tech-tasks-columns");
+
     return (
         <>
             <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
-                <div>
-                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                    <Select
-                        className="w-full sm:w-80"
-                        options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                        value={searchParams.get("posId")}
-                        onChange={(value) => {
-                            updateSearchParams(searchParams, setSearchParams, {
-                                posId: value
-                            });
-                        }}
-                        size="large"
-                    />
-                </div>
-                <div>
-                    <div className="text-sm text-text02">{t("finance.status")}</div>
-                    <Select
-                        className="w-full sm:w-80"
-                        options={[
-                            { label: t("tables.In Progress"), value: StatusTechTask.ACTIVE },
-                            { label: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE }
-                        ]}
-                        value={searchParams.get("status")}
-                        onChange={(value) => {
-                            updateSearchParams(searchParams, setSearchParams, {
-                                status: value
-                            });
-                        }}
-                        size="large"
-                    />
+                <div className="flex space-x-2 flex-col sm:flex-row">
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                        <Select
+                            className="w-full sm:w-80"
+                            options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
+                            value={searchParams.get("posId")}
+                            onChange={(value) => {
+                                updateSearchParams(searchParams, setSearchParams, {
+                                    posId: value
+                                });
+                            }}
+                            size="large"
+                        />
+                    </div>
                 </div>
             </GeneralFilters>
             <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={optionsColumns}
+                    onChange={setCheckedList}
+                />
                 <Table
                     dataSource={techTasks}
-                    columns={columnsTechTasks}
+                    columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
                     pagination={{
                         current: currentPage,

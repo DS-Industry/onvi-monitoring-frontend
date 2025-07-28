@@ -9,6 +9,8 @@ import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { updateSearchParams } from "@/utils/updateSearchParams";
 import { ColumnsType } from "antd/es/table";
 import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 type ReadTechTasks = {
     id: number;
@@ -24,17 +26,19 @@ type ReadTechTasks = {
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
     const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-    const posId = searchParams.get("posId");
     const city = searchParams.get("city") || '*';
+    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const posIdNo = searchParams.get("posIdNo") || poses[0].value;
+
     const [totalTechTasksCount, setTotalTechTasksCount] = useState(0);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const filterParams = {
-        posId: Number(posId),
+        posId: Number(posIdNo),
         page: currentPage,
         size: pageSize
     }
@@ -45,9 +49,7 @@ const ProgressReport: React.FC = () => {
         [filterParams]
     );
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskManage(filterParams).then(
+    const { data, isLoading: techTasksLoading } = useSWR(Number(posIdNo) !== 0 ? swrKey : null, () => getTechTaskManage(filterParams).then(
         (data) => {
             setTotalTechTasksCount(data.totalCount);
             const sorted = [...(data.techTaskManageInfo ?? [])].sort((a, b) => a.id - b.id);
@@ -58,17 +60,9 @@ const ProgressReport: React.FC = () => {
         }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
 
-    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
-
-    poses.unshift(posesAllObj);
-
     const techTasks: ReadTechTasks[] = data
-        ?.filter((item: { posId: number }) => item.posId === Number(posId))
+        ?.filter((item: { posId: number }) => item.posId === Number(posIdNo))
+        ?.filter((item: { status: string }) => item.status === "FINISHED")
         ?.map((item: ReadTechTasks) => ({
             ...item,
             posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
@@ -126,6 +120,9 @@ const ProgressReport: React.FC = () => {
         }
     ]
 
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columnsTechTasksRead, "progress-report-table-columns");
+
     return (
         <>
             <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
@@ -135,10 +132,10 @@ const ProgressReport: React.FC = () => {
                         <Select
                             className="w-full sm:w-80"
                             options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("posId")}
+                            value={searchParams.get("posIdNo")}
                             onChange={(value) => {
                                 updateSearchParams(searchParams, setSearchParams, {
-                                    posId: value
+                                    posIdNo: value
                                 });
                             }}
                             size="large"
@@ -147,9 +144,14 @@ const ProgressReport: React.FC = () => {
                 </div>
             </GeneralFilters>
             <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
                 <Table
                     dataSource={techTasks}
-                    columns={columnsTechTasksRead}
+                    columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
                     pagination={{
                         current: currentPage,
