@@ -24,6 +24,7 @@ interface MultiInputProps {
     handleChange?: () => void;
     isLoading?: boolean;
     loadingOptions?: boolean;
+    disabled?: boolean;
 }
 
 const MultiInput: React.FC<MultiInputProps> = ({
@@ -35,7 +36,8 @@ const MultiInput: React.FC<MultiInputProps> = ({
     setSearchValue,
     handleChange,
     isLoading = false,
-    loadingOptions = false
+    loadingOptions = false,
+    disabled = false
 }) => {
     const { t } = useTranslation();
     const [isInputFocused, setIsInputFocused] = useState(false);
@@ -122,6 +124,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                 showSearch
                 optionLabelProp="label"
                 size="large"
+                disabled={disabled}
                 tagRender={({ label, value, closable, onClose }) => {
                     const option = options.find((opt) => opt.id === value);
                     return (

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Location, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
@@ -28,7 +28,7 @@ interface DynamicInputProps {
     type: string;
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
-    location: Location;
+    status: string;
     t: TFunction<"translation", undefined>;
 }
 
@@ -38,7 +38,7 @@ const selectOptions = [
     { name: "Выше нормы", value: "aboveNormal" },
 ];
 
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location, t }) => {
+const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, status, t }) => {
     switch (type) {
         case "Text":
             return (
@@ -48,7 +48,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     value={value}
                     changeValue={(e) => onChange(e.target.value || "")}
                     classname="w-80"
-                    disabled={location.state?.status === "FINISHED"}
+                    disabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -63,7 +63,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                         onChange(newValue);
                     }}
                     classname="w-80"
-                    disabled={location.state?.status === "FINISHED"}
+                    disabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -75,7 +75,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     options={selectOptions}
                     onChange={(selectedValue) => onChange(selectedValue)}
                     classname="w-80"
-                    isDisabled={location.state?.status === "FINISHED"}
+                    isDisabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -96,25 +96,30 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
 
 const ProgressReportItem: React.FC = () => {
     const { t } = useTranslation();
-    const location = useLocation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const progressReportId = Number(searchParams.get("progressReportId"));
+    const status = searchParams.get("status");
+    const type = searchParams.get("type");
+    const name = searchParams.get("name");
+    const endDate = searchParams.get("endDate");
     const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
 
     const items: DescriptionsProps['items'] = [
         {
             key: '1',
             label: 'Name',
-            children: location.state.name,
+            children: name,
         },
         {
             key: '2',
             label: 'Type',
-            children: location.state.type,
+            children: type,
         },
         {
             key: '3',
             label: 'End Work Date',
-            children: dayjs(location.state.endDate).format("DD.MM.YYYY"),
+            children: dayjs(endDate).format("DD.MM.YYYY"),
         }
     ];
 
@@ -127,7 +132,7 @@ const ProgressReportItem: React.FC = () => {
 
         setTimeout(() => {
             message.success(`${fileName} uploaded successfully.`);
-            onSuccess?.("ok"); 
+            onSuccess?.("ok");
         }, 1000);
     };
 
@@ -139,7 +144,7 @@ const ProgressReportItem: React.FC = () => {
 
     const { data: techTaskData, isLoading: techTaskLoading } = useSWR(
         [`get-tech-task`],
-        () => getTechTaskShapeItem(location.state?.ownerId),
+        () => getTechTaskShapeItem(progressReportId),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
@@ -176,7 +181,7 @@ const ProgressReportItem: React.FC = () => {
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
         ['create-tech-task'],
         async (_, { arg }: { arg: { valueData: { itemValueId: number; value: string }[] } }) => {
-            return createTechTaskShape(location.state?.ownerId, arg, []);
+            return createTechTaskShape(progressReportId, arg, []);
         }
     );
 
@@ -242,24 +247,22 @@ const ProgressReportItem: React.FC = () => {
                                             renderItem={(techItem) => (
                                                 <List.Item className="w-full">
                                                     <div className="flex flex-wrap w-full gap-4 my-4 items-start md:items-center">
-                                                        {/* Left Section: Title & Input */}
                                                         <div className="flex-1 min-w-[250px] max-w-full">
                                                             <div className="text-text01">{techItem.title}</div>
                                                             <div className="text-sm text-text02 max-w-sm">
                                                                 Task description is simply dummy text of the printing and typesetting industry.
                                                             </div>
-                                                            {location.state.status === "FINISHED" ?
+                                                            {status === t("tables.FINISHED") ?
                                                                 <div>{techItem.type === "SelectList" ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name : taskValues[techItem.id]}</div>
                                                                 : <DynamicInput
                                                                     type={techItem.type}
                                                                     value={taskValues[techItem.id]}
                                                                     onChange={(value) => handleChange(techItem.id, value)}
-                                                                    location={location}
+                                                                    status={String(status)}
                                                                     t={t}
                                                                 />}
                                                         </div>
 
-                                                        {/* Right Section: Button & Photos */}
                                                         <div className="flex-1 min-w-[250px] max-w-full mt-4 md:mt-10">
                                                             <Upload {...uploadProps} accept="image/*">
                                                                 <div className="w-[120px] h-[120px] border border-dashed flex items-center justify-center cursor-pointer rounded-md hover:border-primary flex-col transition">
@@ -278,7 +281,7 @@ const ProgressReportItem: React.FC = () => {
                         )}
                     />
                 )}
-            {location.state.status !== "FINISHED" && (<div className="flex justify-start space-x-4">
+            {status !== t("tables.FINISHED") && (<div className="flex justify-start space-x-4">
                 <Button
                     title={t("organizations.cancel")}
                     type="outline"

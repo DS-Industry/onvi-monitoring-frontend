@@ -31,6 +31,7 @@ type GeneralFiltersProps = {
   loadingPos?: boolean;
   hideDateAndTime?: boolean;
   children?: React.ReactNode;
+  onReset?: () => void;
 };
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
@@ -44,7 +45,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   loadingPos,
   poses,
   hideDateAndTime = false,
-  children
+  children,
+  onReset
 }) => {
   const { t } = useTranslation();
   const allCategoriesText = t("warehouse.all");
@@ -227,8 +229,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                     />
                   </div>
                 ) : null}
+                {children}
               </div>
-              {children}
               {!hideDateAndTime && (<div className="mt-4">
                 <Space size="middle" direction="horizontal">
                   <div className="flex flex-row gap-1">
@@ -314,7 +316,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   <Button
                     title="Сбросить"
                     type="outline"
-                    handleClick={resetFilters}
+                    handleClick={() => {
+                      if(onReset)
+                        onReset();
+                      else 
+                        resetFilters();
+                    }}
                     classname="w-[168px]"
                   />
                 )}

@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import Input from "@/components/ui/Input/Input";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Button from "@/components/ui/Button/Button";
+import DrawerCreate from "@ui/Drawer/DrawerCreate";
+import Input from "@ui/Input/Input";
+import DropdownInput from "@ui/Input/DropdownInput";
+import Button from "@ui/Button/Button";
 import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, TechTaskBody, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
 import useSWR, { mutate } from "swr";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { Select, Table, Tooltip, Button as AntDButton } from "antd";
-import MultiInput from "@/components/ui/Input/MultiInput";
+import { Table, Tooltip, Button as AntDButton } from "antd";
+import MultiInput from "@ui/Input/MultiInput";
 import { Tabs } from 'antd';
-import TiptapEditor from "@/components/ui/Input/TipTapEditor";
+import TiptapEditor from "@ui/Input/TipTapEditor";
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
-import DateInput from "@/components/ui/Input/DateInput";
+import DateInput from "@ui/Input/DateInput";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -43,45 +43,34 @@ const TechTaskCreate: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
     const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-    const posId = searchParams.get("posId") || "*";
+    const posId = Number(searchParams.get("posId")) || undefined;
 
-    const filterParams = {
-        posId: Number(posId),
-        page: currentPage,
-        size: pageSize
-    }
 
     const swrKey = useMemo(
         () =>
-            `get-tech-tasks-${filterParams.page}-${filterParams.size}`,
-        [filterParams]
+            `get-tech-tasks-${currentPage}-${pageSize}-${posId}`,
+        [currentPage, pageSize, posId]
     );
 
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
-    const city = searchParams.get("city") || "*";
     const [tagIds, setTagIds] = useState<number[]>([]);
     const [searchValue, setSearchValue] = useState("");
-    const [totalTechTasksCount, setTotalTechTasksCount] = useState(0);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskManage(filterParams).then(
-        (data) => {
-            setTotalTechTasksCount(data.totalCount);
-            const sorted = [...(data.techTaskManageInfo ?? [])].sort((a, b) => a.id - b.id);
+    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskManage({
+        posId: posId,
+        page: currentPage,
+        size: pageSize
+    }).finally(() => {
+        setIsInitialLoading(false);
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-            return sorted;
-        }).finally(() => {
-            setIsInitialLoading(false);
-        }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: tagsData, isLoading: loadingTags, isValidating: validatingTags } = useSWR([`get-tags`], () => getTags(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskItems } = useSWR([`get-tech-task-item`], () => getTechTaskItem(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const options = tagsData ? tagsData.map((tag) => (({
         id: tag.props.id,
@@ -148,7 +137,7 @@ const TechTaskCreate: React.FC = () => {
     };
 
     const techTasksTypes = [
-        { name: t("tables.ROUTINE"), value: "ROUTINE" },
+        { name: t("tables.REGULAR"), value: "REGULAR" },
         { name: t("tables.ONETIME"), value: "ONETIME" }
     ];
 
@@ -211,14 +200,12 @@ const TechTaskCreate: React.FC = () => {
     };
 
     const techTasks = data
-        ?.filter((item: { posId: number }) => item.posId === Number(posId) || posId === "*")
-        ?.map((item) => ({
+        ?.techTaskManageInfo.map((item) => ({
             ...item,
             type: t(`tables.${item.type}`),
-            posName: poses.find((pos) => pos.value === item.posId)?.name,
+            posName: poses?.find((pos) => pos.id === item.posId)?.name,
             status: item.status === "ACTIVE" ? t(`tables.In Progress`) : item.status === "FINISHED" ? t(`tables.Done`) : t(`tables.${item.status}`)
-        }))
-        .sort((a, b) => a.id - b.id) || [];
+        })) || [];
 
     const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);
 
@@ -342,29 +329,25 @@ const TechTaskCreate: React.FC = () => {
         }
     ]
 
+    const resetFilters = () => {
+        updateSearchParams(searchParams, setSearchParams, {
+            posId: undefined
+        });
+    }
+
     const { checkedList, setCheckedList, options: optionsColumns, visibleColumns } =
         useColumnSelector(columnsTechTasks, "tech-tasks-columns");
 
     return (
         <>
-            <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
-                <div className="flex space-x-2 flex-col sm:flex-row">
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                        <Select
-                            className="w-full sm:w-80"
-                            options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("posId")}
-                            onChange={(value) => {
-                                updateSearchParams(searchParams, setSearchParams, {
-                                    posId: value
-                                });
-                            }}
-                            size="large"
-                        />
-                    </div>
-                </div>
-            </GeneralFilters>
+            <GeneralFilters
+                count={data?.totalCount || 0}
+                hideDateAndTime={true}
+                hideCity={true}
+                hideSearch={true}
+                poses={poses?.map((item) => ({ name: item.name, value: item.id }))}
+                onReset={resetFilters}
+            />
             <div className="mt-8">
                 <ColumnSelector
                     checkedList={checkedList}
@@ -378,7 +361,7 @@ const TechTaskCreate: React.FC = () => {
                     pagination={{
                         current: currentPage,
                         pageSize: pageSize,
-                        total: totalTechTasksCount,
+                        total: data?.totalCount || 0,
                         pageSizeOptions: ALL_PAGE_SIZES,
                         showTotal: (total, range) =>
                             `${range[0]}-${range[1]} of ${total} items`,
@@ -413,8 +396,8 @@ const TechTaskCreate: React.FC = () => {
                     />
                     <DropdownInput
                         title={t("equipment.carWash")}
-                        label={poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
-                        options={poses}
+                        label={poses?.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")}
+                        options={poses?.map((item) => ({ name: item.name, value: item.id })) || []}
                         classname="w-64"
                         {...register('posId', {
                             required: !isEditMode && 'Pos ID is required',
@@ -427,6 +410,7 @@ const TechTaskCreate: React.FC = () => {
                         }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
+                        isDisabled={isEditMode}
                     />
                     <DropdownInput
                         title={`${t("routine.type")} *`}
@@ -443,6 +427,7 @@ const TechTaskCreate: React.FC = () => {
                         onChange={(value) => handleInputChange('type', value)}
                         error={!!errors.type}
                         helperText={errors.type?.message}
+                        isDisabled={isEditMode}
                     />
                     <Input
                         title={`${t("routine.frequency")} *`}
@@ -482,6 +467,7 @@ const TechTaskCreate: React.FC = () => {
                         handleChange={createTa}
                         isLoading={creatingTag}
                         loadingOptions={loadingTags || validatingTags}
+                        disabled={isEditMode}
                     />
                     <Tabs defaultActiveKey="editor">
                         <TabPane tab={t("equipment.text")} key="editor">

@@ -1015,5 +1015,9 @@
     "addWorker": "Add Worker",
     "sch": "Schedule Shift",
     "select": "Select Worker"
+  },
+  "constants": {
+    "all": "All",
+    "status": "Status"
   }
 }

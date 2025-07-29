@@ -12,8 +12,6 @@ import Articles from "@/pages/Finance/Articles";
 import MonthlyExpanse from "@/pages/Finance/MonthlyExpanse";
 import MonthlyExpanseEdit from "@/pages/Finance/MonthlyExpanseEdit";
 import DirectoryArticles from "@/pages/Finance/DirectoryArticles";
-import TechTaskCreate from "@/pages/Equipment/TechTaskCreate";
-// import TechTaskCreate from "@/pages/Equipment/TechTaskCreate";
 const Pos = React.lazy(() => import("@/pages/Pos/Pos"));
 const Organization = React.lazy(
   () => import("@/pages/Organization/Organization")
@@ -38,9 +36,10 @@ const EquipmentFailure = React.lazy(
 const ChemicalConsumption = React.lazy(
   () => import("@/pages/Equipment/ChemicalConsumption")
 );
-const RoutineWork = React.lazy(() => import("@/pages/Equipment/RoutineWork"));
-const RoutineWorkItem = React.lazy(
-  () => import("@/pages/Equipment/RoutineWorkItem")
+const TechTasks = React.lazy(() => import("@/pages/Equipment/TechTasks"));
+const TechTaskCreate = React.lazy(() => import("@/pages/Equipment/TechTaskCreate"));
+const TechTaskItem = React.lazy(
+  () => import("@/pages/Equipment/TechTaskItem")
 );
 const ProgressReport = React.lazy(
   () => import("@/pages/Equipment/ProgressReport")
@@ -1148,7 +1147,7 @@ const routes = [
         addButtonText: "create",
         isVisible: true,
         path: "/equipment/technical/tasks",
-        component: RoutineWork,
+        component: TechTasks,
         permissions: [
           { action: "manage", subject: "TechTask" },
           { action: "create", subject: "TechTask" },
@@ -1160,12 +1159,12 @@ const routes = [
         subNav: [
           {
             name: "list",
-            filter: true,
+            filter: false,
             addButton: false,
             addButtonText: "create",
             isVisible: true,
             path: "/equipment/technical/tasks/list",
-            component: RoutineWork,
+            component: TechTasks,
             permissions: [
               { action: "manage", subject: "TechTask" },
               { action: "create", subject: "TechTask" },
@@ -1181,8 +1180,8 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/routine/work/list/item",
-            component: RoutineWorkItem,
+            path: "/equipment/technical/tasks/list/item",
+            component: TechTaskItem,
             permissions: [
               { action: "manage", subject: "TechTask" },
               { action: "create", subject: "TechTask" },
@@ -1198,7 +1197,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/routine/work/progress",
+            path: "/equipment/technical/task/progress",
             component: ProgressReport,
             permissions: [
               { action: "manage", subject: "TechTask" },
@@ -1212,7 +1211,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/routine/work/progress/item",
+            path: "/equipment/technical/task/progress/item",
             component: ProgressReportItem,
             permissions: [
               { action: "manage", subject: "TechTask" },
