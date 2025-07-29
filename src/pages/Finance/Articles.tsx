@@ -6,7 +6,7 @@ import Close from "@icons/close.svg?react";
 import { useTranslation } from "react-i18next";
 import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
 import useSWR, { mutate } from "swr";
-import { getPoses } from "@/services/api/equipment";
+import { getPoses, getWorkers } from "@/services/api/equipment";
 import { useCity, useCurrentPage, usePageNumber, usePageSize, useSetCurrentPage, useSetPageNumber, useSetPageSize } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -18,8 +18,7 @@ import { createManagerPaper, deleteManagerPapers, getAllManagerPaper, getAllMana
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import useSWRMutation from "swr/mutation";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
-import { getWorkers } from "@/services/api/hr";
-import { useFilterOn } from "@/components/context/useContext";
+import { useFilterOn, useToast } from "@/components/context/useContext";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/hooks/useUserStore";
@@ -34,7 +33,6 @@ import Table from 'antd/es/table';
 import AntDButton from 'antd/es/button';
 import AntInput from 'antd/es/input';
 import DatePicker from 'antd/es/date-picker';
-import message from 'antd/es/message';
 import Skeleton from 'antd/es/skeleton';
 import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
@@ -318,6 +316,7 @@ const Articles: React.FC = () => {
     const setCurr = useSetCurrentPage();
     const rowsPerPage = usePageNumber();
     const totalCount = usePageSize();
+    const { showToast } = useToast();
 
     const paginationConfig: TablePaginationConfig = {
         current: curr,
@@ -422,17 +421,13 @@ const Articles: React.FC = () => {
 
     const { data: paperTypeData } = useSWR([`get-paper-type`], () => getAllManagerPaperTypes(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
-        placementId: "*",
-        hrPositionId: "*",
-        organizationId: "*"
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const workers: { name: string; value: number | "*"; }[] = [
         { name: t("hr.all"), value: "*" },
         ...(workersData?.map((work) => ({
-            name: work.props.name,
-            value: work.props.id
+            name: work.name,
+            value: work.id
         })) || [])
     ];
 
@@ -500,7 +495,7 @@ const Articles: React.FC = () => {
 
                     // Clear selected file after successful update
                     setSelectedFile(null);
-                    message.success('Record updated successfully');
+                    showToast(t("success.recordUpdated"), "success");
                 }
 
             } else {
@@ -510,7 +505,7 @@ const Articles: React.FC = () => {
             }
         } catch (error) {
             console.log('Update Failed:', error);
-            message.error('Failed to update record');
+            showToast(t("errors.other.failedToUpdateRecord"), "error");
         }
     };
 
@@ -744,6 +739,7 @@ const Articles: React.FC = () => {
                 throw new Error('Invalid response from API');
             }
         } catch (error) {
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
             console.error("Error during form submission: ", error);
         }
     }
@@ -912,7 +908,7 @@ const Articles: React.FC = () => {
                     title={t("equipment.user")}
                     classname="w-80"
                     value={userId}
-                    options={[...workers, { name: t("warehouse.all"), value: "*" }]}
+                    options={workers}
                     onChange={(value) => setUserId(value)}
                 />
                 <DateTimeInput

@@ -2,7 +2,7 @@ import PosEmpty from "@/assets/EmptyPos.png";
 import React, { useState } from "react";
 import NoDataUI from "@ui/NoDataUI.tsx";
 import Notification from "@ui/Notification.tsx";
-import { useButtonCreate } from "@/components/context/useContext.tsx";
+import { useButtonCreate, useToast } from "@/components/context/useContext.tsx";
 import DrawerCreate from "@ui/Drawer/DrawerCreate.tsx";
 import { columnsPos } from "@/utils/OverFlowTableData.tsx";
 import Button from "@ui/Button/Button.tsx";
@@ -83,6 +83,7 @@ const Pos: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const address = useCity();
     const setCity = useSetCity();
+    const { showToast } = useToast();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { data, isLoading: posLoading } = useSWR([`get-pos`, address], () => getPoses({
         placementId: address
@@ -180,6 +181,7 @@ const Pos: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

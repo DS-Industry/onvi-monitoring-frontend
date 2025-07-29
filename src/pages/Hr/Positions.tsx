@@ -6,7 +6,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
 import { columnsPositions } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
@@ -30,55 +30,13 @@ const Positions: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editPositionId, setEditPositionId] = useState<number>(0);
     const city = useCity();
+    const { showToast } = useToast();
 
     const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const { data: positionData, isLoading: positionLoading, isValidating } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    // const positions: { name: string, value: string, render: JSX.Element }[] = [
-    //     {
-    //         name: t("hr.admin"),
-    //         value: "Admin",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.admin")}</div>
-    //                 <div className="text-text02">{t("hr.accessTo")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.accountant"),
-    //         value: "Accountant",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.accountant")}</div>
-    //                 <div className="text-text02">{t("hr.sec")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.lineOperator"),
-    //         value: "lineOperator",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.lineOperator")}</div>
-    //                 <div className="text-text02">{t("hr.sec")}</div>
-    //             </div>
-    //         )
-    //     },
-    //     {
-    //         name: t("hr.washer"),
-    //         value: "washer",
-    //         render: (
-    //             <div className="flex flex-col items-start">
-    //                 <div>{t("hr.washer")}</div>
-    //                 <div className="text-text02">{t("hr.secti")}</div>
-    //             </div>
-    //         )
-    //     }
-    // ];
 
     const defaultValues: PositionRequest = {
         name: "",
@@ -151,6 +109,7 @@ const Positions: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 
@@ -180,7 +139,7 @@ const Positions: React.FC = () => {
             )}
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{isEditMode ? t("hr.update") : t("hr.pos")}</div>
                     <div className="flex">
                         <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
                         <span className="text-errorFill">*</span>
@@ -203,9 +162,9 @@ const Positions: React.FC = () => {
                         options={organizations}
                         classname="w-64"
                         {...register('organizationId', {
-                            required: 'Organization Id is required',
+                            required: !isEditMode && 'Organization Id is required',
                             validate: (value) =>
-                                (value !== 0) || "Organization Id is required"
+                                (value !== 0 || isEditMode) || "Organization Id is required"
                         })}
                         value={formData.organizationId}
                         onChange={(value) => handleInputChange('organizationId', value)}
@@ -222,27 +181,6 @@ const Positions: React.FC = () => {
                         changeValue={(e) => handleInputChange('description', e.target.value)}
                         {...register('description')}
                     />
-                    {/* <div className="flex space-x-2 items-center">
-                        <input
-                            type="checkbox"
-                            className="w-[18px] h-[18px]"
-                            checked={formData.access === "Yes"}
-                            onChange={() => handleInputChange("access", formData.access === "Yes" ? "No" : "Yes")}
-                        />
-                        <div className="text-text01">{t("roles.acc")}</div>
-                    </div>
-                    <DropdownInput
-                        title={`${t("hr.the")}*`}
-                        label={t("hr.select")}
-                        options={positions}
-                        renderOption={(option) => option.render || <span>{option.name}</span>}
-                        classname="w-80"
-                        {...register('role', { required: 'role is required' })}
-                        value={formData.role}
-                        onChange={(value) => handleInputChange('role', value)}
-                        error={!!errors.role}
-                        helperText={errors.role?.message || ''}
-                    /> */}
                     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}

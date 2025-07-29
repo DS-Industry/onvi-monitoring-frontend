@@ -1,13 +1,13 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import Snackbar from "@ui/Snackbar/Snackbar";
+import { message } from 'antd';
 
 interface ButtonCreateProviderProps {
   children: React.ReactNode;
 }
 
-type SnackbarContextType = {
-  showSnackbar: (
+type ToastContextType = {
+  showToast: (
     message: string,
     type: "success" | "error" | "info" | "warning"
   ) => void;
@@ -31,7 +31,7 @@ export const FilterOpenContext = createContext({
     console.log(filterOn);
   },
 });
-export const SnackbarContext = createContext<SnackbarContextType | undefined>(
+export const ToastContext = createContext<ToastContextType | undefined>(
   undefined
 );
 
@@ -39,22 +39,34 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
   const [buttonOn, setButtonOn] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterOn, setFilterOn] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    message: string;
-    type: "success" | "error" | "info" | "warning";
-  } | null>(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const showSnackbar = useCallback(
-    (message: string, type: "success" | "error" | "info" | "warning") => {
-      setSnackbar({ message, type });
-      setTimeout(() => {
-        setSnackbar(null);
-      }, 3000); // Auto dismiss after 3 seconds
+  const showToast = useCallback(
+    (msg: string, type: "success" | "error" | "info" | "warning") => {
+      const getMessageClassName = (type: string) => {
+        switch (type) {
+          case "success":
+            return "text-green-500";
+          case "error":
+            return "text-red-500";
+          case "info":
+            return "text-blue-500";
+          case "warning":
+            return "text-yellow-500";
+          default:
+            return "";
+        }
+      };
+
+      const messageClassName = getMessageClassName(type);
+      messageApi.open({
+        type,
+        content: <div className={messageClassName}>{msg}</div>,
+        duration: 3,
+      });
     },
-    []
+    [messageApi]
   );
-
-  const handleClose = () => setSnackbar(null);
 
   const location = useLocation();
 
@@ -67,16 +79,10 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
     <ButtonCreateContext.Provider value={{ buttonOn, setButtonOn }}>
       <FilterContext.Provider value={{ filterOpen, setFilterOpen }}>
         <FilterOpenContext.Provider value={{ filterOn, setFilterOn }}>
-          <SnackbarContext.Provider value={{ showSnackbar }}>
+          <ToastContext.Provider value={{ showToast }}>
+            {contextHolder}
             {children}
-            {snackbar && (
-              <Snackbar
-                message={snackbar.message}
-                type={snackbar.type}
-                onClose={handleClose}
-              />
-            )}
-          </SnackbarContext.Provider>
+          </ToastContext.Provider>
         </FilterOpenContext.Provider>
       </FilterContext.Provider>
     </ButtonCreateContext.Provider>

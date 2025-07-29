@@ -10,8 +10,8 @@ import Input from '@ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import LoginImage from '@/assets/LoginImage.png';
 import OnviBlue from '@/assets/onvi_blue.png';
-import { useSnackbar } from '@/components/context/useContext';
-import { setSnackbarFunction } from '@/config/axiosConfig';
+import { useToast } from '@/components/context/useContext';
+import { setToastFunction } from '@/config/axiosConfig';
 import useAuthStore from '@/config/store/authSlice';
 import {
     ArrowLeftOutlined
@@ -87,17 +87,17 @@ const LogIn: React.FC = () => {
     }
   };
 
-  const { showSnackbar } = useSnackbar();
+  const { showToast } = useToast();
 
   useEffect(() => {
-    setSnackbarFunction(showSnackbar);
-  }, [showSnackbar]);
+    setToastFunction(showToast);
+  }, [showToast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8 lg:ml-40">
-          <div className='flex text-primary02 mb-5'>
+          <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleRegisterNavigate}>
             <ArrowLeftOutlined />
             <p>{t("login.back")}</p>
           </div>
