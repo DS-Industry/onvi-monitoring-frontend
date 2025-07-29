@@ -77,11 +77,9 @@ const Positions: React.FC = () => {
 
   const onSubmit = async () => {
     try {
-      const result = await createPos();
-      if (result) {
-        mutate([`get-positions`]);
-        resetForm();
-      }
+      await createPos();
+      mutate([`get-positions`]);
+      resetForm();
     } catch (error) {
       console.error("Error during form submission: ", error);
     }

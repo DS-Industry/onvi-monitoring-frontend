@@ -112,6 +112,9 @@ const Employees: React.FC = () => {
         size: filterParams.size
       }),
     {
+      onSuccess (data) {
+        console.log(data);
+      },
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true
@@ -125,7 +128,7 @@ const Employees: React.FC = () => {
   })) || [];
 
   const defaultValues = {
-    id: -1,
+    id: 0,
     name: "",
     hrPositionId: -1,
     placementId: -1,
@@ -152,7 +155,7 @@ const Employees: React.FC = () => {
   const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
   const { trigger: createEmp, isMutating } = useSWRMutation(['create-employee'], async () => createWorker({
-    id: -1,
+    id: 9,
     name: formData.name,
     hrPositionId: formData.hrPositionId,
     placementId: formData.placementId,
