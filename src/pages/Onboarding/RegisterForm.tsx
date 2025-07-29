@@ -15,29 +15,18 @@ type Props = {
     setRegisterObj: (obj: { email: string; }) => void;
 }
 
-type RegisterBody = {
-    name: string;
-    surname: string;
-    middlename?: string;
-    birthday: Date;
-    phone: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-}
-
 const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Props) => {
     const { t } = useTranslation();
     const [isToggled, setIsToggled] = useState(false);
 
-    const defaultValues: RegisterBody = {
+    const defaultValues = {
         name: '',
         surname: '',
         middlename: '',
         email: '',
         password: '',
         confirmPassword: '',
-        birthday: dayjs().toDate(),
+        birthday: '',
         phone: ''
     };
 
@@ -51,7 +40,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Prop
             name: formData.name,
             surname: formData.surname,
             middlename: formData.middlename,
-            birthday: formData.birthday ? dayjs(formData.birthday).startOf('day').toDate() : dayjs().startOf('day').toDate(),
+            birthday: new Date(`${formData.birthday}T13:24:45.742+03:00`),
             phone: formData.phone,
             email: formData.email,
             password: formData.password
@@ -60,7 +49,7 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Prop
 
     type FieldType = "name" | "surname" | "middlename" | "email" | "password" | "confirmPassword" | "birthday" | "phone";
 
-    const handleInputChange = (field: FieldType, value: string | Date) => {
+    const handleInputChange = (field: FieldType, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setValue(field, value);
     };
@@ -147,8 +136,9 @@ const RegisterForm: React.FC<Props> = ({ count, setCount, setRegisterObj }: Prop
                     <DateInput
                         title={`${t("register.date")} *`}
                         classname="w-40"
+                        id="date-input"
                         value={formData.birthday ? dayjs(formData.birthday) : null}
-                        changeValue={(date) => handleInputChange("birthday", date ? date.toDate() : dayjs().toDate())}
+                        changeValue={(date) => handleInputChange("birthday", date ? date.format("YYYY-MM-DDTHH:mm") : "")}
                         error={!!errors.birthday}
                         {...register('birthday', {
                             required: 'Birthday is required'

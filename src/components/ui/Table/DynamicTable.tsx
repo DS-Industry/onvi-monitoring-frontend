@@ -221,16 +221,12 @@ const DynamicTable = <T extends TableRow>({
     const activePage = getActivePage();
 
     const getRequiredPermissions = (path: string): Permission[] => {
-        if (path.includes("finance/financial/accounting"))
+        if (path.includes("finance/financial/accounting")) {
             return [
                 { action: "manage", subject: "ManagerPaper" },
                 { action: "update", subject: "ManagerPaper" },
             ];
-        if (path.includes("/administration/accessRights/employees"))
-            return [
-                { action: "manage", subject: "Organization" },
-                { action: "update", subject: "Organization" },
-            ];
+        }
         if (path.includes("administration"))
             return [
                 { action: "manage", subject: "Organization" },
@@ -359,7 +355,7 @@ const DynamicTable = <T extends TableRow>({
                         {String(value)}
                         <ArrowUpOutlined style={{ transform: "rotate(45deg)" }} />
                     </span>
-                ) : col.render ? col.render(record, handleChange) : value ? String(value) : "-";
+                ) : col.render ? col.render(record, handleChange) : String(value);
             },
         };
 
