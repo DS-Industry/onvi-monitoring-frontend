@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {ButtonCreateContext, FilterContext, FilterOpenContext, SnackbarContext} from "./Context.tsx";
+import {ButtonCreateContext, FilterContext, FilterOpenContext, ToastContext} from "./Context.tsx";
 
 export const useButtonCreate = () => {
     return useContext(ButtonCreateContext)
@@ -13,10 +13,10 @@ export const useFilterOn = () => {
     return useContext(FilterOpenContext)
 }
 
-export const useSnackbar = () => {
-    const context = useContext(SnackbarContext);
+export const useToast = () => {
+    const context = useContext(ToastContext);
     if (!context) {
-        throw new Error("useSnackbar must be used within a SnackbarProvider");
+        throw new Error("useToast must be used within a ToastProvider");
     }
     return context;
 };

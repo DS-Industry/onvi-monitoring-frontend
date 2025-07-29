@@ -4,7 +4,7 @@ import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
 import useSWR, { mutate } from "swr";
 import { createPosition, getPositions, updatePosition } from "@/services/api/hr";
@@ -28,8 +28,9 @@ const Positions: React.FC = () => {
   const { t } = useTranslation();
   const { buttonOn, setButtonOn } = useButtonCreate();
   const [position, setPosition] = useState<string | undefined>();
-  const [originalPosition, setOriginalPosition] = useState<string>(); 
+  const [originalPosition, setOriginalPosition] = useState<string>();
   const city = useCity();
+  const { showToast } = useToast();
 
   const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -58,7 +59,7 @@ const Positions: React.FC = () => {
 
   const { trigger: updatePos } = useSWRMutation(
     'update-position',
-    async (_, { arg }: { arg: { positionId: number; description?: string } }) => 
+    async (_, { arg }: { arg: { positionId: number; description?: string } }) =>
       updatePosition(arg)
   );
 
@@ -82,6 +83,7 @@ const Positions: React.FC = () => {
       resetForm();
     } catch (error) {
       console.error("Error during form submission: ", error);
+      showToast(t("errors.other.errorDuringFormSubmission"), "error");
     }
   };
 
@@ -90,7 +92,7 @@ const Positions: React.FC = () => {
       setEditingRow(null);
       return;
     }
-    
+
     try {
       await updatePos({ positionId, description: position });
       mutate([`get-positions`]);

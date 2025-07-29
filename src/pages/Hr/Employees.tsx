@@ -6,7 +6,7 @@ import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import { Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-
+import { useToast } from "@/components/context/useContext";
 import ProfilePhoto from "@/assets/ProfilePhoto.svg";
 import { useButtonCreate } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
@@ -42,6 +42,7 @@ const Employees: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const city = useCity();
+  const { showToast } = useToast();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -218,6 +219,7 @@ const Employees: React.FC = () => {
       }
     } catch (error) {
       console.error("Error during form submission: ", error);
+      showToast(t("errors.other.errorDuringFormSubmission"), "error");
     }
   };
 

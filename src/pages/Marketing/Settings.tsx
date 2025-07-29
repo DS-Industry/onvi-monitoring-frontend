@@ -18,6 +18,7 @@ import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
 import { createLoyaltyProgram, getLoyaltyProgramById, updateLoyaltyProgram } from "@/services/api/marketing";
 import { useLocation } from "react-router-dom";
+import { useToast } from "@/components/context/useContext";
 
 const { Option } = Select;
 
@@ -40,6 +41,7 @@ type Props = {
 const Settings: React.FC<Props> = ({ nextStep }) => {
     const { t } = useTranslation();
     const [isEditMode, setIsEditMode] = useState(false);
+    const { showToast } = useToast();
     // const [isToggled, setIsToggled] = useState(false);
     // const [isToggledTwo, setIsToggledTwo] = useState(false);
     // const [isToggledThree, setIsToggledThree] = useState(false);
@@ -147,6 +149,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 
@@ -175,6 +178,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     }
 

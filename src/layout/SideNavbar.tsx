@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
 import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
@@ -11,14 +16,14 @@ import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
 import {
   useButtonCreate,
   useFilterOpen,
-  useSnackbar,
+  useToast,
 } from "@/components/context/useContext";
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
-import { setSnackbarFunction } from "@/config/axiosConfig";
+import { setToastFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import Avatar from "@/components/ui/Avatar";
 import OnviLogo from "@/assets/OnviLogo.svg";
@@ -89,7 +94,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const user = useUser();
   const hoverRef = useRef(false);
   const userPermissions = useAuthStore((state) => state.permissions);
-  const { showSnackbar } = useSnackbar();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const doc = searchParams.get("document");
   const userName: UserName = { name: user.name, middlename: user.surname };
@@ -99,11 +104,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
 
   // Combined useEffect for initialization
   useEffect(() => {
-    setSnackbarFunction(showSnackbar);
+    setToastFunction(showToast);
 
     datadogRum.addAction("Navigated", { pathname: location.pathname });
     datadogLogs.logger.info("Route loaded", { pathname: location.pathname });
-  }, [location.pathname, showSnackbar]);
+  }, [location.pathname, showToast]);
 
   // Combined hover and click outside effects
   useEffect(() => {
