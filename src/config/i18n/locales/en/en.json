@@ -670,7 +670,8 @@
     "8001": "An error occurred while creating the cash collection. Please try again.",
     "8002": "An error occurred while recalculate the cash collection. Please try again.",
     "8003": "An error occurred while return the cash collection. Please try again.",
-    "8004": "An error occurred while retrieving the cash collection. Please try again."
+    "8004": "An error occurred while retrieving the cash collection. Please try again.",
+    "somethingWentWrong": "Something went wrong"
   },
   "tables": {
     "ACTIVE": "ACTIVE",
