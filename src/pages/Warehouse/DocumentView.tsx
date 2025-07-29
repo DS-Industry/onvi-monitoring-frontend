@@ -1,19 +1,17 @@
 import { getDocument, getNomenclature, getWarehouses } from "@/services/api/warehouse";
 import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { useCity, useDocumentType, usePosType } from "@/hooks/useAuthStore";
-// import GoodsTable from "@/components/ui/Table/GoodsTable";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useUser } from "@/hooks/useUserStore";
-import GoodsAntTable from "@/components/ui/Table/GoodsAntTable";
 import { getOrganization } from "@/services/api/organization";
 import { Skeleton } from "antd";
 import DateInput from "@/components/ui/Input/DateInput";
 import dayjs from "dayjs";
+import DocumentsViewTable from "./DocumentsTables/DocumentsViewTable";
 
 type InventoryMetaData = {
     oldQuantity: number;
@@ -25,16 +23,17 @@ type MovingMetaData = {
 }
 
 const DocumentView: React.FC = () => {
-    const location = useLocation();
     const { t } = useTranslation();
-    const documentType = useDocumentType();
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
-    const posType = usePosType();
-    const city = useCity();
+    const [searchParams] = useSearchParams();
+    const posId = searchParams.get("posId") || "*";
+    const city = searchParams.get("city") || "*";
+    const documentType = searchParams.get("document");
     const user = useUser();
 
-    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const documentId = searchParams.get("documentId");
+    const { data: document, isLoading: loadingDocument, isValidating: validatingDocument } = useSWR([`get-document`], () => getDocument(Number(documentId)), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
         placementId: city
@@ -47,63 +46,57 @@ const DocumentView: React.FC = () => {
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
-        posId: posType,
+        posId: posId,
         placementId: city
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];
 
-    const columnsDocumentView = documentType === "INVENTORY" ? [
+    const baseColumns = [
         {
-            label: "№",
-            key: "id"
+            title: "№",
+            dataIndex: "id",
+            key: "id",
         },
         {
-            label: "Ответственный",
-            key: "responsibleName"
+            title: "Ответственный",
+            dataIndex: "responsibleName",
+            key: "responsibleName",
         },
         {
-            label: "Номенклатура",
-            key: "nomenclatureName"
+            title: "Номенклатура",
+            dataIndex: "nomenclatureName",
+            key: "nomenclatureName",
         },
         {
-            label: "Кол-во",
-            key: "quantity"
+            title: "Кол-во",
+            dataIndex: "quantity",
+            key: "quantity",
         },
         {
-            label: "Комментарий",
-            key: "comment"
+            title: "Комментарий",
+            dataIndex: "comment",
+            key: "comment",
         },
-        {
-            label: "Кол-во учет",
-            key: "oldQuantity"
-        },
-        {
-            label: "Отклонение",
-            key: "deviation"
-        }
-    ] : [
-        {
-            label: "№",
-            key: "id"
-        },
-        {
-            label: "Ответственный",
-            key: "responsibleName"
-        },
-        {
-            label: "Номенклатура",
-            key: "nomenclatureName"
-        },
-        {
-            label: "Кол-во",
-            key: "quantity"
-        },
-        {
-            label: "Комментарий",
-            key: "comment"
-        }
     ];
+
+    const inventoryExtraColumns = [
+        {
+            title: "Кол-во учет",
+            dataIndex: "oldQuantity",
+            key: "oldQuantity",
+        },
+        {
+            title: "Отклонение",
+            dataIndex: "deviation",
+            key: "deviation",
+        },
+    ];
+
+    const columnsDocumentView = documentType === "INVENTORY"
+        ? [...baseColumns, ...inventoryExtraColumns]
+        : baseColumns;
+
 
     function isInventoryMetaData(metaData: InventoryMetaData | MovingMetaData | undefined): metaData is InventoryMetaData {
         return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
@@ -141,8 +134,8 @@ const DocumentView: React.FC = () => {
 
     useEffect(() => {
         if (buttonOn)
-            navigate("/warehouse/documents/creation", { state: { ownerId: location.state.ownerId } })
-    }, [buttonOn, location.state.ownerId, navigate])
+            navigate(`/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`)
+    }, [buttonOn, documentId, documentType, navigate])
 
     return (
         <div>
@@ -197,12 +190,11 @@ const DocumentView: React.FC = () => {
                         </div>}
                     </div>
                 </div>
-                <GoodsAntTable
+                <DocumentsViewTable
                     tableData={tableData}
                     columns={columnsDocumentView}
-                    showDocument={true}
                     documentName={document?.document.props.name}
-                    documentTime={dayjs(new Date(document?.document.props.createdAt ?? '')).format('DD.MM.YYYY HH:mm:ss')}
+                    documentTime={dayjs(document?.document.props.createdAt ?? '').format('DD.MM.YYYY HH:mm:ss')}
                 />
             </div>
             }

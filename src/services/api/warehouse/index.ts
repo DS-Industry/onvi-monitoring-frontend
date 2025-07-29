@@ -13,7 +13,7 @@ enum WAREHOUSE {
     CREATE_WAREHOUSE = 'user/warehouse'
 }
 
-enum WarehouseDocumentType {
+export enum WarehouseDocumentType {
     WRITEOFF = 'WRITEOFF',
     INVENTORY = 'INVENTORY',
     COMMISSIONING = 'COMMISSIONING',
@@ -21,7 +21,7 @@ enum WarehouseDocumentType {
     MOVING = 'MOVING'
 }
 
-enum WarehouseDocumentStatus {
+export enum WarehouseDocumentStatus {
     CREATED = "CREATED",
     SAVED = "SAVED",
     SENT = "SENT"
@@ -151,16 +151,16 @@ type WAREHOUSE_RESPONSE = {
     }
 }
 
-type InventoryMetaData = {
+export type InventoryMetaData = {
     oldQuantity: number;
     deviation: number;
 }
 
-type MovingMetaData = {
+export type MovingMetaData = {
     warehouseReceirId: number;
 }
 
-type DocumentBody = {
+export type DocumentBody = {
     warehouseId: number;
     responsibleId: number;
     carryingAt: Date;
@@ -241,6 +241,8 @@ type GET_DOCUMENT_RESPONSE = {
         }
     }[]
 }
+
+export type DocumentsTableRow = GET_DOCUMENT_RESPONSE['details'][number];
 
 type INVENTORY_RESPONSE = {
     nomenclatureId: number;
