@@ -147,6 +147,11 @@ const TechTaskCreate: React.FC = () => {
         setValue(field, value);
     };
 
+    const techTasksTypes = [
+        { name: t("tables.ROUTINE"), value: "ROUTINE" },
+        { name: t("tables.ONETIME"), value: "ONETIME" }
+    ];
+
     const handleUpdate = (id: number) => {
         setEditTechTaskId(id);
         setIsEditMode(true);
@@ -160,7 +165,7 @@ const TechTaskCreate: React.FC = () => {
             setFormData({
                 name: techTaskToEdit.name,
                 posId: techTaskToEdit.posId,
-                type: techTaskToEdit.type,
+                type: techTasksTypes.find((item) => item.name === techTaskToEdit.type)?.value || "-",
                 period: techTaskToEdit.period,
                 startDate: techTaskToEdit.startDate,
                 endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
@@ -487,7 +492,6 @@ const TechTaskCreate: React.FC = () => {
                         </TabPane>
                         <TabPane tab={t("equipment.templates")} key="templates">
                             <div className="flex flex-col">
-                                {/* Available Items List */}
                                 <div className="border rounded w-80">
                                     <div className="flex border-b-[1px] bg-background05 text-xs">
                                         <div className="font-normal text-text01 p-2">Available Tasks</div>
@@ -525,8 +529,6 @@ const TechTaskCreate: React.FC = () => {
                                         <ArrowUpOutlined />
                                     </button>
                                 </div>
-
-                                {/* Selected Items List */}
                                 <div className="border rounded w-80">
                                     <div className="flex border-b-[1px] bg-background05 text-xs">
                                         <div className="font-normal text-text01 p-2">Selected Tasks</div>
