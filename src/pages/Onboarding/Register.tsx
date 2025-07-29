@@ -68,7 +68,7 @@ const Register: React.FC = () => {
       <div className="grid lg:grid-cols-2 gap-4 w-full lg:w-[80%] p-8 lg:p-0 rounded-lg">
 
         <div className="p-8 lg:w-full">
-          <div className='flex text-primary02 mb-5'>
+          <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleLoginNavigate}>
             <ArrowLeftOutlined />
             <p>{t("login.back")}</p>
           </div>

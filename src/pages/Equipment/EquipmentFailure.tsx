@@ -13,7 +13,7 @@ import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { Table, Tooltip } from "antd";
 import { getDateRender } from "@/utils/tableUnits";
 import { usePermissions } from "@/hooks/useAuthStore";
@@ -129,7 +129,7 @@ const EquipmentFailure: React.FC = () => {
         carWashDeviceProgramsTypeId: formData.carWashDeviceProgramsTypeId,
     }));
 
-    const { trigger: updateInc } = useSWRMutation(['update-incident'], async () => updateIncident({
+    const { trigger: updateInc, isMutating: updatingIncident } = useSWRMutation(['update-incident'], async () => updateIncident({
         incidentId: editIncidentId,
         workerId: formData.workerId,
         appearanceDate: formData.appearanceDate,
@@ -538,7 +538,7 @@ const EquipmentFailure: React.FC = () => {
                         <Button
                             title={t("organizations.save")}
                             form={true}
-                            isLoading={isMutating}
+                            isLoading={isEditMode ? updatingIncident : isMutating}
                             handleClick={() => { }}
                         />
                     </div>
