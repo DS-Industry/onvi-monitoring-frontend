@@ -9,7 +9,7 @@ import { getPlacement } from "@/services/api/device";
 import { formatNumber, getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { getPoses } from "@/services/api/equipment";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 // components
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";

@@ -10,7 +10,7 @@ import useSWR from "swr";
 import { getPlacement } from "@/services/api/device/index.ts";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
 

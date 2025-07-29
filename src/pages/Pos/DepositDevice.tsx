@@ -13,7 +13,7 @@ import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
 // utils
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 
