@@ -114,21 +114,19 @@ const ProgressReport: React.FC = () => {
     return (
         <>
             <GeneralFilters count={techTasks.length} hideDateAndTime={true} hideCity={true} hideSearch={true}>
-                <div className="flex">
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                        <Select
-                            className="w-full sm:w-80"
-                            options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("posIdNo")}
-                            onChange={(value) => {
-                                updateSearchParams(searchParams, setSearchParams, {
-                                    posIdNo: value
-                                });
-                            }}
-                            size="large"
-                        />
-                    </div>
+                <div>
+                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
+                    <Select
+                        className="w-full sm:w-80"
+                        options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
+                        value={searchParams.get("posIdNo")}
+                        onChange={(value) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                posIdNo: value
+                            });
+                        }}
+                        size="large"
+                    />
                 </div>
             </GeneralFilters>
             <div className="mt-8">

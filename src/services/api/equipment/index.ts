@@ -27,8 +27,8 @@ export enum StatusTechTask {
 }
 
 export enum TypeTechTask {
-  ONETIME = "ONETIME",
-  REGULAR = "REGULAR"
+    ONETIME = "ONETIME",
+    REGULAR = "REGULAR"
 }
 
 type IncidentParam = {
@@ -381,6 +381,8 @@ export type TechTaskManagerInfo = TechTasksManageResponse['techTaskManageInfo'][
 
 
 type TechTasksExecutionParams = {
+    posId?: number;
+    status?: StatusTechTask;
     page?: number;
     size?: number;
 }
@@ -552,7 +554,7 @@ export async function getTechTaskManage(params: TechTasksManageParams): Promise<
 }
 
 export async function getTechTaskExecution(params: TechTasksExecutionParams): Promise<TechTasksExecutionResponse> {
-    const response: AxiosResponse<TechTasksExecutionResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/execution', { params });
+    const response: AxiosResponse<TechTasksExecutionResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/me', { params });
 
     return response.data;
 }

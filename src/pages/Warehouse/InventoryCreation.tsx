@@ -414,42 +414,39 @@ const InventoryCreation: React.FC = () => {
         hideCity={true}
         hideSearch={true}
       >
-        <div className="flex space-x-4">
-          <div>
-            <div className="text-sm text-text02">
-              {t("warehouse.organization")}
-            </div>
-            <Select
-              className="w-full sm:w-80 h-10"
-              options={organizations.map((item) => ({
-                label: item.name,
-                value: String(item.value),
-              }))}
-              value={searchParams.get("organizationId") || ""}
-              onChange={(value) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  organizationId: value,
-                })
-              }
-            />
+        <div>
+          <div className="text-sm text-text02">
+            {t("warehouse.organization")}
           </div>
-          <div>
-            {/* здесь фильтр категории */}
-            <div className="text-sm text-text02">{t("warehouse.category")}</div>
-            <Select
-              className="w-full sm:w-80 h-10"
-              options={categories.map((item) => ({
-                label: item.name,
-                value: String(item.value),
-              }))}
-              value={searchParams.get("category") || "*"}
-              onChange={(value) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  category: value,
-                })
-              }
-            />
-          </div>
+          <Select
+            className="w-full sm:w-80 h-10"
+            options={organizations.map((item) => ({
+              label: item.name,
+              value: String(item.value),
+            }))}
+            value={searchParams.get("organizationId") || ""}
+            onChange={(value) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                organizationId: value,
+              })
+            }
+          />
+        </div>
+        <div>
+          <div className="text-sm text-text02">{t("warehouse.category")}</div>
+          <Select
+            className="w-full sm:w-80 h-10"
+            options={categories.map((item) => ({
+              label: item.name,
+              value: String(item.value),
+            }))}
+            value={searchParams.get("category") || "*"}
+            onChange={(value) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                category: value,
+              })
+            }
+          />
         </div>
       </GeneralFilters>
       <div className="mt-8">
@@ -691,7 +688,7 @@ const InventoryCreation: React.FC = () => {
               title={t("organizations.save")}
               form={true}
               isLoading={isEditMode ? updatingInventory : isMutating}
-              handleClick={() => {}}
+              handleClick={() => { }}
             />
           </div>
         </form>

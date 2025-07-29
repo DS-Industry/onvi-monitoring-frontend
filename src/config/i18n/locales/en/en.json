@@ -1017,6 +1017,7 @@
     "select": "Select Worker"
   },
   "constants": {
-    "all": "All"
+    "all": "All",
+    "status": "Status"
   }
 }
