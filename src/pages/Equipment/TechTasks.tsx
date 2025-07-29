@@ -30,23 +30,20 @@ const TechTasks: React.FC = () => {
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-  const filterParams = {
-    page: currentPage,
-    size: pageSize,
-  };
-
   const swrKey = useMemo(
-    () => `get-tech-tasks-${filterParams.page}-${filterParams.size}`,
-    [filterParams]
+    () => `get-tech-tasks-${currentPage}-${pageSize}`,
+    [currentPage, pageSize]
   );
 
-  const city = searchParams.get("city") || "*";
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const { data, isLoading: techTasksLoading } = useSWR(
     swrKey,
     () =>
-      getTechTaskExecution(filterParams).finally(() => {
+      getTechTaskExecution({
+        page: currentPage,
+        size: pageSize,
+      }).finally(() => {
         setIsInitialLoading(false);
       }),
     {
@@ -57,8 +54,8 @@ const TechTasks: React.FC = () => {
   );
 
   const { data: poses } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
+    [`get-pos`],
+    () => getPoses({ placementId: "*" }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -144,34 +141,32 @@ const TechTasks: React.FC = () => {
     useColumnSelector(columnsTechTasks, "tech-tasks-columns");
 
   return (
-    <>
-      <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
-        <Table
-          dataSource={techTasks}
-          columns={visibleColumns}
-          loading={techTasksLoading || isInitialLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: data?.totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page, size) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              });
-            },
-          }}
-        />
-      </div>
-    </>
+    <div className="mt-8">
+      <ColumnSelector
+        checkedList={checkedList}
+        options={options}
+        onChange={setCheckedList}
+      />
+      <Table
+        dataSource={techTasks}
+        columns={visibleColumns}
+        loading={techTasksLoading || isInitialLoading}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: data?.totalCount || 0,
+          pageSizeOptions: ALL_PAGE_SIZES,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`,
+          onChange: (page, size) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            });
+          },
+        }}
+      />
+    </div>
   );
 };
 
