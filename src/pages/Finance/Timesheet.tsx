@@ -1,70 +1,104 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, {useEffect, useMemo, useCallback, useState} from "react";
 import { useTranslation } from "react-i18next";
-import NoTimeSheet from "@/assets/NoTimesheet.png";
-import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity, useSetPageNumber } from "@/hooks/useAuthStore";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 import { getShifts } from "@/services/api/finance";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsShifts } from "@/utils/OverFlowTableData";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import dayjs from "dayjs";
+import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE} from "@/utils/constants.ts";
+import GeneralFilters from "@ui/Filter/GeneralFilters.tsx";
 
-interface FilterCollection {
-    dateStart: string;
-    dateEnd: string;
+import {Calendar, dayjsLocalizer} from "react-big-calendar";
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import ShiftCreateModal from "@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx";
+
+interface FilterShifts {
+    dateStart: Date;
+    dateEnd: Date;
     posId: number | string;
+    placementId: number | string;
     page?: number;
     size?: number;
 }
+dayjs.locale('ru');
 
 const Timesheet: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
+    // Set Russian locale globally
+
+    const localize = dayjsLocalizer(dayjs)
+
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
 
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
-    const location = useLocation();
-    const city = useCity();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCurrentPage = useSetCurrentPage();
-    const setTotalCount = useSetPageSize();
-    const setPageSize = useSetPageNumber();
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const formattedDate = dayjs().format("YYYY-MM-DD");
+
+    const [totalCount, setTotalCount] = useState(0);
+
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    const posId = Number(searchParams.get("posId") || "*");
+    const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
+    const placementId = searchParams.get("city") || "*";
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
     // Create stable initial filter
-    const filterParams = useMemo(() => ({
-        dateStart: startDate,
-        dateEnd: endDate,
-        page: currentPage,
-        size: pageSize,
-        posId: posType || 1,
-        placementId: city
-    }), [startDate, endDate, currentPage, pageSize, posType, city]);
+    const filterParams: FilterShifts = useMemo(() => ({
+        dateStart: dayjs(dateStart).startOf("day").toDate(),
+        dateEnd: dayjs(dateEnd).endOf("day").toDate(),
+        currentPage,
+        pageSize,
+        posId,
+        placementId
+    }), [dateStart, dateEnd, posId, placementId, currentPage, pageSize]
+    );
 
-    // Reset page when location changes
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location, setCurrentPage]);
+    const { data: poses } = useSWR(
+        `get-pos-${placementId}`,
+        () =>
+            getPoses({ placementId })
+                .then((data) => data?.sort((a, b) => a.id - b.id) || [])
+                .then((data) => {
+                    const options = data.map((item) => ({
+                        name: item.name,
+                        value: item.id,
+                    }));
+                    const posesAllObj = { name: allCategoriesText, value: "*" };
+                    return [posesAllObj, ...options];
+                }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
+        }
+    );
+
 
     // Create stable SWR key
     const swrKey = useMemo(() =>
-        `get-shifts-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+        `get-shifts-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart.toISOString()}-${filterParams.dateEnd.toISOString()}-${filterParams.page}-${filterParams.size}`,
         [filterParams]
     );
 
-    const { data: filter, isLoading: filterIsLoading } = useSWR(
+
+    //Get All shifts
+    const { data: shiftsData, isLoading: isShiftsLoading } = useSWR(
         swrKey,
-        () => getShifts(filterParams),
+        () => getShifts({
+            posId: filterParams.posId,
+            dateStart: filterParams.dateStart,
+            dateEnd: filterParams.dateEnd
+        }).then((data) => {
+            console.log(data);
+        }),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -72,63 +106,24 @@ const Timesheet: React.FC = () => {
         }
     );
 
-    const totalRecords = filter?.totalCount || 0;
-    const maxPages = Math.ceil(totalRecords / pageSize);
 
-    useEffect(() => {
-        if (totalRecords > 0 && currentPage > maxPages) {
-            setCurrentPage(maxPages > 0 ? maxPages : 1);
-        }
-    }, [maxPages, currentPage, setCurrentPage, totalRecords]);
 
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterCollection>) => {
-        if (newFilterData.posId !== undefined) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
-        if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-        if (newFilterData.page !== undefined) setCurrentPage(newFilterData.page);
-        if (newFilterData.size !== undefined) setPageSize(newFilterData.size);
 
-    }, [setPosType, setStartDate, setEndDate, setCurrentPage, setPageSize]);
+    // const { data: workerData } = useSWR(
+    //     [`get-worker`],
+    //     () => getWorkers(),
+    //     {
+    //         revalidateOnFocus: false,
+    //         revalidateOnReconnect: false,
+    //         keepPreviousData: true
+    //     }
+    // );
 
-    // Update total count when data changes
-    useEffect(() => {
-        if (!filterIsLoading && filter?.totalCount) {
-            setTotalCount(filter.totalCount);
-        }
-    }, [filter?.totalCount, filterIsLoading, setTotalCount]);
 
-    const { data: posData, isLoading, isValidating } = useSWR(
-        [`get-pos`, city],
-        () => getPoses({ placementId: city }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true
-        }
-    );
 
-    const { data: workerData } = useSWR(
-        [`get-worker`],
-        () => getWorkers(),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true
-        }
-    );
-
-    const poses: { name: string; value: number | string; }[] = useMemo(() => {
-        const mappedPoses = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-        const posesAllObj = {
-            name: allCategoriesText,
-            value: "*"
-        };
-        return [posesAllObj, ...mappedPoses];
-    }, [posData, allCategoriesText]);
-
-    const workers: { name: string; value: number; }[] = useMemo(() => {
-        return workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
-    }, [workerData]);
+    // const workers: { name: string; value: number; }[] = useMemo(() => {
+    //     return workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    // }, [workerData]);
 
     useEffect(() => {
         if (buttonOn) {
@@ -136,48 +131,98 @@ const Timesheet: React.FC = () => {
         }
     }, [buttonOn, navigate]);
 
-    const shifts = useMemo(() => {
-        return filter?.shiftReportsData.map((item) => ({
-            ...item,
-            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
-            createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
-        })) || [];
-    }, [filter?.shiftReportsData, poses, workers]);
+    // const shifts = useMemo(() => {
+    //     return filter?.shiftReportsData.map((item) => ({
+    //         ...item,
+    //         posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+    //         createdByName: workers.find((work) => work.value === item.createdById)?.name || "-"
+    //     })) || [];
+    // }, [filter?.shiftReportsData, poses, workers]);
+
+    const [events, setEvents] = useState([
+        {
+            id: 1,
+            title: 'Team Meeting',
+            start: dayjs('2025-07-29 10:00').toDate(),
+            end: dayjs('2025-07-29 11:00').toDate(),
+            resource: 'meeting'
+        },
+        {
+            id: 2,
+            title: 'Project Deadline',
+            start: dayjs('2025-07-31 09:00').toDate(),
+            end: dayjs('2025-07-31 17:00').toDate(),
+            resource: 'deadline'
+        },
+        {
+            id: 3,
+            title: 'Lunch with Client',
+            start: dayjs('2025-08-01 12:00').toDate(),
+            end: dayjs('2025-08-01 13:30').toDate(),
+            resource: 'meeting'
+        },
+        {
+            id: 4,
+            title: 'Code Review',
+            start: dayjs('2025-08-05 14:00').toDate(),
+            end: dayjs('2025-08-05 15:30').toDate(),
+            resource: 'review'
+        }
+    ]);
+
+    const [openSlot, setOpenSlot] = useState(false)
+    const [openShiftModal, setOpenShiftModal] = useState(false)
+    const [eventInfoModal, setEventInfoModal] = useState(false)
+    const [currentEvent, setCurrentEvent] = useState(null)
+
+    const handleSelectSlot = (event) => {
+        setOpenSlot(true)
+        setCurrentEvent(event)
+    }
+
+    const handleSelectEvent = (event) => {
+        setCurrentEvent(event)
+        setEventInfoModal(true)
+    }
+
+    const handleClose = () => {
+        setOpenSlot(false)
+    }
+
+    const onAddEvent = (e) => {
+        e.preventDefault()
+    }
+
+
+
 
     return (
-        <div>
-            <FilterMonitoring
-                count={shifts.length}
-                posesSelect={poses}
+        <>
+            <GeneralFilters
+                poses={poses}
+                count={totalCount}
+                hideCity={false}
                 hideSearch={true}
-                handleDateFilter={handleDataFilter}
-                loadingPos={isLoading || isValidating}
+                hideReset={false}
             />
-            {filterIsLoading ? (
-                <TableSkeleton columnCount={columnsShifts.length} />
-            ) : (
-                shifts.length > 0 ? (
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={shifts}
-                            columns={columnsShifts}
-                            isDisplayEdit={true}
-                            showPagination={true}
-                            navigableFields={[{ key: "posName", getPath: () => "/finance/timesheet/creation" }]}
-                        />
-                    </div>
-                ) : (
-                    <div className="flex flex-col justify-center items-center">
-                        <NoDataUI
-                            title={t("finance.data")}
-                            description={t("finance.atThe")}
-                        >
-                            <img src={NoTimeSheet} className="mx-auto" loading="lazy" alt="No Timesheet" />
-                        </NoDataUI>
-                    </div>
-                )
-            )}
-        </div>
+
+            <div className="mt-8">
+                <ShiftCreateModal isOpen={false} onClose={() => { return null}} onSubmit={() => { return null}} />
+                <Calendar
+                    localizer={localize}
+                    events={events}
+                    style={{ height: '100vh' }}
+                    defaultView='week'
+                    onSelectEvent={handleSelectEvent}
+                    onSelectSlot={handleSelectSlot}
+                    selectable
+
+
+                />
+
+            </div>
+
+        </>
     );
 };
 

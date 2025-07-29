@@ -131,6 +131,12 @@ type CashCollectionParams = {
     size?: number;
 }
 
+type GetShiftReportsParams = {
+    dateStart: Date;
+    dateEnd: Date;
+    posId: number;
+}
+
 type CashCollectionsResponse = {
     cashCollectionsData: {
         id: number;
@@ -578,7 +584,7 @@ export async function addWorker(body: ShiftWorkerBody, id: number): Promise<Shif
     return response.data;
 }
 
-export async function getShifts(params: CashCollectionParams): Promise<ShiftParamsResponse> {
+export async function getShifts(params: GetShiftReportsParams): Promise<ShiftParamsResponse> {
     const response: AxiosResponse<ShiftParamsResponse> = await api.get(FINANCE.SHIFT_REPORT + `s`, { params });
     return response.data;
 }
