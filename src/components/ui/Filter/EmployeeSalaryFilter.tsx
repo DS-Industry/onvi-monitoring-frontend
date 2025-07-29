@@ -174,7 +174,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                         value={startDate}
                         format="YYYY-MM-DD"
                         onChange={handleStartDateChange}
-                        placeholder={t("finance.selU")}
+                        placeholder={t("finance.sel")}
                       />
 
                       <TimePicker
@@ -199,7 +199,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                         value={endDate}
                         format="YYYY-MM-DD"
                         onChange={handleEndDateChange}
-                        placeholder={t("finance.selU")}
+                        placeholder={t("finance.sel")}
                       />
 
                       <TimePicker
