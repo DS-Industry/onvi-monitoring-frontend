@@ -1197,7 +1197,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/routine/work/progress",
+            path: "/equipment/technical/task/progress",
             component: ProgressReport,
             permissions: [
               { action: "manage", subject: "TechTask" },
@@ -1211,7 +1211,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/routine/work/progress/item",
+            path: "/equipment/technical/task/progress/item",
             component: ProgressReportItem,
             permissions: [
               { action: "manage", subject: "TechTask" },

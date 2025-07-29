@@ -550,7 +550,7 @@ export async function getTags(): Promise<CreateTagsResponse[]> {
 }
 
 export async function getTechTaskManage(params: TechTasksManageParams): Promise<TechTasksManageResponse> {
-    const response: AxiosResponse<TechTasksManageResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/manage-patterns', { params });
+    const response: AxiosResponse<TechTasksManageResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/manage', { params });
 
     return response.data;
 }
@@ -562,7 +562,7 @@ export async function getTechTaskExecution(params: TechTasksExecutionParams): Pr
 }
 
 export async function getTechTaskReport(params: TechTasksReportParams): Promise<TechTasksExecutionResponse> {
-    const response: AxiosResponse<TechTasksExecutionResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/execution', { params });
+    const response: AxiosResponse<TechTasksExecutionResponse> = await api.get(TECHTASKS.CREATE_TECH_TASK + '/report', { params });
 
     return response.data;
 }
