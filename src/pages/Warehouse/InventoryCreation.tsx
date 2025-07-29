@@ -688,7 +688,6 @@ const InventoryCreation: React.FC = () => {
               title={t("organizations.save")}
               form={true}
               isLoading={isEditMode ? updatingInventory : isMutating}
-              handleClick={() => { }}
             />
           </div>
         </form>

@@ -241,6 +241,16 @@ type TechTaskItemResponse = {
     }
 }
 
+export type TechTasksItem = {
+    id: number;
+    title: string;
+    type: string;
+    group: string;
+    code: string;
+    value?: string | null;
+    image?: string | null;
+};
+
 type TechTaskShapeResponse = {
     id: number;
     name: string;
@@ -253,15 +263,7 @@ type TechTaskShapeResponse = {
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
-    items: {
-        id: number;
-        title: string;
-        type: string;
-        group: string;
-        code: string;
-        value?: string | null;
-        image?: string | null;
-    }[];
+    items: TechTasksItem[];
     tags: {
         id: number;
         name: string;
@@ -343,7 +345,7 @@ type CreateTagsResponse = {
 }
 
 type TechTasksManageParams = {
-    posId: number;
+    posId?: number;
     page?: number;
     size?: number;
 }
@@ -411,8 +413,8 @@ export type TechTaskReadAll = TechTasksExecutionResponse['techTaskReadAll'][numb
 
 
 type TechTasksReportParams = {
-    posId: number;
-    type: TypeTechTask | "*";
+    posId?: number;
+    type?: TypeTechTask;
     page?: number;
     size?: number;
 }

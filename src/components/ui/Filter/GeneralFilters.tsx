@@ -31,7 +31,7 @@ type GeneralFiltersProps = {
   loadingPos?: boolean;
   hideDateAndTime?: boolean;
   children?: React.ReactNode;
-  resetCustomFilters?: () => void;
+  onReset?: () => void;
 };
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
@@ -46,7 +46,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   poses,
   hideDateAndTime = false,
   children,
-  resetCustomFilters
+  onReset
 }) => {
   const { t } = useTranslation();
   const allCategoriesText = t("warehouse.all");
@@ -316,7 +316,12 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                   <Button
                     title="Сбросить"
                     type="outline"
-                    handleClick={resetCustomFilters ? resetCustomFilters : resetFilters}
+                    handleClick={() => {
+                      if(onReset)
+                        onReset();
+                      else 
+                        resetFilters();
+                    }}
                     classname="w-[168px]"
                   />
                 )}

@@ -20,13 +20,13 @@ const ProgressReport: React.FC = () => {
     const city = searchParams.get("city") || '*';
     const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-    const posIdNo = searchParams.get("posIdNo") || poses[0].value;
+    const posId = searchParams.get("posId") || poses[0].value;
 
     const [totalTechTasksCount, setTotalTechTasksCount] = useState(0);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const filterParams = {
-        posId: Number(posIdNo),
+        posId: Number(posId),
         page: currentPage,
         size: pageSize
     }
@@ -37,7 +37,7 @@ const ProgressReport: React.FC = () => {
         [filterParams]
     );
 
-    const { data, isLoading: techTasksLoading } = useSWR(Number(posIdNo) !== 0 ? swrKey : null, () => getTechTaskManage(filterParams).then(
+    const { data, isLoading: techTasksLoading } = useSWR(Number(posId) !== 0 ? swrKey : null, () => getTechTaskManage(filterParams).then(
         (data) => {
             setTotalTechTasksCount(data.totalCount);
             const sorted = [...(data.techTaskManageInfo ?? [])].sort((a, b) => a.id - b.id);
@@ -49,7 +49,7 @@ const ProgressReport: React.FC = () => {
 
 
     const techTasks = data
-        ?.filter((item: { posId: number }) => item.posId === Number(posIdNo))
+        ?.filter((item: { posId: number }) => item.posId === Number(posId))
         ?.filter((item: { status: string }) => item.status === "FINISHED")
         ?.map((item) => ({
             ...item,
@@ -119,10 +119,10 @@ const ProgressReport: React.FC = () => {
                     <Select
                         className="w-full sm:w-80"
                         options={poses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                        value={searchParams.get("posIdNo")}
+                        value={searchParams.get("posId")}
                         onChange={(value) => {
                             updateSearchParams(searchParams, setSearchParams, {
-                                posIdNo: value
+                                posId: value
                             });
                         }}
                         size="large"

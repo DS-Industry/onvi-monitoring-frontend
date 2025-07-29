@@ -1,37 +1,26 @@
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { useCity } from "@/hooks/useAuthStore";
-import { createTechTaskShape, getPoses, getTechTaskShapeItem } from "@/services/api/equipment";
+import TableSkeleton from "@ui/Table/TableSkeleton";
+import { createTechTaskShape, getPoses, getTechTaskShapeItem, TechTasksItem } from "@/services/api/equipment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Location, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { CalendarOutlined, CloseOutlined, FileImageOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
-import TiptapEditor from "@/components/ui/Input/TipTapEditor";
-import Button from "@/components/ui/Button/Button";
+import TiptapEditor from "@ui/Input/TipTapEditor";
+import Button from "@ui/Button/Button";
 import { Card, Checkbox, List, Tag, Tooltip, Upload } from "antd";
-import Input from "@/components/ui/Input/Input";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
+import Input from "@ui/Input/Input";
+import DropdownInput from "@ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
 import { TFunction } from "i18next";
 import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { useToast } from "@/components/context/useContext";
 
-interface TechTaskItem {
-    id: number;
-    title: string;
-    type: string;
-    group: string;
-    code: string;
-    value?: string | number | boolean | null;
-    image?: string | null;
-}
-
 interface DynamicInputProps {
     type: string;
     value?: string | number | boolean | null;
     onChange: (value: string | number | boolean | null) => void;
-    location: Location;
+    status: string;
     t: TFunction;
 }
 
@@ -41,7 +30,7 @@ const selectOptions = [
     { name: "Выше нормы", value: "aboveNormal" },
 ];
 
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, location, t }) => {
+const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, status, t }) => {
     switch (type) {
         case "Text":
             return (
@@ -50,7 +39,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     value={value}
                     changeValue={(e) => onChange(e.target.value || "")}
                     classname="w-80"
-                    disabled={location.state?.status === t("tables.FINISHED")}
+                    disabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -63,7 +52,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                         onChange(e.target.value);
                     }}
                     classname="w-80"
-                    disabled={location.state?.status === t("tables.FINISHED")}
+                    disabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -74,7 +63,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
                     options={selectOptions}
                     onChange={(selectedValue) => onChange(selectedValue)}
                     classname="w-80"
-                    isDisabled={location.state?.status === t("tables.FINISHED")}
+                    isDisabled={status === t("tables.FINISHED")}
                 />
             );
 
@@ -93,29 +82,28 @@ const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, loca
     }
 };
 
-const RoutineWorkItem: React.FC = () => {
-    const location = useLocation();
+const TechTaskItem: React.FC = () => {
     const { t } = useTranslation();
-    const city = useCity();
     const navigate = useNavigate();
     const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
     const { showToast } = useToast();
+    const [searchParams] = useSearchParams();
+    const techTaskId = Number(searchParams.get("techTaskId"));
+    const status = searchParams.get("status");
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const poses: { name: string; value: number; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskData, isLoading: techTaskLoading, isValidating } = useSWR(
         [`get-tech-task`],
-        () => getTechTaskShapeItem(location.state?.ownerId),
+        () => getTechTaskShapeItem(techTaskId),
         { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
     );
 
-    const techTaskItems: TechTaskItem[] = useMemo(() => techTaskData?.items || [], [techTaskData]);
+    const techTaskItems = useMemo(() => techTaskData?.items || [], [techTaskData]);
 
     useEffect(() => {
         const initialSettings = techTaskItems.reduce((acc, item) => {
-            acc[item.group] = false; // Default all groups to closed
+            acc[item.group] = false;
             return acc;
         }, {} as Record<string, boolean>);
         setOpenSettings(initialSettings);
@@ -136,7 +124,7 @@ const RoutineWorkItem: React.FC = () => {
             acc[item.group].push(item);
             acc[item.group].sort((a, b) => a.id - b.id);
             return acc;
-        }, {} as Record<string, TechTaskItem[]>);
+        }, {} as Record<string, TechTasksItem[]>);
     }, [techTaskItems]);
 
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
@@ -147,7 +135,7 @@ const RoutineWorkItem: React.FC = () => {
                 files: { itemValueId: number; file: File }[];
             };
         }) => {
-            return createTechTaskShape(location.state?.ownerId, arg, arg.files);
+            return createTechTaskShape(techTaskId, arg, arg.files);
         }
     );
 
@@ -216,13 +204,6 @@ const RoutineWorkItem: React.FC = () => {
         }));
     };
 
-    // const uploadProps = {
-    //     customRequest: handleUpload,
-    //     showUploadList: false,
-    //     multiple: true,
-    //     accept: 'image/*',
-    // };
-
     const handleSubmit = async () => {
         const techTaskValue = Object.entries(taskValues).map(([itemValueId, value]) => ({
             itemValueId: Number(itemValueId),
@@ -260,7 +241,7 @@ const RoutineWorkItem: React.FC = () => {
                     <div>
                         <div className="text-sm text-text02">{t("finance.carWash")}</div>
                         <div className="w-80 border border-[#1476E9]/25 rounded-md px-2 py-2">
-                            {poses.find((pos) => pos.value === techTaskData?.posId)?.name || ""}
+                            {poses?.find((pos) => pos.id === techTaskData?.posId)?.name || ""}
                         </div>
                     </div>
                     <div>
@@ -322,8 +303,6 @@ const RoutineWorkItem: React.FC = () => {
                                                     {openSettings[groupName] ? <UpOutlined /> : <DownOutlined />}
                                                 </div>
                                             </div>
-
-                                            {/* Group Items */}
                                             {openSettings[groupName] && (
                                                 <List
                                                     dataSource={items}
@@ -344,7 +323,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                                     showUploadList={false}
                                                                                     multiple={false}
                                                                                     accept="image/*"
-                                                                                    disabled={location.state.status === t("tables.FINISHED")}
+                                                                                    disabled={status === t("tables.FINISHED")}
                                                                                 >
                                                                                     <button type="button" className="flex items-center justify-center" title="Upload">
                                                                                         <FileImageOutlined
@@ -353,7 +332,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                                         />
                                                                                     </button>
                                                                                 </Upload>
-                                                                                {location.state.status === t("tables.FINISHED") ? (
+                                                                                {status === t("tables.FINISHED") ? (
                                                                                     <div>
                                                                                         {techItem.type === "SelectList"
                                                                                             ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name
@@ -364,7 +343,7 @@ const RoutineWorkItem: React.FC = () => {
                                                                                         type={techItem.type}
                                                                                         value={taskValues[techItem.id]}
                                                                                         onChange={(value) => handleChange(techItem.id, value)}
-                                                                                        location={location}
+                                                                                        status={status || ""}
                                                                                         t={t}
                                                                                     />
                                                                                 )}
@@ -405,7 +384,7 @@ const RoutineWorkItem: React.FC = () => {
                                 )}
                             />)}
                     </div>
-                    {location.state.status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    {status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
                             type="outline"
@@ -423,4 +402,4 @@ const RoutineWorkItem: React.FC = () => {
     )
 }
 
-export default RoutineWorkItem;
+export default TechTaskItem;

@@ -8,7 +8,7 @@ import {
 } from "@/services/api/equipment";
 import useSWR from "swr";
 import { Select, Table } from "antd";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
     ALL_PAGE_SIZES,
     DEFAULT_PAGE,
@@ -23,7 +23,6 @@ import {
 import { ColumnsType } from "antd/es/table";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import { CheckCircleOutlined } from "@ant-design/icons";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
 const TechTasks: React.FC = () => {
@@ -90,28 +89,27 @@ const TechTasks: React.FC = () => {
 
     const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
         {
-            title: "",
-            dataIndex: "statusCheck",
-            key: "statusCheck",
-            render: (_: unknown, record) =>
-                record.status === t("tables.FINISHED") ? (
-                    <CheckCircleOutlined className="text-green-500 text-lg" />
-                ) : null,
-        },
-        {
             title: "Автомойка/ Филиал",
             dataIndex: "posName",
-            key: "posName"
+            key: "posName",
+            render: (text, record) => {
+                return (
+                    <Link
+                        to={{
+                            pathname: "/equipment/technical/tasks/list/item",
+                            search: `?techTaskId=${record.id}&status=${record.status}`,
+                        }}
+                        className="text-blue-500 hover:text-blue-700 font-semibold"
+                    >
+                        {text}
+                    </Link>
+                );
+            }
         },
         {
             title: "Наименование работ",
             dataIndex: "name",
             key: "name",
-        },
-        {
-            title: "Периодичность",
-            dataIndex: "period",
-            key: "period",
         },
         {
             title: "Статус",
@@ -150,7 +148,7 @@ const TechTasks: React.FC = () => {
 
     return (
         <>
-            <GeneralFilters count={data?.totalCount || 0} hideCity={true} hideSearch={true} hideDateAndTime={true} resetCustomFilters={resetFilters} poses={poses?.map((item) => ({ name: item.name, value: item.id }))}>
+            <GeneralFilters count={data?.totalCount || 0} hideCity={true} hideSearch={true} hideDateAndTime={true} onReset={resetFilters} poses={poses?.map((item) => ({ name: item.name, value: item.id }))}>
                 <div>
                     <div className="text-sm text-text02">{t("constants.status")}</div>
                     <Select
