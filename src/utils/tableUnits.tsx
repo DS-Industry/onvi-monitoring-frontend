@@ -86,6 +86,7 @@ export function getStatusTagRender(t: TFunction) {
     const orangeStatuses = [
       t("tables.SAVED"),
       t("tables.VERIFICATE"),
+      t("tables.RETURNED")
     ];
 
     if (greenStatuses.includes(status)) {

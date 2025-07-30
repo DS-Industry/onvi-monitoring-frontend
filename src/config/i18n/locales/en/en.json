@@ -729,7 +729,8 @@
     "REGULAR": "REGULAR",
     "In Progress": "In Progress",
     "Done": "Done",
-    "displayedColumns": "Displayed Columns"
+    "displayedColumns": "Displayed Columns",
+    "RETURNED": "RETURNED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",

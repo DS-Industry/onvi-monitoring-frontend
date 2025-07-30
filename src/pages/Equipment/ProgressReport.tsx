@@ -45,8 +45,7 @@ const ProgressReport: React.FC = () => {
             posName: poses?.find((pos) => pos.id === item.posId)?.name || "-",
             type: t(`tables.${item.type}`),
             status: t(`tables.${item.status}`)
-        }))
-        .sort((a, b) => a.id - b.id) || [];
+        })) || [];
 
     const statusRender = getStatusTagRender(t);
     const dateRender = getDateRender();
@@ -156,7 +155,7 @@ const ProgressReport: React.FC = () => {
                     onChange={setCheckedList}
                 />
                 <Table<TechTaskReadAll>
-                    dataSource={techTasks}
+                    dataSource={techTasks.sort((a, b) => a.id - b.id)}
                     columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
                     pagination={{
