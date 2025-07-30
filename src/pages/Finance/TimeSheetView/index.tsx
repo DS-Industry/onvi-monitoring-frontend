@@ -54,7 +54,7 @@ const TimesheetView: React.FC = () => {
       case "exchange":
         return <ExchangeTab status={dayShiftData?.status} />;
       case "returns":
-        return <ReturnsTab />;
+        return <ReturnsTab status={dayShiftData?.status} />;
       case "cleaning":
         return <CleaningTab />;
       case "susp":
