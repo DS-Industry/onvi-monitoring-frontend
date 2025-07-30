@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getCashOperSuspiciousById } from "@/services/api/finance";
 import { getDevices } from "@/services/api/equipment";
-import { columnsDataCashOperSuspiciously } from "@/utils/OverFlowTableData";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { getDateRender } from "@/utils/tableUnits";
 import NoDataUI from "@/components/ui/NoDataUI";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { useSearchParams } from "react-router-dom";
 
 const SuspiciousTab: React.FC = () => {
@@ -54,17 +54,58 @@ const SuspiciousTab: React.FC = () => {
       deviceName: devices.find((dev) => dev.value === item.deviceId)?.name,
     })) || [];
 
+  const dateRender = getDateRender();
+
+  const columns: ColumnsType<any> = [
+    {
+      title: "Устройство",
+      dataIndex: "deviceName",
+      key: "deviceName",
+    },
+    {
+      title: "Время включения",
+      dataIndex: "programDate",
+      key: "programDate",
+      render: dateRender,
+    },
+    {
+      title: "Программа",
+      dataIndex: "programName",
+      key: "programName",
+    },
+    {
+      title: "Время работы",
+      dataIndex: "programTime",
+      key: "programTime",
+    },
+    {
+      title: "Время включения (Предыдущая)",
+      dataIndex: "lastProgramDate",
+      key: "lastProgramDate",
+      render: dateRender,
+    },
+    {
+      title: "Программа (Предыдущая)",
+      dataIndex: "lastProgramName",
+      key: "lastProgramName",
+    },
+    {
+      title: "Время работы (Предыдущая)",
+      dataIndex: "lastProgramTime",
+      key: "lastProgramTime",
+    },
+  ];
+
   return (
     <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 mx-auto">
-      {loadingCashOperSusp ? (
-        <TableSkeleton columnCount={columnsDataCashOperSuspiciously.length} />
-      ) : cashOperSubsArray.length > 0 ? (
-        <DynamicTable
-          data={cashOperSubsArray.map((item, index) => ({
-            ...item,
-            id: index,
-          }))}
-          columns={columnsDataCashOperSuspiciously}
+      {cashOperSubsArray.length > 0 || loadingCashOperSusp ? (
+        <Table
+          dataSource={cashOperSubsArray}
+          columns={columns}
+          rowKey={(record, index) => index || 0}
+          pagination={false}
+          size="small"
+          loading={loadingCashOperSusp}
         />
       ) : (
         <div className="flex flex-col justify-center items-center text-center p-4">

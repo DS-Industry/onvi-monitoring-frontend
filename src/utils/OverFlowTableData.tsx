@@ -1,4 +1,5 @@
 import Input from "@/components/ui/Input/Input";
+import { getDateRender, formatNumber } from "@/utils/tableUnits";
 
 export const tableUserData = [
   {
@@ -129,7 +130,7 @@ export const columnsPos = [
   },
   {
     label: "Организация",
-    key: "organizationName"
+    key: "organizationName",
   },
   {
     label: "Статус",
@@ -152,8 +153,8 @@ export const columnsPos = [
   {
     label: "Обновил",
     key: "updatedByName",
-  }
-]
+  },
+];
 export const columnsOrg = [
   {
     label: "id",
@@ -193,7 +194,7 @@ export const columnsOrg = [
     label: "Хозяин",
     key: "ownerName",
   },
-]
+];
 export const columnsDevice = [
   {
     label: "id",
@@ -219,7 +220,7 @@ export const columnsDevice = [
     label: "Принадлежит",
     key: "carWashPosName",
   },
-]
+];
 
 export const columnsMonitoringPos = [
   {
@@ -246,12 +247,12 @@ export const columnsMonitoringPos = [
   {
     label: "Наличные",
     key: "cashSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "currency"
+    type: "currency",
   },
   // {
   //   label: "Списание по приложению",
@@ -260,24 +261,24 @@ export const columnsMonitoringPos = [
   {
     label: "Сashback по картам",
     key: "cashbackSumCard",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Сумма скидки",
     key: "discountSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Кол-во опреаций",
     key: "counter",
-    type: "number"
+    type: "number",
   },
   {
     label: "Яндекс Сумма",
     key: "yandexSum",
-    type: "currency"
+    type: "currency",
   },
-]
+];
 
 export const columnsMonitoringFullDevices = [
   {
@@ -295,24 +296,24 @@ export const columnsMonitoringFullDevices = [
   {
     label: "Наличные",
     key: "cashSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Безналичные",
     key: "virtualSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Яндекс Заправки",
     key: "yandexSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Последняя операция",
     key: "lastOper",
     type: "date",
   },
-]
+];
 
 export const columnsMonitoringDevice = [
   {
@@ -322,7 +323,7 @@ export const columnsMonitoringDevice = [
   {
     label: "Сумма операции",
     key: "sumOper",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Дата операции",
@@ -337,18 +338,18 @@ export const columnsMonitoringDevice = [
   {
     label: "Счетчик",
     key: "counter",
-    type: "number"
+    type: "number",
   },
   {
     label: "Локальный id",
     key: "localId",
-    type: "number"
+    type: "number",
   },
   {
     label: "Валюта",
     key: "currencyType",
-  }
-]
+  },
+];
 
 export const columnsProgramsPos = [
   {
@@ -358,23 +359,23 @@ export const columnsProgramsPos = [
   {
     label: "Кол-во программ",
     key: "counter",
-    type: "double"
+    type: "double",
   },
   {
     label: "Общее время (мин)",
     key: "totalTime",
-    type: "double"
+    type: "double",
   },
   {
     label: "Среднее время (мин)",
-    key: "averageTime"
+    key: "averageTime",
   },
   {
     label: "Последняя программа",
     key: "lastOper",
     type: "date",
   },
-]
+];
 
 export const columnsProgramsPosPortal = [
   {
@@ -384,28 +385,28 @@ export const columnsProgramsPosPortal = [
   {
     label: "Кол-во программ",
     key: "counter",
-    type: "double"
+    type: "double",
   },
   {
     label: "Общее время (мин)",
     key: "totalTime",
-    type: "double"
+    type: "double",
   },
   {
     label: "Среднее время (мин)",
-    key: "averageTime"
+    key: "averageTime",
   },
   {
     label: "Выручка по программам",
     key: "totalProfit",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Средний чек",
     key: "averageProfit",
-    type: "currency"
-  }
-]
+    type: "currency",
+  },
+];
 
 export const columnsProgramDevice = [
   {
@@ -429,12 +430,12 @@ export const columnsProgramDevice = [
   {
     label: "Время выполнения",
     key: "time",
-    type: "double"
+    type: "double",
   },
   {
     label: "Локальный id",
     key: "localId",
-    type: "double"
+    type: "double",
   },
   {
     label: "Оплата",
@@ -442,14 +443,14 @@ export const columnsProgramDevice = [
   },
   {
     label: "Машина",
-    key: "isCar"
-  }
-]
+    key: "isCar",
+  },
+];
 
 export const columnsEquipmentFailure = [
   {
     label: "Название объекта",
-    key: "posName"
+    key: "posName",
   },
   // {
   //   label: "Тип объекта",
@@ -457,239 +458,244 @@ export const columnsEquipmentFailure = [
   // },
   {
     label: "Сотрудник",
-    key: "workerName"
+    key: "workerName",
   },
   {
     label: "Дата поломки",
     key: "appearanceDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Дата начала работы",
     key: "startDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Дата окончания работы",
     key: "finishDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Устройство",
-    key: "objectName"
+    key: "objectName",
   },
   {
     label: "Узел",
-    key: "equipmentKnot"
+    key: "equipmentKnot",
   },
   {
     label: "Проблема",
-    key: "incidentName"
+    key: "incidentName",
   },
   {
     label: "Причина",
-    key: "incidentReason"
+    key: "incidentReason",
   },
   {
     label: "Принятые меры",
-    key: "incidentSolution"
+    key: "incidentSolution",
   },
   {
     label: "Время исправления",
-    key: "repair"
+    key: "repair",
   },
   {
     label: "Простой",
-    key: "downtime"
+    key: "downtime",
   },
   {
     label: "Комментарий",
-    key: "comment"
+    key: "comment",
   },
   {
     label: "Программа",
-    key: "programName"
-  }
-]
+    key: "programName",
+  },
+];
 
 export const columnsTechTasks = [
   {
     label: "Автомойка/ Филиал",
-    key: "posName"
+    key: "posName",
   },
   {
     label: "Наименование работ",
-    key: "name"
+    key: "name",
   },
   {
     label: "Периодичность",
     key: "period",
-    type: "number"
+    type: "number",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Тип работы",
-    key: "type"
+    key: "type",
   },
   {
     label: "Теги",
     key: "tags",
-    type: "tags"
+    type: "tags",
   },
   {
     label: "Дата начала работ",
     key: "startDate",
-    type: "date"
-  }
-]
+    type: "date",
+  },
+];
 
 export const columnsTechTasksRead = [
   {
     label: "№",
-    key: "id"
+    key: "id",
   },
   {
     label: "Автомойка/ Филиал",
-    key: "posName"
+    key: "posName",
   },
   {
     label: "Наименование работ",
-    key: "name"
+    key: "name",
   },
   {
     label: "Периодичность",
-    key: "type"
+    key: "type",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Дата начала",
     key: "startWorkDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Дата окончания",
     key: "sendWorkDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Исполнитель",
-    key: "executorId"
-  }
-]
+    key: "executorId",
+  },
+];
 
 export const columnsChemicalConsumption = [
   {
     label: "Период",
-    key: "period"
+    key: "period",
   },
   {
     label: "Вода + шампунь, факт",
     key: "Вода + шампунь, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "Вода + шампунь, время",
     key: "Вода + шампунь, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "Вода + шампунь, пересчет",
     key: "Вода + шампунь, пересчет",
-    type: "number"
+    type: "number",
   },
   {
     label: "Активная химия, факт",
     key: "Активная химия, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "Активная химия, время",
     key: "Активная химия, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "Активная химия, пересчет",
     key: "Активная химия, пересчет",
-    type: "number"
+    type: "number",
   },
   {
     label: "Мойка дисков, факт",
     key: "Мойка дисков, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "Мойка дисков, время",
     key: "Мойка дисков, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "Мойка дисков, пересчет",
     key: "Мойка дисков, пересчет",
-    type: "number"
+    type: "number",
   },
   {
     label: "Щетка + пена, факт",
     key: "Щетка + пена, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "Щетка + пена, время",
     key: "Щетка + пена, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "Щетка + пена, пересчет",
     key: "Щетка + пена, пересчет",
-    type: "number"
+    type: "number",
   },
   {
     label: "Воск + защита, факт",
     key: "Воск + защита, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "Воск + защита, время",
     key: "Воск + защита, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "Воск + защита, пересчет",
     key: "Воск + защита, пересчет",
-    type: "number"
+    type: "number",
   },
   {
     label: "T-POWER, факт",
     key: "T-POWER, факт",
-    type: "number"
+    type: "number",
   },
   {
     label: "T-POWER, время",
     key: "T-POWER, время",
-    type: "number"
+    type: "number",
   },
   {
     label: "T-POWER, пересчет",
     key: "T-POWER, пересчет",
-    type: "number"
-  }
-]
+    type: "number",
+  },
+];
 
 export const columnsConsumptionRate = [
   {
     label: "Программа",
     key: "programTypeName",
-    render: (row: { programTypeName: string; }) => <span>{row.programTypeName}</span>,
+    render: (row: { programTypeName: string }) => (
+      <span>{row.programTypeName}</span>
+    ),
   },
   {
     label: "Расход литр/минута",
     key: "literRate",
-    render: (row: { literRate: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { literRate: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         value={row.literRate}
@@ -701,11 +707,16 @@ export const columnsConsumptionRate = [
   {
     label: "Концентрация 1/х",
     key: "concentration",
-    render: (row: { concentration: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { concentration: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         value={row.concentration}
-        changeValue={(e) => handleChange(row.id, "concentration", e.target.value)}
+        changeValue={(e) =>
+          handleChange(row.id, "concentration", e.target.value)
+        }
         error={row.concentration < 0}
       />
     ),
@@ -715,11 +726,11 @@ export const columnsConsumptionRate = [
 export const columnsInventory = [
   {
     label: "Код",
-    key: "sku"
+    key: "sku",
   },
   {
     label: "Номенклатура",
-    key: "name"
+    key: "name",
   },
   // {
   //   label: "Артикул",
@@ -735,8 +746,8 @@ export const columnsInventory = [
   // },
   {
     label: "Категория",
-    key: "categoryId"
-  }
+    key: "categoryId",
+  },
   // {
   //   label: "Measurement",
   //   key: "measurement"
@@ -746,116 +757,134 @@ export const columnsInventory = [
 export const columnsCategory = [
   {
     label: "Название группы",
-    key: "name"
+    key: "name",
   },
   {
     label: "Описание",
-    key: "description"
+    key: "description",
   },
 ];
 
 export const columnsAllDocuments = [
   {
     label: "№",
-    key: "id"
+    key: "id",
   },
   {
     label: "Номер",
-    key: "name"
+    key: "name",
   },
   {
     label: "Дата",
     key: "carryingAt",
-    type: "date"
+    type: "date",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Вид документа",
-    key: "type"
+    key: "type",
   },
   {
     label: "Склад",
-    key: "warehouseName"
+    key: "warehouseName",
   },
   {
     label: "Ответственный",
-    key: "responsibleName"
-  }
-]
+    key: "responsibleName",
+  },
+];
 
 export const columnsInventoryItems = [
   {
     label: "Код",
-    key: "nomenclatureId"
+    key: "nomenclatureId",
   },
   {
     label: "Наименование товара",
-    key: "nomenclatureName"
-  }
-]
+    key: "nomenclatureName",
+  },
+];
 
 export const columnsSupplier = [
   {
     label: "№",
-    key: "id"
+    key: "id",
   },
   {
     label: "Ниименование",
-    key: "name"
+    key: "name",
   },
   {
     label: "Контакт",
-    key: "contact"
+    key: "contact",
   },
 ];
 
 export const columnsClient = [
   {
     label: "Тип клиента",
-    key: "type"
+    key: "type",
   },
   {
     label: "Имя клиента",
-    key: "name"
-  }
-]
+    key: "name",
+  },
+];
 
 export const columnsCollections = [
   {
     label: "Тип",
     key: "typeName",
-    render: (row: { typeName: string; }) => <span>{row.typeName}</span>,
+    render: (row: { typeName: string }) => <span>{row.typeName}</span>,
   },
   {
     label: "Купюры",
     key: "sumPaperDeviceType",
-    render: (row: { sumPaperDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { sumPaperDeviceType: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
         placeholder="00,00"
         value={row.sumPaperDeviceType}
         error={!row.sumPaperDeviceType}
-        helperText={!row.sumPaperDeviceType ? "Sum Paper Device type is required." : undefined}
-        changeValue={(e) => handleChange(row.id, "sumPaperDeviceType", e.target.value)}
+        helperText={
+          !row.sumPaperDeviceType
+            ? "Sum Paper Device type is required."
+            : undefined
+        }
+        changeValue={(e) =>
+          handleChange(row.id, "sumPaperDeviceType", e.target.value)
+        }
       />
     ),
   },
   {
     label: "Монеты",
     key: "sumCoinDeviceType",
-    render: (row: { sumCoinDeviceType: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { sumCoinDeviceType: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         // className="border border-opacity01 rounded-md px-3 py-2 w-full bg-background05"
         placeholder="00,00"
         value={row.sumCoinDeviceType}
         error={!row.sumCoinDeviceType}
-        helperText={!row.sumCoinDeviceType ? "Sum Coin Device type is required." : undefined}
-        changeValue={(e) => handleChange(row.id, "sumCoinDeviceType", e.target.value)}
+        helperText={
+          !row.sumCoinDeviceType
+            ? "Sum Coin Device type is required."
+            : undefined
+        }
+        changeValue={(e) =>
+          handleChange(row.id, "sumCoinDeviceType", e.target.value)
+        }
       />
     ),
   },
@@ -863,631 +892,643 @@ export const columnsCollections = [
     label: "Сумма всего",
     key: "sumFactDeviceType",
     type: "double",
-    render: (row: { sumFactDeviceType: string; }) => <span>{row.sumFactDeviceType}</span>,
+    render: (row: { sumFactDeviceType: string }) => (
+      <span>{row.sumFactDeviceType}</span>
+    ),
   },
   {
     label: "Недостача",
     key: "shortageDeviceType",
     type: "double",
-    render: (row: { shortageDeviceType: string; }) => <span>{row.shortageDeviceType}</span>,
+    render: (row: { shortageDeviceType: string }) => (
+      <span>{row.shortageDeviceType}</span>
+    ),
   },
   {
     label: "Безналичная оплата",
     key: "virtualSumDeviceType",
     type: "double",
-    render: (row: { virtualSumDeviceType: string; }) => <span>{row.virtualSumDeviceType}</span>,
-  }
-]
+    render: (row: { virtualSumDeviceType: string }) => (
+      <span>{row.virtualSumDeviceType}</span>
+    ),
+  },
+];
 
 export const columnsDeviceData = [
   {
     label: "Код",
-    key: "deviceId"
+    key: "deviceId",
   },
   {
     label: "Название",
-    key: "deviceName"
+    key: "deviceName",
   },
   {
     label: "Тип",
-    key: "deviceType"
+    key: "deviceType",
   },
   {
     label: "Предыдущая инкассация",
     key: "oldTookMoneyTime",
-    type: "date"
+    type: "date",
   },
   {
     label: "Текущая инкассация",
     key: "tookMoneyTime",
-    type: "date"
+    type: "date",
   },
   {
     label: "Купюры",
     key: "sumPaperDevice",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Монеты",
     key: "sumCoinDevice",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Сумма всего",
     key: "sumDevice",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Безналичная оплата",
     key: "virtualSumDevice",
-    type: "currency"
-  }
-]
+    type: "currency",
+  },
+];
 
 export const columnsCollectionsData = [
   {
     label: "№ Документа",
-    key: "id"
+    key: "id",
   },
   {
     label: "Мойка/Филиал",
-    key: "posId"
+    key: "posId",
   },
   {
     label: "Статус",
-    key: "status"
-  },
-  {
-    label: "Период",
-    key: "period"
-  },
-  {
-    label: "Инкассация",
-    key: "sumFact"
-  },
-  {
-    label: "Сумма по картам",
-    key: "sumCard"
-  },
-  {
-    label: "Безналичная оплата",
-    key: "sumVirtual"
-  },
-  {
-    label: "Прибыль",
-    key: "profit"
-  },
-  {
-    label: "Статус",
-    key: "status"
-  },
-  {
-    label: "Недостача",
-    key: "shortage"
-  }
-]
-
-export const columnsShifts = [
-  {
-    label: "Мойка/филиал",
-    key: "posName"
+    key: "status",
   },
   {
     label: "Период",
     key: "period",
-    type: "period"
+  },
+  {
+    label: "Инкассация",
+    key: "sumFact",
+  },
+  {
+    label: "Сумма по картам",
+    key: "sumCard",
+  },
+  {
+    label: "Безналичная оплата",
+    key: "sumVirtual",
+  },
+  {
+    label: "Прибыль",
+    key: "profit",
+  },
+  {
+    label: "Статус",
+    key: "status",
+  },
+  {
+    label: "Недостача",
+    key: "shortage",
+  },
+];
+
+export const columnsShifts = [
+  {
+    label: "Мойка/филиал",
+    key: "posName",
+  },
+  {
+    label: "Период",
+    key: "period",
+    type: "period",
   },
   {
     label: "Дата форматирования",
     key: "createdAt",
-    type: "date"
+    type: "date",
   },
   {
     label: "Ответственный",
-    key: "createdByName"
+    key: "createdByName",
   },
   {
     label: "Изменения в отчете",
     key: "updatedAt",
-    type: "date"
-  }
-]
+    type: "date",
+  },
+];
 
 export const columnsDataCashOper = [
   {
     label: "На начало смены",
     key: "cashAtStart",
-    type: "double"
+    type: "double",
   },
   {
     label: "Пополнение",
     key: "replenishmentSum",
-    type: "double"
+    type: "double",
   },
   {
     label: "Расход",
     key: "expenditureSum",
-    type: "double"
+    type: "double",
   },
   {
     label: "На конец смены",
     key: "cashAtEnd",
-    type: "double"
-  }
-]
+    type: "double",
+  },
+];
 
 export const columnsDataCashOperRefund = [
   {
     label: "Устройство",
-    key: "deviceName"
+    key: "deviceName",
   },
   {
     label: "Дата и время",
     key: "eventDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Сумма",
     key: "sum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Комментарий",
-    key: "comment"
-  }
-]
+    key: "comment",
+  },
+];
 
 export const columnsDataCashOperCleaning = [
   {
     label: "Наименование",
-    key: "deviceName"
+    key: "deviceName",
   },
   {
     label: "Программа",
-    key: "programName"
+    key: "programName",
   },
   {
     label: "Кол-во программ",
     key: "countProgram",
-    type: "double"
+    type: "number",
+    render: (value: number) => formatNumber(value),
   },
   {
     label: "Общее время",
-    key: "time"
-  }
-]
+    key: "time",
+  },
+];
 
 export const columnsDataCashOperSuspiciously = [
   {
     label: "Устройство",
-    key: "deviceName"
+    key: "deviceName",
   },
   {
     label: "Время включения",
     key: "programDate",
-    type: "date"
+    type: "date",
+    render: getDateRender(),
   },
   {
     label: "Программа",
-    key: "programName"
+    key: "programName",
   },
   {
     label: "Время работы",
-    key: "programTime"
+    key: "programTime",
   },
   {
     label: "Время включения (Предыдущая)",
     key: "lastProgramDate",
-    type: "date"
+    type: "date",
+    render: getDateRender(),
   },
   {
     label: "Программа (Предыдущая)",
-    key: "lastProgramName"
+    key: "lastProgramName",
   },
   {
     label: "Время работы (Предыдущая)",
-    key: "lastProgramTime"
-  }
-]
+    key: "lastProgramTime",
+  },
+];
 
 export const columnsEmployees = [
   {
     label: "ФИО Сотрудника",
-    key: "name"
+    key: "name",
   },
   {
     label: "Должность",
-    key: "position"
+    key: "position",
   },
   {
     label: "Роль СRM",
-    key: "roleName"
+    key: "roleName",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Работает с",
-    key: "createdAt"
-  }
-]
+    key: "createdAt",
+  },
+];
 
 export const columnsRoles = [
   {
     label: "Роль СRM",
-    key: "name"
+    key: "name",
   },
   {
     label: "Права доступа",
-    key: "description"
-  }
-] 
+    key: "description",
+  },
+];
 
 export const columnsTransactions = [
   {
     label: "Отчет",
-    key: "reportTemplateId"
+    key: "reportTemplateId",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Дата начала создания",
     key: "startTemplateAt",
-    type: "date"
+    type: "date",
   },
   {
     label: "Дата окончания создания",
     key: "endTemplateAt",
-    type: "date"
-  }
-]
+    type: "date",
+  },
+];
 
 export const columnsWarehouses = [
   {
     label: "Наименование",
-    key: "name"
+    key: "name",
   },
   {
     label: "Расположение",
-    key: "location"
+    key: "location",
   },
   {
     label: "Менеджер",
-    key: "manager"
+    key: "manager",
   },
   {
     label: "Автомойка/ Филиал",
-    key: "posName"
-  }
-]
+    key: "posName",
+  },
+];
 
 export const columnsPlanFact = [
   {
     label: "ID",
-    key: "posId"
+    key: "posId",
   },
   {
     label: "Название",
-    key: "posName"
+    key: "posName",
   },
   {
     label: "План за указанный период",
     key: "plan",
-    type: "double"
+    type: "double",
   },
   {
     label: "Наличные",
     key: "cashFact",
-    type: "double"
+    type: "double",
   },
   {
     label: "Безналичные",
     key: "virtualSumFact",
-    type: "double"
+    type: "double",
   },
   {
     label: "Яндекс зачисления",
     key: "yandexSumFact",
-    type: "double"
+    type: "double",
   },
   {
     label: "Факт итог",
     key: "sumFact",
-    type: "double"
+    type: "double",
   },
   {
     label: "Выполнен план",
     key: "completedPercent",
-    type: "percent"
+    type: "percent",
   },
   {
     label: "Не выполнен план",
     key: "notCompletedPercent",
-    type: "percent"
-  }
-]
+    type: "percent",
+  },
+];
 
 export const columnsEmployee = [
   {
     label: "ФИО Сотрудника",
-    key: "name"
+    key: "name",
   },
   {
     label: "Город",
-    key: "placement"
+    key: "placement",
   },
   {
     label: "Организация",
-    key: "organization"
+    key: "organization",
   },
   {
     label: "Должность",
-    key: "position"
+    key: "position",
   },
   {
     label: "Месячный оклад",
     key: "monthlySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Дневной оклад",
     key: "dailySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Проценты",
     key: "percentageSalary",
-    type: "percent"
-  }
-]
+    type: "percent",
+  },
+];
 
 export const columnsPositions = [
   {
     label: "Должность",
-    key: "name"
+    key: "name",
   },
   {
     label: "Описание",
-    key: "description"
-  }
-]
+    key: "description",
+  },
+];
 
 export const columnsSalaryCalcCreation = [
   {
     label: "Мойка/Филиал",
-    key: "posName"
+    key: "posName",
   },
   {
     label: "ФИО Сотрудника",
-    key: "fullName"
+    key: "fullName",
   },
   {
     label: "Должность",
-    key: "jobTitle"
+    key: "jobTitle",
   },
   {
     label: "Оклад",
     key: "salary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Посменное начисление",
     key: "shift",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Процент",
     key: "percent",
-    type: "percent"
+    type: "percent",
   },
   {
     label: "Количество отработанных смен",
     key: "shifts",
-    type: "number"
-  }
-]
+    type: "number",
+  },
+];
 
 export const columnsClients = [
   {
     label: "Тип клиента",
-    key: "type"
+    key: "type",
   },
   {
     label: "Имя клиента",
-    key: "name"
+    key: "name",
   },
   {
     label: "Город",
-    key: "city"
+    key: "city",
   },
   {
     label: "Телефон",
-    key: "phone"
+    key: "phone",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Теги",
     key: "tags",
-    type: "tags"
+    type: "tags",
   },
   {
     label: "Комментарий",
-    key: "comment"
-  }
-]
+    key: "comment",
+  },
+];
 
 export const columnsLoyaltyPrograms = [
   {
     label: "Название программы",
-    key: "name"
+    key: "name",
   },
   {
     label: "Статус",
-    key: "status"
+    key: "status",
   },
   {
     label: "Дата запуска",
     key: "startDate",
-    type: "date"
-  }
-]
+    type: "date",
+  },
+];
 
 export const columnsPayments = [
   {
     label: "ФИО",
-    key: "name"
+    key: "name",
   },
   {
     label: "Должность",
-    key: "hrPosition"
+    key: "hrPosition",
   },
   {
     label: "Месяц расчёта",
     key: "billingMonth",
-    type: "date"
+    type: "date",
   },
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "percent"
+    type: "percent",
   },
   {
     label: "Количество отработанных смен",
     key: "countShifts",
-    type: "double"
+    type: "double",
   },
   {
     label: "Выплачено аванс",
     key: "prepaymentSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Выплачено ЗП",
     key: "paymentSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Премия",
     key: "prize",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Штраф",
     key: "fine",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Выплачено итог",
     key: "totalPayment",
-    type: "currency"
-  }
-]
+    type: "currency",
+  },
+];
 
 export const columnsPrePayments = [
   {
     label: "ФИО",
-    key: "name"
+    key: "name",
   },
   {
     label: "Должность",
-    key: "hrPosition"
+    key: "hrPosition",
   },
   {
     label: "Расчетный месяц",
     key: "billingMonth",
-    type: "date"
+    type: "date",
   },
   {
     label: "Дата выдачи",
     key: "paymentDate",
-    type: "date"
+    type: "date",
   },
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "percent"
+    type: "percent",
   },
   {
     label: "Количество отработанных смен",
     key: "countShifts",
-    type: "double"
+    type: "double",
   },
   {
     label: "Выплачено",
     key: "sum",
-    type: "currency"
-  }
-]
+    type: "currency",
+  },
+];
 
 export const columnsPaymentsCreation = [
   {
     label: "ФИО",
-    key: "name"
+    key: "name",
   },
   {
     label: "Должность",
-    key: "hrPosition"
+    key: "hrPosition",
   },
   {
     label: "Месяц расчёта",
     key: "billingMonth",
-    type: "date"
+    type: "date",
   },
   {
     label: "Оклад",
     key: "monthlySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Посменное начисление",
     key: "dailySalary",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Процент",
     key: "percentageSalary",
-    type: "percent"
+    type: "percent",
   },
   {
     label: "Выплачено аванс",
     key: "prepaymentSum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Количество отработанных смен аванс",
     key: "prepaymentCountShifts",
-    type: "double"
+    type: "double",
   },
   {
     label: "Количество отработанных смен",
     key: "countShifts",
-    render: (row: { countShifts: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { countShifts: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         placeholder="00,00"
@@ -1499,17 +1540,20 @@ export const columnsPaymentsCreation = [
   {
     label: "Количество отработанных смен итог",
     key: "totalCountShifts",
-    type: "double"
+    type: "double",
   },
   {
     label: "Выплачено ЗП",
     key: "sum",
-    type: "currency"
+    type: "currency",
   },
   {
     label: "Премия",
     key: "prize",
-    render: (row: { prize: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { prize: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         placeholder="00,00"
@@ -1521,7 +1565,10 @@ export const columnsPaymentsCreation = [
   {
     label: "Штраф",
     key: "fine",
-    render: (row: { fine: number; id: number; }, handleChange: (arg0: number, arg1: string, arg2: string) => void) => (
+    render: (
+      row: { fine: number; id: number },
+      handleChange: (arg0: number, arg1: string, arg2: string) => void
+    ) => (
       <Input
         type="number"
         placeholder="00,00"
@@ -1533,22 +1580,22 @@ export const columnsPaymentsCreation = [
   {
     label: "Выплачено итог",
     key: "totalPayment",
-    type: "double"
-  }
-]
+    type: "double",
+  },
+];
 
 export const columnsPaperTypes = [
   {
     label: "№",
-    key: "id"
+    key: "id",
   },
   {
     label: "Ниименование",
-    key: "name"
+    key: "name",
   },
   {
     label: "Тип статьи",
     key: "typeName",
-    type: "status"
+    type: "status",
   },
 ];

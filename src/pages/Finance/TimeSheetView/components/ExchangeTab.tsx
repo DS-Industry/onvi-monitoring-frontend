@@ -14,6 +14,9 @@ import {
 import { Table } from "antd";
 import CreateCashOperationModal from "./CreateCashOperationModal";
 
+// utils
+import { getCurrencyRender } from "@/utils/tableUnits";
+
 // types
 import type { ColumnsType } from "antd/es/table";
 
@@ -51,30 +54,32 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   const cashOperArray = cashOperData ? [cashOperData] : [];
 
+  const currencyRender = getCurrencyRender();
+
   const tableColumns: ColumnsType<any> = [
     {
       title: "На начало смены",
       dataIndex: "cashAtStart",
       key: "cashAtStart",
-      render: (value: number) => value?.toFixed(2) || "0.00",
+      render: currencyRender,
     },
     {
       title: "Пополнение",
       dataIndex: "replenishmentSum",
       key: "replenishmentSum",
-      render: (value: number) => value?.toFixed(2) || "0.00",
+      render: currencyRender,
     },
     {
       title: "Расход",
       dataIndex: "expenditureSum",
       key: "expenditureSum",
-      render: (value: number) => value?.toFixed(2) || "0.00",
+      render: currencyRender,
     },
     {
       title: "На конец смены",
       dataIndex: "cashAtEnd",
       key: "cashAtEnd",
-      render: (value: number) => value?.toFixed(2) || "0.00",
+      render: currencyRender,
     },
   ];
 

@@ -9,45 +9,20 @@ import { createCashOper, getCashOperRefundById } from "@/services/api/finance";
 import { getDevices } from "@/services/api/equipment";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import TableUtils from "@/utils/TableUtils";
+import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 
 // components
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import Modal from "@/components/ui/Modal/Modal";
 import Close from "@icons/close.svg?react";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
-import NoDataUI from "@/components/ui/NoDataUI";
-import NoTimeSheet from "@/assets/NoTimesheet.png";
 import { Table } from "antd";
 
 // types
 import type { ColumnType } from "antd/es/table";
-
-enum TypeWorkDayShiftReportCashOper {
-  REFUND = "REFUND",
-  REPLENISHMENT = "REPLENISHMENT",
-}
-
-type CreateCashOperBody = {
-  type: TypeWorkDayShiftReportCashOper;
-  sum: number;
-  carWashDeviceId?: number;
-  eventData?: Date;
-  comment?: string;
-};
-
-// Helper function for number formatting
-const formatNumber = (num: number): string => {
-  if (num === null || num === undefined || isNaN(num)) return "-";
-
-  return new Intl.NumberFormat("ru-RU", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-    useGrouping: true,
-  }).format(num);
-};
+import { TypeWorkDayShiftReportCashOper } from "@/services/api/finance";
+import { CreateCashOperBody } from "@/services/api/finance";
 
 const ReturnsTab: React.FC = () => {
   const { t } = useTranslation();
@@ -73,12 +48,6 @@ const ReturnsTab: React.FC = () => {
     }
   );
 
-  const devices: { name: string; value: number }[] =
-    deviceData?.map((item) => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
   const {
     data: cashOperReturnData,
     isLoading: loadingCashOperReturn,
@@ -96,13 +65,13 @@ const ReturnsTab: React.FC = () => {
   const cashOperReturnArray =
     cashOperReturnData?.map((item) => ({
       ...item.props,
-      deviceName: devices.find(
-        (dev) => dev.value === item.props.carWashDeviceId
-      )?.name,
+      deviceName: deviceData?.find(
+        (dev) => dev.props.id === item.props.carWashDeviceId
+      )?.props.name,
     })) || [];
 
-  // Get user timezone for date formatting
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
 
   // Antd Table columns configuration
   const columns: ColumnType<any>[] = [
@@ -115,21 +84,13 @@ const ReturnsTab: React.FC = () => {
       title: "Дата и время",
       dataIndex: "eventDate",
       key: "eventDate",
-      render: (value: string | Date) => {
-        if (value === null || value === undefined) {
-          return "-";
-        }
-        return TableUtils.createDateTimeWithoutComma(value, userTimezone);
-      },
+      render: dateRender,
     },
     {
       title: "Сумма",
       dataIndex: "sum",
       key: "sum",
-      render: (value: number) => {
-        const number = formatNumber(Number(value));
-        return TableUtils.createCurrencyFormat(number);
-      },
+      render: currencyRender,
     },
     {
       title: "Комментарий",
@@ -191,8 +152,8 @@ const ReturnsTab: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="w-full max-w-full sm:max-w-[80%] lg:max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
+    <>
+      <div className="w-[70%] max-w-full sm:max-w-[80%] lg:max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
         {status !== "SENT" && (
           <button
             className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
@@ -201,31 +162,15 @@ const ReturnsTab: React.FC = () => {
             {t("routes.add")}
           </button>
         )}
-        {loadingCashOperReturn || validatingCashOperReturn ? (
-          <TableSkeleton columnCount={4} />
-        ) : cashOperReturnArray.length > 0 ? (
-          <Table
-            dataSource={cashOperReturnArray}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            size="small"
-          />
-        ) : (
-          <div className="flex flex-col justify-center items-center">
-            <NoDataUI
-              title={t("finance.data")}
-              description={t("finance.atThe")}
-            >
-              <img
-                src={NoTimeSheet}
-                className="mx-auto max-w-[80%] sm:max-w-[50%]"
-                loading="lazy"
-                alt="Timesheet"
-              />
-            </NoDataUI>
-          </div>
-        )}
+
+        <Table
+          dataSource={cashOperReturnArray}
+          columns={columns}
+          rowKey="id"
+          pagination={false}
+          size="small"
+          loading={loadingCashOperReturn || validatingCashOperReturn}
+        />
       </div>
 
       {/* Modal */}
@@ -289,7 +234,7 @@ const ReturnsTab: React.FC = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
 

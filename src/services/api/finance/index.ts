@@ -36,7 +36,7 @@ export enum StatusWorkDayShiftReport {
   SENT = "SENT",
 }
 
-enum TypeWorkDayShiftReportCashOper {
+export enum TypeWorkDayShiftReportCashOper {
   REFUND = "REFUND",
   REPLENISHMENT = "REPLENISHMENT",
 }
@@ -273,7 +273,7 @@ export type UpdateDayShiftBody = {
   comment?: string;
 };
 
-type CreateCashOperBody = {
+export type CreateCashOperBody = {
   type: TypeWorkDayShiftReportCashOper;
   sum: number;
   carWashDeviceId?: number;

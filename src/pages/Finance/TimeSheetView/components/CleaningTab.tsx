@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getCashOperCleanById } from "@/services/api/finance";
 import { getDevices } from "@/services/api/equipment";
-import { columnsDataCashOperCleaning } from "@/utils/OverFlowTableData";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { formatNumber } from "@/utils/tableUnits";
 import NoDataUI from "@/components/ui/NoDataUI";
 import NoTimeSheet from "@/assets/NoTimesheet.png";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { useSearchParams } from "react-router-dom";
 
 const CleaningTab: React.FC = () => {
@@ -76,18 +76,40 @@ const CleaningTab: React.FC = () => {
       ? transformDataForTable(cashOperCleanData)
       : [];
 
+  const columns: ColumnsType<any> = [
+    {
+      title: "Наименование",
+      dataIndex: "deviceName",
+      key: "deviceName",
+    },
+    {
+      title: "Программа",
+      dataIndex: "programName",
+      key: "programName",
+    },
+    {
+      title: "Кол-во программ",
+      dataIndex: "countProgram",
+      key: "countProgram",
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: "Общее время",
+      dataIndex: "time",
+      key: "time",
+    },
+  ];
+
   return (
     <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 mx-auto">
-      {loadingCashOperClean ? (
-        <TableSkeleton columnCount={columnsDataCashOperCleaning.length} />
-      ) : cashOperCleanArray.length > 0 ? (
-        <DynamicTable
-          data={cashOperCleanArray.map((item, index) => ({
-            ...item,
-            id: index,
-          }))}
-          columns={columnsDataCashOperCleaning}
-          showTotalClean={true}
+      {cashOperCleanArray.length > 0 || loadingCashOperClean ? (
+        <Table
+          dataSource={cashOperCleanArray}
+          columns={columns}
+          rowKey={(record, index) => index || 0}
+          pagination={false}
+          size="small"
+          loading={loadingCashOperClean}
         />
       ) : (
         <div className="flex flex-col justify-center items-center text-center p-4">

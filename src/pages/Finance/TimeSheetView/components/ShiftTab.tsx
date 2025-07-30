@@ -218,13 +218,13 @@ const ShiftTab: React.FC = () => {
           <p className="flex space-x-2 text-lg font-bold">
             <div>
               {dayShiftData?.startWorkingTime
-                ? dayjs(dayShiftData.startWorkingTime).format("hh:mm A")
+                ? dayjs(dayShiftData.startWorkingTime).format("HH:mm")
                 : ""}
             </div>
             <div>-</div>
             <div>
               {dayShiftData?.endWorkingTime
-                ? dayjs(dayShiftData.endWorkingTime).format("hh:mm A")
+                ? dayjs(dayShiftData.endWorkingTime).format("HH:mm")
                 : ""}
             </div>
           </p>
@@ -267,7 +267,6 @@ const ShiftTab: React.FC = () => {
 
           {dayShiftData?.typeWorkDay === TypeWorkDay.WORKING && (
             <>
-              {/* Start and End Time */}
               <div className="flex gap-4">
                 <Form.Item label={t("finance.start")}>
                   <div className="flex gap-2">
@@ -332,7 +331,6 @@ const ShiftTab: React.FC = () => {
                 </Form.Item>
               </div>
 
-              {/* Prize and Fine */}
               <div className="flex gap-4">
                 <Form.Item label={t("finance.prize")}>
                   <Controller
@@ -362,7 +360,6 @@ const ShiftTab: React.FC = () => {
                 </Form.Item>
               </div>
 
-              {/* Estimation */}
               <Form.Item label={t("finance.grade")}>
                 <Controller
                   name="estimation"
@@ -383,7 +380,6 @@ const ShiftTab: React.FC = () => {
                 />
               </Form.Item>
 
-              {/* Comment */}
               <Form.Item label={t("equipment.comment")}>
                 <Controller
                   name="comment"
@@ -401,7 +397,6 @@ const ShiftTab: React.FC = () => {
             </>
           )}
 
-          {/* Footer Buttons */}
           <div className="flex gap-3 mt-4">
             <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
             <Button type="primary" htmlType="submit" loading={loadingUpdate}>
