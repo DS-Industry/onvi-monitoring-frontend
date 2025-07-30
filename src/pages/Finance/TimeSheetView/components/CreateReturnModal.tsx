@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 // services
 import { createCashOper } from "@/services/api/finance";
-import type {
+import {
   CreateCashOperBody,
   TypeWorkDayShiftReportCashOper,
 } from "@/services/api/finance";
@@ -35,7 +35,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
     async () => {
       const values = await form.validateFields();
       const payload: CreateCashOperBody = {
-        type: "REFUND" as TypeWorkDayShiftReportCashOper,
+        type: TypeWorkDayShiftReportCashOper.REFUND,
         sum: Number(values.sum),
         carWashDeviceId: undefined,
         eventData: values.eventData

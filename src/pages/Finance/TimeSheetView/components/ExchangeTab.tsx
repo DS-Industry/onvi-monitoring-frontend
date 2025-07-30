@@ -84,7 +84,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   return (
     <div className="w-full flex flex-col">
-      <div className="w-[70%] h-fit rounded-2xl shadow-card px-3 sm:px-4 py-4 space-y-2 mt-5">
+      <div className="md:w-[70%] h-fit space-y-2 mt-3">
         {status !== StatusWorkDayShiftReport.SENT && (
           <button
             className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
@@ -97,12 +97,13 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
         <Table
           dataSource={cashOperArray.map((item, index) => ({
             ...item,
-            key: index,
+            key: `exchange-record-${index}`,
           }))}
           columns={tableColumns}
           pagination={false}
           size="small"
           loading={loadingCashOper || validatingCashOper}
+          scroll={{ x: "500px" }}
         />
       </div>
 

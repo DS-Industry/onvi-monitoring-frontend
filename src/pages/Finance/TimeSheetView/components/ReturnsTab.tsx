@@ -106,8 +106,8 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   };
 
   return (
-    <>
-      <div className="w-[70%] max-w-full sm:max-w-[80%] lg:max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 space-y-2">
+    <div className="w-full flex flex-col">
+      <div className="md:w-[70%] h-fit space-y-2 mt-3">
         {status !== StatusWorkDayShiftReport.SENT && (
           <button
             className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
@@ -124,10 +124,9 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
           pagination={false}
           size="small"
           loading={loadingCashOperReturn || validatingCashOperReturn}
+          scroll={{ x: "500px" }}
         />
       </div>
-
-      {/* Modal */}
 
       <CreateReturnModal
         open={isModalOpenReturn}
@@ -136,7 +135,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
         onCancel={handleFormCancel}
         onClose={handleFormCancel}
       />
-    </>
+    </div>
   );
 };
 

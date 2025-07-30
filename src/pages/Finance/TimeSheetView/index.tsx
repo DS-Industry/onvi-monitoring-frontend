@@ -78,7 +78,7 @@ const TimesheetView: React.FC = () => {
         <hr />
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b my-7 w-full overflow-x-auto">
+      <div className="flex flex-nowrap space-x-4 border-b my-7 w-full overflow-x-scroll">
         {tabs.map((tab) => (
           <button
             key={tab.id}
