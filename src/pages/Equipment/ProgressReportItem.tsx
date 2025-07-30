@@ -15,6 +15,7 @@ import { PlusOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import DateInput from "@/components/ui/Input/DateInput";
+import { useToast } from "@/components/context/useContext";
 
 interface TechTaskItem {
     id: number;
@@ -228,10 +229,17 @@ const ProgressReportItem: React.FC = () => {
         status: StatusTechTask.RETURNED
     }));
 
+    const { showToast } = useToast();
+
     const onUpdate = async () => {
-        const result = await updateTech();
-        if (result) {
-            navigate(-1);
+        try {
+            const result = await updateTech();
+            if (result) {
+                navigate(-1);
+            }
+        } catch (error) {
+            console.error("Failed to update the tech task:", error);
+            showToast(t("errors.other.failedToUpdateRecord"), "error");
         }
     };
 
