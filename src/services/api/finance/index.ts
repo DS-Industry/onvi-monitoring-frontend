@@ -30,13 +30,13 @@ export enum TypeEstimation {
   ONE_REMARK = "ONE_REMARK",
 }
 
-enum StatusWorkDayShiftReport {
+export enum StatusWorkDayShiftReport {
   CREATED = "CREATED",
   SAVED = "SAVED",
   SENT = "SENT",
 }
 
-enum TypeWorkDayShiftReportCashOper {
+export enum TypeWorkDayShiftReportCashOper {
   REFUND = "REFUND",
   REPLENISHMENT = "REPLENISHMENT",
 }

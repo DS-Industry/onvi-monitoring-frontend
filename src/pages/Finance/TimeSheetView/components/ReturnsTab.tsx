@@ -34,7 +34,7 @@ type CreateCashOperBody = {
 // Helper function for number formatting
 const formatNumber = (num: number): string => {
   if (num === null || num === undefined || isNaN(num)) return "-";
-  
+
   return new Intl.NumberFormat("ru-RU", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -48,8 +48,8 @@ const ReturnsTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const ownerId = searchParams.get("ownerId")
-    ? Number(searchParams.get("ownerId"))
+  const shiftId = searchParams.get("id")
+    ? Number(searchParams.get("id"))
     : undefined;
   const posId = searchParams.get("posId")
     ? Number(searchParams.get("posId"))
@@ -77,8 +77,8 @@ const ReturnsTab: React.FC = () => {
     isLoading: loadingCashOperReturn,
     isValidating: validatingCashOperReturn,
   } = useSWR(
-    ownerId ? [`get-cash-oper-return-data-${ownerId}`] : null,
-    () => getCashOperRefundById(ownerId!),
+    shiftId ? [`get-cash-oper-return-data-${shiftId}`] : null,
+    () => getCashOperRefundById(shiftId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -155,7 +155,7 @@ const ReturnsTab: React.FC = () => {
           eventData: formData.eventData,
           comment: formData.comment,
         },
-        ownerId!
+        shiftId!
       )
   );
 
@@ -177,7 +177,7 @@ const ReturnsTab: React.FC = () => {
     const result = await createCash();
 
     if (result) {
-      mutate([`get-cash-oper-return-data-${ownerId}`]);
+      mutate([`get-cash-oper-return-data-${shiftId}`]);
       resetForm();
       setIsModalOpenReturn(false);
     }

@@ -6,11 +6,6 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getDayShiftById } from "@/services/api/finance";
-import dayjs from "dayjs";
-
-// components
-import { MailOutlined, StarOutlined } from "@ant-design/icons";
-import ClockImage from "@icons/ClockImage.svg?react";
 
 // Lazy load tab components
 const ShiftTab = lazy(() => import("./components/ShiftTab"));
@@ -19,7 +14,6 @@ const ReturnsTab = lazy(() => import("./components/ReturnsTab"));
 const CleaningTab = lazy(() => import("./components/CleaningTab"));
 const SuspiciousTab = lazy(() => import("./components/SuspiciousTab"));
 
-import { TypeEstimation } from "@/services/api/finance";
 import { Spin, message } from "antd";
 
 const TimesheetView: React.FC = () => {
@@ -28,8 +22,8 @@ const TimesheetView: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const ownerId = searchParams.get("ownerId")
-    ? Number(searchParams.get("ownerId"))
+  const shiftId = searchParams.get("id")
+    ? Number(searchParams.get("id"))
     : undefined;
 
   const tabs = [
@@ -41,8 +35,22 @@ const TimesheetView: React.FC = () => {
   ];
 
   const { data: dayShiftData, isLoading } = useSWR(
-    ownerId ? [`get-shift-data`, ownerId] : null,
-    () => getDayShiftById(ownerId!),
+    shiftId ? [`get-shift-data`, shiftId] : null,
+    () => {
+      return {
+        id: 16,
+        workerId: 1,
+        workDate: "2025-07-08T18:30:00.000Z",
+        typeWorkDay: "WORKING",
+        timeWorkedOut: "12:10",
+        startWorkingTime: "2025-07-09T05:00:00.000Z",
+        endWorkingTime: "2025-07-09T17:10:00.000Z",
+        estimation: "MINOR_VIOLATION",
+        prize: 1000,
+        fine: 200,
+        comment: null,
+      };
+    },
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -58,7 +66,7 @@ const TimesheetView: React.FC = () => {
       case "change":
         return <ShiftTab />;
       case "exchange":
-        return <ExchangeTab />;
+        return <ExchangeTab status={dayShiftData?.status} />;
       case "returns":
         return <ReturnsTab />;
       case "cleaning":
@@ -79,85 +87,18 @@ const TimesheetView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="w-full sm:w-[400px] h-auto sm:h-[148px] rounded-2xl shadow-card p-4 space-y-2">
-          <div className="flex justify-between">
-            <div className="space-y-2">
-              <div className="text-text01 font-semibold">
-                {t("finance.shiftOver")}
-              </div>
-              <div>
-                <div className="text-sm text-text02 font-semibold">
-                  {t("finance.curr")}
-                </div>
-                <div className="flex space-x-2">
-                  <div>
-                    {dayShiftData?.startWorkingTime
-                      ? dayjs(dayShiftData.startWorkingTime).format("hh:mm A")
-                      : ""}
-                  </div>
-                  <div>-</div>
-                  <div>
-                    {dayShiftData?.endWorkingTime
-                      ? dayjs(dayShiftData.endWorkingTime).format("hh:mm A")
-                      : ""}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#dbeafe] flex items-center justify-center">
-              <ClockImage />
-            </div>
-          </div>
-          <div className="w-full h-9 bg-[#f0fdf4] rounded flex space-x-2 items-center text-sm px-2 text-[#16a34a]">
-            <MailOutlined className="w-[22px] h-[18px]" />
-            <div>{t("finance.status")}</div>
-            <div className="font-bold">
-              {dayShiftData?.status ? t(`tables.${dayShiftData?.status}`) : ""}
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full sm:w-72 rounded-2xl shadow-card p-4 space-y-2 flex flex-col justify-between">
-          {/* Header */}
-          <div className="flex justify-between">
-            <div className="text-text01 font-semibold">
-              {t("finance.grade")}
-            </div>
-            <div className="rounded-full bg-[#fef9c3] flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8">
-              <StarOutlined className="text-[#ff9066]" />
-            </div>
-          </div>
-
-          {/* Estimation Status Box */}
-          <div
-            className={`w-full h-14 rounded-lg flex items-center justify-center text-sm px-2 font-extrabold
-                ${
-                  dayShiftData?.estimation === TypeEstimation.GROSS_VIOLATION
-                    ? "bg-[#fef2f2] text-[#dc2626]"
-                    : dayShiftData?.estimation ===
-                      TypeEstimation.MINOR_VIOLATION
-                    ? "bg-[#fff7ed] text-[#ea580c]"
-                    : dayShiftData?.estimation === TypeEstimation.ONE_REMARK
-                    ? "bg-[#f0fdf4] text-[#16a34a]"
-                    : "bg-background05 text-text01"
-                }`}
-          >
-            {dayShiftData?.estimation
-              ? t(`finance.${dayShiftData.estimation}`)
-              : ""}
-          </div>
-        </div>
+    <div className="">
+      <div className="mt-6">
+        <hr />
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-full overflow-x-auto">
+      <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b my-7 w-full overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`pb-2 flex-1 min-w-[120px] sm:w-60 text-center ${
+            className={`pb-2 md:min-w-[50px] text-center ${
               activeTab === tab.id
-                ? "text-text01 border-b-4 border-primary02"
+                ? "text-primary02 border-b-2 border-primary02"
                 : "text-text02"
             }`}
             onClick={() => setActiveTab(tab.id)}
@@ -167,17 +108,15 @@ const TimesheetView: React.FC = () => {
         ))}
       </div>
 
-      <div className="flex space-x-10">
-        <Suspense
-          fallback={
-            <div className="w-full h-[200px] flex justify-center items-center">
-              <Spin />
-            </div>
-          }
-        >
-          {renderTabContent()}
-        </Suspense>
-      </div>
+      <Suspense
+        fallback={
+          <div className="w-full h-[200px] flex justify-center items-center">
+            <Spin />
+          </div>
+        }
+      >
+        {renderTabContent()}
+      </Suspense>
     </div>
   );
 };

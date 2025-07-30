@@ -15,8 +15,8 @@ const CleaningTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const ownerId = searchParams.get("ownerId")
-    ? Number(searchParams.get("ownerId"))
+  const shiftId = searchParams.get("id")
+    ? Number(searchParams.get("id"))
     : undefined;
   const posId = searchParams.get("posId")
     ? Number(searchParams.get("posId"))
@@ -39,8 +39,8 @@ const CleaningTab: React.FC = () => {
     })) || [];
 
   const { data: cashOperCleanData, isLoading: loadingCashOperClean } = useSWR(
-    ownerId ? [`get-cash-oper-clean-data-${ownerId}`] : null,
-    () => getCashOperCleanById(ownerId!),
+    shiftId ? [`get-cash-oper-clean-data-${shiftId}`] : null,
+    () => getCashOperCleanById(shiftId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

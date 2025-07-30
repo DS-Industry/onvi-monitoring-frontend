@@ -15,8 +15,8 @@ const SuspiciousTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const ownerId = searchParams.get("ownerId")
-    ? Number(searchParams.get("ownerId"))
+  const shiftId = searchParams.get("id")
+    ? Number(searchParams.get("id"))
     : undefined;
   const posId = searchParams.get("posId")
     ? Number(searchParams.get("posId"))
@@ -39,8 +39,8 @@ const SuspiciousTab: React.FC = () => {
     })) || [];
 
   const { data: cashOperSuspData, isLoading: loadingCashOperSusp } = useSWR(
-    ownerId ? [`get-cash-oper-susp-data-${ownerId}`] : null,
-    () => getCashOperSuspiciousById(ownerId!),
+    shiftId ? [`get-cash-oper-susp-data-${shiftId}`] : null,
+    () => getCashOperSuspiciousById(shiftId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
