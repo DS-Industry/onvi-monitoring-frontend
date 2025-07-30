@@ -275,6 +275,11 @@ const TechTaskCreate: React.FC = () => {
 
     const columnsTechTasks: ColumnsType<TechTaskManagerInfo> = [
         {
+            title: "№",
+            dataIndex: "id",
+            key: "id"
+        },
+        {
             title: "Автомойка/ Филиал",
             dataIndex: "posName",
             key: "posName"
@@ -355,7 +360,7 @@ const TechTaskCreate: React.FC = () => {
                     onChange={setCheckedList}
                 />
                 <Table
-                    dataSource={techTasks}
+                    dataSource={techTasks.sort((a, b) => a.id - b.id)}
                     columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
                     pagination={{

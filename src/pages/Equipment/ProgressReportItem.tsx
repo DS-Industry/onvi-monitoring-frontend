@@ -5,7 +5,7 @@ import useSWR, { mutate } from "swr";
 import Button from "@/components/ui/Button/Button";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
-import { createTechTaskShape, getTechTaskShapeItem } from "@/services/api/equipment";
+import { createTechTaskShape, getTechTaskShapeItem, StatusTechTask, updateTechTask } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import { TFunction } from "i18next";
@@ -14,6 +14,7 @@ import type { DescriptionsProps } from 'antd';
 import { PlusOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
+import DateInput from "@/components/ui/Input/DateInput";
 
 interface TechTaskItem {
     id: number;
@@ -188,7 +189,7 @@ const ProgressReportItem: React.FC = () => {
     useEffect(() => {
         if (techTaskItems.length > 0) {
             const initialValues = techTaskItems.reduce((acc, item) => {
-                acc[item.id] = item.value ?? ""; // Default to an empty string
+                acc[item.id] = item.value ?? "";
                 return acc;
             }, {} as Record<number, string | number | boolean | null>);
             setTaskValues(initialValues);
@@ -199,7 +200,7 @@ const ProgressReportItem: React.FC = () => {
     const handleChange = (id: number, value: string | number | boolean | null) => {
         setTaskValues((prev) => ({
             ...prev,
-            [id]: value, // Update only the specific field
+            [id]: value,
         }));
     };
 
@@ -218,6 +219,23 @@ const ProgressReportItem: React.FC = () => {
             navigate(-1);
         }
     };
+
+    const [endSpecifiedDate, setEndSpecifiedDate] = useState(dayjs().toDate());
+
+    const { trigger: updateTech, isMutating: updatingTechTask } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
+        techTaskId: progressReportId,
+        endSpecifiedDate: endSpecifiedDate,
+        status: StatusTechTask.RETURNED
+    }));
+
+    const onUpdate = async () => {
+        const result = await updateTech();
+        if (result) {
+            navigate(-1);
+        } else {
+            throw new Error('Invalid update data.');
+        }
+    }
 
     return (
         <>
@@ -294,6 +312,23 @@ const ProgressReportItem: React.FC = () => {
                     handleClick={handleSubmit}
                 />
             </div>)}
+            {status === t("tables.FINISHED") && (
+                <div className="space-y-4">
+                    <div>
+                        <div className="text-sm text-text02">{t("equipment.end")}</div>
+                        <DateInput
+                            classname="w-40"
+                            value={dayjs(endSpecifiedDate)}
+                            changeValue={(date) => setEndSpecifiedDate(date ? date.toDate() : dayjs().toDate())}
+                        />
+                    </div>
+                    <Button
+                        title={t("finance.returns")}
+                        isLoading={updatingTechTask}
+                        handleClick={onUpdate}
+                    />
+                </div>
+            )}
         </>
     );
 };
