@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import Select from 'antd/es/select';
-import Input from 'antd/es/input';
-import AntButton from 'antd/es/button';
+import { Select, Input, Button } from "antd";
+import type { SelectProps } from "antd";
+
 interface OptionType {
     id: number;
     name: string;
@@ -33,44 +33,42 @@ const MultiInput: React.FC<MultiInputProps> = ({
     handleChange,
     isLoading = false,
     loadingOptions = false,
-    disabled = false
+    disabled = false,
 }) => {
     const { t } = useTranslation();
     const [isInputFocused, setIsInputFocused] = useState(false);
-
-    const selectedOptions = useMemo(() => {
-        return options.filter((opt) => value.includes(opt.id));
-    }, [value, options]);
-
-    const handleSelectChange = (selectedIds: number[]) => {
-        const selected = options.filter((opt) => selectedIds.includes(opt.id));
-        onChange(selected);
-    };
-
-    const [filterSearchValue, setFilterSearchValue] = useState("");
     const [pendingTagName, setPendingTagName] = useState<string | null>(null);
 
-    const filteredOptions = useMemo(() => {
-        return options.filter((opt) =>
-            opt.name.toLowerCase().includes(filterSearchValue.toLowerCase())
-        );
-    }, [filterSearchValue, options]);
+    const selectedOptions = useMemo(
+        () => options.filter((opt) => value.includes(opt.id)),
+        [value, options]
+    );
+
+    const handleSelectChange = useCallback(
+        (selectedIds: number[]) => {
+            const selected = options.filter((opt) => selectedIds.includes(opt.id));
+            onChange(selected);
+        },
+        [options, onChange]
+    );
 
     useEffect(() => {
         if (pendingTagName) {
-            const newlyCreatedTag = options.find(opt => opt.name.toLowerCase() === pendingTagName.toLowerCase());
-            if (newlyCreatedTag) {
-                onChange([...selectedOptions, newlyCreatedTag]);
-                setPendingTagName(null); // Clear pending tag
+            const newlyCreated = options.find(
+                (opt) => opt.name.toLowerCase() === pendingTagName.toLowerCase()
+            );
+            if (newlyCreated) {
+                onChange([...selectedOptions, newlyCreated]);
+                setPendingTagName(null);
             }
         }
-    }, [options, pendingTagName, onChange, selectedOptions]);
+    }, [options, pendingTagName, selectedOptions, onChange]);
 
-    const dropdownRender = (menu: React.ReactNode) => (
+    const renderDropdown = (menu: React.ReactNode) => (
         <div>
-            <div style={{ maxHeight: 150, overflowY: "auto" }}>{menu}</div>
+            <div className="max-h-40 overflow-y-auto">{menu}</div>
             {handleChange && (
-                <div className="flex items-center gap-2 p-2 border-t">
+                <div className="flex gap-2 p-2 border-t border-gray-200">
                     <Input
                         value={searchValue}
                         onFocus={() => setIsInputFocused(true)}
@@ -79,99 +77,91 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         placeholder={t("marketing.tags")}
                         size="middle"
                     />
-                    <AntButton
+                    <Button
                         type="primary"
                         icon={<PlusOutlined />}
                         loading={isLoading}
                         onClick={() => {
-                            if (!handleChange || !searchValue.trim()) return;
-
+                            if (!handleChange || !searchValue?.trim()) return;
                             setPendingTagName(searchValue.trim());
                             handleChange();
                             setSearchValue?.("");
                         }}
-
                     >
                         {t("roles.create")}
-                    </AntButton>
+                    </Button>
                 </div>
             )}
         </div>
     );
 
+    const renderTag: SelectProps["tagRender"] = (props) => {
+        const { label, value, closable, onClose } = props;
+        const option = options.find((opt) => opt.id === value);
+
+        return (
+            <span
+                className={`inline-flex items-center text-white text-sm rounded px-2 py-0.5 me-1`}
+                style={{ backgroundColor: option?.color || "#ccc" }}
+            >
+                {label}
+                {closable && (
+                    <span
+                        onClick={onClose}
+                        className="ml-2 cursor-pointer font-bold"
+                    >
+                        ×
+                    </span>
+                )}
+            </span>
+        );
+    };
+
+    const renderOption: SelectProps["optionRender"] = (option) => {
+        const { data } = option;
+        return (
+            <div className="flex justify-between items-center">
+                <span
+                    className="text-white text-sm rounded px-2 py-0.5"
+                    style={{ backgroundColor: data.color }}
+                >
+                    {data.name}
+                </span>
+            </div>
+        );
+    };
+
     return (
         <div className="w-80">
-            <div className="text-text02 text-sm">{t("marketing.tags")}</div>
+            <div className="text-sm text-gray-500 mb-1">{t("marketing.tags")}</div>
             <Select
                 mode="multiple"
-                style={{ width: "100%" }}
-                loading={loadingOptions}
-                placeholder={placeholder}
-                value={selectedOptions.map((opt) => opt.id)}
-                onChange={(selectedIds) => {
-                    if (isInputFocused) return;
-                    handleSelectChange(selectedIds);
-                }}
-                searchValue={filterSearchValue}
-                onSearch={(val) => setFilterSearchValue?.(val)}
-                dropdownRender={dropdownRender}
-                filterOption={false}
                 showSearch
-                optionLabelProp="label"
+                className="w-80"
                 size="large"
                 disabled={disabled}
-                tagRender={({ label, value, closable, onClose }) => {
-                    const option = options.find((opt) => opt.id === value);
-                    return (
-                        <div
-                            style={{
-                                backgroundColor: option?.color || "#ccc",
-                                color: "#fff",
-                                padding: "2px 8px",
-                                borderRadius: 4,
-                                marginRight: 4,
-                                display: "inline-flex",
-                                alignItems: "center",
-                            }}
-                        >
-                            <span>{label}</span>
-                            {closable && (
-                                <span
-                                    onClick={onClose}
-                                    style={{
-                                        marginLeft: 8,
-                                        cursor: "pointer",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    ×
-                                </span>
-                            )}
-                        </div>
-                    );
+                value={selectedOptions.map((opt) => opt.id)}
+                loading={loadingOptions}
+                placeholder={placeholder}
+                onChange={(selectedIds) => {
+                    if (!isInputFocused) {
+                        handleSelectChange(selectedIds as number[]);
+                    }
                 }}
-                options={filteredOptions.map((opt) => ({
+                filterOption={(input, option) =>
+                    (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                }
+                optionLabelProp="label"
+                dropdownRender={renderDropdown}
+                tagRender={renderTag}
+                optionRender={renderOption}
+                options={options.map((opt) => ({
                     value: opt.id,
                     label: opt.name,
                     name: opt.name,
                     color: opt.color,
                 }))}
-                optionRender={(option) => (
-                    <div className="flex justify-between items-center">
-                        <span
-                            style={{
-                                backgroundColor: option.data.color,
-                                padding: "2px 6px",
-                                borderRadius: 4,
-                                color: "#fff",
-                            }}
-                        >
-                            {option.data.name}
-                        </span>
-                    </div>
-                )}
             />
-
         </div>
     );
 };
