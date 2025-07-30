@@ -10,7 +10,7 @@ import {
     DEFAULT_PAGE_SIZE,
 } from "@/utils/constants";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { getDateRender, getStatusTagRender, getTagRender } from "@/utils/tableUnits";
 import { ColumnsType } from "antd/es/table";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";

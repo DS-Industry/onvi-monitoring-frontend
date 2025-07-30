@@ -14,7 +14,7 @@ import {
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
 } from "@/utils/constants";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import {
     getDateRender,
     getStatusTagRender,

@@ -6,7 +6,7 @@ import { Select, Table } from "antd";
 import { Link, useSearchParams } from "react-router-dom";
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { ColumnsType } from "antd/es/table";
 import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
