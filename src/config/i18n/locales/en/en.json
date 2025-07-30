@@ -715,6 +715,7 @@
     "create": "Create collection",
     "no": "Document No.",
     "cars": "Total cars",
+    "totalCarsWashed": "Total cars washed",
     "cash": "Cashless payment",
     "amt": "Amount on cards",
     "nos": "Number of cars on cards",

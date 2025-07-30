@@ -41,7 +41,6 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
     data: cashOperData,
     isLoading: loadingCashOper,
     isValidating: validatingCashOper,
-    mutate,
   } = useSWR(
     shiftId ? [`get-cash-oper-data-${shiftId}`] : null,
     () => getCashOperById(shiftId!),
@@ -86,7 +85,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
   return (
     <div className="w-full flex flex-col">
       <div className="w-[70%] h-fit rounded-2xl shadow-card px-3 sm:px-4 py-4 space-y-2 mt-5">
-        {status !== "SENT" && (
+        {status !== StatusWorkDayShiftReport.SENT && (
           <button
             className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
             onClick={() => setIsModalOpen(true)}
@@ -113,7 +112,6 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
           open={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            mutate();
           }}
           shiftId={shiftId}
           posId={posId}

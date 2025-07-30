@@ -183,10 +183,12 @@ const ShiftTab: React.FC = () => {
 
   return (
     <div className="md:max-w-[70%]">
-      <h2 className="text-lg font-bold mb-5">Shift Overview</h2>
+      <h2 className="text-lg font-bold mb-5">{t("finance.shiftOver")}</h2>
       <div className="border border-gray-200 rounded-xl p-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-y-6">
         <div>
-          <p className="text-sm text-gray-500">Total Cars Washed</p>
+          <p className="text-sm text-gray-500">
+            {t("finance.totalCarsWashed")}
+          </p>
           <p className="text-lg font-bold">{dayShiftData?.totalCar || 0}</p>
         </div>
         <div>
@@ -215,27 +217,23 @@ const ShiftTab: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-gray-500">Shift Hours</p>
-          <p className="flex space-x-2 text-lg font-bold">
-            <div>
-              {dayShiftData?.startWorkingTime
-                ? dayjs(dayShiftData.startWorkingTime).format("HH:mm")
-                : ""}
-            </div>
+          <div className="flex space-x-2 text-lg font-bold">
+            {dayShiftData?.startWorkingTime
+              ? dayjs(dayShiftData.startWorkingTime).format("HH:mm")
+              : ""}
             <div>-</div>
             <div>
               {dayShiftData?.endWorkingTime
                 ? dayjs(dayShiftData.endWorkingTime).format("HH:mm")
                 : ""}
             </div>
-          </p>
+          </div>
         </div>
         <div>
           <p className="text-sm text-gray-500">Total Hours Worked</p>
-          <p className="text-lg font-bold">
-            <div>
-              {start.isValid() && end.isValid() ? `${workedHours} hrs` : ""}
-            </div>
-          </p>
+          <div className="text-lg font-bold">
+            {start.isValid() && end.isValid() ? `${workedHours} hrs` : ""}
+          </div>
         </div>
       </div>
 
