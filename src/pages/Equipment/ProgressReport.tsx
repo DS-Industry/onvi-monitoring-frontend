@@ -64,7 +64,7 @@ const ProgressReport: React.FC = () => {
                 return (
                     <Link
                         to={{
-                            pathname: "/equipment/technical/task/progress/item",
+                            pathname: "/equipment/technical/tasks/progress/item",
                             search: `?progressReportId=${record.id}&status=${record.status}&type=${record.type}&name=${record.name}&endDate=${record.endSpecifiedDate}`,
                         }}
                         className="text-blue-500 hover:text-blue-700 font-semibold"

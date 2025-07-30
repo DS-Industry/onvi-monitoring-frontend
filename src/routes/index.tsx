@@ -37,7 +37,7 @@ const ChemicalConsumption = React.lazy(
   () => import("@/pages/Equipment/ChemicalConsumption")
 );
 const TechTasks = React.lazy(() => import("@/pages/Equipment/TechTasks"));
-const TechTaskCreate = React.lazy(() => import("@/pages/Equipment/TechTaskCreate"));
+const TechTaskCreate = React.lazy(() => import("@/pages/Equipment/TechTaskCreate/index"));
 const TechTaskItem = React.lazy(
   () => import("@/pages/Equipment/TechTaskItem")
 );
@@ -1197,7 +1197,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/technical/task/progress",
+            path: "/equipment/technical/tasks/progress",
             component: ProgressReport,
             permissions: [
               { action: "manage", subject: "TechTask" },
@@ -1211,7 +1211,7 @@ const routes = [
             addButton: false,
             addButtonText: "create",
             isVisible: true,
-            path: "/equipment/technical/task/progress/item",
+            path: "/equipment/technical/tasks/progress/item",
             component: ProgressReportItem,
             permissions: [
               { action: "manage", subject: "TechTask" },

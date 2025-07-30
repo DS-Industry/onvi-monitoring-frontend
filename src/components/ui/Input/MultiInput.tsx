@@ -4,10 +4,6 @@ import { useTranslation } from "react-i18next";
 import Select from 'antd/es/select';
 import Input from 'antd/es/input';
 import AntButton from 'antd/es/button';
-import Spin from 'antd/es/spin';
-
-const { Option } = Select;
-
 interface OptionType {
     id: number;
     name: string;
@@ -68,7 +64,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
                 setPendingTagName(null); // Clear pending tag
             }
         }
-    }, [options, pendingTagName, onChange, selectedOptions]);    
+    }, [options, pendingTagName, onChange, selectedOptions]);
 
     const dropdownRender = (menu: React.ReactNode) => (
         <div>
@@ -89,12 +85,12 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         loading={isLoading}
                         onClick={() => {
                             if (!handleChange || !searchValue.trim()) return;
-                        
-                            setPendingTagName(searchValue.trim()); 
-                            handleChange(); 
-                            setSearchValue?.(""); 
+
+                            setPendingTagName(searchValue.trim());
+                            handleChange();
+                            setSearchValue?.("");
                         }}
-                        
+
                     >
                         {t("roles.create")}
                     </AntButton>
@@ -109,12 +105,11 @@ const MultiInput: React.FC<MultiInputProps> = ({
             <Select
                 mode="multiple"
                 style={{ width: "100%" }}
+                loading={loadingOptions}
                 placeholder={placeholder}
                 value={selectedOptions.map((opt) => opt.id)}
                 onChange={(selectedIds) => {
-                    if (isInputFocused) {
-                        return;
-                    }
+                    if (isInputFocused) return;
                     handleSelectChange(selectedIds);
                 }}
                 searchValue={filterSearchValue}
@@ -155,30 +150,28 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         </div>
                     );
                 }}
-            >
-                {loadingOptions ? (
-                    <div className="flex justify-center items-center h-40 m-auto">
-                        <Spin size="large" />
+                options={filteredOptions.map((opt) => ({
+                    value: opt.id,
+                    label: opt.name,
+                    name: opt.name,
+                    color: opt.color,
+                }))}
+                optionRender={(option) => (
+                    <div className="flex justify-between items-center">
+                        <span
+                            style={{
+                                backgroundColor: option.data.color,
+                                padding: "2px 6px",
+                                borderRadius: 4,
+                                color: "#fff",
+                            }}
+                        >
+                            {option.data.name}
+                        </span>
                     </div>
-                ) : (
-                    filteredOptions.map((option) => (
-                        <Option key={option.id} value={option.id} label={option.name}>
-                            <div className="flex justify-between items-center">
-                                <span
-                                    style={{
-                                        backgroundColor: option.color,
-                                        padding: "2px 6px",
-                                        borderRadius: 4,
-                                        color: "#fff",
-                                    }}
-                                >
-                                    {option.name}
-                                </span>
-                            </div>
-                        </Option>
-                    ))
                 )}
-            </Select>
+            />
+
         </div>
     );
 };

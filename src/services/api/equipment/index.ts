@@ -112,7 +112,7 @@ type PostIncidentResponse = {
 
 }
 
-type PosResponse = {
+export type PosResponse = {
     id: number;
     name: string;
     slug: string;
@@ -251,7 +251,13 @@ export type TechTasksItem = {
     image?: string | null;
 };
 
-type TechTaskShapeResponse = {
+export type TechTasksTags = {
+        id: number;
+        name: string;
+        code?: string;
+    }
+
+export type TechTaskShapeResponse = {
     id: number;
     name: string;
     posId: number;
@@ -264,11 +270,7 @@ type TechTaskShapeResponse = {
     sendWorkDate?: Date;
     executorId?: number;
     items: TechTasksItem[];
-    tags: {
-        id: number;
-        name: string;
-        code?: string;
-    }[];
+    tags: TechTasksTags[];
 }
 
 type TechTaskShapeBody = {

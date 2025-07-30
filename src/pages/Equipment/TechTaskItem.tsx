@@ -1,97 +1,22 @@
 import TableSkeleton from "@ui/Table/TableSkeleton";
-import { createTechTaskShape, getPoses, getTechTaskShapeItem, TechTasksItem } from "@/services/api/equipment";
+import { createTechTaskShape, getTechTaskShapeItem } from "@/services/api/equipment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
-import { CalendarOutlined, CloseOutlined, FileImageOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
-import TiptapEditor from "@ui/Input/TipTapEditor";
-import Button from "@ui/Button/Button";
-import { Card, Checkbox, List, Tag, Tooltip, Upload } from "antd";
-import Input from "@ui/Input/Input";
-import DropdownInput from "@ui/Input/DropdownInput";
 import useSWRMutation from "swr/mutation";
-import { TFunction } from "i18next";
-import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { useToast } from "@/components/context/useContext";
-
-interface DynamicInputProps {
-    type: string;
-    value?: string | number | boolean | null;
-    onChange: (value: string | number | boolean | null) => void;
-    status: string;
-    t: TFunction;
-}
-
-const selectOptions = [
-    { name: "Ниже нормы", value: "belowNormal" },
-    { name: "Норма", value: "normal" },
-    { name: "Выше нормы", value: "aboveNormal" },
-];
-
-const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, status, t }) => {
-    switch (type) {
-        case "Text":
-            return (
-                <Input
-                    type="text"
-                    value={value}
-                    changeValue={(e) => onChange(e.target.value || "")}
-                    classname="w-80"
-                    disabled={status === t("tables.FINISHED")}
-                />
-            );
-
-        case "Number":
-            return (
-                <Input
-                    type="number"
-                    value={value}
-                    changeValue={(e) => {
-                        onChange(e.target.value);
-                    }}
-                    classname="w-80"
-                    disabled={status === t("tables.FINISHED")}
-                />
-            );
-
-        case "SelectList":
-            return (
-                <DropdownInput
-                    value={value}
-                    options={selectOptions}
-                    onChange={(selectedValue) => onChange(selectedValue)}
-                    classname="w-80"
-                    isDisabled={status === t("tables.FINISHED")}
-                />
-            );
-
-        case "Checkbox":
-            return (
-                <input
-                    type="checkbox"
-                    checked={Boolean(value)}
-                    onChange={(e) => onChange(e.target.checked)}
-                    className="w-5 h-5"
-                />
-            );
-
-        default:
-            return <div>Unsupported type</div>;
-    }
-};
+import TechTaskCard from "./TechTaskCard";
+import Button from "@/components/ui/Button/Button";
 
 const TechTaskItem: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [openSettings, setOpenSettings] = useState<Record<string, boolean>>({});
     const { showToast } = useToast();
     const [searchParams] = useSearchParams();
     const techTaskId = Number(searchParams.get("techTaskId"));
     const status = searchParams.get("status");
-
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: techTaskData, isLoading: techTaskLoading, isValidating } = useSWR(
         [`get-tech-task`],
@@ -100,32 +25,6 @@ const TechTaskItem: React.FC = () => {
     );
 
     const techTaskItems = useMemo(() => techTaskData?.items || [], [techTaskData]);
-
-    useEffect(() => {
-        const initialSettings = techTaskItems.reduce((acc, item) => {
-            acc[item.group] = false;
-            return acc;
-        }, {} as Record<string, boolean>);
-        setOpenSettings(initialSettings);
-    }, [techTaskItems]);
-
-    const toggleGroup = (groupName: string) => {
-        setOpenSettings((prev) => ({
-            ...prev,
-            [groupName]: !prev[groupName],
-        }));
-    };
-
-    const groupedTechTaskItems = useMemo(() => {
-        return techTaskItems.reduce((acc, item) => {
-            if (!acc[item.group]) {
-                acc[item.group] = [];
-            }
-            acc[item.group].push(item);
-            acc[item.group].sort((a, b) => a.id - b.id);
-            return acc;
-        }, {} as Record<string, TechTasksItem[]>);
-    }, [techTaskItems]);
 
     const { trigger: createTechTasks, isMutating } = useSWRMutation(
         ['create-tech-task'],
@@ -231,159 +130,17 @@ const TechTaskItem: React.FC = () => {
             {techTaskLoading || isValidating ? (
                 <TableSkeleton columnCount={5} />
             ) : (
-                <div className="space-y-6">
-                    <div>
-                        <div className="text-sm text-text02">{t("routine.title")}</div>
-                        <div className="w-80 border border-[#1476E9]/25 rounded-md px-2 py-2">
-                            {techTaskData?.name || ""}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("finance.carWash")}</div>
-                        <div className="w-80 border border-[#1476E9]/25 rounded-md px-2 py-2">
-                            {poses?.find((pos) => pos.id === techTaskData?.posId)?.name || ""}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("routine.type")}</div>
-                        <div className="w-80 border border-[#1476E9]/25 rounded-md px-2 py-2">
-                            {t(`tables.${techTaskData?.type}`) || ""}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.deadline")}</div>
-                        <div className="w-32 border border-[#1476E9]/25 rounded-md px-2 py-2 flex items-center justify-between">
-                            <span>{dayjs(techTaskData?.endSpecifiedDate).format("DD.MM.YYYY") || ""}</span>
-                            <CalendarOutlined style={{ color: '#000', fontSize: '16px' }} />
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.resp")}</div>
-                        <div className="w-80 border border-[#1476E9]/25 rounded-md px-2 py-2">
-                            {"-"}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("marketing.tags")}</div>
-                        {techTaskData && techTaskData.tags.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 items-center">
-                                {techTaskData.tags.slice(0, 3).map((te) => (
-                                    <Tag key={te.id} color="orange">
-                                        {te.name}
-                                    </Tag>
-                                ))}
-                                {techTaskData.tags.slice(3).length > 0 && (
-                                    <Tooltip
-                                        title={techTaskData.tags.slice(3).map(tag => tag.name).join(', ')}
-                                    >
-                                        <Tag color="default">+{techTaskData.tags.slice(3).length} more</Tag>
-                                    </Tooltip>
-                                )}
-                            </div>
-                        ) : <div className="h-5">-</div>}
-                    </div>
-                    <div className="space-y-2">
-                        <div className="font-semibold text-2xl text-text01">{t("equipment.taskInfo")}</div>
-                        {techTaskData?.items.length === 0 && (<TiptapEditor
-                            value={techTaskData?.markdownDescription}
-                        />)}
-                        {((techTaskData && techTaskData?.items.length > 0)) && (
-                            <List
-                                dataSource={Object.entries(groupedTechTaskItems)}
-                                renderItem={([groupName, items]) => (
-                                    <List.Item className="w-full border-none p-0">
-                                        <Card className="w-full border-none shadow-none">
-                                            <div className="flex items-center space-x-2 mb-4 cursor-pointer" onClick={() => toggleGroup(groupName)}>
-                                                <div className="text-lg font-semibold text-text01">
-                                                    {t(`chemical.${groupName}`)}
-                                                </div>
-                                                <div
-                                                    className="cursor-pointer w-6 h-6 text-primary02_Hover flex justify-center items-center"
-                                                >
-                                                    {openSettings[groupName] ? <UpOutlined /> : <DownOutlined />}
-                                                </div>
-                                            </div>
-                                            {openSettings[groupName] && (
-                                                <List
-                                                    dataSource={items}
-                                                    renderItem={(techItem) => (
-                                                        <List.Item className="w-full border-none">
-                                                            <div className="w-full">
-                                                                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between w-full">
-                                                                    <div className="flex flex-col md:flex-row md:space-x-40 gap-2 min-w-[250px] max-w-full">
-                                                                        <div className="flex items-center gap-2 w-64">
-                                                                            <Checkbox />
-                                                                            <div className="text-text01 break-words">{techItem.title}</div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="text-sm text-text02">{t("equipment.comment")}</div>
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Upload
-                                                                                    customRequest={handleUpload(techItem.id)}
-                                                                                    showUploadList={false}
-                                                                                    multiple={false}
-                                                                                    accept="image/*"
-                                                                                    disabled={status === t("tables.FINISHED")}
-                                                                                >
-                                                                                    <button type="button" className="flex items-center justify-center" title="Upload">
-                                                                                        <FileImageOutlined
-                                                                                            className="text-primary02"
-                                                                                            style={{ fontSize: "20px", marginTop: "4px" }}
-                                                                                        />
-                                                                                    </button>
-                                                                                </Upload>
-                                                                                {status === t("tables.FINISHED") ? (
-                                                                                    <div>
-                                                                                        {techItem.type === "SelectList"
-                                                                                            ? selectOptions.find((sel) => sel.value === taskValues[techItem.id])?.name
-                                                                                            : taskValues[techItem.id]}
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    <DynamicInput
-                                                                                        type={techItem.type}
-                                                                                        value={taskValues[techItem.id]}
-                                                                                        onChange={(value) => handleChange(techItem.id, value)}
-                                                                                        status={status || ""}
-                                                                                        t={t}
-                                                                                    />
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                {uploadedFiles[techItem.id] && (
-                                                                    <div className="flex flex-wrap gap-4 pt-4">
-                                                                        <div className="relative w-[100px] h-[100px] border rounded-md overflow-hidden group">
-                                                                            <img
-                                                                                src={
-                                                                                    uploadedFiles[techItem.id] instanceof File
-                                                                                        ? URL.createObjectURL(uploadedFiles[techItem.id] as File)
-                                                                                        : uploadedFiles[techItem.id] as string
-                                                                                }
-                                                                                alt="uploaded"
-                                                                                className="w-full h-full object-cover"
-                                                                                loading="lazy"
-                                                                            />
-                                                                            <button
-                                                                                onClick={() => removeImage(techItem.id)}
-                                                                                className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-80 transition"
-                                                                            >
-                                                                                <CloseOutlined style={{ fontSize: '12px' }} />
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-
-                                                            </div>
-                                                        </List.Item>
-                                                    )}
-                                                />
-                                            )}
-                                        </Card>
-                                    </List.Item>
-                                )}
-                            />)}
-                    </div>
+                <div>
+                    <TechTaskCard
+                        techTaskData={techTaskData}
+                        items={techTaskItems}
+                        values={taskValues}
+                        uploadedFiles={uploadedFiles}
+                        onChange={handleChange}
+                        onFileUpload={handleUpload}
+                        onImageRemove={removeImage}
+                        status={status ? status : undefined}
+                    />
                     {status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-6">
                         <Button
                             title={t("organizations.cancel")}
@@ -398,7 +155,7 @@ const TechTaskItem: React.FC = () => {
                     </div>)}
                 </div>
             )}
-        </div>
+        </div >
     )
 }
 

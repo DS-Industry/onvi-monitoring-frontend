@@ -1,34 +1,21 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import DrawerCreate from "@ui/Drawer/DrawerCreate";
-import Input from "@ui/Input/Input";
-import DropdownInput from "@ui/Input/DropdownInput";
-import Button from "@ui/Button/Button";
-import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, getTechTaskManage, TechTaskBody, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
-import useSWR, { mutate } from "swr";
-import useFormHook from "@/hooks/useFormHook";
-import useSWRMutation from "swr/mutation";
-import { Table, Tooltip, Button as AntDButton } from "antd";
-import MultiInput from "@ui/Input/MultiInput";
-import { Tabs } from 'antd';
-import TiptapEditor from "@ui/Input/TipTapEditor";
-import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
-import DateInput from "@ui/Input/DateInput";
-import dayjs from "dayjs";
-import { useSearchParams } from "react-router-dom";
-import {
-    ALL_PAGE_SIZES,
-    DEFAULT_PAGE,
-    DEFAULT_PAGE_SIZE,
-} from "@/utils/constants";
 import { useButtonCreate } from "@/components/context/useContext";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/updateSearchParams";
-import { getDateRender, getStatusTagRender, getTagRender } from "@/utils/tableUnits";
-import { ColumnsType } from "antd/es/table";
-import { EditOutlined } from "@ant-design/icons";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import Button from "@/components/ui/Button/Button";
+import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
+import DateInput from "@/components/ui/Input/DateInput";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
+import Input from "@/components/ui/Input/Input";
+import MultiInput from "@/components/ui/Input/MultiInput";
+import TiptapEditor from "@/components/ui/Input/TipTapEditor";
+import useFormHook from "@/hooks/useFormHook";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, TechTaskBody, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
+import { Tabs } from "antd";
+import TabPane from "antd/es/tabs/TabPane";
+import dayjs from "dayjs";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, } from "react";
+import { useTranslation } from "react-i18next";
+import useSWR, { mutate } from "swr";
+import useSWRMutation from "swr/mutation";
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 
 interface Item {
     id: number;
@@ -36,35 +23,22 @@ interface Item {
     description?: string;
 }
 
-const TechTaskCreate: React.FC = () => {
-    const { TabPane } = Tabs;
+type TechTaskFormProps = {
+    swrKey: string;
+    techTasks: TechTaskManagerInfo[]
+}
+
+export type TechTaskFormRef = {
+    handleUpdate: (id: number) => void;
+};
+
+const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, techTasks }, ref) => {
     const { t } = useTranslation();
-    const { buttonOn, setButtonOn } = useButtonCreate();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
-    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-    const posId = Number(searchParams.get("posId")) || undefined;
-
-
-    const swrKey = useMemo(
-        () =>
-            `get-tech-tasks-${currentPage}-${pageSize}-${posId}`,
-        [currentPage, pageSize, posId]
-    );
-
+    const [tagIds, setTagIds] = useState<number[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
-    const [tagIds, setTagIds] = useState<number[]>([]);
     const [searchValue, setSearchValue] = useState("");
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskManage({
-        posId: posId,
-        page: currentPage,
-        size: pageSize
-    }).finally(() => {
-        setIsInitialLoading(false);
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { buttonOn, setButtonOn } = useButtonCreate();
 
     const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -136,34 +110,6 @@ const TechTaskCreate: React.FC = () => {
         setValue(field, value);
     };
 
-    const techTasksTypes = [
-        { name: t("tables.REGULAR"), value: "REGULAR" },
-        { name: t("tables.ONETIME"), value: "ONETIME" }
-    ];
-
-    const handleUpdate = (id: number) => {
-        setEditTechTaskId(id);
-        setIsEditMode(true);
-        setButtonOn(true);
-        const techTaskToEdit = techTasks.find((tech) => tech.id === id);
-        if (techTaskToEdit) {
-            const techTaskItemNumber: number[] = techTaskToEdit.items?.map((item) => (item.id)) || [];
-            const techTaskss: { id: number; title: string; description: string; }[] = techTaskToEdit.items.map((item) => ({ id: item.id, title: item.title, description: "This is the description text." }));
-            setSelectedItems(techTaskss);
-            setAvailableItems(availableItems.filter((item) => !techTaskItemNumber.includes(item.id)));
-            setFormData({
-                name: techTaskToEdit.name,
-                posId: techTaskToEdit.posId,
-                type: techTasksTypes.find((item) => item.name === techTaskToEdit.type)?.value || "-",
-                period: techTaskToEdit.period,
-                startDate: techTaskToEdit.startDate,
-                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
-                techTaskItem: techTaskItemNumber,
-                markdownDescription: techTaskToEdit.markdownDescription,
-                tagIds: techTaskToEdit.tags.map((tag) => tag.id)
-            });
-        }
-    };
 
     const resetForm = () => {
         setFormData(defaultValues);
@@ -198,14 +144,6 @@ const TechTaskCreate: React.FC = () => {
             console.error("Error during form submission: ", error);
         }
     };
-
-    const techTasks = data
-        ?.techTaskManageInfo.map((item) => ({
-            ...item,
-            type: t(`tables.${item.type}`),
-            posName: poses?.find((pos) => pos.id === item.posId)?.name,
-            status: item.status === "ACTIVE" ? t(`tables.In Progress`) : item.status === "FINISHED" ? t(`tables.Done`) : t(`tables.${item.status}`)
-        })) || [];
 
     const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);
 
@@ -270,116 +208,42 @@ const TechTaskCreate: React.FC = () => {
         }
     }
 
-    const renderStatus = getStatusTagRender(t);
-    const dateRender = getDateRender();
+    const techTasksTypes = [
+        { name: t("tables.REGULAR"), value: "REGULAR" },
+        { name: t("tables.ONETIME"), value: "ONETIME" }
+    ];
 
-    const columnsTechTasks: ColumnsType<TechTaskManagerInfo> = [
-        {
-            title: "№",
-            dataIndex: "id",
-            key: "id"
-        },
-        {
-            title: "Автомойка/ Филиал",
-            dataIndex: "posName",
-            key: "posName"
-        },
-        {
-            title: "Наименование работ",
-            dataIndex: "name",
-            key: "name"
-        },
-        {
-            title: "Периодичность",
-            dataIndex: "period",
-            key: "period"
-        },
-        {
-            title: "Статус",
-            dataIndex: "status",
-            key: "status",
-            render: renderStatus
-        },
-        {
-            title: "Тип работы",
-            dataIndex: "type",
-            key: "type"
-        },
-        {
-            title: "Теги",
-            dataIndex: "tags",
-            key: "tags",
-            render: (value) => getTagRender(value)
-        },
-        {
-            title: "Дата начала работ",
-            dataIndex: "startDate",
-            key: "startDate",
-            render: dateRender
-        },
-        {
-            title: "",
-            dataIndex: "actions",
-            key: "actions",
-            render: (_: unknown, record: { id: number; }) => (
-                <Tooltip title="Редактировать">
-                    <AntDButton
-                        type="text"
-                        icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
-                        onClick={() => handleUpdate(record.id)}
-                        style={{ height: "24px" }}
-                    />
-                </Tooltip>
-            ),
+    const handleUpdate = (id: number) => {
+        setEditTechTaskId(id);
+        setIsEditMode(true);
+        setButtonOn(true);
+        const techTaskToEdit = techTasks.find((tech) => tech.id === id);
+        if (techTaskToEdit) {
+            const techTaskItemNumber: number[] = techTaskToEdit.items?.map((item) => (item.id)) || [];
+            const techTaskss: { id: number; title: string; description: string; }[] = techTaskToEdit.items.map((item) => ({ id: item.id, title: item.title, description: "This is the description text." }));
+            setSelectedItems(techTaskss);
+            setAvailableItems(availableItems.filter((item) => !techTaskItemNumber.includes(item.id)));
+            setFormData({
+                name: techTaskToEdit.name,
+                posId: techTaskToEdit.posId,
+                type: techTasksTypes.find((item) => item.name === techTaskToEdit.type)?.value || "-",
+                period: techTaskToEdit.period,
+                startDate: techTaskToEdit.startDate,
+                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
+                techTaskItem: techTaskItemNumber,
+                markdownDescription: techTaskToEdit.markdownDescription,
+                tagIds: techTaskToEdit.tags.map((tag) => tag.id)
+            });
         }
-    ]
+    };
 
-    const resetFilters = () => {
-        updateSearchParams(searchParams, setSearchParams, {
-            posId: undefined
-        });
-    }
 
-    const { checkedList, setCheckedList, options: optionsColumns, visibleColumns } =
-        useColumnSelector(columnsTechTasks, "tech-tasks-columns");
+    useImperativeHandle(ref, () => ({
+        handleUpdate,
+    }));
 
     return (
-        <>
-            <GeneralFilters
-                count={data?.totalCount || 0}
-                hideDateAndTime={true}
-                hideCity={true}
-                hideSearch={true}
-                poses={poses?.map((item) => ({ name: item.name, value: item.id }))}
-                onReset={resetFilters}
-            />
-            <div className="mt-8">
-                <ColumnSelector
-                    checkedList={checkedList}
-                    options={optionsColumns}
-                    onChange={setCheckedList}
-                />
-                <Table
-                    dataSource={techTasks.sort((a, b) => a.id - b.id)}
-                    columns={visibleColumns}
-                    loading={techTasksLoading || isInitialLoading}
-                    pagination={{
-                        current: currentPage,
-                        pageSize: pageSize,
-                        total: data?.totalCount || 0,
-                        pageSizeOptions: ALL_PAGE_SIZES,
-                        showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} of ${total} items`,
-                        onChange: (page, size) => {
-                            updateSearchParams(searchParams, setSearchParams, {
-                                page: String(page),
-                                size: String(size),
-                            });
-                        },
-                    }}
-                    scroll={{ x: "max-content" }}
-                />
-            </div>
+        <div>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
@@ -557,13 +421,12 @@ const TechTaskCreate: React.FC = () => {
                             title={t("routes.create")}
                             form={true}
                             isLoading={isEditMode ? updatingTechTask : isMutating}
-                            handleClick={() => { }}
                         />
                     </div>
                 </form>
             </DrawerCreate>
-        </>
-    )
-}
+        </div>
+    );
+});
 
-export default TechTaskCreate;
+export default TechTaskForm;

@@ -102,7 +102,7 @@ const TechTasks: React.FC = () => {
                     <Link
                         to={{
                             pathname: "/equipment/technical/tasks/list/item",
-                            search: `?techTaskId=${record.id}&status=${record.status}`,
+                            search: `?techTaskId=${record.id}&status=${record.status}&name=${record.name}`,
                         }}
                         className="text-blue-500 hover:text-blue-700 font-semibold"
                     >
