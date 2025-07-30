@@ -74,24 +74,24 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   // Antd Table columns configuration
   const columns: ColumnType<any>[] = [
     {
-      title: "Устройство",
+      title: t("equipment.device"),
       dataIndex: "deviceName",
       key: "deviceName",
     },
     {
-      title: "Дата и время",
+      title: t("finance.dateTime"),
       dataIndex: "eventDate",
       key: "eventDate",
       render: dateRender,
     },
     {
-      title: "Сумма",
+      title: t("finance.sum"),
       dataIndex: "sum",
       key: "sum",
       render: currencyRender,
     },
     {
-      title: "Комментарий",
+      title: t("equipment.comment"),
       dataIndex: "comment",
       key: "comment",
     },

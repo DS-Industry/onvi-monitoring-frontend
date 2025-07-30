@@ -57,25 +57,25 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   const tableColumns: ColumnsType<any> = [
     {
-      title: "На начало смены",
+      title: t("finance.startShift"),
       dataIndex: "cashAtStart",
       key: "cashAtStart",
       render: currencyRender,
     },
     {
-      title: "Пополнение",
+      title: t("finance.replenishment"),
       dataIndex: "replenishmentSum",
       key: "replenishmentSum",
       render: currencyRender,
     },
     {
-      title: "Расход",
+      title: t("finance.expense"),
       dataIndex: "expenditureSum",
       key: "expenditureSum",
       render: currencyRender,
     },
     {
-      title: "На конец смены",
+      title: t("finance.endShift"),
       dataIndex: "cashAtEnd",
       key: "cashAtEnd",
       render: currencyRender,
@@ -106,7 +106,6 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
         />
       </div>
 
-      {/* Modal */}
       {shiftId && posId ? (
         <CreateCashOperationModal
           open={isModalOpen}

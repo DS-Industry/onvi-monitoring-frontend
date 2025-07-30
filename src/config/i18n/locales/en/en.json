@@ -100,7 +100,8 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
-    "appo": "Directory of appointments"
+    "appo": "Directory of appointments",
+    "savedSuccessfully": "Saved successfully"
   },
   "dashboard": {
     "news": "News",
@@ -671,7 +672,8 @@
     "8002": "An error occurred while recalculate the cash collection. Please try again.",
     "8003": "An error occurred while return the cash collection. Please try again.",
     "8004": "An error occurred while retrieving the cash collection. Please try again.",
-    "somethingWentWrong": "Something went wrong"
+    "somethingWentWrong": "Something went wrong",
+    "submitFailed": "Submit failed"
   },
   "tables": {
     "ACTIVE": "ACTIVE",
@@ -809,7 +811,28 @@
     "op": "Open",
     "confirm": "Confirm",
     "addN": "Add New Paper Type",
-    "scheduleCalendar": "Schedule Calendar"
+    "scheduleCalendar": "Schedule Calendar",
+    "deviceName": "Device Name",
+    "program": "Program",
+    "programCount": "Program Count",
+    "totalTime": "Total Time",
+    "startShift": "Start of Shift",
+    "replenishment": "Replenishment",
+    "expense": "Expense",
+    "endShift": "End of Shift",
+    "dateTime": "Date & Time",
+    "averageRating": "Average Rating",
+    "employeeName": "Employee Name",
+    "shiftHours": "Shift Hours",
+    "totalHoursWorked": "Total Hours Worked",
+    "shiftGrading": "Shift Grading",
+    "startTime": "Start Time",
+    "workingTime": "Working Time",
+    "previousStartTime": "Previous Start Time",
+    "previousProgram": "Previous Program",
+    "previousWorkingTime": "Previous Working Time",
+    "sentSuccessfully": "Sent successfully",
+    "returnedSuccessfully": "Returned successfully"
   },
   "analysis": {
     "search": "Search",
@@ -988,5 +1011,16 @@
     "addWorker": "Add Worker",
     "sch": "Schedule Shift",
     "select": "Select Worker"
+  },
+  "actions": {
+    "reset": "Reset",
+    "save": "Save"
+  },
+  "validation": {
+    "typeRequired": "Type is required",
+    "sumRequired": "Sum is required",
+    "deviceRequired": "Device is required",
+    "dateRequired": "Date is required",
+    "commentRequired": "Comment is required"
   }
 }

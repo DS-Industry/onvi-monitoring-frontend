@@ -89,7 +89,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         <Form.Item
           label={t("finance.operType")}
           name="type"
-          rules={[{ required: true, message: t("Type is Required.") }]}
+          rules={[{ required: true, message: t("validation.typeRequired") }]}
         >
           <Select placeholder={t("warehouse.notSel")}>
             <Option value="REFUND">{t("finance.REFUND")}</Option>
@@ -100,7 +100,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         <Form.Item
           label={t("finance.sum")}
           name="sum"
-          rules={[{ required: true, message: t("Sum is required.") }]}
+          rules={[{ required: true, message: t("validation.sumRequired") }]}
         >
           <Input type="number" />
         </Form.Item>
@@ -108,7 +108,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         <Form.Item
           label={t("equipment.device")}
           name="carWashDeviceId"
-          rules={[{ required: true, message: t("Device is required.") }]}
+          rules={[{ required: true, message: t("validation.deviceRequired") }]}
         >
           <Select
             placeholder={
@@ -122,7 +122,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         <Form.Item
           label={t("finance.date")}
           name="eventData"
-          rules={[{ required: true, message: t("Date is required.") }]}
+          rules={[{ required: true, message: t("validation.dateRequired") }]}
         >
           <DatePicker showTime format="YYYY-MM-DDTHH:mm" className="w-full" />
         </Form.Item>
@@ -130,7 +130,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         <Form.Item
           label={t("equipment.comment")}
           name="comment"
-          rules={[{ required: true, message: t("Comment is required.") }]}
+          rules={[{ required: true, message: t("validation.commentRequired") }]}
         >
           <TextArea rows={4} />
         </Form.Item>

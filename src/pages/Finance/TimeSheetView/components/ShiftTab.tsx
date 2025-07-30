@@ -192,7 +192,7 @@ const ShiftTab: React.FC = () => {
           <p className="text-lg font-bold">{dayShiftData?.totalCar || 0}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Average Rating</p>
+          <p className="text-sm text-gray-500">{t("finance.averageRating")}</p>
           <div
             className={`rounded-lg flex items-center justify-center text-sm font-extrabold w-24
                 ${
@@ -212,11 +212,11 @@ const ShiftTab: React.FC = () => {
           </div>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Employee Name</p>
+          <p className="text-sm text-gray-500">{t("finance.employeeName")}</p>
           <p className="text-lg font-bold">{dayShiftData?.workerName || "-"}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Shift Hours</p>
+          <p className="text-sm text-gray-500">{t("finance.shiftHours")}</p>
           <div className="flex space-x-2 text-lg font-bold">
             {dayShiftData?.startWorkingTime
               ? dayjs(dayShiftData.startWorkingTime).format("HH:mm")
@@ -230,7 +230,7 @@ const ShiftTab: React.FC = () => {
           </div>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Total Hours Worked</p>
+          <p className="text-sm text-gray-500">{t("finance.totalHoursWorked")}</p>
           <div className="text-lg font-bold">
             {start.isValid() && end.isValid() ? `${workedHours} hrs` : ""}
           </div>
@@ -239,10 +239,10 @@ const ShiftTab: React.FC = () => {
 
       <div className="mt-10">
         <h2 className="text-lg font-semibold mb-4">
-          Shift Grading (Bonus Percentage)
+          {t("finance.shiftGrading")}
         </h2>
 
-        <form onSubmit={handleSubmit(handleModalSubmit)}>
+        {/* <form onSubmit={handleSubmit(handleModalSubmit)}>
           <Form.Item label={t("finance.day")}>
             <Controller
               name="typeWorkDay"
@@ -418,7 +418,7 @@ const ShiftTab: React.FC = () => {
               </Button>
             )}
           </div>
-        </form>
+        </form> */}
       </div>
     </div>
   );

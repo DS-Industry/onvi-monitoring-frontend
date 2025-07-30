@@ -58,7 +58,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
         onSuccess();
       }
     } catch (err: any) {
-      message.error(err?.message || "Error occurred");
+      message.error(err?.message || t("errors.submitFailed"));
     }
   };
 
@@ -83,7 +83,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
         <Form.Item
           label={t("finance.sum")}
           name="sum"
-          rules={[{ required: true, message: "Sum is required" }]}
+          rules={[{ required: true, message: t("validation.sumRequired") }]}
         >
           <Input type="number" />
         </Form.Item>
@@ -97,9 +97,9 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
         </Form.Item>
 
         <div className="flex flex-wrap justify-end gap-3 mt-5">
-          <Button onClick={handleCancel}>Сбросить</Button>
+          <Button onClick={handleCancel}>{t("actions.reset")}</Button>
           <Button type="primary" htmlType="submit" loading={loadingCash}>
-            Сохранить
+            {t("actions.save")}
           </Button>
         </div>
       </Form>

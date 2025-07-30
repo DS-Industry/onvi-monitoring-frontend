@@ -58,39 +58,39 @@ const SuspiciousTab: React.FC = () => {
 
   const columns: ColumnsType<any> = [
     {
-      title: "Устройство",
+      title: t("equipment.device"),
       dataIndex: "deviceName",
       key: "deviceName",
     },
     {
-      title: "Время включения",
+      title: t("finance.startTime"),
       dataIndex: "programDate",
       key: "programDate",
       render: dateRender,
     },
     {
-      title: "Программа",
+      title: t("finance.program"),
       dataIndex: "programName",
       key: "programName",
     },
     {
-      title: "Время работы",
+      title: t("finance.workingTime"),
       dataIndex: "programTime",
       key: "programTime",
     },
     {
-      title: "Время включения (Предыдущая)",
+      title: t("finance.previousStartTime"),
       dataIndex: "lastProgramDate",
       key: "lastProgramDate",
       render: dateRender,
     },
     {
-      title: "Программа (Предыдущая)",
+      title: t("finance.previousProgram"),
       dataIndex: "lastProgramName",
       key: "lastProgramName",
     },
     {
-      title: "Время работы (Предыдущая)",
+      title: t("finance.previousWorkingTime"),
       dataIndex: "lastProgramTime",
       key: "lastProgramTime",
     },
