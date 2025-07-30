@@ -10,7 +10,7 @@ import { Table } from "antd";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { getCurrencyRender } from "@/utils/tableUnits";
 import TableUtils from "@/utils/TableUtils.tsx";

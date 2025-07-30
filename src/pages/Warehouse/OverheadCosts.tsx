@@ -5,7 +5,7 @@ import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/wa
 import { getOrganization } from "@/services/api/organization";
 import { Select, Table } from "antd";
 import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";

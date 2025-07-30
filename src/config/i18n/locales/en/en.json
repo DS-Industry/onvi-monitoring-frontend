@@ -864,7 +864,9 @@
     "added": "Added branches",
     "the": "The branches connection is established successfully.",
     "sumStart": "Starting amount",
-    "sumEnd": "Ending amount"
+    "sumEnd": "Ending amount",
+    "found": "Found",
+    "reset": "Reset"
   },
   "roles": {
     "access": "Access rights management",

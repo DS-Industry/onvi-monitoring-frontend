@@ -25,7 +25,7 @@ import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { Table, Tooltip } from "antd";
 import { getDateRender } from "@/utils/tableUnits";
 import { usePermissions } from "@/hooks/useAuthStore";

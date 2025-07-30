@@ -14,8 +14,8 @@ import {
 } from "@/services/api/warehouse";
 import useSWRMutation from "swr/mutation";
 import { getWorkers } from "@/services/api/equipment";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { useToast } from "@/components/context/useContext";
-import { updateSearchParams } from "@/utils/updateSearchParams";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { Table } from "antd";
 import SavedIcon from "@icons/SavedIcon.png";

@@ -12,7 +12,7 @@ import {
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
 } from "@/utils/constants";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { formatNumber, getDateRender } from "@/utils/tableUnits";
 import { ColumnsType } from "antd/es/table";
