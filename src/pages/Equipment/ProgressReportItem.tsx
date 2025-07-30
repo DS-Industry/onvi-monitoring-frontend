@@ -232,10 +232,8 @@ const ProgressReportItem: React.FC = () => {
         const result = await updateTech();
         if (result) {
             navigate(-1);
-        } else {
-            throw new Error('Invalid update data.');
         }
-    }
+    };
 
     return (
         <>
