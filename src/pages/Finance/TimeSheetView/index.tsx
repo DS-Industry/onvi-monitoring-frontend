@@ -36,21 +36,7 @@ const TimesheetView: React.FC = () => {
 
   const { data: dayShiftData, isLoading } = useSWR(
     shiftId ? [`get-shift-data`, shiftId] : null,
-    () => {
-      return {
-        id: 16,
-        workerId: 1,
-        workDate: "2025-07-08T18:30:00.000Z",
-        typeWorkDay: "WORKING",
-        timeWorkedOut: "12:10",
-        startWorkingTime: "2025-07-09T05:00:00.000Z",
-        endWorkingTime: "2025-07-09T17:10:00.000Z",
-        estimation: "MINOR_VIOLATION",
-        prize: 1000,
-        fine: 200,
-        comment: null,
-      };
-    },
+    () => getDayShiftById(shiftId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

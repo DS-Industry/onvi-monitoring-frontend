@@ -252,6 +252,8 @@ type DayShiftResponse = {
   prize?: number | null;
   fine?: number | null;
   comment?: string;
+  workerName?: string;
+  totalCar: number;
 };
 
 export type UpdateDayShiftBody = {
