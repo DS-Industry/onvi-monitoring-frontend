@@ -1,66 +1,28 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.png"
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import { useButtonCreate } from "@/components/context/useContext";
-import { columnsEquipmentFailure } from "@/utils/OverFlowTableData";
 import useSWR, { mutate } from "swr";
-import { createIncident, getDevices, getEquipmentKnots, getIncident, getIncidentEquipmentKnots, getPoses, getPrograms, getWorkers, updateIncident } from "@/services/api/equipment";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import { createIncident, getDevices, getEquipmentKnots, getIncident, getIncidentEquipmentKnots, getPoses, getPrograms, getWorkers, Incident, IncidentBody, updateIncident } from "@/services/api/equipment";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity, useSetCity } from '@/hooks/useAuthStore';
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateTimeInput from "@/components/ui/Input/DateTimeInput";
 import dayjs from "dayjs";
-
-
-interface Incident {
-    id: number;
-    posId: number;
-    workerId: number;
-    appearanceDate: Date;
-    startDate: Date;
-    finishDate: Date;
-    objectName: string;
-    equipmentKnot: string;
-    incidentName: string;
-    incidentReason: string;
-    incidentSolution: string;
-    repair: string;
-    downtime: string;
-    comment: string;
-    programId: number;
-}
-
-interface FilterIncidentPos {
-    dateStart: string;
-    dateEnd: string;
-    posId: number | string;
-    placementId: number | string;
-}
-
-type IncidentBody = {
-    posId: number;
-    workerId: number;
-    appearanceDate: string;
-    startDate: string;
-    finishDate: string;
-    objectName: string;
-    equipmentKnotId?: number;
-    incidentNameId?: number;
-    incidentReasonId?: number;
-    incidentSolutionId?: number;
-    downtime: number;
-    comment: string;
-    carWashDeviceProgramsTypeId?: number;
-}
-
+import { useSearchParams } from "react-router-dom";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { Table, Tooltip } from "antd";
+import { getDateRender } from "@/utils/tableUnits";
+import { usePermissions } from "@/hooks/useAuthStore";
+import hasPermission from "@/permissions/hasPermission";
+import { ColumnsType } from "antd/es/table";
+import { EditOutlined } from "@ant-design/icons";
+import AntDButton from "antd/es/button";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 const EquipmentFailure: React.FC = () => {
     const { t } = useTranslation();
@@ -68,36 +30,23 @@ const EquipmentFailure: React.FC = () => {
     const { buttonOn, setButtonOn } = useButtonCreate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editIncidentId, setEditIncidentId] = useState<number>(0);
-    const today = new Date();
+    const today = dayjs().toDate();
     const formattedDate = today.toISOString().slice(0, 10);
     const [deviceCheck, setDeviceCheck] = useState(false);
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const city = useCity();
-    const setCity = useSetCity();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const posId = searchParams.get("posId") || "*";
+    const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
+    const cityParam = searchParams.get("city") || "*";
+    const userPermissions = usePermissions();
 
-    const filterParams = useMemo(() => ({
-        dateStart: startDate ? (typeof startDate === "string" ? startDate : dayjs(startDate).format("YYYY-MM-DD HH:mm")) : `${formattedDate} 00:00`,
-        dateEnd: endDate ? (typeof endDate === "string" ? endDate : dayjs(endDate).format("YYYY-MM-DD HH:mm")) : `${formattedDate} 23:59`,
-        posId: posType || "*",
-        placementId: city
-    }), [startDate, endDate, posType, city, formattedDate]);
-
-    const swrKey = useMemo(() =>
-        `get-incidents-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`,
-        [filterParams]
-    );
-
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterIncidentPos>) => {
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
-        if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-        if (newFilterData.placementId) setCity(newFilterData.placementId);
-    },[setCity, setEndDate, setPosType, setStartDate]);
+    const filterParams = {
+        dateStart,
+        dateEnd,
+        posId: posId || "*",
+        placementId: cityParam
+    }
+    const swrKey = `get-incidents-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;
 
     const { data, isLoading: incidentLoading } = useSWR(swrKey, () => getIncident(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
 
@@ -119,7 +68,7 @@ const EquipmentFailure: React.FC = () => {
 
     const [formData, setFormData] = useState(defaultValues);
 
-    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR([`get-pos`, cityParam], () => getPoses({ placementId: cityParam }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -214,8 +163,7 @@ const EquipmentFailure: React.FC = () => {
 
         if (incidentToEdit) {
             const formatDateTime = (dateString: Date) => {
-                const date = new Date(dateString); // Convert string to Date object
-                return date.toISOString().slice(0, 16); // Format to YYYY-MM-DDTHH:MM
+                return dayjs(dateString).format("YYYY-MM-DDTHH:mm");
             };
 
             setFormData({
@@ -268,34 +216,141 @@ const EquipmentFailure: React.FC = () => {
         }
     };
 
+    const dateRender = getDateRender();
+
+    const allowed = hasPermission(userPermissions, [
+        { action: "manage", subject: "Incident" },
+        { action: "update", subject: "Incident" }
+    ])
+
+    const columnsEquipmentFailure: ColumnsType<Incident> = [
+        {
+            title: "Название объекта",
+            dataIndex: "posName",
+            key: "posName"
+        },
+        {
+            title: "Сотрудник",
+            dataIndex: "workerName",
+            key: "workerName"
+        },
+        {
+            title: "Дата поломки",
+            dataIndex: "appearanceDate",
+            key: "appearanceDate",
+            render: dateRender
+        },
+        {
+            title: "Дата начала работы",
+            dataIndex: "startDate",
+            key: "startDate",
+            render: dateRender
+        },
+        {
+            title: "Дата окончания работы",
+            dataIndex: "finishDate",
+            key: "finishDate",
+            render: dateRender
+        },
+        {
+            title: "Устройство",
+            dataIndex: "objectName",
+            key: "objectName"
+        },
+        {
+            title: "Узел",
+            dataIndex: "equipmentKnot",
+            key: "equipmentKnot",
+            render: (value: string) => <div>{value ? value : "-"}</div>
+        },
+        {
+            title: "Проблема",
+            dataIndex: "incidentName",
+            key: "incidentName",
+            render: (value: string) => <div>{value ? value : "-"}</div>
+
+        },
+        {
+            title: "Причина",
+            dataIndex: "incidentReason",
+            key: "incidentReason",
+            render: (value: string) => <div>{value ? value : "-"}</div>
+        },
+        {
+            title: "Принятые меры",
+            dataIndex: "incidentSolution",
+            key: "incidentSolution",
+            render: (value: string) => <div>{value ? value : "-"}</div>
+        },
+        {
+            title: "Время исправления",
+            dataIndex: "repair",
+            key: "repair"
+        },
+        {
+            title: "Простой",
+            dataIndex: "downtime",
+            key: "downtime"
+        },
+        {
+            title: "Комментарий",
+            dataIndex: "comment",
+            key: "comment"
+        },
+        {
+            title: "Программа",
+            dataIndex: "programName",
+            key: "programName"
+        }
+    ];
+
+    if (allowed) {
+        columnsEquipmentFailure.push({
+            title: "",
+            dataIndex: "actions",
+            key: "actions",
+            render: (_: unknown, record: { id: number; }) => (
+                <Tooltip title="Редактировать">
+                    <AntDButton
+                        type="text"
+                        icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                        onClick={() => handleUpdate(record.id)}
+                        style={{ height: "24px" }}
+                    />
+                </Tooltip>
+            ),
+        });
+    }
+    const {
+        checkedList,
+        setCheckedList,
+        options: columnOptions,
+        visibleColumns,
+    } = useColumnSelector(columnsEquipmentFailure, "equipment-failure-columns");
+
     return (
         <>
-            <FilterMonitoring
+            <GeneralFilters
                 count={incidents.length}
-                posesSelect={[...poses, posesAllObj]}
-                handleDateFilter={handleDataFilter}
+                poses={[...poses, posesAllObj]}
                 hideSearch={true}
                 loadingPos={loadingPos || validatingPos}
             />
-            {incidentLoading ? (
-                <TableSkeleton columnCount={columnsEquipmentFailure.length} />
-            ) :
-                incidents.length > 0 ?
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={incidents}
-                            columns={columnsEquipmentFailure}
-                            isDisplayEdit={true}
-                            onEdit={handleUpdate}
-                        />
-                    </div> :
-                    <NoDataUI
-                        title={t("equipment.nodata")}
-                        description={t("equipment.noBreakdown")}
-                    >
-                        <img src={SalyImage} className="mx-auto" loading="lazy" alt="FAILURE" />
-                    </NoDataUI>
-            }
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={columnOptions}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    dataSource={incidents}
+                    columns={visibleColumns}
+                    rowKey="id"
+                    pagination={false}
+                    loading={incidentLoading}
+                    scroll={{ x: "max-content" }}
+                />
+            </div>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("equipment.break")}</span>
@@ -310,7 +365,12 @@ const EquipmentFailure: React.FC = () => {
                                 (value !== 0 || isEditMode) || "Pos ID is required"
                         })}
                         value={formData.posId}
-                        onChange={(value) => { handleInputChange('posId', value); setPosType(value); }}
+                        onChange={(value) => {
+                            handleInputChange('posId', value);
+                            updateSearchParams(searchParams, setSearchParams, {
+                                posId: value,
+                            });
+                        }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
                         isDisabled={isEditMode}
@@ -361,7 +421,6 @@ const EquipmentFailure: React.FC = () => {
                         <input
                             type="checkbox"
                             checked={deviceCheck}
-                            // {...register('objectName', { required: !isEditMode && 'Device is required' })}
                             onChange={(e) => {
                                 setDeviceCheck(e.target.checked);
                                 handleInputChange('objectName', 'Вся мойка');

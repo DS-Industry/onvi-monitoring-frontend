@@ -1,14 +1,8 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import InventoryEmpty from "@/assets/NoInventory.png"
 import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
-import { useCity, usePosType, useSetCity } from "@/hooks/useAuthStore";
 import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsWarehouses } from "@/utils/OverFlowTableData";
-import Filter from "@/components/ui/Filter/Filter";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import useFormHook from "@/hooks/useFormHook";
@@ -16,10 +10,14 @@ import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
+import { Table } from "antd";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { ColumnsType } from "antd/es/table";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { useSearchParams } from "react-router-dom";
 
-type WAREHOUSE = {
+type Warehouse = {
     name: string;
     location: string;
     managerId: number;
@@ -29,19 +27,35 @@ type WAREHOUSE = {
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
-    const city = useCity();
-    const setCity = useSetCity();
-    const posType = usePosType();
-    const [posId, setPosId] = useState(posType);
+    const [searchParams] = useSearchParams();
     const { buttonOn, setButtonOn } = useButtonCreate();
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const posId = searchParams.get("posId") || "*";
+    const placementId = searchParams.get("city") || "*";
+
+    const filterParams = useMemo(
+        () => ({
+            posId,
+            placementId
+        }),
+        [posId, placementId]
+    );
+
+    const swrKey = useMemo(() => {
+        return [
+            "get-warehouses",
+            filterParams.posId,
+            filterParams.placementId
+        ];
+    }, [filterParams]);
+
+    const { data: posData } = useSWR([`get-pos`, placementId], () => getPoses({ placementId: placementId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: warehouseData, isLoading: warehouseLoading } = useSWR([`get-warehouse`, posId, city], () => getWarehouses({
+    const { data: warehouseData, isLoading: warehouseLoading } = useSWR(swrKey, () => getWarehouses({
         posId: posId,
-        placementId: city
+        placementId: placementId
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
@@ -51,8 +65,6 @@ const Warehouse: React.FC = () => {
         value: "*",
     };
 
-    poses.unshift(posesAllObj);
-
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
     const warehouses = warehouseData?.map((item) => ({
@@ -61,7 +73,7 @@ const Warehouse: React.FC = () => {
         posName: poses.find((pos) => pos.value === item.props.posId)?.name
     })) || [];
 
-    const defaultValues: WAREHOUSE = {
+    const defaultValues = {
         name: '',
         location: '',
         managerId: 0,
@@ -99,7 +111,7 @@ const Warehouse: React.FC = () => {
 
             const result = await createWare();
             if (result) {
-                mutate([`get-warehouse`, posId]);
+                mutate(swrKey);
                 resetForm();
             } else {
                 throw new Error('Invalid response from API');
@@ -109,37 +121,58 @@ const Warehouse: React.FC = () => {
         }
     };
 
+    const columnsWarehouses: ColumnsType<Warehouse> = [
+        {
+            title: "Наименование",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title: "Расположение",
+            dataIndex: "location",
+            key: "location"
+        },
+        {
+            title: "Менеджер",
+            dataIndex: "manager",
+            key: "manager"
+        },
+        {
+            title: "Автомойка/ Филиал",
+            dataIndex: "posName",
+            key: "posName"
+        }
+    ]
+
+    const {
+        checkedList,
+        setCheckedList,
+        options: columnOptions,
+        visibleColumns,
+    } = useColumnSelector(columnsWarehouses, "plan-fact-columns");
+
     return (
         <div>
-            <Filter count={warehouses.length} address={city} setAddress={setCity} hideDateTime={true} hidePage={true} hideSearch={true} handleClear={() => { setPosId("*") }}>
-                <div>
-                    <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                    <Select
-                        className="w-full sm:w-80 h-10"
-                        options={poses.map((item) => ({ label: item.name, value: item.value }))}
-                        value={posId}
-                        onChange={(value) => setPosId(value)}
-                    />
-                </div>
-            </Filter>
-            {warehouseLoading ? (
-                <TableSkeleton columnCount={columnsWarehouses.length} />
-            ) : warehouses.length > 0 ? (
-                <div className="mt-8">
-                    <DynamicTable
-                        data={warehouses}
-                        columns={columnsWarehouses}
-                    />
-                </div>
-            ) : (
-                <div className="flex flex-col justify-center items-center">
-                    <NoDataUI
-                        title={t("warehouse.noWare")}
-                        description={""}
-                    >
-                        <img src={InventoryEmpty} className="mx-auto" loading="lazy" alt="Warehouse" />
-                    </NoDataUI>
-                </div>)}
+            <GeneralFilters
+                poses={[...poses, posesAllObj]}
+                count={warehouses.length}
+                hideSearch={true}
+                hideDateAndTime={true}
+            />
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={columnOptions}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    rowKey="posId"
+                    dataSource={warehouses}
+                    columns={visibleColumns}
+                    loading={warehouseLoading}
+                    pagination={false}
+                />
+            </div>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.ware")}</div>

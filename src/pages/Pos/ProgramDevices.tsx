@@ -1,200 +1,213 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import useSWR from "swr";
+import { Table } from "antd";
 import { getProgramPos } from "@/services/api/pos";
-import { columnsProgramsPos } from "@/utils/OverFlowTableData.tsx";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation } from "react-router-dom";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import ExpandableTable from "@/components/ui/Table/ExpandableTable";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import {
+    ALL_PAGE_SIZES,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { formatNumber, getDateRender } from "@/utils/tableUnits";
+import { ColumnsType } from "antd/es/table";
 
-type FilterDepositPos = {
-    dateStart: Date;
-    dateEnd: Date;
-    posId: number | string;
-    placementId: number | string;
-    page?: number;
-    size?: number;
-}
+type ProgramDetail = {
+    programName: string;
+    counter: number;
+    totalTime: number;
+    averageTime: string;
+    lastOper?: Date;
+};
 
-enum CarWashPosType {
-    SelfService = "SelfService",
-    Portal = "Portal",
-    SelfServiceAndPortal = "SelfServiceAndPortal"
-}
-
-type PosPrograms = {
+type ProgramDevice = {
     id: number;
     name: string;
-    posType?: CarWashPosType;
-    programsInfo:
-    {
-        programName: string;
-        counter: number;
-        totalTime: number;
-        averageTime: string;
-        totalProfit?: number;
-        averageProfit?: number;
-        lastOper?: Date;
-    }[]
-}
-
-type PosMonitoring = {
-    id: number;
-    name: string;
-}
+    programsInfo: ProgramDetail[];
+};
 
 const ProgramDevices: React.FC = () => {
     const { t } = useTranslation();
     const allCategoriesText = t("warehouse.all");
+    const location = useLocation();
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
 
-    const location = useLocation();
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const city = useCity();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCity = useSetCity();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const setCurrentPage = useSetCurrentPage();
-    const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize();
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+    const posId = searchParams.get("posId") || "*";
+    const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
+    const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
+    const cityParam = searchParams.get("city") || "*";
 
-    const filterParams = useMemo(() => ({
-        dateStart: startDate || `${formattedDate} 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId || "*",
-        placementId: city,
-        page: currentPage,
-        size: pageSize
-    }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
+    const { data: poses } = useSWR(
+        `get-pos-${cityParam}`,
+        () =>
+            getPoses({ placementId: cityParam }).then((data) => {
+                const options = data.sort((a, b) => a.id - b.id).map((item) => ({
+                    name: item.name,
+                    value: item.id,
+                }));
+                return [{ name: allCategoriesText, value: "*" }, ...options];
+            }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
+        }
+    );
 
-    const swrKey = useMemo(() =>
-        `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+    const filterParams = useMemo(
+        () => ({
+            dateStart: new Date(dateStart || `${formattedDate} 00:00`),
+            dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
+            posId: posId || location.state?.ownerId || "*",
+            placementId: cityParam,
+            page: currentPage,
+            size: pageSize,
+        }),
+        [dateStart, dateEnd, posId, cityParam, currentPage, pageSize, location.state]
+    );
+
+    const swrKey = useMemo(
+        () =>
+            `get-pos-programs-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
         [filterParams]
     );
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location, setCurrentPage]);
+    const [totalCount, setTotalCount] = useState(0);
 
-    const { data: filter, isLoading: filterLoading } = useSWR(swrKey, () =>
-        getProgramPos(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const { data, isLoading, isValidating } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
-    const totalRecords = filter?.totalCount || 0;
-    const maxPages = Math.ceil(totalRecords / pageSize);
-
-    useEffect(() => {
-        if (currentPage > maxPages) {
-            setCurrentPage(maxPages > 0 ? maxPages : 1);
+    const { data: programRaw, isLoading: programsLoading } = useSWR(
+        swrKey,
+        () =>
+            getProgramPos(filterParams).then((data) => {
+                setTotalCount(data?.totalCount || 0);
+                return data?.prog ? data.prog.sort((a, b) => a.id - b.id) : [];
+            }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
         }
-    }, [maxPages, currentPage, setCurrentPage]);
-
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
-
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.placementId) setCity(newFilterData.placementId);
-        if (newFilterData.page) setCurrentPage(newFilterData.page);
-        if (newFilterData.size) setPageSize(newFilterData.size);
-    }, [setCity, setCurrentPage, setEndDate, setPageSize, setPosType, setStartDate]);
-
-    useEffect(() => {
-        if (!filterLoading && filter?.totalCount)
-            setTotalCount(filter?.totalCount)
-    }, [filter, filterLoading, setTotalCount]);
-
-    const devicePrograms: PosPrograms[] = useMemo(() => {
-        return filter?.prog?.map((item: PosPrograms) => {
-            return item;
-        }).sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || []
-    }, [filter?.prog]);
-
-    const posData: PosMonitoring[] = useMemo(() => {
-        return data?.map((item: PosMonitoring) => item)
-            .sort((a, b) => a.id - b.id) || [];
-    }, [data]);
-
-    const posOptional: { name: string; value: number | string }[] = posData.map(
-        (item) => ({ name: item.name, value: item.id })
     );
 
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
+    /**
+     * Columns for inner Table (programs list inside device row)
+     */
+    const programColumns: ColumnsType<ProgramDetail> = [
+        {
+            title: t("Программа"),
+            dataIndex: "programName",
+            key: "programName",
+        },
+        {
+            title: t("Кол-во программ"),
+            dataIndex: "counter",
+            key: "counter",
+            render: (_value, record) => formatNumber(record.counter),
+            sorter: (a: ProgramDetail, b: ProgramDetail) => a.counter - b.counter,
+        },
+        {
+            title: t("Общее время (мин)"),
+            dataIndex: "totalTime",
+            key: "totalTime",
+            render: (_value, record) => formatNumber(record.totalTime),
+        },
+        {
+            title: t("Среднее время (мин)"),
+            dataIndex: "averageTime",
+            key: "averageTime",
+        },
+        {
+            title: t("Последняя программа"),
+            dataIndex: "lastOper",
+            key: "lastOper",
+            render: getDateRender(),
+        },
+    ];
 
-    posOptional.unshift(posesAllObj);
+    const deviceColumns = [
+        {
+            title: t("Устройство"),
+            dataIndex: "name",
+            key: "name",
+            render: (text: string, record: ProgramDevice) => (
+                <Link
+                    to={{
+                        pathname: "/station/programs/devices",
+                        search: `?posId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+                    }}
+                    className="text-blue-500 hover:text-blue-700 font-semibold"
+                >
+                    {text}
+                </Link>
+            ),
+        },
+    ];
 
-    const poses: { text: string; value: string; }[] = posData.map((pos) => ({ text: pos.name, value: pos.name }));
+    const {
+        checkedList,
+        setCheckedList,
+        options,
+        visibleColumns,
+    } = useColumnSelector(deviceColumns, "programs-device-table-columns");
 
     return (
         <>
-            <FilterMonitoring
-                count={devicePrograms.length}
-                posesSelect={posOptional}
-                handleDataFilter={handleDataFilter}
-                hideSearch={true}
-                loadingPos={isLoading || isValidating}
-            />
-            {filterLoading ? (
-                <div className="mt-8 space-y-6">
-                    <div>
-                        <TableSkeleton columnCount={columnsProgramsPos.length} />
-                    </div>
-                </div>)
-                : devicePrograms.length > 0 ? (
-                    <div className="mt-8 space-y-6">
-                        <ExpandableTable
-                            data={devicePrograms.flatMap((deviceProgram, deviceIndex) =>
-                                deviceProgram.programsInfo ? deviceProgram.programsInfo.map((p, programIndex) => ({
-                                    id: `${deviceIndex}-${programIndex}`,
-                                    deviceId: deviceProgram.id,
-                                    deviceName: deviceProgram.name,
-                                    paperTypeType: "",
-                                    ...p
-                                })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase())) : []
-                            )}
-                            columns={columnsProgramsPos}
-                            titleColumns={[{
-                                label: "Device Name",
-                                key: "deviceName",
-                                filters: poses
-                            }]}
-                            titleData={devicePrograms.map(deviceProgram => ({
-                                title: deviceProgram.name,
-                                deviceName: deviceProgram.name,
-                                deviceId: deviceProgram.id
-                            })).sort((a, b) => a.deviceName.toLowerCase().localeCompare(b.deviceName.toLowerCase()))}
-                            showPagination={true}
-                            navigableFields={[{ key: "deviceName", getPath: () => '/station/programs/devices' }]}
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <NoDataUI
-                            title={t("pos.this")}
-                            description={t("pos.you")}
-                        >
-                            <img src={SalyIamge} alt="No" className="mx-auto" />
-                        </NoDataUI>
-                    </>
-                )}
+            <GeneralFilters count={totalCount} hideSearch poses={poses} />
+
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    rowKey="id"
+                    loading={programsLoading}
+                    dataSource={programRaw}
+                    columns={visibleColumns}
+                    scroll={{ x: "max-content" }}
+                    expandable={{
+                        expandedRowRender: (record: ProgramDevice) => (
+                            <Table
+                                rowKey={(row) => `${record.id}-${row.programName}`}
+                                dataSource={record.programsInfo}
+                                columns={programColumns}
+                                pagination={false}
+                                bordered
+                                size="small"
+                            />
+                        ),
+                        rowExpandable: (record) =>
+                            Array.isArray(record.programsInfo) &&
+                            record.programsInfo.length > 0,
+                    }}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalCount,
+                        pageSizeOptions: ALL_PAGE_SIZES,
+                        showTotal: (_total, range) =>
+                            `${range[0]}-${range[1]} of ${totalCount} devices`,
+                        onChange: (page, size) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                page: String(page),
+                                size: String(size),
+                            });
+                        },
+                    }}
+                />
+            </div>
         </>
-    )
-}
+    );
+};
 
 export default ProgramDevices;

@@ -1,167 +1,259 @@
-import React, { useEffect, useCallback, useMemo } from "react";
-import { columnsMonitoringPos } from "@/utils/OverFlowTableData.tsx";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
+import React, { useMemo, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import useSWR from "swr";
+import dayjs from "dayjs";
+
+// services
 import { getDeposit } from "@/services/api/pos";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import { useLocation } from "react-router-dom";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useSetPosType, useStartDate, useEndDate, useSetStartDate, useSetEndDate, useCity } from '@/hooks/useAuthStore';
 import { getPoses } from "@/services/api/equipment";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
+import { getPlacement } from "@/services/api/device";
 
-interface FilterDepositPos {
-    dateStart: Date;
-    dateEnd: Date;
-    posId: number | string;
-}
+// utils
+import { updateSearchParams } from "@/utils/updateSearchParams";
+import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 
-interface PosMonitoring {
-    id: number;
-    name: string;
-    slug: string;
-    address: string;
-    organizationId: number;
-    placementId: number;
-    timezone: number;
-    posStatus: string;
-    createdAt: Date;
-    updatedAt: Date;
-    createdById: number;
-    updatedById: number;
-}
+// components
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { Table } from "antd";
 
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  ALL_PAGE_SIZES,
+} from "@/utils/constants";
+
+// types
+import type { ColumnsType } from "antd/es/table";
 interface DepositMonitoring {
-    id: number;
-    name: string;
-    city: string;
-    counter: number;
-    cashSum: number;
-    virtualSum: number;
-    yandexSum: number;
-    mobileSum: number;
-    cardSum: number;
-    lastOper: Date;
-    discountSum: number;
-    cashbackSumCard: number;
-    cashbackSumMub: number;
+  id: number;
+  name: string;
+  city: string;
+  counter: number;
+  cashSum: number;
+  virtualSum: number;
+  yandexSum: number;
+  mobileSum: number;
+  cardSum: number;
+  lastOper: Date;
+  discountSum: number;
+  cashbackSumCard: number;
+  cashbackSumMub: number;
 }
 
 const Deposit: React.FC = () => {
-    const location = useLocation();
+  const formattedDate = dayjs().format("YYYY-MM-DD");
 
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const city = useCity();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    // Initialize posType from location state only once
-    useEffect(() => {
-        if (location.state?.ownerId && posType === "*") {
-            setPosType(location.state.ownerId);
-        }
-    }, [location.state?.ownerId, setPosType, posType]);
+  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+  const posId = searchParams.get("posId") || "*";
+  const cityParam = Number(searchParams.get("city")) || "*";
+  const dateStart = searchParams.get("dateStart") || formattedDate;
+  const dateEnd = searchParams.get("dateEnd") || formattedDate;
 
-    // Memoize the filter parameters to prevent unnecessary re-renders
-    const filterParams = useMemo(() => ({
-        dateStart: startDate,
-        dateEnd: endDate,
-        posId: posType,
-    }), [startDate, endDate, posType]);
+  const filterParams = useMemo(
+    () => ({
+      dateStart: dayjs(dateStart).startOf("day").toDate(),
+      dateEnd: dayjs(dateEnd).endOf("day").toDate(),
+      posId,
+      placementId: cityParam,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [dateStart, dateEnd, posId, cityParam, currentPage, pageSize]
+  );
 
-    // Create a stable key for SWR that changes only when filter params change
-    const swrKey = useMemo(() => {
-        if (posType === "*") return null;
-        return [
-            'get-pos-deposits',
-            posType,
-            filterParams.dateStart,
-            filterParams.dateEnd
-        ];
-    }, [posType, filterParams]);
+  const swrKey = `get-pos-deposits-${filterParams.posId}-${
+    filterParams.placementId
+  }-${dayjs(filterParams.dateStart).toISOString()}-${dayjs(
+    filterParams.dateEnd
+  ).toISOString()}-${filterParams.page}-${filterParams.size}`;
 
-    // Single SWR call with stable key for deposit data
-    const { data: filter, isLoading: filterLoading } = useSWR(
-        swrKey,
-        () => getDeposit(posType, {
-            dateStart: filterParams.dateStart,
-            dateEnd: filterParams.dateEnd
+  const [totalCount, setTotalCount] = useState(0);
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  const { data: devices, isLoading: filterLoading } = useSWR(
+    swrKey,
+    () =>
+      getDeposit(posId, {
+        dateStart: filterParams.dateStart,
+        dateEnd: filterParams.dateEnd,
+      })
+        .then((data) => {
+          const sorted = [...(data ?? [])].sort((a, b) => a.id - b.id);
+          setTotalCount(sorted.length);
+
+          return sorted;
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
         }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
+    {
+      revalidateOnReconnect: true,
+      keepPreviousData: true,
+      revalidateOnFocus: true,
+    }
+  );
 
-    // SWR call for pos data
-    const { data, isLoading, isValidating } = useSWR(
-        [`get-pos`, city],
-        () => getPoses({ placementId: city }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
+  const { data: poses } = useSWR(
+    `get-pos-${cityParam}`,
+    () =>
+      getPoses({ placementId: cityParam }).then((data) => {
+        const sorted = data?.sort((a, b) => a.id - b.id) || [];
+        const options = sorted.map((item) => ({
+          name: item.name,
+          value: item.id,
+        }));
 
-    // Optimized filter handler
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
-        // Update store values
-        if (newFilterData.posId) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd) setEndDate(newFilterData.dateEnd);
-    }, [setPosType, setStartDate, setEndDate]);
+        return options;
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-    // Memoize processed data to prevent unnecessary recalculations
-    const posMonitoring: DepositMonitoring[] = useMemo(() => {
-        return filter?.map((item: DepositMonitoring) => item)
-            .sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
-    }, [filter]);
+  const { data: cities } = useSWR(
+    "get-cities",
+    () =>
+      getPlacement().then(
+        (data) =>
+          data?.map((item) => ({ text: item.region, value: item.region })) || []
+      ),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-    const posData: PosMonitoring[] = useMemo(() => {
-        return data?.map((item: PosMonitoring) => item)
-            .sort((a, b) => a.id - b.id) || [];
-    }, [data]);
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
 
-    const posOptional: { name: string; value: number }[] = useMemo(() => {
-        return posData.map((item) => ({ name: item.name, value: item.id }));
-    }, [posData]);
+  const columns: ColumnsType<DepositMonitoring> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Наименование",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Link
+          to={{
+            pathname: "/station/enrollments/device",
+            search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+          }}
+          className="text-blue-500 hover:text-blue-700 font-semibold"
+        >
+          {text}
+        </Link>
+      ),
+    },
+    {
+      title: "Город",
+      dataIndex: "city",
+      key: "city",
+      filters: cities,
+      onFilter: (value, record) => record.city === value,
+    },
+    {
+      title: "Последняя операция",
+      dataIndex: "lastOper",
+      key: "lastOper",
+      render: dateRender,
+      sorter: (a, b) =>
+        dayjs(a.lastOper).valueOf() - dayjs(b.lastOper).valueOf(),
+    },
+    {
+      title: "Наличные",
+      dataIndex: "cashSum",
+      key: "cashSum",
+      render: currencyRender,
+    },
+    {
+      title: "Безналичные",
+      dataIndex: "virtualSum",
+      key: "virtualSum",
+      render: currencyRender,
+    },
+    {
+      title: "Cashback по картам",
+      dataIndex: "cashbackSumCard",
+      key: "cashbackSumCard",
+      render: currencyRender,
+    },
+    {
+      title: "Сумма скидки",
+      dataIndex: "discountSum",
+      key: "discountSum",
+      render: currencyRender,
+    },
+    {
+      title: "Кол-во операций",
+      dataIndex: "counter",
+      key: "counter",
+      sorter: (a, b) => a.counter - b.counter,
+    },
+    {
+      title: "Яндекс Сумма",
+      dataIndex: "yandexSum",
+      key: "yandexSum",
+      render: currencyRender,
+    },
+  ];
 
-    return (
-        <>
-            <FilterMonitoring
-                count={posMonitoring.length}
-                posesSelect={posOptional}
-                handleDataFilter={handleDataFilter}
-                hideCity={true}
-                hideSearch={true}
-                hideReset={true}
-                loadingPos={isLoading || isValidating}
-            />
-            {filterLoading ? (
-                <TableSkeleton columnCount={columnsMonitoringPos.length} />
-            ) : posMonitoring.length > 0 ? (
-                <div className="mt-8">
-                    <DynamicTable
-                        data={posMonitoring}
-                        columns={columnsMonitoringPos}
-                        isDisplayEdit={true}
-                        navigableFields={[{ key: "name", getPath: () => '/station/enrollments/device' }]}
-                    />
-                </div>
-            ) : (
-                <NoDataUI
-                    title="В этом разделе представленны операции"
-                    description="У вас пока нету операций"
-                >
-                    <img src={SalyIamge} alt="No" className="mx-auto" />
-                </NoDataUI>
-            )}
-        </>
-    )
-}
+  const { checkedList, setCheckedList, options, visibleColumns } =
+    useColumnSelector(columns, "devices-deposit-table-columns");
+
+  return (
+    <>
+      <GeneralFilters
+        poses={poses}
+        count={totalCount}
+        hideCity={true}
+        hideSearch={true}
+        hideReset={true}
+      />
+
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
+
+        <Table
+          rowKey="id"
+          dataSource={devices}
+          columns={visibleColumns}
+          scroll={{ x: "max-content" }}
+          loading={filterLoading || isInitialLoading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} операций`,
+            onChange: (page, size) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              }),
+          }}
+        />
+      </div>
+    </>
+  );
+};
 
 export default Deposit;

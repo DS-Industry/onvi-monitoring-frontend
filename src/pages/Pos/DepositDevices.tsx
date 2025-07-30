@@ -1,251 +1,280 @@
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useMemo, useState } from "react";
+
+// utils
 import useSWR from "swr";
 import { getDepositPos } from "@/services/api/pos";
-import NoDataUI from "@ui/NoDataUI.tsx";
-import { useLocation } from "react-router-dom";
-import FilterMonitoring from "@ui/Filter/FilterMonitoring.tsx";
-import SalyIamge from "@/assets/NoCollection.png";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCity, useSetCity, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageNumber, useSetPageSize } from '@/hooks/useAuthStore';
-import { getPoses } from "@/services/api/equipment";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
 import { getPlacement } from "@/services/api/device";
+import { formatNumber, getCurrencyRender, getDateRender } from "@/utils/tableUnits";
+import { getPoses } from "@/services/api/equipment";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { updateSearchParams } from "@/utils/updateSearchParams";
 
-interface FilterDepositPos {
-    dateStart: Date;
-    dateEnd: Date;
-    posId: number | string;
-    placementId: number | string;
-    page?: number;
-    size?: number;
-}
+// components
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+
+import { Link } from "react-router-dom";
+
+import { Table } from "antd";
+
+// types
+import type { ColumnsType } from "antd/es/table";
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
 
 interface DevicesMonitoring {
-    id: number;
-    name: string;
-    city: string;
-    counter: number;
-    cashSum: number;
-    virtualSum: number;
-    yandexSum: number;
-    mobileSum: number;
-    cardSum: number;
-    lastOper: Date;
-    discountSum: number;
-    cashbackSumCard: number;
-    cashbackSumMub: number;
-}
-
-interface PosMonitoring {
-    id: number;
-    name: string;
-    slug: string;
-    address: string;
-    organizationId: number;
-    placementId: number;
-    timezone: number;
-    posStatus: string;
-    createdAt: Date;
-    updatedAt: Date;
-    createdById: number;
-    updatedById: number;
+  id: number;
+  name: string;
+  city: string;
+  counter: number;
+  cashSum: number;
+  virtualSum: number;
+  yandexSum: number;
+  mobileSum: number;
+  cardSum: number;
+  lastOper: Date;
+  discountSum: number;
+  cashbackSumCard: number;
+  cashbackSumMub: number;
 }
 
 const DepositDevices: React.FC = () => {
-    const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
+  const { t } = useTranslation();
+  const allCategoriesText = t("warehouse.all");
 
-    const location = useLocation();
+  const location = useLocation();
 
-    const posType = usePosType();
-    const city = useCity();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCity = useSetCity();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
+  const today = new Date();
+  const formattedDate = today.toISOString().slice(0, 10);
 
-    const setCurrentPage = useSetCurrentPage();
-    const setPageSize = useSetPageNumber();
-    const setTotalCount = useSetPageSize();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    const filterParams = useMemo(() => ({
-        dateStart: startDate || `${formattedDate} 00:00`,
-        dateEnd: endDate || `${formattedDate} 23:59`,
-        posId: posType || location.state?.ownerId || "*",
-        placementId: city,
-        page: currentPage,
-        size: pageSize
-    }), [startDate, endDate, posType, city, currentPage, pageSize, formattedDate, location.state?.ownerId]);
+  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+  const posId = searchParams.get("posId") || "*";
+  const dateStart =
+    searchParams.get("dateStart") ?? new Date().toISOString().slice(0, 10);
 
-    const swrKey = useMemo(() =>
-        `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
-        [filterParams]
-    );
+  const dateEnd =
+    searchParams.get("dateEnd") ?? new Date().toISOString().slice(0, 10);
 
-    // Reset page to 1 when location changes
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [location, setCurrentPage]);
+  const cityParam = Number(searchParams.get("city")) || "*";
 
-    const { data: filter, isLoading: filterLoading } = useSWR(
-        swrKey,
-        () => getDepositPos(filterParams),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true
-        }
-    );
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const totalRecords = filter?.totalCount || 0;
-    const maxPages = Math.ceil(totalRecords / pageSize);
+  // Get poses based on the selected city
+  const { data: poses } = useSWR(
+    `get-pos-${cityParam}`,
+    () =>
+      getPoses({ placementId: cityParam })
+        .then((data) => data?.sort((a, b) => a.id - b.id) || [])
+        .then((data) => {
+          const options = data.map((item) => ({
+            name: item.name,
+            value: item.id,
+          }));
+          const posesAllObj = { name: allCategoriesText, value: "*" };
+          return [posesAllObj, ...options];
+        }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-    useEffect(() => {
-        if (totalRecords > 0 && currentPage > maxPages) {
-            setCurrentPage(maxPages > 0 ? maxPages : 1);
-        }
-    }, [maxPages, currentPage, setCurrentPage, totalRecords]);
+  // Fetch cities for the dropdown filter
+  const { data: cities } = useSWR(
+    [`get-city`],
+    () =>
+      getPlacement().then(
+        (data) =>
+          data?.map((item) => ({ text: item.region, value: item.region })) || []
+      ),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-    const { data, isLoading, isValidating } = useSWR(
-        `get-pos-${city}`,
-        () => getPoses({ placementId: city }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true
-        }
-    );
+  const filterParams = useMemo(
+    () => ({
+      dateStart: new Date(dateStart || `${formattedDate} 00:00`),
+      dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
+      posId: posId || location.state?.ownerId || "*",
+      placementId: cityParam,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [
+      dateStart,
+      dateEnd,
+      posId,
+      cityParam,
+      currentPage,
+      pageSize,
+      formattedDate,
+      location.state?.ownerId,
+    ]
+  );
 
-    const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const swrKey = useMemo(
+    () =>
+      `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+    [filterParams]
+  );
 
-    const cities: { text: string; value: string; }[] = cityData?.map((item) => ({ text: item.region, value: item.region })) || [];
+  const [totalPosesCount, setTotalPosesCount] = useState(0);
 
-    useEffect(() => {
-        if (!filterLoading && filter?.totalCount) {
-            setTotalCount(filter.totalCount);
-        }
-    }, [filter?.totalCount, filterLoading, setTotalCount]);
+  // Fetch devices data based on the filter parameters
+  const { data: devices, isLoading: filterLoading } = useSWR(
+    swrKey,
+    () =>
+      getDepositPos(filterParams)
+        .then((data) => {
+          setTotalPosesCount(data.totalCount || 0);
+          const sorted = [...(data.oper ?? [])].sort((a, b) => a.id - b.id);
 
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterDepositPos>) => {
-        if (newFilterData.posId !== undefined) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart !== undefined) setStartDate(newFilterData.dateStart);
-        if (newFilterData.dateEnd !== undefined) setEndDate(newFilterData.dateEnd);
-        if (newFilterData.placementId !== undefined) setCity(newFilterData.placementId);
-        if (newFilterData.page !== undefined) setCurrentPage(newFilterData.page);
-        if (newFilterData.size !== undefined) setPageSize(newFilterData.size);
-    }, [setPosType, setStartDate, setEndDate, setCity, setCurrentPage, setPageSize]);
+          return sorted;
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
+        }),
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      keepPreviousData: true,
+    }
+  );
 
-    const devicesMonitoring: DevicesMonitoring[] = useMemo(() => {
-        return filter?.oper?.map((item: DevicesMonitoring) => item)
-            .sort((a: { id: number; }, b: { id: number; }) => a.id - b.id) || [];
-    }, [filter?.oper]);
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
 
-    const posData: PosMonitoring[] = useMemo(() => {
-        return data?.map((item: PosMonitoring) => item)
-            .sort((a, b) => a.id - b.id) || [];
-    }, [data]);
+  const columns: ColumnsType<DevicesMonitoring> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Наименование",
+      dataIndex: "name",
+      key: "name",
+      filters: [],
+      onFilter: (value, record) => record.name === value,
+      render: (text, record) => {
+        return (
+          <Link
+            to={{
+              pathname: "/station/enrollments/devices",
+              search: `?posId=${record.id || "*"}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+            }}
+            className="text-blue-500 hover:text-blue-700 font-semibold"
+          >
+            {text}
+          </Link>
+        );
+      },
+    },
+    {
+      title: "Город",
+      dataIndex: "city",
+      key: "city",
+      filters: cities,
+      onFilter: (value, record) => record.city === value,
+    },
+    {
+      title: "Последняя операция",
+      dataIndex: "lastOper",
+      key: "lastOper",
+      render: dateRender,
+      sorter: (a, b) =>
+        new Date(a.lastOper).getTime() - new Date(b.lastOper).getTime(),
+    },
+    {
+      title: "Наличные",
+      dataIndex: "cashSum",
+      key: "cashSum",
+      render: currencyRender,
+    },
+    {
+      title: "Безналичные",
+      dataIndex: "virtualSum",
+      key: "virtualSum",
+      render: currencyRender,
+    },
+    {
+      title: "Cashback по картам",
+      dataIndex: "cashbackSumCard",
+      key: "cashbackSumCard",
+      render: currencyRender,
+    },
+    {
+      title: "Сумма скидки",
+      dataIndex: "discountSum",
+      key: "discountSum",
+      render: currencyRender,
+    },
+    {
+      title: "Кол-во операций",
+      dataIndex: "counter",
+      key: "counter",
+      sorter: (a, b) => a.counter - b.counter,
+      render: (_value, record) => formatNumber(record.counter)
+    },
+    {
+      title: "Яндекс Сумма",
+      dataIndex: "yandexSum",
+      key: "yandexSum",
+      render: currencyRender,
+    },
+  ];
 
-    const posOptional = useMemo(() => {
-        const options = posData.map(item => ({ name: item.name, value: item.id }));
-        const posesAllObj = { name: allCategoriesText, value: "*" };
-        return [posesAllObj, ...options];
-    }, [posData, allCategoriesText]);
+  const { checkedList, setCheckedList, options, visibleColumns } =
+    useColumnSelector(columns, "pos-deposits-table-columns");
 
-    const poses: { text: string; value: string; }[] = posData.map((pos) => ({ text: pos.name, value: pos.name }));
+  return (
+    <>
+      <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
 
-    const columnsMonitoringPos = [
-        {
-            label: "id",
-            key: "id",
-        },
-        {
-            label: "Наименование",
-            key: "name",
-            filters: poses
-        },
-        {
-            label: "Город",
-            key: "city",
-            filters: cities
-        },
-        {
-            label: "Последняя операция",
-            key: "lastOper",
-            type: "date",
-        },
-        {
-            label: "Наличные",
-            key: "cashSum",
-            type: "currency"
-        },
-        {
-            label: "Безналичные",
-            key: "virtualSum",
-            type: "currency"
-        },
-        {
-            label: "Сashback по картам",
-            key: "cashbackSumCard",
-            type: "currency"
-        },
-        {
-            label: "Сумма скидки",
-            key: "discountSum",
-            type: "currency"
-        },
-        {
-            label: "Кол-во опреаций",
-            key: "counter",
-            type: "number"
-        },
-        {
-            label: "Яндекс Сумма",
-            key: "yandexSum",
-            type: "currency"
-        },
-    ];
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
 
-    return (
-        <>
-            <FilterMonitoring
-                count={devicesMonitoring.length}
-                posesSelect={posOptional}
-                handleDataFilter={handleDataFilter}
-                hideSearch={true}
-                loadingPos={isLoading || isValidating}
-            />
-            {
-                filterLoading ? (
-                    <TableSkeleton columnCount={columnsMonitoringPos.length} />
-                ) : devicesMonitoring.length > 0 ? (
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={devicesMonitoring}
-                            columns={columnsMonitoringPos}
-                            isDisplayEdit={true}
-                            showPagination={true}
-                            navigableFields={[{ key: "name", getPath: () => '/station/enrollments/devices' }]}
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <NoDataUI
-                            title="В этом разделе представлены операции, которые фиксируются купюроприемником"
-                            description="У вас пока нет операций с купюроприемником"
-                        >
-                            <img src={SalyIamge} alt="No" className="mx-auto" />
-                        </NoDataUI>
-                    </>
-                )}
-        </>
-    );
-}
+        <Table
+          rowKey="id"
+          dataSource={devices}
+          columns={visibleColumns}
+          scroll={{ x: "max-content" }}
+          loading={filterLoading || isInitialLoading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalPosesCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
+        />
+      </div>
+    </>
+  );
+};
 
 export default DepositDevices;

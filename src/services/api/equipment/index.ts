@@ -27,7 +27,7 @@ type IncidentParam = {
     placementId: number | string;
 }
 
-type IncidentResponse = {
+export type Incident = {
     id: number;
     posId: number;
     workerId: number;
@@ -45,7 +45,7 @@ type IncidentResponse = {
     programId: number;
 }
 
-type IncidentBody = {
+export type IncidentBody = {
     posId: number;
     workerId: number;
     appearanceDate: string;
@@ -316,7 +316,7 @@ type ChemicalParams = {
     placementId: number | string;
 }
 
-type ChemicalResponse = {
+export type ChemicalConsumptionResponse = {
     techTaskId: number;
     period: string;
     techRateInfos: {
@@ -379,8 +379,8 @@ type CreateTagsResponse = {
     }
 }
 
-export async function getIncident(params: IncidentParam): Promise<IncidentResponse[]> {
-    const response: AxiosResponse<IncidentResponse[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
+export async function getIncident(params: IncidentParam): Promise<Incident[]> {
+    const response: AxiosResponse<Incident[]> = await api.get(EQUIPMENT.GET_INCIDENT, { params });
 
     return response.data;
 }
@@ -493,8 +493,8 @@ export async function createTechTaskShape(
     return response.data;
 }
 
-export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalResponse[]> {
-    const response: AxiosResponse<ChemicalResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
+export async function getChemicalReport(params: ChemicalParams): Promise<ChemicalConsumptionResponse[]> {
+    const response: AxiosResponse<ChemicalConsumptionResponse[]> = await api.get(TECHTASKS.GET_CHEMICAL_CONSUMPTION, { params });
 
     return response.data;
 }

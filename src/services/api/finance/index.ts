@@ -36,7 +36,7 @@ export enum StatusWorkDayShiftReport {
   SENT = "SENT",
 }
 
-export enum TypeWorkDayShiftReportCashOper {
+enum TypeWorkDayShiftReportCashOper {
   REFUND = "REFUND",
   REPLENISHMENT = "REPLENISHMENT",
 }
@@ -129,6 +129,12 @@ type CashCollectionParams = {
   posId: number | string;
   page?: number;
   size?: number;
+};
+
+type GetShiftReportsParams = {
+  dateStart: Date;
+  dateEnd: Date;
+  posId: number;
 };
 
 type CashCollectionsResponse = {
@@ -252,8 +258,8 @@ type DayShiftResponse = {
   prize?: number | null;
   fine?: number | null;
   comment?: string;
-  workerName?: string;
   totalCar: number;
+  workerName: string;
 };
 
 export type UpdateDayShiftBody = {
@@ -631,7 +637,7 @@ export async function addWorker(
 }
 
 export async function getShifts(
-  params: CashCollectionParams
+  params: GetShiftReportsParams
 ): Promise<ShiftParamsResponse> {
   const response: AxiosResponse<ShiftParamsResponse> = await api.get(
     FINANCE.SHIFT_REPORT + `s`,
