@@ -1,14 +1,17 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getPoses, getWorkers } from "@/services/api/equipment";
+import { getPoses } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import {createDayShift, CreateDayShiftBody, getShifts} from "@/services/api/finance";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  createDayShift,
+  CreateDayShiftBody,
+  getShifts,
+} from "@/services/api/finance";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants.ts";
-import GeneralFilters from "@ui/Filter/GeneralFilters.tsx";
 
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
@@ -19,13 +22,13 @@ import ShiftCreateModal, {
 import SearchFilter from "@ui/Filter/SearchFilter.tsx";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
 import useSWRMutation from "swr/mutation";
-import {message, Button} from "antd";
+import { message, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 interface FilterShifts {
   dateStart: Date;
   dateEnd: Date;
-  posId: number | string;
+  posId: number;
   placementId: number | string;
   page?: number;
   size?: number;
@@ -34,8 +37,6 @@ dayjs.locale("ru");
 
 const Timesheet: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t("warehouse.all");
-  // Set Russian locale globally
 
   // Configure localizer with Russian locale
   const localize = dayjsLocalizer(dayjs);
@@ -62,8 +63,6 @@ const Timesheet: React.FC = () => {
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const [totalCount, setTotalCount] = useState(0);
 
   const defaultStartDate = dayjs().startOf("month").format("YYYY-MM-DD HH:mm"); // "2025-07-01 00:00"
   const defaultEndDate = dayjs().endOf("month").format("YYYY-MM-DD HH:mm"); // "2025-07-31 23:59"
@@ -100,8 +99,8 @@ const Timesheet: React.FC = () => {
             name: item.name,
             value: item.id,
           }));
-          const posesAllObj = { name: allCategoriesText, value: "*" };
-          return [posesAllObj, ...options];
+
+          return options;
         }),
     {
       revalidateOnFocus: false,
@@ -110,12 +109,12 @@ const Timesheet: React.FC = () => {
     }
   );
 
-  const { trigger: createShift, isMutating } = useSWRMutation(
-      ["create-employee-shift"],
-      async (_, { arg }) => {
-        return await createDayShift(arg);
-      }
-  )
+  const { trigger: createShift } = useSWRMutation(
+    ["create-employee-shift"],
+    async (_, { arg }: { arg: CreateDayShiftBody }) => {
+      return createDayShift(arg);
+    }
+  );
 
   // Create stable SWR key
   const swrKey = useMemo(
@@ -128,16 +127,16 @@ const Timesheet: React.FC = () => {
     [filterParams]
   );
 
-
   //Get All shifts
-  const { data: shiftsData, isLoading: isShiftsLoading, mutate: refetchShifts } = useSWR(
+  const {
+    data: shiftsData,
+    mutate: refetchShifts,
+    isLoading: isLoadingShifts,
+  } = useSWR(
     shouldFetch ? swrKey : null,
     () =>
       getShifts({
-        posId:
-          filterParams.posId === "*"
-            ? filterParams.posId
-            : Number(filterParams.posId),
+        posId: filterParams.posId,
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
       }),
@@ -149,56 +148,29 @@ const Timesheet: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log(shiftsData);
-  }, [shiftsData]);
-
-  useEffect(() => {
     if (buttonOn) {
       navigate("/finance/timesheet/creation", { state: { ownerId: 0 } });
     }
   }, [buttonOn, navigate]);
 
   const [openSlot, setOpenSlot] = useState(false);
-  const [eventInfoModal, setEventInfoModal] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState(null);
 
-  const handleSelectSlot = useCallback((event) => {
-    // Only open modal if event has valid start and end dates
-    if (event && event.start && event.end) {
-      setCurrentEvent(event);
-      setOpenSlot(true);
-    }
+  const handleSelectSlot = useCallback(() => {
+    setOpenSlot(true);
   }, []);
-
-  const handleSelectEvent = (event) => {
-    setCurrentEvent(event);
-    if (event.resource?.type === "shift") {
-      // Handle shift event selection - could open shift details modal
-      console.log("Selected shift:", event.resource);
-      setEventInfoModal(true);
-    } else {
-      setEventInfoModal(true);
-    }
-  };
 
   const handleClose = () => {
     setOpenSlot(false);
-    setCurrentEvent(null);
   };
 
   const handleCreateEvent = () => {
-    setCurrentEvent({
-      start: dayjs().hour(9).minute(0).toDate(),
-      end: dayjs().hour(17).minute(0).toDate()
-    });
     setOpenSlot(true);
   };
 
   const handleShiftCreate = async (data: ShiftFormData) => {
-    console.log(data);
     const shiftData: CreateDayShiftBody = {
       workerId: data.userId,
-      posId: typeof posId === 'string' ? parseInt(posId) : posId,
+      posId: typeof posId === "string" ? parseInt(posId) : posId,
       workDate: dayjs(data.startDate).toDate(),
       typeWorkDay: data.workType,
       startWorkingTime: dayjs(data.startDate).toDate(),
@@ -213,7 +185,7 @@ const Timesheet: React.FC = () => {
       setOpenSlot(false);
     } catch (error: any) {
       message.error(t("errors.submitFailed"));
-      console.error('Error creating shift:', error);
+      console.error("Error creating shift:", error);
     }
   };
 
@@ -249,9 +221,17 @@ const Timesheet: React.FC = () => {
     });
   }, [shiftsData, poses]);
 
+  const handleSelectEvent = (event: (typeof calendarEvents)[0]) => {
+    if (event.resource?.type === "shift") {
+      navigate(
+        `/finance/timesheet/view?id=${event.resource.shiftId}&posId=${event.resource.posId}`
+      );
+    }
+  };
+
   return (
     <>
-      <SearchFilter poses={poses} count={totalCount} loading={isPosLoading} />
+      <SearchFilter poses={poses} loading={isPosLoading} />
 
       <div className="mb-4">
         <Button
@@ -275,46 +255,52 @@ const Timesheet: React.FC = () => {
             placementId: "*",
           }}
         />
-        <Calendar
-          localizer={localize}
-          events={calendarEvents}
-          messages={messages}
-          culture="ru"
-          style={{ height: "100vh" }}
-          defaultView="month"
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={handleSelectSlot}
-          selectable
-          eventPropGetter={(event) => ({
-            style: {
-              backgroundColor:
-                event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
-              borderColor:
-                event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
-              color: "white",
-            },
-          })}
-          onNavigate={(date, view) => {
-            let start, end;
+        <div
+          className={`${
+            isLoadingShifts ? "pointer-events-none opacity-30" : ""
+          }`}
+        >
+          <Calendar
+            localizer={localize}
+            events={calendarEvents}
+            messages={messages}
+            culture="ru"
+            style={{ height: "100vh" }}
+            defaultView="month"
+            onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            selectable
+            eventPropGetter={(event) => ({
+              style: {
+                backgroundColor:
+                  event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
+                borderColor:
+                  event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
+                color: "white",
+              },
+            })}
+            onNavigate={(date, view) => {
+              let start, end;
 
-            if (view === "month") {
-              start = dayjs(date)
-                .startOf("month")
-                .startOf("week")
-                .format("YYYY-MM-DD HH:mm");
-              end = dayjs(date)
-                .endOf("month")
-                .endOf("week")
-                .format("YYYY-MM-DD HH:mm");
-              updateSearchParams(searchParams, setSearchParams, {
-                dateStart: start,
-                dateEnd: end,
-              });
-            }
+              if (view === "month") {
+                start = dayjs(date)
+                  .startOf("month")
+                  .startOf("week")
+                  .format("YYYY-MM-DD HH:mm");
+                end = dayjs(date)
+                  .endOf("month")
+                  .endOf("week")
+                  .format("YYYY-MM-DD HH:mm");
+                updateSearchParams(searchParams, setSearchParams, {
+                  dateStart: start,
+                  dateEnd: end,
+                });
+              }
 
-            return { start, end };
-          }}
-        />
+              return { start, end };
+            }}
+          />
+        </div>
       </div>
     </>
   );

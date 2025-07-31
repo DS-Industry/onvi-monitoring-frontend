@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  Steps,
-  Form,
-  DatePicker,
-  Select,
-  Button,
-} from "antd";
+import { Modal, Steps, Form, DatePicker, Select, Button } from "antd";
 import { useTranslation } from "react-i18next";
 import type { Dayjs } from "dayjs";
 import useSWR from "swr";
@@ -86,15 +79,12 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
     onClose();
   };
 
-  const validateEndDateTime = (_: any) => {
+  const validateEndDateTime = () => {
     const startDate = form.getFieldValue("startDate");
     const endDate = form.getFieldValue("endDate");
 
     if (startDate && endDate) {
-      if (
-        endDate.isBefore(startDate) ||
-        endDate.isSame(startDate)
-      ) {
+      if (endDate.isBefore(startDate) || endDate.isSame(startDate)) {
         return Promise.reject(new Error(t("shift.endTimeAfterStart")));
       }
     }
@@ -129,7 +119,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
               >
                 <DatePicker
                   className="w-full"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
                   placeholder={t("shift.selectStartDateTime")}
                 />
@@ -150,7 +140,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
               >
                 <DatePicker
                   className="w-full"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
                   placeholder={t("shift.selectEndDateTime")}
                 />

@@ -85,9 +85,7 @@ const Collection = React.lazy(() => import("@/pages/Finance/Collection"));
 const CollectionCreation = React.lazy(
   () => import("@/pages/Finance/CollectionCreation")
 );
-const TimesheetCreation = React.lazy(
-  () => import("@/pages/Finance/TimeSheetCreation")
-);
+
 const Timesheet = React.lazy(() => import("@/pages/Finance/Timesheet"));
 const TimesheetView = React.lazy(() => import("@/pages/Finance/TimeSheetView"));
 const Timestamps = React.lazy(() => import("@/pages/Finance/Timestamps"));
@@ -746,25 +744,6 @@ const routes = [
           { action: "create", subject: "ShiftReport" },
         ],
         isSidebar: true,
-        isHr: false,
-        titleName: "",
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: "employee",
-        filter: false,
-        addButton: false,
-        addButtonText: "add",
-        isVisible: true,
-        path: "/finance/timesheet/creation",
-        component: TimesheetCreation,
-        permissions: [
-          { action: "manage", subject: "ShiftReport" },
-          { action: "read", subject: "ShiftReport" },
-          { action: "create", subject: "ShiftReport" },
-        ],
-        isSidebar: false,
         isHr: false,
         titleName: "",
         subNav: [],

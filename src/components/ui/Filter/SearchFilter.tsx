@@ -14,13 +14,11 @@ type Optional = {
 type SearchFilterProps = {
   poses?: Optional[];
   loading?: boolean;
-  count?: number;
 };
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   poses,
   loading = false,
-  count = 0,
 }) => {
   const { t } = useTranslation();
   const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
@@ -43,7 +41,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 
   // Get current posId and ensure it matches the option values format
   const currentPosId = getParam("posId");
-  const displayValue = currentPosId && currentPosId !== "*" ? currentPosId : undefined;
+  const displayValue =
+    currentPosId && currentPosId !== "*" ? currentPosId : undefined;
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -112,7 +111,6 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                   handleClick={resetFilters}
                   classname="w-[168px]"
                 />
-                <p className="font-semibold">Найдено: {count}</p>
               </div>
             </div>
           ),
