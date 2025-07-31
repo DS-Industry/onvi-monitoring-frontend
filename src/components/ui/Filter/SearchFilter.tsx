@@ -32,7 +32,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 
   const formattedOptions = (poses || []).map((pos) => ({
     label: pos.name,
-    value: pos.value,
+    value: String(pos.value),
   }));
 
   const handlePosChange = (value: string | number) => {
@@ -40,6 +40,10 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
       posId: value,
     });
   };
+
+  // Get current posId and ensure it matches the option values format
+  const currentPosId = getParam("posId");
+  const displayValue = currentPosId && currentPosId !== "*" ? currentPosId : undefined;
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -76,7 +80,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                     showSearch
                     className="w-full sm:w-96"
                     placeholder="Выберите объект"
-                    value={getParam("posId") || undefined}
+                    value={displayValue}
                     onChange={handlePosChange}
                     options={formattedOptions}
                     loading={loading}
