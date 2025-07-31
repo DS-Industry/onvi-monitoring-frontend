@@ -2,15 +2,28 @@ import React from "react";
 import { Tag } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { PosResponse, TechTaskShapeResponse } from "@/services/api/equipment";
+import { getPoses, TechTaskShapeResponse } from "@/services/api/equipment";
+import useSWR from "swr";
+import { getContactById } from "@/services/api/organization";
+import { useTranslation } from "react-i18next";
 
 interface TechTaskDetailsProps {
     techTaskData?: TechTaskShapeResponse;
-    poses?: PosResponse[];
-    t: (key: string) => string;
 }
 
-const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData, poses, t }) => {
+const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
+    const { t } = useTranslation();
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+    const { data: contactData } = useSWR(
+        techTaskData?.executorId ? [`contact-data`] : null,
+        () => getContactById(techTaskData?.executorId ? techTaskData.executorId : 0),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
+
     const posName = poses?.find((pos) => pos.id === techTaskData?.posId)?.name;
 
     const FieldBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -23,7 +36,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData, poses, 
         <div className="mb-6">
             <div className="space-y-6">
                 <div>
-                    <div className="text-sm font-medium mb-1">{t("Task Name")}</div>
+                    <div className="text-sm font-medium mb-1">{t("routine.taskName")}</div>
                     <FieldBox>{techTaskData?.name || "-"}</FieldBox>
                 </div>
 
@@ -34,12 +47,12 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData, poses, 
 
                 <div>
                     <div className="text-sm font-medium mb-1">{t("routine.type")}</div>
-                    <FieldBox>{techTaskData?.type || "-"}</FieldBox>
+                    <FieldBox>{t(`tables.${techTaskData?.type}`) || "-"}</FieldBox>
                 </div>
 
                 {techTaskData?.endSpecifiedDate && (
                     <div>
-                        <div className="text-sm font-medium mb-1">{t("Due Date")}</div>
+                        <div className="text-sm font-medium mb-1">{t("routine.dueDate")}</div>
                         <FieldBox>
                             <div className="flex justify-between items-center">
                                 <span>{dayjs(techTaskData.endSpecifiedDate).format("DD.MM.YYYY HH:mm")}</span>
@@ -50,13 +63,13 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData, poses, 
                 )}
 
                 <div>
-                    <div className="text-sm font-medium mb-1">{t("Responsible Person")}</div>
-                    <FieldBox>{techTaskData?.executorId || "-"}</FieldBox>
+                    <div className="text-sm font-medium mb-1">{t("routine.responsiblePerson")}</div>
+                    <FieldBox>{contactData?.name || "-"}</FieldBox>
                 </div>
 
                 {techTaskData && techTaskData?.tags?.length > 0 && (
                     <div>
-                        <div className="text-sm font-medium mb-1">{t("Tags")}</div>
+                        <div className="text-sm font-medium mb-1">{t("marketing.tags")}</div>
                         <div className="flex flex-wrap gap-2 bg-white px-3 py-2 border border-[#C0D0E0] rounded-md w-full md:w-[600px]">
                             {techTaskData.tags.map((tag) => (
                                 <Tag color="blue" key={tag.id}>

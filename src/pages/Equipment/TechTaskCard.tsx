@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { CloseOutlined, UpOutlined, DownOutlined, PictureOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, List, Upload } from "antd";
 import { useTranslation } from "react-i18next";
-import { getPoses, TechTaskShapeResponse, TechTasksItem } from "@/services/api/equipment";
-import useSWR from "swr";
+import { TechTaskShapeResponse, TechTasksItem } from "@/services/api/equipment";
 import TechTaskDetails from "./TechTaskDetails";
 import { Input, InputNumber, Select, Checkbox } from "antd";
 
@@ -102,12 +101,10 @@ const TechTaskCard: React.FC<Props> = ({
         setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
     };
 
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
-
     return (
         <div>
             <Divider className="bg-[#c0d0e0]" />
-            <TechTaskDetails techTaskData={techTaskData} poses={poses} t={t} />
+            <TechTaskDetails techTaskData={techTaskData} />
             <List
                 dataSource={Object.entries(grouped)}
                 renderItem={([groupName, groupItems]) => (
@@ -145,9 +142,9 @@ const TechTaskCard: React.FC<Props> = ({
                                                         <Button
                                                             type="text"
                                                             icon={<PictureOutlined className="text-xl" />}
-                                                            className="min-w-full md:w-[550px] h-14 border-2 border-dashed border-[#C0D0E0] rounded-xl flex items-center justify-start gap-2 text-base font-medium"
+                                                            className="min-w-full md:w-[550px] h-14 border-2 border-dashed border-[#C0D0E0] rounded-xl flex items-center justify-start gap-2 text-sm font-medium"
                                                         >
-                                                            Attach image
+                                                            {t("routine.attachImage")}
                                                         </Button>
                                                     </Upload>
                                                 </div>

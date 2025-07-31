@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Select, Input, Button } from "antd";
@@ -37,7 +37,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
 }) => {
     const { t } = useTranslation();
     const [isInputFocused, setIsInputFocused] = useState(false);
-    const [pendingTagName, setPendingTagName] = useState<string | null>(null);
 
     const selectedOptions = useMemo(
         () => options.filter((opt) => value.includes(opt.id)),
@@ -51,18 +50,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
         },
         [options, onChange]
     );
-
-    useEffect(() => {
-        if (pendingTagName) {
-            const newlyCreated = options.find(
-                (opt) => opt.name.toLowerCase() === pendingTagName.toLowerCase()
-            );
-            if (newlyCreated) {
-                onChange([...selectedOptions, newlyCreated]);
-                setPendingTagName(null);
-            }
-        }
-    }, [options, pendingTagName, selectedOptions, onChange]);
 
     const renderDropdown = (menu: React.ReactNode) => (
         <div>
@@ -83,7 +70,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
                         loading={isLoading}
                         onClick={() => {
                             if (!handleChange || !searchValue?.trim()) return;
-                            setPendingTagName(searchValue.trim());
                             handleChange();
                             setSearchValue?.("");
                         }}

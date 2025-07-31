@@ -355,7 +355,11 @@
     "routine": "Routine",
     "regulation": "Regulation",
     "reports": "This section displays routine maintenance reports",
-    "done": "Done"
+    "done": "Done",
+    "dueDate": "Due Date",
+    "responsiblePerson": "Responsible Person",
+    "taskName": "Имя задачи",
+    "attachImage": "Attach Image"
   },
   "warehouse": {
     "nomenclature": "You don't have nomenclature in the program",

@@ -7,15 +7,17 @@ import Input from "@/components/ui/Input/Input";
 import MultiInput from "@/components/ui/Input/MultiInput";
 import TiptapEditor from "@/components/ui/Input/TipTapEditor";
 import useFormHook from "@/hooks/useFormHook";
-import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, TechTaskBody, TechTaskManagerInfo, updateTechTask } from "@/services/api/equipment";
+import { createTag, createTechTask, getPoses, getTags, getTechTaskItem, TechTaskBody, updateTechTask } from "@/services/api/equipment";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import dayjs from "dayjs";
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, } from "react";
+import { useEffect, useMemo, useState, } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import { useSearchParams } from "react-router-dom";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
 
 interface Item {
     id: number;
@@ -23,20 +25,41 @@ interface Item {
     description?: string;
 }
 
+type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
+
 type TechTaskFormProps = {
-    swrKey: string;
-    techTasks: TechTaskManagerInfo[]
-}
+    formData: TechTaskBody;
+    setFormData: SetState<TechTaskBody>;
+    editTechTaskId: number;
+    setEditTechTaskId: (id: number) => void; 
+    availableItems: Item[];
+    setAvailableItems: SetState<Item[]>;
+    selectedItems: Item[];
+    setSelectedItems: SetState<Item[]>;
+};
+
 
 export type TechTaskFormRef = {
     handleUpdate: (id: number) => void;
 };
 
-const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, techTasks }, ref) => {
+const TechTaskForm : React.FC<TechTaskFormProps> = ({ 
+    formData,
+    setFormData,
+    editTechTaskId,
+    setEditTechTaskId,
+    availableItems,
+    setAvailableItems,
+    selectedItems,
+    setSelectedItems
+}) => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+    const posId = Number(searchParams.get("posId")) || undefined;
+
     const [tagIds, setTagIds] = useState<number[]>([]);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
     const [searchValue, setSearchValue] = useState("");
     const { buttonOn, setButtonOn } = useButtonCreate();
 
@@ -64,8 +87,6 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
         tagIds: []
     }
 
-    const [formData, setFormData] = useState(defaultValues);
-
     const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
     const { trigger: createTech, isMutating } = useSWRMutation(['create-tech-task'], async () => createTechTask({
@@ -89,7 +110,7 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
         techTaskItem: formData.techTaskItem
     }));
 
-    const { trigger: createT, isMutating: creatingTag } = useSWRMutation(
+    const { trigger: makeTag, isMutating: creatingTag } = useSWRMutation(
         ['create-tag'],
         async (_, { arg }: {
             arg: {
@@ -113,7 +134,6 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
 
     const resetForm = () => {
         setFormData(defaultValues);
-        setIsEditMode(false);
         reset();
         setEditTechTaskId(0);
         setButtonOn(false);
@@ -126,7 +146,7 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
             if (editTechTaskId) {
                 const result = await updateTech();
                 if (result) {
-                    mutate(swrKey);
+                    mutate([`get-tech-tasks`, currentPage, pageSize, posId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid update data.');
@@ -134,7 +154,7 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
             } else {
                 const result = await createTech();
                 if (result) {
-                    mutate(swrKey);
+                    mutate([`get-tech-tasks`, currentPage, pageSize, posId]);
                     resetForm();
                 } else {
                     throw new Error('Invalid response from API');
@@ -148,8 +168,6 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
     const techTask: { title: string; id: number; description: string; }[] = useMemo(() => techTaskItems?.map((item) => ({ title: item.props.title, id: item.props.id, description: "This is the description text." })) || [], [techTaskItems]);
 
     const [selected, setSelected] = useState<number[]>([]);
-    const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
-    const [selectedItems, setSelectedItems] = useState<Item[]>([]);
 
     useEffect(() => {
         if (techTask) {
@@ -198,8 +216,8 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
         );
     };
 
-    const createTa = async () => {
-        const result = await createT({
+    const createNewTag = async () => {
+        const result = await makeTag({
             name: searchValue
         });
 
@@ -208,45 +226,11 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
         }
     }
 
-    const techTasksTypes = [
-        { name: t("tables.REGULAR"), value: "REGULAR" },
-        { name: t("tables.ONETIME"), value: "ONETIME" }
-    ];
-
-    const handleUpdate = (id: number) => {
-        setEditTechTaskId(id);
-        setIsEditMode(true);
-        setButtonOn(true);
-        const techTaskToEdit = techTasks.find((tech) => tech.id === id);
-        if (techTaskToEdit) {
-            const techTaskItemNumber: number[] = techTaskToEdit.items?.map((item) => (item.id)) || [];
-            const techTaskss: { id: number; title: string; description: string; }[] = techTaskToEdit.items.map((item) => ({ id: item.id, title: item.title, description: "This is the description text." }));
-            setSelectedItems(techTaskss);
-            setAvailableItems(availableItems.filter((item) => !techTaskItemNumber.includes(item.id)));
-            setFormData({
-                name: techTaskToEdit.name,
-                posId: techTaskToEdit.posId,
-                type: techTasksTypes.find((item) => item.name === techTaskToEdit.type)?.value || "-",
-                period: techTaskToEdit.period,
-                startDate: techTaskToEdit.startDate,
-                endSpecifiedDate: techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
-                techTaskItem: techTaskItemNumber,
-                markdownDescription: techTaskToEdit.markdownDescription,
-                tagIds: techTaskToEdit.tags.map((tag) => tag.id)
-            });
-        }
-    };
-
-
-    useImperativeHandle(ref, () => ({
-        handleUpdate,
-    }));
-
     return (
         <div>
             <DrawerCreate onClose={resetForm}>
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.routine")}</div>
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("routes.technicalTasks")}</div>
                     <div className="mb-5 flex">
                         <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
                         <span className="text-errorFill">*</span>
@@ -260,7 +244,7 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         value={formData.name}
                         changeValue={(e) => handleInputChange('name', e.target.value)}
                         error={!!errors.name}
-                        {...register('name', { required: !isEditMode && 'Name is required' })}
+                        {...register('name', { required: editTechTaskId === 0 && 'Name is required' })}
                         helperText={errors.name?.message || ''}
                     />
                     <DropdownInput
@@ -269,9 +253,9 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         options={poses?.map((item) => ({ name: item.name, value: item.id })) || []}
                         classname="w-64"
                         {...register('posId', {
-                            required: !isEditMode && 'Pos ID is required',
+                            required: editTechTaskId === 0 && 'Pos ID is required',
                             validate: (value) =>
-                                (value !== 0 || isEditMode) || "Pos ID is required"
+                                (value !== 0 || editTechTaskId !== 0) || "Pos ID is required"
                         })}
                         value={formData.posId}
                         onChange={(value) => {
@@ -279,7 +263,7 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         }}
                         error={!!errors.posId}
                         helperText={errors.posId?.message}
-                        isDisabled={isEditMode}
+                        isDisabled={editTechTaskId !== 0}
                     />
                     <DropdownInput
                         title={`${t("routine.type")} *`}
@@ -290,13 +274,13 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                             { name: t("tables.REGULAR"), value: "REGULAR" },
                         ]}
                         {...register('type', {
-                            required: !isEditMode && 'Type is required',
+                            required: editTechTaskId === 0 && 'Type is required',
                         })}
                         value={formData.type}
                         onChange={(value) => handleInputChange('type', value)}
                         error={!!errors.type}
                         helperText={errors.type?.message}
-                        isDisabled={isEditMode}
+                        isDisabled={editTechTaskId !== 0}
                     />
                     <Input
                         title={`${t("routine.frequency")} *`}
@@ -313,9 +297,9 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         value={formData.startDate ? dayjs(formData.startDate) : null}
                         changeValue={(date) => handleInputChange('startDate', date ? date.format('YYYY-MM-DD') : "")}
                         error={!!errors.startDate}
-                        {...register('startDate', { required: !isEditMode && 'Start Date is required' })}
+                        {...register('startDate', { required: editTechTaskId === 0 && 'Start Date is required' })}
                         helperText={errors.startDate?.message || ''}
-                        disabled={isEditMode}
+                        disabled={editTechTaskId !== 0}
                     />
                     <div>
                         <div className="text-sm text-text02">{t("equipment.end")}</div>
@@ -333,10 +317,10 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         onChange={handleSelectionTagChange}
                         searchValue={searchValue}
                         setSearchValue={setSearchValue}
-                        handleChange={createTa}
+                        handleChange={createNewTag}
                         isLoading={creatingTag}
                         loadingOptions={loadingTags || validatingTags}
-                        disabled={isEditMode}
+                        disabled={editTechTaskId !== 0}
                     />
                     <Tabs defaultActiveKey="editor">
                         <TabPane tab={t("equipment.text")} key="editor">
@@ -420,13 +404,13 @@ const TechTaskForm = forwardRef<TechTaskFormRef, TechTaskFormProps>(({ swrKey, t
                         <Button
                             title={t("routes.create")}
                             form={true}
-                            isLoading={isEditMode ? updatingTechTask : isMutating}
+                            isLoading={editTechTaskId !== 0 ? updatingTechTask : isMutating}
                         />
                     </div>
                 </form>
             </DrawerCreate>
         </div>
     );
-});
+};
 
 export default TechTaskForm;
