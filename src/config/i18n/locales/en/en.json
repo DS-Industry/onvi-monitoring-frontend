@@ -852,7 +852,9 @@
       "Разовое замечание": "Single Remark"
     },
     "operationCreated": "Operation Created",
-    "returnCreated": "Return Created"
+    "returnCreated": "Return Created",
+    "selectGrade": "Select Grade",
+    "managerComment": "Manager Comment"
   },
   "analysis": {
     "search": "Search",

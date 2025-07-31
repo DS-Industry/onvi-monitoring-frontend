@@ -218,7 +218,7 @@ const ShiftTab: React.FC = () => {
                   <Select
                     {...field}
                     className="w-80 sm:w-96 h-[43px]"
-                    placeholder="e.g., 85"
+                    placeholder={t("finance.selectGrade") || ""}
                     allowClear
                   >
                     {dayShiftData.gradingParameterInfo?.allEstimations.map(
@@ -237,7 +237,14 @@ const ShiftTab: React.FC = () => {
             </Form.Item>
           ))}
 
-          <Form.Item label={t("equipment.comment")}>
+          <Form.Item
+            label={
+              <span className="text-[14px] font-semibold">
+                {t("finance.managerComment")}
+              </span>
+            }
+            className="pt-5"
+          >
             <Controller
               name="comment"
               control={control}
