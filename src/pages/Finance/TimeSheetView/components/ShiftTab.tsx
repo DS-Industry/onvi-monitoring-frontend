@@ -1,13 +1,20 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+// utils
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { mutate } from "swr";
 import { useTranslation } from "react-i18next";
-import { Controller, useForm } from "react-hook-form";
-import { Select, Input, InputNumber, Button, Form, message } from "antd";
+
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
+
+// components
+import { Controller, useForm } from "react-hook-form";
+import { Select, Button, Form, message } from "antd";
 
 import {
   UpdateDayShiftBody,
@@ -19,11 +26,6 @@ import {
   TypeEstimation,
 } from "@/services/api/finance";
 
-dayjs.extend(duration);
-
-const { Option } = Select;
-const { TextArea } = Input;
-
 type ShiftFormData = {
   typeWorkDay: TypeWorkDay | undefined;
   estimation: TypeEstimation | null;
@@ -34,6 +36,10 @@ type ShiftFormData = {
   minutes_start: number;
   hours_end: number;
   minutes_end: number;
+
+  grading?: {
+    [parameterId: string]: number;
+  };
 };
 
 const ShiftTab: React.FC = () => {
@@ -116,6 +122,8 @@ const ShiftTab: React.FC = () => {
       minutes_start: 0,
       hours_end: 0,
       minutes_end: 0,
+
+      grading: {},
     },
   });
 
@@ -244,183 +252,65 @@ const ShiftTab: React.FC = () => {
           {t("finance.shiftGrading")}
         </h2>
 
-        {/* <form onSubmit={handleSubmit(handleModalSubmit)}>
-          <Form.Item label={t("finance.day")}>
-            <Controller
-              name="typeWorkDay"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  className="w-80 sm:w-96"
-                  value={field.value}
-                  onChange={field.onChange}
-                >
-                  {Object.values(TypeWorkDay).map((type) => (
-                    <Option key={type} value={type}>
-                      {t(`finance.${type}`)}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-          </Form.Item>
+        <div className="mt-6">
+          <h3 className="font-semibold text-base mb-4">
+            {t("finance.grading")}
+          </h3>
 
-          {dayShiftData?.typeWorkDay === TypeWorkDay.WORKING && (
-            <>
-              <div className="flex gap-4">
-                <Form.Item label={t("finance.start")}>
-                  <div className="flex gap-2">
-                    <Controller
-                      name="hours_start"
-                      control={control}
-                      render={({ field }) => (
-                        <InputNumber
-                          min={0}
-                          max={23}
-                          placeholder="HH"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name="minutes_start"
-                      control={control}
-                      render={({ field }) => (
-                        <InputNumber
-                          min={0}
-                          max={59}
-                          placeholder="MM"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </div>
-                </Form.Item>
-
-                <Form.Item label={t("finance.endOf")}>
-                  <div className="flex gap-2">
-                    <Controller
-                      name="hours_end"
-                      control={control}
-                      render={({ field }) => (
-                        <InputNumber
-                          min={0}
-                          max={23}
-                          placeholder="HH"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name="minutes_end"
-                      control={control}
-                      render={({ field }) => (
-                        <InputNumber
-                          min={0}
-                          max={59}
-                          placeholder="MM"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </div>
-                </Form.Item>
-              </div>
-
-              <div className="flex gap-4">
-                <Form.Item label={t("finance.prize")}>
-                  <Controller
-                    name="prize"
-                    control={control}
-                    render={({ field }) => (
-                      <InputNumber
-                        className="w-full"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+          {dayShiftData?.gradingParameterInfo.parameters.map((param) => (
+            <Form.Item key={param.id} label={param.name}>
+              <Controller
+                name={`grading.${param.id}`}
+                control={control}
+                defaultValue={param.estimationId ?? undefined}
+                render={({ field }) => (
+                  <Select
+                    className="w-80 sm:w-96"
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={t("selectOption")}
+                    allowClear
+                  >
+                    {dayShiftData?.gradingParameterInfo.allEstimations.map(
+                      (estimation) => (
+                        <Select.Option
+                          key={estimation.id}
+                          value={estimation.id}
+                        >
+                          {estimation.name}
+                        </Select.Option>
+                      )
                     )}
-                  />
-                </Form.Item>
-                <Form.Item label={t("finance.fine")}>
-                  <Controller
-                    name="fine"
-                    control={control}
-                    render={({ field }) => (
-                      <InputNumber
-                        className="w-full"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                </Form.Item>
-              </div>
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          ))}
+        </div>
 
-              <Form.Item label={t("finance.grade")}>
-                <Controller
-                  name="estimation"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      className="w-80 sm:w-96"
-                      value={field.value}
-                      onChange={field.onChange}
-                    >
-                      {Object.values(TypeEstimation).map((type) => (
-                        <Option key={type} value={type}>
-                          {t(`finance.${type}`)}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                />
-              </Form.Item>
-
-              <Form.Item label={t("equipment.comment")}>
-                <Controller
-                  name="comment"
-                  control={control}
-                  render={({ field }) => (
-                    <TextArea
-                      className="w-80 sm:w-96"
-                      rows={4}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              </Form.Item>
-            </>
-          )}
-
-          <div className="flex gap-3 mt-4">
-            <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
-            <Button type="primary" htmlType="submit" loading={loadingUpdate}>
-              {t("routes.save")}
+        <div className="flex gap-3 mt-4">
+          <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
+          <Button type="primary" htmlType="submit" loading={loadingUpdate}>
+            {t("routes.save")}
+          </Button>
+          {dayShiftData?.status === "SENT" ? (
+            <Button
+              type="default"
+              onClick={handleReturn}
+              loading={loadingReturnCash}
+            >
+              {t("finance.refund")}
             </Button>
-            {dayShiftData?.status === "SENT" ? (
-              <Button
-                type="default"
-                onClick={handleReturn}
-                loading={loadingReturnCash}
-              >
-                {t("finance.refund")}
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                onClick={handleSend}
-                loading={loadingSendCash}
-              >
-                {t("finance.send")}
-              </Button>
-            )}
-          </div>
-        </form> */}
+          ) : (
+            <Button
+              type="primary"
+              onClick={handleSend}
+              loading={loadingSendCash}
+            >
+              {t("finance.send")}
+            </Button>
+          )}
+        </div>
       </div>
     </>
   );

@@ -243,6 +243,22 @@ type CreateDayShiftBody = {
   workDate: Date;
 };
 
+type GradingParameter = {
+  id: number;
+  name: string;
+  estimationId: number | null;
+};
+
+type Estimation = {
+  id: number;
+  name: string;
+};
+
+type GradingParameterInfo = {
+  parameters: GradingParameter[];
+  allEstimations: Estimation[];
+};
+
 type DayShiftResponse = {
   id: number;
   workerId: number;
@@ -260,6 +276,7 @@ type DayShiftResponse = {
   comment?: string;
   totalCar: number;
   workerName: string;
+  gradingParameterInfo: GradingParameterInfo;
 };
 
 export type UpdateDayShiftBody = {
