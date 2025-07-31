@@ -13,6 +13,7 @@ import {
 // components
 import { Table } from "antd";
 import CreateCashOperationModal from "./CreateCashOperationModal";
+import { PlusOutlined } from "@ant-design/icons";
 
 // utils
 import { getCurrencyRender } from "@/utils/tableUnits";
@@ -87,9 +88,10 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
     <>
       {status !== StatusWorkDayShiftReport.SENT && (
         <button
-          className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3"
+          className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3 flex items-center gap-1"
           onClick={() => setIsModalOpen(true)}
         >
+          <PlusOutlined />
           {t("routes.add")}
         </button>
       )}

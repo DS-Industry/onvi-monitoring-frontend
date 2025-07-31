@@ -152,12 +152,12 @@ const ShiftTab: React.FC = () => {
     : null;
 
   return (
-    <div className="mt-6">
-      <h1 className="text-[20px] font-bold mb-6">
+    <div className="mt-3">
+      <h1 className="text-[20px] font-bold mb-5">
         {t("finance.employeeShiftView")}
       </h1>
 
-      <Card className="mt-4">
+      <Card>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
           <div>
             <p className="text-bold">{t("finance.totalCarsWashed")}</p>

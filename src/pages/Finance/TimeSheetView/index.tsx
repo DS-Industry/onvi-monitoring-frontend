@@ -101,7 +101,7 @@ const TimesheetView: React.FC = () => {
           </div>
         }
       >
-        <div className="md:w-[65%] h-fit pt-5 pb-3">{renderTabContent()}</div>
+        <div className="md:w-[65%] py-3">{renderTabContent()}</div>
       </Suspense>
     </div>
   );
