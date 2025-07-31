@@ -834,7 +834,21 @@
     "sentSuccessfully": "Sent successfully",
     "returnedSuccessfully": "Returned successfully",
     "employeeShiftView": "Employee Shift View",
-    "shiftGradingWithBonus": "Shift Grading (Bonus Percentage)"
+    "shiftGradingWithBonus": "Shift Grading (Bonus Percentage)",
+    "gradingParameters": {
+      "Зона протирки": "Cleaning Area",
+      "Помещения (Туалет, операторская)": "Facilities (Toilet, Operator Room)",
+      "Обслуживание клиентов": "Customer Service",
+      "Прочее нарушения дисциплины": "Other Discipline Violations",
+      "Зона Боксы": "Box Area",
+      "Зона Въезд": "Entry Area"
+    },
+    "gradingEstimations": {
+      "Без замечаний": "No Violations",
+      "Грубое нарушение": "Gross Violation",
+      "Незначительные": "Minor Violations",
+      "Разовое замечание": "Single Remark"
+    }
   },
   "analysis": {
     "search": "Search",

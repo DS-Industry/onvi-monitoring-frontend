@@ -16,6 +16,16 @@ import {
   updateDayShift,
 } from "@/services/api/finance";
 
+interface GradingFormData {
+  grading: Record<string, number>;
+  comment?: string;
+}
+
+interface GradingSubmissionData {
+  parameterId: number;
+  estimationId: number | null;
+}
+
 dayjs.extend(duration);
 
 const ShiftTab: React.FC = () => {
@@ -28,7 +38,7 @@ const ShiftTab: React.FC = () => {
 
   const { data: dayShiftData } = useSWR(
     shiftId ? ["get-shift-data", shiftId] : null,
-    () => getDayShiftById(shiftId!),
+    () => (shiftId ? getDayShiftById(shiftId) : null),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -38,17 +48,24 @@ const ShiftTab: React.FC = () => {
 
   const { trigger: sendCash, isMutating: loadingSendCash } = useSWRMutation(
     ["send-cash-oper"],
-    () => sendDayShift(shiftId!)
+    () =>
+      shiftId ? sendDayShift(shiftId) : Promise.reject(new Error("No shift ID"))
   );
 
   const { trigger: returnCash, isMutating: loadingReturnCash } = useSWRMutation(
     ["return-cash-oper"],
-    () => returnDayShift(shiftId!)
+    () =>
+      shiftId
+        ? returnDayShift(shiftId)
+        : Promise.reject(new Error("No shift ID"))
   );
 
   const { trigger: updateShift, isMutating: loadingUpdate } = useSWRMutation(
     ["update-shift"],
-    (_, { arg }: { arg: UpdateDayShiftBody }) => updateDayShift(arg, shiftId!)
+    (_, { arg }: { arg: UpdateDayShiftBody }) =>
+      shiftId
+        ? updateDayShift(arg, shiftId)
+        : Promise.reject(new Error("No shift ID"))
   );
 
   const start = dayjs(dayShiftData?.startWorkingTime);
@@ -58,8 +75,8 @@ const ShiftTab: React.FC = () => {
       ? dayjs.duration(end.diff(start)).asHours().toFixed(1)
       : "";
 
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: { grading: {} },
+  const { control, handleSubmit, reset } = useForm<GradingFormData>({
+    defaultValues: { grading: {}, comment: "" },
   });
 
   useEffect(() => {
@@ -69,20 +86,27 @@ const ShiftTab: React.FC = () => {
         if (param.estimationId)
           defaults[param.id.toString()] = param.estimationId;
       });
-      reset({ grading: defaults });
+      reset({ grading: defaults, comment: dayShiftData?.comment || "" });
     }
   }, [dayShiftData, reset]);
 
-  const handleGradingSave = async (data: any) => {
+  const handleGradingSave = async (data: GradingFormData) => {
     try {
-      const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
-        (param) => ({
+      const gradingData: GradingSubmissionData[] | undefined =
+        dayShiftData?.gradingParameterInfo?.parameters.map((param) => ({
           parameterId: param.id,
           estimationId: data.grading[param.id.toString()] || null,
-        })
-      );
+        }));
 
-      const result = await updateShift({ gradingData });
+      if (!gradingData) {
+        message.error(t("errors.somethingWentWrong"));
+        return;
+      }
+
+      const result = await updateShift({
+        gradingData,
+        comment: data.comment || "",
+      });
       if (result) {
         message.success(t("routes.savedSuccessfully"));
         mutate(["get-shift-data", shiftId]);
@@ -141,7 +165,10 @@ const ShiftTab: React.FC = () => {
 
         <Form layout="vertical" onFinish={handleSubmit(handleGradingSave)}>
           {dayShiftData?.gradingParameterInfo?.parameters.map((param) => (
-            <Form.Item key={param.id} label={param.name}>
+            <Form.Item
+              key={param.id}
+              label={t(`finance.gradingParameters.${param.name}`, param.name)}
+            >
               <Controller
                 name={`grading.${param.id}`}
                 control={control}
@@ -155,7 +182,10 @@ const ShiftTab: React.FC = () => {
                     {dayShiftData.gradingParameterInfo?.allEstimations.map(
                       (est) => (
                         <Select.Option key={est.id} value={est.id}>
-                          {est.name}
+                          {t(
+                            `finance.gradingEstimations.${est.name}`,
+                            est.name
+                          )}
                         </Select.Option>
                       )
                     )}
@@ -166,7 +196,11 @@ const ShiftTab: React.FC = () => {
           ))}
 
           <Form.Item label={t("equipment.comment")}>
-            <Input.TextArea rows={3} />
+            <Controller
+              name="comment"
+              control={control}
+              render={({ field }) => <Input.TextArea {...field} rows={3} />}
+            />
           </Form.Item>
 
           <div className="flex gap-2">
