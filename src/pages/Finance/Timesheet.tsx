@@ -4,7 +4,7 @@ import { getPoses, getWorkers } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { getShifts } from "@/services/api/finance";
+import {createDayShift, CreateDayShiftBody, getShifts} from "@/services/api/finance";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants.ts";
@@ -18,6 +18,9 @@ import ShiftCreateModal, {
 } from "@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx";
 import SearchFilter from "@ui/Filter/SearchFilter.tsx";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
+import useSWRMutation from "swr/mutation";
+import {message, Button} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 interface FilterShifts {
   dateStart: Date;
@@ -107,6 +110,13 @@ const Timesheet: React.FC = () => {
     }
   );
 
+  const { trigger: createShift, isMutating } = useSWRMutation(
+      ["create-employee-shift"],
+      async (_, { arg }) => {
+        return await createDayShift(arg);
+      }
+  )
+
   // Create stable SWR key
   const swrKey = useMemo(
     () =>
@@ -118,12 +128,9 @@ const Timesheet: React.FC = () => {
     [filterParams]
   );
 
-  useEffect(() => {
-    console.log(shouldFetch);
-  }, []);
 
   //Get All shifts
-  const { data: shiftsData, isLoading: isShiftsLoading } = useSWR(
+  const { data: shiftsData, isLoading: isShiftsLoading, mutate: refetchShifts } = useSWR(
     shouldFetch ? swrKey : null,
     () =>
       getShifts({
@@ -155,10 +162,13 @@ const Timesheet: React.FC = () => {
   const [eventInfoModal, setEventInfoModal] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(null);
 
-  const handleSelectSlot = (event) => {
-    setOpenSlot(true);
-    setCurrentEvent(event);
-  };
+  const handleSelectSlot = useCallback((event) => {
+    // Only open modal if event has valid start and end dates
+    if (event && event.start && event.end) {
+      setCurrentEvent(event);
+      setOpenSlot(true);
+    }
+  }, []);
 
   const handleSelectEvent = (event) => {
     setCurrentEvent(event);
@@ -173,11 +183,38 @@ const Timesheet: React.FC = () => {
 
   const handleClose = () => {
     setOpenSlot(false);
+    setCurrentEvent(null);
   };
 
-  const handleShiftCreate = (data: ShiftFormData) => {
+  const handleCreateEvent = () => {
+    setCurrentEvent({
+      start: dayjs().hour(9).minute(0).toDate(),
+      end: dayjs().hour(17).minute(0).toDate()
+    });
+    setOpenSlot(true);
+  };
+
+  const handleShiftCreate = async (data: ShiftFormData) => {
     console.log(data);
-    setOpenSlot(false);
+    const shiftData: CreateDayShiftBody = {
+      workerId: data.userId,
+      posId: typeof posId === 'string' ? parseInt(posId) : posId,
+      workDate: dayjs(data.startDate).toDate(),
+      typeWorkDay: data.workType,
+      startWorkingTime: dayjs(data.startDate).toDate(),
+      endWorkingTime: dayjs(data.endDate).toDate(),
+    };
+
+    try {
+      await createShift(shiftData);
+      message.success(t("finance.operationCreated"));
+      // Refetch shifts data to show the new event
+      await refetchShifts();
+      setOpenSlot(false);
+    } catch (error: any) {
+      message.error(t("errors.submitFailed"));
+      console.error('Error creating shift:', error);
+    }
   };
 
   // Transform shifts data to calendar events
@@ -214,15 +251,18 @@ const Timesheet: React.FC = () => {
 
   return (
     <>
-      <GeneralFilters
-        poses={poses}
-        count={totalCount}
-        hideCity={false}
-        hideSearch={true}
-        hideReset={false}
-      />
-
       <SearchFilter poses={poses} count={totalCount} loading={isPosLoading} />
+
+      <div className="mb-4">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleCreateEvent}
+          className="bg-blue-500 hover:bg-blue-600 h-[35px]"
+        >
+          {t("shift.createShift")}
+        </Button>
+      </div>
 
       <div className="mt-8">
         <ShiftCreateModal

@@ -5,6 +5,7 @@ enum FINANCE {
   POST_CASH_COLLECTION = "user/finance/cash-collection",
   TIME_STAMP = "user/finance/time-stamp",
   SHIFT_REPORT = "user/finance/shift-report",
+  SHIFT_REPORT_CREATE = "user/finance/shift/create",
   MANAGER_PAPER = "user/manager-paper",
   GET_WORKER = "user/permission/worker-by-pos",
 }
@@ -251,10 +252,13 @@ export type ShiftParamsResponse = {
   shiftReportsData: ShiftItem[];
 };
 
-type CreateDayShiftBody = {
-  shiftReportId: number;
-  userId: number;
+export type CreateDayShiftBody = {
+  workerId: number;
   workDate: Date;
+  posId: number;
+  typeWorkDay: TypeWorkDay;
+  startWorkingTime?: Date;
+  endWorkingTime?: Date;
 };
 
 type GradingParameter = {
@@ -654,7 +658,7 @@ export async function createShift(
   body: ShiftRequestBody
 ): Promise<ShiftResponseBody> {
   const response: AxiosResponse<ShiftResponseBody> = await api.post(
-    FINANCE.SHIFT_REPORT,
+    FINANCE.SHIFT_REPORT_CREATE,
     body
   );
   return response.data;
@@ -692,7 +696,7 @@ export async function createDayShift(
   body: CreateDayShiftBody
 ): Promise<DayShiftResponse> {
   const response: AxiosResponse<DayShiftResponse> = await api.post(
-    FINANCE.SHIFT_REPORT + "/",
+    FINANCE.SHIFT_REPORT_CREATE,
     body
   );
   return response.data;

@@ -4,12 +4,10 @@ import {
   Steps,
   Form,
   DatePicker,
-  TimePicker,
   Select,
   Button,
 } from "antd";
 import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import useSWR from "swr";
 import { getWorkers, WorkerParams } from "@/services/api/hr";
@@ -28,9 +26,7 @@ interface ShiftCreateModalProps {
 
 export interface ShiftFormData {
   startDate: Dayjs;
-  startTime: Dayjs;
   endDate: Dayjs;
-  endTime: Dayjs;
   userId: number;
   workType: TypeWorkDay;
 }
@@ -90,25 +86,14 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
     onClose();
   };
 
-  const disabledDate = (current: Dayjs) => {
-    return current && current < dayjs().startOf("day");
-  };
-
   const validateEndDateTime = (_: any) => {
     const startDate = form.getFieldValue("startDate");
     const endDate = form.getFieldValue("endDate");
-    const startTime = form.getFieldValue("startTime");
-    const endTime = form.getFieldValue("endTime");
 
-    if (startDate && endDate && startTime && endTime) {
-      const startDateTime = startDate
-        .hour(startTime.hour())
-        .minute(startTime.minute());
-      const endDateTime = endDate.hour(endTime.hour()).minute(endTime.minute());
-
+    if (startDate && endDate) {
       if (
-        endDateTime.isBefore(startDateTime) ||
-        endDateTime.isSame(startDateTime)
+        endDate.isBefore(startDate) ||
+        endDate.isSame(startDate)
       ) {
         return Promise.reject(new Error(t("shift.endTimeAfterStart")));
       }
@@ -135,74 +120,41 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
               <h4 className="font-medium text-blue-800 mb-2">
                 {t("shift.shiftStart")}
               </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Item
-                  name="startDate"
-                  label={t("shift.startDate")}
-                  rules={[
-                    { required: true, message: t("shift.startDateRequired") },
-                  ]}
-                >
-                  <DatePicker
-                    className="w-full"
-                    disabledDate={disabledDate}
-                    format="YYYY-MM-DD"
-                    placeholder={t("shift.selectStartDate")}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="startTime"
-                  label={t("shift.startTime")}
-                  rules={[
-                    { required: true, message: t("shift.startTimeRequired") },
-                  ]}
-                >
-                  <TimePicker
-                    className="w-full"
-                    format="HH:mm"
-                    placeholder={t("shift.selectStartTime")}
-                  />
-                </Form.Item>
-              </div>
+              <Form.Item
+                name="startDate"
+                label={t("shift.startDateTime")}
+                rules={[
+                  { required: true, message: t("shift.startDateRequired") },
+                ]}
+              >
+                <DatePicker
+                  className="w-full"
+                  showTime={{ format: 'HH:mm' }}
+                  format="YYYY-MM-DD HH:mm"
+                  placeholder={t("shift.selectStartDateTime")}
+                />
+              </Form.Item>
             </div>
 
             <div className="bg-green-50 p-4 rounded-lg">
               <h4 className="font-medium text-green-800 mb-2">
                 {t("shift.shiftEnd")}
               </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Item
-                  name="endDate"
-                  label={t("shift.endDate")}
-                  rules={[
-                    { required: true, message: t("shift.endDateRequired") },
-                    { validator: validateEndDateTime },
-                  ]}
-                >
-                  <DatePicker
-                    className="w-full"
-                    disabledDate={disabledDate}
-                    format="YYYY-MM-DD"
-                    placeholder={t("shift.selectEndDate")}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="endTime"
-                  label={t("shift.endTime")}
-                  rules={[
-                    { required: true, message: t("shift.endTimeRequired") },
-                    { validator: validateEndDateTime },
-                  ]}
-                >
-                  <TimePicker
-                    className="w-full"
-                    format="HH:mm"
-                    placeholder={t("shift.selectEndTime")}
-                  />
-                </Form.Item>
-              </div>
+              <Form.Item
+                name="endDate"
+                label={t("shift.endDateTime")}
+                rules={[
+                  { required: true, message: t("shift.endDateRequired") },
+                  { validator: validateEndDateTime },
+                ]}
+              >
+                <DatePicker
+                  className="w-full"
+                  showTime={{ format: 'HH:mm' }}
+                  format="YYYY-MM-DD HH:mm"
+                  placeholder={t("shift.selectEndDateTime")}
+                />
+              </Form.Item>
             </div>
           </div>
         );
@@ -254,13 +206,11 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
               <div className="space-y-1 text-sm text-gray-600">
                 <p>
                   {t("shift.startDateTime")}:{" "}
-                  {formData.startDate?.format("YYYY-MM-DD")}{" "}
-                  {formData.startTime?.format("HH:mm")}
+                  {formData.startDate?.format("YYYY-MM-DD HH:mm")}
                 </p>
                 <p>
                   {t("shift.endDateTime")}:{" "}
-                  {formData.endDate?.format("YYYY-MM-DD")}{" "}
-                  {formData.endTime?.format("HH:mm")}
+                  {formData.endDate?.format("YYYY-MM-DD HH:mm")}
                 </p>
                 <p>
                   {t("shift.user")}:{" "}
