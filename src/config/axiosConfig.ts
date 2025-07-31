@@ -3,7 +3,10 @@ import useAuthStore from "@/config/store/authSlice";
 import i18n from "@/config/i18n";
 import { datadogLogs } from "@datadog/browser-logs";
 
-let showToast: (message: string, type: "success" | "error" | "info" | "warning") => void;
+let showToast: (
+  message: string,
+  type: "success" | "error" | "info" | "warning"
+) => void;
 
 export const setToastFunction = (toastFunction: typeof showToast) => {
   showToast = toastFunction;
@@ -73,7 +76,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const logout = useAuthStore.getState().clearTokens;
       logout();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
 
     const endpoint = error.config?.url;
@@ -84,7 +87,9 @@ api.interceptors.response.use(
 
     if (error.response) {
       const errorCode = error.response.data?.code;
-      const errorMessage = errorCode ? getTranslatedError(errorCode) : "An error occurred. Please try again.";
+      const errorMessage = errorCode
+        ? getTranslatedError(errorCode)
+        : "An error occurred. Please try again.";
       showToast(errorMessage, "error");
     } else if (error.request) {
       showToast(i18n.t("errors.other.noResponseFromServer"), "error");

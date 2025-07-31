@@ -97,6 +97,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const doc = searchParams.get("document");
+  const status = searchParams.get("status");
+  const name = searchParams.get("name");
   const userName: UserName = { name: user.name, middlename: user.surname };
 
   // Get location state with proper typing
@@ -173,7 +175,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       t("tables.FINISHED"),
       t("tables.PAUSE"),
     ];
-    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
+    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE"), t("tables.RETURNED")];
 
     if (greenStatuses.includes(status))
       return <Tag color="green">{status}</Tag>;
@@ -690,21 +692,22 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
-                      {location.pathname === "/equipment/routine/work/list/item"
-                        ? locationState?.name
+                      {location.pathname.includes("/equipment/technical/tasks/progress/item")
+                      || location.pathname.includes("/equipment/technical/tasks/list/item")
+                        ? name
                         : location.pathname === "/finance/timesheet/view"
                         ? `${
-                            locationState?.name
+                            name
                           } : ${locationState?.date?.slice(0, 10)}`
                         : activePageName === "createDo"
                         ? t(`routes.${doc}`)
                         : t(`routes.${activePageName}`)}
                     </span>
-                    {location.pathname ===
-                      "/equipment/routine/work/list/item" &&
-                    locationState?.status ? (
+                    {location.pathname.includes("/equipment/technical/tasks/progress/item")
+                    || location.pathname.includes("/equipment/technical/tasks/list/item") &&
+                    status ? (
                       <div className="ml-5">
-                        {getStatusTag(locationState.status)}
+                        {getStatusTag(String(status))}
                       </div>
                     ) : activePageName === "bonus" ? (
                       <EditIcon className="text-text02 ml-2" />
