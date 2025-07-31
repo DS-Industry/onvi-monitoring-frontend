@@ -25,6 +25,14 @@ import {
   updateDayShift,
 } from "@/services/api/finance";
 
+// Assign numeric score to each estimation
+const GRADES_ESTIMATION_SCORES: Record<number, number> = {
+  1: 5, // Без замечаний
+  2: 2, // Грубое нарушение
+  3: 4, // Незначительные
+  4: 3, // Разовое замечание
+};
+
 // types
 interface GradingFormData {
   grading: Record<string, number>;
@@ -128,6 +136,21 @@ const ShiftTab: React.FC = () => {
     }
   };
 
+  const gradedParams = dayShiftData?.gradingParameterInfo?.parameters.filter(
+    (p) => p.estimationId !== null
+  );
+
+  const totalScore = gradedParams?.reduce((sum, param) => {
+    if (param.estimationId !== null) {
+      return sum + (GRADES_ESTIMATION_SCORES[param.estimationId] || 0);
+    }
+    return sum;
+  }, 0);
+
+  const averageScore = gradedParams?.length
+    ? (totalScore || 0) / gradedParams.length
+    : null;
+
   return (
     <div className="mt-6">
       <h1 className="text-[20px] font-bold mb-6">
@@ -144,7 +167,9 @@ const ShiftTab: React.FC = () => {
           </div>
           <div>
             <p className="text-bold]">{t("finance.averageRating")}</p>
-            <p className="font-bold text-[24px]">4.7 ⭐</p>
+            <p className="font-bold text-[24px]">
+              {averageScore?.toFixed(1)} ⭐
+            </p>
           </div>
           <div>
             <p className="text-bold=">{t("finance.employeeName")}</p>
