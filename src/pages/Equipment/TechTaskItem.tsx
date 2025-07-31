@@ -106,7 +106,7 @@ const TechTaskItem: React.FC = () => {
     const handleSubmit = async () => {
         const techTaskValue = Object.entries(taskValues).map(([itemValueId, value]) => ({
             itemValueId: Number(itemValueId),
-            value: value as string,
+            value: String(value),
         }));
 
         const result = await createTechTasks({

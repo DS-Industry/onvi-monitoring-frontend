@@ -78,6 +78,33 @@ const ProgressReportItem: React.FC = () => {
         }
     }, [techTaskItems]);
 
+    useEffect(() => {
+        const processFiles = async () => {
+            if (techTaskItems.length > 0) {
+                const initialValues = techTaskItems.reduce((acc, item) => {
+                    acc[item.id] = item.value ?? "";
+                    return acc;
+                }, {} as Record<number, string | number | boolean | null>);
+                setTaskValues(initialValues);
+
+                const fileEntries = await Promise.all(
+                    techTaskItems.map(async (item) => {
+                        if (item.image) {
+                            const file = "https://storage.yandexcloud.net/onvi-business/image/pos/" + techTaskData?.posId + "/techTask/" + techTaskData?.id + `/${item.id}/${item.image}`;
+                            return [item.id, file];
+                        } else {
+                            return [item.id, null];
+                        }
+                    })
+                );
+
+                const initialFiles = Object.fromEntries(fileEntries);
+                setUploadedFiles(initialFiles);
+            }
+        };
+
+        processFiles();
+    }, [techTaskItems, techTaskData]);
 
     const handleChange = (id: number, value: string | number | boolean | null) => {
         setTaskValues((prev) => ({

@@ -334,7 +334,8 @@
     "enter": "Enter a value",
     "select": "Select a value",
     "Chemistry": "Chemistry",
-    "Check": "Check"
+    "Check": "Check",
+    "Installations": "Installations"
   },
   "routine": {
     "display": "This section displays routine maintenance",
