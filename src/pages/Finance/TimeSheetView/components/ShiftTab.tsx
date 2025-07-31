@@ -14,6 +14,7 @@ dayjs.extend(duration);
 // components
 import { Controller, useForm } from "react-hook-form";
 import { Select, Button, Form, Input, Card, message } from "antd";
+import { StarOutlined } from "@ant-design/icons";
 
 // services
 import {
@@ -167,8 +168,9 @@ const ShiftTab: React.FC = () => {
           </div>
           <div>
             <p className="text-bold]">{t("finance.averageRating")}</p>
-            <p className="font-bold text-[24px]">
-              {averageScore?.toFixed(1)} ⭐
+            <p className="font-bold text-[24px] flex items-center gap-1">
+              {averageScore?.toFixed(1)}
+              <StarOutlined className="text-yellow-500" />
             </p>
           </div>
           <div>
