@@ -74,6 +74,11 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
 
   return (
     <Modal open={open} onCancel={handleCancel} footer={false}>
+      <div className="flex flex-row items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
+          {t("finance.adding")}
+        </h2>
+      </div>
       <Form
         form={form}
         layout="vertical"

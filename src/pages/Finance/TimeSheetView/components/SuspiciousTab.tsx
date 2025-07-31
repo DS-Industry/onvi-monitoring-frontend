@@ -1,12 +1,18 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
+
+// utils
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getCashOperSuspiciousById } from "@/services/api/finance";
 import { getDevices } from "@/services/api/equipment";
 import { getDateRender } from "@/utils/tableUnits";
+
+// components
 import { Table } from "antd";
+
+// types
 import type { ColumnsType } from "antd/es/table";
-import { useSearchParams } from "react-router-dom";
 
 interface SuspiciousData {
   deviceId: number;
