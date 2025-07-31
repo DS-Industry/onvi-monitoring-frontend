@@ -22,22 +22,11 @@ import {
   returnDayShift,
   sendDayShift,
   updateDayShift,
-  TypeWorkDay,
   TypeEstimation,
 } from "@/services/api/finance";
 
 type ShiftFormData = {
-  typeWorkDay: TypeWorkDay | undefined;
-  estimation: TypeEstimation | null;
-  prize: string | number;
-  fine: string | number;
-  comment: string;
-  hours_start: number;
-  minutes_start: number;
-  hours_end: number;
-  minutes_end: number;
-
-  grading?: {
+  grading: {
     [parameterId: string]: number;
   };
 };
@@ -113,70 +102,37 @@ const ShiftTab: React.FC = () => {
 
   const { control, handleSubmit, reset } = useForm<ShiftFormData>({
     defaultValues: {
-      typeWorkDay: undefined,
-      estimation: null,
-      prize: "",
-      fine: "",
-      comment: "",
-      hours_start: 0,
-      minutes_start: 0,
-      hours_end: 0,
-      minutes_end: 0,
-
       grading: {},
     },
   });
 
   useEffect(() => {
-    if (dayShiftData) {
-      reset({
-        typeWorkDay: dayShiftData.typeWorkDay || undefined,
-        estimation: dayShiftData.estimation || null,
-        prize: dayShiftData.prize ?? "",
-        fine: dayShiftData.fine ?? "",
-        comment: dayShiftData.comment ?? "",
-        hours_start: dayjs(dayShiftData.startWorkingTime).hour(),
-        minutes_start: dayjs(dayShiftData.startWorkingTime).minute(),
-        hours_end: dayjs(dayShiftData.endWorkingTime).hour(),
-        minutes_end: dayjs(dayShiftData.endWorkingTime).minute(),
+    if (dayShiftData?.gradingParameterInfo) {
+      const gradingDefaults: { [key: string]: number } = {};
+      dayShiftData.gradingParameterInfo.parameters.forEach((param) => {
+        if (param.estimationId) {
+          gradingDefaults[param.id.toString()] = param.estimationId;
+        }
       });
+      reset({ grading: gradingDefaults });
     }
   }, [dayShiftData, reset]);
 
-  const handleModalSubmit = async (data: ShiftFormData) => {
+  const handleGradingSave = async (data: ShiftFormData) => {
     try {
-      const start = dayjs(dayShiftData?.startWorkingTime)
-        .set("hour", Number(data.hours_start))
-        .set("minute", Number(data.minutes_start))
-        .set("second", 0)
-        .set("millisecond", 0);
+      if (!dayShiftData?.gradingParameterInfo) return;
 
-      let end = dayjs(dayShiftData?.startWorkingTime)
-        .set("hour", Number(data.hours_end))
-        .set("minute", Number(data.minutes_end))
-        .set("second", 0)
-        .set("millisecond", 0);
-
-      // Handle cross-day shifts
-      if (end.isBefore(start)) {
-        end = end.add(1, "day");
-      }
-
-      const totalMinutes = end.diff(start, "minutes");
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
+      const updatedParameters =
+        dayShiftData.gradingParameterInfo.parameters.map((param) => ({
+          ...param,
+          estimationId: data.grading[param.id.toString()] || null,
+        }));
 
       const payload: UpdateDayShiftBody = {
-        startWorkingTime: start.toDate(),
-        endWorkingTime: end.toDate(),
-        timeWorkedOut: `${hours.toString().padStart(2, "0")}:${minutes
-          .toString()
-          .padStart(2, "0")}`,
-        typeWorkDay: data.typeWorkDay,
-        estimation: data.estimation,
-        prize: data.prize ? Number(data.prize) : null,
-        fine: data.fine ? Number(data.fine) : null,
-        comment: data.comment,
+        gradingParameterInfo: {
+          parameters: updatedParameters,
+          allEstimations: dayShiftData.gradingParameterInfo.allEstimations,
+        },
       };
 
       const result = await updateShift(payload);
@@ -288,29 +244,31 @@ const ShiftTab: React.FC = () => {
           ))}
         </div>
 
-        <div className="flex gap-3 mt-4">
-          <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
-          <Button type="primary" htmlType="submit" loading={loadingUpdate}>
-            {t("routes.save")}
-          </Button>
-          {dayShiftData?.status === "SENT" ? (
-            <Button
-              type="default"
-              onClick={handleReturn}
-              loading={loadingReturnCash}
-            >
-              {t("finance.refund")}
+        <form onSubmit={handleSubmit(handleGradingSave)}>
+          <div className="flex gap-3 mt-4">
+            <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
+            <Button type="primary" htmlType="submit" loading={loadingUpdate}>
+              {t("routes.save")}
             </Button>
-          ) : (
-            <Button
-              type="primary"
-              onClick={handleSend}
-              loading={loadingSendCash}
-            >
-              {t("finance.send")}
-            </Button>
-          )}
-        </div>
+            {dayShiftData?.status === "SENT" ? (
+              <Button
+                type="default"
+                onClick={handleReturn}
+                loading={loadingReturnCash}
+              >
+                {t("finance.refund")}
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                onClick={handleSend}
+                loading={loadingSendCash}
+              >
+                {t("finance.send")}
+              </Button>
+            )}
+          </div>
+        </form>
       </div>
     </>
   );

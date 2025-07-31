@@ -288,6 +288,7 @@ export type UpdateDayShiftBody = {
   prize?: number | null;
   fine?: number | null;
   comment?: string;
+  gradingParameterInfo: GradingParameterInfo;
 };
 
 export type CreateCashOperBody = {
