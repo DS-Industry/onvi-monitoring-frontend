@@ -16,7 +16,6 @@ interface CreateReturnModalProps {
   shiftId: number;
   onSuccess: () => void;
   onCancel: () => void;
-  onClose: () => void;
   open: boolean;
 }
 
@@ -24,7 +23,6 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   shiftId,
   onSuccess,
   onCancel,
-  onClose,
   open,
 }) => {
   const { t } = useTranslation();
@@ -68,7 +66,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose} footer={false} onCancel={onCancel}>
+    <Modal open={open} footer={false} onCancel={onCancel}>
       <div className="flex flex-row items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
           {t("finance.adding")}

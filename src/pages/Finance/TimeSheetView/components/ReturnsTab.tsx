@@ -134,7 +134,6 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
         shiftId={shiftId!}
         onSuccess={handleFormSuccess}
         onCancel={handleFormCancel}
-        onClose={handleFormCancel}
       />
     </>
   );

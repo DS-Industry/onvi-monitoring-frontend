@@ -1,13 +1,21 @@
 import React, { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+
+// utils
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { mutate } from "swr";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
+
+// components
 import { Controller, useForm } from "react-hook-form";
 import { Select, Button, Form, Input, Card, message } from "antd";
+
+// services
 import {
   UpdateDayShiftBody,
   getDayShiftById,
@@ -16,21 +24,14 @@ import {
   updateDayShift,
 } from "@/services/api/finance";
 
+// types
 interface GradingFormData {
   grading: Record<string, number>;
   comment?: string;
 }
 
-interface GradingSubmissionData {
-  parameterId: number;
-  estimationId: number | null;
-}
-
-dayjs.extend(duration);
-
 const ShiftTab: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shiftId = searchParams.get("id")
     ? Number(searchParams.get("id"))
@@ -92,11 +93,12 @@ const ShiftTab: React.FC = () => {
 
   const handleGradingSave = async (data: GradingFormData) => {
     try {
-      const gradingData: GradingSubmissionData[] | undefined =
-        dayShiftData?.gradingParameterInfo?.parameters.map((param) => ({
+      const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
+        (param) => ({
           parameterId: param.id,
           estimationId: data.grading[param.id.toString()] || null,
-        }));
+        })
+      );
 
       if (!gradingData) {
         message.error(t("errors.somethingWentWrong"));
@@ -107,6 +109,7 @@ const ShiftTab: React.FC = () => {
         gradingData,
         comment: data.comment || "",
       });
+
       if (result) {
         message.success(t("routes.savedSuccessfully"));
         mutate(["get-shift-data", shiftId]);
