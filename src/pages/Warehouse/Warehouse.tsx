@@ -6,7 +6,7 @@ import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate } from "@/components/context/useContext";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -29,6 +29,7 @@ const Warehouse: React.FC = () => {
     const allCategoriesText = t("warehouse.all");
     const [searchParams] = useSearchParams();
     const { buttonOn, setButtonOn } = useButtonCreate();
+    const { showToast } = useToast();
 
     const posId = searchParams.get("posId") || "*";
     const placementId = searchParams.get("city") || "*";
@@ -118,6 +119,7 @@ const Warehouse: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

@@ -34,6 +34,7 @@ import 'dayjs/locale/ru';
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import Button from "@/components/ui/Button/Button";
+import { useToast } from "@/components/context/useContext";
 
 dayjs.locale('ru');
 
@@ -95,6 +96,7 @@ const Notifications: React.FC = () => {
     const [selectedNotification, setSelectedNotification] = useState<UserNotificationResponse | null>(null);
     const [filterParams, setFilterParams] = useState<GetUserNotifParams>({});
     const [, setSelectedFilter] = useState<string>('all');
+    const { showToast } = useToast();
 
     const { data: notificationsData, isLoading: notificationsLoading } = useSWR([`get-notifications`, filterParams], () => getNotifications(filterParams), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
@@ -269,6 +271,7 @@ const Notifications: React.FC = () => {
             }
         } catch (error) {
             console.error("Error deleting tag:", error);
+            showToast(t("errors.other.errorDeletingTag"), "error");
         }
     };
 
@@ -323,6 +326,7 @@ const Notifications: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 
@@ -344,6 +348,7 @@ const Notifications: React.FC = () => {
             }
         } catch (error) {
             console.error('Error adding to favorites:', error);
+            showToast(t("errors.other.errorAddingToFavorites"), "error");
         }
     };
 
@@ -381,6 +386,7 @@ const Notifications: React.FC = () => {
             }
         } catch (error) {
             console.error('Error adding tags:', error);
+            showToast(t("errors.other.errorAddingTags"), "error");
         }
     };
 
@@ -417,6 +423,7 @@ const Notifications: React.FC = () => {
             }
         } catch (error) {
             console.error('Error moving to trash:', error);
+            showToast(t("errors.other.errorMovingToTrash"), "error");
         }
     };
 

@@ -1,14 +1,15 @@
 import axios from "axios";
 import useAuthStore from "@/config/store/authSlice";
+import i18n from "@/config/i18n";
 import { datadogLogs } from "@datadog/browser-logs";
 
-let showSnackbar: (
+let showToast: (
   message: string,
   type: "success" | "error" | "info" | "warning"
 ) => void;
 
-export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
-  showSnackbar = snackbarFunction;
+export const setToastFunction = (toastFunction: typeof showToast) => {
+  showToast = toastFunction;
 };
 
 const api = axios.create({
@@ -40,6 +41,8 @@ api.interceptors.request.use(
   }
 );
 
+const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
+
 api.interceptors.response.use(
   (response) => {
     datadogLogs.logger.info("API Response Received", {
@@ -65,8 +68,8 @@ api.interceptors.response.use(
       timestamp: new Date().toISOString(),
     });
 
-    if (!showSnackbar) {
-      console.error("Snackbar function is not initialized.");
+    if (!showToast) {
+      console.error("Toast function is not initialized.");
       return Promise.reject(error);
     }
 
@@ -78,8 +81,20 @@ api.interceptors.response.use(
 
     const endpoint = error.config?.url;
     if (!endpoint) {
-      showSnackbar("Unexpected error occurred. Please try again.", "error");
+      showToast(i18n.t("errors.other.unexpectedErrorOccurred"), "error");
       return Promise.reject(error);
+    }
+
+    if (error.response) {
+      const errorCode = error.response.data?.code;
+      const errorMessage = errorCode
+        ? getTranslatedError(errorCode)
+        : "An error occurred. Please try again.";
+      showToast(errorMessage, "error");
+    } else if (error.request) {
+      showToast(i18n.t("errors.other.noResponseFromServer"), "error");
+    } else {
+      showToast(i18n.t("errors.other.unexpectedErrorOccurred"), "error");
     }
 
     return Promise.reject(error);

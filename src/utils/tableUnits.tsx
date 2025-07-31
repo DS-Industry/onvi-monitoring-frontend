@@ -48,6 +48,16 @@ export function formatNumber(
 }
 
 /**
+ * Formats a number as a percentage.
+ */
+export function getPercentRender() {
+  return (val: number | null | undefined): string => {
+    if (val === null || val === undefined || isNaN(val)) return "—";
+    return `${formatNumber(val, "double")} %`;
+  };
+}
+
+/**
  * Render AntD tags from a list of { id, name, color } objects.
  */
 export function getTagRender(tags?: TagItem[]): React.ReactNode {
@@ -86,6 +96,7 @@ export function getStatusTagRender(t: TFunction) {
     const orangeStatuses = [
       t("tables.SAVED"),
       t("tables.VERIFICATE"),
+      t("tables.RETURNED")
     ];
 
     if (greenStatuses.includes(status)) {

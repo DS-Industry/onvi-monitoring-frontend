@@ -32,7 +32,7 @@
     "expand": "Развернуть фильтр",
     "daily": "Ежедневные параметры",
     "chemical": "Расход химии",
-    "routine": "Работа",
+    "technicalTasks": "Технические задачи",
     "consumption": "Норма расхода",
     "replacing": "Замена программ",
     "dailyOptions": "Ежедневные параметры тех.службы",
@@ -101,7 +101,9 @@
     "articles": "Статьи",
     "direct": "Справочник статей",
     "appo": "Справочник назначений",
-    "savedSuccessfully": "Успешно сохранено"
+    "savedSuccessfully": "Успешно сохранено",
+    "appointment": "Справочник назначений",
+    "createTask": "Создать задчу"
   },
   "dashboard": {
     "news": "Новости",
@@ -355,7 +357,11 @@
     "routine": "Рутина",
     "regulation": "Регулирование",
     "reports": "В этом разделе отображаются отчеты о регламентных работах",
-    "done": "Выполнено"
+    "done": "Выполнено",
+    "dueDate": "Срок оплаты",
+    "responsiblePerson": "Ответственное лицо",
+    "taskName": "Имя задачи",
+    "attachImage": "Прикрепить изображение"
   },
   "warehouse": {
     "nomenclature": "У вас нет номенклатуры в программе",
@@ -675,7 +681,35 @@
     "somethingWentWrong": "Что-то пошло не так",
     "submitFailed": "Ошибка отправки",
     "sendFailed": "Ошибка отправки данных",
-    "updateFailed": "Ошибка обновления данных"
+    "updateFailed": "Ошибка обновления данных",
+    "other": {
+      "registerError": "Ошибка регистрации",
+      "errorDeletingTag": "Ошибка при удалении тега",
+      "errorDuringFormSubmission": "Ошибка при отправке формы",
+      "errorAddingToFavorites": "Ошибка при добавлении в избранное",
+      "errorAddingTags": "Ошибка при добавлении тегов",
+      "errorMovingToTrash": "Ошибка при перемещении в корзину",
+      "invalidFileType": "Недопустимый тип файла",
+      "errorInPostTimestamp": "Ошибка в postTimestamp",
+      "unexpectedErrorOccurred": "Произошла неожиданная ошибка. Пожалуйста, попробуйте снова",
+      "noResponseFromServer": "Нет ответа от сервера. Проверьте интернет-соединение",
+      "pleaseCheckFormFields": "Пожалуйста, проверьте поля формы",
+      "errorDeletingNomenclature": "Ошибка при удалении номенклатуры",
+      "passwordChangeError": "Ошибка смены пароля",
+      "passwordChangeFailed": "Не удалось сменить пароль. Попробуйте ещё раз",
+      "errorUpdatingProfile": "Ошибка при обновлении профиля",
+      "theOperationUnsuccessful": "Операция не выполнена",
+      "errorCreatingReport": "Ошибка при создании отчета",
+      "failedToUpdateRecord": "Не удалось обновить запись",
+      "failedToHandleWorkerAddOrShiftCreate": "Не удалось обработать добавление работника или создание смены"
+    }
+  },
+  "success": {
+    "recordUpdated": "Запись успешно обновлена",
+    "recordDeleted": "Запись успешно удалена"
+  },
+  "info": {
+    "deleteCancelled": "Удаление отменено"
   },
   "tables": {
     "ACTIVE": "Действующий",
@@ -705,7 +739,8 @@
     "REGULAR": "Многоразовая",
     "In Progress": "В процессе",
     "Done": "Выполнено",
-    "displayedColumns": "Отображаемые столбцы"
+    "displayedColumns": "Отображаемые столбцы",
+    "RETURNED": "ВЕРНУЛСЯ"
   },
   "finance": {
     "details": "Здесь отображаются детализация по каждой инкассации",
@@ -744,7 +779,7 @@
     "sch": "Расписание",
     "thr": "через",
     "sta": "Начиная с",
-    "sel": "выберите дату",
+    "sel": "Выберите дату",
     "open": "Время работы:",
     "ex": "Выставить на",
     "a": "неделю вперед",
@@ -882,7 +917,9 @@
     "added": "Добавленные филиалы",
     "the": "Соединение с филиалами установлено успешно.",
     "sumStart": "Сумма на начало",
-    "sumEnd": "Сумма на конец"
+    "sumEnd": "Сумма на конец",
+    "found": "Найдено",
+    "reset": "Сбросить"
   },
   "roles": {
     "access": "Управление правами доступа",
@@ -1051,5 +1088,9 @@
   },
   "general": {
     "hours": "часов"
+  },
+  "constants": {
+    "all": "Все",
+    "status": "Cтатус"
   }
 }

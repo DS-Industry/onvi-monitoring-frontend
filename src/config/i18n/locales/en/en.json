@@ -32,7 +32,7 @@
     "expand": "Expand filter",
     "daily": "Daily options",
     "chemical": "Chemical Consumption",
-    "routine": "Tasks",
+    "technicalTasks": "Technical Tasks",
     "consumption": "Consumption Rate",
     "replacing": "Replacing Programs",
     "dailyOptions": "Daily options technical services",
@@ -101,7 +101,9 @@
     "articles": "Articles",
     "direct": "Directory of articles",
     "appo": "Directory of appointments",
-    "savedSuccessfully": "Saved successfully"
+    "savedSuccessfully": "Saved successfully",
+    "appointment": "Directory of appointments",
+    "createTask": "Create a task"
   },
   "dashboard": {
     "news": "News",
@@ -355,7 +357,11 @@
     "routine": "Routine",
     "regulation": "Regulation",
     "reports": "This section displays routine maintenance reports",
-    "done": "Done"
+    "done": "Done",
+    "dueDate": "Due Date",
+    "responsiblePerson": "Responsible Person",
+    "taskName": "Имя задачи",
+    "attachImage": "Attach Image"
   },
   "warehouse": {
     "nomenclature": "You don't have nomenclature in the program",
@@ -675,7 +681,35 @@
     "somethingWentWrong": "Something went wrong",
     "submitFailed": "Submit failed",
     "sendFailed": "Send failed",
-    "updateFailed": "Update failed"
+    "updateFailed": "Update failed",
+    "other": {
+      "registerError": "Register error",
+      "errorDeletingTag": "Error deleting tag",
+      "errorDuringFormSubmission": "Error during form submission",
+      "errorAddingToFavorites": "Error adding to favorites",
+      "errorAddingTags": "Error adding tags",
+      "errorMovingToTrash": "Error moving to trash",
+      "invalidFileType": "Invalid file type",
+      "errorInPostTimestamp": "Error in postTimestamp",
+      "unexpectedErrorOccurred": "Unexpected error occurred. Please try again",
+      "noResponseFromServer": "No response from the server. Check your internet connection",
+      "pleaseCheckFormFields": "Please check the form fields",
+      "errorDeletingNomenclature": "Error deleting nomenclature",
+      "passwordChangeError": "Password change error",
+      "passwordChangeFailed": "Password change failed. Please try again",
+      "errorUpdatingProfile": "Error updating profile",
+      "theOperationUnsuccessful": "The operation is unsuccessful",
+      "errorCreatingReport": "Error creating report",
+      "failedToUpdateRecord": "Failed to update record",
+      "failedToHandleWorkerAddOrShiftCreate": "Failed to handle worker add or shift create"
+    }
+  },
+  "success": {
+    "recordUpdated": "Record updated successfully",
+    "recordDeleted": "Record deleted successfully"
+  },
+  "info": {
+    "deleteCancelled": "Delete cancelled"
   },
   "tables": {
     "ACTIVE": "ACTIVE",
@@ -705,7 +739,8 @@
     "REGULAR": "REGULAR",
     "In Progress": "In Progress",
     "Done": "Done",
-    "displayedColumns": "Displayed Columns"
+    "displayedColumns": "Displayed Columns",
+    "RETURNED": "RETURNED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -882,7 +917,9 @@
     "added": "Added branches",
     "the": "The branches connection is established successfully.",
     "sumStart": "Starting amount",
-    "sumEnd": "Ending amount"
+    "sumEnd": "Ending amount",
+    "found": "Found",
+    "reset": "Reset"
   },
   "roles": {
     "access": "Access rights management",
@@ -1051,5 +1088,9 @@
   },
   "general": {
     "hours": "hours"
+  },
+  "constants": {
+    "all": "All",
+    "status": "Status"
   }
 }

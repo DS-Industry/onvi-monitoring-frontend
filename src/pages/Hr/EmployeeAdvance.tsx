@@ -1,181 +1,228 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import NoCollection from "@/assets/NoCollection.png";
-import Filter from "@/components/ui/Filter/Filter";
-import { useNavigate } from "react-router-dom";
-import { useButtonCreate, useFilterOn } from "@/components/context/useContext";
 import useSWR from "swr";
-import { getPositions, getPrepayments, getWorkers } from "@/services/api/hr";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsPrePayments } from "@/utils/OverFlowTableData";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-import dayjs, { Dayjs } from "dayjs";
-import { useCurrentPage, usePageNumber, useSetPageNumber } from "@/hooks/useAuthStore";
-import DateTimeInput from "@/components/ui/Input/DateTimeInput";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
+import { Table } from "antd";
+import { ColumnsType } from "antd/es/table";
 
-type PaymentParams = {
-    startPaymentDate: Date | string;
-    endPaymentDate: Date | string;
-    hrWorkerId: number | string;
-    billingMonth: Date | string;
-    page?: number;
-    size?: number;
-}
+import { useButtonCreate } from "@/components/context/useContext";
+import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import { getPositions, getPrepayments, getWorkers, PrepaymentFilter, PrepaymentResponse } from "@/services/api/hr";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  ALL_PAGE_SIZES,
+} from "@/utils/constants";
+import {
+  getCurrencyRender,
+  getDateRender,
+  getPercentRender,
+} from "@/utils/tableUnits";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
+
+type TablePayment = PrepaymentResponse & {
+  hrPosition?: string;
+};
 
 const EmployeeAdvance: React.FC = () => {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const { buttonOn } = useButtonCreate();
-    const [startPaymentDate, setStartPaymentDate] = useState<Dayjs | undefined>(undefined);
-    const [endPaymentDate, setEndPaymentDate] = useState<Dayjs | undefined>(undefined);
-    const [workerId, setWorkerId] = useState<number | string>("*");
-    const [isTableLoading, setIsTableLoading] = useState(false);
-    const pageNumber = usePageNumber();
-    const setPageNumber = useSetPageNumber();
-    const currentPage = useCurrentPage();
-    const { filterOn } = useFilterOn();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { buttonOn } = useButtonCreate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+  const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
 
-    const { data: paymentsData, isLoading: paymentsLoading, mutate: paymentsMutating } = useSWR([`get-payments`], () => getPrepayments({
-        startPaymentDate: dataFilter.startPaymentDate ? dataFilter.startPaymentDate : "*",
-        endPaymentDate: dataFilter.endPaymentDate ? dataFilter.endPaymentDate : "*",
-        hrWorkerId: dataFilter.hrWorkerId,
-        billingMonth: dataFilter.billingMonth ? dataFilter.billingMonth : "*"
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const startPaymentDateParam = searchParams.get("startPaymentDate");
+  const endPaymentDateParam = searchParams.get("endPaymentDate");
+  const workerId = Number(searchParams.get("hrWorkerId"));
+  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
 
-    const payments = paymentsData?.map((pay) => ({
-        ...pay,
-        hrPosition: positions.find((pos) => pos.value === pay.hrPositionId)?.name
-    })) || [];
+  const startPaymentDate = startPaymentDateParam ? new Date(startPaymentDateParam) : undefined;
+  const endPaymentDate = endPaymentDateParam ? new Date(endPaymentDateParam) : undefined;
 
-    const initialFilter = {
-        startPaymentDate: startPaymentDate ? startPaymentDate.toDate() : "*",
-        endPaymentDate: endPaymentDate ? endPaymentDate.toDate() : "*",
-        hrWorkerId: workerId,
-        billingMonth: "*",
-        page: currentPage,
-        size: pageNumber
+  const filterParams = useMemo<PrepaymentFilter>(
+    () => ({
+      startPaymentDate: startPaymentDate || "*",
+      endPaymentDate: endPaymentDate || "*",
+      hrWorkerId: workerId,
+      billingMonth: "*",
+      page: currentPage,
+      size: pageSize,
+    }),
+    [startPaymentDate, endPaymentDate, workerId, currentPage, pageSize]
+  );
+
+  const swrKey = useMemo(
+    () => [
+      "get-payments",
+      filterParams.startPaymentDate,
+      filterParams.endPaymentDate,
+      filterParams.hrWorkerId,
+      filterParams.page,
+      filterParams.size,
+    ],
+    [filterParams]
+  );
+
+  const { data: paymentsData, isLoading: paymentsLoading } = useSWR(
+    swrKey,
+    () =>
+      getPrepayments({
+        startPaymentDate: filterParams.startPaymentDate || "*",
+        endPaymentDate: filterParams.endPaymentDate || "*",
+        hrWorkerId: filterParams.hrWorkerId || "*",
+        billingMonth: filterParams.billingMonth,
+        page: filterParams.page,
+        size: filterParams.size,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true
+    });
+
+  const payments = paymentsData?.map((pay) => ({
+    ...pay,
+    hrPosition: positions.find((pos) => pos.value === pay.hrPositionId)?.name
+  })) || [];
+
+  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
+    placementId: "*",
+    hrPositionId: "*",
+    organizationId: "*"
+  }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+
+  const workers: { name: string; value: number | "*"; }[] = [
+    { name: t("hr.all"), value: "*" },
+    ...(workersData?.map((work) => ({
+      name: work.props.name,
+      value: work.props.id
+    })) || [])
+  ];
+
+  const totalCount = payments?.length || 0;
+
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
+  const percentRender = getPercentRender();
+
+  const columnsEmployee: ColumnsType<TablePayment> = [
+    {
+      title: "ФИО",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Должность",
+      dataIndex: "hrPosition",
+      key: "hrPosition",
+      render: (value) => value || "-",
+    },
+    {
+      title: "Расчетный месяц",
+      dataIndex: "billingMonth",
+      key: "billingMonth",
+      render: dateRender,
+    },
+    {
+      title: "Дата выдачи",
+      dataIndex: "paymentDate",
+      key: "paymentDate",
+      render: dateRender,
+    },
+    {
+      title: "Оклад",
+      dataIndex: "monthlySalary",
+      key: "monthlySalary",
+      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
+      render: currencyRender,
+    },
+    {
+      title: "Посменное начисление",
+      dataIndex: "dailySalary",
+      key: "dailySalary",
+      sorter: (a, b) => a.dailySalary - b.dailySalary,
+      render: currencyRender,
+    },
+    {
+      title: "Процент",
+      dataIndex: "percentageSalary",
+      key: "percentageSalary",
+      render: percentRender,
+    },
+    {
+      title: "Количество отработанных смен",
+      dataIndex: "countShifts",
+      key: "countShifts",
+      sorter: (a, b) => a.countShifts - b.countShifts,
+    },
+    {
+      title: "Выплачено",
+      dataIndex: "sum",
+      key: "sum",
+      sorter: (a, b) => a.sum - b.sum,
+      render: currencyRender,
     }
+  ];
 
-    const [dataFilter, setDataFilter] = useState<PaymentParams>(initialFilter);
+  const { checkedList, setCheckedList, options, visibleColumns } =
+    useColumnSelector<TablePayment>(
+      columnsEmployee,
+      "employee-columns"
+    );
 
-    const handleDataFilter = (newFilterData: Partial<PaymentParams>) => {
-        setDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-        setIsTableLoading(true);
-
-        if (newFilterData.startPaymentDate) {
-            setStartPaymentDate(
-                typeof newFilterData.startPaymentDate === "string"
-                    ? dayjs(newFilterData.startPaymentDate)
-                    : dayjs(newFilterData.startPaymentDate)
-            );
-        }
-
-        if (newFilterData.endPaymentDate) {
-            setEndPaymentDate(
-                typeof newFilterData.endPaymentDate === "string"
-                    ? dayjs(newFilterData.endPaymentDate)
-                    : dayjs(newFilterData.endPaymentDate)
-            );
-        }
-
-        if (newFilterData.hrWorkerId) setWorkerId(newFilterData.hrWorkerId);
-
-        if (newFilterData.size) setPageNumber(newFilterData.size);
-    };
-
-    useEffect(() => {
-        handleDataFilter({
-            startPaymentDate: startPaymentDate?.toDate(),
-            endPaymentDate: endPaymentDate?.toDate(),
-            hrWorkerId: workerId,
-            billingMonth: "*",
-            page: currentPage,
-            size: pageNumber
-        })
-    }, [filterOn]);
-
-    useEffect(() => {
-        paymentsMutating().then(() => setIsTableLoading(false));
-    }, [dataFilter, paymentsMutating]);
-
-    const handleClear = () => {
-        setStartPaymentDate(undefined);
-        setEndPaymentDate(undefined);
-        setWorkerId("*");
+  useEffect(() => {
+    if (buttonOn) {
+      navigate("/hr/employee/advance/creation");
     }
+  }, [buttonOn, navigate])
 
-    const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
-        placementId: "*",
-        hrPositionId: "*",
-        organizationId: "*"
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  return (
+    <div>
 
-    const workers: { name: string; value: number | "*"; }[] = [
-        { name: t("hr.all"), value: "*" },
-        ...(workersData?.map((work) => ({
-            name: work.props.name,
-            value: work.props.id
-        })) || [])
-    ];
+      <EmployeeSalaryFilter
+        count={totalCount}
+        workers={workers}
+      />
 
-    useEffect(() => {
-        if (buttonOn)
-            navigate("/hr/employee/advance/creation");
-    }, [buttonOn, navigate])
+      <div className="mt-8">
 
-    return (
-        <div>
-            <Filter count={payments.length} hideDateTime={true} hideCity={true} hideSearch={true} handleClear={handleClear}>
-                <DateTimeInput
-                    title={t("hr.startPaymentDate")}
-                    classname="w-64"
-                    value={startPaymentDate}
-                    changeValue={(date) => setStartPaymentDate(date)}
-                />
-                <DateTimeInput
-                    title={t("hr.endPaymentDate")}
-                    classname="w-64"
-                    value={endPaymentDate}
-                    changeValue={(date) => setStartPaymentDate(date)}
-                />
-                <DropdownInput
-                    title={t("routes.employees")}
-                    classname="w-full sm:w-80"
-                    label={t("warehouse.notSel")}
-                    options={workers}
-                    value={workerId}
-                    onChange={(value) => setWorkerId(value)}
-                />
-            </Filter>
-            {paymentsLoading || isTableLoading ? (
-                <TableSkeleton columnCount={columnsPrePayments.length} />
-            ) : payments.length > 0 ? (
-                <div className="mt-8">
-                    <DynamicTable
-                        data={payments.map((item, index) => ({
-                            ...item,
-                            id: index
-                        }))}
-                        columns={columnsPrePayments}
-                    />
-                </div>
-            ) : (<div className="flex flex-col justify-center items-center">
-                <NoDataUI
-                    title={t("hr.here")}
-                    description={t("hr.you")}
-                >
-                    <img src={NoCollection} className="mx-auto" loading="lazy" alt="Employee Advance" />
-                </NoDataUI>
-            </div>
-            )}
-        </div>
-    )
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
+
+        <Table
+          rowKey={(record) => `${record.name}-${record.billingMonth}-${record.paymentDate}`}
+          dataSource={payments}
+          columns={visibleColumns}
+          loading={paymentsLoading}
+          scroll={{ x: "max-content" }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} сотрудников`,
+            onChange: (page, size) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              }),
+          }}
+        />
+
+      </div>
+
+    </div>
+  )
 }
 
 export default EmployeeAdvance;

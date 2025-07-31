@@ -5,7 +5,7 @@ import { getAllStockLevels, getCategory, getWarehouses } from "@/services/api/wa
 import { getOrganization } from "@/services/api/organization";
 import { Select, Table } from "antd";
 import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
@@ -167,46 +167,44 @@ const OverheadCosts: React.FC = () => {
     return (
         <>
             <GeneralFilters count={transformedData.length} hideDateAndTime={true} hideSearch={true}>
-                <div className="flex flex-col sm:flex-row space-x-4">
-                    <div>
-                        <div className="text-sm text-text02">{t("warehouse.organization")}</div>
-                        <Select
-                            className="w-full sm:w-80 h-10"
-                            options={organizations.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("orgId") || null}
-                            onChange={(value) => {
-                                updateSearchParams(searchParams, setSearchParams, {
-                                    orgId: value
-                                });
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("warehouse.category")}</div>
-                        <Select
-                            className="w-full sm:w-80 h-10"
-                            options={categories.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("categoryId") || "*"}
-                            onChange={(value) => {
-                                updateSearchParams(searchParams, setSearchParams, {
-                                    categoryId: value
-                                });
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("warehouse.ware")}</div>
-                        <Select
-                            className="w-full sm:w-80 h-10"
-                            options={warehouses.map((item) => ({ label: item.name, value: String(item.value) }))}
-                            value={searchParams.get("warehouseId") || "*"}
-                            onChange={(value) => {
-                                updateSearchParams(searchParams, setSearchParams, {
-                                    warehouseId: value
-                                });
-                            }}
-                        />
-                    </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.organization")}</div>
+                    <Select
+                        className="w-full sm:w-80 h-10"
+                        options={organizations.map((item) => ({ label: item.name, value: String(item.value) }))}
+                        value={searchParams.get("orgId") || null}
+                        onChange={(value) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                orgId: value
+                            });
+                        }}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.category")}</div>
+                    <Select
+                        className="w-full sm:w-80 h-10"
+                        options={categories.map((item) => ({ label: item.name, value: String(item.value) }))}
+                        value={searchParams.get("categoryId") || "*"}
+                        onChange={(value) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                categoryId: value
+                            });
+                        }}
+                    />
+                </div>
+                <div>
+                    <div className="text-sm text-text02">{t("warehouse.ware")}</div>
+                    <Select
+                        className="w-full sm:w-80 h-10"
+                        options={warehouses.map((item) => ({ label: item.name, value: String(item.value) }))}
+                        value={searchParams.get("warehouseId") || "*"}
+                        onChange={(value) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                warehouseId: value
+                            });
+                        }}
+                    />
                 </div>
             </GeneralFilters>
             <div className="mt-8">

@@ -9,7 +9,7 @@ import { getPoses } from "@/services/api/equipment";
 import { getPlacement } from "@/services/api/device";
 
 // utils
-import { updateSearchParams } from "@/utils/updateSearchParams";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
 import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 
