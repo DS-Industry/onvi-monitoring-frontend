@@ -211,11 +211,17 @@ const ShiftTab: React.FC = () => {
           </Form.Item>
 
           <div className="flex gap-2">
-            <Button type="primary" htmlType="submit" loading={loadingUpdate}>
+            <Button
+              className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
+              type="primary"
+              htmlType="submit"
+              loading={loadingUpdate}
+            >
               {t("routes.save")}
             </Button>
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT ? (
               <Button
+                className="h-[43px]  bg-[#1890FF]"
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
@@ -223,6 +229,7 @@ const ShiftTab: React.FC = () => {
               </Button>
             ) : (
               <Button
+                className="h-[43px]  bg-[#1890FF]"
                 type="primary"
                 onClick={async () => await sendCash()}
                 loading={loadingSendCash}
