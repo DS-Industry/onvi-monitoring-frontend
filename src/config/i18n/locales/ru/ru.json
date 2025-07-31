@@ -832,7 +832,9 @@
     "previousProgram": "Предыдущая программа",
     "previousWorkingTime": "Предыдущее рабочее время",
     "sentSuccessfully": "Успешно отправлено",
-    "returnedSuccessfully": "Успешно возвращено"
+    "returnedSuccessfully": "Успешно возвращено",
+    "employeeShiftView": "Просмотр смены",
+    "shiftGradingWithBonus": "Оценка смены"
   },
   "analysis": {
     "search": "Поиск",

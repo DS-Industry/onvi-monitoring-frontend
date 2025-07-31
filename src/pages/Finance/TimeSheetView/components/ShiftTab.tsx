@@ -1,47 +1,33 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-// utils
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { mutate } from "swr";
 import { useTranslation } from "react-i18next";
-
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-
-dayjs.extend(duration);
-
-// components
 import { Controller, useForm } from "react-hook-form";
-import { Select, Button, Form, message } from "antd";
-
+import { Select, Button, Form, Input, Card, message } from "antd";
 import {
   UpdateDayShiftBody,
   getDayShiftById,
   returnDayShift,
   sendDayShift,
   updateDayShift,
-  TypeEstimation,
 } from "@/services/api/finance";
 
-type ShiftFormData = {
-  grading: {
-    [parameterId: string]: number;
-  };
-};
+dayjs.extend(duration);
 
 const ShiftTab: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
   const shiftId = searchParams.get("id")
     ? Number(searchParams.get("id"))
     : undefined;
 
   const { data: dayShiftData } = useSWR(
-    shiftId ? [`get-shift-data`, shiftId] : null,
+    shiftId ? ["get-shift-data", shiftId] : null,
     () => getDayShiftById(shiftId!),
     {
       revalidateOnFocus: false,
@@ -52,93 +38,54 @@ const ShiftTab: React.FC = () => {
 
   const { trigger: sendCash, isMutating: loadingSendCash } = useSWRMutation(
     ["send-cash-oper"],
-    async () => sendDayShift(shiftId!)
+    () => sendDayShift(shiftId!)
   );
 
   const { trigger: returnCash, isMutating: loadingReturnCash } = useSWRMutation(
     ["return-cash-oper"],
-    async () => returnDayShift(shiftId!)
+    () => returnDayShift(shiftId!)
   );
 
   const { trigger: updateShift, isMutating: loadingUpdate } = useSWRMutation(
     ["update-shift"],
-    async (_, { arg }: { arg: UpdateDayShiftBody }) =>
-      updateDayShift(arg, shiftId!)
+    (_, { arg }: { arg: UpdateDayShiftBody }) => updateDayShift(arg, shiftId!)
   );
-
-  const handleSend = async () => {
-    try {
-      const result = await sendCash();
-      if (result) {
-        message.success(t("finance.sentSuccessfully"));
-        mutate([`get-shift-data`, shiftId]);
-        navigate(-1);
-      }
-    } catch {
-      message.error(t("errors.somethingWentWrong"));
-    }
-  };
-
-  const handleReturn = async () => {
-    try {
-      const result = await returnCash();
-      if (result) {
-        message.success(t("finance.returnedSuccessfully"));
-        mutate([`get-shift-data`, shiftId]);
-        navigate(-1);
-      }
-    } catch {
-      message.error(t("errors.somethingWentWrong"));
-    }
-  };
 
   const start = dayjs(dayShiftData?.startWorkingTime);
   const end = dayjs(dayShiftData?.endWorkingTime);
-
   const workedHours =
     start.isValid() && end.isValid()
-      ? dayjs.duration(end.diff(start)).asHours().toFixed(2)
+      ? dayjs.duration(end.diff(start)).asHours().toFixed(1)
       : "";
 
-  const { control, handleSubmit, reset } = useForm<ShiftFormData>({
-    defaultValues: {
-      grading: {},
-    },
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: { grading: {} },
   });
 
   useEffect(() => {
     if (dayShiftData?.gradingParameterInfo) {
-      const gradingDefaults: { [key: string]: number } = {};
+      const defaults: Record<string, number> = {};
       dayShiftData.gradingParameterInfo.parameters.forEach((param) => {
-        if (param.estimationId) {
-          gradingDefaults[param.id.toString()] = param.estimationId;
-        }
+        if (param.estimationId)
+          defaults[param.id.toString()] = param.estimationId;
       });
-      reset({ grading: gradingDefaults });
+      reset({ grading: defaults });
     }
   }, [dayShiftData, reset]);
 
-  const handleGradingSave = async (data: ShiftFormData) => {
-    console.log("data: ", data);
+  const handleGradingSave = async (data: any) => {
     try {
-      if (!dayShiftData?.gradingParameterInfo) return;
-
-      const updatedParameters =
-        dayShiftData.gradingParameterInfo.parameters.map((param) => ({
+      const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
+        (param) => ({
           parameterId: param.id,
           estimationId: data.grading[param.id.toString()] || null,
-        }));
+        })
+      );
 
-      const payload: UpdateDayShiftBody = {
-        gradingData: updatedParameters,
-      };
-
-      console.log("payload: ", payload);
-
-      const result = await updateShift(payload);
+      const result = await updateShift({ gradingData });
       if (result) {
         message.success(t("routes.savedSuccessfully"));
-        mutate([`get-shift-data`, shiftId]);
+        mutate(["get-shift-data", shiftId]);
       }
     } catch {
       message.error(t("errors.somethingWentWrong"));
@@ -146,94 +93,69 @@ const ShiftTab: React.FC = () => {
   };
 
   return (
-    <>
-      <h2 className="text-lg font-bold mb-5">{t("finance.shiftOver")}</h2>
-      <div className="border border-gray-200 rounded-xl p-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-y-6">
-        <div>
-          <p className="text-sm text-gray-500">
-            {t("finance.totalCarsWashed")}
-          </p>
-          <p className="text-lg font-bold">{dayShiftData?.totalCar || 0}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{t("finance.averageRating")}</p>
-          <div
-            className={`rounded-lg flex items-center justify-center text-sm font-extrabold w-24
-                ${
-                  dayShiftData?.estimation === TypeEstimation.GROSS_VIOLATION
-                    ? "bg-[#fef2f2] text-[#dc2626]"
-                    : dayShiftData?.estimation ===
-                      TypeEstimation.MINOR_VIOLATION
-                    ? "bg-[#fff7ed] text-[#ea580c]"
-                    : dayShiftData?.estimation === TypeEstimation.ONE_REMARK
-                    ? "bg-[#f0fdf4] text-[#16a34a]"
-                    : "bg-background05 text-text01"
-                }`}
-          >
-            {dayShiftData?.estimation
-              ? t(`finance.${dayShiftData.estimation}`)
-              : ""}
-          </div>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{t("finance.employeeName")}</p>
-          <p className="text-lg font-bold">{dayShiftData?.workerName || "-"}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{t("finance.shiftHours")}</p>
-          <div className="flex space-x-2 text-lg font-bold">
-            {dayShiftData?.startWorkingTime
-              ? dayjs(dayShiftData.startWorkingTime).format("HH:mm")
-              : ""}
-            <div>-</div>
-            <div>
-              {dayShiftData?.endWorkingTime
-                ? dayjs(dayShiftData.endWorkingTime).format("HH:mm")
-                : ""}
-            </div>
-          </div>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">
-            {t("finance.totalHoursWorked")}
-          </p>
-          <div className="text-lg font-bold">
-            {start.isValid() && end.isValid() ? `${workedHours} hrs` : ""}
-          </div>
-        </div>
-      </div>
+    <div className="mt-6">
+      <h1 className="text-xl font-semibold mb-6">
+        {t("finance.employeeShiftView")}
+      </h1>
 
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold mb-4">
-          {t("finance.shiftGrading")}
+      <Card className="mt-4">
+        <h2 className="text-lg font-semibold mb-4">{t("finance.shiftOver")}</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
+          <div>
+            <p className="text-gray-500 text-sm">
+              {t("finance.totalCarsWashed")}
+            </p>
+            <p className="font-bold text-lg">{dayShiftData?.totalCar ?? 0}</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-sm">
+              {t("finance.averageRating")}
+            </p>
+            <p className="font-bold text-lg">4.7 ⭐</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-sm">{t("finance.employeeName")}</p>
+            <p className="font-bold text-lg">
+              {dayShiftData?.workerName || "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-sm">{t("finance.shiftHours")}</p>
+            <p className="font-bold text-lg">
+              {start.format("HH:mm")} - {end.format("HH:mm")}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-sm">
+              {t("finance.totalHoursWorked")}
+            </p>
+            <p className="font-bold text-lg">{workedHours} hrs</p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-2">
+          {t("finance.shiftGradingWithBonus")}
         </h2>
 
-        <div className="mt-6">
-          <h3 className="font-semibold text-base mb-4">
-            {t("finance.grading")}
-          </h3>
-
+        <Form layout="vertical" onFinish={handleSubmit(handleGradingSave)}>
           {dayShiftData?.gradingParameterInfo?.parameters.map((param) => (
             <Form.Item key={param.id} label={param.name}>
               <Controller
                 name={`grading.${param.id}`}
                 control={control}
-                defaultValue={param.estimationId ?? undefined}
                 render={({ field }) => (
                   <Select
+                    {...field}
                     className="w-80 sm:w-96"
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder={t("selectOption")}
+                    placeholder="e.g., 85"
                     allowClear
                   >
-                    {dayShiftData?.gradingParameterInfo?.allEstimations.map(
-                      (estimation) => (
-                        <Select.Option
-                          key={estimation.id}
-                          value={estimation.id}
-                        >
-                          {estimation.name}
+                    {dayShiftData.gradingParameterInfo?.allEstimations.map(
+                      (est) => (
+                        <Select.Option key={est.id} value={est.id}>
+                          {est.name}
                         </Select.Option>
                       )
                     )}
@@ -242,18 +164,19 @@ const ShiftTab: React.FC = () => {
               />
             </Form.Item>
           ))}
-        </div>
 
-        <form onSubmit={handleSubmit(handleGradingSave)}>
-          <div className="flex gap-3 mt-4">
+          <Form.Item label={t("equipment.comment")}>
+            <Input.TextArea rows={3} />
+          </Form.Item>
+
+          <div className="flex gap-2">
             <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
             <Button type="primary" htmlType="submit" loading={loadingUpdate}>
               {t("routes.save")}
             </Button>
             {dayShiftData?.status === "SENT" ? (
               <Button
-                type="default"
-                onClick={handleReturn}
+                onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
                 {t("finance.refund")}
@@ -261,16 +184,16 @@ const ShiftTab: React.FC = () => {
             ) : (
               <Button
                 type="primary"
-                onClick={handleSend}
+                onClick={async () => await sendCash()}
                 loading={loadingSendCash}
               >
                 {t("finance.send")}
               </Button>
             )}
           </div>
-        </form>
+        </Form>
       </div>
-    </>
+    </div>
   );
 };
 

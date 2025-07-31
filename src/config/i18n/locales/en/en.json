@@ -832,7 +832,9 @@
     "previousProgram": "Previous Program",
     "previousWorkingTime": "Previous Working Time",
     "sentSuccessfully": "Sent successfully",
-    "returnedSuccessfully": "Returned successfully"
+    "returnedSuccessfully": "Returned successfully",
+    "employeeShiftView": "Employee Shift View",
+    "shiftGradingWithBonus": "Shift Grading (Bonus Percentage)"
   },
   "analysis": {
     "search": "Search",
