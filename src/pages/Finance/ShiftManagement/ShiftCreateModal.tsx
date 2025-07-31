@@ -11,6 +11,9 @@ import {
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import useSWR from "swr";
+import { getWorkers, WorkerParams } from "@/services/api/hr";
+import { TypeWorkDay } from "@/services/api/finance";
 
 const { Option } = Select;
 
@@ -20,14 +23,16 @@ interface ShiftCreateModalProps {
   onSubmit: (values: ShiftFormData) => void;
   users?: Array<{ id: number; name: string; surname: string }>;
   loading?: boolean;
+  employeeData: WorkerParams;
 }
 
-interface ShiftFormData {
-  date: Dayjs;
+export interface ShiftFormData {
+  startDate: Dayjs;
   startTime: Dayjs;
+  endDate: Dayjs;
   endTime: Dayjs;
   userId: number;
-  workType: "regular" | "overtime" | "night" | "weekend";
+  workType: TypeWorkDay;
 }
 
 const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
@@ -36,6 +41,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
   onSubmit,
   users = [],
   loading = false,
+  employeeData,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -44,15 +50,15 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
 
   const steps = [
     {
-      title: t("shift.dateTime"),
+      title: t("shift-management.shift-create-modal.step-one-title"),
       content: "datetime",
     },
     {
-      title: t("shift.userSelection"),
+      title: t("shift-management.shift-create-modal.step-two-title"),
       content: "user",
     },
     {
-      title: t("shift.workType"),
+      title: t("shift-management.shift-create-modal.step-three-title"),
       content: "worktype",
     },
   ];
@@ -88,61 +94,115 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
     return current && current < dayjs().startOf("day");
   };
 
-  const validateTimeRange = (_: any, value: Dayjs) => {
+  const validateEndDateTime = (_: any) => {
+    const startDate = form.getFieldValue("startDate");
+    const endDate = form.getFieldValue("endDate");
     const startTime = form.getFieldValue("startTime");
-    if (startTime && value && value.isBefore(startTime)) {
-      return Promise.reject(new Error(t("shift.endTimeAfterStart")));
+    const endTime = form.getFieldValue("endTime");
+
+    if (startDate && endDate && startTime && endTime) {
+      const startDateTime = startDate
+        .hour(startTime.hour())
+        .minute(startTime.minute());
+      const endDateTime = endDate.hour(endTime.hour()).minute(endTime.minute());
+
+      if (
+        endDateTime.isBefore(startDateTime) ||
+        endDateTime.isSame(startDateTime)
+      ) {
+        return Promise.reject(new Error(t("shift.endTimeAfterStart")));
+      }
     }
     return Promise.resolve();
   };
+
+  const { data: employees, isLoading: isEmployeeLoading } = useSWR(
+    [`get-worker`],
+    () => getWorkers(employeeData),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
         return (
           <div className="space-y-4">
-            <Form.Item
-              name="date"
-              label={t("shift.date")}
-              rules={[{ required: true, message: t("shift.dateRequired") }]}
-            >
-              <DatePicker
-                className="w-full"
-                disabledDate={disabledDate}
-                format="YYYY-MM-DD"
-                placeholder={t("shift.selectDate")}
-              />
-            </Form.Item>
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <h4 className="font-medium text-blue-800 mb-2">
+                {t("shift.shiftStart")}
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Form.Item
+                  name="startDate"
+                  label={t("shift.startDate")}
+                  rules={[
+                    { required: true, message: t("shift.startDateRequired") },
+                  ]}
+                >
+                  <DatePicker
+                    className="w-full"
+                    disabledDate={disabledDate}
+                    format="YYYY-MM-DD"
+                    placeholder={t("shift.selectStartDate")}
+                  />
+                </Form.Item>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Item
-                name="startTime"
-                label={t("shift.startTime")}
-                rules={[
-                  { required: true, message: t("shift.startTimeRequired") },
-                ]}
-              >
-                <TimePicker
-                  className="w-full"
-                  format="HH:mm"
-                  placeholder={t("shift.selectStartTime")}
-                />
-              </Form.Item>
+                <Form.Item
+                  name="startTime"
+                  label={t("shift.startTime")}
+                  rules={[
+                    { required: true, message: t("shift.startTimeRequired") },
+                  ]}
+                >
+                  <TimePicker
+                    className="w-full"
+                    format="HH:mm"
+                    placeholder={t("shift.selectStartTime")}
+                  />
+                </Form.Item>
+              </div>
+            </div>
 
-              <Form.Item
-                name="endTime"
-                label={t("shift.endTime")}
-                rules={[
-                  { required: true, message: t("shift.endTimeRequired") },
-                  { validator: validateTimeRange },
-                ]}
-              >
-                <TimePicker
-                  className="w-full"
-                  format="HH:mm"
-                  placeholder={t("shift.selectEndTime")}
-                />
-              </Form.Item>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-medium text-green-800 mb-2">
+                {t("shift.shiftEnd")}
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Form.Item
+                  name="endDate"
+                  label={t("shift.endDate")}
+                  rules={[
+                    { required: true, message: t("shift.endDateRequired") },
+                    { validator: validateEndDateTime },
+                  ]}
+                >
+                  <DatePicker
+                    className="w-full"
+                    disabledDate={disabledDate}
+                    format="YYYY-MM-DD"
+                    placeholder={t("shift.selectEndDate")}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="endTime"
+                  label={t("shift.endTime")}
+                  rules={[
+                    { required: true, message: t("shift.endTimeRequired") },
+                    { validator: validateEndDateTime },
+                  ]}
+                >
+                  <TimePicker
+                    className="w-full"
+                    format="HH:mm"
+                    placeholder={t("shift.selectEndTime")}
+                  />
+                </Form.Item>
+              </div>
             </div>
           </div>
         );
@@ -157,17 +217,13 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
             >
               <Select
                 placeholder={t("shift.selectUserPlaceholder")}
+                loading={isEmployeeLoading}
                 className="w-full"
                 showSearch
-                filterOption={(input, option) =>
-                  (option?.children as string)
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
               >
-                {users.map((user) => (
-                  <Option key={user.id} value={user.id}>
-                    {`${user.name} ${user.surname}`}
+                {(employees || []).map((user) => (
+                  <Option key={user.props.id} value={user.props.id}>
+                    {`${user.props.name}`}
                   </Option>
                 ))}
               </Select>
@@ -186,28 +242,34 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
               <Select
                 placeholder={t("shift.selectWorkType")}
                 className="w-full"
-              >
-                <Option value="regular">{t("shift.regular")}</Option>
-                <Option value="overtime">{t("shift.overtime")}</Option>
-                <Option value="night">{t("shift.night")}</Option>
-                <Option value="weekend">{t("shift.weekend")}</Option>
-              </Select>
+                options={Object.values(TypeWorkDay).map((type) => ({
+                  label: <span>{t(`finance.${type}`)}</span>,
+                  value: type,
+                }))}
+              />
             </Form.Item>
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium mb-2">{t("shift.summary")}</h4>
               <div className="space-y-1 text-sm text-gray-600">
                 <p>
-                  {t("shift.date")}: {formData.date?.format("YYYY-MM-DD")}
+                  {t("shift.startDateTime")}:{" "}
+                  {formData.startDate?.format("YYYY-MM-DD")}{" "}
+                  {formData.startTime?.format("HH:mm")}
                 </p>
                 <p>
-                  {t("shift.time")}: {formData.startTime?.format("HH:mm")} -{" "}
+                  {t("shift.endDateTime")}:{" "}
+                  {formData.endDate?.format("YYYY-MM-DD")}{" "}
                   {formData.endTime?.format("HH:mm")}
                 </p>
                 <p>
                   {t("shift.user")}:{" "}
-                  {users.find((u) => u.id === formData.userId)?.name}{" "}
-                  {users.find((u) => u.id === formData.userId)?.surname}
+                  {
+                    (employees || []).find(
+                      (u) => u.props.id === formData.userId
+                    )?.props.name
+                  }{" "}
+                  {(users || []).find((u) => u.id === formData.userId)?.surname}
                 </p>
               </div>
             </div>
@@ -221,7 +283,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
 
   return (
     <Modal
-      title={t("shift.createShift")}
+      title={t("shift-management.shift-create-modal.title")}
       open={isOpen}
       onCancel={handleCancel}
       width={600}
