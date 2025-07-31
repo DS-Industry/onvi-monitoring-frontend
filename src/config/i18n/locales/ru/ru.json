@@ -1124,7 +1124,9 @@
   },
   "actions": {
     "reset": "Сбросить",
-    "save": "Сохранить"
+    "save": "Сохранить",
+    "sendSuccess": "Успешно отправлено",
+    "returnSuccess": "Успешно возвращено"
   },
   "validation": {
     "typeRequired": "Тип обязателен",

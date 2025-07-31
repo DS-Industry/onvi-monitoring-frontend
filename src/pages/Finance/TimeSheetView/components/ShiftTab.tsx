@@ -52,7 +52,7 @@ const ShiftTab: React.FC = () => {
 
   const userPermissions = usePermissions();
 
-  const { data: dayShiftData } = useSWR(
+  const { data: dayShiftData, mutate: refreshDayShiftData } = useSWR(
     shiftId ? ["get-shift-data", shiftId] : null,
     () => (shiftId ? getDayShiftById(shiftId) : null),
     {
@@ -66,9 +66,14 @@ const ShiftTab: React.FC = () => {
     ["send-cash-oper"],
     () =>
       shiftId
-        ? sendDayShift(shiftId).catch(() => {
-            message.error(t("errors.sendFailed"));
-          })
+        ? sendDayShift(shiftId)
+            .catch(() => {
+              message.error(t("errors.sendFailed"));
+            })
+            .finally(() => {
+              message.success(t("actions.sendSuccess"));
+              refreshDayShiftData();
+            })
         : null
   );
 
@@ -76,9 +81,14 @@ const ShiftTab: React.FC = () => {
     ["return-cash-oper"],
     () =>
       shiftId
-        ? returnDayShift(shiftId).catch(() => {
-            message.error(t("errors.sendFailed"));
-          })
+        ? returnDayShift(shiftId)
+            .catch(() => {
+              message.error(t("errors.sendFailed"));
+            })
+            .finally(() => {
+              message.success(t("actions.returnSuccess"));
+              refreshDayShiftData();
+            })
         : null
   );
 
@@ -278,14 +288,18 @@ const ShiftTab: React.FC = () => {
           <hr />
 
           <div className="flex gap-2 pt-6">
-            <Button
-              className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
-              type="primary"
-              htmlType="submit"
-              loading={loadingUpdate}
-            >
-              {t("routes.save")}
-            </Button>
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT ? (
+              <Button
+                className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
+                type="primary"
+                htmlType="submit"
+                loading={loadingUpdate}
+              >
+                {t("routes.save")}
+              </Button>
+            ) : (
+              <></>
+            )}
 
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
             hasPermissionToReturn ? (

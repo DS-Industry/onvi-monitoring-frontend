@@ -1074,7 +1074,9 @@
   },
   "actions": {
     "reset": "Reset",
-    "save": "Save"
+    "save": "Save",
+    "sendSuccess": "Send successfully",
+    "returnSuccess": "Return successfully"
   },
   "validation": {
     "typeRequired": "Type is required",
