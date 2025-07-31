@@ -223,19 +223,33 @@ type ShiftWorkerResponse = {
         }[];
     }[];
 }
-
-type ShiftParamsResponse = {
-    shiftReportsData: {
+export type ShiftItem = {
+    props: {
         id: number;
-        period: string;
         posId: number;
-        createdAt: Date;
-        updatedAt: Date;
+        workerId: number;
+        workDate: string;
+        typeWorkDay: string;
+        timeWorkedOut: string;
+        startWorkingTime: string;
+        endWorkingTime: string;
+        estimation: string;
+        status: string;
+        cashAtStart: number;
+        cashAtEnd: number | null;
+        prize: number;
+        fine: number;
+        createdAt: string;
+        updatedAt: string;
         createdById: number;
         updatedById: number;
-    }[];
-    totalCount: number;
+    };
+};
+
+export type ShiftParamsResponse = {
+    shiftReportsData: ShiftItem[];
 }
+
 
 type CreateDayShiftBody = {
     shiftReportId: number;

@@ -809,6 +809,56 @@
     "addN": "Добавить новый тип бумаги",
     "scheduleCalendar": "Календарь расписания"
   },
+  "shift-management": {
+    "shift-create-modal": {
+      "title": "Создать смену",
+      "step-one-title": "Период",
+      "step-two-title": "Сотрудник",
+      "step-three-title": "Смена",
+      "date-picker-placeholder": "Выберите дату"
+    }
+  },
+  "shift": {
+    "createShift": "Создать смену",
+    "dateTime": "Дата и время",
+    "userSelection": "Выбор сотрудника",
+    "workType": "Тип работы",
+    "shiftStart": "Начало смены",
+    "shiftEnd": "Конец смены",
+    "startDate": "Дата начала",
+    "startTime": "Время начала",
+    "endDate": "Дата окончания",
+    "endTime": "Время окончания",
+    "selectStartDate": "Выберите дату начала",
+    "selectEndDate": "Выберите дату окончания",
+    "selectStartTime": "Выберите время начала",
+    "selectEndTime": "Выберите время окончания",
+    "startDateRequired": "Дата начала обязательна",
+    "endDateRequired": "Дата окончания обязательна",
+    "startTimeRequired": "Время начала обязательно",
+    "endTimeRequired": "Время окончания обязательно",
+    "endTimeAfterStart": "Время окончания должно быть после времени начала",
+    "selectUser": "Выберите сотрудника",
+    "selectUserPlaceholder": "Выберите сотрудника из списка",
+    "userRequired": "Выбор сотрудника обязателен",
+    "workTypeRequired": "Выбор типа работы обязателен",
+    "selectWorkType": "Выберите тип работы",
+    "regular": "Обычная смена",
+    "overtime": "Сверхурочная работа",
+    "night": "Ночная смена",
+    "weekend": "Выходной день",
+    "summary": "Сводка",
+    "startDateTime": "Начало смены",
+    "endDateTime": "Конец смены",
+    "user": "Сотрудник"
+  },
+  "common": {
+    "previous": "Назад",
+    "next": "Далее",
+    "cancel": "Отменить",
+    "create": "Создать",
+    "save": "Сохранить"
+  },
   "analysis": {
     "search": "Поиск",
     "all": "Все",
