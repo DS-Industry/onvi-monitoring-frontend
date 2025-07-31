@@ -850,7 +850,9 @@
       "Грубое нарушение": "Gross Violation",
       "Незначительные": "Minor Violations",
       "Разовое замечание": "Single Remark"
-    }
+    },
+    "operationCreated": "Operation Created",
+    "returnCreated": "Return Created"
   },
   "analysis": {
     "search": "Search",

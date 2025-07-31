@@ -54,9 +54,10 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
         mutate([`get-cash-oper-return-data-${shiftId}`]);
         form.resetFields();
         onSuccess();
+        message.success(t("finance.returnCreated"));
       }
     } catch (err: any) {
-      message.error(err?.message || t("errors.submitFailed"));
+      message.error(t("errors.submitFailed"));
     }
   };
 

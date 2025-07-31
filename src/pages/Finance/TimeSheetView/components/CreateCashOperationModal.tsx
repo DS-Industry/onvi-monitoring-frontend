@@ -61,6 +61,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
       await createCash(payload);
       await mutate([`get-cash-oper-data-${shiftId}`]);
       form.resetFields();
+      message.success(t("finance.operationCreated"));
       onClose();
     } catch (error) {
       message.error(t("errors.submitFailed"));
