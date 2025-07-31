@@ -32,7 +32,7 @@
     "expand": "Expand filter",
     "daily": "Daily options",
     "chemical": "Chemical Consumption",
-    "routine": "Tasks",
+    "technicalTasks": "Technical Tasks",
     "consumption": "Consumption Rate",
     "replacing": "Replacing Programs",
     "dailyOptions": "Daily options technical services",
@@ -100,7 +100,8 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
-    "appo": "Directory of appointments"
+    "appointment": "Directory of appointments",
+    "createTask": "Create a task"
   },
   "dashboard": {
     "news": "News",
@@ -354,7 +355,11 @@
     "routine": "Routine",
     "regulation": "Regulation",
     "reports": "This section displays routine maintenance reports",
-    "done": "Done"
+    "done": "Done",
+    "dueDate": "Due Date",
+    "responsiblePerson": "Responsible Person",
+    "taskName": "Имя задачи",
+    "attachImage": "Attach Image"
   },
   "warehouse": {
     "nomenclature": "You don't have nomenclature in the program",
@@ -728,7 +733,8 @@
     "REGULAR": "REGULAR",
     "In Progress": "In Progress",
     "Done": "Done",
-    "displayedColumns": "Displayed Columns"
+    "displayedColumns": "Displayed Columns",
+    "RETURNED": "RETURNED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1016,5 +1022,9 @@
     "addWorker": "Add Worker",
     "sch": "Schedule Shift",
     "select": "Select Worker"
+  },
+  "constants": {
+    "all": "All",
+    "status": "Status"
   }
 }

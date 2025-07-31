@@ -1,56 +1,93 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+    getPoses,
+    getTechTaskExecution,
+    StatusTechTask,
+    TechTaskReadAll,
+} from "@/services/api/equipment";
 import useSWR from "swr";
-import { getPoses, getTechTaskReport, TechTaskReadAll, TypeTechTask } from "@/services/api/equipment";
 import { Select, Table } from "antd";
 import { Link, useSearchParams } from "react-router-dom";
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import {
+    ALL_PAGE_SIZES,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
+import {
+    getDateRender,
+    getStatusTagRender,
+    getTagRender,
+} from "@/utils/tableUnits";
 import { ColumnsType } from "antd/es/table";
-import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 
-const ProgressReport: React.FC = () => {
+const TechTasks: React.FC = () => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
+    const posId = Number(searchParams.get("posId")) || undefined;
+    const status = searchParams.get("status") as StatusTechTask || undefined;
     const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
     const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-    const posId = Number(searchParams.get("posId")) || undefined;
-    const type = searchParams.get("type") as TypeTechTask || undefined;
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const swrKey = useMemo(
-        () =>
-            `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${type}`,
-        [currentPage, pageSize, posId, type]
+        () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}`,
+        [currentPage, pageSize, posId, status]
     );
 
-    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskReport({
-        posId: posId,
-        type: type,
-        page: currentPage,
-        size: pageSize
-    }).finally(() => {
-        setIsInitialLoading(false);
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+    const { data, isLoading: techTasksLoading } = useSWR(
+        swrKey,
+        () =>
+            getTechTaskExecution({
+                posId: posId,
+                status: status,
+                page: currentPage,
+                size: pageSize,
+            }).finally(() => {
+                setIsInitialLoading(false);
+            }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
+        }
+    );
 
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: "*" }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: poses } = useSWR(
+        [`get-pos`],
+        () => getPoses({ placementId: "*" }),
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            keepPreviousData: true,
+        }
+    );
 
-    const techTasks = data
-        ?.techTaskReadAll?.map((item) => ({
-            ...item,
-            posName: poses?.find((pos) => pos.id === item.posId)?.name || "-",
-            type: t(`tables.${item.type}`),
-            status: t(`tables.${item.status}`)
-        })) || [];
+    const techTasks = useMemo(
+        () =>
+            data?.techTaskReadAll?.map((item) => ({
+                ...item,
+                type: t(`tables.${item.type}`),
+                posName: poses?.find((pos) => pos.id === item.posId)?.name,
+                status: t(`tables.${item.status}`),
+            })) || [],
+        [data, poses, t]
+    );
 
-    const statusRender = getStatusTagRender(t);
+    const renderStatus = getStatusTagRender(t);
     const dateRender = getDateRender();
 
-    const columnsTechTasksRead: ColumnsType<TechTaskReadAll> = [
+    const statuses = [
+        { name: t("tables.ACTIVE"), value: StatusTechTask.ACTIVE },
+        { name: t("tables.OVERDUE"), value: StatusTechTask.OVERDUE },
+    ];
+
+    const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
         {
             title: "№",
             dataIndex: "id",
@@ -64,8 +101,8 @@ const ProgressReport: React.FC = () => {
                 return (
                     <Link
                         to={{
-                            pathname: "/equipment/technical/tasks/progress/item",
-                            search: `?progressReportId=${record.id}&status=${record.status}&type=${record.type}&name=${record.name}&endDate=${record.endSpecifiedDate}`,
+                            pathname: "/equipment/technical/tasks/list/item",
+                            search: `?techTaskId=${record.id}&status=${record.status}&name=${record.name}`,
                         }}
                         className="text-blue-500 hover:text-blue-700 font-semibold"
                     >
@@ -77,72 +114,55 @@ const ProgressReport: React.FC = () => {
         {
             title: "Наименование работ",
             dataIndex: "name",
-            key: "name"
-        },
-        {
-            title: "Периодичность",
-            dataIndex: "type",
-            key: "type"
+            key: "name",
         },
         {
             title: "Статус",
             dataIndex: "status",
             key: "status",
-            render: statusRender
+            render: renderStatus,
         },
         {
-            title: "Дата начала",
-            dataIndex: "startWorkDate",
-            key: "startWorkDate",
-            render: dateRender
+            title: "Тип работы",
+            dataIndex: "type",
+            key: "type",
         },
         {
-            title: "Дата окончания",
-            dataIndex: "sendWorkDate",
-            key: "sendWorkDate",
-            render: dateRender
+            title: "Теги",
+            dataIndex: "tags",
+            key: "tags",
+            render: (value) => getTagRender(value),
         },
         {
-            title: "Исполнитель",
-            dataIndex: "executorId",
-            key: "executorId"
-        }
-    ];
-
-    const techTasksTypes = [
-        { name: t("tables.REGULAR"), value: TypeTechTask.REGULAR },
-        { name: t("tables.ONETIME"), value: TypeTechTask.ONETIME }
+            title: "Дата начала работ",
+            dataIndex: "startDate",
+            key: "startDate",
+            render: dateRender,
+        },
     ];
 
     const resetFilters = () => {
         updateSearchParams(searchParams, setSearchParams, {
-            type: undefined,
+            status: undefined,
             posId: undefined
         });
     }
 
     const { checkedList, setCheckedList, options, visibleColumns } =
-        useColumnSelector(columnsTechTasksRead, "progress-report-table-columns");
+        useColumnSelector(columnsTechTasks, "tech-tasks-columns");
 
     return (
         <>
-            <GeneralFilters
-                count={data?.totalCount || 0}
-                hideDateAndTime={true}
-                hideCity={true}
-                hideSearch={true}
-                poses={poses?.map((item) => ({ name: item.name, value: item.id }))}
-                onReset={resetFilters}
-            >
+            <GeneralFilters count={data?.totalCount || 0} hideCity={true} hideSearch={true} hideDateAndTime={true} onReset={resetFilters} poses={poses?.map((item) => ({ name: item.name, value: item.id }))}>
                 <div>
                     <div className="text-sm text-text02">{t("constants.status")}</div>
                     <Select
                         className="w-full sm:w-80 h-10"
-                        options={techTasksTypes}
-                        value={searchParams.get("type") || null}
+                        options={statuses}
+                        value={searchParams.get("status") || null}
                         onChange={(value) => {
                             updateSearchParams(searchParams, setSearchParams, {
-                                type: value
+                                status: value
                             });
                         }}
                     />
@@ -154,7 +174,7 @@ const ProgressReport: React.FC = () => {
                     options={options}
                     onChange={setCheckedList}
                 />
-                <Table<TechTaskReadAll>
+                <Table
                     dataSource={techTasks.sort((a, b) => a.id - b.id)}
                     columns={visibleColumns}
                     loading={techTasksLoading || isInitialLoading}
@@ -175,7 +195,7 @@ const ProgressReport: React.FC = () => {
                 />
             </div>
         </>
-    )
-}
+    );
+};
 
-export default ProgressReport;
+export default TechTasks;
