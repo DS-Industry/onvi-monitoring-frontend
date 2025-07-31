@@ -67,15 +67,11 @@ const TimesheetView: React.FC = () => {
             <ShiftTab />
           </div>
         )}
-        {visitedTabs.current.has("exchange") && (
-          <div style={{ display: activeTab === "exchange" ? "block" : "none" }}>
-            <ExchangeTab status={dayShiftData?.status} />
-          </div>
+        {visitedTabs.current.has("exchange") && activeTab === "exchange" && (
+          <ExchangeTab status={dayShiftData?.status} />
         )}
-        {visitedTabs.current.has("returns") && (
-          <div style={{ display: activeTab === "returns" ? "block" : "none" }}>
-            <ReturnsTab status={dayShiftData?.status} />
-          </div>
+        {visitedTabs.current.has("returns") && activeTab === "returns" && (
+          <ReturnsTab status={dayShiftData?.status} />
         )}
         {visitedTabs.current.has("cleaning") && (
           <div style={{ display: activeTab === "cleaning" ? "block" : "none" }}>
