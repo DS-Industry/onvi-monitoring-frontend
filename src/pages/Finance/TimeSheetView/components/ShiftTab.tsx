@@ -281,7 +281,15 @@ const ShiftTab: React.FC = () => {
             <Controller
               name="comment"
               control={control}
-              render={({ field }) => <Input.TextArea {...field} rows={3} />}
+              render={({ field }) => (
+                <Input.TextArea
+                  {...field}
+                  rows={3}
+                  placeholder={
+                    t("finance.leaveCommentsForManagerPlaceholder") || ""
+                  }
+                />
+              )}
             />
           </Form.Item>
 

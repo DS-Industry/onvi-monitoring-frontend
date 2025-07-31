@@ -890,7 +890,8 @@
     "returnCreated": "Возврат успешно создан",
     "selectGrade": "Выберите оценку",
     "managerComment": "Комментарий управляющего",
-    "shiftGrade": "Оценка смены"
+    "shiftGrade": "Оценка смены",
+    "leaveCommentsForManagerPlaceholder": "Оставьте комментарий для следующего управляющего"
   },
   "shift-management": {
     "shift-create-modal": {

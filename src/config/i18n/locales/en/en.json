@@ -890,7 +890,8 @@
     "returnCreated": "Return Created",
     "selectGrade": "Select Grade",
     "managerComment": "Manager Comment",
-    "shiftGrade": "Shift Grade"
+    "shiftGrade": "Shift Grade",
+    "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager..."
   },
   "analysis": {
     "search": "Search",
