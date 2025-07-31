@@ -41,31 +41,23 @@ const TechTaskItem: React.FC = () => {
     const [taskValues, setTaskValues] = useState<Record<number, string | number | boolean | null>>({});
 
     useEffect(() => {
-        const processFiles = async () => {
-            if (techTaskItems.length > 0) {
-                const initialValues = techTaskItems.reduce((acc, item) => {
-                    acc[item.id] = item.value ?? "";
-                    return acc;
-                }, {} as Record<number, string | number | boolean | null>);
-                setTaskValues(initialValues);
+        if (techTaskItems.length > 0) {
+            const initialValues = techTaskItems.reduce((acc, item) => {
+                acc[item.id] = item.value ?? "";
+                return acc;
+            }, {} as Record<number, string | null>);
+            setTaskValues(initialValues);
 
-                const fileEntries = await Promise.all(
-                    techTaskItems.map(async (item) => {
-                        if (item.image) {
-                            const file = "https://storage.yandexcloud.net/onvi-business/image/pos/" + techTaskData?.posId + "/techTask/" + techTaskData?.id + `/${item.id}/${item.image}`;
-                            return [item.id, file];
-                        } else {
-                            return [item.id, null];
-                        }
-                    })
-                );
+            const fileEntries = techTaskItems.map((item) => {
+                const file = item.image
+                    ? `${import.meta.env.VITE_S3_CLOUD}pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
+                    : null;
+                return [item.id, file];
+            });
 
-                const initialFiles = Object.fromEntries(fileEntries);
-                setUploadedFiles(initialFiles);
-            }
-        };
-
-        processFiles();
+            const initialFiles = Object.fromEntries(fileEntries);
+            setUploadedFiles(initialFiles);
+        }
     }, [techTaskItems, techTaskData]);
 
     const handleChange = (id: number, value: string | number | boolean | null) => {
