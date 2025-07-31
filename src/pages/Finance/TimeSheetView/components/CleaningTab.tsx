@@ -108,6 +108,7 @@ const CleaningTab: React.FC = () => {
         pagination={false}
         size="small"
         loading={loadingCashOperClean}
+        scroll={{ x: "500px" }}
         locale={{ emptyText: t("table.noData") }}
       />
     </div>
