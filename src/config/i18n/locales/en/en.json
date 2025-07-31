@@ -100,6 +100,8 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
+    "appo": "Directory of appointments",
+    "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task"
   },
@@ -677,6 +679,10 @@
     "8002": "An error occurred while recalculate the cash collection. Please try again.",
     "8003": "An error occurred while return the cash collection. Please try again.",
     "8004": "An error occurred while retrieving the cash collection. Please try again.",
+    "somethingWentWrong": "Something went wrong",
+    "submitFailed": "Submit failed",
+    "sendFailed": "Send failed",
+    "updateFailed": "Update failed",
     "other": {
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
@@ -749,6 +755,7 @@
     "create": "Create collection",
     "no": "Document No.",
     "cars": "Total cars",
+    "totalCarsWashed": "Total cars washed",
     "cash": "Cashless payment",
     "amt": "Amount on cards",
     "nos": "Number of cars on cards",
@@ -842,7 +849,50 @@
     "op": "Open",
     "confirm": "Confirm",
     "addN": "Add New Paper Type",
-    "scheduleCalendar": "Schedule Calendar"
+    "scheduleCalendar": "Schedule Calendar",
+    "deviceName": "Device Name",
+    "program": "Program",
+    "programCount": "Program Count",
+    "totalTime": "Total Time",
+    "startShift": "Start of Shift",
+    "replenishment": "Replenishment",
+    "expense": "Expense",
+    "endShift": "End of Shift",
+    "dateTime": "Date & Time",
+    "averageRating": "Average Rating",
+    "employeeName": "Employee Name",
+    "shiftHours": "Shift Hours",
+    "totalHoursWorked": "Total Hours Worked",
+    "shiftGrading": "Shift Grading",
+    "startTime": "Start Time",
+    "workingTime": "Working Time",
+    "previousStartTime": "Previous Start Time",
+    "previousProgram": "Previous Program",
+    "previousWorkingTime": "Previous Working Time",
+    "sentSuccessfully": "Sent successfully",
+    "returnedSuccessfully": "Returned successfully",
+    "employeeShiftView": "Employee Shift View",
+    "shiftGradingWithBonus": "Shift Grading (Bonus Percentage)",
+    "gradingParameters": {
+      "Зона протирки": "Cleaning Area",
+      "Помещения (Туалет, операторская)": "Facilities (Toilet, Operator Room)",
+      "Обслуживание клиентов": "Customer Service",
+      "Прочее нарушения дисциплины": "Other Discipline Violations",
+      "Зона Боксы": "Box Area",
+      "Зона Въезд": "Entry Area"
+    },
+    "gradingEstimations": {
+      "Без замечаний": "No Violations",
+      "Грубое нарушение": "Gross Violation",
+      "Незначительные": "Minor Violations",
+      "Разовое замечание": "Single Remark"
+    },
+    "operationCreated": "Operation Created",
+    "returnCreated": "Return Created",
+    "selectGrade": "Select Grade",
+    "managerComment": "Manager Comment",
+    "shiftGrade": "Shift Grade",
+    "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager..."
   },
   "analysis": {
     "search": "Search",
@@ -1023,6 +1073,25 @@
     "addWorker": "Add Worker",
     "sch": "Schedule Shift",
     "select": "Select Worker"
+  },
+  "actions": {
+    "reset": "Reset",
+    "save": "Save",
+    "sendSuccess": "Send successfully",
+    "returnSuccess": "Return successfully"
+  },
+  "validation": {
+    "typeRequired": "Type is required",
+    "sumRequired": "Sum is required",
+    "deviceRequired": "Device is required",
+    "dateRequired": "Date is required",
+    "commentRequired": "Comment is required"
+  },
+  "table": {
+    "noData": "No Data"
+  },
+  "general": {
+    "hours": "hours"
   },
   "constants": {
     "all": "All",

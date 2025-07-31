@@ -37,10 +37,10 @@ const ChemicalConsumption = React.lazy(
   () => import("@/pages/Equipment/ChemicalConsumption")
 );
 const TechTasks = React.lazy(() => import("@/pages/Equipment/TechTasks"));
-const TechTaskCreate = React.lazy(() => import("@/pages/Equipment/TechTaskCreate/index"));
-const TechTaskItem = React.lazy(
-  () => import("@/pages/Equipment/TechTaskItem")
+const TechTaskCreate = React.lazy(
+  () => import("@/pages/Equipment/TechTaskCreate/index")
 );
+const TechTaskItem = React.lazy(() => import("@/pages/Equipment/TechTaskItem"));
 const ProgressReport = React.lazy(
   () => import("@/pages/Equipment/ProgressReport")
 );
@@ -85,11 +85,9 @@ const Collection = React.lazy(() => import("@/pages/Finance/Collection"));
 const CollectionCreation = React.lazy(
   () => import("@/pages/Finance/CollectionCreation")
 );
-const TimesheetCreation = React.lazy(
-  () => import("@/pages/Finance/TimeSheetCreation")
-);
+
 const Timesheet = React.lazy(() => import("@/pages/Finance/Timesheet"));
-const TimesheetView = React.lazy(() => import("@/pages/Finance/TimesheetView"));
+const TimesheetView = React.lazy(() => import("@/pages/Finance/TimeSheetView"));
 const Timestamps = React.lazy(() => import("@/pages/Finance/Timestamps"));
 const IncomeReport = React.lazy(() => import("@/pages/Analysis/IncomeReport"));
 const Transactions = React.lazy(() => import("@/pages/Analysis/Transactions"));
@@ -752,25 +750,6 @@ const routes = [
         subMenu: false,
       },
       {
-        name: "employee",
-        filter: false,
-        addButton: false,
-        addButtonText: "add",
-        isVisible: true,
-        path: "/finance/timesheet/creation",
-        component: TimesheetCreation,
-        permissions: [
-          { action: "manage", subject: "ShiftReport" },
-          { action: "read", subject: "ShiftReport" },
-          { action: "create", subject: "ShiftReport" },
-        ],
-        isSidebar: false,
-        isHr: false,
-        titleName: "",
-        subNav: [],
-        subMenu: false,
-      },
-      {
         name: "abcd",
         filter: false,
         addButton: false,
@@ -1235,7 +1214,7 @@ const routes = [
               { action: "delete", subject: "TechTask" },
             ],
             isSidebar: true,
-          }
+          },
         ],
         subMenu: true,
       },
