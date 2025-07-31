@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useRef } from "react";
 
 import { useSearchParams } from "react-router-dom";
 
@@ -19,11 +19,16 @@ import { Spin, message } from "antd";
 const TimesheetView: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("shiftGrade");
+  const visitedTabs = useRef(new Set(["shiftGrade"]));
 
   const [searchParams] = useSearchParams();
 
   const shiftId = searchParams.get("id")
     ? Number(searchParams.get("id"))
+    : undefined;
+
+  const posId = searchParams.get("posId")
+    ? Number(searchParams.get("posId"))
     : undefined;
 
   const tabs = [
@@ -47,22 +52,48 @@ const TimesheetView: React.FC = () => {
     }
   );
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "shiftGrade":
-        return <ShiftTab />;
-      case "exchange":
-        return <ExchangeTab status={dayShiftData?.status} />;
-      case "returns":
-        return <ReturnsTab status={dayShiftData?.status} />;
-      case "cleaning":
-        return <CleaningTab />;
-      case "susp":
-        return <SuspiciousTab />;
-      default:
-        return <ShiftTab />;
-    }
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+    visitedTabs.current.add(tabId);
   };
+
+  const renderTabContent = () => {
+    return (
+      <div>
+        {visitedTabs.current.has("shiftGrade") && (
+          <div
+            style={{ display: activeTab === "shiftGrade" ? "block" : "none" }}
+          >
+            <ShiftTab />
+          </div>
+        )}
+        {visitedTabs.current.has("exchange") && (
+          <div style={{ display: activeTab === "exchange" ? "block" : "none" }}>
+            <ExchangeTab status={dayShiftData?.status} />
+          </div>
+        )}
+        {visitedTabs.current.has("returns") && (
+          <div style={{ display: activeTab === "returns" ? "block" : "none" }}>
+            <ReturnsTab status={dayShiftData?.status} />
+          </div>
+        )}
+        {visitedTabs.current.has("cleaning") && (
+          <div style={{ display: activeTab === "cleaning" ? "block" : "none" }}>
+            <CleaningTab />
+          </div>
+        )}
+        {visitedTabs.current.has("susp") && (
+          <div style={{ display: activeTab === "susp" ? "block" : "none" }}>
+            <SuspiciousTab />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (!posId || !shiftId) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -87,7 +118,7 @@ const TimesheetView: React.FC = () => {
                 ? "text-primary02 border-b-2 border-primary02"
                 : "text-text02"
             }`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
           >
             {tab.name}
           </button>
@@ -101,7 +132,7 @@ const TimesheetView: React.FC = () => {
           </div>
         }
       >
-        <div className="md:w-[65%] py-3">{renderTabContent()}</div>
+        <div className="xl:w-[65%] py-3">{renderTabContent()}</div>
       </Suspense>
     </div>
   );

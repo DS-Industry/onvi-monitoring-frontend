@@ -26,6 +26,9 @@ import {
   updateDayShift,
 } from "@/services/api/finance";
 
+import { usePermissions } from "@/hooks/useAuthStore";
+import hasPermission from "@/permissions/hasPermission";
+
 // Assign numeric score to each estimation
 const GRADES_ESTIMATION_SCORES: Record<number, number> = {
   1: 5, // Без замечаний
@@ -46,6 +49,8 @@ const ShiftTab: React.FC = () => {
   const shiftId = searchParams.get("id")
     ? Number(searchParams.get("id"))
     : undefined;
+
+  const userPermissions = usePermissions();
 
   const { data: dayShiftData } = useSWR(
     shiftId ? ["get-shift-data", shiftId] : null,
@@ -266,8 +271,11 @@ const ShiftTab: React.FC = () => {
               {t("routes.save")}
             </Button>
 
-            {/* ADD PERMISSION CHECKS */}
-            {dayShiftData?.status === StatusWorkDayShiftReport.SENT ? (
+            {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
+            hasPermission(
+              [{ subject: "ShiftReport", action: "update" }],
+              userPermissions
+            ) ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 onClick={async () => await returnCash()}
@@ -275,7 +283,10 @@ const ShiftTab: React.FC = () => {
               >
                 {t("finance.refund")}
               </Button>
-            ) : (
+            ) : hasPermission(
+                [{ subject: "ShiftReport", action: "create" }],
+                userPermissions
+              ) ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
@@ -284,6 +295,8 @@ const ShiftTab: React.FC = () => {
               >
                 {t("finance.send")}
               </Button>
+            ) : (
+              <></>
             )}
           </div>
         </Form>
