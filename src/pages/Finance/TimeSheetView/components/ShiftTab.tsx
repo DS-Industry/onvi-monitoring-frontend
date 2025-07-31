@@ -17,6 +17,7 @@ import { Select, Button, Form, Input, Card, message } from "antd";
 
 // services
 import {
+  StatusWorkDayShiftReport,
   UpdateDayShiftBody,
   getDayShiftById,
   returnDayShift,
@@ -121,56 +122,59 @@ const ShiftTab: React.FC = () => {
 
   return (
     <div className="mt-6">
-      <h1 className="text-xl font-semibold mb-6">
+      <h1 className="text-[20px] font-bold mb-6">
         {t("finance.employeeShiftView")}
       </h1>
 
       <Card className="mt-4">
-        <h2 className="text-lg font-semibold mb-4">{t("finance.shiftOver")}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
           <div>
-            <p className="text-gray-500 text-sm">
-              {t("finance.totalCarsWashed")}
+            <p className="text-bold">{t("finance.totalCarsWashed")}</p>
+            <p className="font-bold text-[24px]">
+              {dayShiftData?.totalCar ?? 0}
             </p>
-            <p className="font-bold text-lg">{dayShiftData?.totalCar ?? 0}</p>
           </div>
           <div>
-            <p className="text-gray-500 text-sm">
-              {t("finance.averageRating")}
-            </p>
-            <p className="font-bold text-lg">4.7 ⭐</p>
+            <p className="text-bold]">{t("finance.averageRating")}</p>
+            <p className="font-bold text-[24px]">4.7 ⭐</p>
           </div>
           <div>
-            <p className="text-gray-500 text-sm">{t("finance.employeeName")}</p>
-            <p className="font-bold text-lg">
+            <p className="text-bold=">{t("finance.employeeName")}</p>
+            <p className="font-bold text-[24px]">
               {dayShiftData?.workerName || "-"}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 text-sm">{t("finance.shiftHours")}</p>
-            <p className="font-bold text-lg">
+            <p className="text-bold">{t("finance.shiftHours")}</p>
+            <p className="font-bold text-[24px]">
               {start.format("HH:mm")} - {end.format("HH:mm")}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 text-sm">
-              {t("finance.totalHoursWorked")}
-            </p>
-            <p className="font-bold text-lg">{workedHours} hrs</p>
+            <p className="text-bold">{t("finance.totalHoursWorked")}</p>
+            <p className="font-bold text-[24px]">{workedHours} hrs</p>
           </div>
         </div>
       </Card>
 
       <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-2">
+        <h2 className="text-[20px] font-bold mb-2">
           {t("finance.shiftGradingWithBonus")}
         </h2>
 
-        <Form layout="vertical" onFinish={handleSubmit(handleGradingSave)}>
+        <Form
+          layout="vertical"
+          onFinish={handleSubmit(handleGradingSave)}
+          className="mt-5"
+        >
           {dayShiftData?.gradingParameterInfo?.parameters.map((param) => (
             <Form.Item
               key={param.id}
-              label={t(`finance.gradingParameters.${param.name}`, param.name)}
+              label={
+                <span className="text-[14px] font-semibold">
+                  {t(`finance.gradingParameters.${param.name}`, param.name)}
+                </span>
+              }
             >
               <Controller
                 name={`grading.${param.id}`}
@@ -178,7 +182,7 @@ const ShiftTab: React.FC = () => {
                 render={({ field }) => (
                   <Select
                     {...field}
-                    className="w-80 sm:w-96"
+                    className="w-80 sm:w-96 h-[43px]"
                     placeholder="e.g., 85"
                     allowClear
                   >
@@ -207,11 +211,10 @@ const ShiftTab: React.FC = () => {
           </Form.Item>
 
           <div className="flex gap-2">
-            <Button onClick={() => reset()}>{t("warehouse.reset")}</Button>
             <Button type="primary" htmlType="submit" loading={loadingUpdate}>
               {t("routes.save")}
             </Button>
-            {dayShiftData?.status === "SENT" ? (
+            {dayShiftData?.status === StatusWorkDayShiftReport.SENT ? (
               <Button
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
