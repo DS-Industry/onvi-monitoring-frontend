@@ -890,7 +890,8 @@
     "returnCreated": "Return Created",
     "selectGrade": "Select Grade",
     "managerComment": "Manager Comment",
-    "shiftGrade": "Shift Grade"
+    "shiftGrade": "Shift Grade",
+    "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager..."
   },
   "analysis": {
     "search": "Search",
@@ -1074,7 +1075,9 @@
   },
   "actions": {
     "reset": "Reset",
-    "save": "Save"
+    "save": "Save",
+    "sendSuccess": "Send successfully",
+    "returnSuccess": "Return successfully"
   },
   "validation": {
     "typeRequired": "Type is required",
