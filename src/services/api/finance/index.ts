@@ -293,7 +293,7 @@ type CreateCashOperResponse = {
   };
 };
 
-type GetDataOperResponse = {
+export type GetDataOperResponse = {
   cashAtStart: number;
   replenishmentSum: number;
   expenditureSum: number;

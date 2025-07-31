@@ -17,7 +17,7 @@ import { Table } from "antd";
 import CreateReturnModal from "./CreateReturnModal";
 
 // types
-import type { ColumnType } from "antd/es/table";
+import type { ColumnsType } from "antd/es/table";
 
 interface ReturnsTabProps {
   status?: StatusWorkDayShiftReport;
@@ -72,7 +72,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   const dateRender = getDateRender();
 
   // Antd Table columns configuration
-  const columns: ColumnType<any>[] = [
+  const columns: ColumnsType<any> = [
     {
       title: t("equipment.device"),
       dataIndex: "deviceName",

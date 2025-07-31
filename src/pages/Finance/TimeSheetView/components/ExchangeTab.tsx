@@ -19,6 +19,7 @@ import { getCurrencyRender } from "@/utils/tableUnits";
 
 // types
 import type { ColumnsType } from "antd/es/table";
+import { GetDataOperResponse } from "@/services/api/finance";
 
 interface ExchangeTabProps {
   status?: StatusWorkDayShiftReport;
@@ -55,7 +56,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   const currencyRender = getCurrencyRender();
 
-  const tableColumns: ColumnsType<any> = [
+  const tableColumns: ColumnsType<GetDataOperResponse> = [
     {
       title: t("finance.startShift"),
       dataIndex: "cashAtStart",
