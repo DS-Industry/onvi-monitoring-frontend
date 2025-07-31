@@ -157,6 +157,22 @@ const ShiftTab: React.FC = () => {
     ? (totalScore || 0) / gradedParams.length
     : null;
 
+  const hasPermissionToSend = hasPermission(
+    [
+      { subject: "ShiftReport", action: "create" },
+      { subject: "ShiftReport", action: "manage" },
+    ],
+    userPermissions
+  );
+
+  const hasPermissionToReturn = hasPermission(
+    [
+      { subject: "ShiftReport", action: "update" },
+      { subject: "ShiftReport", action: "manage" },
+    ],
+    userPermissions
+  );
+
   return (
     <div className="mt-3">
       <h1 className="text-[20px] font-bold mb-5">
@@ -272,10 +288,7 @@ const ShiftTab: React.FC = () => {
             </Button>
 
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
-            hasPermission(
-              [{ subject: "ShiftReport", action: "update" }],
-              userPermissions
-            ) ? (
+            hasPermissionToReturn ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 onClick={async () => await returnCash()}
@@ -283,10 +296,7 @@ const ShiftTab: React.FC = () => {
               >
                 {t("finance.refund")}
               </Button>
-            ) : hasPermission(
-                [{ subject: "ShiftReport", action: "create" }],
-                userPermissions
-              ) ? (
+            ) : hasPermissionToSend ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
