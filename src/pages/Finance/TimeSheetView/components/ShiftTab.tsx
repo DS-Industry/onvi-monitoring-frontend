@@ -51,23 +51,31 @@ const ShiftTab: React.FC = () => {
   const { trigger: sendCash, isMutating: loadingSendCash } = useSWRMutation(
     ["send-cash-oper"],
     () =>
-      shiftId ? sendDayShift(shiftId) : Promise.reject(new Error("No shift ID"))
+      shiftId
+        ? sendDayShift(shiftId).catch(() => {
+            message.error(t("errors.sendFailed"));
+          })
+        : null
   );
 
   const { trigger: returnCash, isMutating: loadingReturnCash } = useSWRMutation(
     ["return-cash-oper"],
     () =>
       shiftId
-        ? returnDayShift(shiftId)
-        : Promise.reject(new Error("No shift ID"))
+        ? returnDayShift(shiftId).catch(() => {
+            message.error(t("errors.sendFailed"));
+          })
+        : null
   );
 
   const { trigger: updateShift, isMutating: loadingUpdate } = useSWRMutation(
     ["update-shift"],
     (_, { arg }: { arg: UpdateDayShiftBody }) =>
       shiftId
-        ? updateDayShift(arg, shiftId)
-        : Promise.reject(new Error("No shift ID"))
+        ? updateDayShift(arg, shiftId).catch(() => {
+            message.error(t("errors.updateFailed"));
+          })
+        : null
   );
 
   const start = dayjs(dayShiftData?.startWorkingTime);
@@ -102,7 +110,7 @@ const ShiftTab: React.FC = () => {
       );
 
       if (!gradingData) {
-        message.error(t("errors.somethingWentWrong"));
+        message.error(t("errors.updateFailed"));
         return;
       }
 
@@ -152,7 +160,9 @@ const ShiftTab: React.FC = () => {
           </div>
           <div>
             <p className="text-bold">{t("finance.totalHoursWorked")}</p>
-            <p className="font-bold text-[24px]">{workedHours} hrs</p>
+            <p className="font-bold text-[24px]">
+              {workedHours} {t("general.hours")}
+            </p>
           </div>
         </div>
       </Card>

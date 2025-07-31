@@ -673,7 +673,9 @@
     "8003": "An error occurred while return the cash collection. Please try again.",
     "8004": "An error occurred while retrieving the cash collection. Please try again.",
     "somethingWentWrong": "Something went wrong",
-    "submitFailed": "Submit failed"
+    "submitFailed": "Submit failed",
+    "sendFailed": "Send failed",
+    "updateFailed": "Update failed"
   },
   "tables": {
     "ACTIVE": "ACTIVE",
@@ -1041,5 +1043,8 @@
   },
   "table": {
     "noData": "No Data"
+  },
+  "general": {
+    "hours": "hours"
   }
 }

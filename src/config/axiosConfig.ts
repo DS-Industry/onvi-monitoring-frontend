@@ -1,9 +1,11 @@
 import axios from "axios";
 import useAuthStore from "@/config/store/authSlice";
-import i18n from "@/config/i18n";
 import { datadogLogs } from "@datadog/browser-logs";
 
-let showSnackbar: (message: string, type: "success" | "error" | "info" | "warning") => void;
+let showSnackbar: (
+  message: string,
+  type: "success" | "error" | "info" | "warning"
+) => void;
 
 export const setSnackbarFunction = (snackbarFunction: typeof showSnackbar) => {
   showSnackbar = snackbarFunction;
@@ -38,8 +40,6 @@ api.interceptors.request.use(
   }
 );
 
-const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
-
 api.interceptors.response.use(
   (response) => {
     datadogLogs.logger.info("API Response Received", {
@@ -73,23 +73,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const logout = useAuthStore.getState().clearTokens;
       logout();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
 
     const endpoint = error.config?.url;
     if (!endpoint) {
       showSnackbar("Unexpected error occurred. Please try again.", "error");
       return Promise.reject(error);
-    }
-
-    if (error.response) {
-      const errorCode = error.response.data?.code;
-      const errorMessage = errorCode ? getTranslatedError(errorCode) : "An error occurred. Please try again.";
-      showSnackbar(errorMessage, "error");
-    } else if (error.request) {
-      showSnackbar("No response from the server. Check your internet connection.", "error");
-    } else {
-      showSnackbar("Unexpected error occurred. Please try again.", "error");
     }
 
     return Promise.reject(error);
