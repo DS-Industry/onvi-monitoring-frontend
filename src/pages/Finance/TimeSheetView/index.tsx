@@ -27,6 +27,10 @@ const TimesheetView: React.FC = () => {
     ? Number(searchParams.get("id"))
     : undefined;
 
+  const posId = searchParams.get("posId")
+    ? Number(searchParams.get("posId"))
+    : undefined;
+
   const tabs = [
     { id: "shiftGrade", name: t("finance.shiftGrade") },
     { id: "exchange", name: t("finance.exchange") },
@@ -87,6 +91,10 @@ const TimesheetView: React.FC = () => {
     );
   };
 
+  if (!posId || !shiftId) {
+    return null;
+  }
+
   if (isLoading) {
     return (
       <div className="h-[600px] w-full flex justify-center items-center">
@@ -124,7 +132,7 @@ const TimesheetView: React.FC = () => {
           </div>
         }
       >
-        <div className="md:w-[65%] py-3">{renderTabContent()}</div>
+        <div className="xl:w-[65%] py-3">{renderTabContent()}</div>
       </Suspense>
     </div>
   );

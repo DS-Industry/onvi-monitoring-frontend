@@ -271,7 +271,6 @@ const ShiftTab: React.FC = () => {
               {t("routes.save")}
             </Button>
 
-            {/* ADD PERMISSION CHECKS */}
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
             hasPermission(
               [{ subject: "ShiftReport", action: "update" }],
