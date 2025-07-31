@@ -175,7 +175,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       t("tables.FINISHED"),
       t("tables.PAUSE"),
     ];
-    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
+    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE"), t("tables.RETURNED")];
 
     if (greenStatuses.includes(status))
       return <Tag color="green">{status}</Tag>;
