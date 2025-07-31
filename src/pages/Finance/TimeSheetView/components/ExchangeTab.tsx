@@ -105,6 +105,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
           size="small"
           loading={loadingCashOper || validatingCashOper}
           scroll={{ x: "500px" }}
+          locale={{ emptyText: t("table.noData") }}
         />
       </div>
 

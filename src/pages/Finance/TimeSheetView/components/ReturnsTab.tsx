@@ -125,6 +125,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
           size="small"
           loading={loadingCashOperReturn || validatingCashOperReturn}
           scroll={{ x: "500px" }}
+          locale={{ emptyText: t("table.noData") }}
         />
       </div>
 

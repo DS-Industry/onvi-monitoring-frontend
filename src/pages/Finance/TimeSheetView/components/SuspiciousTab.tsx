@@ -106,6 +106,7 @@ const SuspiciousTab: React.FC = () => {
           pagination={false}
           size="small"
           loading={loadingCashOperSusp}
+          locale={{ emptyText: t("table.noData") }}
         />
       ) : (
         <div className="flex flex-col justify-center items-center text-center p-4">

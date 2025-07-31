@@ -1022,5 +1022,8 @@
     "deviceRequired": "Device is required",
     "dateRequired": "Date is required",
     "commentRequired": "Comment is required"
+  },
+  "table": {
+    "noData": "No Data"
   }
 }
