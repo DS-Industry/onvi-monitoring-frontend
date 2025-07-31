@@ -106,11 +106,11 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   };
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="md:w-[70%] h-fit space-y-2 mt-3">
+    <>
+      <div>
         {status !== StatusWorkDayShiftReport.SENT && (
           <button
-            className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
+            className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3"
             onClick={() => setIsModalOpenReturn(true)}
           >
             {t("routes.add")}
@@ -136,7 +136,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
         onCancel={handleFormCancel}
         onClose={handleFormCancel}
       />
-    </div>
+    </>
   );
 };
 

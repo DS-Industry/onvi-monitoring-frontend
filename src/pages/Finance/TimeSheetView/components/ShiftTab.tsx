@@ -182,7 +182,7 @@ const ShiftTab: React.FC = () => {
   };
 
   return (
-    <div className="md:max-w-[70%]">
+    <>
       <h2 className="text-lg font-bold mb-5">{t("finance.shiftOver")}</h2>
       <div className="border border-gray-200 rounded-xl p-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-y-6">
         <div>
@@ -230,7 +230,9 @@ const ShiftTab: React.FC = () => {
           </div>
         </div>
         <div>
-          <p className="text-sm text-gray-500">{t("finance.totalHoursWorked")}</p>
+          <p className="text-sm text-gray-500">
+            {t("finance.totalHoursWorked")}
+          </p>
           <div className="text-lg font-bold">
             {start.isValid() && end.isValid() ? `${workedHours} hrs` : ""}
           </div>
@@ -420,7 +422,7 @@ const ShiftTab: React.FC = () => {
           </div>
         </form> */}
       </div>
-    </div>
+    </>
   );
 };
 

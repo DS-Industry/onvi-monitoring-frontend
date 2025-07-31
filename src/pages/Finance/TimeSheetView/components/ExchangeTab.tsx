@@ -84,30 +84,28 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
   ];
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="md:w-[70%] h-fit space-y-2 mt-3">
-        {status !== StatusWorkDayShiftReport.SENT && (
-          <button
-            className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal"
-            onClick={() => setIsModalOpen(true)}
-          >
-            {t("routes.add")}
-          </button>
-        )}
+    <>
+      {status !== StatusWorkDayShiftReport.SENT && (
+        <button
+          className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3"
+          onClick={() => setIsModalOpen(true)}
+        >
+          {t("routes.add")}
+        </button>
+      )}
 
-        <Table
-          dataSource={cashOperArray.map((item, index) => ({
-            ...item,
-            key: `exchange-record-${index}`,
-          }))}
-          columns={tableColumns}
-          pagination={false}
-          size="small"
-          loading={loadingCashOper || validatingCashOper}
-          scroll={{ x: "500px" }}
-          locale={{ emptyText: t("table.noData") }}
-        />
-      </div>
+      <Table
+        dataSource={cashOperArray.map((item, index) => ({
+          ...item,
+          key: `exchange-record-${index}`,
+        }))}
+        columns={tableColumns}
+        pagination={false}
+        size="small"
+        loading={loadingCashOper || validatingCashOper}
+        scroll={{ x: "500px" }}
+        locale={{ emptyText: t("table.noData") }}
+      />
 
       {shiftId && posId ? (
         <CreateCashOperationModal
@@ -119,7 +117,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
           posId={posId}
         />
       ) : null}
-    </div>
+    </>
   );
 };
 

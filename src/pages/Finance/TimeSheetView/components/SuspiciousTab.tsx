@@ -106,7 +106,7 @@ const SuspiciousTab: React.FC = () => {
   ];
 
   return (
-    <div className="w-full md:w-[70%] h-fit mt-3">
+    <>
       <Table
         dataSource={cashOperSubsArray}
         columns={columns}
@@ -117,7 +117,7 @@ const SuspiciousTab: React.FC = () => {
         scroll={{ x: "500px" }}
         locale={{ emptyText: t("table.noData") }}
       />
-    </div>
+    </>
   );
 };
 

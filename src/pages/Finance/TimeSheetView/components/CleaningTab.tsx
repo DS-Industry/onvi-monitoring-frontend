@@ -100,18 +100,16 @@ const CleaningTab: React.FC = () => {
   ];
 
   return (
-    <div className="w-full md:w-[70%] h-fit mt-5">
-      <Table
-        dataSource={tableData}
-        columns={columns}
-        rowKey="key"
-        pagination={false}
-        size="small"
-        loading={loadingCashOperClean}
-        scroll={{ x: "500px" }}
-        locale={{ emptyText: t("table.noData") }}
-      />
-    </div>
+    <Table
+      dataSource={tableData}
+      columns={columns}
+      rowKey="key"
+      pagination={false}
+      size="small"
+      loading={loadingCashOperClean}
+      scroll={{ x: "500px" }}
+      locale={{ emptyText: t("table.noData") }}
+    />
   );
 };
 
