@@ -276,7 +276,7 @@ type DayShiftResponse = {
   comment?: string;
   totalCar: number;
   workerName: string;
-  gradingParameterInfo: GradingParameterInfo;
+  gradingParameterInfo?: GradingParameterInfo;
 };
 
 export type UpdateDayShiftBody = {
@@ -288,7 +288,10 @@ export type UpdateDayShiftBody = {
   prize?: number | null;
   fine?: number | null;
   comment?: string;
-  gradingParameterInfo: GradingParameterInfo;
+  gradingData?: {
+    parameterId: number;
+    estimationId: number | null;
+  }[];
 };
 
 export type CreateCashOperBody = {

@@ -119,21 +119,21 @@ const ShiftTab: React.FC = () => {
   }, [dayShiftData, reset]);
 
   const handleGradingSave = async (data: ShiftFormData) => {
+    console.log("data: ", data);
     try {
       if (!dayShiftData?.gradingParameterInfo) return;
 
       const updatedParameters =
         dayShiftData.gradingParameterInfo.parameters.map((param) => ({
-          ...param,
+          parameterId: param.id,
           estimationId: data.grading[param.id.toString()] || null,
         }));
 
       const payload: UpdateDayShiftBody = {
-        gradingParameterInfo: {
-          parameters: updatedParameters,
-          allEstimations: dayShiftData.gradingParameterInfo.allEstimations,
-        },
+        gradingData: updatedParameters,
       };
+
+      console.log("payload: ", payload);
 
       const result = await updateShift(payload);
       if (result) {
@@ -213,7 +213,7 @@ const ShiftTab: React.FC = () => {
             {t("finance.grading")}
           </h3>
 
-          {dayShiftData?.gradingParameterInfo.parameters.map((param) => (
+          {dayShiftData?.gradingParameterInfo?.parameters.map((param) => (
             <Form.Item key={param.id} label={param.name}>
               <Controller
                 name={`grading.${param.id}`}
@@ -227,7 +227,7 @@ const ShiftTab: React.FC = () => {
                     placeholder={t("selectOption")}
                     allowClear
                   >
-                    {dayShiftData?.gradingParameterInfo.allEstimations.map(
+                    {dayShiftData?.gradingParameterInfo?.allEstimations.map(
                       (estimation) => (
                         <Select.Option
                           key={estimation.id}
