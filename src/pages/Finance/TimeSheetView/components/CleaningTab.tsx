@@ -1,12 +1,27 @@
 import React from "react";
+
+import { useSearchParams } from "react-router-dom";
+
+// utils
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { getCashOperCleanById } from "@/services/api/finance";
 import { getDevices } from "@/services/api/equipment";
 import { formatNumber } from "@/utils/tableUnits";
+
+// components
 import { Table } from "antd";
+
+// types
 import type { ColumnsType } from "antd/es/table";
-import { useSearchParams } from "react-router-dom";
+
+interface TableRowData {
+  key: string;
+  deviceName: string | null;
+  programName: string;
+  countProgram: number;
+  time: string;
+}
 
 const CleaningTab: React.FC = () => {
   const { t } = useTranslation();
@@ -30,7 +45,7 @@ const CleaningTab: React.FC = () => {
     }
   );
 
-  const devices: { name: string; value: number }[] =
+  const devices =
     deviceData?.map((item) => ({
       name: item.props.name,
       value: item.props.id,
@@ -46,35 +61,21 @@ const CleaningTab: React.FC = () => {
     }
   );
 
-  const transformDataForTable = (
-    data: {
-      deviceId: number;
-      programData: {
-        programName: string;
-        countProgram: number;
-        time: string;
-      }[];
-    }[]
-  ) => {
-    return data.flatMap(({ deviceId, programData }) =>
-      programData.map(({ programName, countProgram, time }, index) => ({
-        deviceName:
-          index === 0
-            ? devices.find((dev) => dev.value === deviceId)?.name
-            : null,
+  const tableData =
+    cashOperCleanData?.flatMap(({ deviceId, programData }) => {
+      const deviceName =
+        devices.find((dev) => dev.value === deviceId)?.name || "";
+
+      return programData.map(({ programName, countProgram, time }, index) => ({
+        key: `${deviceId}-${programName}-${index}`,
+        deviceName: index === 0 ? deviceName : null,
         programName,
         countProgram,
         time,
-      }))
-    );
-  };
+      }));
+    }) || [];
 
-  const cashOperCleanArray =
-    cashOperCleanData && cashOperCleanData?.length > 0
-      ? transformDataForTable(cashOperCleanData)
-      : [];
-
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<TableRowData> = [
     {
       title: t("finance.deviceName"),
       dataIndex: "deviceName",
@@ -99,11 +100,11 @@ const CleaningTab: React.FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-[1003px] h-fit rounded-2xl shadow-card p-4 mt-5 mx-auto">
+    <div className="w-full md:w-[70%] h-fit mt-5">
       <Table
-        dataSource={cashOperCleanArray}
+        dataSource={tableData}
         columns={columns}
-        rowKey={(record, index) => index || 0}
+        rowKey="key"
         pagination={false}
         size="small"
         loading={loadingCashOperClean}
