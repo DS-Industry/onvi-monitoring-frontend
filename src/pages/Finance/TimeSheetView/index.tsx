@@ -18,7 +18,7 @@ import { Spin, message } from "antd";
 
 const TimesheetView: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("change");
+  const [activeTab, setActiveTab] = useState("shiftGrade");
 
   const [searchParams] = useSearchParams();
 
@@ -27,7 +27,7 @@ const TimesheetView: React.FC = () => {
     : undefined;
 
   const tabs = [
-    { id: "change", name: t("finance.change") },
+    { id: "shiftGrade", name: t("finance.shiftGrade") },
     { id: "exchange", name: t("finance.exchange") },
     { id: "returns", name: t("finance.returns") },
     { id: "cleaning", name: t("routes.cleaning") },
@@ -49,7 +49,7 @@ const TimesheetView: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "change":
+      case "shiftGrade":
         return <ShiftTab />;
       case "exchange":
         return <ExchangeTab status={dayShiftData?.status} />;

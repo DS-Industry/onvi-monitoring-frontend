@@ -854,7 +854,8 @@
     "operationCreated": "Операция успешно создана",
     "returnCreated": "Возврат успешно создан",
     "selectGrade": "Выберите оценку",
-    "managerComment": "Комментарий управляющего"
+    "managerComment": "Комментарий управляющего",
+    "shiftGrade": "Оценка смены"
   },
   "analysis": {
     "search": "Поиск",

@@ -854,7 +854,8 @@
     "operationCreated": "Operation Created",
     "returnCreated": "Return Created",
     "selectGrade": "Select Grade",
-    "managerComment": "Manager Comment"
+    "managerComment": "Manager Comment",
+    "shiftGrade": "Shift Grade"
   },
   "analysis": {
     "search": "Search",

@@ -254,7 +254,9 @@ const ShiftTab: React.FC = () => {
             />
           </Form.Item>
 
-          <div className="flex gap-2">
+          <hr />
+
+          <div className="flex gap-2 pt-6">
             <Button
               className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
               type="primary"
@@ -263,6 +265,8 @@ const ShiftTab: React.FC = () => {
             >
               {t("routes.save")}
             </Button>
+
+            {/* ADD PERMISSION CHECKS */}
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
