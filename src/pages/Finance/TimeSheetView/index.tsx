@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useRef } from "react";
 
 import { useSearchParams } from "react-router-dom";
 
@@ -19,6 +19,7 @@ import { Spin, message } from "antd";
 const TimesheetView: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("shiftGrade");
+  const visitedTabs = useRef(new Set(["shiftGrade"]));
 
   const [searchParams] = useSearchParams();
 
@@ -47,21 +48,43 @@ const TimesheetView: React.FC = () => {
     }
   );
 
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+    visitedTabs.current.add(tabId);
+  };
+
   const renderTabContent = () => {
-    switch (activeTab) {
-      case "shiftGrade":
-        return <ShiftTab />;
-      case "exchange":
-        return <ExchangeTab status={dayShiftData?.status} />;
-      case "returns":
-        return <ReturnsTab status={dayShiftData?.status} />;
-      case "cleaning":
-        return <CleaningTab />;
-      case "susp":
-        return <SuspiciousTab />;
-      default:
-        return <ShiftTab />;
-    }
+    return (
+      <div>
+        {visitedTabs.current.has("shiftGrade") && (
+          <div
+            style={{ display: activeTab === "shiftGrade" ? "block" : "none" }}
+          >
+            <ShiftTab />
+          </div>
+        )}
+        {visitedTabs.current.has("exchange") && (
+          <div style={{ display: activeTab === "exchange" ? "block" : "none" }}>
+            <ExchangeTab status={dayShiftData?.status} />
+          </div>
+        )}
+        {visitedTabs.current.has("returns") && (
+          <div style={{ display: activeTab === "returns" ? "block" : "none" }}>
+            <ReturnsTab status={dayShiftData?.status} />
+          </div>
+        )}
+        {visitedTabs.current.has("cleaning") && (
+          <div style={{ display: activeTab === "cleaning" ? "block" : "none" }}>
+            <CleaningTab />
+          </div>
+        )}
+        {visitedTabs.current.has("susp") && (
+          <div style={{ display: activeTab === "susp" ? "block" : "none" }}>
+            <SuspiciousTab />
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -87,7 +110,7 @@ const TimesheetView: React.FC = () => {
                 ? "text-primary02 border-b-2 border-primary02"
                 : "text-text02"
             }`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
           >
             {tab.name}
           </button>
