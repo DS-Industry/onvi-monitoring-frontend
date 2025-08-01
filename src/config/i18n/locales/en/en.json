@@ -338,7 +338,12 @@
     "select": "Select a value",
     "Chemistry": "Chemistry",
     "Check": "Check",
-    "Installations": "Installations"
+    "Installations": "Installations",
+    "PowerConsumption": "Power Consumption",
+    "Softener": "Softener",
+    "Osmosis": "Osmosis",
+    "CarbonFilter": "Carbon Filter",
+    "Counters": "Counters"
   },
   "routine": {
     "display": "This section displays routine maintenance",

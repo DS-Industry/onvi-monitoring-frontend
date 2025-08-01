@@ -337,8 +337,13 @@
     "enter": "Введите значение",
     "select": "Выберите значение",
     "Chemistry": "Химия",
-    "Check": "Проверять",
-    "Installations": "Инсталляции"
+    "Check": "Проверка",
+    "Installations": "Установки",
+    "PowerConsumption": "Электропотребление",
+    "Softener": "Умягчитель",
+    "Osmosis": "Осмос",
+    "CarbonFilter": "Угольный фильтр",
+    "Counters": "Счетчик"
   },
   "routine": {
     "display": "В этом разделе отображаются регламентные работы",
