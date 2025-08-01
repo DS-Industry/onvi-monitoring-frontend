@@ -248,9 +248,7 @@ export type ShiftItem = {
   };
 };
 
-export type ShiftParamsResponse = {
-  shiftReportsData: ShiftItem[];
-};
+export type ShiftParamsResponse = ShiftItem[];
 
 export type CreateDayShiftBody = {
   workerId: number;
