@@ -133,7 +133,7 @@ const TechTaskItem: React.FC = () => {
                         onImageRemove={removeImage}
                         status={status ? status : undefined}
                     />
-                    {status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    {status !== t("tables.FINISHED") && (<div className="flex flex-col sm:flex-row gap-4 mt-2">
                         <Button
                             title={t("organizations.cancel")}
                             type="outline"

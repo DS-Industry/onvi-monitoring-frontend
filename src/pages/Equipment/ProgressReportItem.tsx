@@ -6,11 +6,10 @@ import Button from "@/components/ui/Button/Button";
 import { createTechTaskShape, getTechTaskShapeItem, StatusTechTask, updateTechTask } from "@/services/api/equipment";
 import useSWRMutation from "swr/mutation";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import dayjs from "dayjs";
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
-import DateInput from "@/components/ui/Input/DateInput";
 import { useToast } from "@/components/context/useContext";
 import TechTaskCard from "./TechTaskCard";
+import dayjs from "dayjs";
 
 const ProgressReportItem: React.FC = () => {
     const { t } = useTranslation();
@@ -128,11 +127,9 @@ const ProgressReportItem: React.FC = () => {
         }
     };
 
-    const [endSpecifiedDate, setEndSpecifiedDate] = useState(dayjs().toDate());
-
     const { trigger: updateTech, isMutating: updatingTechTask } = useSWRMutation(['update-tech-task'], async () => updateTechTask({
         techTaskId: progressReportId,
-        endSpecifiedDate: endSpecifiedDate,
+        endSpecifiedDate: techTaskData?.endSpecifiedDate || dayjs().toDate(),
         status: StatusTechTask.RETURNED
     }));
 
@@ -181,15 +178,7 @@ const ProgressReportItem: React.FC = () => {
                 />
             </div>)}
             {status === t("tables.FINISHED") && (
-                <div className="space-y-4">
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.end")}</div>
-                        <DateInput
-                            classname="w-40"
-                            value={dayjs(endSpecifiedDate)}
-                            changeValue={(date) => setEndSpecifiedDate(date ? date.toDate() : dayjs().toDate())}
-                        />
-                    </div>
+                <div className="mt-2">
                     <Button
                         title={t("finance.returns")}
                         isLoading={updatingTechTask}
