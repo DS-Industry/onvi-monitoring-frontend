@@ -732,8 +732,8 @@ const routes = [
       },
       {
         name: "employee",
-        filter: true,
-        addButton: true,
+        filter: false,
+        addButton: false,
         addButtonText: "add",
         isVisible: true,
         path: "/finance/timesheet",

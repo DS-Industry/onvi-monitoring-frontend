@@ -14,14 +14,18 @@ type Optional = {
 type SearchFilterProps = {
   poses?: Optional[];
   loading?: boolean;
+  defaultOpen?: boolean;
 };
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   poses,
   loading = false,
+  defaultOpen = true,
 }) => {
   const { t } = useTranslation();
-  const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
+  const [activeFilterKey, setActiveFilterKey] = useState<string[]>(
+    defaultOpen ? ["search-filter-1"] : []
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterToggle, setFilterToggle] = useState(false);
 
@@ -78,6 +82,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                   <Select
                     showSearch
                     className="w-full sm:w-96"
+                    status={displayValue ? "" : "error"}
                     placeholder="Выберите объект"
                     value={displayValue}
                     onChange={handlePosChange}
@@ -104,14 +109,18 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 mt-4">
-                <Button
-                  title="Сбросить"
-                  type="outline"
-                  handleClick={resetFilters}
-                  classname="w-[168px]"
-                />
-              </div>
+              {displayValue ? (
+                <div className="flex flex-wrap items-center gap-4 mt-4">
+                  <Button
+                    title={t("filters.reset")}
+                    type="outline"
+                    handleClick={resetFilters}
+                    classname="w-[168px]"
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           ),
         },

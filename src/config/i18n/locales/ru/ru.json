@@ -1148,5 +1148,8 @@
   "constants": {
     "all": "Все",
     "status": "Cтатус"
+  },
+  "filters": {
+    "reset": "Сбросить"
   }
 }

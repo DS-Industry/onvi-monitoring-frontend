@@ -104,7 +104,7 @@
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task",
-    "timesheetView": "Timesheet View"
+    "timesheetView": "Employee Shift View"
   },
   "dashboard": {
     "news": "News",
@@ -896,6 +896,57 @@
     "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager...",
     "return": "Return"
   },
+
+  "shift-management": {
+    "shift-create-modal": {
+      "title": "Create Shift",
+      "step-one-title": "Period",
+      "step-two-title": "Employee",
+      "step-three-title": "Shift",
+      "date-picker-placeholder": "Select a date"
+    }
+  },
+  "shift": {
+    "createShift": "Create Shift",
+    "dateTime": "Date and Time",
+    "userSelection": "Employee Selection",
+    "workType": "Work Type",
+    "shiftStart": "Shift Start",
+    "shiftEnd": "Shift End",
+    "startDate": "Start Date",
+    "startTime": "Start Time",
+    "endDate": "End Date",
+    "endTime": "End Time",
+    "selectStartDate": "Select Start Date",
+    "selectEndDate": "Select End Date",
+    "selectStartTime": "Select Start Time",
+    "selectEndTime": "Select End Time",
+    "startDateRequired": "Start date is required",
+    "endDateRequired": "End date is required",
+    "startTimeRequired": "Start time is required",
+    "endTimeRequired": "End time is required",
+    "endTimeAfterStart": "End time must be after start time",
+    "selectUser": "Select an employee",
+    "selectUserPlaceholder": "Select an employee from the list",
+    "userRequired": "Employee selection is required",
+    "workTypeRequired": "Work type selection is required",
+    "selectWorkType": "Select a work type",
+    "regular": "Regular Shift",
+    "overtime": "Overtime",
+    "night": "Night Shift",
+    "weekend": "Weekend",
+    "summary": "Summary",
+    "startDateTime": "Shift Start",
+    "endDateTime": "Shift End",
+    "user": "Employee"
+  },
+  "common": {
+    "previous": "Previous",
+    "next": "Next",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save"
+  },
   "analysis": {
     "search": "Search",
     "all": "All",
@@ -1098,5 +1149,8 @@
   "constants": {
     "all": "All",
     "status": "Status"
+  },
+  "filters": {
+    "reset": "Reset"
   }
 }
