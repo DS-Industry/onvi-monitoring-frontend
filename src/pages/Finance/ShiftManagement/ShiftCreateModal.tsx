@@ -85,7 +85,6 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
       await createShift(shiftData);
       onSubmit();
       message.success(t("finance.operationCreated"));
-      // Refetch shifts data to show the new event
     } catch (error: any) {
       message.error(t("errors.submitFailed"));
       console.error("Error creating shift:", error);
