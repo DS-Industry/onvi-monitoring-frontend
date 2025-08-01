@@ -120,11 +120,12 @@ const TimesheetView: React.FC = () => {
           </button>
         ))}
       </div>
-
       <Suspense
         fallback={
-          <div className="w-full h-[200px] flex justify-center items-center">
-            <Spin />
+          <div className="xl:w-[65%]">
+            <div className="w-full flex justify-center items-center">
+              <Spin />
+            </div>
           </div>
         }
       >
