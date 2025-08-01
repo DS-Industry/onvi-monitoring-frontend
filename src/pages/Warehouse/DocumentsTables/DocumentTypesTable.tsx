@@ -8,6 +8,7 @@ import { getInventoryItems, getNomenclature, WarehouseDocumentType } from "@/ser
 import { useSearchParams } from "react-router-dom";
 import { ColumnsType } from "antd/es/table";
 import { JSX } from "react/jsx-runtime";
+import { t } from "i18next";
 
 const { Option } = Select;
 
@@ -81,7 +82,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     placeholder={`Select ${title}`}
                     style={{ width: "100%" }}
                 >
-                    <Option value={0}>Not Selected</Option>
+                    <Option value={0}>{t("warehouse.notSel")}</Option>
                     {options?.map((opt) => (
                         <Option value={opt.value} key={opt.value}>
                             {opt.label}
