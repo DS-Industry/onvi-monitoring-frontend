@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import useSWRMutation from "swr/mutation";
+import { useToast } from "@/components/context/useContext";
 
 type Props = {
     forgotObj: { email: string, confirmString: string };
@@ -21,6 +22,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
         password: '',
         confirmPassword: ''
     }
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState(defaultValues);
 
@@ -54,6 +56,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ forgotObj }: Props) => {
             }
         } catch (error) {
             clearData();
+            showToast(t("errors.other.passwordChangeFailed"), "error");
         }
     };
 

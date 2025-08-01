@@ -1,24 +1,23 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import NoCollection from "@/assets/NoCollection.png";
-import FilterMonitoring from "@/components/ui/Filter/FilterMonitoring";
 import useSWR from "swr";
 import { getPoses } from "@/services/api/equipment";
 import { useButtonCreate } from "@/components/context/useContext";
-import { useLocation, useNavigate } from "react-router-dom";
-import { usePosType, useStartDate, useEndDate, useSetPosType, useSetStartDate, useSetEndDate, useCurrentPage, usePageNumber, useSetCurrentPage, useSetPageSize, useCity } from "@/hooks/useAuthStore";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getCollections } from "@/services/api/finance";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-
-interface FilterCollection {
-    dateStart: Date;
-    dateEnd: Date;
-    posId: number | string;
-    page?: number;
-    size?: number;
-}
+import dayjs from "dayjs";
+import {
+    ALL_PAGE_SIZES,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { Table } from "antd";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import { ColumnsType } from "antd/es/table";
+import { getCurrencyRender, getFormatPeriodType, getStatusTagRender } from "@/utils/tableUnits";
 
 type CashCollectionLevel = {
     id: number;
@@ -47,46 +46,62 @@ const Collection: React.FC = () => {
     const { buttonOn } = useButtonCreate();
     const navigate = useNavigate();
 
-    const posType = usePosType();
-    const startDate = useStartDate();
-    const endDate = useEndDate();
-    const currentPage = useCurrentPage();
-    const pageSize = usePageNumber();
-    const location = useLocation();
+    const today = dayjs().toDate();
+    const formattedDate = today.toISOString().slice(0, 10);
 
-    const setPosType = useSetPosType();
-    const setStartDate = useSetStartDate();
-    const setEndDate = useSetEndDate();
-    const setCurrentPage = useSetCurrentPage();
-    const setTotalCount = useSetPageSize();
-    const city = useCity();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const initialFilter = useMemo(() => ({
-        dateStart: startDate,
-        dateEnd: endDate,
-        page: currentPage,
-        size: pageSize,
-        posId: posType || 1,
-    }), [startDate, endDate, currentPage, pageSize, posType]);
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+    const posId = searchParams.get("posId") || "*";
+    const dateStart =
+        searchParams.get("dateStart") ?? dayjs(`${formattedDate} 00:00`).toDate();
 
-    const [dataFilter, setIsDataFilter] = useState<FilterCollection>(initialFilter);
+    const dateEnd =
+        searchParams.get("dateEnd") ?? dayjs(`${formattedDate} 23:59`).toDate();
 
-    // Create a stable key for SWR that includes all filter parameters
-    const swrKey = useMemo(() =>
-        `get-collections-${dataFilter.posId}-${dataFilter.dateStart}-${dataFilter.dateEnd}-${dataFilter.page}-${dataFilter.size}`,
-        [dataFilter.posId, dataFilter.dateStart, dataFilter.dateEnd, dataFilter.page, dataFilter.size]
+    const cityParam = Number(searchParams.get("city")) || "*";
+
+    const formatPeriodType = getFormatPeriodType();
+    const renderCurrency = getCurrencyRender();
+    const renderStatus = getStatusTagRender(t);
+
+    const filterParams = useMemo(
+        () => ({
+            dateStart: dayjs(dateStart || `${formattedDate} 00:00`).toDate(),
+            dateEnd: dayjs(dateEnd?.toString() || `${formattedDate} 23:59`).toDate(),
+            posId: posId || "*",
+            page: currentPage,
+            size: pageSize,
+            placementId: cityParam
+        }),
+        [
+            dateStart,
+            dateEnd,
+            posId,
+            currentPage,
+            pageSize,
+            formattedDate,
+            cityParam
+        ]
     );
 
-    const { data: filter, isLoading: filterIsLoading } = useSWR(
+    const swrKey = `get-collections-${filterParams.posId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.placementId}`;
+
+    const [totalCollectionsCount, setTotalCollectionsCount] = useState(0);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    const { data: collectionsData, isLoading: collectionsLoading } = useSWR(
         swrKey,
-        () => getCollections({
-            dateStart: new Date(dataFilter.dateStart),
-            dateEnd: new Date(dataFilter.dateEnd),
-            posId: dataFilter.posId,
-            placementId: city,
-            page: dataFilter.page,
-            size: dataFilter.size
-        }),
+        () => getCollections(filterParams)
+            .then((data) => {
+                setTotalCollectionsCount(data.totalCount || 0);
+                const sorted = [...(data.cashCollectionsData ?? [])].sort((a, b) => a.id - b.id);
+
+                return sorted;
+            }).finally(() => {
+                setIsInitialLoading(false);
+            }),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -94,37 +109,9 @@ const Collection: React.FC = () => {
         }
     );
 
-    // Reset page when location changes
-    useEffect(() => {
-        setCurrentPage(1);
-        setIsDataFilter((prevFilter) => ({
-            ...prevFilter,
-            page: 1
-        }));
-    }, [location, setCurrentPage]);
-
-    // Debounced filter handler to prevent multiple rapid API calls
-    const handleDataFilter = useCallback((newFilterData: Partial<FilterCollection>) => {
-
-        // Update global state
-        if (newFilterData.posId !== undefined) setPosType(newFilterData.posId);
-        if (newFilterData.dateStart) setStartDate(new Date(newFilterData.dateStart));
-        if (newFilterData.dateEnd) setEndDate(new Date(newFilterData.dateEnd));
-
-        // Update local filter state (this will trigger SWR automatically)
-        setIsDataFilter((prevFilter) => ({ ...prevFilter, ...newFilterData }));
-    }, [setPosType, setStartDate, setEndDate]);
-
-    // Update total count when data changes
-    useEffect(() => {
-        if (!filterIsLoading && filter?.totalCount) {
-            setTotalCount(filter.totalCount);
-        }
-    }, [filter?.totalCount, filterIsLoading, setTotalCount]);
-
     const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR(
-        [`get-pos`, city],
-        () => getPoses({ placementId: city }),
+        [`get-pos`, cityParam],
+        () => getPoses({ placementId: cityParam }),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -149,118 +136,149 @@ const Collection: React.FC = () => {
 
     const baseColumns = useMemo(() => [
         {
-            label: "№ Документа",
+            title: "№ Документа",
+            dataIndex: "id",
             key: "id"
         },
         {
-            label: "Мойка/Филиал",
-            key: "posName"
+            title: "Мойка/Филиал",
+            dataIndex: "posName",
+            key: "posName",
+            render: (text: string, record: { id: number; status: string; }) => {
+                return (
+                    <Link
+                        to={{
+                            pathname: "/finance/collection/creation",
+                            search: `?id=${record.id}&status=${record.status}`
+                        }}
+                        className="text-blue-500 hover:text-blue-700 font-semibold"
+                    >
+                        {text}
+                    </Link>
+                );
+            },
         },
         {
-            label: "Период",
+            title: "Период",
+            dataIndex: "period",
             key: "period",
-            type: "period"
+            render: formatPeriodType
         },
         {
-            label: "Статус",
-            key: "status"
+            title: "Статус",
+            dataIndex: "status",
+            key: "status",
+            render: renderStatus
         },
         {
-            label: "Инкассация",
+            title: "Инкассация",
+            dataIndex: "sumFact",
             key: "sumFact",
-            type: "currency"
+            render: renderCurrency
         },
         {
-            label: "Сумма по картам",
+            title: "Сумма по картам",
+            dataIndex: "sumCard",
             key: "sumCard",
-            type: "currency"
+            render: renderCurrency
         },
         {
-            label: "Безналичная оплата",
+            title: "Безналичная оплата",
+            dataIndex: "sumVirtual",
             key: "sumVirtual",
-            type: "currency"
+            render: renderCurrency
         },
         {
-            label: "Прибыль",
+            title: "Прибыль",
+            dataIndex: "profit",
             key: "profit",
-            type: "currency"
+            render: renderCurrency
         },
         {
-            label: "Недостача",
+            title: "Недостача",
+            dataIndex: "shortage",
             key: "shortage",
-            type: "currency"
+            render: renderCurrency
         }
     ], []);
 
-    const collectionsData = useMemo(() => filter?.cashCollectionsData || [], [filter]);
-
     const { columns, transformedData } = useMemo(() => {
-        if (!collectionsData.length) return { columns: baseColumns, transformedData: collectionsData };
+        if (!collectionsData?.length) return { columns: baseColumns, transformedData: collectionsData };
 
-        const collectionColumns: { label: string; key: string; type: string }[] = [];
-        const transformedStockLevels = collectionsData.map((level) => {
-            const transformedLevel: CashCollectionLevel = { ...level };
-            level.cashCollectionDeviceType.forEach((item, index) => {
-                const columnKey = `collection_${index}`;
-                const columnLabel = item.typeName || `Склад ${index + 1}`;
+        const dynamicColumns: { title: string; dataIndex: string; key: string }[] = [];
 
-                if (!collectionColumns.some((col) => col.key === columnKey)) {
-                    collectionColumns.push({ label: columnLabel, key: columnKey, type: "currency" });
-                }
-
-                transformedLevel[columnKey] = item.typeShortage ?? 0;
-            });
-            return transformedLevel;
-        });
-
-        const sortedData = transformedStockLevels
-            .map((item) => ({
+        const transformedData = collectionsData.map((item) => {
+            const transformed: CashCollectionLevel & { parsedPeriod: Date } = {
                 ...item,
                 posName: poses.find((pos) => pos.value === item.posId)?.name || "",
                 status: t(`tables.${item.status}`),
-                parsedPeriod: new Date(item.period.split("-")[0]) // Extract start date
-            }))
-            .sort((a, b) => b.parsedPeriod.getTime() - a.parsedPeriod.getTime()); // Sort by most recent date
+                parsedPeriod: dayjs(item.period.split("-")[0]).toDate(),
+            };
+
+            item.cashCollectionDeviceType.forEach((deviceType, index) => {
+                const columnKey = `collection_${index}`;
+                const columnTitle = deviceType.typeName || `Склад ${index + 1}`;
+
+                if (!dynamicColumns.find(col => col.key === columnKey)) {
+                    dynamicColumns.push({
+                        title: columnTitle,
+                        dataIndex: columnKey,
+                        key: columnKey,
+                    });
+                }
+                transformed[columnKey] = deviceType.typeShortage ?? 0;
+            });
+
+            return transformed;
+        });
+        const sortedData = transformedData.sort((a, b) =>
+            (b.parsedPeriod as Date).getTime() - (a.parsedPeriod as Date).getTime()
+        );
 
         return {
-            columns: [...baseColumns, ...collectionColumns],
-            transformedData: sortedData
+            columns: [...baseColumns, ...dynamicColumns] as ColumnsType<CashCollectionLevel>,
+            transformedData: sortedData,
         };
     }, [collectionsData, baseColumns, poses, t]);
 
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columns, "collections-table-columns");
+
     return (
         <div>
-            <FilterMonitoring
-                count={collectionsData.length}
-                posesSelect={poses}
+            <GeneralFilters
+                count={collectionsData?.length || 0}
                 hideSearch={true}
-                handleDataFilter={handleDataFilter}
+                poses={poses}
                 loadingPos={loadingPos || validatingPos}
             />
-            {filterIsLoading ? (
-                <TableSkeleton columnCount={columns.length} />
-            ) : (
-                transformedData.length > 0 ? (
-                    <div className="mt-8">
-                        <DynamicTable
-                            data={transformedData}
-                            columns={columns}
-                            isDisplayEdit={true}
-                            showPagination={true}
-                            navigableFields={[{ key: "posName", getPath: () => "/finance/collection/creation" }]}
-                        />
-                    </div>
-                ) : (
-                    <div className="flex flex-col justify-center items-center">
-                        <NoDataUI
-                            title={t("finance.details")}
-                            description={t("finance.at")}
-                        >
-                            <img src={NoCollection} className="mx-auto" loading="lazy" alt="No Collection" />
-                        </NoDataUI>
-                    </div>
-                )
-            )}
+
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+                <Table
+                    dataSource={transformedData}
+                    columns={visibleColumns}
+                    loading={collectionsLoading || isInitialLoading}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalCollectionsCount,
+                        pageSizeOptions: ALL_PAGE_SIZES,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} of ${total} items`,
+                        onChange: (page, size) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                page: String(page),
+                                size: String(size),
+                            });
+                        },
+                    }}
+                />
+            </div>
         </div>
     )
 }

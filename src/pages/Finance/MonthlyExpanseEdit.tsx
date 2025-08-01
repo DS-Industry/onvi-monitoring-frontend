@@ -12,6 +12,7 @@ import Space from 'antd/es/space';
 import AntDButton from 'antd/es/button';
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
+import { useToast } from "@/components/context/useContext";
 
 enum ManagerPaperGroup {
     RENT = "RENT",
@@ -38,6 +39,7 @@ const MonthlyExpanseEdit: React.FC = () => {
     const location = useLocation();
     const { t } = useTranslation();
     const userPermissions = usePermissions();
+    const { showToast } = useToast();
 
     const groups = useMemo(
         () => [
@@ -194,7 +196,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                 navigate(-1);
             }
         } catch (error) {
-            console.error("Error deleting nomenclature:", error);
+            showToast(t("errors.other.errorDeletingNomenclature"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -214,6 +216,7 @@ const MonthlyExpanseEdit: React.FC = () => {
             }
         } catch (error) {
             console.error("Error deleting nomenclature:", error);
+            showToast(t("errors.other.errorDeletingNomenclature"), "error");
         } finally {
             setIsReturning(false);
         }

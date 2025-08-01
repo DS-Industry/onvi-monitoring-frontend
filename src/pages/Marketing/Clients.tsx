@@ -11,7 +11,7 @@ import MultiInput from "@/components/ui/Input/MultiInput";
 // import { columnsClients } from "@/utils/OverFlowTableData";
 // import { Tooltip } from "@material-tailwind/react";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useFilterOn } from "@/components/context/useContext";
+import { useButtonCreate, useFilterOn, useToast } from "@/components/context/useContext";
 // import SearchInput from "@/components/ui/Input/SearchInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import useSWR, { mutate } from "swr";
@@ -95,6 +95,7 @@ const Clients: React.FC = () => {
     const setTotalCount = useSetPageSize();
     const location = useLocation();
     const pageSize = usePageNumber();
+    const { showToast } = useToast();
 
     // const tableData = [
     //     { type: "Физ.лицо", name: "Testing Profile" }
@@ -341,6 +342,7 @@ const Clients: React.FC = () => {
             }
         } catch (error) {
             console.error("Error during form submission: ", error);
+            showToast(t("errors.other.errorDuringFormSubmission"), "error");
         }
     };
 

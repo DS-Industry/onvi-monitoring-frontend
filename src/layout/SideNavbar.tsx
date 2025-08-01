@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
 import EditIcon from "@icons/edit.svg?react";
 import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
@@ -11,15 +16,14 @@ import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
 import {
   useButtonCreate,
   useFilterOpen,
-  useSnackbar,
+  useToast,
 } from "@/components/context/useContext";
 import Button from "@ui/Button/Button.tsx";
 import routes from "@/routes/index.tsx";
 import { Can } from "@/permissions/Can";
 import { useUser } from "@/hooks/useUserStore";
 import { useTranslation } from "react-i18next";
-import { useDocumentType } from "@/hooks/useAuthStore";
-import { setSnackbarFunction } from "@/config/axiosConfig";
+import { setToastFunction } from "@/config/axiosConfig";
 import useAuthStore from "@/config/store/authSlice";
 import Avatar from "@/components/ui/Avatar";
 import OnviLogo from "@/assets/OnviLogo.svg";
@@ -90,8 +94,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const user = useUser();
   const hoverRef = useRef(false);
   const userPermissions = useAuthStore((state) => state.permissions);
-  const { showSnackbar } = useSnackbar();
-  const doc = useDocumentType();
+  const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
+  const doc = searchParams.get("document");
+  const status = searchParams.get("status");
+  const name = searchParams.get("name");
   const userName: UserName = { name: user.name, middlename: user.surname };
 
   // Get location state with proper typing
@@ -99,11 +106,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
 
   // Combined useEffect for initialization
   useEffect(() => {
-    setSnackbarFunction(showSnackbar);
+    setToastFunction(showToast);
 
     datadogRum.addAction("Navigated", { pathname: location.pathname });
     datadogLogs.logger.info("Route loaded", { pathname: location.pathname });
-  }, [location.pathname, showSnackbar]);
+  }, [location.pathname, showToast]);
 
   // Combined hover and click outside effects
   useEffect(() => {
@@ -168,7 +175,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       t("tables.FINISHED"),
       t("tables.PAUSE"),
     ];
-    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE")];
+    const orangeStatuses = [
+      t("tables.SAVED"),
+      t("tables.VERIFICATE"),
+      t("tables.RETURNED"),
+    ];
 
     if (greenStatuses.includes(status))
       return <Tag color="green">{status}</Tag>;
@@ -354,6 +365,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               }
             >
               {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
+
               {isOpen && <span>{t(`routes.${item.name}`)}</span>}
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
@@ -600,6 +612,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 </button>
               )}
             </div>
+
             <nav className="mt-5 text-sm grid gap-y-1">
               {routes.map((item) =>
                 item.isSidebar ? renderNavItem(item) : null
@@ -685,22 +698,29 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
-                      {location.pathname === "/equipment/routine/work/list/item"
-                        ? locationState?.name
-                        : location.pathname === "/finance/timesheet/view"
-                        ? `${
-                            locationState?.name
-                          } : ${locationState?.date?.slice(0, 10)}`
+                      {location.pathname.includes(
+                        "/equipment/technical/tasks/progress/item"
+                      ) ||
+                      location.pathname.includes(
+                        "/equipment/technical/tasks/list/item"
+                      )
+                        ? name
+                        : location.pathname === "/finance/timesheet/view" &&
+                          name &&
+                          locationState?.date
+                        ? `${name} : ${locationState.date.slice(0, 10)}`
                         : activePageName === "createDo"
                         ? t(`routes.${doc}`)
                         : t(`routes.${activePageName}`)}
                     </span>
-                    {location.pathname ===
-                      "/equipment/routine/work/list/item" &&
-                    locationState?.status ? (
-                      <div className="ml-5">
-                        {getStatusTag(locationState.status)}
-                      </div>
+                    {location.pathname.includes(
+                      "/equipment/technical/tasks/progress/item"
+                    ) ||
+                    (location.pathname.includes(
+                      "/equipment/technical/tasks/list/item"
+                    ) &&
+                      status) ? (
+                      <div className="ml-5">{getStatusTag(String(status))}</div>
                     ) : activePageName === "bonus" ? (
                       <EditIcon className="text-text02 ml-2" />
                     ) : (
@@ -774,7 +794,6 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 </Can>
               </div>
             </div>
-
             <div
               className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}
             >

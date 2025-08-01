@@ -48,7 +48,7 @@ export default {
         "Bonus-Image": "url('/assets/ShareBonus.png')",
       },
       fontFamily: {
-        sans: ['Source Sans Pro', 'sans-serif'],
+        sans: ["Source Sans Pro", "sans-serif"],
       },
     },
   },

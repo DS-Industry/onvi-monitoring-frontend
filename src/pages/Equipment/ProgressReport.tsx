@@ -1,100 +1,179 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SalyImage from "@/assets/NoEquipment.png";
 import useSWR from "swr";
-import { getPoses, readTechTasks } from "@/services/api/equipment";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { columnsTechTasksRead } from "@/utils/OverFlowTableData";
-import Filter from "@/components/ui/Filter/Filter";
-import { useCity, usePosType } from "@/hooks/useAuthStore";
-import DynamicTable from "@/components/ui/Table/DynamicTable";
-import { Select } from "antd";
-
-type ReadTechTasks = {
-    id: number;
-    name: string;
-    posId: number;
-    type: string;
-    status: string;
-    endSpecifiedDate?: Date;
-    startWorkDate?: Date;
-    sendWorkDate?: Date;
-    executorId?: number;
-}
+import { getPoses, getTechTaskReport, TechTaskReadAll, TypeTechTask } from "@/services/api/equipment";
+import { Select, Table } from "antd";
+import { Link, useSearchParams } from "react-router-dom";
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
+import { ColumnsType } from "antd/es/table";
+import { getDateRender, getStatusTagRender } from "@/utils/tableUnits";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 const ProgressReport: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
-    const posType = usePosType();
-    const [searchPosId, setSearchPosId] = useState(posType);
-    const city = useCity();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
+    const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+    const posId = Number(searchParams.get("posId")) || undefined;
+    const type = searchParams.get("type") as TypeTechTask || undefined;
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const { data: posData } = useSWR([`get-pos`, city], () => getPoses({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const swrKey = useMemo(
+        () =>
+            `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${type}`,
+        [currentPage, pageSize, posId, type]
+    );
 
-    const { data, isLoading: techTasksLoading } = useSWR([`get-tech-tasks`, searchPosId, city], () => readTechTasks({
-        posId: searchPosId,
-        placementId: city
-    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true })
+    const { data, isLoading: techTasksLoading } = useSWR(swrKey, () => getTechTaskReport({
+        posId: posId,
+        type: type,
+        page: currentPage,
+        size: pageSize
+    }).finally(() => {
+        setIsInitialLoading(false);
+    }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*"
-    };
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: "*" }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    poses.unshift(posesAllObj);
-
-    const techTasks: ReadTechTasks[] = data
-        ?.filter((item: { posId: number }) => item.posId === searchPosId)
-        ?.map((item: ReadTechTasks) => ({
+    const techTasks = data
+        ?.techTaskReadAll?.map((item) => ({
             ...item,
-            posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+            posName: poses?.find((pos) => pos.id === item.posId)?.name || "-",
             type: t(`tables.${item.type}`),
             status: t(`tables.${item.status}`)
-        }))
-        .sort((a, b) => a.id - b.id) || [];
+        })) || [];
+
+    const statusRender = getStatusTagRender(t);
+    const dateRender = getDateRender();
+
+    const columnsTechTasksRead: ColumnsType<TechTaskReadAll> = [
+        {
+            title: "№",
+            dataIndex: "id",
+            key: "id"
+        },
+        {
+            title: "Автомойка/ Филиал",
+            dataIndex: "posName",
+            key: "posName",
+            render: (text, record) => {
+                return (
+                    <Link
+                        to={{
+                            pathname: "/equipment/technical/tasks/progress/item",
+                            search: `?progressReportId=${record.id}&status=${record.status}&type=${record.type}&name=${record.name}&endDate=${record.endSpecifiedDate}`,
+                        }}
+                        className="text-blue-500 hover:text-blue-700 font-semibold"
+                    >
+                        {text}
+                    </Link>
+                );
+            }
+        },
+        {
+            title: "Наименование работ",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title: "Периодичность",
+            dataIndex: "type",
+            key: "type"
+        },
+        {
+            title: "Статус",
+            dataIndex: "status",
+            key: "status",
+            render: statusRender
+        },
+        {
+            title: "Дата начала",
+            dataIndex: "startWorkDate",
+            key: "startWorkDate",
+            render: dateRender
+        },
+        {
+            title: "Дата окончания",
+            dataIndex: "sendWorkDate",
+            key: "sendWorkDate",
+            render: dateRender
+        },
+        {
+            title: "Исполнитель",
+            dataIndex: "executorId",
+            key: "executorId"
+        }
+    ];
+
+    const techTasksTypes = [
+        { name: t("tables.REGULAR"), value: TypeTechTask.REGULAR },
+        { name: t("tables.ONETIME"), value: TypeTechTask.ONETIME }
+    ];
+
+    const resetFilters = () => {
+        updateSearchParams(searchParams, setSearchParams, {
+            type: undefined,
+            posId: undefined
+        });
+    }
+
+    const { checkedList, setCheckedList, options, visibleColumns } =
+        useColumnSelector(columnsTechTasksRead, "progress-report-table-columns");
 
     return (
         <>
-            <Filter count={techTasks.length} hideDateTime={true} hideCity={true} hideSearch={true}>
-                <div className="flex">
-                    <div>
-                        <div className="text-sm text-text02">{t("equipment.carWash")}</div>
-                        <Select
-                            className="w-full sm:w-80"
-                            options={poses.map((item) => ({ label: item.name, value: item.value }))}
-                            value={searchPosId}
-                            onChange={(value) => setSearchPosId(value)}
-                            size="large"
-                        />
-                    </div>
+            <GeneralFilters
+                count={data?.totalCount || 0}
+                hideDateAndTime={true}
+                hideCity={true}
+                hideSearch={true}
+                poses={poses?.map((item) => ({ name: item.name, value: item.id }))}
+                onReset={resetFilters}
+            >
+                <div>
+                    <div className="text-sm text-text02">{t("constants.status")}</div>
+                    <Select
+                        className="w-full sm:w-80 h-10"
+                        options={techTasksTypes}
+                        value={searchParams.get("type") || null}
+                        onChange={(value) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                type: value
+                            });
+                        }}
+                    />
                 </div>
-            </Filter>
-            {techTasksLoading ? (
-                <TableSkeleton columnCount={columnsTechTasksRead.length} />
-            ) :
-                techTasks.length > 0 ?
-                    <>
-                        <div className="mt-8">
-                            <DynamicTable
-                                data={techTasks}
-                                columns={columnsTechTasksRead}
-                                // isDisplayEdit={true}
-                                isCheck={true}
-                                navigableFields={[{ key: "name", getPath: () => "/equipment/routine/work/progress/item" }]}
-                            />
-                        </div>
-                    </>
-                    :
-                    <NoDataUI
-                        title={t("routine.reports")}
-                        description={""}
-                    >
-                        <img src={SalyImage} className="mx-auto" loading="lazy" alt="PROGRESS" />
-                    </NoDataUI>
-            }
+            </GeneralFilters>
+            <div className="mt-8">
+                <ColumnSelector
+                    checkedList={checkedList}
+                    options={options}
+                    onChange={setCheckedList}
+                />
+                <Table<TechTaskReadAll>
+                    dataSource={techTasks.sort((a, b) => a.id - b.id)}
+                    columns={visibleColumns}
+                    loading={techTasksLoading || isInitialLoading}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: data?.totalCount || 0,
+                        pageSizeOptions: ALL_PAGE_SIZES,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} of ${total} items`,
+                        onChange: (page, size) => {
+                            updateSearchParams(searchParams, setSearchParams, {
+                                page: String(page),
+                                size: String(size),
+                            });
+                        },
+                    }}
+                />
+            </div>
         </>
     )
 }
