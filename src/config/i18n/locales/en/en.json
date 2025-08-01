@@ -893,7 +893,8 @@
     "selectGrade": "Select Grade",
     "managerComment": "Manager Comment",
     "shiftGrade": "Shift Grade",
-    "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager..."
+    "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager...",
+    "return": "Return"
   },
   "analysis": {
     "search": "Search",

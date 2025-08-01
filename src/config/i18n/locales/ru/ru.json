@@ -893,7 +893,8 @@
     "selectGrade": "Выберите оценку",
     "managerComment": "Комментарий управляющего",
     "shiftGrade": "Оценка смены",
-    "leaveCommentsForManagerPlaceholder": "Оставьте комментарий для следующего управляющего"
+    "leaveCommentsForManagerPlaceholder": "Оставьте комментарий для следующего управляющего",
+    "return": "Вернуть"
   },
   "shift-management": {
     "shift-create-modal": {

@@ -316,7 +316,7 @@ const ShiftTab: React.FC = () => {
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
-                {t("finance.refund")}
+                {t("finance.return")}
               </Button>
             ) : hasPermissionToSend ? (
               <Button
