@@ -1006,6 +1006,14 @@
     "noAdvance": "There are no more employees to calculate the advance payment during the specified period.",
     "noSalary": "There are no more employees to calculate salaries during the specified period."
   },
+  "common": {
+    "previous": "Previous",
+    "next": "Next",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "cancelChanges": "Discard changes"
+  },
   "notifications": {
     "fav": "Favorite",
     "basket": "Trash",
