@@ -175,7 +175,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       t("tables.FINISHED"),
       t("tables.PAUSE"),
     ];
-    const orangeStatuses = [t("tables.SAVED"), t("tables.VERIFICATE"), t("tables.RETURNED")];
+    const orangeStatuses = [
+      t("tables.SAVED"),
+      t("tables.VERIFICATE"),
+      t("tables.RETURNED"),
+    ];
 
     if (greenStatuses.includes(status))
       return <Tag color="green">{status}</Tag>;
@@ -361,6 +365,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               }
             >
               {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
+
               {isOpen && <span>{t(`routes.${item.name}`)}</span>}
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
@@ -607,6 +612,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 </button>
               )}
             </div>
+
             <nav className="mt-5 text-sm grid gap-y-1">
               {routes.map((item) =>
                 item.isSidebar ? renderNavItem(item) : null
@@ -692,23 +698,29 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
-                      {location.pathname.includes("/equipment/technical/tasks/progress/item")
-                      || location.pathname.includes("/equipment/technical/tasks/list/item")
+                      {location.pathname.includes(
+                        "/equipment/technical/tasks/progress/item"
+                      ) ||
+                      location.pathname.includes(
+                        "/equipment/technical/tasks/list/item"
+                      )
                         ? name
-                        : location.pathname === "/finance/timesheet/view"
-                        ? `${
-                            name
-                          } : ${locationState?.date?.slice(0, 10)}`
+                        : location.pathname === "/finance/timesheet/view" &&
+                          name &&
+                          locationState?.date
+                        ? `${name} : ${locationState.date.slice(0, 10)}`
                         : activePageName === "createDo"
                         ? t(`routes.${doc}`)
                         : t(`routes.${activePageName}`)}
                     </span>
-                    {location.pathname.includes("/equipment/technical/tasks/progress/item")
-                    || location.pathname.includes("/equipment/technical/tasks/list/item") &&
-                    status ? (
-                      <div className="ml-5">
-                        {getStatusTag(String(status))}
-                      </div>
+                    {location.pathname.includes(
+                      "/equipment/technical/tasks/progress/item"
+                    ) ||
+                    (location.pathname.includes(
+                      "/equipment/technical/tasks/list/item"
+                    ) &&
+                      status) ? (
+                      <div className="ml-5">{getStatusTag(String(status))}</div>
                     ) : activePageName === "bonus" ? (
                       <EditIcon className="text-text02 ml-2" />
                     ) : (
@@ -782,7 +794,6 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 </Can>
               </div>
             </div>
-
             <div
               className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}
             >

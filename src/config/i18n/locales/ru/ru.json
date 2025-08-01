@@ -103,7 +103,8 @@
     "appo": "Справочник назначений",
     "savedSuccessfully": "Успешно сохранено",
     "appointment": "Справочник назначений",
-    "createTask": "Создать задчу"
+    "createTask": "Создать задчу",
+    "timesheetView": "Просмотр табеля"
   },
   "dashboard": {
     "news": "Новости",

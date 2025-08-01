@@ -103,7 +103,8 @@
     "appo": "Directory of appointments",
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
-    "createTask": "Create a task"
+    "createTask": "Create a task",
+    "timesheetView": "Timesheet View"
   },
   "dashboard": {
     "news": "News",

@@ -750,7 +750,7 @@ const routes = [
         subMenu: false,
       },
       {
-        name: "abcd",
+        name: "timesheetView",
         filter: false,
         addButton: false,
         addButtonText: "add",
