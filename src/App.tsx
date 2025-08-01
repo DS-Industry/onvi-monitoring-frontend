@@ -64,7 +64,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <BrowserRouter basename="/onvi-monitoring-frontend">
+      <BrowserRouter basename={import.meta.env.VITE_MODE === "staging" ? "/" : "/onvi-monitoring-frontend"}>
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicRoute element={<PublicLayout />} />}>
