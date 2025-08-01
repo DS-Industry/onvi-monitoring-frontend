@@ -29,7 +29,7 @@ const RatingOfCarWashes = () => {
   ];
 
   const [dateRange, setDateRange] = useState({
-    dateStart: new Date("2023-01-01T00:00:00"),
+    dateStart: new Date(`${formattedDate}T00:00:00`),
     dateEnd: new Date(`${formattedDate}T23:59:59`),
   });
 
