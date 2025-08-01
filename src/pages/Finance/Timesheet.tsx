@@ -4,25 +4,21 @@ import { getPoses } from "@/services/api/equipment";
 import useSWR from "swr";
 import { useButtonCreate } from "@/components/context/useContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  createDayShift,
-  CreateDayShiftBody,
-  getShifts,
-} from "@/services/api/finance";
+import { getShifts, TypeWorkDay } from "@/services/api/finance";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants.ts";
 
+import { getWorkers } from "@/services/api/hr";
+
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import ShiftCreateModal, {
-  ShiftFormData,
-} from "@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx";
+import ShiftCreateModal from "@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx";
 import SearchFilter from "@ui/Filter/SearchFilter.tsx";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
-import useSWRMutation from "swr/mutation";
-import { message, Button } from "antd";
+
+import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 interface FilterShifts {
@@ -36,27 +32,32 @@ interface FilterShifts {
 dayjs.locale("ru");
 
 const Timesheet: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const currentLanguage = i18n.language;
 
   // Configure localizer with Russian locale
   const localize = dayjsLocalizer(dayjs);
 
   // Russian messages for calendar
   const messages = {
-    allDay: "Весь день",
-    previous: "Назад",
-    next: "Вперёд",
-    today: "Сегодня",
-    month: "Месяц",
-    week: "Неделя",
-    day: "День",
-    agenda: "Повестка дня",
-    date: "Дата",
-    time: "Время",
-    event: "Событие",
-    showMore: (total: number) => `+ ещё ${total}`,
-    noEventsInRange: "В этом диапазоне нет событий",
-    work_week: "Рабочая неделя",
+    allDay: t("calendar.ALL_DAY", "All day"), // fallback optional
+    previous: t("calendar.BACK"),
+    next: t("calendar.NEXT"),
+    today: t("calendar.TODAY"),
+    month: t("calendar.MONTH"),
+    week: t("calendar.WEEK"),
+    day: t("calendar.DAY"),
+    agenda: t("calendar.AGENDA"),
+    date: t("calendar.DATE", "Date"),
+    time: t("calendar.TIME", "Time"),
+    event: t("calendar.EVENT", "Event"),
+    showMore: (total: number) => `+ ${t("calendar.MORE", { count: total })}`,
+    noEventsInRange: t(
+      "calendar.NO_EVENTS",
+      "There are no events in this range"
+    ),
+    work_week: t("calendar.WORK_WEEK", "Work week"),
   };
 
   const { buttonOn } = useButtonCreate();
@@ -109,13 +110,6 @@ const Timesheet: React.FC = () => {
     }
   );
 
-  const { trigger: createShift } = useSWRMutation(
-    ["create-employee-shift"],
-    async (_, { arg }: { arg: CreateDayShiftBody }) => {
-      return createDayShift(arg);
-    }
-  );
-
   // Create stable SWR key
   const swrKey = useMemo(
     () =>
@@ -147,6 +141,21 @@ const Timesheet: React.FC = () => {
     }
   );
 
+  const { data: employees } = useSWR(
+    [`get-workers`],
+    () =>
+      getWorkers({
+        organizationId: 1,
+        hrPositionId: "*",
+        placementId: "*",
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
   useEffect(() => {
     if (buttonOn) {
       navigate("/finance/timesheet/creation", { state: { ownerId: 0 } });
@@ -167,32 +176,10 @@ const Timesheet: React.FC = () => {
     setOpenSlot(true);
   };
 
-  const handleShiftCreate = async (data: ShiftFormData) => {
-    const shiftData: CreateDayShiftBody = {
-      workerId: data.userId,
-      posId: typeof posId === "string" ? parseInt(posId) : posId,
-      workDate: dayjs(data.startDate).toDate(),
-      typeWorkDay: data.workType,
-      startWorkingTime: dayjs(data.startDate).toDate(),
-      endWorkingTime: dayjs(data.endDate).toDate(),
-    };
-
-    try {
-      await createShift(shiftData);
-      message.success(t("finance.operationCreated"));
-      // Refetch shifts data to show the new event
-      await refetchShifts();
-      setOpenSlot(false);
-    } catch (error: any) {
-      message.error(t("errors.submitFailed"));
-      console.error("Error creating shift:", error);
-    }
-  };
-
   // Transform shifts data to calendar events
   const calendarEvents = useMemo(() => {
     // If shiftsData is the direct array:
-    if (!shiftsData || !Array.isArray(shiftsData)) {
+    if (!shiftsData || !Array.isArray(shiftsData) || !employees) {
       return [];
     }
 
@@ -200,17 +187,18 @@ const Timesheet: React.FC = () => {
       const startDate = dayjs(shift.props.startWorkingTime).toDate();
       const endDate = dayjs(shift.props.endWorkingTime).toDate();
 
-      const posName =
-        poses?.find((pos) => pos.value === shift.props.posId)?.name ||
-        `Позиция ${shift.props.posId}`;
-
       return {
         id: shift.props.id,
-        title: `${posName}`,
+        title: `${
+          employees.find((emp) => emp.props.id === shift.props.workerId)?.props
+            ?.name || "Неизвестный работник"
+        }`,
         start: startDate,
         end: endDate,
         resource: {
-          type: "shift",
+          type: TypeWorkDay[
+            shift.props.typeWorkDay as keyof typeof TypeWorkDay
+          ],
           shiftId: shift.props.id,
           posId: shift.props.posId,
           createdById: shift.props.createdById,
@@ -219,10 +207,10 @@ const Timesheet: React.FC = () => {
         },
       };
     });
-  }, [shiftsData, poses]);
+  }, [shiftsData, poses, employees]);
 
   const handleSelectEvent = (event: (typeof calendarEvents)[0]) => {
-    if (event.resource?.type === "shift") {
+    if (event.resource?.type === TypeWorkDay.WORKING) {
       navigate(
         `/finance/timesheet/view?id=${event.resource.shiftId}&posId=${event.resource.posId}`
       );
@@ -231,7 +219,7 @@ const Timesheet: React.FC = () => {
 
   return (
     <>
-      <SearchFilter poses={poses} loading={isPosLoading} />
+      <SearchFilter poses={poses} loading={isPosLoading} defaultOpen />
 
       <div className="mb-4">
         <Button
@@ -248,7 +236,7 @@ const Timesheet: React.FC = () => {
         <ShiftCreateModal
           isOpen={openSlot}
           onClose={handleClose}
-          onSubmit={handleShiftCreate}
+          onSubmit={refetchShifts}
           employeeData={{
             organizationId: 1,
             hrPositionId: "*",
@@ -264,7 +252,7 @@ const Timesheet: React.FC = () => {
             localizer={localize}
             events={calendarEvents}
             messages={messages}
-            culture="ru"
+            culture={currentLanguage}
             style={{ height: "100vh" }}
             defaultView="month"
             onSelectEvent={handleSelectEvent}
@@ -273,9 +261,13 @@ const Timesheet: React.FC = () => {
             eventPropGetter={(event) => ({
               style: {
                 backgroundColor:
-                  event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
+                  event.resource?.type === TypeWorkDay.WORKING
+                    ? "#1890ff"
+                    : "#52c41a",
                 borderColor:
-                  event.resource?.type === "shift" ? "#1890ff" : "#52c41a",
+                  event.resource?.type === TypeWorkDay.WORKING
+                    ? "#1890ff"
+                    : "#52c41a",
                 color: "white",
               },
             })}

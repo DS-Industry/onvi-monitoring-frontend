@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { Modal, Steps, Form, DatePicker, Select, Button } from "antd";
+import { Modal, Steps, Form, DatePicker, Select, Button, message } from "antd";
 import { useTranslation } from "react-i18next";
 import type { Dayjs } from "dayjs";
 import useSWR from "swr";
 import { getWorkers, WorkerParams } from "@/services/api/hr";
-import { TypeWorkDay } from "@/services/api/finance";
+import {
+  CreateDayShiftBody,
+  TypeWorkDay,
+  createDayShift,
+} from "@/services/api/finance";
+import dayjs from "dayjs";
+import useSWRMutation from "swr/mutation";
+import { useSearchParams } from "react-router-dom";
 
 const { Option } = Select;
 
 interface ShiftCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: ShiftFormData) => void;
+  onSubmit: () => void;
   users?: Array<{ id: number; name: string; surname: string }>;
-  loading?: boolean;
   employeeData: WorkerParams;
 }
 
@@ -29,13 +35,18 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
   onClose,
   onSubmit,
   users = [],
-  loading = false,
   employeeData,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<ShiftFormData>>({});
+
+  const [isCreating, setIsCreating] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  const posId = Number(searchParams.get("posId") || "*");
 
   const steps = [
     {
@@ -52,6 +63,38 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
     },
   ];
 
+  const { trigger: createShift } = useSWRMutation(
+    ["create-employee-shift"],
+    async (_, { arg }: { arg: CreateDayShiftBody }) => {
+      return createDayShift(arg);
+    }
+  );
+
+  const handleShiftCreate = async (data: ShiftFormData) => {
+    setIsCreating(true);
+    const shiftData: CreateDayShiftBody = {
+      workerId: data.userId,
+      posId: typeof posId === "string" ? parseInt(posId) : posId,
+      workDate: dayjs(data.startDate).toDate(),
+      typeWorkDay: data.workType,
+      startWorkingTime: dayjs(data.startDate).toDate(),
+      endWorkingTime: dayjs(data.endDate).toDate(),
+    };
+
+    try {
+      await createShift(shiftData);
+      onSubmit();
+      message.success(t("finance.operationCreated"));
+      // Refetch shifts data to show the new event
+    } catch (error: any) {
+      message.error(t("errors.submitFailed"));
+      console.error("Error creating shift:", error);
+    } finally {
+      setIsCreating(false);
+      handleCancel();
+    }
+  };
+
   const handleNext = async () => {
     try {
       const values = await form.validateFields();
@@ -61,7 +104,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
         setCurrentStep(currentStep + 1);
       } else {
         const finalData = { ...formData, ...values } as ShiftFormData;
-        onSubmit(finalData);
+        handleShiftCreate(finalData);
       }
     } catch (error) {
       console.error("Validation failed:", error);
@@ -121,7 +164,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
                   className="w-full"
                   showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
-                  placeholder={t("shift.selectStartDateTime")}
+                  placeholder={t("shift.selectStartDate")}
                 />
               </Form.Item>
             </div>
@@ -142,7 +185,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
                   className="w-full"
                   showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
-                  placeholder={t("shift.selectEndDateTime")}
+                  placeholder={t("shift.selectEndDate")}
                 />
               </Form.Item>
             </div>
@@ -256,7 +299,8 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
             <Button
               type="primary"
               onClick={handleNext}
-              loading={loading && currentStep === steps.length - 1}
+              disabled={currentStep === steps.length - 1 && isCreating}
+              loading={currentStep === steps.length - 1 && isCreating}
             >
               {currentStep === steps.length - 1
                 ? t("common.create")
