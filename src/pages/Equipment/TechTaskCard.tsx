@@ -24,58 +24,58 @@ type Props = {
 };
 
 type DynamicInputProps = {
-  type: string;
-  value: string | number | boolean | null;
-  onChange: (val: string | number | boolean | null) => void;
-  disabled: boolean;
+    type: string;
+    value: string | number | boolean | null;
+    onChange: (val: string | number | boolean | null) => void;
+    disabled: boolean;
 };
 
 const DynamicInput: React.FC<DynamicInputProps> = ({ type, value, onChange, disabled }) => {
-  switch (type) {
-    case "Text":
-      return (
-        <Input
-          type="text"
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
-        />
-      );
+    switch (type) {
+        case "Text":
+            return (
+                <Input
+                    type="text"
+                    value={value as string}
+                    onChange={(e) => onChange(e.target.value)}
+                    disabled={disabled}
+                    className="w-full border-[#C0D0E0] h-10 flex items-center"
+                />
+            );
 
-    case "Number":
-      return (
-        <InputNumber
-          value={value as number | null}
-          onChange={(val) => onChange(val ?? null)}
-          disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
-        />
-      );
+        case "Number":
+            return (
+                <InputNumber
+                    value={value as number | null}
+                    onChange={(val) => onChange(val ?? null)}
+                    disabled={disabled}
+                    className="w-full border-[#C0D0E0] h-10 flex items-center"
+                />
+            );
 
-    case "SelectList":
-      return (
-        <Select
-          value={value as string}
-          options={selectOptions}
-          onChange={(val) => onChange(val)}
-          disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
-        />
-      );
+        case "SelectList":
+            return (
+                <Select
+                    value={value as string}
+                    options={selectOptions}
+                    onChange={(val) => onChange(val)}
+                    disabled={disabled}
+                    className="w-full border-[#C0D0E0] h-10 flex items-center"
+                />
+            );
 
-    case "Checkbox":
-      return (
-        <Checkbox
-          checked={Boolean(value)}
-          onChange={(e) => onChange(e.target.checked)}
-          disabled={disabled}
-        />
-      );
+        case "Checkbox":
+            return (
+                <Checkbox
+                    checked={Boolean(value)}
+                    onChange={(e) => onChange(e.target.checked)}
+                    disabled={disabled}
+                />
+            );
 
-    default:
-      return <span>-</span>;
-  }
+        default:
+            return <span>-</span>;
+    }
 };
 
 const TechTaskCard: React.FC<Props> = ({
@@ -97,6 +97,9 @@ const TechTaskCard: React.FC<Props> = ({
         return acc;
     }, {} as Record<string, TechTasksItem[]>);
 
+    Object.values(grouped).forEach(group =>
+        group.sort((a, b) => a.title.localeCompare(b.title))
+    );
     const toggleGroup = (group: string) => {
         setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
     };
