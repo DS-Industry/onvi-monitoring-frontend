@@ -8,22 +8,17 @@ import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
 import useSWR, { mutate } from "swr";
-import {
-  createCategory,
-  getCategory,
-  updateCategory,
-} from "@/services/api/warehouse";
+import { createCategory, getCategory, updateCategory } from "@/services/api/warehouse";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
 import { useButtonCreate, useToast } from "@/components/context/useContext";
-// import TreeTable from "@/components/ui/Table/TreeTable";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import Table, { ColumnsType } from "antd/es/table";
+import { Table, Popconfirm, Typography, Input as AntInput, Button as AntButton } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
-import AntDButton from "antd/es/button";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
 import { Can } from "@/permissions/Can";
 import { Tooltip } from "antd";
+import { ColumnsType } from "antd/es/table";
 
 type TreeData = {
   id: number;
@@ -51,15 +46,9 @@ const buildTree = (data: unknown[]): TreeData[] => {
 
   data.forEach((item) => {
     const typedItem = item as TreeData;
-    if (
-      typedItem.ownerCategoryId === null ||
-      typeof typedItem.ownerCategoryId !== "number"
-    ) {
+    if (typedItem.ownerCategoryId === null || typeof typedItem.ownerCategoryId !== "number") {
       roots.push(map[typedItem.id]);
-    } else if (
-      typeof typedItem.ownerCategoryId === "number" &&
-      map[typedItem.ownerCategoryId]
-    ) {
+    } else if (typeof typedItem.ownerCategoryId === "number" && map[typedItem.ownerCategoryId]) {
       map[typedItem.ownerCategoryId]?.children?.push(map[typedItem.id]);
     }
   });
@@ -70,8 +59,8 @@ const buildTree = (data: unknown[]): TreeData[] => {
 const InventoryGroups: React.FC = () => {
   const { t } = useTranslation();
   const { buttonOn, setButtonOn } = useButtonCreate();
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editInventoryId, setEditInventoryId] = useState<number>(0);
+  const [editingKey, setEditingKey] = useState<number | null>(null);
+  const [editingData, setEditingData] = useState<{name: string, description: string}>({name: '', description: ''});
   const { showToast } = useToast();
 
   const { data: categoryData, isLoading: loadingCategory } = useSWR(
@@ -99,9 +88,7 @@ const InventoryGroups: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
-
-  const { register, handleSubmit, errors, setValue, reset } =
-    useFormHook(formData);
+  const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
   const { trigger: createCat, isMutating } = useSWRMutation(
     ["create-inventory"],
@@ -113,15 +100,15 @@ const InventoryGroups: React.FC = () => {
       })
   );
 
-  const { trigger: updateCat, isMutating: updatingCat } = useSWRMutation(
+  const { trigger: updateCat } = useSWRMutation(
     ["update-inventory"],
-    async () =>
+    async (_, { arg }: { arg: { id: number, name: string, description: string } }) =>
       updateCategory(
         {
-          name: formData.name,
-          description: formData.description,
+          name: arg.name,
+          description: arg.description,
         },
-        editInventoryId
+        arg.id
       )
   );
 
@@ -134,65 +121,47 @@ const InventoryGroups: React.FC = () => {
     setValue(field, value);
   };
 
-  const handleUpdate = (id: number) => {
-    setEditInventoryId(id);
-    setIsEditMode(true);
-    setButtonOn(true);
-    const inventoryToEdit = category.find((inventory) => inventory.id === id);
-    if (inventoryToEdit) {
-      setFormData({
-        name: inventoryToEdit.name,
-        description: inventoryToEdit.description,
-        ownerCategoryId: inventoryToEdit.ownerCategoryId,
-      });
-    }
-  };
-
   const resetForm = () => {
     setFormData(defaultValues);
-    setIsEditMode(false);
     reset();
-    setEditInventoryId(0);
     setButtonOn(!buttonOn);
   };
 
   const onSubmit = async () => {
     try {
-      if (editInventoryId) {
-        const result = await updateCat();
-        if (result) {
-          mutate([`get-category`]);
-          resetForm();
-        } else {
-          throw new Error("Invalid update data.");
-        }
-      } else {
-        const result = await createCat();
-        if (result) {
-          mutate([`get-category`]);
-          resetForm();
-        } else {
-          throw new Error("Invalid response from API");
-        }
-      }
+      await createCat();
+      mutate([`get-category`]);
+      resetForm();
     } catch (error) {
       console.error("Error during form submission: ", error);
       showToast(t("errors.other.errorDuringFormSubmission"), "error");
     }
   };
 
-  const treeData = buildTree(category);
+  const startEditing = (record: TreeData) => {
+    setEditingKey(record.id);
+    setEditingData({
+      name: record.name,
+      description: record.description || ''
+    });
+  };
 
-  const columnsCategory = [
-    {
-      label: "Название группы",
-      key: "name",
-    },
-    {
-      label: "Описание",
-      key: "description",
-    },
-  ];
+  const cancelEditing = () => {
+    setEditingKey(null);
+  };
+
+  const saveEditing = async (id: number) => {
+    try {
+      await updateCat({ id, ...editingData });
+      mutate([`get-category`]);
+      setEditingKey(null);
+    } catch (error) {
+      console.error("Update failed:", error);
+      showToast(t("errors.updateFailed"), "error");
+    }
+  };
+
+  const treeData = buildTree(category);
 
   const userPermissions = usePermissions();
 
@@ -201,52 +170,98 @@ const InventoryGroups: React.FC = () => {
       title: "",
       dataIndex: "isExpanded",
       key: "isExpanded",
-      width: "15%",
+      width: 50,
     },
     {
       title: "Название группы",
       dataIndex: "name",
       key: "name",
+      render: (text: string, record: TreeData) => {
+        if (editingKey === record.id) {
+          return (
+            <AntInput
+              value={editingData.name}
+              onChange={(e) => setEditingData(prev => ({...prev, name: e.target.value}))}
+              placeholder="Название группы"
+            />
+          );
+        }
+        return text;
+      },
     },
     {
       title: "Описание",
       dataIndex: "description",
       key: "description",
+      render: (text: string, record: TreeData) => {
+        if (editingKey === record.id) {
+          return (
+            <AntInput
+              value={editingData.description}
+              onChange={(e) => setEditingData(prev => ({...prev, description: e.target.value}))}
+              placeholder="Описание"
+            />
+          );
+        }
+        return text || "-";
+      },
     },
     {
       title: "",
       key: "actions",
       align: "right",
-      render: (_, record) => (
-        <Can
-          requiredPermissions={[
-            { action: "update", subject: "Warehouse" },
-            { action: "manage", subject: "Warehouse" },
-          ]}
-          userPermissions={userPermissions}
-        >
-          {(allowed) =>
-            allowed && (
-              <Tooltip title={t("routes.edit")}>
-                <AntDButton
-                  type="link"
-                  icon={
-                    <EditOutlined className="text-blue-500 hover:text-blue-700" />
-                  }
-                  onClick={() => handleUpdate(record.id)}
+      render: (_, record) => {
+        if (editingKey === record.id) {
+          return (
+            <span>
+              <AntButton
+                type="text"
+                icon={<CheckOutlined style={{ color: 'green' }} />}
+                onClick={() => saveEditing(record.id)}
+              />
+              <Popconfirm
+                title={t("common.discardChanges")}
+                onConfirm={cancelEditing}
+                okText={t("equipment.yes")}
+                cancelText={t("equipment.no")}
+              >
+                <AntButton
+                  type="text"
+                  icon={<CloseOutlined style={{ color: 'red' }} />}
                 />
-              </Tooltip>
-            )
-          }
-        </Can>
-      ),
+              </Popconfirm>
+            </span>
+          );
+        }
+        return (
+          <Can
+            requiredPermissions={[
+              { action: "update", subject: "Warehouse" },
+              { action: "manage", subject: "Warehouse" },
+            ]}
+            userPermissions={userPermissions}
+          >
+            {(allowed) =>
+              allowed && (
+                <Tooltip title={t("routes.edit")}>
+                  <AntButton
+                    type="text"
+                    icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                    onClick={() => startEditing(record)}
+                  />
+                </Tooltip>
+              )
+            }
+          </Can>
+        );
+      },
     },
   ];
 
   return (
     <>
       {loadingCategory ? (
-        <TableSkeleton columnCount={columnsCategory.length} />
+        <TableSkeleton columnCount={3} />
       ) : treeData.length > 0 ? (
         <div className="mt-8">
           <Table<TreeData>
@@ -270,6 +285,7 @@ const InventoryGroups: React.FC = () => {
           />
         </NoDataUI>
       )}
+      
       <DrawerCreate classname="w-[440px]" onClose={resetForm}>
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
@@ -287,19 +303,17 @@ const InventoryGroups: React.FC = () => {
             changeValue={(e) => handleInputChange("name", e.target.value)}
             error={!!errors.name}
             {...register("name", {
-              required: !isEditMode && "Name is required",
+              required: "Name is required",
             })}
             helperText={errors.name?.message || ""}
           />
           <DropdownInput
             title={`${t("warehouse.included")}`}
-            // label={t("warehouse.notSel")}
             options={categories}
             classname="w-64"
             {...register("ownerCategoryId")}
             value={formData.ownerCategoryId}
             onChange={(value) => handleInputChange("ownerCategoryId", value)}
-            isDisabled={isEditMode}
           />
           <MultilineInput
             title={t("warehouse.desc")}
@@ -307,9 +321,7 @@ const InventoryGroups: React.FC = () => {
             classname="w-80"
             inputType="secondary"
             value={formData.description}
-            changeValue={(e) =>
-              handleInputChange("description", e.target.value)
-            }
+            changeValue={(e) => handleInputChange("description", e.target.value)}
           />
           <div className="flex space-x-4">
             <Button
@@ -322,7 +334,7 @@ const InventoryGroups: React.FC = () => {
             <Button
               title={t("routes.create")}
               form={true}
-              isLoading={isEditMode ? updatingCat : isMutating}
+              isLoading={isMutating}
               handleClick={() => {}}
             />
           </div>
