@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import { Table } from "antd";
 import { getPrograms } from "@/services/api/pos";
-import { getPoses } from "@/services/api/equipment";
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -68,20 +67,9 @@ const Programs: React.FC = () => {
     const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
     const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
     const posId = searchParams.get("posId") || "*";
-    const city = searchParams.get("city") || "*";
 
     const [totalCount, setTotalCount] = useState(0);
 
-    // Get POS options
-    const { data: poses } = useSWR(`get-pos-${city}`, () =>
-        getPoses({ placementId: city }).then((data) => {
-            const options = data.sort((a, b) => a.id - b.id).map((item) => ({
-                name: item.name,
-                value: item.id,
-            }));
-            return [{ name: t("warehouse.all"), value: "*" }, ...options];
-        })
-    );
 
     // Prepare API Filters
     const filterParams = useMemo(
@@ -201,9 +189,8 @@ const Programs: React.FC = () => {
     return (
         <>
             <GeneralFilters
-                poses={poses}
                 count={totalCount}
-                hideSearch={true}
+                display={["pos", "city", "dateTime"]}
             />
 
             <div className="mt-8 space-y-6">

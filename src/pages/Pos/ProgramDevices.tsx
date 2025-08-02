@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import { Table } from "antd";
 import { getProgramPos } from "@/services/api/pos";
-import { getPoses } from "@/services/api/equipment";
 import { useLocation, useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
@@ -33,7 +32,6 @@ type ProgramDevice = {
 
 const ProgramDevices: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
     const location = useLocation();
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10);
@@ -47,22 +45,6 @@ const ProgramDevices: React.FC = () => {
     const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
     const cityParam = searchParams.get("city") || "*";
 
-    const { data: poses } = useSWR(
-        `get-pos-${cityParam}`,
-        () =>
-            getPoses({ placementId: cityParam }).then((data) => {
-                const options = data.sort((a, b) => a.id - b.id).map((item) => ({
-                    name: item.name,
-                    value: item.id,
-                }));
-                return [{ name: allCategoriesText, value: "*" }, ...options];
-            }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true,
-        }
-    );
 
     const filterParams = useMemo(
         () => ({
@@ -161,7 +143,7 @@ const ProgramDevices: React.FC = () => {
 
     return (
         <>
-            <GeneralFilters count={totalCount} hideSearch poses={poses} />
+            <GeneralFilters count={totalCount} display={["pos", "city", "dateTime"]} />
 
             <div className="mt-8">
                 <ColumnSelector

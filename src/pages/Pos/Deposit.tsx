@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 
 // services
 import { getDeposit } from "@/services/api/pos";
-import { getPoses } from "@/services/api/equipment";
 import { getPlacement } from "@/services/api/device";
 
 // utils
@@ -99,24 +98,7 @@ const Deposit: React.FC = () => {
     }
   );
 
-  const { data: poses } = useSWR(
-    `get-pos-${cityParam}`,
-    () =>
-      getPoses({ placementId: cityParam }).then((data) => {
-        const sorted = data?.sort((a, b) => a.id - b.id) || [];
-        const options = sorted.map((item) => ({
-          name: item.name,
-          value: item.id,
-        }));
-
-        return options;
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  
 
   const { data: cities } = useSWR(
     "get-cities",
@@ -217,11 +199,8 @@ const Deposit: React.FC = () => {
   return (
     <>
       <GeneralFilters
-        poses={poses}
         count={totalCount}
-        hideCity={true}
-        hideSearch={true}
-        hideReset={true}
+        display={["pos", "dateTime"]}
       />
 
       <div className="mt-8">

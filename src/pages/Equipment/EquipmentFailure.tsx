@@ -38,7 +38,6 @@ import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t("warehouse.all");
   const { buttonOn, setButtonOn } = useButtonCreate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIncidentId, setEditIncidentId] = useState<number>(0);
@@ -91,8 +90,6 @@ const EquipmentFailure: React.FC = () => {
 
   const {
     data: posData,
-    isLoading: loadingPos,
-    isValidating: validatingPos,
   } = useSWR(
     [`get-pos`, cityParam],
     () => getPoses({ placementId: cityParam }),
@@ -156,10 +153,7 @@ const EquipmentFailure: React.FC = () => {
     posData?.map((item) => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
-  const posesAllObj = {
-    name: allCategoriesText,
-    value: "*",
-  };
+
 
   const workers: { name: string; value: number }[] = (
     workerData?.map((item) => ({ name: item.name, value: item.id })) || []
@@ -538,9 +532,7 @@ const EquipmentFailure: React.FC = () => {
     <>
       <GeneralFilters
         count={incidents.length}
-        poses={[...poses, posesAllObj]}
-        hideSearch={true}
-        loadingPos={loadingPos || validatingPos}
+        display={["city", "pos", "dateTime", "reset", "count"]}
       />
       <div className="mt-8">
         <ColumnSelector
