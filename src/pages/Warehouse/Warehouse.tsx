@@ -26,7 +26,6 @@ type Warehouse = {
 
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
-    const allCategoriesText = t("warehouse.all");
     const [searchParams] = useSearchParams();
     const { buttonOn, setButtonOn } = useButtonCreate();
     const { showToast } = useToast();
@@ -61,10 +60,6 @@ const Warehouse: React.FC = () => {
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
-    const posesAllObj = {
-        name: allCategoriesText,
-        value: "*",
-    };
 
     const workers: { name: string; value: number; }[] = workerData?.map((item) => ({ name: item.name, value: item.id })) || [];
 
@@ -156,10 +151,8 @@ const Warehouse: React.FC = () => {
     return (
         <div>
             <GeneralFilters
-                poses={[...poses, posesAllObj]}
                 count={warehouses.length}
-                hideSearch={true}
-                hideDateAndTime={true}
+                display={["pos", "city"]}
             />
             <div className="mt-8">
                 <ColumnSelector

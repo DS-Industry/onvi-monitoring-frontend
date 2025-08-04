@@ -166,7 +166,7 @@ const OverheadCosts: React.FC = () => {
 
     return (
         <>
-            <GeneralFilters count={transformedData.length} hideDateAndTime={true} hideSearch={true}>
+            <GeneralFilters count={transformedData.length} display={["city"]}>
                 <div>
                     <div className="text-sm text-text02">{t("warehouse.organization")}</div>
                     <Select

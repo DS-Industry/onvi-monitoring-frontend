@@ -259,8 +259,7 @@ const Documents: React.FC = () => {
     <>
       <GeneralFilters
         count={data.length}
-        wareHousesSelect={warehouses}
-        hideSearch={true}
+        display={["warehouse", "city", "dateTime"]}
       />
       <div className="mt-8">
         <ColumnSelector

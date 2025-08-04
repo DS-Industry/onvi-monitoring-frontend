@@ -182,10 +182,7 @@ const TechTaskCreate: React.FC = () => {
         <>
             <GeneralFilters
                 count={data?.totalCount || 0}
-                hideDateAndTime={true}
-                hideCity={true}
-                hideSearch={true}
-                poses={poses?.map((item) => ({ name: item.name, value: item.id }))}
+                display={["pos", "reset"]}
                 onReset={resetFilters}
             />
             <div className="mt-8">

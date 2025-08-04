@@ -109,7 +109,7 @@ const Collection: React.FC = () => {
         }
     );
 
-    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR(
+    const { data: posData } = useSWR(
         [`get-pos`, cityParam],
         () => getPoses({ placementId: cityParam }),
         {
@@ -248,9 +248,7 @@ const Collection: React.FC = () => {
         <div>
             <GeneralFilters
                 count={collectionsData?.length || 0}
-                hideSearch={true}
-                poses={poses}
-                loadingPos={loadingPos || validatingPos}
+                display={["pos", "city", "dateTime"]}
             />
 
             <div className="mt-8">
