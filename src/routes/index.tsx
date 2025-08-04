@@ -533,7 +533,7 @@ const routes = [
       {
         name: "positions",
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: "new",
         isVisible: true,
         path: "/hr/positions",
