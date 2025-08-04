@@ -103,7 +103,7 @@ const PlanAct: React.FC = () => {
         }
     );
 
-    const { data: posList, isLoading: isPosLoading } = useSWR(
+    const { data: posList } = useSWR(
         ["get-poses", placementId],
         () => getPoses({ placementId }),
         { keepPreviousData: true }
@@ -195,10 +195,8 @@ const PlanAct: React.FC = () => {
     return (
         <>
             <GeneralFilters
-                poses={posOptions}
                 count={totalCount}
-                hideSearch={true}
-                loadingPos={isPosLoading}
+                display={["pos", "city", "dateTime"]}
             />
 
             <div className="mt-8">

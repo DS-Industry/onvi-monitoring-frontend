@@ -410,9 +410,7 @@ const InventoryCreation: React.FC = () => {
     <>
       <GeneralFilters
         count={inventoriesDisplay.length}
-        hideDateAndTime={true}
-        hideCity={true}
-        hideSearch={true}
+        display={["organization"]}
       >
         <div>
           <div className="text-sm text-text02">

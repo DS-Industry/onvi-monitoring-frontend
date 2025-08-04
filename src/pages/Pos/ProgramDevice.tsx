@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import dayjs from "dayjs";
 import { getProgramDevice } from "@/services/api/pos";
-import { getDeviceByPosId } from "@/services/api/device";
 
 import { Table } from "antd";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
@@ -46,7 +45,6 @@ const ProgramDevice: React.FC = () => {
 
     const formattedDate = dayjs().format("YYYY-MM-DD");
 
-    const posId = Number(searchParams.get("posId") || 0);
     const deviceId = Number(searchParams.get("deviceId") || 0);
     const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
     const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
@@ -97,25 +95,7 @@ const ProgramDevice: React.FC = () => {
         }
     );
 
-    // Device list for filter
-    const { data: deviceList } = useSWR(
-        "get-device-pos",
-        () => getDeviceByPosId(posId),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
 
-    // Options for device selection dropdown
-    const deviceOptions = useMemo(() => {
-        return (
-            deviceList?.map((d) => ({
-                name: d.props.name,
-                value: d.props.id,
-            })) || []
-        );
-    }, [deviceList]);
 
     // Table columns
     const dateRender = getDateRender();
@@ -185,11 +165,8 @@ const ProgramDevice: React.FC = () => {
     return (
         <>
             <GeneralFilters
-                devicesSelect={deviceOptions}
                 count={totalCount}
-                hideCity={true}
-                hideSearch={true}
-                hideReset={true}
+                display={["device", "dateTime"]}
             />
 
             <div className="mt-8">
