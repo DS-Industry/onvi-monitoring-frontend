@@ -201,8 +201,6 @@ const Organization: React.FC = () => {
     <>
       <GeneralFilters
         count={organizations.length}
-        hideSearch={true}
-        hideDateAndTime={true}
       />
       <>
         <div className="mt-8">

@@ -153,7 +153,7 @@ const TechTasks: React.FC = () => {
 
     return (
         <>
-            <GeneralFilters count={data?.totalCount || 0} hideCity={true} hideSearch={true} hideDateAndTime={true} onReset={resetFilters} poses={poses?.map((item) => ({ name: item.name, value: item.id }))}>
+            <GeneralFilters count={data?.totalCount || 0} display={["pos", "reset"]} onReset={resetFilters}>
                 <div>
                     <div className="text-sm text-text02">{t("constants.status")}</div>
                     <Select

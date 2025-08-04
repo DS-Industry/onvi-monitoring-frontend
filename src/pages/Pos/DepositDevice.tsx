@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 
 // services
 import { getDepositDevice } from "@/services/api/pos";
-import { getDeviceByPosId } from "@/services/api/device";
 
 // tables
 import { Table } from "antd";
@@ -44,19 +43,13 @@ interface DepositMonitoring {
   currencyType: string;
 }
 
-type DeviceOption = {
-  props: {
-    id: number;
-    name: string;
-  };
-};
+
 
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const formattedDate = dayjs().format("YYYY-MM-DD");
 
-  const posId = Number(searchParams.get("posId") || 0);
   const deviceId = Number(searchParams.get("deviceId") || 0);
   const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
   const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
@@ -105,23 +98,7 @@ const DepositDevice: React.FC = () => {
     }
   );
 
-  const { data: deviceList } = useSWR(
-    "get-device-pos",
-    () => getDeviceByPosId(posId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
 
-  const deviceOptions = useMemo(() => {
-    return (
-      deviceList?.map((d: DeviceOption) => ({
-        name: d.props.name,
-        value: d.props.id,
-      })) || []
-    );
-  }, [deviceList]);
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
@@ -186,11 +163,8 @@ const DepositDevice: React.FC = () => {
   return (
     <>
       <GeneralFilters
-        devicesSelect={deviceOptions}
         count={totalCount}
-        hideCity={true}
-        hideSearch={true}
-        hideReset={true}
+        display={["device", "dateTime"]}
       />
 
       <div className="mt-8">

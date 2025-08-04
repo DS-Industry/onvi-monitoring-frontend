@@ -4,10 +4,8 @@ import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import { getDepositPos } from "@/services/api/pos";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { getPlacement } from "@/services/api/device";
 import { formatNumber, getCurrencyRender, getDateRender } from "@/utils/tableUnits";
-import { getPoses } from "@/services/api/equipment";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
 
@@ -44,9 +42,7 @@ interface DevicesMonitoring {
 }
 
 const DepositDevices: React.FC = () => {
-  const { t } = useTranslation();
-  const allCategoriesText = t("warehouse.all");
-
+  
   const location = useLocation();
 
   const today = new Date();
@@ -67,26 +63,6 @@ const DepositDevices: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Get poses based on the selected city
-  const { data: poses } = useSWR(
-    `get-pos-${cityParam}`,
-    () =>
-      getPoses({ placementId: cityParam })
-        .then((data) => data?.sort((a, b) => a.id - b.id) || [])
-        .then((data) => {
-          const options = data.map((item) => ({
-            name: item.name,
-            value: item.id,
-          }));
-          const posesAllObj = { name: allCategoriesText, value: "*" };
-          return [posesAllObj, ...options];
-        }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
 
   // Fetch cities for the dropdown filter
   const { data: cities } = useSWR(
@@ -242,7 +218,7 @@ const DepositDevices: React.FC = () => {
 
   return (
     <>
-      <GeneralFilters count={totalPosesCount} hideSearch={true} poses={poses} />
+      <GeneralFilters count={totalPosesCount} display={["pos", "city", "dateTime"]} />
 
       <div className="mt-8">
         <ColumnSelector

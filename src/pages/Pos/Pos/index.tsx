@@ -215,8 +215,6 @@ const Pos: React.FC = () => {
     <>
       <GeneralFilters
         count={poses.length}
-        hideSearch={true}
-        hideDateAndTime={true}
       />
       {posLoading ? (
         <TableSkeleton columnCount={columnsPos.length} />

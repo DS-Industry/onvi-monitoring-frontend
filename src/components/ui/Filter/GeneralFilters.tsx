@@ -1,86 +1,53 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Select, Input, Collapse, DatePicker, Space, TimePicker } from "antd";
-import Button from "@ui/Button/Button.tsx";
-import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
-
-const { Search } = Input;
-
-import useSWR from "swr";
-import { getPlacement } from "@/services/api/device/index.ts";
+import { Collapse } from "antd";
 import { useTranslation } from "react-i18next";
+import SearchInputFilter from "./SearchInputFilter";
+import CityFilter from "./CityFilter";
+import OrganizationFilter from "./OrganizationFilter";
+import PosFilter from "./PosFilter";
+import DeviceFilter from "./DeviceFilter";
+import WarehouseFilter from "./WarehouseFilter";
+import DateTimeFilter from "./DateTimeFilter";
+import ResetButton from "./ResetButton";
+import FilterCount from "./FilterCount";
+import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
 
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
-
-type Optional = {
-  name: string;
-  value: string | number;
-};
+type FilterType = 
+  | "search" 
+  | "city" 
+  | "organization" 
+  | "pos" 
+  | "device" 
+  | "warehouse" 
+  | "dateTime" 
+  | "reset" 
+  | "count";
 
 type GeneralFiltersProps = {
   count: number;
-  organizationsSelect?: Optional[];
-  devicesSelect?: Optional[];
-  wareHousesSelect?: Optional[];
-  poses?: Optional[];
-  hideCity?: boolean;
-  hideSearch?: boolean;
-  hideReset?: boolean;
-  loadingPos?: boolean;
-  hideDateAndTime?: boolean;
+  display?: FilterType[];
   children?: React.ReactNode;
   onReset?: () => void;
 };
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   count,
-  organizationsSelect,
-  devicesSelect,
-  wareHousesSelect,
-  hideCity = false,
-  hideSearch = false,
-  hideReset = false,
-  loadingPos,
-  poses,
-  hideDateAndTime = false,
+  display = ["search", "city", "organization", "pos", "device", "warehouse", "dateTime", "reset", "count"],
   children,
   onReset,
 }) => {
   const { t } = useTranslation();
-  const allCategoriesText = t("warehouse.all");
   const contentRef = useRef<HTMLDivElement>(null);
-
   const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
+
+  const shouldShow = (filter: FilterType) => display.includes(filter);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getParam = (key: string, fallback = "") =>
-    searchParams.get(key) || fallback;
-
-  const [startDate, setStartDate] = useState(
-    dayjs(getParam("dateStart") || dayjs().format("YYYY-MM-DDTHH:mm"))
-  );
-
-  const [endDate, setEndDate] = useState(
-    dayjs(getParam("dateEnd") || dayjs().format("YYYY-MM-DDTHH:mm"))
-  );
-
-  const [filterToggle, setFilterToggle] = useState(false);
-
-  const { data: cityData } = useSWR("get-city", getPlacement);
-
-  const cities: Optional[] = [
-    { name: allCategoriesText, value: "*" },
-    ...(cityData?.map((item) => ({
-      name: item.region,
-      value: String(item.id),
-    })) || []),
-  ];
-
   useEffect(() => {
-    if (!hideDateAndTime) {
+    if (shouldShow("dateTime")) {
       const currentStart = searchParams.get("dateStart");
       const currentEnd = searchParams.get("dateEnd");
 
@@ -94,31 +61,9 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
           dateStart: defaultStart,
           dateEnd: defaultEnd,
         });
-
-        setStartDate(dayjs(defaultStart));
-        setEndDate(dayjs(defaultEnd));
       }
     }
-  }, [hideDateAndTime, searchParams, setSearchParams]);
-
-  const resetFilters = () => {
-    const today = dayjs().format("YYYY-MM-DDTHH:mm");
-
-    updateSearchParams(searchParams, setSearchParams, {
-      dateStart: today,
-      dateEnd: today,
-      city: "*",
-      page: DEFAULT_PAGE,
-      size: DEFAULT_PAGE_SIZE,
-      posId: "*",
-      deviceId: "",
-      warehouseId: "",
-    });
-
-    setStartDate(dayjs());
-    setEndDate(dayjs());
-    setFilterToggle(!filterToggle);
-  };
+  }, [shouldShow, display]);
 
   return (
     <Collapse
@@ -144,210 +89,20 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
               <div className="flex flex-wrap gap-4">
-                {!hideSearch && (
-                  <Search
-                    placeholder="Поиск"
-                    className="w-full sm:w-80"
-                    onSearch={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        search: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                  />
-                )}
-
-                {!hideCity && (
-                  <SearchDropdownInput
-                    title={t("pos.city")}
-                    classname="w-full sm:w-80"
-                    options={cities}
-                    value={getParam("city", "*")}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        city: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                  />
-                )}
-
-                {organizationsSelect?.length ? (
-                  <Select
-                    className="w-full sm:w-80"
-                    placeholder="Выберите организацию"
-                    value={getParam("orgId", "")}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        orgId: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                    options={organizationsSelect.map((item) => ({
-                      label: item.name,
-                      value: item.value,
-                    }))}
-                  />
-                ) : null}
-
-                {poses?.length ? (
-                  <SearchDropdownInput
-                    title={t("analysis.posId")}
-                    classname="w-full sm:w-80"
-                    placeholder="Выберите объект"
-                    options={poses.map((item) => ({
-                      ...item,
-                      value: String(item.value),
-                    }))}
-                    value={getParam("posId", "*")}
-                    onChange={(val) => {
-                      updateSearchParams(searchParams, setSearchParams, {
-                        posId: val,
-                        page: DEFAULT_PAGE,
-                      });
-                    }}
-                    loading={loadingPos}
-                  />
-                ) : null}
-
-                {devicesSelect?.length ? (
-                  <div className="flex flex-col text-sm text-text02">
-                    {t("analysis.deviceId")}
-                    <Select
-                      className="w-full sm:w-80"
-                      placeholder="Выберите устройство"
-                      value={Number(getParam("deviceId", ""))}
-                      onChange={(val) => {
-                        updateSearchParams(searchParams, setSearchParams, {
-                          deviceId: val,
-                          page: DEFAULT_PAGE,
-                        });
-                      }}
-                      options={devicesSelect.map((item) => ({
-                        label: item.name,
-                        value: item.value,
-                      }))}
-                    />
-                  </div>
-                ) : null}
-
-                {wareHousesSelect?.length ? (
-                  <div className="flex flex-col text-sm text-text02">
-                    {t("analysis.warehouseId")}
-                    <Select
-                      className="w-full sm:w-80"
-                      placeholder="Введите название склада"
-                      value={getParam("warehouseId", "*")}
-                      onChange={(val) => {
-                        updateSearchParams(searchParams, setSearchParams, {
-                          warehouseId: val,
-                        });
-                      }}
-                      options={wareHousesSelect.map((item) => ({
-                        label: item.name,
-                        value: String(item.value),
-                      }))}
-                      size="large"
-                    />
-                  </div>
-                ) : null}
+                {shouldShow("search") && <SearchInputFilter />}
+                {shouldShow("city") && <CityFilter />}
+                {shouldShow("organization") && <OrganizationFilter />}
+                {shouldShow("pos") && <PosFilter />}
+                {shouldShow("device") && <DeviceFilter />}
+                {shouldShow("warehouse") && <WarehouseFilter />}
                 {children}
               </div>
-              {!hideDateAndTime && (
-                <div className="mt-4">
-                  <Space size="middle" direction="horizontal">
-                    <div className="flex flex-row gap-1">
-                      <DatePicker
-                        value={startDate}
-                        format="YYYY-MM-DD"
-                        onChange={(date) => {
-                          if (date) {
-                            const newDateTime = startDate
-                              .set("year", date.year())
-                              .set("month", date.month())
-                              .set("date", date.date());
-                            setStartDate(newDateTime);
-                            updateSearchParams(searchParams, setSearchParams, {
-                              dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
-                              page: DEFAULT_PAGE,
-                            });
-                          }
-                        }}
-                        placeholder="Start Date"
-                      />
-                      <TimePicker
-                        value={startDate}
-                        format="HH:mm"
-                        onChange={(time) => {
-                          if (time) {
-                            const newDateTime = startDate
-                              .set("hour", time.hour())
-                              .set("minute", time.minute());
-                            setStartDate(newDateTime);
-                            updateSearchParams(searchParams, setSearchParams, {
-                              dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
-                              page: DEFAULT_PAGE,
-                            });
-                          }
-                        }}
-                        placeholder="Start Time"
-                      />
-                    </div>
-
-                    <div className="flex flex-row gap-1">
-                      <DatePicker
-                        value={endDate}
-                        format="YYYY-MM-DD"
-                        onChange={(date) => {
-                          if (date) {
-                            const newDateTime = endDate
-                              .set("year", date.year())
-                              .set("month", date.month())
-                              .set("date", date.date());
-                            setEndDate(newDateTime);
-                            updateSearchParams(searchParams, setSearchParams, {
-                              dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
-                              page: DEFAULT_PAGE,
-                            });
-                          }
-                        }}
-                        placeholder="End Date"
-                      />
-                      <TimePicker
-                        value={endDate}
-                        format="HH:mm"
-                        onChange={(time) => {
-                          if (time) {
-                            const newDateTime = endDate
-                              .set("hour", time.hour())
-                              .set("minute", time.minute());
-                            setEndDate(newDateTime);
-                            updateSearchParams(searchParams, setSearchParams, {
-                              dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
-                              page: DEFAULT_PAGE,
-                            });
-                          }
-                        }}
-                        placeholder="End Time"
-                      />
-                    </div>
-                  </Space>
-                </div>
-              )}
+              
+              {shouldShow("dateTime") && <DateTimeFilter />}
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
-                {!hideReset && (
-                  <Button
-                    title="Сбросить"
-                    type="outline"
-                    handleClick={() => {
-                      if (onReset) onReset();
-                      else resetFilters();
-                    }}
-                    classname="w-[168px]"
-                  />
-                )}
-                <p className="font-semibold">Найдено: {count}</p>
+                {shouldShow("reset") && <ResetButton onReset={onReset} />}
+                {shouldShow("count") && <FilterCount count={count} />}
               </div>
             </div>
           ),

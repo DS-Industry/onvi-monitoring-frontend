@@ -1,7 +1,6 @@
-import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React from "react";
 import useSWR from "swr";
-import { ChemicalConsumptionResponse, getChemicalReport, getPoses } from "@/services/api/equipment";
+import { ChemicalConsumptionResponse, getChemicalReport } from "@/services/api/equipment";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
@@ -42,13 +41,11 @@ const transformDataToTableRows = (data: ChemicalConsumptionResponse[]): TableRow
 };
 
 const ChemicalConsumption: React.FC = () => {
-    const { t } = useTranslation();
 
     const today = dayjs().toDate();
     const formattedDate = today.toISOString().slice(0, 10);
     const [searchParams] = useSearchParams();
 
-    const allCategoriesText = t("warehouse.all");
     const posId = searchParams.get("posId") || "*";
     const dateStart = searchParams.get("dateStart") || `${formattedDate}T00:00`;
     const dateEnd = searchParams.get("dateEnd") || `${formattedDate}T23:59`;
@@ -75,27 +72,11 @@ const ChemicalConsumption: React.FC = () => {
         }
     );
 
-    const { data: posData, isLoading: loadingPos, isValidating: validatingPos } = useSWR(
-        [`get-pos`, cityParam],
-        () => getPoses({ placementId: cityParam }),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true
-        }
-    );
 
     const data = chemicalReports || [];
     const tableRows = transformDataToTableRows(data);
 
-    const poses: { name: string; value: number | string; }[] = useMemo(() => {
-        const mappedPoses = posData?.map((item) => ({ name: item.name, value: item.id })) || [];
-        const posesAllObj = {
-            name: allCategoriesText,
-            value: "*"
-        };
-        return [posesAllObj, ...mappedPoses];
-    }, [posData, allCategoriesText]);
+
 
     const columnsChemicalConsumption: ColumnsType<TableRow> = [
         {
@@ -224,9 +205,7 @@ const ChemicalConsumption: React.FC = () => {
         <>
             <GeneralFilters
                 count={tableRows.length}
-                poses={poses}
-                hideSearch={true}
-                loadingPos={loadingPos || validatingPos}
+                display={["city", "pos", "dateTime", "reset", "count"]}
             />
             <div className="mt-8">
                 <ColumnSelector
