@@ -2,22 +2,17 @@ import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
-import { getPlacement } from "@/services/api/device/index.ts";
-import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
+import { Select } from "antd";
+import { getPlacement } from "@/services/api/device";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE } from "@/utils/constants.ts";
-
-type Optional = {
-  name: string;
-  value: string | number;
-};
+import { DEFAULT_PAGE } from "@/utils/constants";
 
 type CityFilterProps = {
   className?: string;
 };
 
 const CityFilter: React.FC<CityFilterProps> = ({
-  className = "w-full sm:w-80"
+  className = "w-full sm:w-80",
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,29 +21,42 @@ const CityFilter: React.FC<CityFilterProps> = ({
   const getParam = (key: string, fallback = "") =>
     searchParams.get(key) || fallback;
 
-  const cities: Optional[] = [
-    { name: t("warehouse.all"), value: "*" },
+  const cities = [
+    { label: t("warehouse.all"), value: "*" },
     ...(cityData?.map((item) => ({
-      name: item.region,
+      label: item.region,
       value: String(item.id),
     })) || []),
   ];
 
-  const handleChange = (val: string) => {
+  const handleChange = (value: string) => {
     updateSearchParams(searchParams, setSearchParams, {
-      city: val,
+      city: value,
       page: DEFAULT_PAGE,
     });
   };
 
   return (
-    <SearchDropdownInput
-      title={t("pos.city")}
-      classname={className}
-      options={cities}
+    <div>
+      <label className="block mb-1 text-sm font-medium text-gray-700">
+        {t("pos.city")}
+      </label>
+    <Select
+      showSearch
+      allowClear={false}
+      className={className}
       value={getParam("city", "*")}
       onChange={handleChange}
+      options={cities}
+      optionFilterProp="label"
+      filterOption={(input, option) =>
+        (option?.label ?? "")
+          .toString()
+          .toLowerCase()
+          .includes(input.toLowerCase())
+      }
     />
+    </div>
   );
 };
 

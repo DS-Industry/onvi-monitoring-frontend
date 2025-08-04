@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
-import Button from "@ui/Button/Button.tsx";
+import { Button } from "antd";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants";
 
 type ResetButtonProps = {
   onReset?: () => void;
@@ -13,11 +13,10 @@ type ResetButtonProps = {
 
 const ResetButton: React.FC<ResetButtonProps> = ({
   onReset,
-  className = "w-[168px]"
+  className = "w-[168px]",
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterToggle, setFilterToggle] = useState(false);
 
   const resetFilters = () => {
     const today = dayjs().format("YYYY-MM-DDTHH:mm");
@@ -34,8 +33,6 @@ const ResetButton: React.FC<ResetButtonProps> = ({
       orgId: "",
       search: "",
     });
-
-    setFilterToggle(!filterToggle);
   };
 
   const handleClick = () => {
@@ -48,11 +45,12 @@ const ResetButton: React.FC<ResetButtonProps> = ({
 
   return (
     <Button
-      title={t("filters.reset")}
-      type="outline"
-      handleClick={handleClick}
-      classname={className}
-    />
+      type="default"
+      onClick={handleClick}
+      className={className}
+    >
+      {t("filters.reset")}
+    </Button>
   );
 };
 
