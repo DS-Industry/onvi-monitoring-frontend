@@ -14,7 +14,7 @@ enum CarWashPosType {
     SelfServiceAndPortal = "SelfServiceAndPortal"
 }
 
-type Pos = {
+export type Pos = {
     id: number;
     name: string;
     slug: string;

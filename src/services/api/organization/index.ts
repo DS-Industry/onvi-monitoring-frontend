@@ -14,7 +14,7 @@ enum ORGANIZATION {
     GET_CONTACT = 'user/contact'
 }
 
-type Organization = {
+export type Organization = {
     id: number;
     name: string;
     slug: string;
@@ -27,7 +27,7 @@ type Organization = {
     ownerId: number;
 }
 
-type OrganizationBody = {
+export type OrganizationBody = {
     fullName: string;
     organizationType: string;
     rateVat: string;
@@ -165,7 +165,7 @@ type AddressParams = {
     placementId: number | string;
 }
 
-type RoleRequestBody = {
+export type RoleRequestBody = {
     name: string;
     surname?: string;
     middlename?: string;

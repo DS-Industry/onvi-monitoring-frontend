@@ -127,7 +127,7 @@ export type PosResponse = {
     updatedById: number;
 }
 
-type WorkerResponse = {
+export type WorkerResponse = {
     id: number;
     name: string;
     surname: string;
