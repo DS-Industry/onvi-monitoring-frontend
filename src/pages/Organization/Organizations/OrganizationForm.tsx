@@ -1,6 +1,7 @@
 import { useButtonCreate, useToast } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
 import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
+import DateInput from "@/components/ui/Input/DateInput";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
@@ -10,6 +11,7 @@ import {
   OrganizationBody,
   postUpdateOrganization,
 } from "@/services/api/organization";
+import dayjs from "dayjs";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -58,6 +60,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         bank: formData.bank,
         settlementAccount: formData.settlementAccount,
         addressBank: formData.addressBank,
+        dateCertificate: formData.dateCertificate,
       })
   );
 
@@ -77,6 +80,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         bank: formData.bank,
         settlementAccount: formData.settlementAccount,
         addressBank: formData.addressBank,
+        dateCertificate: formData.dateCertificate,
       })
     );
 
@@ -97,7 +101,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
     | "certificateNumber"
     | "dateCertificate";
 
-  const handleInputChange = (field: FieldType, value: string) => {
+  const handleInputChange = (field: FieldType, value: string | Date | undefined) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
@@ -346,6 +350,21 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
             }
             error={!!errors.addressBank}
             helperText={errors.addressBank?.message}
+          />
+
+          <DateInput
+            title={t("finance.dat")}
+            classname="w-40"
+            value={
+              formData.dateCertificate ? dayjs(formData.dateCertificate) : null
+            }
+            changeValue={(date) =>
+              handleInputChange(
+                "dateCertificate",
+                date ? date.toDate() : undefined
+              )
+            }
+            {...register("dateCertificate")}
           />
 
           <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
