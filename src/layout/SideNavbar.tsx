@@ -89,7 +89,7 @@ const Sidebar = ({
   };
 
   const renderSubNav = (item: RouteItem) => (
-    <div className="ml-4 mt-2">
+    <div className="ml-4 mt-2 h-full bg-[#fff]">
       {item.subNav?.map(subItem => (
         <Can
           key={subItem.name}
@@ -162,7 +162,11 @@ const Sidebar = ({
             </NavLink>
 
             {!isMobile && activeNavItem === item.name && item.subNav && (
-              <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 z-10">
+              <div
+                className={`fixed top-0 bottom-0 ${
+                  isOpen ? 'left-[256px]' : 'left-[80px]'
+                } w-64 overflow-y-auto bg-white p-4 z-[9999] shadow-md`}
+              >
                 {item.subNav.map(subItem => renderNavItem(subItem))}
               </div>
             )}
