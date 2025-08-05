@@ -1,13 +1,15 @@
-// SidebarNavItem.tsx
 import { NavLink, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 
-import { Can } from '@/permissions/Can';
+// utils
+import { useTranslation } from 'react-i18next';
 import routes, { RouteItem } from '@/routes';
 import useAuthStore from '@/config/store/authSlice';
 import { useSidebarNavigation } from './useSidebarNavigation';
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
+
+// components
+import { Can } from '@/permissions/Can';
+import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -51,7 +53,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
                   openSubmenuAtLevel(level, item.name);
                 } else {
                   setOpenSubmenuPath([]);
-                  if (isMobile) onClick();
+                  onClick();
                 }
               }}
               className={({ isActive }) =>
@@ -89,6 +91,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
             {/* Nested submenu panel (desktop only) */}
             {!isMobile &&
               isSubmenuOpenAtLevel(level, item.name) &&
+              isOpen &&
               item.subNav && (
                 <div
                   className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"

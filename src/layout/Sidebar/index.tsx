@@ -103,13 +103,30 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
             <div
               className={`flex items-center ${isOpen ? '' : 'justify-center'} py-5 px-4`}
             >
-              <img
-                src={isOpen ? OnviLogo : OnviSmallLogo}
-                alt="ONVI"
-                loading="lazy"
-              />
+              <div
+                className={`flex items-center transition-all duration-500 ease-in-out ${isOpen ? '' : 'justify-center'}`}
+              >
+                <img
+                  src={OnviLogo}
+                  alt="ONVI"
+                  loading="lazy"
+                  className={`transition-opacity duration-500 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0 absolute'}`}
+                />
+                <img
+                  src={OnviSmallLogo}
+                  alt="ONVI small"
+                  loading="lazy"
+                  className={`transition-opacity duration-500 ease-in-out ${isOpen ? 'opacity-0 absolute' : 'opacity-100'}`}
+                />
+              </div>
             </div>
-            <SidebarNavItem isOpen={isOpen} onClick={() => setIsOpen(false)} />
+            <SidebarNavItem
+              isOpen={isOpen}
+              onClick={() => {
+                setIsOpen(false);
+                setIsHovered(false);
+              }}
+            />
           </div>
 
           <div>

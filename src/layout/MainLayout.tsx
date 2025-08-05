@@ -19,7 +19,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         style={{ transition: 'all 0.3s' }}
       >
         <Content className="min-h-screen bg-white">
-          <div className="px-4 sm:px-6 relative min-h-screen z-10">
+          <div className="px-4 sm:px-6 relative min-h-screen z-10 mt-4">
             {children}
           </div>
         </Content>
