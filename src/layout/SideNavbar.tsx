@@ -29,9 +29,7 @@ const Sidebar = ({
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }) => {
-  const [activeNavItem, setActiveNavItem] = useState<string | null>(null);
-  const [_, setActiveSubNavItem] = useState<string | null>(null);
-  const [openSubNav, setOpenSubNav] = useState<string | null>(null);
+  const [activePathStack, setActivePathStack] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
   const hoverRef = useRef(false);
 
@@ -63,8 +61,7 @@ const Sidebar = ({
       });
 
       if (sidebar && !sidebar.contains(e.target as Node) && !isInsideSidebar) {
-        setActiveNavItem(null);
-        setActiveSubNavItem(null);
+        setActivePathStack([]);
       }
     };
 
@@ -80,46 +77,21 @@ const Sidebar = ({
         setTimeout(() => {
           if (!hoverRef.current) {
             setIsOpen(false);
-            setActiveNavItem(null);
-            setActiveSubNavItem(null);
+            setActivePathStack([]);
           }
         }, 300);
       }
     },
   };
 
-  const renderSubNav = (item: RouteItem) => (
-    <div className="ml-4 mt-2 h-full bg-[#fff]">
-      {item.subNav?.map(subItem => (
-        <Can
-          key={subItem.name}
-          requiredPermissions={subItem.permissions || []}
-          userPermissions={userPermissions}
-        >
-          {subAllowed =>
-            subAllowed && (
-              <NavLink
-                to={subItem.path}
-                className={({ isActive }) =>
-                  isActive
-                    ? 'block py-1.5 px-2 rounded bg-opacity01/30 text-text01'
-                    : 'block py-1.5 px-2 rounded hover:bg-opacity01/30 hover:text-text01 text-text02'
-                }
-                onClick={() => {
-                  setOpenSubNav(null);
-                  setActiveNavItem(null);
-                }}
-              >
-                {t(`routes.${subItem.name}`)}
-              </NavLink>
-            )
-          }
-        </Can>
-      ))}
-    </div>
-  );
+  const isActiveAtLevel = (level: number, name: string) =>
+    activePathStack[level] === name;
 
-  const renderNavItem = (item: RouteItem): React.ReactElement => (
+  const openAtLevel = (level: number, name: string) => {
+    setActivePathStack(prev => [...prev.slice(0, level), name]);
+  };
+
+  const renderNavItem = (item: RouteItem, level = 0): React.ReactElement => (
     <Can
       key={item.name}
       requiredPermissions={item.permissions || []}
@@ -134,12 +106,13 @@ const Sidebar = ({
                 if (item.subMenu) {
                   e.preventDefault();
                   if (isMobile) {
-                    setOpenSubNav(openSubNav === item.name ? null : item.name);
+                    // Mobile submenu toggle logic if needed
+                    openAtLevel(level, item.name);
                   } else {
-                    setActiveNavItem(
-                      activeNavItem === item.name ? null : item.name
-                    );
+                    openAtLevel(level, item.name);
                   }
+                } else {
+                  setActivePathStack([]);
                 }
               }}
               className={({ isActive }) =>
@@ -147,7 +120,7 @@ const Sidebar = ({
                   item.subMenu
                     ? isParentActive(item.subNav)
                       ? 'bg-opacity01/30 text-primary01'
-                      : !isMobile && activeNavItem === item.name
+                      : isActiveAtLevel(level, item.name)
                         ? 'bg-opacity01/30 text-primary01'
                         : 'text-text02'
                     : isActive
@@ -161,20 +134,18 @@ const Sidebar = ({
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
 
-            {!isMobile && activeNavItem === item.name && item.subNav && (
+            {/* Recursive submenu render for non-mobile */}
+            {!isMobile && isActiveAtLevel(level, item.name) && item.subNav && (
               <div
-                className={`fixed top-0 bottom-0 ${
-                  isOpen ? 'left-[256px]' : 'left-[80px]'
-                } w-64 overflow-y-auto bg-white p-4 z-[9999] shadow-md`}
+                className={`fixed top-0 bottom-0 left-[${
+                  isOpen ? 256 + level * 256 : 80 + level * 256
+                }px] w-64 overflow-y-auto bg-white p-4 z-[${9999 + level}] shadow-md`}
               >
-                {item.subNav.map(subItem => renderNavItem(subItem))}
+                {item.subNav.map(subItem => renderNavItem(subItem, level + 1))}
               </div>
             )}
 
-            {isMobile &&
-              openSubNav === item.name &&
-              item.subNav &&
-              renderSubNav(item)}
+            {/* For mobile, you can implement accordion style here if needed */}
           </div>
         )
       }
@@ -211,7 +182,7 @@ const Sidebar = ({
           </div>
 
           <nav className="mt-5 text-sm grid gap-y-1">
-            {routes.map(item => item.isSidebar && renderNavItem(item))}
+            {routes.map(item => item.isSidebar && renderNavItem(item, 0))}
           </nav>
         </div>
 
