@@ -1153,7 +1153,18 @@
     "carWashPosTypeRequired": "Car Wash Pos Type is required",
     "stepSumOrderRequired": "Step Sum Order is required",
     "minSumOrderRequired": "Min Sum Order is required",
-    "maxSumOrderRequired": "Max Sum Order is required"
+    "maxSumOrderRequired": "Max Sum Order is required",
+    "organizationTypeRequired": "Organization Type is required",
+    "vatRequired": "VAT is required",
+    "innRequired": "INN is required",
+    "okpoRequired": "OKPO is required",
+    "addressRegistrationRequired": "Registration Address is required",
+    "ogrnRequired": "OGRN is required",
+    "bikRequired": "BIK is required",
+    "correspondentAccountRequired": "Correspondent Account is required",
+    "bankRequired": "Bank is required",
+    "settlementAccountRequired": "Settlement Account is required",
+    "bankAddressRequired": "Bank Address is required"
   },
   "table": {
     "noData": "No Data"

@@ -6,7 +6,7 @@ import { getOrganization } from '@/services/api/organization';
 import { getPoses, getWorkers, PosResponse } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 import { Button, Table } from 'antd';
-import PosForm from './PosForm';
+import PosDrawer from './PosDrawer';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
@@ -153,6 +153,10 @@ const Pos: React.FC = () => {
     },
   ];
 
+  const onClose = () => {
+    setDrawerOpen(false);
+  }
+
   return (
     <>
       <GeneralFilters count={poses.length} display={["city", "count"]} />
@@ -190,10 +194,10 @@ const Pos: React.FC = () => {
           )}
         </>
       )}
-      <PosForm
+      <PosDrawer
         organizations={organizationData || []}
         isOpen={drawerOpen}
-        onClose={setDrawerOpen}
+        onClose={onClose}
       />
     </>
   );

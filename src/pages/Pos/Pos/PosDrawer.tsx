@@ -11,13 +11,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Drawer, Form, Input, Select, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
-type PosFormProps = {
+type PosDrawerProps = {
   organizations: Organization[];
   isOpen: boolean;
-  onClose: (isOpen: boolean) => void;
+  onClose: () => void;
 };
 
-const PosForm: React.FC<PosFormProps> = ({
+const PosDrawer: React.FC<PosDrawerProps> = ({
   organizations,
   isOpen,
   onClose,
@@ -113,7 +113,7 @@ const PosForm: React.FC<PosFormProps> = ({
     setStartHour(null);
     setEndHour(null);
     reset();
-    onClose(false);
+    onClose();
   };
 
   const onSubmit = async () => {
@@ -444,4 +444,4 @@ const PosForm: React.FC<PosFormProps> = ({
   );
 };
 
-export default PosForm;
+export default PosDrawer;

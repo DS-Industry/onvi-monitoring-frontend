@@ -12,9 +12,9 @@ import Articles from "@/pages/Finance/Articles";
 import MonthlyExpanse from "@/pages/Finance/MonthlyExpanse";
 import MonthlyExpanseEdit from "@/pages/Finance/MonthlyExpanseEdit";
 import DirectoryArticles from "@/pages/Finance/DirectoryArticles";
-const Pos = React.lazy(() => import("@/pages/Pos/Pos/index"));
+const Pos = React.lazy(() => import("@/pages/Pos/Pos"));
 const Organization = React.lazy(
-  () => import("@/pages/Organization/Organizations/index")
+  () => import("@/pages/Organization/Organizations")
 );
 const DepositDevice = React.lazy(() => import("@/pages/Pos/DepositDevice"));
 const ProgramDevices = React.lazy(() => import("@/pages/Pos/ProgramDevices"));
@@ -258,8 +258,8 @@ const routes = [
       },
       {
         name: "legalEntities",
-        filter: true,
-        addButton: true,
+        filter: false,
+        addButton: false,
         addButtonText: "add",
         isVisible: true,
         path: "/administration/legalRights",
