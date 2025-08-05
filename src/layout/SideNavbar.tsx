@@ -3,13 +3,11 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import routes from '@/routes';
 
-// utiles
 import { useTranslation } from 'react-i18next';
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
 import useAuthStore from '@/config/store/authSlice';
 import useUserStore from '@/config/store/userSlice';
 
-// components
 import Sider from 'antd/es/layout/Sider';
 
 import OnviLogo from '@/assets/OnviLogo.svg';
@@ -19,7 +17,6 @@ import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 import Avatar from '@/components/ui/Avatar';
 import { Can } from '@/permissions/Can';
 
-// types
 import { RouteItem } from '@/routes';
 
 const Sidebar = ({
@@ -43,6 +40,7 @@ const Sidebar = ({
   const user = useUserStore();
   const userPermissions = useAuthStore(state => state.permissions);
 
+  // Helper to check if submenu contains current location
   const isParentActive = (subMenu?: RouteItem[]): boolean =>
     subMenu ? subMenu.some(child => child.path === location.pathname) : false;
 
@@ -56,8 +54,8 @@ const Sidebar = ({
       const sideNavs = document.querySelectorAll('.side-nav');
       let isInsideSidebar = false;
 
-      sideNavs.forEach(element => {
-        if (element.contains(e.target as Node)) isInsideSidebar = true;
+      sideNavs.forEach(el => {
+        if (el.contains(e.target as Node)) isInsideSidebar = true;
       });
 
       if (sidebar && !sidebar.contains(e.target as Node) && !isInsideSidebar) {
@@ -87,10 +85,17 @@ const Sidebar = ({
   const isActiveAtLevel = (level: number, name: string) =>
     activePathStack[level] === name;
 
+  // Set or update the active path stack at a given level
   const openAtLevel = (level: number, name: string) => {
     setActivePathStack(prev => [...prev.slice(0, level), name]);
   };
 
+  // Close the mobile submenu (pop last level)
+  const closeMobileSubMenu = () => {
+    setActivePathStack(prev => prev.slice(0, prev.length - 1));
+  };
+
+  // Render nav item (recursive)
   const renderNavItem = (item: RouteItem, level = 0): React.ReactElement => (
     <Can
       key={item.name}
@@ -112,6 +117,7 @@ const Sidebar = ({
                   }
                 } else {
                   setActivePathStack([]);
+                  setIsOpen(false); // Optional: close sidebar on navigation in mobile
                 }
               }}
               className={({ isActive }) =>
@@ -133,7 +139,7 @@ const Sidebar = ({
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
 
-            {/* Recursive submenu render for non-mobile */}
+            {/* Desktop submenu */}
             {!isMobile && isActiveAtLevel(level, item.name) && item.subNav && (
               <div
                 className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"
@@ -154,18 +160,93 @@ const Sidebar = ({
     </Can>
   );
 
+  // Render mobile submenu panel sliding from left
+  const renderMobileSubMenu = () => {
+    if (activePathStack.length === 0) return null;
+
+    let currentSubNav: RouteItem[] | undefined = routes;
+    for (const name of activePathStack) {
+      const found: RouteItem | undefined = currentSubNav?.find(
+        i => i.name === name
+      );
+      currentSubNav = found?.subNav;
+      if (!currentSubNav) break;
+    }
+
+    if (!currentSubNav) return null;
+
+    return (
+      <div
+        className="fixed top-0 left-0 bottom-0 w-full max-w-xs bg-white z-[10000] p-4 shadow-lg flex flex-col"
+        style={{ transition: 'transform 0.3s ease' }}
+      >
+        <button
+          onClick={closeMobileSubMenu}
+          aria-label="Close submenu"
+          className="self-end mb-4 p-2 rounded hover:bg-gray-200"
+        >
+          ✕
+        </button>
+        <nav className="flex flex-col gap-2 overflow-y-auto">
+          {currentSubNav
+            .filter(i => i.isSidebar)
+            .map(item => (
+              <Can
+                key={item.name}
+                requiredPermissions={item.permissions || []}
+                userPermissions={userPermissions}
+              >
+                {allowed =>
+                  allowed && (
+                    <NavLink
+                      to={item.subMenu ? '#' : item.path}
+                      onClick={e => {
+                        if (item.subMenu) {
+                          e.preventDefault();
+                          openAtLevel(activePathStack.length, item.name);
+                        } else {
+                          setActivePathStack([]);
+                          setIsOpen(false); // close sidebar on navigation
+                        }
+                      }}
+                      className={({ isActive }) =>
+                        `block py-2 px-4 rounded font-semibold text-sm ${
+                          item.subMenu
+                            ? 'text-text02 hover:bg-gray-100 hover:text-primary01'
+                            : isActive
+                              ? 'bg-opacity01/30 text-primary01'
+                              : 'text-text02 hover:bg-gray-100 hover:text-primary01'
+                        }`
+                      }
+                    >
+                      {item.icon && <item.icon className="inline mr-2" />}
+                      {t(`routes.${item.name}`)}
+                      {item.subMenu && <ArrowRight className="inline ml-2" />}
+                    </NavLink>
+                  )
+                }
+              </Can>
+            ))}
+        </nav>
+      </div>
+    );
+  };
+
   return (
     <>
+      {/* Mobile burger button */}
       {isMobile && !isOpen && (
         <button
           type="button"
           aria-label="Toggle sidebar"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen(true)}
           className="fixed top-4 left-4 p-2 z-[9999] rounded-md bg-background02 hover:bg-background03 text-primary01 focus:outline-none focus:ring-2 focus:ring-primary01"
         >
           ☰
         </button>
       )}
+
+      {/* Desktop & Mobile Sidebar */}
       <Sider
         id="sidebar"
         theme="dark"
@@ -234,6 +315,9 @@ const Sidebar = ({
           </div>
         </div>
       </Sider>
+
+      {/* Mobile submenu overlay */}
+      {isMobile && renderMobileSubMenu()}
     </>
   );
 };
