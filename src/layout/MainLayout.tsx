@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout } from 'antd';
-import Sidebar from './SideNavbar';
+import Sidebar from './Sidebar';
 import { Content } from 'antd/es/layout/layout';
 
 interface MainLayoutProps {
