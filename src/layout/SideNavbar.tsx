@@ -137,11 +137,16 @@ const Sidebar = ({
             {/* Recursive submenu render for non-mobile */}
             {!isMobile && isActiveAtLevel(level, item.name) && item.subNav && (
               <div
-                className={`fixed top-0 bottom-0 left-[${
-                  isOpen ? 256 + level * 256 : 80 + level * 256
-                }px] w-64 overflow-y-auto bg-white p-4 z-[${9999 + level}] shadow-md`}
+                className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"
+                style={{
+                  left: `${isOpen ? 256 + level * 256 : 80 + level * 256}px`,
+                  zIndex: 9999 + level,
+                }}
               >
-                {item.subNav.map(subItem => renderNavItem(subItem, level + 1))}
+                {item.subNav.map(
+                  subItem =>
+                    subItem.isSidebar && renderNavItem(subItem, level + 1)
+                )}
               </div>
             )}
 
