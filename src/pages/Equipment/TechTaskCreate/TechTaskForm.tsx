@@ -215,12 +215,16 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   };
 
   const createNewTag = async () => {
-    const result = await makeTag({
-      name: searchValue
-    });
-
-    if (result) {
-      mutate([`get-tags`]);
+    try {
+      const result = await makeTag({
+        name: searchValue
+      });
+  
+      if (result) {
+        mutate([`get-tags`]);
+      }
+    } catch (error) {
+      console.error("Error during creating new tag: ", error);
     }
   }
 
