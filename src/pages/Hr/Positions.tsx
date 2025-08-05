@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import Button from "@/components/ui/Button/Button";
 import useSWR, { mutate } from "swr";
 import { createPosition, getPositions, updatePosition } from "@/services/api/hr";
@@ -12,7 +11,7 @@ import useSWRMutation from "swr/mutation";
 import { useCity } from "@/hooks/useAuthStore";
 import { getOrganization } from "@/services/api/organization";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { Table } from "antd";
+import { Drawer, Table } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import AntInput from 'antd/es/input';
 import { ColumnsType } from "antd/es/table";
@@ -26,9 +25,9 @@ type Positions = {
 
 const Positions: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const [position, setPosition] = useState<string | undefined>();
   const [originalPosition, setOriginalPosition] = useState<string>();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const city = useCity();
   const { showToast } = useToast();
 
@@ -73,7 +72,7 @@ const Positions: React.FC = () => {
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -167,6 +166,14 @@ const Positions: React.FC = () => {
 
   return (
     <div>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t("routes.new")}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       <Table
         dataSource={positionsData}
         columns={columns}
@@ -176,9 +183,15 @@ const Positions: React.FC = () => {
         scroll={{ x: "max-content" }}
       />
 
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t("hr.pos")}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
           <div className="flex">
             <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
             <span className="text-errorFill">*</span>
@@ -222,7 +235,7 @@ const Positions: React.FC = () => {
             <Button
               title={t("organizations.cancel")}
               type="outline" handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
@@ -234,7 +247,7 @@ const Positions: React.FC = () => {
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </div>
   )
 }

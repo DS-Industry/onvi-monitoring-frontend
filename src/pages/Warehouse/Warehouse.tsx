@@ -4,13 +4,12 @@ import useSWR, { mutate } from "swr";
 import { getPoses, getWorkers } from "@/services/api/equipment";
 import { createWarehouse, getWarehouses } from "@/services/api/warehouse";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
-import { Table } from "antd";
+import { Drawer, Table } from "antd";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import { ColumnsType } from "antd/es/table";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
@@ -27,7 +26,7 @@ type Warehouse = {
 const Warehouse: React.FC = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
-    const { buttonOn, setButtonOn } = useButtonCreate();
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const { showToast } = useToast();
 
     const posId = searchParams.get("posId") || "*";
@@ -99,7 +98,7 @@ const Warehouse: React.FC = () => {
     const resetForm = () => {
         setFormData(defaultValues);
         reset();
-        setButtonOn(!buttonOn);
+        setDrawerOpen(false);
     };
 
     const onSubmit = async () => {
@@ -150,6 +149,14 @@ const Warehouse: React.FC = () => {
 
     return (
         <div>
+            <div className="absolute top-6 right-6 z-50">
+                <Button
+                    title={t("routes.create")}
+                    iconPlus={true}
+                    handleClick={() => setDrawerOpen(true)}
+                    classname="shadow-lg"
+                />
+            </div>
             <GeneralFilters
                 count={warehouses.length}
                 display={["pos", "city"]}
@@ -168,9 +175,15 @@ const Warehouse: React.FC = () => {
                     pagination={false}
                 />
             </div>
-            <DrawerCreate onClose={resetForm}>
+            <Drawer
+                title={t("warehouse.ware")}
+                placement="right"
+                size="large"
+                onClose={resetForm}
+                open={drawerOpen}
+                className="custom-drawer"
+            >
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("warehouse.ware")}</div>
                     <span className="font-semibold text-sm text-text01">{t("warehouse.fields")}</span>
                     <Input
                         title={t("profile.name")}
@@ -240,7 +253,7 @@ const Warehouse: React.FC = () => {
                         />
                     </div>
                 </form>
-            </DrawerCreate>
+            </Drawer>
         </div>
     )
 }
