@@ -1201,7 +1201,7 @@ const routes = [
           {
             name: "createTask",
             filter: true,
-            addButton: true,
+            addButton: false,
             addButtonText: "create",
             isVisible: true,
             path: "/equipment/technical/tasks/create",
@@ -1238,7 +1238,7 @@ const routes = [
         titleName: "from",
         name: "equipmentFailure",
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: "fix",
         isVisible: true,
         path: "/equipment/failure",
