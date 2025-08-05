@@ -9,6 +9,7 @@ import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
 import NotificationYes from '@icons/Notification_Yes.svg?react';
 import Avatar from '@/components/ui/Avatar';
 import useUserStore from '@/config/store/userSlice';
+import { MenuOutlined } from '@ant-design/icons';
 
 import SidebarNavItem from './SideNavbarItem';
 import MobileSubmenuOverlay from './MobileSubmenuOverlay';
@@ -65,9 +66,9 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           type="button"
           aria-label="Open sidebar"
           onClick={() => setIsOpen(true)}
-          className="fixed top-4 left-4 p-2 z-[9999] rounded-md bg-background02 hover:bg-background03 text-primary01 focus:outline-none focus:ring-2 focus:ring-primary01"
+          className="fixed top-4 left-4 z-[9999] flex items-center justify-center w-11 h-11 rounded-full bg-background02 text-primary01 shadow-lg transition-all duration-300 ease-in-out hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
         >
-          ☰
+          <MenuOutlined className="text-xl" />
         </button>
       )}
 
@@ -183,7 +184,14 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         </div>
       </Sider>
 
-      {isMobile && <MobileSubmenuOverlay onClick={() => setIsOpen(false)} />}
+      {isMobile && (
+        <MobileSubmenuOverlay
+          onClick={() => {
+            setIsOpen(false);
+            setIsHovered(false);
+          }}
+        />
+      )}
     </>
   );
 };
