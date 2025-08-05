@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import {
   getOrganization,
   getOrganizationDocument,
-  OrganizationBody,
+  OrganizationOtherDetailsResponse,
   Organization as OrganizationType,
 } from '@/services/api/organization/index.ts';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,6 @@ import AntDButton from 'antd/es/button';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
-import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
@@ -63,25 +62,8 @@ const Organization: React.FC = () => {
       }))
       .sort((a, b) => a.id - b.id) || [];
 
-  const initialValues: OrganizationBody = {
-    fullName: '',
-    organizationType: '',
-    rateVat: '',
-    inn: '',
-    okpo: '',
-    kpp: undefined,
-    addressRegistration: '',
-    ogrn: '',
-    bik: '',
-    correspondentAccount: '',
-    bank: '',
-    settlementAccount: '',
-    addressBank: '',
-    certificateNumber: '',
-    dateCertificate: undefined,
-  };
-
-  const [formData, setFormData] = useState(initialValues);
+  const [orgToEdit, setOrgToEdit] = useState<OrganizationType>({} as OrganizationType);
+  const [orgToEditOtherDetails, setOrgToEditOtherDetails] = useState<OrganizationOtherDetailsResponse>({} as OrganizationOtherDetailsResponse);
 
   const handleUpdate = async (id: number) => {
     setEditOrgId(id);
@@ -96,35 +78,9 @@ const Organization: React.FC = () => {
       orgs = fetchedOrgData.props;
     }
 
-    if (orgToEdit) {
-      setFormData({
-        fullName: orgToEdit.name,
-        organizationType:
-          legalOptions.find(leg => leg.name === orgToEdit.organizationType)
-            ?.value || '',
-        rateVat: orgs?.rateVat ? orgs.rateVat : '',
-        inn: orgs?.inn ? orgs.inn : '',
-        okpo: orgs?.okpo ? orgs.okpo : '',
-        kpp: orgs?.kpp ? orgs.kpp : undefined,
-        addressRegistration: orgToEdit.address,
-        ogrn: orgs?.ogrn ? orgs.ogrn : '',
-        bik: orgs?.bik ? orgs.bik : '',
-        correspondentAccount: orgs?.correspondentAccount
-          ? orgs.correspondentAccount
-          : '',
-        bank: orgs?.bank ? orgs.bank : '',
-        settlementAccount: orgs?.settlementAccount
-          ? orgs.settlementAccount
-          : '',
-        addressBank: orgs?.addressBank ? orgs.addressBank : '',
-        certificateNumber: orgs?.certificateNumber
-          ? orgs.certificateNumber
-          : '',
-        dateCertificate: orgs?.dateCertificate
-          ? dayjs(orgs.dateCertificate).toDate()
-          : undefined,
-      });
-    }
+    setOrgToEdit(orgToEdit || {} as OrganizationType);
+    setOrgToEditOtherDetails(orgs || {} as OrganizationOtherDetailsResponse);
+
   };
 
   const userPermissions = usePermissions();
@@ -226,9 +182,8 @@ const Organization: React.FC = () => {
         </div>
       </>
       <OrganizationDrawer
-        initialValues={initialValues}
-        formData={formData}
-        onChange={setFormData}
+        orgToEdit={orgToEdit}
+        orgToEditOtherDetails={orgToEditOtherDetails}
         orgId={editOrgId}
         onEdit={onEdit}
         isOpen={drawerOpen}

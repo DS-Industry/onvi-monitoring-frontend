@@ -2,11 +2,13 @@ import { useToast } from '@/components/context/useContext';
 import useFormHook from '@/hooks/useFormHook';
 import {
   createUserOrganization,
+  Organization,
   OrganizationBody,
+  OrganizationOtherDetailsResponse,
   postUpdateOrganization,
 } from '@/services/api/organization';
 import { Drawer, Form } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { mutate } from 'swr';
@@ -14,12 +16,9 @@ import useSWRMutation from 'swr/mutation';
 import { Select, Input, Button, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 
-type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
-
 type OrganizationDrawerProps = {
-  initialValues: OrganizationBody;
-  formData: OrganizationBody;
-  onChange: SetState<OrganizationBody>;
+  orgToEdit: Organization;
+  orgToEditOtherDetails: OrganizationOtherDetailsResponse;
   orgId: number;
   onEdit: () => void;
   isOpen: boolean;
@@ -27,9 +26,8 @@ type OrganizationDrawerProps = {
 };
 
 const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
-  initialValues,
-  formData,
-  onChange,
+  orgToEdit,
+  orgToEditOtherDetails,
   orgId,
   onEdit,
   isOpen,
@@ -38,6 +36,62 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const city = searchParams.get('city') || '*';
+
+  const initialValues: OrganizationBody = {
+    fullName: '',
+    organizationType: '',
+    rateVat: '',
+    inn: '',
+    okpo: '',
+    kpp: undefined,
+    addressRegistration: '',
+    ogrn: '',
+    bik: '',
+    correspondentAccount: '',
+    bank: '',
+    settlementAccount: '',
+    addressBank: '',
+    certificateNumber: '',
+    dateCertificate: undefined,
+  };
+
+  const [formData, setFormData] = useState(initialValues);
+
+  useEffect(() => {
+    if (orgToEdit) {
+      setFormData({
+        fullName: orgToEdit.name,
+        organizationType:
+          legalOptions.find(leg => leg.label === orgToEdit.organizationType)
+            ?.value || '',
+        rateVat: orgToEditOtherDetails?.rateVat
+          ? orgToEditOtherDetails.rateVat
+          : '',
+        inn: orgToEditOtherDetails?.inn ? orgToEditOtherDetails.inn : '',
+        okpo: orgToEditOtherDetails?.okpo ? orgToEditOtherDetails.okpo : '',
+        kpp: orgToEditOtherDetails?.kpp ? orgToEditOtherDetails.kpp : undefined,
+        addressRegistration: orgToEdit.address,
+        ogrn: orgToEditOtherDetails?.ogrn ? orgToEditOtherDetails.ogrn : '',
+        bik: orgToEditOtherDetails?.bik ? orgToEditOtherDetails.bik : '',
+        correspondentAccount: orgToEditOtherDetails?.correspondentAccount
+          ? orgToEditOtherDetails.correspondentAccount
+          : '',
+        bank: orgToEditOtherDetails?.bank ? orgToEditOtherDetails.bank : '',
+        settlementAccount: orgToEditOtherDetails?.settlementAccount
+          ? orgToEditOtherDetails.settlementAccount
+          : '',
+        addressBank: orgToEditOtherDetails?.addressBank
+          ? orgToEditOtherDetails.addressBank
+          : '',
+        certificateNumber: orgToEditOtherDetails?.certificateNumber
+          ? orgToEditOtherDetails.certificateNumber
+          : '',
+        dateCertificate: orgToEditOtherDetails?.dateCertificate
+          ? dayjs(orgToEditOtherDetails.dateCertificate).toDate()
+          : undefined,
+      });
+    }
+  }, [orgToEdit, orgToEditOtherDetails]);
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -89,14 +143,14 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
     field: FieldType,
     value: string | Date | undefined
   ) => {
-    onChange(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
 
   const { showToast } = useToast();
 
   const resetForm = () => {
-    onChange(initialValues);
+    setFormData(initialValues);
     reset();
     onEdit();
     onClose();
@@ -146,9 +200,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           onSubmit={handleSubmit(onSubmit)}
         >
           <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {orgId !== 0
-              ? t('organizations.update')
-              : t('organizations.new')}
+            {orgId !== 0 ? t('organizations.update') : t('organizations.new')}
           </span>
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -188,8 +240,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                   options={vatOptions}
                   className="!w-80 !sm:w-96"
                   {...register('rateVat', {
-                    required:
-                      orgId === 0 && t('validation.vatRequired'),
+                    required: orgId === 0 && t('validation.vatRequired'),
                   })}
                   value={formData.rateVat}
                   onChange={value => handleInputChange('rateVat', value)}
@@ -290,7 +341,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 className="w-80 sm:w-96"
                 {...register('addressRegistration', {
                   required:
-                    orgId === 0 &&t('validation.addressRegistrationRequired'),
+                    orgId === 0 && t('validation.addressRegistrationRequired'),
                 })}
                 value={formData.addressRegistration}
                 onChange={e =>
@@ -360,7 +411,8 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                   className="w-80 sm:w-96"
                   {...register('correspondentAccount', {
                     required:
-                      orgId === 0 && t('validation.correspondentAccountRequired'),
+                      orgId === 0 &&
+                      t('validation.correspondentAccountRequired'),
                   })}
                   value={formData.correspondentAccount}
                   onChange={e =>
