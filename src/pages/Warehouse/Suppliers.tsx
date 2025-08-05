@@ -2,16 +2,15 @@ import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import InventoryEmpty from "@/assets/NoInventory.png";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import { createSupplier, getSupplier } from "@/services/api/warehouse";
 import useSWR, { mutate } from "swr";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { Table } from "antd";
+import { Drawer, Table } from "antd";
 import { useColumnSelector } from "@/hooks/useTableColumnSelector";
 import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 import { ColumnsType } from "antd/es/table";
@@ -24,7 +23,7 @@ type Supplier = {
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
@@ -68,7 +67,7 @@ const Suppliers: React.FC = () => {
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -109,6 +108,14 @@ const Suppliers: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t("routes.create")}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       {loadingSupplier ? (
         <TableSkeleton columnCount={columnsSupplier.length} />
       ) : supplier.length > 0 ? (
@@ -136,11 +143,15 @@ const Suppliers: React.FC = () => {
           </NoDataUI>
         </div>
       )}
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t("routes.suppliers")}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t("routes.suppliers")}
-          </div>
           <span className="font-semibold text-sm text-text01">
             {t("warehouse.fields")}
           </span>
@@ -174,7 +185,7 @@ const Suppliers: React.FC = () => {
               title={t("organizations.cancel")}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
@@ -186,7 +197,7 @@ const Suppliers: React.FC = () => {
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };
