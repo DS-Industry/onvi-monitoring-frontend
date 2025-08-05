@@ -278,7 +278,7 @@ const routes = [
       {
         name: "objectManagement",
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: "add",
         isVisible: true,
         path: "/administration/objectManagement",

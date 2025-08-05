@@ -1143,7 +1143,17 @@
     "sumRequired": "Sum is required",
     "deviceRequired": "Device is required",
     "dateRequired": "Date is required",
-    "commentRequired": "Comment is required"
+    "commentRequired": "Comment is required",
+    "nameRequired": "Name is required",
+    "cityRequired": "City is required",
+    "locationRequired": "Location is required",
+    "timeWorkRequired": "Time work is required",
+    "monthlyPlanRequired": "Monthly Plan is required",
+    "organizationRequired": "Organization is required",
+    "carWashPosTypeRequired": "Car Wash Pos Type is required",
+    "stepSumOrderRequired": "Step Sum Order is required",
+    "minSumOrderRequired": "Min Sum Order is required",
+    "maxSumOrderRequired": "Max Sum Order is required"
   },
   "table": {
     "noData": "No Data"

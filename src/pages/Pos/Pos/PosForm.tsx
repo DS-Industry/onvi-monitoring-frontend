@@ -1,39 +1,43 @@
-import Button from "@/components/ui/Button/Button";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Input from "@/components/ui/Input/Input";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import Notification from "@ui/Notification.tsx";
-import useFormHook from "@/hooks/useFormHook";
-import useSWRMutation from "swr/mutation";
-import { postPosData } from "@/services/api/pos";
-import { mutate } from "swr";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
-import { Organization } from "@/services/api/organization";
-import { useSearchParams } from "react-router-dom";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Notification from '@ui/Notification.tsx';
+import useFormHook from '@/hooks/useFormHook';
+import useSWRMutation from 'swr/mutation';
+import { postPosData } from '@/services/api/pos';
+import { mutate } from 'swr';
+import { useToast } from '@/components/context/useContext';
+import { Organization } from '@/services/api/organization';
+import { useSearchParams } from 'react-router-dom';
+import { Drawer, Form, Input, Select, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 type PosFormProps = {
   organizations: Organization[];
+  isOpen: boolean;
+  onClose: (isOpen: boolean) => void;
 };
 
-const PosForm: React.FC<PosFormProps> = ({ organizations }) => {
+const PosForm: React.FC<PosFormProps> = ({
+  organizations,
+  isOpen,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [searchParams] = useSearchParams();
-  const city = searchParams.get("city") || "*";
+  const city = searchParams.get('city') || '*';
 
   const defaultValues = {
-    name: "",
+    name: '',
     monthlyPlan: null,
-    timeWork: "",
-    posMetaData: "",
-    city: "",
-    location: "",
+    timeWork: '',
+    posMetaData: '',
+    city: '',
+    location: '',
     lat: null,
     lon: null,
     organizationId: null,
-    carWashPosType: "",
+    carWashPosType: '',
     minSumOrder: null,
     maxSumOrder: null,
     stepSumOrder: null,
@@ -67,60 +71,49 @@ const PosForm: React.FC<PosFormProps> = ({ organizations }) => {
       })
   );
 
-  type FieldType =
-    | "name"
-    | "monthlyPlan"
-    | "timeWork"
-    | "posMetaData"
-    | "city"
-    | "location"
-    | "lat"
-    | "lon"
-    | "organizationId"
-    | "carWashPosType"
-    | "minSumOrder"
-    | "maxSumOrder"
-    | "stepSumOrder";
-
-  const handleInputChange = (field: FieldType, value: string | null) => {
+  const handleInputChange = (
+    field: keyof typeof defaultValues,
+    value: string | null
+  ) => {
     const numericFields = [
-      "monthlyPlan",
-      "stepSumOrder",
-      "minSumOrder",
-      "maxSumOrder",
-      "lat",
-      "lon",
+      'monthlyPlan',
+      'stepSumOrder',
+      'minSumOrder',
+      'maxSumOrder',
+      'lat',
+      'lon',
     ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
-    setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+    setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
   };
 
   const handleTimeWorkChange = (field: string, value: number) => {
-    if (field === "startHour") {
+    if (field === 'startHour') {
       setStartHour(value);
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
-        timeWork: `${value}${endHour ?? ""}`,
+        timeWork: `${value}${endHour ?? ''}`,
       }));
-      setValue("timeWork", `${value}${endHour ?? ""}`);
+      setValue('timeWork', `${value}:${endHour ?? ''}`);
     } else {
       setEndHour(value);
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
-        timeWork: `${startHour ?? ""}${value}`,
+        timeWork: `${startHour ?? ''}${value}`,
       }));
-      setValue("timeWork", `${startHour ?? ""}${value}`);
+      setValue('timeWork', `${startHour ?? ''}:${value}`);
     }
   };
 
   const { showToast } = useToast();
-  const { setButtonOn } = useButtonCreate();
 
   const resetForm = () => {
     setFormData(defaultValues);
+    setStartHour(null);
+    setEndHour(null);
     reset();
-    setButtonOn(false);
+    onClose(false);
   };
 
   const onSubmit = async () => {
@@ -130,22 +123,22 @@ const PosForm: React.FC<PosFormProps> = ({ organizations }) => {
         mutate([`get-pos`, city]);
         resetForm();
       } else {
-        showToast(t("errors.other.errorDuringFormSubmission"), "error");
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
     } catch (error) {
-      console.error("Error during form submission: ", error);
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
   return (
     <div>
-      <DrawerCreate onClose={resetForm}>
+      <Drawer open={isOpen} width={620} closable={false} onClose={resetForm}>
         {notificationVisible && organizations.length === 0 && (
           <Notification
-            title={t("organizations.legalEntity")}
-            message={t("pos.createObject")}
-            link={t("pos.goto")}
+            title={t('organizations.legalEntity')}
+            message={t('pos.createObject')}
+            link={t('pos.goto')}
             linkUrl="/administration/legalRights"
             onClose={() => setNotificationVisible(false)}
           />
@@ -156,225 +149,297 @@ const PosForm: React.FC<PosFormProps> = ({ organizations }) => {
           onSubmit={handleSubmit(onSubmit)}
         >
           <span className="font-semibold text-xl md:text-3xl mb-5">
-            {t("pos.creating")}
+            {t('pos.creating')}
           </span>
-          <div className="grid grid-cols-1 gap-4">
-            <Input
-              title={t("pos.name")}
-              type={"text"}
-              label={t("pos.example")}
-              classname="w-80 sm:w-96"
-              {...register("name", { required: "Name is required" })}
-              value={formData.name}
-              changeValue={(e) => handleInputChange("name", e.target.value)}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-            />
-            <Input
-              title={t("pos.city")}
-              type={"text"}
-              label={t("pos.address")}
-              classname="w-80 sm:w-96"
-              {...register("city", { required: "City is required" })}
-              value={formData.city}
-              changeValue={(e) => handleInputChange("city", e.target.value)}
-              error={!!errors.city}
-              helperText={errors.city?.message}
-            />
-            <Input
-              title={t("pos.location")}
-              type={"text"}
-              label={t("pos.location")}
-              classname="w-80 sm:w-96"
-              {...register("location", { required: "Location is required" })}
-              value={formData.location}
-              changeValue={(e) => handleInputChange("location", e.target.value)}
-              error={!!errors.location}
-              helperText={errors.location?.message}
-            />
-            <Input
-              title={t("pos.lat")}
-              type="number"
-              classname="w-48"
-              {...register("lat")}
-              value={formData.lat}
-              changeValue={(e) => handleInputChange("lat", e.target.value)}
-            />
-            <Input
-              title={t("pos.lon")}
-              type="number"
-              classname="w-48"
-              {...register("lon")}
-              value={formData.lon}
-              changeValue={(e) => handleInputChange("lon", e.target.value)}
-            />
+          <div className="grid grid-cols-1 gap-2">
             <div>
-              <label className="text-sm text-text02">{t("pos.opening")}</label>
+              <div className="text-text02 text-sm">{t('pos.name')}</div>
+              <Form.Item
+                help={errors.name?.message}
+                validateStatus={errors.name ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('pos.example')}
+                  className="w-80 sm:w-96"
+                  {...register('name', {
+                    required: t('validation.nameRequired'),
+                  })}
+                  value={formData.name}
+                  onChange={e => handleInputChange('name', e.target.value)}
+                  status={errors.name ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.city')}</div>
+              <Form.Item
+                help={errors.city?.message}
+                validateStatus={errors.city ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('pos.address')}
+                  className="w-80 sm:w-96"
+                  {...register('city', {
+                    required: t('validation.cityRequired'),
+                  })}
+                  value={formData.city}
+                  onChange={e => handleInputChange('city', e.target.value)}
+                  status={errors.city ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.location')}</div>
+              <Form.Item
+                help={errors.location?.message}
+                validateStatus={errors.location ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('pos.location')}
+                  className="w-80 sm:w-96"
+                  {...register('location', {
+                    required: t('validation.locationRequired'),
+                  })}
+                  value={formData.location}
+                  onChange={e => handleInputChange('location', e.target.value)}
+                  status={errors.location ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.lat')}</div>
+              <Input
+                type="number"
+                className="w-48"
+                {...register('lat')}
+                value={formData.lat !== null ? formData.lat : ''}
+                onChange={e => handleInputChange('lat', e.target.value)}
+                size="large"
+              />
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.lon')}</div>
+              <Input
+                type="number"
+                className="w-48"
+                {...register('lon')}
+                value={formData.lon !== null ? formData.lon : ''}
+                onChange={e => handleInputChange('lon', e.target.value)}
+                size="large"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-text02">{t('pos.opening')}</label>
               <div className="flex space-x-2">
-                <Input
-                  type="number"
-                  classname="w-40"
-                  value={startHour !== null ? startHour : ""}
-                  changeValue={(e) =>
-                    handleTimeWorkChange("startHour", Number(e.target.value))
-                  }
-                  {...register("timeWork", {
-                    required: "Time Work is required",
-                  })}
-                  error={!!errors.timeWork}
-                  helperText={errors.timeWork?.message}
-                />
-                <div className="flex justify-center items-center text-text02">
-                  {" "}
-                  :{" "}
-                </div>
-                <Input
-                  type="number"
-                  classname="w-40"
-                  value={endHour !== null ? endHour : ""}
-                  changeValue={(e) =>
-                    handleTimeWorkChange("endHour", Number(e.target.value))
-                  }
-                  {...register("timeWork", {
-                    required: "Time Work is required",
-                  })}
-                  error={!!errors.timeWork}
-                  helperText={errors.timeWork?.message}
-                />
+                <Form.Item
+                  help={errors.timeWork?.message}
+                  validateStatus={errors.timeWork ? 'error' : undefined}
+                >
+                  <Input
+                    type="number"
+                    className="w-40"
+                    {...register('timeWork', {
+                      required: t('validation.timeWorkRequired'),
+                    })}
+                    value={startHour !== null ? startHour : ''}
+                    onChange={e =>
+                      handleTimeWorkChange('startHour', Number(e.target.value))
+                    }
+                    status={errors.timeWork ? 'error' : ''}
+                    size="large"
+                  />
+                </Form.Item>
+                <div className="text-text02 flex justify-center mt-2"> : </div>
+                <Form.Item
+                  help={errors.timeWork?.message}
+                  validateStatus={errors.timeWork ? 'error' : undefined}
+                >
+                  <Input
+                    type="number"
+                    className="w-40"
+                    {...register('timeWork', {
+                      required: t('validation.timeWorkRequired'),
+                    })}
+                    value={endHour !== null ? endHour : ''}
+                    onChange={e =>
+                      handleTimeWorkChange('endHour', Number(e.target.value))
+                    }
+                    status={errors.timeWork ? 'error' : ''}
+                    size="large"
+                  />
+                </Form.Item>
               </div>
               <div className="flex mt-2">
                 <input type="checkbox" />
-                <div className="text-text02 ml-2">{t("pos.clock")}</div>
+                <div className="text-text02 ml-2">{t('pos.clock')}</div>
               </div>
             </div>
-            <Input
-              title={t("pos.monthly")}
-              type={"number"}
-              defaultValue={"0"}
-              classname="w-48"
-              {...register("monthlyPlan", {
-                required: "Monthly Plan is required",
-              })}
-              value={formData.monthlyPlan}
-              changeValue={(e) =>
-                handleInputChange("monthlyPlan", e.target.value)
-              }
-              error={!!errors.monthlyPlan}
-              helperText={errors.monthlyPlan?.message}
-            />
-            <DropdownInput
-              title={t("pos.company")}
-              label={t("pos.companyName")}
-              options={organizations.map((item) => ({
-                value: item.id,
-                name: item.name,
-              }))}
-              classname="w-80 sm:w-96"
-              {...register("organizationId", {
-                required: "Organization ID is required",
-              })}
-              value={formData.organizationId}
-              onChange={(value) => handleInputChange("organizationId", value)}
-              error={!!errors.organizationId}
-              helperText={errors.organizationId?.message}
-            />
-            <DropdownInput
-              title={t("pos.type")}
-              label={t("pos.self")}
-              options={[
-                { name: "МСО", value: "SelfService" },
-                { name: t("pos.robot"), value: "Portal" },
-                {
-                  name: `МСО + ${t("pos.robot")}`,
-                  value: "SelfServiceAndPortal",
-                },
-              ]}
-              classname="w-80 sm:w-96"
-              {...register("carWashPosType", {
-                required: "Pos Type is required",
-              })}
-              value={formData.carWashPosType}
-              onChange={(value) => handleInputChange("carWashPosType", value)}
-              error={!!errors.carWashPosType}
-              helperText={errors.carWashPosType?.message}
-            />
             <div>
-              <label className="text-sm text-text02">{t("pos.min")}</label>
-              <Input
-                type="number"
-                classname="w-48"
-                {...register("stepSumOrder", {
-                  required: "Step Sum Order is required",
-                })}
-                value={formData.stepSumOrder}
-                changeValue={(e) =>
-                  handleInputChange("stepSumOrder", e.target.value)
-                }
-                error={!!errors.stepSumOrder}
-                helperText={errors.stepSumOrder?.message}
-              />
+              <div className="text-text02 text-sm">{t('pos.monthly')}</div>
+              <Form.Item
+                help={errors.monthlyPlan?.message}
+                validateStatus={errors.monthlyPlan ? 'error' : undefined}
+              >
+                <Input
+                  className="w-48"
+                  {...register('monthlyPlan', {
+                    required: t('validation.monthlyPlanRequired'),
+                  })}
+                  value={
+                    formData.monthlyPlan !== null ? formData.monthlyPlan : ''
+                  }
+                  onChange={e =>
+                    handleInputChange('monthlyPlan', e.target.value)
+                  }
+                  status={errors.monthlyPlan ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
             </div>
             <div>
-              <label className="text-sm text-text02">
-                {t("pos.minAmount")}
-              </label>
-              <Input
-                type="number"
-                classname="w-48"
-                {...register("minSumOrder", {
-                  required: "Min Sum Order is required",
-                })}
-                value={formData.minSumOrder}
-                changeValue={(e) =>
-                  handleInputChange("minSumOrder", e.target.value)
-                }
-                error={!!errors.minSumOrder}
-                helperText={errors.minSumOrder?.message}
-              />
+              <div className="text-text02 text-sm">{t('pos.company')}</div>
+              <Form.Item
+                help={errors.organizationId?.message}
+                validateStatus={errors.organizationId ? 'error' : undefined}
+              >
+                <Select
+                  placeholder={t('pos.companyName')}
+                  options={organizations.map(item => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
+                  className="w-80 sm:w-96"
+                  {...register('organizationId', {
+                    required: t('validation.organizationRequired'),
+                  })}
+                  value={formData.organizationId}
+                  onChange={value => handleInputChange('organizationId', value)}
+                  status={errors.organizationId ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
             </div>
             <div>
-              <label className="text-sm text-text02">
-                {t("pos.maxAmount")}
-              </label>
-              <Input
-                type="number"
-                classname="w-48"
-                {...register("maxSumOrder", {
-                  required: "Max Sum Order is required",
-                })}
-                value={formData.maxSumOrder}
-                changeValue={(e) =>
-                  handleInputChange("maxSumOrder", e.target.value)
-                }
-                error={!!errors.maxSumOrder}
-                helperText={errors.maxSumOrder?.message}
-              />
+              <div className="text-text02 text-sm">{t('pos.type')}</div>
+              <Form.Item
+                help={errors.carWashPosType?.message}
+                validateStatus={errors.carWashPosType ? 'error' : undefined}
+              >
+                <Select
+                  placeholder={t('pos.self')}
+                  options={[
+                    { label: 'МСО', value: 'SelfService' },
+                    { label: t('pos.robot'), value: 'Portal' },
+                    {
+                      label: `МСО + ${t('pos.robot')}`,
+                      value: 'SelfServiceAndPortal',
+                    },
+                  ]}
+                  className="w-80 sm:w-96"
+                  {...register('carWashPosType', {
+                    required: t('validation.carWashPosTypeRequired'),
+                  })}
+                  value={formData.carWashPosType}
+                  onChange={value => handleInputChange('carWashPosType', value)}
+                  status={errors.carWashPosType ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
             </div>
             <div>
-              <div>{t("pos.photos")}</div>
-              <div>{t("pos.maxNumber")}</div>
-              <Button
-                form={false}
-                iconPlus={true}
-                type="outline"
-                title={t("pos.download")}
-              />
+              <div className="text-text02 text-sm">{t('pos.min')}</div>
+              <Form.Item
+                help={errors.stepSumOrder?.message}
+                validateStatus={errors.stepSumOrder ? 'error' : undefined}
+              >
+                <Input
+                  type="number"
+                  className="w-48"
+                  {...register('stepSumOrder', {
+                    required: t('validation.stepSumOrderRequired'),
+                  })}
+                  value={
+                    formData.stepSumOrder !== null ? formData.stepSumOrder : ''
+                  }
+                  onChange={e =>
+                    handleInputChange('stepSumOrder', e.target.value)
+                  }
+                  status={errors.stepSumOrder ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.minAmount')}</div>
+              <Form.Item
+                help={errors.minSumOrder?.message}
+                validateStatus={errors.minSumOrder ? 'error' : undefined}
+              >
+                <Input
+                  type="number"
+                  className="w-48"
+                  {...register('minSumOrder', {
+                    required: t('validation.minSumOrderRequired'),
+                  })}
+                  value={
+                    formData.minSumOrder !== null ? formData.minSumOrder : ''
+                  }
+                  onChange={e =>
+                    handleInputChange('minSumOrder', e.target.value)
+                  }
+                  status={errors.minSumOrder ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('pos.maxAmount')}</div>
+              <Form.Item
+                help={errors.maxSumOrder?.message}
+                validateStatus={errors.maxSumOrder ? 'error' : undefined}
+              >
+                <Input
+                  type="number"
+                  className="w-48"
+                  {...register('maxSumOrder', {
+                    required: t('validation.maxSumOrderRequired'),
+                  })}
+                  value={
+                    formData.maxSumOrder !== null ? formData.maxSumOrder : ''
+                  }
+                  onChange={e =>
+                    handleInputChange('maxSumOrder', e.target.value)
+                  }
+                  status={errors.maxSumOrder ? 'error' : ''}
+                  size="large"
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div>{t('pos.photos')}</div>
+              <div>{t('pos.maxNumber')}</div>
+              <Button icon={<PlusOutlined />} className="btn-outline-primary">
+                {t('pos.download')}
+              </Button>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+            <Button onClick={() => resetForm()} className="btn-outline-primary">
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t("organizations.cancel")}
-              type="outline"
-              handleClick={() => resetForm()}
-            />
-            <Button
-              title={t("organizations.save")}
-              form={true}
-              isLoading={isMutating}
-            />
+              htmlType="submit"
+              loading={isMutating}
+              className="btn-primary"
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </div>
   );
 };

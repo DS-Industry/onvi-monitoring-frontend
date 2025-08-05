@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import "./config/i18n/index.ts";
+import './styles/components.css'
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 import { datadogLogs } from "@datadog/browser-logs";

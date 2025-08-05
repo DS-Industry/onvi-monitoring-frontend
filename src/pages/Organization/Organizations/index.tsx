@@ -201,6 +201,7 @@ const Organization: React.FC = () => {
     <>
       <GeneralFilters
         count={organizations.length}
+        display={["city"]}
       />
       <>
         <div className="mt-8">
