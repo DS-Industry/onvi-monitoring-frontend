@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/ui/Button/Button";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
@@ -17,9 +16,9 @@ import {
 import { getOrganization } from "@/services/api/organization";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import { useCity } from "@/hooks/useAuthStore";
-import { Select, Table, Tooltip } from "antd";
+import { Drawer, Select, Table, Tooltip } from "antd";
 import { usePermissions } from "@/hooks/useAuthStore";
 import { Can } from "@/permissions/Can";
 import { EditOutlined } from "@ant-design/icons";
@@ -62,7 +61,7 @@ type InventoryColumn = {
 const InventoryCreation: React.FC = () => {
   const { t } = useTranslation();
   const allCategoriesText = t("warehouse.all");
-  const { buttonOn, setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editInventoryId, setEditInventoryId] = useState<number>(0);
   const city = useCity();
@@ -265,7 +264,7 @@ const InventoryCreation: React.FC = () => {
 
   const handleUpdate = (id: number) => {
     setIsEditMode(true);
-    setButtonOn(true);
+    setDrawerOpen(true);
     const inventoryToEdit = inventories.find(
       (inventory) => inventory.id === id
     );
@@ -308,7 +307,7 @@ const InventoryCreation: React.FC = () => {
       );
 
       if (result) {
-        setButtonOn(!buttonOn);
+        setDrawerOpen(false);
         mutate(swrKey);
       }
     } catch (error) {
@@ -322,7 +321,7 @@ const InventoryCreation: React.FC = () => {
     setIsEditMode(false);
     reset();
     setEditInventoryId(0);
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -408,6 +407,14 @@ const InventoryCreation: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-8 right-80 z-50">
+        <Button
+          title={t("routes.create")}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       <GeneralFilters
         count={inventoriesDisplay.length}
         display={["organization"]}
@@ -460,11 +467,15 @@ const InventoryCreation: React.FC = () => {
           loading={inventoryLoading}
         />
       </div>
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={isEditMode ? t("warehouse.edit") : t("warehouse.add")}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {isEditMode ? t("warehouse.edit") : t("warehouse.add")}
-          </div>
           <span className="font-semibold text-sm text-text01">
             {t("warehouse.fields")}
           </span>
@@ -689,7 +700,7 @@ const InventoryCreation: React.FC = () => {
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };

@@ -1297,7 +1297,7 @@ const routes = [
       {
         name: "ware",
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: "create",
         isVisible: true,
         path: "/warehouse/create",
@@ -1315,7 +1315,7 @@ const routes = [
       {
         name: "nomenclature",
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: "create",
         isVisible: true,
         path: "/warehouse/inventory",
@@ -1353,7 +1353,7 @@ const routes = [
       {
         name: "groups",
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: "create",
         isVisible: true,
         path: "/warehouse/inventoryGroups",
@@ -1448,7 +1448,7 @@ const routes = [
       {
         name: "suppliers",
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: "create",
         isVisible: true,
         path: "/warehouse/suppliers",

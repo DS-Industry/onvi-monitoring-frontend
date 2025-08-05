@@ -2,7 +2,6 @@ import NoDataUI from "@/components/ui/NoDataUI";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import InventoryEmpty from "@/assets/NoInventory.png";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import Input from "@/components/ui/Input/Input";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
@@ -15,15 +14,14 @@ import {
 } from "@/services/api/warehouse";
 import useFormHook from "@/hooks/useFormHook";
 import useSWRMutation from "swr/mutation";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
-// import TreeTable from "@/components/ui/Table/TreeTable";
+import { useToast } from "@/components/context/useContext";
 import TableSkeleton from "@/components/ui/Table/TableSkeleton";
 import Table, { ColumnsType } from "antd/es/table";
 import { usePermissions } from "@/hooks/useAuthStore";
 import AntDButton from "antd/es/button";
 import { EditOutlined } from "@ant-design/icons";
 import { Can } from "@/permissions/Can";
-import { Tooltip } from "antd";
+import { Drawer, Tooltip } from "antd";
 
 type TreeData = {
   id: number;
@@ -69,8 +67,8 @@ const buildTree = (data: unknown[]): TreeData[] => {
 
 const InventoryGroups: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [editInventoryId, setEditInventoryId] = useState<number>(0);
   const { showToast } = useToast();
 
@@ -137,7 +135,7 @@ const InventoryGroups: React.FC = () => {
   const handleUpdate = (id: number) => {
     setEditInventoryId(id);
     setIsEditMode(true);
-    setButtonOn(true);
+    setDrawerOpen(true);
     const inventoryToEdit = category.find((inventory) => inventory.id === id);
     if (inventoryToEdit) {
       setFormData({
@@ -153,7 +151,7 @@ const InventoryGroups: React.FC = () => {
     setIsEditMode(false);
     reset();
     setEditInventoryId(0);
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -245,6 +243,14 @@ const InventoryGroups: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t("routes.create")}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       {loadingCategory ? (
         <TableSkeleton columnCount={columnsCategory.length} />
       ) : treeData.length > 0 ? (
@@ -270,11 +276,15 @@ const InventoryGroups: React.FC = () => {
           />
         </NoDataUI>
       )}
-      <DrawerCreate classname="w-[440px]" onClose={resetForm}>
+      <Drawer
+        title={t("warehouse.groupCreate")}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t("warehouse.groupCreate")}
-          </div>
           <span className="font-semibold text-sm text-text01">
             {t("warehouse.fields")}
           </span>
@@ -327,7 +337,7 @@ const InventoryGroups: React.FC = () => {
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };
