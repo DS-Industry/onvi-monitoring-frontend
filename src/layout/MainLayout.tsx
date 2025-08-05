@@ -14,7 +14,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <Layout style={{ minHeight: '100vh', backgroundColor: 'white' }}>
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
-      <Layout style={{ marginLeft: isOpen ? 256 : 80, transition: 'all 0.3s' }}>
+      <Layout
+        className={`mt-3 md:mt-0 ${isOpen ? 'md:ms-[256px]' : 'md:ms-[80px]'}`}
+        style={{ transition: 'all 0.3s' }}
+      >
         <Content className="min-h-screen bg-white">
           <div className="px-4 sm:px-6 relative min-h-screen z-10">
             {children}

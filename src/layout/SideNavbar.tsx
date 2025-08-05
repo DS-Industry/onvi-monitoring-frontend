@@ -106,7 +106,6 @@ const Sidebar = ({
                 if (item.subMenu) {
                   e.preventDefault();
                   if (isMobile) {
-                    // Mobile submenu toggle logic if needed
                     openAtLevel(level, item.name);
                   } else {
                     openAtLevel(level, item.name);
@@ -149,8 +148,6 @@ const Sidebar = ({
                 )}
               </div>
             )}
-
-            {/* For mobile, you can implement accordion style here if needed */}
           </div>
         )
       }
@@ -158,74 +155,86 @@ const Sidebar = ({
   );
 
   return (
-    <Sider
-      id="sidebar"
-      theme="dark"
-      trigger={null}
-      collapsible
-      collapsed={!isOpen}
-      width={256}
-      collapsedWidth={80}
-      className="fixed h-full z-50"
-      style={{
-        background: '#1c1917',
-        left: isMobile ? (isOpen ? 0 : -80) : 0,
-        transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
-      }}
-      {...handleSiderHover}
-    >
-      <div className="h-full flex flex-col justify-between relative">
-        <div>
-          <div
-            className={`flex items-center ${isOpen ? '' : 'justify-center'} py-5 px-4`}
-          >
-            <img
-              src={isOpen ? OnviLogo : OnviSmallLogo}
-              alt="ONVI"
-              loading="lazy"
-            />
-          </div>
-
-          <nav className="mt-5 text-sm grid gap-y-1">
-            {routes.map(item => item.isSidebar && renderNavItem(item, 0))}
-          </nav>
-        </div>
-
-        <div>
-          <div
-            className={`flex items-center ${!isOpen && 'justify-center'} py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
-            onClick={() => navigate('/notifications')}
-          >
-            <NotificationYes className={`${isOpen && 'mr-2'} text-xl`} />
-            {isOpen && <span>{t('routes.notifications')}</span>}
-          </div>
-
-          <div
-            className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer"
-            onClick={() => navigate('/profile')}
-          >
-            {user?.user?.avatar ? (
+    <>
+      {isMobile && !isOpen && (
+        <button
+          type="button"
+          aria-label="Toggle sidebar"
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed top-4 left-4 p-2 z-[9999] rounded-md bg-background02 hover:bg-background03 text-primary01 focus:outline-none focus:ring-2 focus:ring-primary01"
+        >
+          ☰
+        </button>
+      )}
+      <Sider
+        id="sidebar"
+        theme="dark"
+        trigger={null}
+        collapsible
+        collapsed={!isOpen}
+        width={256}
+        collapsedWidth={80}
+        className="fixed h-full z-50"
+        style={{
+          background: '#1c1917',
+          left: isMobile ? (isOpen ? 0 : -80) : 0,
+          transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
+        }}
+        {...handleSiderHover}
+      >
+        <div className="h-full flex flex-col justify-between relative">
+          <div>
+            <div
+              className={`flex items-center ${isOpen ? '' : 'justify-center'} py-5 px-4`}
+            >
               <img
-                src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user?.user?.avatar}`}
-                alt="Profile"
-                className="rounded-full w-10 h-10 object-cover"
+                src={isOpen ? OnviLogo : OnviSmallLogo}
+                alt="ONVI"
                 loading="lazy"
               />
-            ) : (
-              <Avatar
-                type="sidebar"
-                userName={{ name: user?.user?.name || '', middlename: '' }}
-              />
-            )}
-            {isOpen && (
-              <p className="text-text02 text-sm hidden md:block">
-                {user?.user?.name || ''}
-              </p>
-            )}
+            </div>
+
+            <nav className="mt-5 text-sm grid gap-y-1">
+              {routes.map(item => item.isSidebar && renderNavItem(item, 0))}
+            </nav>
+          </div>
+
+          <div>
+            <div
+              className={`flex items-center ${!isOpen && 'justify-center'} py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
+              onClick={() => navigate('/notifications')}
+            >
+              <NotificationYes className={`${isOpen && 'mr-2'} text-xl`} />
+              {isOpen && <span>{t('routes.notifications')}</span>}
+            </div>
+
+            <div
+              className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer"
+              onClick={() => navigate('/profile')}
+            >
+              {user?.user?.avatar ? (
+                <img
+                  src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user?.user?.avatar}`}
+                  alt="Profile"
+                  className="rounded-full w-10 h-10 object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <Avatar
+                  type="sidebar"
+                  userName={{ name: user?.user?.name || '', middlename: '' }}
+                />
+              )}
+              {isOpen && (
+                <p className="text-text02 text-sm hidden md:block">
+                  {user?.user?.name || ''}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </Sider>
+      </Sider>
+    </>
   );
 };
 
