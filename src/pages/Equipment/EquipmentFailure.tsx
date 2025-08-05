@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
 import DropdownInput from "@/components/ui/Input/DropdownInput";
 import MultilineInput from "@/components/ui/Input/MultilineInput";
 import Button from "@/components/ui/Button/Button";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
+import { useToast } from "@/components/context/useContext";
 import useSWR, { mutate } from "swr";
 import {
   createIncident,
@@ -26,7 +25,7 @@ import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
 import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
 import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { Table, Tooltip } from "antd";
+import { Drawer, Table, Tooltip } from "antd";
 import { getDateRender } from "@/utils/tableUnits";
 import { usePermissions } from "@/hooks/useAuthStore";
 import hasPermission from "@/permissions/hasPermission";
@@ -38,7 +37,7 @@ import ColumnSelector from "@/components/ui/Table/ColumnSelector";
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIncidentId, setEditIncidentId] = useState<number>(0);
   const today = dayjs().toDate();
@@ -163,11 +162,11 @@ const EquipmentFailure: React.FC = () => {
     formData.posId === 0
       ? []
       : (
-          allProgramsData?.map((item) => ({
-            name: item.props.name,
-            value: item.props.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        allProgramsData?.map((item) => ({
+          name: item.props.name,
+          value: item.props.id,
+        })) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const incidents: Incident[] =
     data
@@ -185,65 +184,65 @@ const EquipmentFailure: React.FC = () => {
     formData.posId === 0
       ? []
       : (
-          deviceData?.map((item) => ({
-            name: item.props.name,
-            value: item.props.name,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        deviceData?.map((item) => ({
+          name: item.props.name,
+          value: item.props.name,
+        })) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const equipmentKnots: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-          equipmentKnotData?.map((item) => ({
-            name: item.props.name,
-            value: item.props.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        equipmentKnotData?.map((item) => ({
+          name: item.props.name,
+          value: item.props.id,
+        })) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const problemNames: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-          incidentEquipmentKnotData?.map((item) => ({
-            name: item.problemName,
-            value: item.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        incidentEquipmentKnotData?.map((item) => ({
+          name: item.problemName,
+          value: item.id,
+        })) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const reasons: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-          incidentEquipmentKnotData
-            ?.flatMap((item) =>
-              item.reason.map((reas) => ({
-                name: reas.infoName,
-                value: reas.id,
-              }))
-            )
-            .filter(
-              (reason, index, self) =>
-                index === self.findIndex((r) => r.value === reason.value)
-            ) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        incidentEquipmentKnotData
+          ?.flatMap((item) =>
+            item.reason.map((reas) => ({
+              name: reas.infoName,
+              value: reas.id,
+            }))
+          )
+          .filter(
+            (reason, index, self) =>
+              index === self.findIndex((r) => r.value === reason.value)
+          ) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const solutions: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-          incidentEquipmentKnotData
-            ?.flatMap((item) =>
-              item.solution.map((sol) => ({
-                name: sol.infoName,
-                value: sol.id,
-              }))
-            )
-            .filter(
-              (reason, index, self) =>
-                index === self.findIndex((r) => r.value === reason.value)
-            ) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        incidentEquipmentKnotData
+          ?.flatMap((item) =>
+            item.solution.map((sol) => ({
+              name: sol.infoName,
+              value: sol.id,
+            }))
+          )
+          .filter(
+            (reason, index, self) =>
+              index === self.findIndex((r) => r.value === reason.value)
+          ) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -322,7 +321,7 @@ const EquipmentFailure: React.FC = () => {
   const handleUpdate = (id: number) => {
     setEditIncidentId(id);
     setIsEditMode(true);
-    setButtonOn(true);
+    setDrawerOpen(true);
     const incidentToEdit = incidents.find((org) => org.id === id);
 
     if (incidentToEdit) {
@@ -341,39 +340,39 @@ const EquipmentFailure: React.FC = () => {
           (equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-              equipmentKnots.find(
-                (equipmentKnot) =>
-                  equipmentKnot.name === incidentToEdit.equipmentKnot
-              )?.value
-            )
+            equipmentKnots.find(
+              (equipmentKnot) =>
+                equipmentKnot.name === incidentToEdit.equipmentKnot
+            )?.value
+          )
           : 0,
         incidentNameId: problemNames.find(
           (incidentName) => incidentName.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-              problemNames.find(
-                (incidentName) =>
-                  incidentName.name === incidentToEdit.incidentName
-              )?.value
-            )
+            problemNames.find(
+              (incidentName) =>
+                incidentName.name === incidentToEdit.incidentName
+            )?.value
+          )
           : 0,
         incidentReasonId: reasons.find(
           (reason) => reason.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-              reasons.find(
-                (reason) => reason.name === incidentToEdit.incidentReason
-              )?.value
-            )
+            reasons.find(
+              (reason) => reason.name === incidentToEdit.incidentReason
+            )?.value
+          )
           : 0,
         incidentSolutionId: solutions.find(
           (solution) => solution.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-              solutions.find(
-                (solution) => solution.name === incidentToEdit.incidentSolution
-              )?.value
-            )
+            solutions.find(
+              (solution) => solution.name === incidentToEdit.incidentSolution
+            )?.value
+          )
           : 0,
         downtime: incidentToEdit.downtime === "Нет" ? 0 : 1,
         comment: incidentToEdit.comment,
@@ -387,7 +386,7 @@ const EquipmentFailure: React.FC = () => {
     setIsEditMode(false);
     reset();
     setEditIncidentId(0);
-    setButtonOn(false);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -530,6 +529,14 @@ const EquipmentFailure: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t("routes.fix")}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       <GeneralFilters
         count={incidents.length}
         display={["city", "pos", "dateTime", "reset", "count"]}
@@ -549,11 +556,15 @@ const EquipmentFailure: React.FC = () => {
           scroll={{ x: "max-content" }}
         />
       </div>
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t("equipment.break")}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t("equipment.break")}
-          </span>
           <DropdownInput
             title={t("equipment.carWash")}
             label={
@@ -802,7 +813,7 @@ const EquipmentFailure: React.FC = () => {
               title={t("organizations.cancel")}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
@@ -810,11 +821,11 @@ const EquipmentFailure: React.FC = () => {
               title={t("organizations.save")}
               form={true}
               isLoading={isEditMode ? updatingIncident : isMutating}
-              handleClick={() => {}}
+              handleClick={() => { }}
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };

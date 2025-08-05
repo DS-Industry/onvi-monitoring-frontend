@@ -184,7 +184,7 @@ const Positions: React.FC = () => {
       />
 
       <Drawer
-        title={t("routes.addE")}
+        title={t("hr.pos")}
         placement="right"
         size="large"
         onClose={resetForm}
@@ -192,7 +192,6 @@ const Positions: React.FC = () => {
         className="custom-drawer"
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
           <div className="flex">
             <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
             <span className="text-errorFill">*</span>
