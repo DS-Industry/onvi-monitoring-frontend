@@ -10,6 +10,8 @@ import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
 // components
 import { Can } from '@/permissions/Can';
 import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
+import { Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -27,8 +29,12 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
   const screens = useBreakpoint();
   const isMobile = !screens.sm;
 
-  const { setOpenSubmenuPath, openSubmenuAtLevel, isSubmenuOpenAtLevel } =
-    useSidebarNavigation();
+  const {
+    setOpenSubmenuPath,
+    openSubmenuAtLevel,
+    isSubmenuOpenAtLevel,
+    closeLastSubmenu,
+  } = useSidebarNavigation();
 
   const isSubmenuActive = (submenu?: RouteItem[]) =>
     submenu ? submenu.some(child => child.path === location.pathname) : false;
@@ -108,7 +114,15 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
                   }}
                 >
                   {isMobile ? (
-                    <div className="w-full flex justify-end">x</div>
+                    <Button
+                      type="text"
+                      icon={<CloseOutlined />}
+                      size="large"
+                      className="text-gray-500 hover:text-black"
+                      onClick={() => {
+                        closeLastSubmenu();
+                      }}
+                    />
                   ) : (
                     <></>
                   )}
