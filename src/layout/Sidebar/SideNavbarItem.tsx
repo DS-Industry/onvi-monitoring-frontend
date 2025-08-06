@@ -2,16 +2,19 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 // utils
 import { useTranslation } from 'react-i18next';
-import routes, { RouteItem } from '@/routes';
-import useAuthStore from '@/config/store/authSlice';
-import { useSidebarNavigation } from './useSidebarNavigation';
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
+import { useSidebarNavigation } from './useSidebarNavigation';
+import useAuthStore from '@/config/store/authSlice';
+
+import routes, { RouteItem } from '@/routes';
 
 // components
-import { Can } from '@/permissions/Can';
-import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 import { Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
+import { Can } from '@/permissions/Can';
+
+// icons
+import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -25,7 +28,6 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
   const { t } = useTranslation();
   const location = useLocation();
   const userPermissions = useAuthStore(state => state.permissions);
-
   const screens = useBreakpoint();
   const isMobile = !screens.sm;
 
@@ -37,7 +39,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
   } = useSidebarNavigation();
 
   const isSubmenuActive = (submenu?: RouteItem[]) =>
-    submenu ? submenu.some(child => child.path === location.pathname) : false;
+    submenu?.some(child => child.path === location.pathname) ?? false;
 
   const renderNavItem = (
     item: RouteItem,
@@ -48,7 +50,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
       requiredPermissions={item.permissions || []}
       userPermissions={userPermissions}
     >
-      {allowed =>
+      {(allowed: boolean) =>
         allowed ? (
           <div key={item.name} className="side-nav relative">
             <NavLink
@@ -62,19 +64,21 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
                   onClick();
                 }
               }}
-              className={({ isActive }) =>
-                `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm ${
-                  item.subMenu
-                    ? isSubmenuActive(item.subNav)
-                      ? 'bg-opacity01/30 text-primary01'
-                      : isSubmenuOpenAtLevel(level, item.name)
+              className={({ isActive }) => {
+                const isOpenSubmenu = isSubmenuOpenAtLevel(level, item.name);
+                const isSubmenuHighlighted = isSubmenuActive(item.subNav);
+                return `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
+                  ${
+                    item.subMenu
+                      ? isSubmenuHighlighted || isOpenSubmenu
                         ? 'bg-opacity01/30 text-primary01'
                         : 'text-text02'
-                    : isActive
-                      ? 'bg-opacity01/30 text-primary01'
-                      : 'text-text02'
-                } hover:bg-opacity01/30 hover:text-primary01`
-              }
+                      : isActive
+                        ? 'bg-opacity01/30 text-primary01'
+                        : 'text-text02'
+                  }
+                  hover:bg-opacity01/30 hover:text-primary01`;
+              }}
               aria-haspopup={!!item.subMenu}
               aria-expanded={
                 item.subMenu
@@ -94,38 +98,30 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
 
-            {/* Nested submenu panel (desktop only) */}
-            {isSubmenuOpenAtLevel(level, item.name) &&
-              isOpen &&
-              item.subNav && (
+            {/* Nested submenu panel (mobile only) */}
+            {item.subNav &&
+              isSubmenuOpenAtLevel(level, item.name) &&
+              isOpen && (
                 <div
-                  className={
-                    'fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md'
-                  }
+                  className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"
                   style={{
                     left: isMobile
                       ? 0
-                      : `${
-                          isOpen
-                            ? SIDEBAR_WIDTH + level * SIDEBAR_WIDTH
-                            : SIDEBAR_COLLAPSED_WIDTH + level * SIDEBAR_WIDTH
-                        }px`,
+                      : `${(isOpen ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH) + level * SIDEBAR_WIDTH}px`,
                     zIndex: 9999 + level,
                   }}
                 >
-                  {isMobile ? (
-                    <Button
-                      type="text"
-                      icon={<CloseOutlined />}
-                      size="large"
-                      className="text-gray-500 hover:text-black"
-                      onClick={() => {
-                        closeLastSubmenu();
-                      }}
-                    />
-                  ) : (
-                    <></>
+                  {isMobile && (
+                    <div className="mb-4 flex justify-end">
+                      <Button
+                        type="text"
+                        icon={<CloseOutlined />}
+                        onClick={closeLastSubmenu}
+                        aria-label="Close submenu"
+                      />
+                    </div>
                   )}
+
                   {item.subNav.map(
                     subItem =>
                       subItem.isSidebar && renderNavItem(subItem, level + 1)
