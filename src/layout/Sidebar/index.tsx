@@ -125,6 +125,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
 
             <SidebarNavigation
               isOpen={isOpen}
+              setIsOpen={setIsOpen}
               onClick={() => {
                 if (!isHovered) {
                   setIsHovered(true);

@@ -23,12 +23,14 @@ const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 interface SidebarNavigationProps {
   isOpen: boolean;
+  setIsOpen: any;
   onClick: () => void;
 }
 
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   isOpen,
   onClick,
+  setIsOpen,
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -71,6 +73,9 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
               <NavLink
                 to={subMenu ? '#' : path}
                 onClick={e => {
+                  if (!isOpen) {
+                    setIsOpen(true);
+                  }
                   if (subMenu) {
                     e.preventDefault();
                     openSubmenuAtLevel(level, name);
