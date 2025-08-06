@@ -91,12 +91,6 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
             setIsHovered(false);
           }
         }}
-        onClick={() => {
-          if (!isHovered) {
-            setIsHovered(true);
-            resetSubmenu();
-          }
-        }}
       >
         <div className="h-full flex flex-col justify-between relative">
           {/* Logo */}
@@ -125,9 +119,14 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
             <SidebarNavigation
               isOpen={isOpen}
               onClick={() => {
-                setIsOpen(false);
-                setIsHovered(false);
-                resetSubmenu();
+                if (!isHovered) {
+                  setIsHovered(true);
+                  resetSubmenu();
+                } else {
+                  setIsOpen(false);
+                  setIsHovered(false);
+                  resetSubmenu();
+                }
               }}
             />
           </div>
