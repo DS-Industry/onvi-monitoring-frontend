@@ -1,4 +1,6 @@
+import React, { useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
 
 // utils
 import { useTranslation } from 'react-i18next';
@@ -24,7 +26,10 @@ interface SidebarNavigationProps {
   onClick: () => void;
 }
 
-const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
+const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
+  isOpen,
+  onClick,
+}) => {
   const { t } = useTranslation();
   const location = useLocation();
   const userPermissions = useAuthStore(state => state.permissions);
@@ -38,102 +43,103 @@ const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
     closeLastSubmenu,
   } = useSidebarNavigation();
 
-  const isSubmenuActive = (submenu?: RouteItem[]): boolean => {
-    if (!submenu) return false;
+  const isSubmenuActive = useCallback(
+    (submenu?: RouteItem[]): boolean => {
+      if (!submenu) return false;
 
-    return submenu.some(child => {
-      if (child.path === location.pathname) return true;
-      if (child.subNav) return isSubmenuActive(child.subNav);
-      return false;
-    });
-  };
+      return submenu.some(child => {
+        if (child.path === location.pathname) return true;
+        if (child.subNav) return isSubmenuActive(child.subNav);
+        return false;
+      });
+    },
+    [location.pathname]
+  );
 
-  const renderNavItem = (
-    item: RouteItem,
-    level = 0
-  ): React.ReactElement | null => (
-    <Can
-      key={item.name}
-      requiredPermissions={item.permissions || []}
-      userPermissions={userPermissions}
-    >
-      {(allowed: boolean) =>
-        allowed ? (
-          <div key={item.name} className="side-nav relative">
-            <NavLink
-              to={item.subMenu ? '#' : item.path}
-              onClick={e => {
-                if (item.subMenu) {
-                  e.preventDefault();
-                  openSubmenuAtLevel(level, item.name);
-                } else {
-                  setOpenSubmenuPath([]);
-                  onClick();
+  const renderNavItem = (item: RouteItem, level = 0): React.ReactNode => {
+    const { name, path, icon: Icon, subMenu, subNav, permissions } = item;
+
+    return (
+      <Can
+        key={name}
+        requiredPermissions={permissions || []}
+        userPermissions={userPermissions}
+      >
+        {(allowed: boolean) =>
+          allowed ? (
+            <div className="side-nav relative">
+              <NavLink
+                to={subMenu ? '#' : path}
+                onClick={e => {
+                  if (subMenu) {
+                    e.preventDefault();
+                    openSubmenuAtLevel(level, name);
+                  } else {
+                    setOpenSubmenuPath([]);
+                    onClick();
+                  }
+                }}
+                className={({ isActive }) => {
+                  const isOpenSubmenu = isSubmenuOpenAtLevel(level, name);
+                  const isSubmenuHighlighted = isSubmenuActive(subNav);
+
+                  const active = subMenu
+                    ? isOpenSubmenu || isSubmenuHighlighted
+                    : isActive;
+
+                  const textColor = active
+                    ? level > 0
+                      ? 'text-black'
+                      : 'text-primary01'
+                    : 'text-text02';
+                  const hoverTextColor =
+                    level > 0 ? 'hover:text-black' : 'hover:text-primary01';
+
+                  return clsx(
+                    'flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold duration-300 ease-in-out text-sm',
+                    active && 'bg-opacity01/30',
+                    textColor,
+                    hoverTextColor,
+                    'hover:bg-opacity01/30'
+                  );
+                }}
+                aria-haspopup={!!subMenu}
+                aria-expanded={
+                  subMenu ? isSubmenuOpenAtLevel(level, name) : undefined
                 }
-              }}
-              className={({ isActive }) => {
-                const isOpenSubmenu = isSubmenuOpenAtLevel(level, item.name);
-                const isSubmenuHighlighted = isSubmenuActive(item.subNav);
-
-                const active = item.subMenu
-                  ? isOpenSubmenu || isSubmenuHighlighted
-                  : isActive;
-
-                const textColor = active
-                  ? level > 0
-                    ? 'text-black'
-                    : 'text-primary01'
-                  : 'text-text02';
-                const hoverTextColor =
-                  level > 0 ? 'hover:text-black' : 'hover:text-primary01';
-
-                // bg highlight only when active or hovered (via hover:bg-opacity01/30)
-                const bgClass = active ? 'bg-opacity01/30' : '';
-
-                return [
-                  'flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold duration-300 ease-in-out text-sm',
-                  bgClass,
-                  textColor,
-                  hoverTextColor,
-                  'hover:bg-opacity01/30',
-                ]
-                  .filter(Boolean)
-                  .join(' ');
-              }}
-              aria-haspopup={!!item.subMenu}
-              aria-expanded={
-                item.subMenu
-                  ? isSubmenuOpenAtLevel(level, item.name)
-                  : undefined
-              }
-              tabIndex={0}
-              onKeyDown={e => {
-                if (item.subMenu && (e.key === 'Enter' || e.key === ' ')) {
-                  e.preventDefault();
-                  openSubmenuAtLevel(level, item.name);
-                }
-              }}
-            >
-              {item.icon && <item.icon className={isOpen ? 'mr-2' : ''} />}
-
-              <span
-                className={`inline-block overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 max-w-[180px] ml-2' : 'opacity-0 max-w-0 ml-0'}`}
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (subMenu && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    openSubmenuAtLevel(level, name);
+                  }
+                }}
               >
-                {t(`routes.${item.name}`)}
-              </span>
-              {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
-            </NavLink>
+                {Icon && <Icon className={isOpen ? 'mr-2' : ''} />}
 
-            {/* Nested submenu panel (mobile only) */}
-            {item.subNav &&
-              isSubmenuOpenAtLevel(level, item.name) &&
-              isOpen && (
+                <span
+                  className={clsx(
+                    'inline-block overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out',
+                    isOpen
+                      ? 'opacity-100 max-w-[180px] ml-2'
+                      : 'opacity-0 max-w-0 ml-0'
+                  )}
+                >
+                  {t(`routes.${name}`)}
+                </span>
+
+                {subMenu && isOpen && <ArrowRight className="ml-auto" />}
+              </NavLink>
+
+              {/* Nested submenu panel */}
+              {subNav && isSubmenuOpenAtLevel(level, name) && isOpen && (
                 <div
                   className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-2 shadow-md"
                   style={{
                     left: isMobile
                       ? 0
-                      : `${(isOpen ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH) + level * SIDEBAR_WIDTH}px`,
+                      : (isOpen ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH) +
+                        level * SIDEBAR_WIDTH,
                     zIndex: 9999 + level,
                   }}
                 >
@@ -148,20 +154,25 @@ const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
                     </div>
                   )}
 
-                  {item.subNav.map(
+                  {subNav.map(
                     subItem =>
                       subItem.isSidebar && renderNavItem(subItem, level + 1)
                   )}
                 </div>
               )}
-          </div>
-        ) : null
-      }
-    </Can>
-  );
+            </div>
+          ) : null
+        }
+      </Can>
+    );
+  };
 
   return (
-    <nav className="mt-5 text-sm grid gap-y-1">
+    <nav
+      className="mt-5 text-sm grid gap-y-1"
+      role="navigation"
+      aria-label="Sidebar Navigation"
+    >
       {routes.map(item => item.isSidebar && renderNavItem(item, 0))}
     </nav>
   );
