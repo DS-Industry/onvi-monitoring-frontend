@@ -84,6 +84,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         }`}
         onMouseEnter={() => !isMobile && setIsHovered(true)}
         onMouseLeave={() => !isMobile && setIsHovered(false)}
+        onClick={() => {
+          if (!isHovered) {
+            setIsHovered(true);
+          }
+        }}
       >
         <div className="h-full flex flex-col justify-between relative">
           {/* Logo */}
