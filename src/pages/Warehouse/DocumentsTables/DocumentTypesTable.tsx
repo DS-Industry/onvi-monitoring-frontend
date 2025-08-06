@@ -135,7 +135,7 @@ const DocumentTypesTable: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
   const warehouseId = searchParams.get('warehouseId');
 

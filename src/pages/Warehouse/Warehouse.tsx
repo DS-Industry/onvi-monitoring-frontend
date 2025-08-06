@@ -30,7 +30,7 @@ const Warehouse: React.FC = () => {
   const { showToast } = useToast();
 
   const posId = searchParams.get('posId') || '*';
-  const placementId = searchParams.get('city') || '*';
+  const placementId = Number(searchParams.get('city')) || undefined;
 
   const filterParams = useMemo(
     () => ({
@@ -65,7 +65,7 @@ const Warehouse: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: placementId,
+        placementId: placementId || '*',
       }),
     {
       revalidateOnFocus: false,

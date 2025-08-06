@@ -635,7 +635,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
             >
               {user.avatar ? (
                 <img
-                  src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user.avatar}`}
+                  src={`${import.meta.env.VITE_S3_CLOUD}/avatar/user/${user.avatar}`}
                   alt="Profile"
                   className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
                   loading="lazy"

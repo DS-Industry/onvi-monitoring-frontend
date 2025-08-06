@@ -40,16 +40,16 @@ const ProgramDevices: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
-  const cityParam = searchParams.get('city') || '*';
+  const cityParam = Number(searchParams.get('city')) || undefined;
 
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      posId: posId || location.state?.ownerId || '*',
+      posId: posId || location.state?.ownerId,
       placementId: cityParam,
       page: currentPage,
       size: pageSize,

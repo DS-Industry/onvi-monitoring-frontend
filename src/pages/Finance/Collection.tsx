@@ -57,14 +57,14 @@ const Collection: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart =
     searchParams.get('dateStart') ?? dayjs(`${formattedDate} 00:00`).toDate();
 
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs(`${formattedDate} 23:59`).toDate();
 
-  const cityParam = Number(searchParams.get('city')) || '*';
+  const cityParam = Number(searchParams.get('city')) || undefined;
 
   const formatPeriodType = getFormatPeriodType();
   const renderCurrency = getCurrencyRender();
@@ -74,7 +74,7 @@ const Collection: React.FC = () => {
     () => ({
       dateStart: dayjs(dateStart || `${formattedDate} 00:00`).toDate(),
       dateEnd: dayjs(dateEnd?.toString() || `${formattedDate} 23:59`).toDate(),
-      posId: posId || '*',
+      posId: posId,
       page: currentPage,
       size: pageSize,
       placementId: cityParam,

@@ -34,8 +34,8 @@ export enum TypeTechTask {
 type IncidentParam = {
   dateStart: string;
   dateEnd: string;
-  posId: number | string;
-  placementId: number | string;
+  posId?: number;
+  placementId?: number;
 };
 
 export type Incident = {
@@ -324,7 +324,7 @@ type ConsumptionRateCoeffPatchResponse = {
 };
 
 type PosParams = {
-  placementId: number | string;
+  placementId?: number;
 };
 
 type ProgramParams = {
@@ -466,7 +466,7 @@ export async function getWorkers(): Promise<WorkerResponse[]> {
 }
 
 export async function getDevices(
-  posId: number | string
+  posId: number | undefined
 ): Promise<DeviceResponse[]> {
   const response: AxiosResponse<DeviceResponse[]> = await api.get(
     EQUIPMENT.GET_POS_DEVICE + `/${posId}`

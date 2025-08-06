@@ -144,15 +144,11 @@ const TechTaskCreate: React.FC = () => {
     }
   );
 
-  const { data: poses } = useSWR(
-    [`get-pos`],
-    () => getPoses({ placementId: '*' }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const techTasks =
     data?.techTaskManageInfo.map(item => ({
