@@ -49,8 +49,8 @@ const IncomeReport: React.FC = () => {
     [`get-warehouse`],
     () =>
       getWarehouses({
-        posId: Number(posId) || "*",
-        placementId: Number(city) || "*",
+        posId: Number(posId) || '*',
+        placementId: Number(city) || '*',
       }),
     {
       revalidateOnFocus: false,

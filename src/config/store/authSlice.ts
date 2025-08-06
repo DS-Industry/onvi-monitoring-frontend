@@ -47,34 +47,34 @@ const formattedDate = today.toISOString().slice(0, 10);
 const startDate = new Date(`${formattedDate} 00:00`);
 const endDate = new Date(`${formattedDate} 23:59`);
 
-const createAuthStore: StateCreator<AuthState> = (set) => {
+const createAuthStore: StateCreator<AuthState> = set => {
   const initialState: AuthState = {
     tokens: null,
     permissions: [],
-    posType: "*",
+    posType: '*',
     startDate: startDate,
     endDate: endDate,
     deviceId: undefined,
-    documentType: "",
-    wareHouseId: "*",
+    documentType: '',
+    wareHouseId: '*',
     pageNumber: 15,
     currentPage: 1,
     pageSize: 10,
-    city: "*",
-    setTokens: (tokens) => set(() => ({ tokens: tokens.tokens })),
+    city: '*',
+    setTokens: tokens => set(() => ({ tokens: tokens.tokens })),
     clearTokens: () => set(() => ({ tokens: null })),
-    setPermissions: (permissions) => set({ permissions }),
-    setPosType: (posType) => set({ posType }),
-    setStartDate: (startDate) => set({ startDate }),
-    setEndDate: (endDate) => set({ endDate }),
-    setDeviceId: (deviceId) => set({ deviceId }),
-    setDocumentType: (documentType) => set({ documentType }),
-    setWareHouseId: (wareHouseId) => set({ wareHouseId }),
-    setPageNumber: (pageNumber) => set({ pageNumber }),
+    setPermissions: permissions => set({ permissions }),
+    setPosType: posType => set({ posType }),
+    setStartDate: startDate => set({ startDate }),
+    setEndDate: endDate => set({ endDate }),
+    setDeviceId: deviceId => set({ deviceId }),
+    setDocumentType: documentType => set({ documentType }),
+    setWareHouseId: wareHouseId => set({ wareHouseId }),
+    setPageNumber: pageNumber => set({ pageNumber }),
     clearPermissions: () => set(() => ({ permissions: [] })),
-    setCurrentPage: (currentPage) => set({ currentPage }),
-    setPageSize: (pageSize) => set({ pageSize }),
-    setCity: (city) => set({ city }),
+    setCurrentPage: currentPage => set({ currentPage }),
+    setPageSize: pageSize => set({ pageSize }),
+    setCity: city => set({ city }),
 
     // Reset function
     reset: () => set(initialState),
@@ -92,7 +92,6 @@ const useAuthStore = create<AuthState>()(
   )
 );
 
-useAuthStore.subscribe(() => {
-});
+useAuthStore.subscribe(() => {});
 
 export default useAuthStore;

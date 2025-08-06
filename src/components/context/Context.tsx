@@ -1,5 +1,5 @@
-import React, { useState, createContext, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, createContext, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { message } from 'antd';
 
 interface ButtonCreateProviderProps {
@@ -9,7 +9,7 @@ interface ButtonCreateProviderProps {
 type ToastContextType = {
   showToast: (
     message: string,
-    type: "success" | "error" | "info" | "warning"
+    type: 'success' | 'error' | 'info' | 'warning'
   ) => void;
 };
 
@@ -42,19 +42,19 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const showToast = useCallback(
-    (msg: string, type: "success" | "error" | "info" | "warning") => {
+    (msg: string, type: 'success' | 'error' | 'info' | 'warning') => {
       const getMessageClassName = (type: string) => {
         switch (type) {
-          case "success":
-            return "text-green-500";
-          case "error":
-            return "text-red-500";
-          case "info":
-            return "text-blue-500";
-          case "warning":
-            return "text-yellow-500";
+          case 'success':
+            return 'text-green-500';
+          case 'error':
+            return 'text-red-500';
+          case 'info':
+            return 'text-blue-500';
+          case 'warning':
+            return 'text-yellow-500';
           default:
-            return "";
+            return '';
         }
       };
 

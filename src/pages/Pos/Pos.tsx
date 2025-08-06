@@ -312,13 +312,9 @@ const Pos: React.FC = () => {
       }))
       .sort((a, b) => a.id - b.id) || [];
 
-
   return (
     <>
-      <GeneralFilters
-        count={poses.length}
-        display={["city"]}
-      />
+      <GeneralFilters count={poses.length} display={['city']} />
       {posLoading ? (
         <TableSkeleton columnCount={columnsPos.length} />
       ) : poses.length > 0 ? (
@@ -328,7 +324,6 @@ const Pos: React.FC = () => {
               data={poses}
               columns={columnsPos}
               isDisplayEdit={true}
-              // isUpdate={false}
               navigableFields={[
                 { key: 'name', getPath: () => '/station/enrollments/devices' },
               ]}

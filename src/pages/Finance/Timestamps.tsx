@@ -1,16 +1,16 @@
-import Button from "@/components/ui/Button/Button";
-import SearchDropdownInput from "@/components/ui/Input/SearchDropdownInput";
-import { getPoses } from "@/services/api/equipment";
-import { getTimestamp, postTimestamp } from "@/services/api/finance";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
-import { useToast } from "@/components/context/useContext";
-import { Table } from "antd";
-import dayjs from "dayjs";
-import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
+import Button from '@/components/ui/Button/Button';
+import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
+import { getPoses } from '@/services/api/equipment';
+import { getTimestamp, postTimestamp } from '@/services/api/finance';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { useToast } from '@/components/context/useContext';
+import { Table } from 'antd';
+import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 type TimestampResponse = {
   deviceId: number;
@@ -26,7 +26,7 @@ type TimestampBody = {
 const Timestamps: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const posId = searchParams.get("posId");
+  const posId = searchParams.get('posId');
   const [disabledButtons, setDisabledButtons] = useState<{
     [key: number]: boolean;
   }>({});
@@ -44,7 +44,7 @@ const Timestamps: React.FC = () => {
   );
 
   const poses: { name: string; value: number }[] =
-    posData?.map((item) => ({
+    posData?.map(item => ({
       name: item.name,
       value: item.id,
     })) || [];
@@ -54,7 +54,7 @@ const Timestamps: React.FC = () => {
     isLoading,
     mutate,
   } = useSWR<TimestampResponse[]>(
-    posId !== "*" && posId ? [`get-timestamp`, posId] : null,
+    posId !== '*' && posId ? [`get-timestamp`, posId] : null,
     () => getTimestamp(Number(posId)),
     {
       revalidateOnFocus: false,
@@ -64,7 +64,7 @@ const Timestamps: React.FC = () => {
   );
 
   const { trigger: postTime } = useSWRMutation(
-    ["post-timestamp"],
+    ['post-timestamp'],
     async (_, { arg }: { arg: { body: TimestampBody; id: number } }) => {
       return postTimestamp(arg.body, arg.id);
     }
@@ -76,32 +76,32 @@ const Timestamps: React.FC = () => {
       const response = await postTime({ body, id: deviceId });
 
       if (response) {
-        setDisabledButtons((prev) => ({ ...prev, [deviceId]: true }));
+        setDisabledButtons(prev => ({ ...prev, [deviceId]: true }));
       }
 
-      mutate((prevData) => {
+      mutate(prevData => {
         if (!prevData) return prevData;
-        return prevData.map((item) =>
+        return prevData.map(item =>
           item.deviceId === deviceId
             ? { ...item, tookMoneyTime: response.tookMoneyTime }
             : item
         );
       }, false);
     } catch (error) {
-      console.error("Error in postTimestamp:", error);
-      showToast(t("errors.other.errorInPostTimestamp"), "error");
+      console.error('Error in postTimestamp:', error);
+      showToast(t('errors.other.errorInPostTimestamp'), 'error');
     }
   };
 
   const columnsTimestamp = [
     {
-      title: "Устройство",
-      dataIndex: "deviceName",
-      key: "deviceName",
+      title: 'Устройство',
+      dataIndex: 'deviceName',
+      key: 'deviceName',
     },
     {
-      title: "Инкассация",
-      key: "begin",
+      title: 'Инкассация',
+      key: 'begin',
       render: (_: unknown, record: TimestampResponse) => (
         <div className="flex justify-start">
           <Button
@@ -115,29 +115,29 @@ const Timestamps: React.FC = () => {
       ),
     },
     {
-      title: "Дата предыдущей инкасации",
-      dataIndex: "oldTookMoneyTime",
-      key: "oldTookMoneyTime",
+      title: 'Дата предыдущей инкасации',
+      dataIndex: 'oldTookMoneyTime',
+      key: 'oldTookMoneyTime',
       render: (val: Date) =>
-        val ? dayjs(val).format("DD.MM.YYYY HH:mm:ss") : "-",
+        val ? dayjs(val).format('DD.MM.YYYY HH:mm:ss') : '-',
     },
     {
-      title: "Дата текущей инкассации",
-      dataIndex: "tookMoneyTime",
-      key: "tookMoneyTime",
+      title: 'Дата текущей инкассации',
+      dataIndex: 'tookMoneyTime',
+      key: 'tookMoneyTime',
       render: (val: Date) =>
-        val ? dayjs(val).format("DD.MM.YYYY HH:mm:ss") : "-",
+        val ? dayjs(val).format('DD.MM.YYYY HH:mm:ss') : '-',
     },
   ];
 
   return (
     <div>
       <SearchDropdownInput
-        title={t("finance.carWash")}
+        title={t('finance.carWash')}
         options={poses}
         classname="w-64"
         value={Number(posId)}
-        onChange={(value) =>
+        onChange={value =>
           updateSearchParams(searchParams, setSearchParams, {
             posId: value,
           })
@@ -151,7 +151,7 @@ const Timestamps: React.FC = () => {
           columns={columnsTimestamp}
           rowKey="id"
           pagination={false}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
           loading={isLoading}
         />
       </div>

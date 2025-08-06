@@ -1,9 +1,7 @@
-import React from "react";
+import React from 'react';
 
 const Administration: React.FC = () => {
-    return (
-        <div>Administration</div>
-    )
-}
+  return <div>Administration</div>;
+};
 
 export default Administration;

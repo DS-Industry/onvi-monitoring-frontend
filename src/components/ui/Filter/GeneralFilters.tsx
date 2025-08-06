@@ -1,29 +1,29 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Collapse } from "antd";
-import { useTranslation } from "react-i18next";
-import SearchInputFilter from "./SearchInputFilter";
-import CityFilter from "./CityFilter";
-import OrganizationFilter from "./OrganizationFilter";
-import PosFilter from "./PosFilter";
-import DeviceFilter from "./DeviceFilter";
-import WarehouseFilter from "./WarehouseFilter";
-import DateTimeFilter from "./DateTimeFilter";
-import ResetButton from "./ResetButton";
-import FilterCount from "./FilterCount";
-import { useSearchParams } from "react-router-dom";
-import dayjs from "dayjs";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
+import React, { useEffect, useRef, useState } from 'react';
+import { Collapse } from 'antd';
+import { useTranslation } from 'react-i18next';
+import SearchInputFilter from './SearchInputFilter';
+import CityFilter from './CityFilter';
+import OrganizationFilter from './OrganizationFilter';
+import PosFilter from './PosFilter';
+import DeviceFilter from './DeviceFilter';
+import WarehouseFilter from './WarehouseFilter';
+import DateTimeFilter from './DateTimeFilter';
+import ResetButton from './ResetButton';
+import FilterCount from './FilterCount';
+import { useSearchParams } from 'react-router-dom';
+import dayjs from 'dayjs';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-type FilterType = 
-  | "search" 
-  | "city" 
-  | "organization" 
-  | "pos" 
-  | "device" 
-  | "warehouse" 
-  | "dateTime" 
-  | "reset" 
-  | "count";
+type FilterType =
+  | 'search'
+  | 'city'
+  | 'organization'
+  | 'pos'
+  | 'device'
+  | 'warehouse'
+  | 'dateTime'
+  | 'reset'
+  | 'count';
 
 type GeneralFiltersProps = {
   count: number;
@@ -34,7 +34,17 @@ type GeneralFiltersProps = {
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   count,
-  display = ["search", "city", "organization", "pos", "device", "warehouse", "dateTime", "reset", "count"],
+  display = [
+    'search',
+    'city',
+    'organization',
+    'pos',
+    'device',
+    'warehouse',
+    'dateTime',
+    'reset',
+    'count',
+  ],
   children,
   onReset,
 }) => {
@@ -47,15 +57,15 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    if (shouldShow("dateTime")) {
-      const currentStart = searchParams.get("dateStart");
-      const currentEnd = searchParams.get("dateEnd");
+    if (shouldShow('dateTime')) {
+      const currentStart = searchParams.get('dateStart');
+      const currentEnd = searchParams.get('dateEnd');
 
       if (!currentStart || !currentEnd) {
         const defaultStart = dayjs()
-          .subtract(7, "day")
-          .format("YYYY-MM-DDTHH:mm");
-        const defaultEnd = dayjs().format("YYYY-MM-DDTHH:mm");
+          .subtract(7, 'day')
+          .format('YYYY-MM-DDTHH:mm');
+        const defaultEnd = dayjs().format('YYYY-MM-DDTHH:mm');
 
         updateSearchParams(searchParams, setSearchParams, {
           dateStart: defaultStart,
@@ -71,38 +81,38 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
       ghost
       style={{ marginBottom: 16 }}
       activeKey={activeFilterKey}
-      onChange={(keys) => setActiveFilterKey(keys as string[])}
+      onChange={keys => setActiveFilterKey(keys as string[])}
       items={[
         {
-          key: "filter-1",
+          key: 'filter-1',
           label: (
             <span className="font-semibold text-base">
-              {activeFilterKey.includes("1")
-                ? t("routes.filter")
-                : t("routes.expand")}
+              {activeFilterKey.includes('1')
+                ? t('routes.filter')
+                : t('routes.expand')}
             </span>
           ),
-          style: { background: "#fafafa", borderRadius: 8 },
+          style: { background: '#fafafa', borderRadius: 8 },
           children: (
             <div
               ref={contentRef}
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
               <div className="flex flex-wrap gap-4">
-                {shouldShow("search") && <SearchInputFilter />}
-                {shouldShow("city") && <CityFilter />}
-                {shouldShow("organization") && <OrganizationFilter />}
-                {shouldShow("pos") && <PosFilter />}
-                {shouldShow("device") && <DeviceFilter />}
-                {shouldShow("warehouse") && <WarehouseFilter />}
+                {shouldShow('search') && <SearchInputFilter />}
+                {shouldShow('city') && <CityFilter />}
+                {shouldShow('organization') && <OrganizationFilter />}
+                {shouldShow('pos') && <PosFilter />}
+                {shouldShow('device') && <DeviceFilter />}
+                {shouldShow('warehouse') && <WarehouseFilter />}
                 {children}
               </div>
-              
-              {shouldShow("dateTime") && <DateTimeFilter />}
+
+              {shouldShow('dateTime') && <DateTimeFilter />}
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
-                {shouldShow("reset") && <ResetButton onReset={onReset} />}
-                {shouldShow("count") && <FilterCount count={count} />}
+                {shouldShow('reset') && <ResetButton onReset={onReset} />}
+                {shouldShow('count') && <FilterCount count={count} />}
               </div>
             </div>
           ),

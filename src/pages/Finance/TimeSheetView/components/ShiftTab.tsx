@@ -1,20 +1,20 @@
-import React, { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 // utils
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
-import { mutate } from "swr";
-import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { mutate } from 'swr';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 
 dayjs.extend(duration);
 
 // components
-import { Controller, useForm } from "react-hook-form";
-import { Select, Button, Form, Input, Card, message } from "antd";
-import { StarOutlined } from "@ant-design/icons";
+import { Controller, useForm } from 'react-hook-form';
+import { Select, Button, Form, Input, Card, message } from 'antd';
+import { StarOutlined } from '@ant-design/icons';
 
 // services
 import {
@@ -24,10 +24,10 @@ import {
   returnDayShift,
   sendDayShift,
   updateDayShift,
-} from "@/services/api/finance";
+} from '@/services/api/finance';
 
-import { usePermissions } from "@/hooks/useAuthStore";
-import hasPermission from "@/permissions/hasPermission";
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 // Assign numeric score to each estimation
 const GRADES_ESTIMATION_SCORES: Record<number, number> = {
@@ -46,14 +46,14 @@ interface GradingFormData {
 const ShiftTab: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const shiftId = searchParams.get("id")
-    ? Number(searchParams.get("id"))
+  const shiftId = searchParams.get('id')
+    ? Number(searchParams.get('id'))
     : undefined;
 
   const userPermissions = usePermissions();
 
   const { data: dayShiftData, mutate: refreshDayShiftData } = useSWR(
-    shiftId ? ["get-shift-data", shiftId] : null,
+    shiftId ? ['get-shift-data', shiftId] : null,
     () => (shiftId ? getDayShiftById(shiftId) : null),
     {
       revalidateOnFocus: false,
@@ -63,41 +63,41 @@ const ShiftTab: React.FC = () => {
   );
 
   const { trigger: sendCash, isMutating: loadingSendCash } = useSWRMutation(
-    ["send-cash-oper"],
+    ['send-cash-oper'],
     () =>
       shiftId
         ? sendDayShift(shiftId)
             .catch(() => {
-              message.error(t("errors.sendFailed"));
+              message.error(t('errors.sendFailed'));
             })
             .finally(() => {
-              message.success(t("actions.sendSuccess"));
+              message.success(t('actions.sendSuccess'));
               refreshDayShiftData();
             })
         : null
   );
 
   const { trigger: returnCash, isMutating: loadingReturnCash } = useSWRMutation(
-    ["return-cash-oper"],
+    ['return-cash-oper'],
     () =>
       shiftId
         ? returnDayShift(shiftId)
             .catch(() => {
-              message.error(t("errors.sendFailed"));
+              message.error(t('errors.sendFailed'));
             })
             .finally(() => {
-              message.success(t("actions.returnSuccess"));
+              message.success(t('actions.returnSuccess'));
               refreshDayShiftData();
             })
         : null
   );
 
   const { trigger: updateShift, isMutating: loadingUpdate } = useSWRMutation(
-    ["update-shift"],
+    ['update-shift'],
     (_, { arg }: { arg: UpdateDayShiftBody }) =>
       shiftId
         ? updateDayShift(arg, shiftId).catch(() => {
-            message.error(t("errors.updateFailed"));
+            message.error(t('errors.updateFailed'));
           })
         : null
   );
@@ -107,53 +107,53 @@ const ShiftTab: React.FC = () => {
   const workedHours =
     start.isValid() && end.isValid()
       ? dayjs.duration(end.diff(start)).asHours().toFixed(1)
-      : "";
+      : '';
 
   const { control, handleSubmit, reset } = useForm<GradingFormData>({
-    defaultValues: { grading: {}, comment: "" },
+    defaultValues: { grading: {}, comment: '' },
   });
 
   useEffect(() => {
     if (dayShiftData?.gradingParameterInfo) {
       const defaults: Record<string, number> = {};
-      dayShiftData.gradingParameterInfo.parameters.forEach((param) => {
+      dayShiftData.gradingParameterInfo.parameters.forEach(param => {
         if (param.estimationId)
           defaults[param.id.toString()] = param.estimationId;
       });
-      reset({ grading: defaults, comment: dayShiftData?.comment || "" });
+      reset({ grading: defaults, comment: dayShiftData?.comment || '' });
     }
   }, [dayShiftData, reset]);
 
   const handleGradingSave = async (data: GradingFormData) => {
     try {
       const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
-        (param) => ({
+        param => ({
           parameterId: param.id,
           estimationId: data.grading[param.id.toString()] || null,
         })
       );
 
       if (!gradingData) {
-        message.error(t("errors.updateFailed"));
+        message.error(t('errors.updateFailed'));
         return;
       }
 
       const result = await updateShift({
         gradingData,
-        comment: data.comment || "",
+        comment: data.comment || '',
       });
 
       if (result) {
-        message.success(t("routes.savedSuccessfully"));
-        mutate(["get-shift-data", shiftId]);
+        message.success(t('routes.savedSuccessfully'));
+        mutate(['get-shift-data', shiftId]);
       }
     } catch {
-      message.error(t("errors.somethingWentWrong"));
+      message.error(t('errors.somethingWentWrong'));
     }
   };
 
   const gradedParams = dayShiftData?.gradingParameterInfo?.parameters.filter(
-    (p) => p.estimationId !== null
+    p => p.estimationId !== null
   );
 
   const totalScore = gradedParams?.reduce((sum, param) => {
@@ -169,16 +169,16 @@ const ShiftTab: React.FC = () => {
 
   const hasPermissionToSend = hasPermission(
     [
-      { subject: "ShiftReport", action: "create" },
-      { subject: "ShiftReport", action: "manage" },
+      { subject: 'ShiftReport', action: 'create' },
+      { subject: 'ShiftReport', action: 'manage' },
     ],
     userPermissions
   );
 
   const hasPermissionToReturn = hasPermission(
     [
-      { subject: "ShiftReport", action: "update" },
-      { subject: "ShiftReport", action: "manage" },
+      { subject: 'ShiftReport', action: 'update' },
+      { subject: 'ShiftReport', action: 'manage' },
     ],
     userPermissions
   );
@@ -186,40 +186,40 @@ const ShiftTab: React.FC = () => {
   return (
     <div className="mt-3">
       <h1 className="text-[20px] font-bold mb-5">
-        {t("finance.employeeShiftView")}
+        {t('finance.employeeShiftView')}
       </h1>
 
       <Card>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
           <div>
-            <p className="text-bold">{t("finance.totalCarsWashed")}</p>
+            <p className="text-bold">{t('finance.totalCarsWashed')}</p>
             <p className="font-bold text-[24px]">
               {dayShiftData?.totalCar ?? 0}
             </p>
           </div>
           <div>
-            <p className="text-bold]">{t("finance.averageRating")}</p>
+            <p className="text-bold]">{t('finance.averageRating')}</p>
             <p className="font-bold text-[24px] flex items-center gap-1">
               {averageScore?.toFixed(1)}
               <StarOutlined className="text-yellow-500" />
             </p>
           </div>
           <div>
-            <p className="text-bold=">{t("finance.employeeName")}</p>
+            <p className="text-bold=">{t('finance.employeeName')}</p>
             <p className="font-bold text-[24px]">
-              {dayShiftData?.workerName || "-"}
+              {dayShiftData?.workerName || '-'}
             </p>
           </div>
           <div>
-            <p className="text-bold">{t("finance.shiftHours")}</p>
+            <p className="text-bold">{t('finance.shiftHours')}</p>
             <p className="font-bold text-[24px]">
-              {start.format("HH:mm")} - {end.format("HH:mm")}
+              {start.format('HH:mm')} - {end.format('HH:mm')}
             </p>
           </div>
           <div>
-            <p className="text-bold">{t("finance.totalHoursWorked")}</p>
+            <p className="text-bold">{t('finance.totalHoursWorked')}</p>
             <p className="font-bold text-[24px]">
-              {workedHours} {t("general.hours")}
+              {workedHours} {t('general.hours')}
             </p>
           </div>
         </div>
@@ -227,7 +227,7 @@ const ShiftTab: React.FC = () => {
 
       <div className="mt-8">
         <h2 className="text-[20px] font-bold mb-2">
-          {t("finance.shiftGradingWithBonus")}
+          {t('finance.shiftGradingWithBonus')}
         </h2>
 
         <Form
@@ -235,7 +235,7 @@ const ShiftTab: React.FC = () => {
           onFinish={handleSubmit(handleGradingSave)}
           className="mt-5"
         >
-          {dayShiftData?.gradingParameterInfo?.parameters.map((param) => (
+          {dayShiftData?.gradingParameterInfo?.parameters.map(param => (
             <Form.Item
               key={param.id}
               label={
@@ -251,11 +251,11 @@ const ShiftTab: React.FC = () => {
                   <Select
                     {...field}
                     className="w-80 sm:w-96 h-[43px]"
-                    placeholder={t("finance.selectGrade") || ""}
+                    placeholder={t('finance.selectGrade') || ''}
                     allowClear
                   >
                     {dayShiftData.gradingParameterInfo?.allEstimations.map(
-                      (est) => (
+                      est => (
                         <Select.Option key={est.id} value={est.id}>
                           {t(
                             `finance.gradingEstimations.${est.name}`,
@@ -273,7 +273,7 @@ const ShiftTab: React.FC = () => {
           <Form.Item
             label={
               <span className="text-[14px] font-semibold">
-                {t("finance.managerComment")}
+                {t('finance.managerComment')}
               </span>
             }
             className="pt-5"
@@ -286,7 +286,7 @@ const ShiftTab: React.FC = () => {
                   {...field}
                   rows={3}
                   placeholder={
-                    t("finance.leaveCommentsForManagerPlaceholder") || ""
+                    t('finance.leaveCommentsForManagerPlaceholder') || ''
                   }
                 />
               )}
@@ -303,7 +303,7 @@ const ShiftTab: React.FC = () => {
                 htmlType="submit"
                 loading={loadingUpdate}
               >
-                {t("routes.save")}
+                {t('routes.save')}
               </Button>
             ) : (
               <></>
@@ -316,7 +316,7 @@ const ShiftTab: React.FC = () => {
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
-                {t("finance.return")}
+                {t('finance.return')}
               </Button>
             ) : hasPermissionToSend ? (
               <Button
@@ -325,7 +325,7 @@ const ShiftTab: React.FC = () => {
                 onClick={async () => await sendCash()}
                 loading={loadingSendCash}
               >
-                {t("finance.send")}
+                {t('finance.send')}
               </Button>
             ) : (
               <></>

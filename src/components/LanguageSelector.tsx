@@ -1,27 +1,29 @@
-import { useTranslation } from "react-i18next";
-import DropdownInput from "./ui/Input/DropdownInput";
-import { useState } from "react";
+import { useTranslation } from 'react-i18next';
+import DropdownInput from './ui/Input/DropdownInput';
+import { useState } from 'react';
 
 const languages: { value: string; name: string }[] = [
   {
-    value: "en",
-    name: "English",
+    value: 'en',
+    name: 'English',
   },
   {
-    value: "ru",
-    name: "Russian",
+    value: 'ru',
+    name: 'Russian',
   },
 ];
 
 const LanguageSelector: React.FC = () => {
   const { i18n } = useTranslation();
-  const langs = localStorage.getItem("language") ? localStorage.getItem("language") : "ru";
+  const langs = localStorage.getItem('language')
+    ? localStorage.getItem('language')
+    : 'ru';
   const [lang, setLang] = useState(langs);
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
     setLang(value);
-    localStorage.setItem("language", value);
+    localStorage.setItem('language', value);
   };
   return (
     <div>

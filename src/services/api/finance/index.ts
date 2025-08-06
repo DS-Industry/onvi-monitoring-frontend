@@ -1,70 +1,70 @@
-import { AxiosResponse } from "axios";
-import api from "@/config/axiosConfig";
+import { AxiosResponse } from 'axios';
+import api from '@/config/axiosConfig';
 
 enum FINANCE {
-  POST_CASH_COLLECTION = "user/finance/cash-collection",
-  TIME_STAMP = "user/finance/time-stamp",
-  SHIFT_REPORT = "user/finance/shift-report",
-  SHIFT_REPORT_CREATE = "user/finance/shift/create",
-  MANAGER_PAPER = "user/manager-paper",
-  GET_WORKER = "user/permission/worker-by-pos",
+  POST_CASH_COLLECTION = 'user/finance/cash-collection',
+  TIME_STAMP = 'user/finance/time-stamp',
+  SHIFT_REPORT = 'user/finance/shift-report',
+  SHIFT_REPORT_CREATE = 'user/finance/shift/create',
+  MANAGER_PAPER = 'user/manager-paper',
+  GET_WORKER = 'user/permission/worker-by-pos',
 }
 
 enum ManagerReportPeriodStatus {
-  SAVE = "SAVE",
-  SENT = "SENT",
+  SAVE = 'SAVE',
+  SENT = 'SENT',
 }
 
 export enum TypeWorkDay {
-  WORKING = "WORKING",
-  WEEKEND = "WEEKEND",
-  MEDICAL = "MEDICAL",
-  VACATION = "VACATION",
-  TIMEOFF = "TIMEOFF",
-  TRUANCY = "TRUANCY",
+  WORKING = 'WORKING',
+  WEEKEND = 'WEEKEND',
+  MEDICAL = 'MEDICAL',
+  VACATION = 'VACATION',
+  TIMEOFF = 'TIMEOFF',
+  TRUANCY = 'TRUANCY',
 }
 
 export enum TypeEstimation {
-  NO_VIOLATION = "NO_VIOLATION",
-  GROSS_VIOLATION = "GROSS_VIOLATION",
-  MINOR_VIOLATION = "MINOR_VIOLATION",
-  ONE_REMARK = "ONE_REMARK",
+  NO_VIOLATION = 'NO_VIOLATION',
+  GROSS_VIOLATION = 'GROSS_VIOLATION',
+  MINOR_VIOLATION = 'MINOR_VIOLATION',
+  ONE_REMARK = 'ONE_REMARK',
 }
 
 export enum StatusWorkDayShiftReport {
-  CREATED = "CREATED",
-  SAVED = "SAVED",
-  SENT = "SENT",
+  CREATED = 'CREATED',
+  SAVED = 'SAVED',
+  SENT = 'SENT',
 }
 
 export enum TypeWorkDayShiftReportCashOper {
-  REFUND = "REFUND",
-  REPLENISHMENT = "REPLENISHMENT",
+  REFUND = 'REFUND',
+  REPLENISHMENT = 'REPLENISHMENT',
 }
 
 enum ManagerPaperGroup {
-  RENT = "RENT",
-  REVENUE = "REVENUE",
-  WAGES = "WAGES",
-  INVESTMENT_DEVIDENTS = "INVESTMENT_DEVIDENTS",
-  UTILITY_BILLS = "UTILITY_BILLS",
-  TAXES = "TAXES",
-  ACCOUNTABLE_FUNDS = "ACCOUNTABLE_FUNDS",
-  REPRESENTATIVE_EXPENSES = "REPRESENTATIVE_EXPENSES",
-  SALE_EQUIPMENT = "SALE_EQUIPMENT",
-  MANUFACTURE = "MANUFACTURE",
-  OTHER = "OTHER",
-  SUPPLIES = "SUPPLIES",
-  P_C = "P_C",
-  WAREHOUSE = "WAREHOUSE",
-  CONSTRUCTION = "CONSTRUCTION",
-  MAINTENANCE_REPAIR = "MAINTENANCE_REPAIR",
-  TRANSPORTATION_COSTS = "TRANSPORTATION_COSTS",
+  RENT = 'RENT',
+  REVENUE = 'REVENUE',
+  WAGES = 'WAGES',
+  INVESTMENT_DEVIDENTS = 'INVESTMENT_DEVIDENTS',
+  UTILITY_BILLS = 'UTILITY_BILLS',
+  TAXES = 'TAXES',
+  ACCOUNTABLE_FUNDS = 'ACCOUNTABLE_FUNDS',
+  REPRESENTATIVE_EXPENSES = 'REPRESENTATIVE_EXPENSES',
+  SALE_EQUIPMENT = 'SALE_EQUIPMENT',
+  MANUFACTURE = 'MANUFACTURE',
+  OTHER = 'OTHER',
+  SUPPLIES = 'SUPPLIES',
+  P_C = 'P_C',
+  WAREHOUSE = 'WAREHOUSE',
+  CONSTRUCTION = 'CONSTRUCTION',
+  MAINTENANCE_REPAIR = 'MAINTENANCE_REPAIR',
+  TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
 enum ManagerPaperTypeClass {
-  RECEIPT = "RECEIPT",
-  EXPENDITURE = "EXPENDITURE",
+  RECEIPT = 'RECEIPT',
+  EXPENDITURE = 'EXPENDITURE',
 }
 
 type CollectionBody = {
@@ -400,10 +400,10 @@ type UpdateManagerBody = {
 };
 
 type ManagerParams = {
-  group: ManagerPaperGroup | "*";
-  posId: number | "*";
-  paperTypeId: number | "*";
-  userId: number | "*";
+  group: ManagerPaperGroup | '*';
+  posId: number | '*';
+  paperTypeId: number | '*';
+  userId: number | '*';
   dateStartEvent?: Date;
   dateEndEvent?: Date;
   page?: number;
@@ -543,10 +543,10 @@ type AllWorkersResponse = {
 };
 
 type ManagerGraphParams = {
-  group: ManagerPaperGroup | "*";
-  posId: number | "*";
-  paperTypeId: number | "*";
-  userId: number | "*";
+  group: ManagerPaperGroup | '*';
+  posId: number | '*';
+  paperTypeId: number | '*';
+  userId: number | '*';
   dateStartEvent?: Date;
   dateEndEvent?: Date;
 };
@@ -796,7 +796,7 @@ export async function createManagerPaper(
   }
 
   if (file) {
-    formData.append("file", file);
+    formData.append('file', file);
   }
 
   const response: AxiosResponse<ManagerPaperResponse> = await api.post(
@@ -804,7 +804,7 @@ export async function createManagerPaper(
     formData,
     {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }
   );
@@ -826,7 +826,7 @@ export async function updateManagerPaper(
   }
 
   if (file) {
-    formData.append("file", file);
+    formData.append('file', file);
   }
 
   const response: AxiosResponse<ManagerPaperResponse> = await api.patch(
@@ -834,7 +834,7 @@ export async function updateManagerPaper(
     formData,
     {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }
   );
@@ -855,7 +855,7 @@ export async function deleteManagerPapers(
   body: DeleteManagerPapersBody
 ): Promise<ReturnCashCollectionResponse> {
   const response: AxiosResponse<ReturnCashCollectionResponse> =
-    await api.delete(FINANCE.MANAGER_PAPER + "/many", { data: body });
+    await api.delete(FINANCE.MANAGER_PAPER + '/many', { data: body });
   return response.data;
 }
 
@@ -863,7 +863,7 @@ export async function getAllManagerPaperTypes(): Promise<
   ManagerPaperTypeResponse[]
 > {
   const response: AxiosResponse<ManagerPaperTypeResponse[]> = await api.get(
-    FINANCE.MANAGER_PAPER + "/type"
+    FINANCE.MANAGER_PAPER + '/type'
   );
   return response.data;
 }
@@ -944,7 +944,7 @@ export async function getAllManagerPaperGraph(
   params: ManagerGraphParams
 ): Promise<ManagerGraphResponse> {
   const response: AxiosResponse<ManagerGraphResponse> = await api.get(
-    FINANCE.MANAGER_PAPER + "/statistic",
+    FINANCE.MANAGER_PAPER + '/statistic',
     { params }
   );
   return response.data;

@@ -1,12 +1,12 @@
-import React from "react";
-import { Modal, Form, Input, Select, DatePicker, Button, message } from "antd";
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
+import React from 'react';
+import { Modal, Form, Input, Select, DatePicker, Button, message } from 'antd';
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
 
-import { getDevices } from "@/services/api/equipment";
-import { createCashOper } from "@/services/api/finance";
-import { mutate } from "swr";
+import { getDevices } from '@/services/api/equipment';
+import { createCashOper } from '@/services/api/finance';
+import { mutate } from 'swr';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -38,13 +38,13 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
   );
 
   const devices =
-    deviceData?.map((item) => ({
+    deviceData?.map(item => ({
       label: item.props.name,
       value: item.props.id,
     })) || [];
 
   const { trigger: createCash, isMutating } = useSWRMutation(
-    ["create-cash-oper"],
+    ['create-cash-oper'],
     async (_, { arg }) => {
       return await createCashOper(arg, shiftId);
     }
@@ -62,10 +62,10 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
       await mutate([`get-cash-oper-data-${shiftId}`]);
 
       form.resetFields();
-      message.success(t("finance.operationCreated"));
+      message.success(t('finance.operationCreated'));
       onClose();
     } catch (error) {
-      message.error(t("errors.submitFailed"));
+      message.error(t('errors.submitFailed'));
     }
   };
 
@@ -78,7 +78,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
     <Modal open={open} onCancel={handleCancel} footer={false}>
       <div className="flex flex-row items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
-          {t("finance.adding")}
+          {t('finance.adding')}
         </h2>
       </div>
       <Form
@@ -94,32 +94,32 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         }}
       >
         <Form.Item
-          label={t("finance.operType")}
+          label={t('finance.operType')}
           name="type"
-          rules={[{ required: true, message: t("validation.typeRequired") }]}
+          rules={[{ required: true, message: t('validation.typeRequired') }]}
         >
-          <Select placeholder={t("warehouse.notSel")}>
-            <Option value="REFUND">{t("finance.REFUND")}</Option>
-            <Option value="REPLENISHMENT">{t("finance.REPLENISHMENT")}</Option>
+          <Select placeholder={t('warehouse.notSel')}>
+            <Option value="REFUND">{t('finance.REFUND')}</Option>
+            <Option value="REPLENISHMENT">{t('finance.REPLENISHMENT')}</Option>
           </Select>
         </Form.Item>
 
         <Form.Item
-          label={t("finance.sum")}
+          label={t('finance.sum')}
           name="sum"
-          rules={[{ required: true, message: t("validation.sumRequired") }]}
+          rules={[{ required: true, message: t('validation.sumRequired') }]}
         >
           <Input type="number" />
         </Form.Item>
 
         <Form.Item
-          label={t("equipment.device")}
+          label={t('equipment.device')}
           name="carWashDeviceId"
-          rules={[{ required: true, message: t("validation.deviceRequired") }]}
+          rules={[{ required: true, message: t('validation.deviceRequired') }]}
         >
           <Select
             placeholder={
-              devices.length ? t("warehouse.notSel") : t("warehouse.noVal")
+              devices.length ? t('warehouse.notSel') : t('warehouse.noVal')
             }
             options={devices}
             allowClear
@@ -127,25 +127,25 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
         </Form.Item>
 
         <Form.Item
-          label={t("finance.date")}
+          label={t('finance.date')}
           name="eventData"
-          rules={[{ required: true, message: t("validation.dateRequired") }]}
+          rules={[{ required: true, message: t('validation.dateRequired') }]}
         >
           <DatePicker showTime format="YYYY-MM-DDTHH:mm" className="w-full" />
         </Form.Item>
 
         <Form.Item
-          label={t("equipment.comment")}
+          label={t('equipment.comment')}
           name="comment"
-          rules={[{ required: true, message: t("validation.commentRequired") }]}
+          rules={[{ required: true, message: t('validation.commentRequired') }]}
         >
           <TextArea rows={4} />
         </Form.Item>
 
         <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 mt-6">
-          <Button onClick={handleCancel}>{t("actions.reset")}</Button>
+          <Button onClick={handleCancel}>{t('actions.reset')}</Button>
           <Button type="primary" htmlType="submit" loading={isMutating}>
-            {t("actions.save")}
+            {t('actions.save')}
           </Button>
         </div>
       </Form>

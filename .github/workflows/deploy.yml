@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ development ]
+    branches: [development]
   pull_request:
-    branches: [ development ]
+    branches: [development]
 
 permissions:
   contents: read
@@ -13,7 +13,7 @@ permissions:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -36,18 +36,18 @@ jobs:
       - name: Build project
         run: npm run build && cp dist/index.html dist/404.html
         env:
-            VITE_API_URL: https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net
-            VITE_MODE: development
-            VITE_DATADOG_APPLICATION_ID: c5d600a5-9d7a-4ee1-a0c1-331e003dd5d0
-            VITE_DATADOG_CLIENT_TOKEN: pub77753e297dbf5f47be6374c56d9f17e1
-            VITE_DATADOG_SITE: datadoghq.eu
-            VITE_DATADOG_SERVICE: onvi-app
-            VITE_DATADOG_ENV: development
-            VITE_DATADOG_VERSION: 1.0.0
-            VITE_API_KEY: AIzaSyBy4cTKXjWzCxV4nd4hxZi1y74TF9qo1Aw
-            VITE_MESSAGING_ID: 645871534181
-            VITE_APP_ID: 1:645871534181:web:8cd42b272a364cdea9c68c
-            VITE_S3_CLOUD: https://storage.yandexcloud.net/onvi-business
+          VITE_API_URL: https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net
+          VITE_MODE: development
+          VITE_DATADOG_APPLICATION_ID: c5d600a5-9d7a-4ee1-a0c1-331e003dd5d0
+          VITE_DATADOG_CLIENT_TOKEN: pub77753e297dbf5f47be6374c56d9f17e1
+          VITE_DATADOG_SITE: datadoghq.eu
+          VITE_DATADOG_SERVICE: onvi-app
+          VITE_DATADOG_ENV: development
+          VITE_DATADOG_VERSION: 1.0.0
+          VITE_API_KEY: AIzaSyBy4cTKXjWzCxV4nd4hxZi1y74TF9qo1Aw
+          VITE_MESSAGING_ID: 645871534181
+          VITE_APP_ID: 1:645871534181:web:8cd42b272a364cdea9c68c
+          VITE_S3_CLOUD: https://storage.yandexcloud.net/onvi-business
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

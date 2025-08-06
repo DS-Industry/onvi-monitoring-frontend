@@ -1,26 +1,26 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from 'react-router-dom';
 
 // serives
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import {
   StatusWorkDayShiftReport,
   getCashOperById,
-} from "@/services/api/finance";
+} from '@/services/api/finance';
 
 // components
-import { Table } from "antd";
-import CreateCashOperationModal from "./CreateCashOperationModal";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table } from 'antd';
+import CreateCashOperationModal from './CreateCashOperationModal';
+import { PlusOutlined } from '@ant-design/icons';
 
 // utils
-import { getCurrencyRender } from "@/utils/tableUnits";
+import { getCurrencyRender } from '@/utils/tableUnits';
 
 // types
-import type { ColumnsType } from "antd/es/table";
-import { GetDataOperResponse } from "@/services/api/finance";
+import type { ColumnsType } from 'antd/es/table';
+import { GetDataOperResponse } from '@/services/api/finance';
 
 interface ExchangeTabProps {
   status?: StatusWorkDayShiftReport;
@@ -32,11 +32,11 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   const [searchParams] = useSearchParams();
 
-  const shiftId = searchParams.get("id")
-    ? Number(searchParams.get("id"))
+  const shiftId = searchParams.get('id')
+    ? Number(searchParams.get('id'))
     : undefined;
-  const posId = searchParams.get("posId")
-    ? Number(searchParams.get("posId"))
+  const posId = searchParams.get('posId')
+    ? Number(searchParams.get('posId'))
     : undefined;
 
   const {
@@ -59,27 +59,27 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
 
   const tableColumns: ColumnsType<GetDataOperResponse> = [
     {
-      title: t("finance.startShift"),
-      dataIndex: "cashAtStart",
-      key: "cashAtStart",
+      title: t('finance.startShift'),
+      dataIndex: 'cashAtStart',
+      key: 'cashAtStart',
       render: currencyRender,
     },
     {
-      title: t("finance.replenishment"),
-      dataIndex: "replenishmentSum",
-      key: "replenishmentSum",
+      title: t('finance.replenishment'),
+      dataIndex: 'replenishmentSum',
+      key: 'replenishmentSum',
       render: currencyRender,
     },
     {
-      title: t("finance.expense"),
-      dataIndex: "expenditureSum",
-      key: "expenditureSum",
+      title: t('finance.expense'),
+      dataIndex: 'expenditureSum',
+      key: 'expenditureSum',
       render: currencyRender,
     },
     {
-      title: t("finance.endShift"),
-      dataIndex: "cashAtEnd",
-      key: "cashAtEnd",
+      title: t('finance.endShift'),
+      dataIndex: 'cashAtEnd',
+      key: 'cashAtEnd',
       render: currencyRender,
     },
   ];
@@ -92,7 +92,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
           onClick={() => setIsModalOpen(true)}
         >
           <PlusOutlined />
-          {t("routes.add")}
+          {t('routes.add')}
         </button>
       )}
 
@@ -105,8 +105,8 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
         pagination={false}
         size="small"
         loading={loadingCashOper || validatingCashOper}
-        scroll={{ x: "500px" }}
-        locale={{ emptyText: t("table.noData") }}
+        scroll={{ x: '500px' }}
+        locale={{ emptyText: t('table.noData') }}
       />
 
       {shiftId && posId ? (

@@ -13,9 +13,7 @@ import OnviBlue from '@/assets/onvi_blue.png';
 import { useToast } from '@/components/context/useContext';
 import { setToastFunction } from '@/config/axiosConfig';
 import useAuthStore from '@/config/store/authSlice';
-import {
-    ArrowLeftOutlined
-} from "@ant-design/icons";
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const LogIn: React.FC = () => {
   const { t } = useTranslation();
@@ -29,23 +27,27 @@ const LogIn: React.FC = () => {
   const handleRegisterNavigate = (event: React.FormEvent) => {
     event.preventDefault();
     navigate('/register');
-  }
+  };
 
   const handleForgotrNavigate = (event: React.FormEvent) => {
     event.preventDefault();
     navigate('/forgotPassword');
-  }
+  };
 
   const defaultValues = {
     loginEmail: '',
-    loginPassword: ''
+    loginPassword: '',
   };
 
   const [formData, setFormData] = useState(defaultValues);
 
   const { trigger, isMutating } = useSWRMutation(
     'user/auth/login',
-    async () => loginPlatformUser({ email: formData.loginEmail, password: formData.loginPassword }) // Fetcher function
+    async () =>
+      loginPlatformUser({
+        email: formData.loginEmail,
+        password: formData.loginPassword,
+      }) // Fetcher function
   );
 
   const setUser = useSetUser();
@@ -57,12 +59,14 @@ const LogIn: React.FC = () => {
   type FieldName = 'loginEmail' | 'loginPassword';
 
   const handleInputChange = (field: FieldName, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
 
-  const onSubmit = async (data: { loginEmail: string, loginPassword: string }) => {
-
+  const onSubmit = async (data: {
+    loginEmail: string;
+    loginPassword: string;
+  }) => {
     if (!data.loginEmail) setEmailError(true);
     if (!data.loginPassword) setPasswordError(true);
     try {
@@ -97,34 +101,50 @@ const LogIn: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8 lg:ml-40">
-          <div className='flex text-primary02 mb-5 cursor-pointer' onClick={handleRegisterNavigate}>
+          <div
+            className="flex text-primary02 mb-5 cursor-pointer"
+            onClick={handleRegisterNavigate}
+          >
             <ArrowLeftOutlined />
-            <p>{t("login.back")}</p>
+            <p>{t('login.back')}</p>
           </div>
-          <div className='flex mb-5'>
-            <img src={OnviBlue} className='h-7 w-14' loading="lazy" alt='Onvi' />
-            <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">{t('login.business')}</div>
+          <div className="flex mb-5">
+            <img
+              src={OnviBlue}
+              className="h-7 w-14"
+              loading="lazy"
+              alt="Onvi"
+            />
+            <div className="text-primary02 font-semibold text-xs items-center justify-center flex ml-2">
+              {t('login.business')}
+            </div>
           </div>
-          <h1 className="text-2xl font-extrabold leading-[1.25] text-text01 mb-2">{t('login.welcome')}</h1>
+          <h1 className="text-2xl font-extrabold leading-[1.25] text-text01 mb-2">
+            {t('login.welcome')}
+          </h1>
           <p className="text-text01 mb-6">{t('login.glad')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <Input
                 type="text"
-                label='Email'
-                title='Email'
+                label="Email"
+                title="Email"
                 value={formData.loginEmail}
-                changeValue={(e) => handleInputChange('loginEmail', e.target.value)}
+                changeValue={e =>
+                  handleInputChange('loginEmail', e.target.value)
+                }
                 error={!!errors.loginEmail || !!emailError}
                 {...register('loginEmail', {
                   required: 'Email is required',
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Invalid email format'
-                  }
+                    message: 'Invalid email format',
+                  },
                 })}
-                helperText={errors.loginEmail?.message || errorEmailMessage || ''}
+                helperText={
+                  errors.loginEmail?.message || errorEmailMessage || ''
+                }
               />
             </div>
 
@@ -134,20 +154,32 @@ const LogIn: React.FC = () => {
                 label={t('login.password')}
                 title={t('login.password')}
                 value={formData.loginPassword}
-                changeValue={(e) => handleInputChange('loginPassword', e.target.value)}
+                changeValue={e =>
+                  handleInputChange('loginPassword', e.target.value)
+                }
                 error={!!errors.loginPassword || !!passwordError}
                 {...register('loginPassword', {
                   required: 'Password is required',
-                  minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
                 })}
-                helperText={errors.loginPassword?.message || errorPasswordMessage || ''}
+                helperText={
+                  errors.loginPassword?.message || errorPasswordMessage || ''
+                }
               />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="inline-flex items-center">
-                <input type="checkbox" className="rounded text-primary02 border-gray-300 focus:ring-indigo-500" />
-                <span className="ml-2 text-sm text-text02">{t('login.remember')}</span>
+                <input
+                  type="checkbox"
+                  className="rounded text-primary02 border-gray-300 focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-text02">
+                  {t('login.remember')}
+                </span>
               </label>
               <span
                 className="text-sm text-primary02 cursor-pointer hover:text-primary02_Hover"
@@ -157,7 +189,13 @@ const LogIn: React.FC = () => {
               </span>
             </div>
 
-            <Button type="basic" title={t('login.login')} form={true} isLoading={isMutating} classname='w-full' />
+            <Button
+              type="basic"
+              title={t('login.login')}
+              form={true}
+              isLoading={isMutating}
+              classname="w-full"
+            />
           </form>
 
           <p className="mt-6 text-center text-sm text-text02">
@@ -172,7 +210,7 @@ const LogIn: React.FC = () => {
         </div>
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20">
-          <div className='p-8'>
+          <div className="p-8">
             <img
               src={LoginImage}
               alt="Rocket illustration"
