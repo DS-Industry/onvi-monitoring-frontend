@@ -58,7 +58,7 @@ const Indicators: React.FC = () => {
   const screens = useBreakpoint();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [selectedValue, setSelectedValue] = useState(undefined);
+  const [selectedValue, setSelectedValue] = useState();
   const startDate = useStartDate();
   const endDate = useEndDate();
   const [dateRange, setDateRange] = useState({

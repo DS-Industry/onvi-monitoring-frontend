@@ -68,15 +68,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { data: poses } = useSWR(
-    [`get-pos`],
-    () => getPoses({ placementId: undefined }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const {
     data: tagsData,
