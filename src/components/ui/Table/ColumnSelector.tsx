@@ -1,7 +1,7 @@
-import React from "react";
-import { Collapse, Divider, Checkbox } from "antd";
-import type { CheckboxOptionType } from "antd/es/checkbox";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { Collapse, Divider, Checkbox } from 'antd';
+import type { CheckboxOptionType } from 'antd/es/checkbox';
+import { useTranslation } from 'react-i18next';
 
 type ColumnSelectorProps = {
   checkedList: (string | number)[];
@@ -23,10 +23,10 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
       style={{ marginBottom: 16 }}
       items={[
         {
-          key: "1",
+          key: '1',
           label: (
             <span className="font-semibold text-base">
-              {t("tables.displayedColumns")}
+              {t('tables.displayedColumns')}
             </span>
           ),
           children: (
@@ -35,11 +35,11 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
               <Checkbox.Group
                 value={checkedList}
                 options={options}
-                onChange={(value) => onChange(value as string[])}
+                onChange={value => onChange(value as string[])}
               />
             </>
           ),
-          style: { background: "#fafafa", borderRadius: 8 },
+          style: { background: '#fafafa', borderRadius: 8 },
         },
       ]}
     />

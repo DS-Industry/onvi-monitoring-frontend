@@ -1,24 +1,24 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from 'react-router-dom';
 
 // utils
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import {
   StatusWorkDayShiftReport,
   getCashOperRefundById,
-} from "@/services/api/finance";
-import { getDevices } from "@/services/api/equipment";
-import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
+} from '@/services/api/finance';
+import { getDevices } from '@/services/api/equipment';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 
 // components
-import { Table } from "antd";
-import CreateReturnModal from "./CreateReturnModal";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table } from 'antd';
+import CreateReturnModal from './CreateReturnModal';
+import { PlusOutlined } from '@ant-design/icons';
 
 // types
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType } from 'antd/es/table';
 
 interface ReturnsTabProps {
   status?: StatusWorkDayShiftReport;
@@ -30,11 +30,11 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
 
   const [searchParams] = useSearchParams();
 
-  const shiftId = searchParams.get("id")
-    ? Number(searchParams.get("id"))
+  const shiftId = searchParams.get('id')
+    ? Number(searchParams.get('id'))
     : undefined;
-  const posId = searchParams.get("posId")
-    ? Number(searchParams.get("posId"))
+  const posId = searchParams.get('posId')
+    ? Number(searchParams.get('posId'))
     : undefined;
 
   const { data: deviceData } = useSWR(
@@ -62,10 +62,10 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   );
 
   const cashOperReturnArray =
-    cashOperReturnData?.map((item) => ({
+    cashOperReturnData?.map(item => ({
       ...item.props,
       deviceName: deviceData?.find(
-        (dev) => dev.props.id === item.props.carWashDeviceId
+        dev => dev.props.id === item.props.carWashDeviceId
       )?.props.name,
     })) || [];
 
@@ -75,26 +75,26 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   // Antd Table columns configuration
   const columns: ColumnsType<any> = [
     {
-      title: t("equipment.device"),
-      dataIndex: "deviceName",
-      key: "deviceName",
+      title: t('equipment.device'),
+      dataIndex: 'deviceName',
+      key: 'deviceName',
     },
     {
-      title: t("finance.dateTime"),
-      dataIndex: "eventDate",
-      key: "eventDate",
+      title: t('finance.dateTime'),
+      dataIndex: 'eventDate',
+      key: 'eventDate',
       render: dateRender,
     },
     {
-      title: t("finance.sum"),
-      dataIndex: "sum",
-      key: "sum",
+      title: t('finance.sum'),
+      dataIndex: 'sum',
+      key: 'sum',
       render: currencyRender,
     },
     {
-      title: t("equipment.comment"),
-      dataIndex: "comment",
-      key: "comment",
+      title: t('equipment.comment'),
+      dataIndex: 'comment',
+      key: 'comment',
     },
   ];
 
@@ -115,7 +115,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
             onClick={() => setIsModalOpenReturn(true)}
           >
             <PlusOutlined />
-            {t("routes.add")}
+            {t('routes.add')}
           </button>
         )}
 
@@ -126,8 +126,8 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
           pagination={false}
           size="small"
           loading={loadingCashOperReturn || validatingCashOperReturn}
-          scroll={{ x: "500px" }}
-          locale={{ emptyText: t("table.noData") }}
+          scroll={{ x: '500px' }}
+          locale={{ emptyText: t('table.noData') }}
         />
       </div>
 

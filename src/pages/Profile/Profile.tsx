@@ -8,14 +8,14 @@ const ProfileForm: React.FC = () => {
   const [activeTab, setActiveTab] = useState('info');
 
   const tabs = [
-    { id: 'info', name: t("profile.basic"), content: <InfoTab /> },
-    { id: 'services', name: t("profile.changePass"), content: <ServicesTab /> },
+    { id: 'info', name: t('profile.basic'), content: <InfoTab /> },
+    { id: 'services', name: t('profile.changePass'), content: <ServicesTab /> },
   ];
 
   return (
     <div className="max-w-5xl sm:ml-20 bg-white">
       <div className="flex space-x-4 border-b mb-6 w-fit">
-        {tabs.map((tab) => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
             className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
@@ -26,7 +26,7 @@ const ProfileForm: React.FC = () => {
         ))}
       </div>
       <div className="flex space-x-10">
-        {tabs.find((tab) => tab.id === activeTab)?.content}
+        {tabs.find(tab => tab.id === activeTab)?.content}
       </div>
     </div>
   );

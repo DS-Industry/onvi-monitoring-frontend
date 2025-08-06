@@ -1,20 +1,20 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from 'react';
 import {
   CloseOutlined,
   UpOutlined,
   DownOutlined,
   PictureOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Divider, List, Upload } from "antd";
-import { useTranslation } from "react-i18next";
-import { TechTaskShapeResponse, TechTasksItem } from "@/services/api/equipment";
-import TechTaskDetails from "./TechTaskDetails";
-import { Input, InputNumber, Select, Checkbox } from "antd";
+} from '@ant-design/icons';
+import { Button, Card, Divider, List, Upload } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { TechTaskShapeResponse, TechTasksItem } from '@/services/api/equipment';
+import TechTaskDetails from './TechTaskDetails';
+import { Input, InputNumber, Select, Checkbox } from 'antd';
 
 const selectOptions = [
-  { name: "Ниже нормы", value: "belowNormal" },
-  { name: "Норма", value: "normal" },
-  { name: "Выше нормы", value: "aboveNormal" },
+  { name: 'Ниже нормы', value: 'belowNormal' },
+  { name: 'Норма', value: 'normal' },
+  { name: 'Выше нормы', value: 'aboveNormal' },
 ];
 
 type Props = {
@@ -42,43 +42,43 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
   disabled,
 }) => {
   switch (type) {
-    case "Text":
+    case 'Text':
       return (
         <Input
           type="text"
           value={value as string}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full border-[#C0D0E0] h-10 flex items-center"
         />
       );
 
-    case "Number":
+    case 'Number':
       return (
         <InputNumber
           value={value as number | null}
-          onChange={(val) => onChange(val ?? null)}
+          onChange={val => onChange(val ?? null)}
           disabled={disabled}
           className="w-full border-[#C0D0E0] h-10 flex items-center"
         />
       );
 
-    case "SelectList":
+    case 'SelectList':
       return (
         <Select
           value={value as string}
           options={selectOptions}
-          onChange={(val) => onChange(val)}
+          onChange={val => onChange(val)}
           disabled={disabled}
           className="w-full border-[#C0D0E0] h-10 flex items-center"
         />
       );
 
-    case "Checkbox":
+    case 'Checkbox':
       return (
         <Checkbox
           checked={Boolean(value)}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={e => onChange(e.target.checked)}
           disabled={disabled}
         />
       );
@@ -96,19 +96,22 @@ const TechTaskCard: React.FC<Props> = ({
   onChange,
   onFileUpload,
   onImageRemove,
-  status = "",
+  status = '',
 }) => {
   const { t } = useTranslation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   const grouped = useMemo(() => {
-    const result = items.reduce((acc, item) => {
-      if (!acc[item.group]) acc[item.group] = [];
-      acc[item.group].push(item);
-      return acc;
-    }, {} as Record<string, TechTasksItem[]>);
+    const result = items.reduce(
+      (acc, item) => {
+        if (!acc[item.group]) acc[item.group] = [];
+        acc[item.group].push(item);
+        return acc;
+      },
+      {} as Record<string, TechTasksItem[]>
+    );
 
-    Object.values(result).forEach((group) => {
+    Object.values(result).forEach(group => {
       group.sort((a, b) => a.title.localeCompare(b.title));
     });
 
@@ -116,7 +119,7 @@ const TechTaskCard: React.FC<Props> = ({
   }, [items]);
 
   const toggleGroup = (group: string) => {
-    setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+    setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
 
   return (
@@ -142,7 +145,7 @@ const TechTaskCard: React.FC<Props> = ({
               {openGroups[groupName] && (
                 <List
                   dataSource={groupItems}
-                  renderItem={(item) => (
+                  renderItem={item => (
                     <List.Item className="w-full border-none">
                       <div className="w-full flex flex-col">
                         <div className="flex flex-col w-full space-y-2">
@@ -154,22 +157,22 @@ const TechTaskCard: React.FC<Props> = ({
                           <DynamicInput
                             type={item.type}
                             value={values[item.id]}
-                            onChange={(val) => onChange(item.id, val)}
-                            disabled={status === t("tables.FINISHED")}
+                            onChange={val => onChange(item.id, val)}
+                            disabled={status === t('tables.FINISHED')}
                           />
                           <Upload
                             customRequest={onFileUpload(item.id)}
                             showUploadList={false}
                             multiple={false}
                             accept="image/*"
-                            disabled={status === t("tables.FINISHED")}
+                            disabled={status === t('tables.FINISHED')}
                           >
                             <Button
                               type="text"
                               icon={<PictureOutlined className="text-xl" />}
                               className="min-w-full md:w-[550px] h-14 border-2 border-dashed border-[#C0D0E0] rounded-xl flex items-center justify-start gap-2 text-sm font-medium"
                             >
-                              {t("routine.attachImage")}
+                              {t('routine.attachImage')}
                             </Button>
                           </Upload>
                         </div>
@@ -191,7 +194,7 @@ const TechTaskCard: React.FC<Props> = ({
                                 onClick={() => onImageRemove(item.id)}
                                 className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1"
                               >
-                                <CloseOutlined style={{ fontSize: "12px" }} />
+                                <CloseOutlined style={{ fontSize: '12px' }} />
                               </button>
                             </div>
                           </div>

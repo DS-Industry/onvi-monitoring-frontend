@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import UpdateIcon from "@icons/PencilIcon.png";
-import FolderIcon from "@icons/folder.svg?react";
-import { usePermissions } from "@/hooks/useAuthStore";
-import { Can } from "@/permissions/Can";
-import { MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import React, { useState } from 'react';
+import UpdateIcon from '@icons/PencilIcon.png';
+import FolderIcon from '@icons/folder.svg?react';
+import { usePermissions } from '@/hooks/useAuthStore';
+import { Can } from '@/permissions/Can';
+import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 
 interface TableColumn {
   label: string;
   key: string;
-  type?: "date" | "string" | "number" | string;
+  type?: 'date' | 'string' | 'number' | string;
 }
 
 type TreeData = {
@@ -38,7 +38,7 @@ const TreeTable: React.FC<Props> = ({
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   const toggleRowExpansion = (id: number) => {
-    setExpandedRows((prev) => {
+    setExpandedRows(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -55,17 +55,17 @@ const TreeTable: React.FC<Props> = ({
     data: TreeData[],
     level: number = 0
   ): React.ReactElement[] => {
-    return data.map((row) => (
+    return data.map(row => (
       <React.Fragment key={row.id}>
         <tr>
           <Can
             requiredPermissions={[
-              { action: "manage", subject: "Warehouse" },
-              { action: "update", subject: "Warehouse" },
+              { action: 'manage', subject: 'Warehouse' },
+              { action: 'update', subject: 'Warehouse' },
             ]}
             userPermissions={userPermissions}
           >
-            {(allowed) =>
+            {allowed =>
               allowed &&
               isUpdate && (
                 <td className="border-b border-[#E4E5E7] bg-background02 py-2.5 px-2 text-start">
@@ -76,12 +76,12 @@ const TreeTable: React.FC<Props> = ({
               )
             }
           </Can>
-          {columns.map((column) => (
+          {columns.map(column => (
             <td
               key={column.key}
               className={`border-b border-x-4 border-b-[#E4E5E7] border-x-background02 bg-background02 py-2 px-2.5 text-start whitespace-nowrap text-sm first:text-primary02 text-text01 overflow-hidden overflow-x-visible`}
             >
-              {column.key === "name" ? (
+              {column.key === 'name' ? (
                 <div
                   className="flex items-center gap-2 cursor-pointer uppercase"
                   style={{ paddingLeft: `${level * 20}px` }}
@@ -105,9 +105,9 @@ const TreeTable: React.FC<Props> = ({
                 </div>
               ) : (
                 <span>
-                  {typeof row[column.key] === "undefined" ||
+                  {typeof row[column.key] === 'undefined' ||
                   row[column.key] === null
-                    ? "-"
+                    ? '-'
                     : String(row[column.key])}
                 </span>
               )}
@@ -128,19 +128,19 @@ const TreeTable: React.FC<Props> = ({
           <tr>
             <Can
               requiredPermissions={[
-                { action: "manage", subject: "Warehouse" },
-                { action: "update", subject: "Warehouse" },
+                { action: 'manage', subject: 'Warehouse' },
+                { action: 'update', subject: 'Warehouse' },
               ]}
               userPermissions={userPermissions}
             >
-              {(allowed) =>
+              {allowed =>
                 allowed &&
                 isUpdate && (
                   <th className="border border-background02 bg-background06 w-11"></th>
                 )
               }
             </Can>
-            {columns.map((column) => (
+            {columns.map(column => (
               <th
                 key={column.key}
                 className="border-b border-x-2 border-background02 bg-background06 px-2.5 py-5 text-start text-sm font-semibold text-text01 uppercase tracking-wider"

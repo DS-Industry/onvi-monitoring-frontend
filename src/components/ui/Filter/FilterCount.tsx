@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type FilterCountProps = {
   count: number;
@@ -10,7 +10,7 @@ const FilterCount: React.FC<FilterCountProps> = ({ count }) => {
 
   return (
     <p className="font-semibold">
-      {t("filters.found")}: {count}
+      {t('filters.found')}: {count}
     </p>
   );
 };

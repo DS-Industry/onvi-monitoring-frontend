@@ -1,25 +1,25 @@
-import React, { useEffect, useMemo, useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { getPoses } from "@/services/api/equipment";
-import useSWR from "swr";
-import { useButtonCreate } from "@/components/context/useContext";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { getShifts, TypeWorkDay } from "@/services/api/finance";
-import dayjs from "dayjs";
-import "dayjs/locale/ru";
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/utils/constants.ts";
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getPoses } from '@/services/api/equipment';
+import useSWR from 'swr';
+import { useButtonCreate } from '@/components/context/useContext';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getShifts, TypeWorkDay } from '@/services/api/finance';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants.ts';
 
-import { getWorkers } from "@/services/api/hr";
+import { getWorkers } from '@/services/api/hr';
 
-import { Calendar, dayjsLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import ShiftCreateModal from "@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx";
-import SearchFilter from "@ui/Filter/SearchFilter.tsx";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
+import { Calendar, dayjsLocalizer } from 'react-big-calendar';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import ShiftCreateModal from '@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx';
+import SearchFilter from '@ui/Filter/SearchFilter.tsx';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-import { Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 interface FilterShifts {
   dateStart: Date;
@@ -29,7 +29,7 @@ interface FilterShifts {
   page?: number;
   size?: number;
 }
-dayjs.locale("ru");
+dayjs.locale('ru');
 
 const Timesheet: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -41,23 +41,23 @@ const Timesheet: React.FC = () => {
 
   // Russian messages for calendar
   const messages = {
-    allDay: t("calendar.ALL_DAY", "All day"), // fallback optional
-    previous: t("calendar.BACK"),
-    next: t("calendar.NEXT"),
-    today: t("calendar.TODAY"),
-    month: t("calendar.MONTH"),
-    week: t("calendar.WEEK"),
-    day: t("calendar.DAY"),
-    agenda: t("calendar.AGENDA"),
-    date: t("calendar.DATE", "Date"),
-    time: t("calendar.TIME", "Time"),
-    event: t("calendar.EVENT", "Event"),
-    showMore: (total: number) => `+ ${t("calendar.MORE", { count: total })}`,
+    allDay: t('calendar.ALL_DAY', 'All day'), // fallback optional
+    previous: t('calendar.BACK'),
+    next: t('calendar.NEXT'),
+    today: t('calendar.TODAY'),
+    month: t('calendar.MONTH'),
+    week: t('calendar.WEEK'),
+    day: t('calendar.DAY'),
+    agenda: t('calendar.AGENDA'),
+    date: t('calendar.DATE', 'Date'),
+    time: t('calendar.TIME', 'Time'),
+    event: t('calendar.EVENT', 'Event'),
+    showMore: (total: number) => `+ ${t('calendar.MORE', { count: total })}`,
     noEventsInRange: t(
-      "calendar.NO_EVENTS",
-      "There are no events in this range"
+      'calendar.NO_EVENTS',
+      'There are no events in this range'
     ),
-    work_week: t("calendar.WORK_WEEK", "Work week"),
+    work_week: t('calendar.WORK_WEEK', 'Work week'),
   };
 
   const { buttonOn } = useButtonCreate();
@@ -65,21 +65,21 @@ const Timesheet: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const defaultStartDate = dayjs().startOf("month").format("YYYY-MM-DD HH:mm"); // "2025-07-01 00:00"
-  const defaultEndDate = dayjs().endOf("month").format("YYYY-MM-DD HH:mm"); // "2025-07-31 23:59"
+  const defaultStartDate = dayjs().startOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-01 00:00"
+  const defaultEndDate = dayjs().endOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-31 23:59"
 
-  const posId = Number(searchParams.get("posId") || "*");
-  const dateStart = searchParams.get("dateStart") || defaultStartDate;
-  const dateEnd = searchParams.get("dateEnd") || defaultEndDate;
-  const placementId = searchParams.get("city") || "*";
-  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+  const posId = Number(searchParams.get('posId') || '*');
+  const dateStart = searchParams.get('dateStart') || defaultStartDate;
+  const dateEnd = searchParams.get('dateEnd') || defaultEndDate;
+  const placementId = searchParams.get('city') || '*';
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   // Create stable initial filter
   const filterParams: FilterShifts = useMemo(
     () => ({
-      dateStart: dayjs(dateStart).startOf("day").toDate(),
-      dateEnd: dayjs(dateEnd).endOf("day").toDate(),
+      dateStart: dayjs(dateStart).startOf('day').toDate(),
+      dateEnd: dayjs(dateEnd).endOf('day').toDate(),
       currentPage,
       pageSize,
       posId,
@@ -94,9 +94,9 @@ const Timesheet: React.FC = () => {
     `get-pos-${placementId}`,
     () =>
       getPoses({ placementId })
-        .then((data) => data?.sort((a, b) => a.id - b.id) || [])
-        .then((data) => {
-          const options = data.map((item) => ({
+        .then(data => data?.sort((a, b) => a.id - b.id) || [])
+        .then(data => {
+          const options = data.map(item => ({
             name: item.name,
             value: item.id,
           }));
@@ -146,8 +146,8 @@ const Timesheet: React.FC = () => {
     () =>
       getWorkers({
         organizationId: 1,
-        hrPositionId: "*",
-        placementId: "*",
+        hrPositionId: '*',
+        placementId: '*',
       }),
     {
       revalidateOnFocus: false,
@@ -158,7 +158,7 @@ const Timesheet: React.FC = () => {
 
   useEffect(() => {
     if (buttonOn) {
-      navigate("/finance/timesheet/creation", { state: { ownerId: 0 } });
+      navigate('/finance/timesheet/creation', { state: { ownerId: 0 } });
     }
   }, [buttonOn, navigate]);
 
@@ -183,15 +183,15 @@ const Timesheet: React.FC = () => {
       return [];
     }
 
-    return shiftsData.map((shift) => {
+    return shiftsData.map(shift => {
       const startDate = dayjs(shift.props.startWorkingTime).toDate();
       const endDate = dayjs(shift.props.endWorkingTime).toDate();
 
       return {
         id: shift.props.id,
         title: `${
-          employees.find((emp) => emp.props.id === shift.props.workerId)?.props
-            ?.name || "Неизвестный работник"
+          employees.find(emp => emp.props.id === shift.props.workerId)?.props
+            ?.name || 'Неизвестный работник'
         }`,
         start: startDate,
         end: endDate,
@@ -228,7 +228,7 @@ const Timesheet: React.FC = () => {
           onClick={handleCreateEvent}
           className="bg-blue-500 hover:bg-blue-600 h-[35px]"
         >
-          {t("shift.createShift")}
+          {t('shift.createShift')}
         </Button>
       </div>
 
@@ -239,13 +239,13 @@ const Timesheet: React.FC = () => {
           onSubmit={refetchShifts}
           employeeData={{
             organizationId: 1,
-            hrPositionId: "*",
-            placementId: "*",
+            hrPositionId: '*',
+            placementId: '*',
           }}
         />
         <div
           className={`${
-            isLoadingShifts ? "pointer-events-none opacity-30" : ""
+            isLoadingShifts ? 'pointer-events-none opacity-30' : ''
           }`}
         >
           <Calendar
@@ -253,36 +253,36 @@ const Timesheet: React.FC = () => {
             events={calendarEvents}
             messages={messages}
             culture={currentLanguage}
-            style={{ height: "100vh" }}
+            style={{ height: '100vh' }}
             defaultView="month"
             onSelectEvent={handleSelectEvent}
             onSelectSlot={handleSelectSlot}
             selectable
-            eventPropGetter={(event) => ({
+            eventPropGetter={event => ({
               style: {
                 backgroundColor:
                   event.resource?.type === TypeWorkDay.WORKING
-                    ? "#1890ff"
-                    : "#52c41a",
+                    ? '#1890ff'
+                    : '#52c41a',
                 borderColor:
                   event.resource?.type === TypeWorkDay.WORKING
-                    ? "#1890ff"
-                    : "#52c41a",
-                color: "white",
+                    ? '#1890ff'
+                    : '#52c41a',
+                color: 'white',
               },
             })}
             onNavigate={(date, view) => {
               let start, end;
 
-              if (view === "month") {
+              if (view === 'month') {
                 start = dayjs(date)
-                  .startOf("month")
-                  .startOf("week")
-                  .format("YYYY-MM-DD HH:mm");
+                  .startOf('month')
+                  .startOf('week')
+                  .format('YYYY-MM-DD HH:mm');
                 end = dayjs(date)
-                  .endOf("month")
-                  .endOf("week")
-                  .format("YYYY-MM-DD HH:mm");
+                  .endOf('month')
+                  .endOf('week')
+                  .format('YYYY-MM-DD HH:mm');
                 updateSearchParams(searchParams, setSearchParams, {
                   dateStart: start,
                   dateEnd: end,

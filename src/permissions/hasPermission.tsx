@@ -15,9 +15,9 @@ const hasPermission = memoize(
   ): boolean => {
     if (requiredPermissions.length === 0) return true;
 
-    return requiredPermissions.some((required) =>
+    return requiredPermissions.some(required =>
       userPermissions.some(
-        (userPermission) =>
+        userPermission =>
           userPermission.subject === required.subject &&
           userPermission.action === required.action
       )
@@ -26,6 +26,5 @@ const hasPermission = memoize(
   (requiredPermissions, userPermissions) =>
     JSON.stringify({ requiredPermissions, userPermissions })
 );
-
 
 export default hasPermission;

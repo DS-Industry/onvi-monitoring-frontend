@@ -1,9 +1,9 @@
-import React from "react";
-import Close from "@icons/close.svg?react";
-import { useNavigate } from "react-router-dom";
-import ShareBonus from "@/assets/ShareBonus.png";
-import Employees from "@icons/Employees.png";
-import Rocket from "@icons/Rocket.png";
+import React from 'react';
+import Close from '@icons/close.svg?react';
+import { useNavigate } from 'react-router-dom';
+import ShareBonus from '@/assets/ShareBonus.png';
+import Employees from '@icons/Employees.png';
+import Rocket from '@icons/Rocket.png';
 
 interface NotificationProps {
   title: string;
@@ -26,7 +26,7 @@ const Notification: React.FC<NotificationProps> = ({
   showBonus,
   showEmp,
   onClose,
-  showRocket
+  showRocket,
 }) => {
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const Notification: React.FC<NotificationProps> = ({
         <p className="text-sm">{message}</p>
         <p className="text-sm">{message2}</p>
         {link && (
-          <span 
+          <span
             className="text-[#BFFA00] font-semibold text-base cursor-pointer mt-2 inline-block"
             onClick={() => linkUrl && navigate(linkUrl)}
           >
@@ -45,16 +45,37 @@ const Notification: React.FC<NotificationProps> = ({
           </span>
         )}
       </div>
-      
+
       <div className="w-full md:w-3/12 flex justify-center relative mt-4 md:mt-0">
-        {showBonus && <img src={ShareBonus} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" alt="Share Bonus" />}
-        {showEmp && <img src={Employees} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" alt="Employees" />}
-        {showRocket && <img src={Rocket} className="w-32 md:w-40 lg:w-48 bottom-0" loading="lazy" alt="Rocket" />}
+        {showBonus && (
+          <img
+            src={ShareBonus}
+            className="w-32 md:w-40 lg:w-48 bottom-0"
+            loading="lazy"
+            alt="Share Bonus"
+          />
+        )}
+        {showEmp && (
+          <img
+            src={Employees}
+            className="w-32 md:w-40 lg:w-48 bottom-0"
+            loading="lazy"
+            alt="Employees"
+          />
+        )}
+        {showRocket && (
+          <img
+            src={Rocket}
+            className="w-32 md:w-40 lg:w-48 bottom-0"
+            loading="lazy"
+            alt="Rocket"
+          />
+        )}
       </div>
 
       {onClose && (
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-2 right-2 md:top-4 md:right-4 p-2"
         >
           <Close />

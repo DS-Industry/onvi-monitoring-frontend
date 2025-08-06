@@ -11,9 +11,9 @@ type Props = {
 const PrivateRoute: React.FC<Props> = ({ element }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const user = useUserStore((state) => state.user);
-  const jwtToken = useAuthStore((state) => state.tokens?.accessToken);
-  const accessTokenExp = useAuthStore((state) => state.tokens?.accessTokenExp); // Get the expiration time of the access token
+  const user = useUserStore(state => state.user);
+  const jwtToken = useAuthStore(state => state.tokens?.accessToken);
+  const accessTokenExp = useAuthStore(state => state.tokens?.accessTokenExp); // Get the expiration time of the access token
 
   const isTokenExpired = useCallback(() => {
     if (!accessTokenExp) return true;
@@ -36,10 +36,10 @@ const PrivateRoute: React.FC<Props> = ({ element }) => {
   }, [user, jwtToken, accessTokenExp, navigate, isTokenExpired]);
 
   if (!user || !jwtToken || !accessTokenExp || isTokenExpired()) {
-    return <div>{t("loading")}</div>;
+    return <div>{t('loading')}</div>;
   }
 
-  return element; 
+  return element;
 };
 
 export default PrivateRoute;

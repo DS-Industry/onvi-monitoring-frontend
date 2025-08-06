@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
-import Button from "@/components/ui/Button/Button";
-import { useToast } from "@/components/context/useContext";
-import useSWR, { mutate } from "swr";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import DropdownInput from '@/components/ui/Input/DropdownInput';
+import MultilineInput from '@/components/ui/Input/MultilineInput';
+import Button from '@/components/ui/Button/Button';
+import { useToast } from '@/components/context/useContext';
+import useSWR, { mutate } from 'swr';
 import {
   createIncident,
   getDevices,
@@ -17,23 +17,23 @@ import {
   Incident,
   IncidentBody,
   updateIncident,
-} from "@/services/api/equipment";
-import useFormHook from "@/hooks/useFormHook";
-import useSWRMutation from "swr/mutation";
-import DateTimeInput from "@/components/ui/Input/DateTimeInput";
-import dayjs from "dayjs";
-import { useSearchParams } from "react-router-dom";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { Drawer, Table, Tooltip } from "antd";
-import { getDateRender } from "@/utils/tableUnits";
-import { usePermissions } from "@/hooks/useAuthStore";
-import hasPermission from "@/permissions/hasPermission";
-import { ColumnsType } from "antd/es/table";
-import { EditOutlined } from "@ant-design/icons";
-import AntDButton from "antd/es/button";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+} from '@/services/api/equipment';
+import useFormHook from '@/hooks/useFormHook';
+import useSWRMutation from 'swr/mutation';
+import DateTimeInput from '@/components/ui/Input/DateTimeInput';
+import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { Drawer, Table, Tooltip } from 'antd';
+import { getDateRender } from '@/utils/tableUnits';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
+import { ColumnsType } from 'antd/es/table';
+import { EditOutlined } from '@ant-design/icons';
+import AntDButton from 'antd/es/button';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -44,17 +44,17 @@ const EquipmentFailure: React.FC = () => {
   const formattedDate = today.toISOString().slice(0, 10);
   const [deviceCheck, setDeviceCheck] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const posId = searchParams.get("posId") || "*";
-  const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
-  const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
-  const cityParam = searchParams.get("city") || "*";
+  const posId = searchParams.get('posId') || '*';
+  const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
+  const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
+  const cityParam = searchParams.get('city') || '*';
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
   const filterParams = {
     dateStart,
     dateEnd,
-    posId: posId || "*",
+    posId: posId || '*',
     placementId: cityParam,
   };
   const swrKey = `get-incidents-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;
@@ -72,24 +72,22 @@ const EquipmentFailure: React.FC = () => {
   const defaultValues: IncidentBody = {
     posId: 0,
     workerId: 0,
-    appearanceDate: "",
-    startDate: "",
-    finishDate: "",
-    objectName: "",
+    appearanceDate: '',
+    startDate: '',
+    finishDate: '',
+    objectName: '',
     equipmentKnotId: undefined,
     incidentNameId: undefined,
     incidentReasonId: undefined,
     incidentSolutionId: undefined,
     downtime: 2,
-    comment: "",
+    comment: '',
     carWashDeviceProgramsTypeId: undefined,
   };
 
   const [formData, setFormData] = useState(defaultValues);
 
-  const {
-    data: posData,
-  } = useSWR(
+  const { data: posData } = useSWR(
     [`get-pos`, cityParam],
     () => getPoses({ placementId: cityParam }),
     {
@@ -149,34 +147,32 @@ const EquipmentFailure: React.FC = () => {
   );
 
   const poses: { name: string; value: number | string }[] = (
-    posData?.map((item) => ({ name: item.name, value: item.id })) || []
+    posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
-
-
   const workers: { name: string; value: number }[] = (
-    workerData?.map((item) => ({ name: item.name, value: item.id })) || []
+    workerData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   const programs: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-        allProgramsData?.map((item) => ({
-          name: item.props.name,
-          value: item.props.id,
-        })) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          allProgramsData?.map(item => ({
+            name: item.props.name,
+            value: item.props.id,
+          })) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const incidents: Incident[] =
     data
       ?.map((item: Incident) => ({
         ...item,
-        posName: poses.find((pos) => pos.value === item.posId)?.name || "-",
+        posName: poses.find(pos => pos.value === item.posId)?.name || '-',
         workerName:
-          workers.find((work) => work.value === item.workerId)?.name || "-",
+          workers.find(work => work.value === item.workerId)?.name || '-',
         programName:
-          programs.find((prog) => prog.value === item.programId)?.name || "-",
+          programs.find(prog => prog.value === item.programId)?.name || '-',
       }))
       .sort((a, b) => a.id - b.id) || [];
 
@@ -184,71 +180,71 @@ const EquipmentFailure: React.FC = () => {
     formData.posId === 0
       ? []
       : (
-        deviceData?.map((item) => ({
-          name: item.props.name,
-          value: item.props.name,
-        })) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          deviceData?.map(item => ({
+            name: item.props.name,
+            value: item.props.name,
+          })) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const equipmentKnots: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-        equipmentKnotData?.map((item) => ({
-          name: item.props.name,
-          value: item.props.id,
-        })) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          equipmentKnotData?.map(item => ({
+            name: item.props.name,
+            value: item.props.id,
+          })) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const problemNames: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-        incidentEquipmentKnotData?.map((item) => ({
-          name: item.problemName,
-          value: item.id,
-        })) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          incidentEquipmentKnotData?.map(item => ({
+            name: item.problemName,
+            value: item.id,
+          })) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const reasons: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-        incidentEquipmentKnotData
-          ?.flatMap((item) =>
-            item.reason.map((reas) => ({
-              name: reas.infoName,
-              value: reas.id,
-            }))
-          )
-          .filter(
-            (reason, index, self) =>
-              index === self.findIndex((r) => r.value === reason.value)
-          ) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          incidentEquipmentKnotData
+            ?.flatMap(item =>
+              item.reason.map(reas => ({
+                name: reas.infoName,
+                value: reas.id,
+              }))
+            )
+            .filter(
+              (reason, index, self) =>
+                index === self.findIndex(r => r.value === reason.value)
+            ) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const solutions: { name: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-        incidentEquipmentKnotData
-          ?.flatMap((item) =>
-            item.solution.map((sol) => ({
-              name: sol.infoName,
-              value: sol.id,
-            }))
-          )
-          .filter(
-            (reason, index, self) =>
-              index === self.findIndex((r) => r.value === reason.value)
-          ) || []
-      ).sort((a, b) => a.name.localeCompare(b.name));
+          incidentEquipmentKnotData
+            ?.flatMap(item =>
+              item.solution.map(sol => ({
+                name: sol.infoName,
+                value: sol.id,
+              }))
+            )
+            .filter(
+              (reason, index, self) =>
+                index === self.findIndex(r => r.value === reason.value)
+            ) || []
+        ).sort((a, b) => a.name.localeCompare(b.name));
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
 
   const { trigger: createInc, isMutating } = useSWRMutation(
-    ["create-incident"],
+    ['create-incident'],
     async () =>
       createIncident({
         posId: formData.posId,
@@ -268,7 +264,7 @@ const EquipmentFailure: React.FC = () => {
   );
 
   const { trigger: updateInc, isMutating: updatingIncident } = useSWRMutation(
-    ["update-incident"],
+    ['update-incident'],
     async () =>
       updateIncident({
         incidentId: editIncidentId,
@@ -288,33 +284,33 @@ const EquipmentFailure: React.FC = () => {
   );
 
   type FieldType =
-    | "posId"
-    | "workerId"
-    | "appearanceDate"
-    | "startDate"
-    | "finishDate"
-    | "objectName"
-    | "equipmentKnotId"
-    | "incidentNameId"
-    | "incidentReasonId"
-    | "incidentSolutionId"
-    | "downtime"
-    | "comment"
-    | "carWashDeviceProgramsTypeId";
+    | 'posId'
+    | 'workerId'
+    | 'appearanceDate'
+    | 'startDate'
+    | 'finishDate'
+    | 'objectName'
+    | 'equipmentKnotId'
+    | 'incidentNameId'
+    | 'incidentReasonId'
+    | 'incidentSolutionId'
+    | 'downtime'
+    | 'comment'
+    | 'carWashDeviceProgramsTypeId';
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = [
-      "downtime",
-      "posId",
-      "workerId",
-      "equipmentKnotId",
-      "incidentNameId",
-      "incidentReasonId",
-      "incidentSolutionId",
-      "carWashDeviceProgramsTypeId",
+      'downtime',
+      'posId',
+      'workerId',
+      'equipmentKnotId',
+      'incidentNameId',
+      'incidentReasonId',
+      'incidentSolutionId',
+      'carWashDeviceProgramsTypeId',
     ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
-    setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+    setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
   };
 
@@ -322,11 +318,11 @@ const EquipmentFailure: React.FC = () => {
     setEditIncidentId(id);
     setIsEditMode(true);
     setDrawerOpen(true);
-    const incidentToEdit = incidents.find((org) => org.id === id);
+    const incidentToEdit = incidents.find(org => org.id === id);
 
     if (incidentToEdit) {
       const formatDateTime = (dateString: Date) => {
-        return dayjs(dateString).format("YYYY-MM-DDTHH:mm");
+        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
       };
 
       setFormData({
@@ -337,44 +333,44 @@ const EquipmentFailure: React.FC = () => {
         finishDate: formatDateTime(incidentToEdit.finishDate),
         objectName: incidentToEdit.objectName,
         equipmentKnotId: equipmentKnots.find(
-          (equipmentKnot) => equipmentKnot.name === incidentToEdit.equipmentKnot
+          equipmentKnot => equipmentKnot.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-            equipmentKnots.find(
-              (equipmentKnot) =>
-                equipmentKnot.name === incidentToEdit.equipmentKnot
-            )?.value
-          )
+              equipmentKnots.find(
+                equipmentKnot =>
+                  equipmentKnot.name === incidentToEdit.equipmentKnot
+              )?.value
+            )
           : 0,
         incidentNameId: problemNames.find(
-          (incidentName) => incidentName.name === incidentToEdit.equipmentKnot
+          incidentName => incidentName.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-            problemNames.find(
-              (incidentName) =>
-                incidentName.name === incidentToEdit.incidentName
-            )?.value
-          )
+              problemNames.find(
+                incidentName =>
+                  incidentName.name === incidentToEdit.incidentName
+              )?.value
+            )
           : 0,
         incidentReasonId: reasons.find(
-          (reason) => reason.name === incidentToEdit.equipmentKnot
+          reason => reason.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-            reasons.find(
-              (reason) => reason.name === incidentToEdit.incidentReason
-            )?.value
-          )
+              reasons.find(
+                reason => reason.name === incidentToEdit.incidentReason
+              )?.value
+            )
           : 0,
         incidentSolutionId: solutions.find(
-          (solution) => solution.name === incidentToEdit.equipmentKnot
+          solution => solution.name === incidentToEdit.equipmentKnot
         )
           ? Number(
-            solutions.find(
-              (solution) => solution.name === incidentToEdit.incidentSolution
-            )?.value
-          )
+              solutions.find(
+                solution => solution.name === incidentToEdit.incidentSolution
+              )?.value
+            )
           : 0,
-        downtime: incidentToEdit.downtime === "Нет" ? 0 : 1,
+        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
         comment: incidentToEdit.comment,
         carWashDeviceProgramsTypeId: incidentToEdit.programId,
       });
@@ -397,7 +393,7 @@ const EquipmentFailure: React.FC = () => {
           mutate(swrKey);
           resetForm();
         } else {
-          throw new Error("Invalid update data.");
+          throw new Error('Invalid update data.');
         }
       } else {
         const result = await createInc();
@@ -405,107 +401,107 @@ const EquipmentFailure: React.FC = () => {
           mutate(swrKey);
           resetForm();
         } else {
-          throw new Error("Invalid response from API");
+          throw new Error('Invalid response from API');
         }
       }
     } catch (error) {
-      console.error("Error during form submission: ", error);
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
   const dateRender = getDateRender();
 
   const allowed = hasPermission(userPermissions, [
-    { action: "manage", subject: "Incident" },
-    { action: "update", subject: "Incident" },
+    { action: 'manage', subject: 'Incident' },
+    { action: 'update', subject: 'Incident' },
   ]);
 
   const columnsEquipmentFailure: ColumnsType<Incident> = [
     {
-      title: "Название объекта",
-      dataIndex: "posName",
-      key: "posName",
+      title: 'Название объекта',
+      dataIndex: 'posName',
+      key: 'posName',
     },
     {
-      title: "Сотрудник",
-      dataIndex: "workerName",
-      key: "workerName",
+      title: 'Сотрудник',
+      dataIndex: 'workerName',
+      key: 'workerName',
     },
     {
-      title: "Дата поломки",
-      dataIndex: "appearanceDate",
-      key: "appearanceDate",
+      title: 'Дата поломки',
+      dataIndex: 'appearanceDate',
+      key: 'appearanceDate',
       render: dateRender,
     },
     {
-      title: "Дата начала работы",
-      dataIndex: "startDate",
-      key: "startDate",
+      title: 'Дата начала работы',
+      dataIndex: 'startDate',
+      key: 'startDate',
       render: dateRender,
     },
     {
-      title: "Дата окончания работы",
-      dataIndex: "finishDate",
-      key: "finishDate",
+      title: 'Дата окончания работы',
+      dataIndex: 'finishDate',
+      key: 'finishDate',
       render: dateRender,
     },
     {
-      title: "Устройство",
-      dataIndex: "objectName",
-      key: "objectName",
+      title: 'Устройство',
+      dataIndex: 'objectName',
+      key: 'objectName',
     },
     {
-      title: "Узел",
-      dataIndex: "equipmentKnot",
-      key: "equipmentKnot",
-      render: (value: string) => <div>{value ? value : "-"}</div>,
+      title: 'Узел',
+      dataIndex: 'equipmentKnot',
+      key: 'equipmentKnot',
+      render: (value: string) => <div>{value ? value : '-'}</div>,
     },
     {
-      title: "Проблема",
-      dataIndex: "incidentName",
-      key: "incidentName",
-      render: (value: string) => <div>{value ? value : "-"}</div>,
+      title: 'Проблема',
+      dataIndex: 'incidentName',
+      key: 'incidentName',
+      render: (value: string) => <div>{value ? value : '-'}</div>,
     },
     {
-      title: "Причина",
-      dataIndex: "incidentReason",
-      key: "incidentReason",
-      render: (value: string) => <div>{value ? value : "-"}</div>,
+      title: 'Причина',
+      dataIndex: 'incidentReason',
+      key: 'incidentReason',
+      render: (value: string) => <div>{value ? value : '-'}</div>,
     },
     {
-      title: "Принятые меры",
-      dataIndex: "incidentSolution",
-      key: "incidentSolution",
-      render: (value: string) => <div>{value ? value : "-"}</div>,
+      title: 'Принятые меры',
+      dataIndex: 'incidentSolution',
+      key: 'incidentSolution',
+      render: (value: string) => <div>{value ? value : '-'}</div>,
     },
     {
-      title: "Время исправления",
-      dataIndex: "repair",
-      key: "repair",
+      title: 'Время исправления',
+      dataIndex: 'repair',
+      key: 'repair',
     },
     {
-      title: "Простой",
-      dataIndex: "downtime",
-      key: "downtime",
+      title: 'Простой',
+      dataIndex: 'downtime',
+      key: 'downtime',
     },
     {
-      title: "Комментарий",
-      dataIndex: "comment",
-      key: "comment",
+      title: 'Комментарий',
+      dataIndex: 'comment',
+      key: 'comment',
     },
     {
-      title: "Программа",
-      dataIndex: "programName",
-      key: "programName",
+      title: 'Программа',
+      dataIndex: 'programName',
+      key: 'programName',
     },
   ];
 
   if (allowed) {
     columnsEquipmentFailure.push({
-      title: "",
-      dataIndex: "actions",
-      key: "actions",
+      title: '',
+      dataIndex: 'actions',
+      key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
           <AntDButton
@@ -514,7 +510,7 @@ const EquipmentFailure: React.FC = () => {
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
             }
             onClick={() => handleUpdate(record.id)}
-            style={{ height: "24px" }}
+            style={{ height: '24px' }}
           />
         </Tooltip>
       ),
@@ -525,13 +521,13 @@ const EquipmentFailure: React.FC = () => {
     setCheckedList,
     options: columnOptions,
     visibleColumns,
-  } = useColumnSelector(columnsEquipmentFailure, "equipment-failure-columns");
+  } = useColumnSelector(columnsEquipmentFailure, 'equipment-failure-columns');
 
   return (
     <>
       <div className="absolute top-6 right-6 z-50">
         <Button
-          title={t("routes.fix")}
+          title={t('routes.fix')}
           iconPlus={true}
           handleClick={() => setDrawerOpen(true)}
           classname="shadow-lg"
@@ -539,7 +535,7 @@ const EquipmentFailure: React.FC = () => {
       </div>
       <GeneralFilters
         count={incidents.length}
-        display={["city", "pos", "dateTime", "reset", "count"]}
+        display={['city', 'pos', 'dateTime', 'reset', 'count']}
       />
       <div className="mt-8">
         <ColumnSelector
@@ -553,11 +549,11 @@ const EquipmentFailure: React.FC = () => {
           rowKey="id"
           pagination={false}
           loading={incidentLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Drawer
-        title={t("equipment.break")}
+        title={t('equipment.break')}
         placement="right"
         size="large"
         onClose={resetForm}
@@ -566,20 +562,20 @@ const EquipmentFailure: React.FC = () => {
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <DropdownInput
-            title={t("equipment.carWash")}
+            title={t('equipment.carWash')}
             label={
-              poses.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")
+              poses.length === 0 ? t('warehouse.noVal') : t('warehouse.notSel')
             }
             options={poses}
             classname="w-72"
-            {...register("posId", {
-              required: !isEditMode && "Pos ID is required",
-              validate: (value) =>
-                value !== 0 || isEditMode || "Pos ID is required",
+            {...register('posId', {
+              required: !isEditMode && 'Pos ID is required',
+              validate: value =>
+                value !== 0 || isEditMode || 'Pos ID is required',
             })}
             value={formData.posId}
-            onChange={(value) => {
-              handleInputChange("posId", value);
+            onChange={value => {
+              handleInputChange('posId', value);
               updateSearchParams(searchParams, setSearchParams, {
                 posId: value,
               });
@@ -589,160 +585,160 @@ const EquipmentFailure: React.FC = () => {
             isDisabled={isEditMode}
           />
           <DropdownInput
-            title={t("equipment.employee")}
+            title={t('equipment.employee')}
             label={
               workers.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={workers}
             classname="w-72"
-            {...register("workerId", {
-              required: !isEditMode && "Worker ID is required",
-              validate: (value) =>
-                value !== 0 || isEditMode || "Worker ID is required",
+            {...register('workerId', {
+              required: !isEditMode && 'Worker ID is required',
+              validate: value =>
+                value !== 0 || isEditMode || 'Worker ID is required',
             })}
             value={formData.workerId}
-            onChange={(value) => handleInputChange("workerId", value)}
+            onChange={value => handleInputChange('workerId', value)}
             error={!!errors.workerId}
             helperText={errors.workerId?.message}
           />
           <DateTimeInput
-            title={t("equipment.call")}
+            title={t('equipment.call')}
             classname="w-64"
             value={
               formData.appearanceDate
                 ? dayjs(formData.appearanceDate)
                 : undefined
             }
-            changeValue={(date) =>
+            changeValue={date =>
               handleInputChange(
-                "appearanceDate",
-                date ? date.format("YYYY-MM-DDTHH:mm") : ""
+                'appearanceDate',
+                date ? date.format('YYYY-MM-DDTHH:mm') : ''
               )
             }
             error={!!errors.appearanceDate}
-            {...register("appearanceDate", {
-              required: !isEditMode && "Appearance Date is required",
+            {...register('appearanceDate', {
+              required: !isEditMode && 'Appearance Date is required',
             })}
-            helperText={errors.appearanceDate?.message || ""}
+            helperText={errors.appearanceDate?.message || ''}
           />
           <DateTimeInput
-            title={t("equipment.start")}
+            title={t('equipment.start')}
             classname="w-64"
             value={formData.startDate ? dayjs(formData.startDate) : undefined}
-            changeValue={(date) =>
+            changeValue={date =>
               handleInputChange(
-                "startDate",
-                date ? date.format("YYYY-MM-DDTHH:mm") : ""
+                'startDate',
+                date ? date.format('YYYY-MM-DDTHH:mm') : ''
               )
             }
             error={!!errors.startDate}
-            {...register("startDate", {
-              required: !isEditMode && "Start Date is required",
+            {...register('startDate', {
+              required: !isEditMode && 'Start Date is required',
             })}
-            helperText={errors.startDate?.message || ""}
+            helperText={errors.startDate?.message || ''}
           />
           <DateTimeInput
-            title={t("equipment.end")}
+            title={t('equipment.end')}
             classname="w-64"
             value={formData.finishDate ? dayjs(formData.finishDate) : undefined}
-            changeValue={(date) =>
+            changeValue={date =>
               handleInputChange(
-                "finishDate",
-                date ? date.format("YYYY-MM-DDTHH:mm") : ""
+                'finishDate',
+                date ? date.format('YYYY-MM-DDTHH:mm') : ''
               )
             }
             error={!!errors.finishDate}
-            {...register("finishDate", {
-              required: !isEditMode && "Finish Date is required",
+            {...register('finishDate', {
+              required: !isEditMode && 'Finish Date is required',
             })}
-            helperText={errors.finishDate?.message || ""}
+            helperText={errors.finishDate?.message || ''}
           />
           <div className="flex">
             <input
               type="checkbox"
               checked={deviceCheck}
-              onChange={(e) => {
+              onChange={e => {
                 setDeviceCheck(e.target.checked);
-                handleInputChange("objectName", "Вся мойка");
+                handleInputChange('objectName', 'Вся мойка');
               }}
             />
-            <div className="text-text02 ml-2">{t("equipment.whole")}</div>
+            <div className="text-text02 ml-2">{t('equipment.whole')}</div>
           </div>
           <DropdownInput
-            title={t("equipment.device")}
+            title={t('equipment.device')}
             label={
               devices.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={devices}
             classname="w-72"
-            {...register("objectName", {
-              required: !isEditMode && "Device is required",
+            {...register('objectName', {
+              required: !isEditMode && 'Device is required',
             })}
             value={formData.objectName}
-            onChange={(value) => handleInputChange("objectName", value)}
+            onChange={value => handleInputChange('objectName', value)}
             error={!!errors.objectName}
             helperText={errors.objectName?.message}
             isDisabled={deviceCheck}
           />
           <DropdownInput
-            title={t("equipment.knot")}
+            title={t('equipment.knot')}
             label={
               equipmentKnots.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={equipmentKnots}
             classname="w-72"
-            {...register("equipmentKnotId")}
+            {...register('equipmentKnotId')}
             value={formData.equipmentKnotId}
-            onChange={(value) => handleInputChange("equipmentKnotId", value)}
+            onChange={value => handleInputChange('equipmentKnotId', value)}
           />
           <DropdownInput
-            title={t("equipment.name")}
+            title={t('equipment.name')}
             label={
               problemNames.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={problemNames}
             classname="w-72"
-            {...register("incidentNameId")}
+            {...register('incidentNameId')}
             value={formData.incidentNameId}
-            onChange={(value) => handleInputChange("incidentNameId", value)}
+            onChange={value => handleInputChange('incidentNameId', value)}
           />
           <DropdownInput
-            title={t("equipment.cause")}
+            title={t('equipment.cause')}
             label={
               reasons.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={reasons}
             classname="w-72"
-            {...register("incidentReasonId")}
+            {...register('incidentReasonId')}
             value={formData.incidentReasonId}
-            onChange={(value) => handleInputChange("incidentReasonId", value)}
+            onChange={value => handleInputChange('incidentReasonId', value)}
           />
           <DropdownInput
-            title={t("equipment.measures")}
+            title={t('equipment.measures')}
             label={
               solutions.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={solutions}
             classname="w-72"
-            {...register("incidentSolutionId")}
+            {...register('incidentSolutionId')}
             value={formData.incidentSolutionId}
-            onChange={(value) => handleInputChange("incidentSolutionId", value)}
+            onChange={value => handleInputChange('incidentSolutionId', value)}
           />
           <div className="space-y-2">
             <div className="text-text02 text-sm font-semibold">
-              {t("equipment.simple")}
+              {t('equipment.simple')}
             </div>
             <div className="flex items-center space-x-4">
               <label className="flex items-center">
@@ -751,29 +747,25 @@ const EquipmentFailure: React.FC = () => {
                   value={1}
                   checked={formData.downtime === 1}
                   className="mr-2"
-                  {...register("downtime", {
-                    required: !isEditMode && "Downtime is required",
+                  {...register('downtime', {
+                    required: !isEditMode && 'Downtime is required',
                   })}
-                  onChange={(e) =>
-                    handleInputChange("downtime", e.target.value)
-                  }
+                  onChange={e => handleInputChange('downtime', e.target.value)}
                 />
-                {t("equipment.yes")}
+                {t('equipment.yes')}
               </label>
               <label className="flex items-center">
                 <input
                   type="radio"
                   value={0}
                   checked={formData.downtime === 0}
-                  {...register("downtime", {
-                    required: !isEditMode && "Downtime is required",
+                  {...register('downtime', {
+                    required: !isEditMode && 'Downtime is required',
                   })}
-                  onChange={(e) =>
-                    handleInputChange("downtime", e.target.value)
-                  }
+                  onChange={e => handleInputChange('downtime', e.target.value)}
                   className="mr-2"
                 />
-                {t("equipment.no")}
+                {t('equipment.no')}
               </label>
             </div>
             {errors.downtime && (
@@ -783,34 +775,34 @@ const EquipmentFailure: React.FC = () => {
             )}
           </div>
           <DropdownInput
-            title={t("equipment.program")}
+            title={t('equipment.program')}
             label={
               programs.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={programs}
             classname="w-72"
-            {...register("carWashDeviceProgramsTypeId")}
+            {...register('carWashDeviceProgramsTypeId')}
             value={formData.carWashDeviceProgramsTypeId}
-            onChange={(value) =>
-              handleInputChange("carWashDeviceProgramsTypeId", value)
+            onChange={value =>
+              handleInputChange('carWashDeviceProgramsTypeId', value)
             }
           />
           <MultilineInput
-            title={t("equipment.comment")}
+            title={t('equipment.comment')}
             classname="w-96"
             value={formData.comment}
-            changeValue={(e) => handleInputChange("comment", e.target.value)}
+            changeValue={e => handleInputChange('comment', e.target.value)}
             error={!!errors.comment}
-            {...register("comment", {
-              required: !isEditMode && "Comment is required",
+            {...register('comment', {
+              required: !isEditMode && 'Comment is required',
             })}
-            helperText={errors.comment?.message || ""}
+            helperText={errors.comment?.message || ''}
           />
           <div className="flex justify-end space-x-4">
             <Button
-              title={t("organizations.cancel")}
+              title={t('organizations.cancel')}
               type="outline"
               handleClick={() => {
                 setDrawerOpen(false);
@@ -818,10 +810,10 @@ const EquipmentFailure: React.FC = () => {
               }}
             />
             <Button
-              title={t("organizations.save")}
+              title={t('organizations.save')}
               form={true}
               isLoading={isEditMode ? updatingIncident : isMutating}
-              handleClick={() => { }}
+              handleClick={() => {}}
             />
           </div>
         </form>

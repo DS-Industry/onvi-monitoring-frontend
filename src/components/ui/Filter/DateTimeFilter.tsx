@@ -1,35 +1,35 @@
-import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { DatePicker, TimePicker, Space } from "antd";
-import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE } from "@/utils/constants.ts";
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { DatePicker, TimePicker, Space } from 'antd';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
 const DateTimeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getParam = (key: string, fallback = "") =>
+  const getParam = (key: string, fallback = '') =>
     searchParams.get(key) || fallback;
 
   const [startDate, setStartDate] = useState(
-    dayjs(getParam("dateStart") || dayjs().format("YYYY-MM-DDTHH:mm"))
+    dayjs(getParam('dateStart') || dayjs().format('YYYY-MM-DDTHH:mm'))
   );
 
   const [endDate, setEndDate] = useState(
-    dayjs(getParam("dateEnd") || dayjs().format("YYYY-MM-DDTHH:mm"))
+    dayjs(getParam('dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm'))
   );
 
   const handleStartDateChange = (date: any) => {
     if (date) {
       const newDateTime = startDate
-        .set("year", date.year())
-        .set("month", date.month())
-        .set("date", date.date());
+        .set('year', date.year())
+        .set('month', date.month())
+        .set('date', date.date());
       setStartDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        dateStart: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     }
@@ -38,11 +38,11 @@ const DateTimeFilter: React.FC = () => {
   const handleStartTimeChange = (time: any) => {
     if (time) {
       const newDateTime = startDate
-        .set("hour", time.hour())
-        .set("minute", time.minute());
+        .set('hour', time.hour())
+        .set('minute', time.minute());
       setStartDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        dateStart: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        dateStart: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     }
@@ -51,12 +51,12 @@ const DateTimeFilter: React.FC = () => {
   const handleEndDateChange = (date: any) => {
     if (date) {
       const newDateTime = endDate
-        .set("year", date.year())
-        .set("month", date.month())
-        .set("date", date.date());
+        .set('year', date.year())
+        .set('month', date.month())
+        .set('date', date.date());
       setEndDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        dateEnd: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     }
@@ -65,11 +65,11 @@ const DateTimeFilter: React.FC = () => {
   const handleEndTimeChange = (time: any) => {
     if (time) {
       const newDateTime = endDate
-        .set("hour", time.hour())
-        .set("minute", time.minute());
+        .set('hour', time.hour())
+        .set('minute', time.minute());
       setEndDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        dateEnd: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        dateEnd: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     }
@@ -83,13 +83,13 @@ const DateTimeFilter: React.FC = () => {
             value={startDate}
             format="YYYY-MM-DD"
             onChange={handleStartDateChange}
-            placeholder={t("filters.dateTime.startDate")}
+            placeholder={t('filters.dateTime.startDate')}
           />
           <TimePicker
             value={startDate}
             format="HH:mm"
             onChange={handleStartTimeChange}
-            placeholder={t("filters.dateTime.startTime")}
+            placeholder={t('filters.dateTime.startTime')}
           />
         </div>
 
@@ -98,13 +98,13 @@ const DateTimeFilter: React.FC = () => {
             value={endDate}
             format="YYYY-MM-DD"
             onChange={handleEndDateChange}
-            placeholder={t("filters.dateTime.endDate")}
+            placeholder={t('filters.dateTime.endDate')}
           />
           <TimePicker
             value={endDate}
             format="HH:mm"
             onChange={handleEndTimeChange}
-            placeholder={t("filters.dateTime.endTime")}
+            placeholder={t('filters.dateTime.endTime')}
           />
         </div>
       </Space>
