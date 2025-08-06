@@ -77,7 +77,7 @@ const Transactions: React.FC = () => {
     }, [allReports, t, transactionData?.transactions]);
 
     const handleDownload = (reportKey: string, id: number) => {
-        const downloadUrl = `https://storage.yandexcloud.net/onvi-business/report/${id}/${reportKey}`; // Adjust API path
+        const downloadUrl = `${import.meta.env.VITE_S3_CLOUD}/report/${id}/${reportKey}`; // Adjust API path
         window.open(downloadUrl, "_blank");
     }
 

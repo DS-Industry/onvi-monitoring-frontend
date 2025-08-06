@@ -14,12 +14,12 @@ const OrganizationFilter: React.FC = () => {
   const getParam = (key: string, fallback = "") =>
     searchParams.get(key) || fallback;
 
-  const city = getParam("city", "*");
-  const placementId = city === "*" ? "" : city;
+  const city = getParam("city", undefined);
+  const placementId = city ? Number(city) : undefined;
 
   const { data: organizationData, isLoading } = useSWR(
     placementId ? [`get-organization`, placementId] : null,
-    () => getOrganization({ placementId }),
+    () => getOrganization({ placementId: placementId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

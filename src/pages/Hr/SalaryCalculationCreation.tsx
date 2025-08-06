@@ -1,6 +1,5 @@
 import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
-import { useCity } from "@/hooks/useAuthStore";
 import useFormHook from "@/hooks/useFormHook";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -54,14 +53,13 @@ type AddWorker = {
 
 const SalaryCalculationCreation: React.FC = () => {
     const { t } = useTranslation();
-    const city = useCity();
     const navigate = useNavigate();
     const [paymentsData, setPaymentsData] = useState<PaymentsCreation[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showAddButton, setShowAddButton] = useState(false);
     const { showToast } = useToast();
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: undefined }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 

@@ -14,8 +14,8 @@ const PosFilter: React.FC = () => {
   const getParam = (key: string, fallback = "") =>
     searchParams.get(key) || fallback;
 
-  const city = getParam("city", "*");
-  const placementId = city === "*" ? "" : city;
+  const city = getParam("city", undefined);
+  const placementId = city ? Number(city) : undefined;
 
   const { data: posData, isLoading } = useSWR(
     placementId ? [`get-pos`, placementId] : null,

@@ -95,7 +95,7 @@ const TechTaskCreate: React.FC = () => {
         setIsInitialLoading(false);
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: undefined }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const techTasks = data
         ?.techTaskManageInfo.map((item) => ({

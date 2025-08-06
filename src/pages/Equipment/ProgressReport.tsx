@@ -37,7 +37,7 @@ const ProgressReport: React.FC = () => {
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
 
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: "*" }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: undefined }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const techTasks = data
         ?.techTaskReadAll?.map((item) => ({

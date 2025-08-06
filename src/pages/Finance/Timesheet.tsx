@@ -93,7 +93,7 @@ const Timesheet: React.FC = () => {
   const { data: poses, isLoading: isPosLoading } = useSWR(
     `get-pos-${placementId}`,
     () =>
-      getPoses({ placementId })
+      getPoses({ placementId: Number(placementId) })
         .then((data) => data?.sort((a, b) => a.id - b.id) || [])
         .then((data) => {
           const options = data.map((item) => ({

@@ -60,7 +60,7 @@ const TechTasks: React.FC = () => {
 
     const { data: poses } = useSWR(
         [`get-pos`],
-        () => getPoses({ placementId: "*" }),
+        () => getPoses({ placementId: undefined }),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,

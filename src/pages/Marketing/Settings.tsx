@@ -42,10 +42,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     const { t } = useTranslation();
     const [isEditMode, setIsEditMode] = useState(false);
     const { showToast } = useToast();
-    // const [isToggled, setIsToggled] = useState(false);
-    // const [isToggledTwo, setIsToggledTwo] = useState(false);
-    // const [isToggledThree, setIsToggledThree] = useState(false);
-    // const [isToggledFour, setIsToggledFour] = useState(false);
 
     const [selectedOption, setSelectedOption] = useState<string>("never");
 
@@ -56,7 +52,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         ...(cityData?.map((item) => ({ name: item.region, value: item.id })) || [])
     ];
 
-    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: placementId }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: undefined }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const organizations: { label: string; value: number | string }[] = organizationData?.map((item) => ({ label: item.name, value: item.id })) || [];
 
@@ -72,22 +68,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(location.state.ownerId !== 0 ? [`get-loyalty-program-by-id`] : null, () => getLoyaltyProgramById(location.state.ownerId), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const loyaltyById = loyaltyData;
-
-    // const handleToggle = () => {
-    //     setIsToggled(!isToggled);
-    // };
-
-    // const handleToggleTwo = () => {
-    //     setIsToggledTwo(!isToggledTwo);
-    // };
-
-    // const handleToggleThree = () => {
-    //     setIsToggledThree(!isToggledThree);
-    // };
-
-    // const handleToggleFour = () => {
-    //     setIsToggledFour(!isToggledFour);
-    // };
 
     const defaultValues: LoyaltyPrograms = {
         name: '',

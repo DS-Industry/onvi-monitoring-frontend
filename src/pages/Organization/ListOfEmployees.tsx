@@ -16,7 +16,6 @@ import Button from "@/components/ui/Button/Button";
 import useSWRMutation from "swr/mutation";
 import useFormHook from "@/hooks/useFormHook";
 import { useButtonCreate, useToast } from "@/components/context/useContext";
-import { useCity } from "@/hooks/useAuthStore";
 import Input from "@/components/ui/Input/Input";
 import DynamicTable from "@/components/ui/Table/DynamicTable";
 import DateInput from "@/components/ui/Input/DateInput";
@@ -48,10 +47,8 @@ const ListOfEmployees: React.FC = () => {
 
     const { data: rolesData } = useSWR([`get-role`], () => getRoles(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
-    const city = useCity();
-
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
-        placementId: city
+        placementId: undefined
     }));
 
     const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];

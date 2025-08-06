@@ -44,17 +44,17 @@ const EquipmentFailure: React.FC = () => {
   const formattedDate = today.toISOString().slice(0, 10);
   const [deviceCheck, setDeviceCheck] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const posId = searchParams.get("posId") || "*";
+  const posId = Number(searchParams.get("posId")) || undefined;
   const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
   const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
-  const cityParam = searchParams.get("city") || "*";
+  const cityParam = Number(searchParams.get("city")) || undefined;
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
   const filterParams = {
     dateStart,
     dateEnd,
-    posId: posId || "*",
+    posId: posId,
     placementId: cityParam,
   };
   const swrKey = `get-incidents-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;

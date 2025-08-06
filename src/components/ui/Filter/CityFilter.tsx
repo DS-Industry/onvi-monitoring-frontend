@@ -22,14 +22,14 @@ const CityFilter: React.FC<CityFilterProps> = ({
     searchParams.get(key) || fallback;
 
   const cities = [
-    { label: t("warehouse.all"), value: "*" },
+    { label: t("warehouse.all"), value: undefined },
     ...(cityData?.map((item) => ({
       label: item.region,
       value: String(item.id),
     })) || []),
   ];
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string | undefined) => {
     updateSearchParams(searchParams, setSearchParams, {
       city: value,
       page: DEFAULT_PAGE,
@@ -45,7 +45,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
       showSearch
       allowClear={false}
       className={className}
-      value={getParam("city", "*")}
+      value={getParam("city", undefined)}
       onChange={handleChange}
       options={cities}
       optionFilterProp="label"

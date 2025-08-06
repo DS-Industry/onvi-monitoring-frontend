@@ -20,17 +20,17 @@ const InventoryImport: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0] || null; // Get the first file
-        setSelectedFile(file); // Update state with the single file
+        const file = event.target.files?.[0] || null; 
+        setSelectedFile(file); 
     };
 
     const handleFileRemove = () => {
-        setSelectedFile(null); // Reset the selected file
+        setSelectedFile(null);
     };
 
     const handleDownload = () => {
         const link = document.createElement("a");
-        link.href = "https://storage.yandexcloud.net/onvi-business/nomenclature/template.xlsx";
+        link.href = `${import.meta.env.VITE_S3_CLOUD}/nomenclature/template.xlsx`;
         link.download = "template.xlsx";
         link.click();
     };

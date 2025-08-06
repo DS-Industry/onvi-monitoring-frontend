@@ -30,7 +30,7 @@ const Warehouse: React.FC = () => {
     const { showToast } = useToast();
 
     const posId = searchParams.get("posId") || "*";
-    const placementId = searchParams.get("city") || "*";
+    const placementId = Number(searchParams.get("city")) || undefined;
 
     const filterParams = useMemo(
         () => ({
@@ -54,7 +54,7 @@ const Warehouse: React.FC = () => {
 
     const { data: warehouseData, isLoading: warehouseLoading } = useSWR(swrKey, () => getWarehouses({
         posId: posId,
-        placementId: placementId
+        placementId: placementId || "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const poses: { name: string; value: number | string; }[] = posData?.map((item) => ({ name: item.name, value: item.id })) || [];

@@ -13,7 +13,7 @@ interface TechTaskDetailsProps {
 
 const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
     const { t } = useTranslation();
-    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: '*' }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+    const { data: poses } = useSWR([`get-pos`], () => getPoses({ placementId: undefined }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const { data: contactData } = useSWR(
         techTaskData?.executorId ? [`contact-data`] : null,

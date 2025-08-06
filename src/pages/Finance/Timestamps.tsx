@@ -31,7 +31,7 @@ const Timestamps: React.FC = () => {
     [key: number]: boolean;
   }>({});
   const { showToast } = useToast();
-  const city = searchParams.get("city") || "*";
+  const city = Number(searchParams.get("city")) || undefined;
 
   const { data: posData } = useSWR(
     [`get-pos`, city],

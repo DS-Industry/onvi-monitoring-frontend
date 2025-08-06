@@ -87,7 +87,7 @@ const ProgressReportItem: React.FC = () => {
 
             const fileEntries = techTaskItems.map((item) => {
                 const file = item.image
-                    ? `${import.meta.env.VITE_S3_CLOUD}pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
+                    ? `${import.meta.env.VITE_S3_CLOUD}/image/pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
                     : null;
                 return [item.id, file];
             });

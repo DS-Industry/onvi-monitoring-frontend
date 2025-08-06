@@ -52,14 +52,14 @@ const DepositDevices: React.FC = () => {
 
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get("posId") || "*";
+  const posId = searchParams.get("posId") || undefined;
   const dateStart =
     searchParams.get("dateStart") ?? new Date().toISOString().slice(0, 10);
 
   const dateEnd =
     searchParams.get("dateEnd") ?? new Date().toISOString().slice(0, 10);
 
-  const cityParam = Number(searchParams.get("city")) || "*";
+  const cityParam = Number(searchParams.get("city")) || undefined;
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 

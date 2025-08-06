@@ -114,7 +114,7 @@ const EmployeeProfile: React.FC = () => {
 
     useEffect(() => {
         if (employee?.avatar)
-            setImagePreview("https://storage.yandexcloud.net/onvi-business/avatar/worker/" + employee.avatar);
+            setImagePreview(`${import.meta.env.VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
         else
             setImagePreview(null);
     }, [employee?.avatar])
@@ -308,7 +308,7 @@ const EmployeeProfile: React.FC = () => {
                             <div className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2" onClick={() => setWorkerId(emp.workerId)}>
                                 {emp.avatar ? (
                                     <img
-                                        src={"https://storage.yandexcloud.net/onvi-business/avatar/worker/" + emp.avatar}
+                                        src={`${import.meta.env.VITE_S3_CLOUD}/avatar/worker/` + emp.avatar}
                                         alt="Profile"
                                         className="rounded-full w-10 h-10 object-cover"
                                         loading="lazy"

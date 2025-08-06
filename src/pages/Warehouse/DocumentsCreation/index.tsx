@@ -162,7 +162,7 @@ const DocumentsCreation: React.FC = () => {
         });
 
     const posId = searchParams.get("posId") || "*";
-    const city = searchParams.get("city") || "*";
+    const city = Number(searchParams.get("city")) || undefined;
 
     const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
         placementId: city
@@ -174,7 +174,7 @@ const DocumentsCreation: React.FC = () => {
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
         posId: posId,
-        placementId: city
+        placementId: city || "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const nomenclatures: { name: string; value: number; }[] = nomenclatureData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];

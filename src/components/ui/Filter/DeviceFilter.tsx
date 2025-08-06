@@ -14,10 +14,10 @@ const DeviceFilter: React.FC = () => {
   const getParam = (key: string, fallback = "") =>
     searchParams.get(key) || fallback;
 
-  const posId = getParam("posId", "*");
+  const posId = Number(getParam("posId", undefined));
 
   const { data: devicesData, isLoading } = useSWR(
-    posId && posId !== "*" ? [`get-devices`, posId] : null,
+    posId ? [`get-devices`, posId] : null,
     () => getDevices(posId),
     {
       revalidateOnFocus: false,

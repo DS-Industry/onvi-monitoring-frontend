@@ -28,7 +28,7 @@ const DocumentView: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const posId = searchParams.get("posId") || "*";
-    const city = searchParams.get("city") || "*";
+    const city = Number(searchParams.get("city")) || undefined;
     const documentType = searchParams.get("document");
     const user = useUser();
 
@@ -47,7 +47,7 @@ const DocumentView: React.FC = () => {
 
     const { data: warehouseData } = useSWR([`get-warehouse`], () => getWarehouses({
         posId: posId,
-        placementId: city
+        placementId: city || "*"
     }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
 
     const warehouses: { name: string; value: number; }[] = warehouseData?.map((item) => ({ name: item.props.name, value: item.props.id })) || [];

@@ -126,8 +126,8 @@ type ReturnCollectionResponse = {
 type CashCollectionParams = {
   dateStart: Date;
   dateEnd: Date;
-  placementId: number | string;
-  posId: number | string;
+  placementId?: number;
+  posId?: number;
   page?: number;
   size?: number;
 };
