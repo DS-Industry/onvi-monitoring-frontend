@@ -30,14 +30,12 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 const TechTaskCreate: React.FC = () => {
   const { t } = useTranslation();
 
-  const [techTaskToEdit, setTechTaskToEdit] = useState<TechTaskManagerInfo>(
-    {} as TechTaskManagerInfo
+  const [techTaskToEdit, setTechTaskToEdit] = useState<TechTaskManagerInfo | null>(
+    null
   );
-  const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleUpdate = (id: number) => {
-    setEditTechTaskId(id);
     setDrawerOpen(true);
     setTechTaskToEdit(
       techTasks.find(tech => tech.id === id) || ({} as TechTaskManagerInfo)
@@ -170,7 +168,7 @@ const TechTaskCreate: React.FC = () => {
   } = useColumnSelector(columnsTechTasks, 'tech-tasks-columns');
 
   const onEdit = () => {
-    setEditTechTaskId(0);
+    setTechTaskToEdit(null);
   }
 
   const onClose = () => {
@@ -223,7 +221,6 @@ const TechTaskCreate: React.FC = () => {
       </div>
       <TechTaskForm
         techTaskToEdit={techTaskToEdit}
-        techTaskId={editTechTaskId}
         onEdit={onEdit}
         isOpen={drawerOpen}
         onClose={onClose}

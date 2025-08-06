@@ -29,20 +29,12 @@ const Organization: React.FC = () => {
       placementId: city,
     })
   );
-  const [editOrgId, setEditOrgId] = useState<number>(0);
 
   const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
   });
-
-  const workers: { name: string; value: number }[] = [
-    ...(workersData?.map(work => ({
-      name: work.name,
-      value: work.id,
-    })) || []),
-  ];
 
   const legalOptions = [
     { name: t('organizations.legalEntity'), value: 'LegalEntity' },
@@ -54,7 +46,7 @@ const Organization: React.FC = () => {
       ?.map(item => ({
         ...item,
         ownerName:
-          workers.find(work => work.value === item.ownerId)?.name || '-',
+          workersData?.find(work => work.id === item.ownerId)?.name || '-',
         organizationStatus: t(`tables.${item.organizationStatus}`),
         organizationType:
           legalOptions.find(leg => leg.value === item.organizationType)?.name ||
@@ -62,11 +54,11 @@ const Organization: React.FC = () => {
       }))
       .sort((a, b) => a.id - b.id) || [];
 
-  const [orgToEdit, setOrgToEdit] = useState<OrganizationType>({} as OrganizationType);
-  const [orgToEditOtherDetails, setOrgToEditOtherDetails] = useState<OrganizationOtherDetailsResponse>({} as OrganizationOtherDetailsResponse);
+  const [orgToEdit, setOrgToEdit] = useState<OrganizationType | null>(null);
+  const [orgDocuments, setOrgDocuments] =
+    useState<OrganizationOtherDetailsResponse | null>(null);
 
   const handleUpdate = async (id: number) => {
-    setEditOrgId(id);
     setDrawerOpen(true);
 
     const orgToEdit = organizations.find(org => org.id === id);
@@ -78,9 +70,8 @@ const Organization: React.FC = () => {
       orgs = fetchedOrgData.props;
     }
 
-    setOrgToEdit(orgToEdit || {} as OrganizationType);
-    setOrgToEditOtherDetails(orgs || {} as OrganizationOtherDetailsResponse);
-
+    setOrgToEdit(orgToEdit || null);
+    setOrgDocuments(orgs || null);
   };
 
   const userPermissions = usePermissions();
@@ -153,12 +144,13 @@ const Organization: React.FC = () => {
   }
 
   const onEdit = () => {
-    setEditOrgId(0);
-  }
+    setOrgToEdit(null);
+    setOrgDocuments(null);
+  };
 
   const onClose = () => {
     setDrawerOpen(false);
-  }
+  };
 
   return (
     <>
@@ -183,8 +175,7 @@ const Organization: React.FC = () => {
       </>
       <OrganizationDrawer
         orgToEdit={orgToEdit}
-        orgToEditOtherDetails={orgToEditOtherDetails}
-        orgId={editOrgId}
+        orgDocuments={orgDocuments}
         onEdit={onEdit}
         isOpen={drawerOpen}
         onClose={onClose}

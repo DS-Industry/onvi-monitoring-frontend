@@ -17,9 +17,8 @@ import { Select, Input, Button, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 
 type OrganizationDrawerProps = {
-  orgToEdit: Organization;
-  orgToEditOtherDetails: OrganizationOtherDetailsResponse;
-  orgId: number;
+  orgToEdit: Organization | null;
+  orgDocuments: OrganizationOtherDetailsResponse | null;
   onEdit: () => void;
   isOpen: boolean;
   onClose: () => void;
@@ -27,8 +26,7 @@ type OrganizationDrawerProps = {
 
 const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
   orgToEdit,
-  orgToEditOtherDetails,
-  orgId,
+  orgDocuments,
   onEdit,
   isOpen,
   onClose,
@@ -64,34 +62,30 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         organizationType:
           legalOptions.find(leg => leg.label === orgToEdit.organizationType)
             ?.value || '',
-        rateVat: orgToEditOtherDetails?.rateVat
-          ? orgToEditOtherDetails.rateVat
-          : '',
-        inn: orgToEditOtherDetails?.inn ? orgToEditOtherDetails.inn : '',
-        okpo: orgToEditOtherDetails?.okpo ? orgToEditOtherDetails.okpo : '',
-        kpp: orgToEditOtherDetails?.kpp ? orgToEditOtherDetails.kpp : undefined,
+        rateVat: orgDocuments?.rateVat ? orgDocuments.rateVat : '',
+        inn: orgDocuments?.inn ? orgDocuments.inn : '',
+        okpo: orgDocuments?.okpo ? orgDocuments.okpo : '',
+        kpp: orgDocuments?.kpp ? orgDocuments.kpp : undefined,
         addressRegistration: orgToEdit.address,
-        ogrn: orgToEditOtherDetails?.ogrn ? orgToEditOtherDetails.ogrn : '',
-        bik: orgToEditOtherDetails?.bik ? orgToEditOtherDetails.bik : '',
-        correspondentAccount: orgToEditOtherDetails?.correspondentAccount
-          ? orgToEditOtherDetails.correspondentAccount
+        ogrn: orgDocuments?.ogrn ? orgDocuments.ogrn : '',
+        bik: orgDocuments?.bik ? orgDocuments.bik : '',
+        correspondentAccount: orgDocuments?.correspondentAccount
+          ? orgDocuments.correspondentAccount
           : '',
-        bank: orgToEditOtherDetails?.bank ? orgToEditOtherDetails.bank : '',
-        settlementAccount: orgToEditOtherDetails?.settlementAccount
-          ? orgToEditOtherDetails.settlementAccount
+        bank: orgDocuments?.bank ? orgDocuments.bank : '',
+        settlementAccount: orgDocuments?.settlementAccount
+          ? orgDocuments.settlementAccount
           : '',
-        addressBank: orgToEditOtherDetails?.addressBank
-          ? orgToEditOtherDetails.addressBank
+        addressBank: orgDocuments?.addressBank ? orgDocuments.addressBank : '',
+        certificateNumber: orgDocuments?.certificateNumber
+          ? orgDocuments.certificateNumber
           : '',
-        certificateNumber: orgToEditOtherDetails?.certificateNumber
-          ? orgToEditOtherDetails.certificateNumber
-          : '',
-        dateCertificate: orgToEditOtherDetails?.dateCertificate
-          ? dayjs(orgToEditOtherDetails.dateCertificate).toDate()
+        dateCertificate: orgDocuments?.dateCertificate
+          ? dayjs(orgDocuments.dateCertificate).toDate()
           : undefined,
       });
     }
-  }, [orgToEdit, orgToEditOtherDetails]);
+  }, [orgToEdit, orgDocuments]);
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -120,7 +114,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
   const { trigger: updateOrganization, isMutating: updatingOrganization } =
     useSWRMutation([`update-organization`], async () =>
       postUpdateOrganization({
-        organizationId: orgId,
+        organizationId: orgToEdit?.id ?? 0,
         fullName: formData.fullName,
         rateVat: formData.rateVat,
         inn: formData.inn,
@@ -158,21 +152,14 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
 
   const onSubmit = async () => {
     try {
-      if (orgId) {
-        const result = await updateOrganization();
-        if (result) {
-          mutate([`get-org`, city]);
-          resetForm();
-        } else {
-          showToast(t('errors.other.passwordChangeError'), 'error');
-        }
+      const result = orgToEdit
+        ? await updateOrganization()
+        : await createOrganization();
+      if (result) {
+        mutate([`get-org`, city]);
+        resetForm();
       } else {
-        const result = await createOrganization();
-        if (result) {
-          mutate([`get-org`, city]);
-        } else {
-          showToast(t('errors.other.passwordChangeError'), 'error');
-        }
+        showToast(t('errors.other.passwordChangeError'), 'error');
       }
     } catch (error) {
       console.error('Password change error: ', error);
@@ -193,335 +180,325 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
   ];
 
   return (
-    <div>
-      <Drawer open={isOpen} width={620} closable={false} onClose={resetForm}>
-        <form
-          className="space-y-6 w-full max-w-2xl mx-auto p-4"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {orgId !== 0 ? t('organizations.update') : t('organizations.new')}
-          </span>
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.typeLegal')}
-              </div>
-              <Form.Item
-                help={errors.organizationType?.message}
-                validateStatus={errors.organizationType ? 'error' : undefined}
-              >
-                <Select
-                  options={legalOptions}
-                  className="!w-80 !sm:w-96"
-                  {...register('organizationType', {
-                    required:
-                      orgId === 0 && t('validation.organizationTypeRequired'),
-                  })}
-                  value={formData.organizationType}
-                  onChange={value =>
-                    handleInputChange('organizationType', value)
-                  }
-                  status={errors.organizationType ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
+    <Drawer open={isOpen} width={620} closable={false} onClose={resetForm}>
+      <form
+        className="space-y-6 w-full max-w-2xl mx-auto p-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
+          {orgToEdit !== null
+            ? t('organizations.update')
+            : t('organizations.new')}
+        </span>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <div className="text-text02 text-sm">
+              {t('organizations.typeLegal')}
             </div>
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.vatRate')}
-              </div>
-              <Form.Item
-                help={errors.rateVat?.message}
-                validateStatus={errors.rateVat ? 'error' : undefined}
-              >
-                <Select
-                  placeholder={t('organizations.selectBet')}
-                  options={vatOptions}
-                  className="!w-80 !sm:w-96"
-                  {...register('rateVat', {
-                    required: orgId === 0 && t('validation.vatRequired'),
-                  })}
-                  value={formData.rateVat}
-                  onChange={value => handleInputChange('rateVat', value)}
-                  status={errors.rateVat ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-          </div>
-
-          <div className="text-sm text-text01 font-normal mb-4 uppercase">
-            {t('organizations.legalDetails')}
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.tin')}
-              </div>
-              <Form.Item
-                help={errors.inn?.message}
-                validateStatus={errors.inn ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('inn', {
-                    required: orgId === 0 && t('validation.innRequired'),
-                  })}
-                  value={formData.inn}
-                  onChange={e => handleInputChange('inn', e.target.value)}
-                  status={errors.inn ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.fullName')}
-              </div>
-              <Form.Item
-                help={errors.fullName?.message}
-                validateStatus={errors.fullName ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('fullName', {
-                    required: orgId === 0 && t('validation.nameRequired'),
-                  })}
-                  value={formData.fullName}
-                  onChange={e => handleInputChange('fullName', e.target.value)}
-                  status={errors.fullName ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.okpo')}
-              </div>
-              <Form.Item
-                help={errors.okpo?.message}
-                validateStatus={errors.okpo ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('okpo', {
-                    required: orgId === 0 && t('validation.okpoRequired'),
-                  })}
-                  value={formData.okpo}
-                  onChange={e => handleInputChange('okpo', e.target.value)}
-                  status={errors.okpo ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.kpp')}
-              </div>
-              <Input
-                className="w-80 sm:w-96"
-                {...register('kpp')}
-                value={formData.kpp}
-                onChange={e => handleInputChange('kpp', e.target.value)}
+            <Form.Item
+              help={errors.organizationType?.message}
+              validateStatus={errors.organizationType ? 'error' : undefined}
+            >
+              <Select
+                options={legalOptions}
+                className="!w-80 !sm:w-96"
+                {...register('organizationType', {
+                  required:
+                    orgToEdit === null &&
+                    t('validation.organizationTypeRequired'),
+                })}
+                value={formData.organizationType}
+                onChange={value => handleInputChange('organizationType', value)}
+                status={errors.organizationType ? 'error' : ''}
                 size="large"
               />
-            </div>
+            </Form.Item>
           </div>
           <div>
             <div className="text-text02 text-sm">
-              {t('organizations.address')}
+              {t('organizations.vatRate')}
             </div>
             <Form.Item
-              help={errors.addressRegistration?.message}
-              validateStatus={errors.addressRegistration ? 'error' : undefined}
+              help={errors.rateVat?.message}
+              validateStatus={errors.rateVat ? 'error' : undefined}
             >
-              <Input.TextArea
-                className="w-80 sm:w-96"
-                {...register('addressRegistration', {
-                  required:
-                    orgId === 0 && t('validation.addressRegistrationRequired'),
+              <Select
+                placeholder={t('organizations.selectBet')}
+                options={vatOptions}
+                className="!w-80 !sm:w-96"
+                {...register('rateVat', {
+                  required: orgToEdit === null && t('validation.vatRequired'),
                 })}
-                value={formData.addressRegistration}
-                onChange={e =>
-                  handleInputChange('addressRegistration', e.target.value)
-                }
-                status={errors.addressRegistration ? 'error' : ''}
+                value={formData.rateVat}
+                onChange={value => handleInputChange('rateVat', value)}
+                status={errors.rateVat ? 'error' : ''}
                 size="large"
               />
             </Form.Item>
           </div>
+        </div>
+
+        <div className="text-sm text-text01 font-normal mb-4 uppercase">
+          {t('organizations.legalDetails')}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
           <div>
-            <div className="text-text02 text-sm">{t('organizations.ogrn')}</div>
+            <div className="text-text02 text-sm">{t('organizations.tin')}</div>
             <Form.Item
-              help={errors.ogrn?.message}
-              validateStatus={errors.ogrn ? 'error' : undefined}
+              help={errors.inn?.message}
+              validateStatus={errors.inn ? 'error' : undefined}
             >
               <Input
                 className="w-80 sm:w-96"
-                {...register('ogrn', {
-                  required: orgId === 0 && t('validation.ogrnRequired'),
+                {...register('inn', {
+                  required: orgToEdit === null && t('validation.innRequired'),
                 })}
-                value={formData.ogrn}
-                onChange={e => handleInputChange('ogrn', e.target.value)}
-                status={errors.ogrn ? 'error' : ''}
+                value={formData.inn}
+                onChange={e => handleInputChange('inn', e.target.value)}
+                status={errors.inn ? 'error' : ''}
                 size="large"
               />
             </Form.Item>
           </div>
-
-          <div className="text-sm text-text01 font-normal mb-4 uppercase">
-            {t('organizations.bankDetails')}
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.bik')}
-              </div>
-              <Form.Item
-                help={errors.bik?.message}
-                validateStatus={errors.bik ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('bik', {
-                    required: orgId === 0 && t('validation.bikRequired'),
-                  })}
-                  value={formData.bik}
-                  onChange={e => handleInputChange('bik', e.target.value)}
-                  status={errors.bik ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.corres')}
-              </div>
-              <Form.Item
-                help={errors.correspondentAccount?.message}
-                validateStatus={
-                  errors.correspondentAccount ? 'error' : undefined
-                }
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('correspondentAccount', {
-                    required:
-                      orgId === 0 &&
-                      t('validation.correspondentAccountRequired'),
-                  })}
-                  value={formData.correspondentAccount}
-                  onChange={e =>
-                    handleInputChange('correspondentAccount', e.target.value)
-                  }
-                  status={errors.correspondentAccount ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.bank')}
-              </div>
-              <Form.Item
-                help={errors.bank?.message}
-                validateStatus={errors.bank ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('bank', {
-                    required: orgId === 0 && t('validation.bankRequired'),
-                  })}
-                  value={formData.bank}
-                  onChange={e => handleInputChange('bank', e.target.value)}
-                  status={errors.bank ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-
-            <div>
-              <div className="text-text02 text-sm">
-                {t('organizations.current')}
-              </div>
-              <Form.Item
-                help={errors.settlementAccount?.message}
-                validateStatus={errors.settlementAccount ? 'error' : undefined}
-              >
-                <Input
-                  className="w-80 sm:w-96"
-                  {...register('settlementAccount', {
-                    required:
-                      orgId === 0 && t('validation.settlementAccountRequired'),
-                  })}
-                  value={formData.settlementAccount}
-                  onChange={e =>
-                    handleInputChange('settlementAccount', e.target.value)
-                  }
-                  status={errors.settlementAccount ? 'error' : ''}
-                  size="large"
-                />
-              </Form.Item>
-            </div>
-          </div>
           <div>
-            <div className="text-text02 text-sm">{t('organizations.add')}</div>
+            <div className="text-text02 text-sm">
+              {t('organizations.fullName')}
+            </div>
             <Form.Item
-              help={errors.addressBank?.message}
-              validateStatus={errors.addressBank ? 'error' : undefined}
+              help={errors.fullName?.message}
+              validateStatus={errors.fullName ? 'error' : undefined}
             >
-              <Input.TextArea
+              <Input
                 className="w-80 sm:w-96"
-                {...register('addressBank', {
-                  required: orgId === 0 && t('validation.bankAddressRequired'),
+                {...register('fullName', {
+                  required: orgToEdit === null && t('validation.nameRequired'),
                 })}
-                value={formData.addressBank}
-                onChange={e => handleInputChange('addressBank', e.target.value)}
-                status={errors.addressBank ? 'error' : ''}
+                value={formData.fullName}
+                onChange={e => handleInputChange('fullName', e.target.value)}
+                status={errors.fullName ? 'error' : ''}
                 size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('finance.dat')}</div>
-            <DatePicker
-              className="w-40"
-              {...register('dateCertificate')}
-              value={
-                formData.dateCertificate
-                  ? dayjs(formData.dateCertificate)
-                  : undefined
-              }
-              onChange={date =>
-                handleInputChange(
-                  'dateCertificate',
-                  date ? dayjs(date).format('YYYY-MM-DD') : undefined
-                )
-              }
+            <div className="text-text02 text-sm">{t('organizations.okpo')}</div>
+            <Form.Item
+              help={errors.okpo?.message}
+              validateStatus={errors.okpo ? 'error' : undefined}
+            >
+              <Input
+                className="w-80 sm:w-96"
+                {...register('okpo', {
+                  required: orgToEdit === null && t('validation.okpoRequired'),
+                })}
+                value={formData.okpo}
+                onChange={e => handleInputChange('okpo', e.target.value)}
+                status={errors.okpo ? 'error' : ''}
+                size="large"
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('organizations.kpp')}</div>
+            <Input
+              className="w-80 sm:w-96"
+              {...register('kpp')}
+              value={formData.kpp}
+              onChange={e => handleInputChange('kpp', e.target.value)}
               size="large"
             />
           </div>
-
-          <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-            <Button onClick={() => resetForm()} className="btn-outline-primary">
-              {t('organizations.cancel')}
-            </Button>
-            <Button
-              htmlType="submit"
-              loading={orgId === 0 ? isMutating : updatingOrganization}
-              className="btn-primary"
-            >
-              {t('organizations.save')}
-            </Button>
+        </div>
+        <div>
+          <div className="text-text02 text-sm">
+            {t('organizations.address')}
           </div>
-        </form>
-      </Drawer>
-    </div>
+          <Form.Item
+            help={errors.addressRegistration?.message}
+            validateStatus={errors.addressRegistration ? 'error' : undefined}
+          >
+            <Input.TextArea
+              className="w-80 sm:w-96"
+              {...register('addressRegistration', {
+                required:
+                  orgToEdit === null &&
+                  t('validation.addressRegistrationRequired'),
+              })}
+              value={formData.addressRegistration}
+              onChange={e =>
+                handleInputChange('addressRegistration', e.target.value)
+              }
+              status={errors.addressRegistration ? 'error' : ''}
+              size="large"
+            />
+          </Form.Item>
+        </div>
+        <div>
+          <div className="text-text02 text-sm">{t('organizations.ogrn')}</div>
+          <Form.Item
+            help={errors.ogrn?.message}
+            validateStatus={errors.ogrn ? 'error' : undefined}
+          >
+            <Input
+              className="w-80 sm:w-96"
+              {...register('ogrn', {
+                required: orgToEdit === null && t('validation.ogrnRequired'),
+              })}
+              value={formData.ogrn}
+              onChange={e => handleInputChange('ogrn', e.target.value)}
+              status={errors.ogrn ? 'error' : ''}
+              size="large"
+            />
+          </Form.Item>
+        </div>
+
+        <div className="text-sm text-text01 font-normal mb-4 uppercase">
+          {t('organizations.bankDetails')}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <div className="text-text02 text-sm">{t('organizations.bik')}</div>
+            <Form.Item
+              help={errors.bik?.message}
+              validateStatus={errors.bik ? 'error' : undefined}
+            >
+              <Input
+                className="w-80 sm:w-96"
+                {...register('bik', {
+                  required: orgToEdit === null && t('validation.bikRequired'),
+                })}
+                value={formData.bik}
+                onChange={e => handleInputChange('bik', e.target.value)}
+                status={errors.bik ? 'error' : ''}
+                size="large"
+              />
+            </Form.Item>
+          </div>
+
+          <div>
+            <div className="text-text02 text-sm">
+              {t('organizations.corres')}
+            </div>
+            <Form.Item
+              help={errors.correspondentAccount?.message}
+              validateStatus={errors.correspondentAccount ? 'error' : undefined}
+            >
+              <Input
+                className="w-80 sm:w-96"
+                {...register('correspondentAccount', {
+                  required:
+                    orgToEdit === null &&
+                    t('validation.correspondentAccountRequired'),
+                })}
+                value={formData.correspondentAccount}
+                onChange={e =>
+                  handleInputChange('correspondentAccount', e.target.value)
+                }
+                status={errors.correspondentAccount ? 'error' : ''}
+                size="large"
+              />
+            </Form.Item>
+          </div>
+
+          <div>
+            <div className="text-text02 text-sm">{t('organizations.bank')}</div>
+            <Form.Item
+              help={errors.bank?.message}
+              validateStatus={errors.bank ? 'error' : undefined}
+            >
+              <Input
+                className="w-80 sm:w-96"
+                {...register('bank', {
+                  required: orgToEdit === null && t('validation.bankRequired'),
+                })}
+                value={formData.bank}
+                onChange={e => handleInputChange('bank', e.target.value)}
+                status={errors.bank ? 'error' : ''}
+                size="large"
+              />
+            </Form.Item>
+          </div>
+
+          <div>
+            <div className="text-text02 text-sm">
+              {t('organizations.current')}
+            </div>
+            <Form.Item
+              help={errors.settlementAccount?.message}
+              validateStatus={errors.settlementAccount ? 'error' : undefined}
+            >
+              <Input
+                className="w-80 sm:w-96"
+                {...register('settlementAccount', {
+                  required:
+                    orgToEdit === null &&
+                    t('validation.settlementAccountRequired'),
+                })}
+                value={formData.settlementAccount}
+                onChange={e =>
+                  handleInputChange('settlementAccount', e.target.value)
+                }
+                status={errors.settlementAccount ? 'error' : ''}
+                size="large"
+              />
+            </Form.Item>
+          </div>
+        </div>
+        <div>
+          <div className="text-text02 text-sm">{t('organizations.add')}</div>
+          <Form.Item
+            help={errors.addressBank?.message}
+            validateStatus={errors.addressBank ? 'error' : undefined}
+          >
+            <Input.TextArea
+              className="w-80 sm:w-96"
+              {...register('addressBank', {
+                required:
+                  orgToEdit === null && t('validation.bankAddressRequired'),
+              })}
+              value={formData.addressBank}
+              onChange={e => handleInputChange('addressBank', e.target.value)}
+              status={errors.addressBank ? 'error' : ''}
+              size="large"
+            />
+          </Form.Item>
+        </div>
+        <div>
+          <div className="text-text02 text-sm">{t('finance.dat')}</div>
+          <DatePicker
+            className="w-40"
+            {...register('dateCertificate')}
+            value={
+              formData.dateCertificate
+                ? dayjs(formData.dateCertificate)
+                : undefined
+            }
+            onChange={date =>
+              handleInputChange(
+                'dateCertificate',
+                date ? dayjs(date).format('YYYY-MM-DD') : undefined
+              )
+            }
+            size="large"
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+          <Button onClick={() => resetForm()} className="btn-outline-primary">
+            {t('organizations.cancel')}
+          </Button>
+          <Button
+            htmlType="submit"
+            loading={orgToEdit === null ? isMutating : updatingOrganization}
+            className="btn-primary"
+          >
+            {t('organizations.save')}
+          </Button>
+        </div>
+      </form>
+    </Drawer>
   );
 };
 
