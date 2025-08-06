@@ -12,13 +12,13 @@ import {
   updatePosition,
 } from '@/services/api/hr';
 import useSWRMutation from 'swr/mutation';
-import { useCity } from '@/hooks/useAuthStore';
 import { getOrganization } from '@/services/api/organization';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { Drawer, Table } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import AntInput from 'antd/es/input';
 import { ColumnsType } from 'antd/es/table';
+import { useSearchParams } from 'react-router-dom';
 
 type Positions = {
   id: number;
@@ -32,7 +32,10 @@ const Positions: React.FC = () => {
   const [position, setPosition] = useState<string | undefined>();
   const [originalPosition, setOriginalPosition] = useState<string>();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
+
   const { showToast } = useToast();
 
   const { data: organizationData } = useSWR(

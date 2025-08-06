@@ -13,18 +13,21 @@ import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import SalyImage from '@/assets/NoEquipment.png';
-import { useCity, usePosType } from '@/hooks/useAuthStore';
+import { usePosType } from '@/hooks/useAuthStore';
 import DynamicTable from '@/components/ui/Table/DynamicTable';
 import { Select } from 'antd';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
+import { useSearchParams } from 'react-router-dom';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
   const posType = usePosType();
   const [searchPosId, setSearchPosId] = useState(posType);
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -75,15 +78,6 @@ const ConsumptionRate: React.FC = () => {
   };
 
   poses.unshift(posesAllObj);
-
-  // const mockData = [
-  //     { id: 1, programTypeName: "Ополаскивание", literRate: "", concentration: "" },
-  //     { id: 2, programTypeName: "Активная химия", literRate: "", concentration: "" },
-  //     { id: 3, programTypeName: "Вода + шампунь", literRate: "", concentration: "" },
-  //     { id: 4, programTypeName: "Мойка дисков", literRate: "", concentration: "" },
-  //     { id: 5, programTypeName: "Воск + защита", literRate: "", concentration: "" },
-  //     // Add more rows as needed
-  // ];
 
   const [tableData, setTableData] = useState(consumptionRateData);
 

@@ -5,7 +5,7 @@ import Spin from 'antd/es/spin';
 
 type Option = {
   name: string;
-  value: string | number;
+  value?: string | number;
 };
 
 type SearchableDropdownProps = {

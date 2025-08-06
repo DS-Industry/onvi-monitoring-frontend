@@ -20,7 +20,6 @@ import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 import useSWR, { mutate } from 'swr';
 import { getPoses, getWorkers } from '@/services/api/equipment';
 import {
-  useCity,
   useCurrentPage,
   usePageNumber,
   usePageSize,
@@ -48,7 +47,7 @@ import useSWRMutation from 'swr/mutation';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import { useFilterOn, useToast } from '@/components/context/useContext';
 import DateTimeInput from '@/components/ui/Input/DateTimeInput';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useUser } from '@/hooks/useUserStore';
 import Card from 'antd/es/card';
 import Row from 'antd/es/row';
@@ -150,7 +149,9 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   ...restProps
 }) => {
   const { t } = useTranslation();
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -171,7 +172,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     }
   );
 
-  const poses: { name: string; value: number | string }[] = (
+  const poses: { name: string; value: number | undefined }[] = (
     posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -459,8 +460,6 @@ const Articles: React.FC = () => {
     setEditingKey('');
   };
 
-  const city = useCity();
-
   const {
     data: allManagersData,
     isLoading: loadingManagerData,
@@ -537,6 +536,10 @@ const Articles: React.FC = () => {
     },
   ];
 
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
+
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -571,7 +574,7 @@ const Articles: React.FC = () => {
     })) || []),
   ];
 
-  const poses: { name: string; value: number | string }[] = (
+  const poses: { name: string; value: number | undefined }[] = (
     posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 

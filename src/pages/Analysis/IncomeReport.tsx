@@ -3,12 +3,11 @@ import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { getDevices, getPoses } from '@/services/api/equipment';
 import React, { useState } from 'react';
 import useSWR from 'swr';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { applyReport, getReportById } from '@/services/api/reports';
 import Input from '@/components/ui/Input/Input';
 import useSWRMutation from 'swr/mutation';
 import Button from '@/components/ui/Button/Button';
-import { useCity, usePosType } from '@/hooks/useAuthStore';
 import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
 import { useTranslation } from 'react-i18next';
@@ -20,9 +19,10 @@ import { useToast } from '@/components/context/useContext';
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const posType = usePosType();
-  const city = useCity();
+  const city = Number(searchParams.get('city')) || undefined;
+  const posId = Number(searchParams.get('posId')) || undefined;
   const { showToast } = useToast();
 
   const { data: posData } = useSWR(
@@ -36,8 +36,8 @@ const IncomeReport: React.FC = () => {
   );
 
   const { data: deviceData } = useSWR(
-    posType !== '*' ? [`get-device`] : null,
-    () => getDevices(posType),
+    posId ? [`get-device`] : null,
+    () => getDevices(posId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -49,8 +49,8 @@ const IncomeReport: React.FC = () => {
     [`get-warehouse`],
     () =>
       getWarehouses({
-        posId: posType,
-        placementId: city,
+        posId: Number(posId) || '*',
+        placementId: Number(city) || '*',
       }),
     {
       revalidateOnFocus: false,
@@ -254,19 +254,6 @@ const IncomeReport: React.FC = () => {
           />
         </form>
       </div>
-
-      {/* Progress bar shown only when filterOn is true */}
-      {/* {!filterOn && (
-                <div className="w-full flex flex-col space-y-4 items-center justify-center py-4">
-                    <div className="bg-primary02 h-16 w-16 rounded-full flex justify-center items-center">
-                        <Icon icon="file-text" className="text-white w-10 h-10" />
-                    </div>
-                    <p className="text-text02 mt-2">Your request is being processed and the report is being generated.</p>
-                    <div className="w-full h-1 bg-gray-200 relative overflow-hidden">
-                        <div className="absolute left-0 top-0 h-full w-1/3 bg-primary02 animate-[progressMove_1.5s_linear_infinite]"></div>
-                    </div>
-                </div>
-            )} */}
     </div>
   );
 };

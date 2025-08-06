@@ -37,15 +37,6 @@ interface PlanFact {
   notCompletedPercent: number;
 }
 
-type FilterPlanFact = {
-  dateStart: string;
-  dateEnd: string;
-  posId: string;
-  placementId: string;
-  page: number;
-  size: number;
-};
-
 const PlanAct: React.FC = () => {
   const { t } = useTranslation();
   const allLabel = t('warehouse.all');
@@ -54,8 +45,8 @@ const PlanAct: React.FC = () => {
 
   const today = dayjs().format('YYYY-MM-DD');
 
-  const posId = searchParams.get('posId') || '*';
-  const placementId = searchParams.get('city') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
+  const placementId = Number(searchParams.get('city')) || undefined;
   const dateStart = searchParams.get('dateStart') || `${today} 00:00`;
   const dateEnd = searchParams.get('dateEnd') || `${today} 23:59`;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -63,7 +54,7 @@ const PlanAct: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const filterParams: FilterPlanFact = useMemo(
+  const filterParams = useMemo(
     () => ({
       posId,
       placementId,

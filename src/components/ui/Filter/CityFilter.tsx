@@ -22,14 +22,14 @@ const CityFilter: React.FC<CityFilterProps> = ({
     searchParams.get(key) || fallback;
 
   const cities = [
-    { label: t('warehouse.all'), value: '*' },
-    ...(cityData?.map(item => ({
+    { label: t("warehouse.all"), value: undefined },
+    ...(cityData?.map((item) => ({
       label: item.region,
       value: String(item.id),
     })) || []),
   ];
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string | undefined) => {
     updateSearchParams(searchParams, setSearchParams, {
       city: value,
       page: DEFAULT_PAGE,
@@ -41,21 +41,21 @@ const CityFilter: React.FC<CityFilterProps> = ({
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('pos.city')}
       </label>
-      <Select
-        showSearch
-        allowClear={false}
-        className={className}
-        value={getParam('city', '*')}
-        onChange={handleChange}
-        options={cities}
-        optionFilterProp="label"
-        filterOption={(input, option) =>
-          (option?.label ?? '')
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
-      />
+    <Select
+      showSearch
+      allowClear={false}
+      className={className}
+      value={getParam("city", undefined)}
+      onChange={handleChange}
+      options={cities}
+      optionFilterProp="label"
+      filterOption={(input, option) =>
+        (option?.label ?? "")
+          .toString()
+          .toLowerCase()
+          .includes(input.toLowerCase())
+      }
+    />
     </div>
   );
 };

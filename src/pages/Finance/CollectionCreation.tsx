@@ -14,7 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { useCity } from '@/hooks/useAuthStore';
 import DateTimeInput from '@/components/ui/Input/DateTimeInput';
 import dayjs from 'dayjs';
 import { Descriptions, Divider } from 'antd';
@@ -87,12 +86,14 @@ const CollectionCreation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const city = useCity();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
   const id = searchParams.get('id');
   const status = searchParams.get('status');
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
+
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),

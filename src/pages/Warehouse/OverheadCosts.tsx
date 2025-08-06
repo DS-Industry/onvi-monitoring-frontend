@@ -63,7 +63,7 @@ const OverheadCosts: React.FC = () => {
   );
 
   const posId = searchParams.get('posId') || '*';
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
 
   const { data: categoryData } = useSWR([`get-category`], () => getCategory(), {
     revalidateOnFocus: false,
@@ -76,7 +76,7 @@ const OverheadCosts: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: city,
+        placementId: Number(city),
       }),
     {
       revalidateOnFocus: false,

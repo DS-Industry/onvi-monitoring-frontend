@@ -12,7 +12,6 @@ import useSWRMutation from 'swr/mutation';
 import Input from '@ui/Input/Input';
 import DropdownInput from '@ui/Input/DropdownInput';
 import useFormHook from '@/hooks/useFormHook';
-import Filter from '@ui/Filter/Filter';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,14 +19,11 @@ import {
   getOrganization,
   getOrganizationContactById,
 } from '@/services/api/organization';
-// import SearchInput from "@/components/ui/Input/SearchInput";
 import { getPoses } from '@/services/api/equipment';
-import { useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getPlacement } from '@/services/api/device';
 import DynamicTable from '@/components/ui/Table/DynamicTable';
-import { Input as SearchInp } from 'antd';
-
-const { Search } = SearchInp;
+import { useSearchParams } from 'react-router-dom';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 type Pos = {
   id: number;
@@ -84,9 +80,9 @@ const fetchContact = async (id: number) => {
 const Pos: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const address = useCity();
-  const setCity = useSetCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const address = placementId ? Number(placementId) : undefined;
   const { showToast } = useToast();
   const { buttonOn, setButtonOn } = useButtonCreate();
   const { data, isLoading: posLoading } = useSWR(
@@ -314,35 +310,11 @@ const Pos: React.FC = () => {
           placements.find(place => place.value === item.placementId)?.country ||
           '',
       }))
-      ?.filter(pos => pos.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => a.id - b.id) || [];
-
-  const handleClear = () => {
-    setSearchTerm('');
-  };
 
   return (
     <>
-      <Filter
-        count={poses.length}
-        hideDateTime={true}
-        handleClear={handleClear}
-        address={address}
-        setAddress={setCity}
-        hideSearch={true}
-      >
-        <div>
-          <div className="text-sm text-text02">{t('equipment.carWash')}</div>
-          <Search
-            placeholder="Поиск"
-            className="w-full sm:w-80"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            onSearch={value => setSearchTerm(value)}
-            size="large"
-          />
-        </div>
-      </Filter>
+      <GeneralFilters count={poses.length} display={['city']} />
       {posLoading ? (
         <TableSkeleton columnCount={columnsPos.length} />
       ) : poses.length > 0 ? (
@@ -352,7 +324,6 @@ const Pos: React.FC = () => {
               data={poses}
               columns={columnsPos}
               isDisplayEdit={true}
-              // isUpdate={false}
               navigableFields={[
                 { key: 'name', getPath: () => '/station/enrollments/devices' },
               ]}

@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import Notification from '@ui/Notification.tsx';
-import { columnsEmployees } from '@/utils/OverFlowTableData';
-import Filter from '@/components/ui/Filter/Filter';
-import DropdownInput from '@/components/ui/Input/DropdownInput';
-import useSWR, { mutate } from 'swr';
-import { getWorkers } from '@/services/api/equipment';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import NoOverhead from '@/assets/NoOverhead.png';
-import NoDataUI from '@/components/ui/NoDataUI';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
-import {
-  addRole,
-  getOrganization,
-  getRoles,
-  updateRole,
-} from '@/services/api/organization';
-import Button from '@/components/ui/Button/Button';
-import useSWRMutation from 'swr/mutation';
-import useFormHook from '@/hooks/useFormHook';
-import { useButtonCreate, useToast } from '@/components/context/useContext';
-import { useCity } from '@/hooks/useAuthStore';
-import Input from '@/components/ui/Input/Input';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
-import DateInput from '@/components/ui/Input/DateInput';
-import dayjs from 'dayjs';
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import Notification from "@ui/Notification.tsx";
+import { columnsEmployees } from "@/utils/OverFlowTableData";
+import Filter from "@/components/ui/Filter/Filter";
+import DropdownInput from "@/components/ui/Input/DropdownInput";
+import useSWR, { mutate } from "swr";
+import { getWorkers } from "@/services/api/equipment";
+import TableSkeleton from "@/components/ui/Table/TableSkeleton";
+import NoOverhead from "@/assets/NoOverhead.png";
+import NoDataUI from "@/components/ui/NoDataUI";
+import Modal from "@/components/ui/Modal/Modal";
+import Close from "@icons/close.svg?react";
+import { addRole, getOrganization, getRoles, updateRole } from "@/services/api/organization";
+import Button from "@/components/ui/Button/Button";
+import useSWRMutation from "swr/mutation";
+import useFormHook from "@/hooks/useFormHook";
+import { useButtonCreate, useToast } from "@/components/context/useContext";
+import Input from "@/components/ui/Input/Input";
+import DynamicTable from "@/components/ui/Table/DynamicTable";
+import DateInput from "@/components/ui/Input/DateInput";
+import dayjs from "dayjs";
 
 type Role = {
   name: string;
@@ -65,13 +59,9 @@ const ListOfEmployees: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const city = useCity();
-
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
+    const { data: organizationData } = useSWR([`get-org`], () => getOrganization({
+        placementId: undefined
+    }));
 
   const organizations: { name: string; value: number }[] =
     organizationData?.map(item => ({ name: item.name, value: item.id })) || [];

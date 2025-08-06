@@ -1,6 +1,5 @@
 import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input/Input';
-import { useCity } from '@/hooks/useAuthStore';
 import useFormHook from '@/hooks/useFormHook';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,7 @@ import {
 import useSWRMutation from 'swr/mutation';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import DynamicTable from '@/components/ui/Table/DynamicTable';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Button as AntDButton,
   DatePicker,
@@ -62,7 +61,9 @@ type AddWorker = {
 
 const EmployeeAdvanceCreation: React.FC = () => {
   const { t } = useTranslation();
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
   const navigate = useNavigate();
   const [paymentsData, setPaymentsData] = useState<PaymentsCreation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);

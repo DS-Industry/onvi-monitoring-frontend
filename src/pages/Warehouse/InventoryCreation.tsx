@@ -12,24 +12,23 @@ import {
   getNomenclature,
   getSupplier,
   updateNomenclature,
-} from '@/services/api/warehouse';
-import { getOrganization } from '@/services/api/organization';
-import useFormHook from '@/hooks/useFormHook';
-import useSWRMutation from 'swr/mutation';
-import { useToast } from '@/components/context/useContext';
-import { useCity } from '@/hooks/useAuthStore';
-import { Drawer, Select, Table, Tooltip } from 'antd';
-import { usePermissions } from '@/hooks/useAuthStore';
-import { Can } from '@/permissions/Can';
-import { EditOutlined } from '@ant-design/icons';
-import AntDButton from 'antd/es/button';
-import { useColumnSelector } from '@/hooks/useTableColumnSelector';
-import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { useSearchParams } from 'react-router-dom';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
-import hasPermission from '@/permissions/hasPermission';
-import { ColumnsType } from 'antd/es/table';
+} from "@/services/api/warehouse";
+import { getOrganization } from "@/services/api/organization";
+import useFormHook from "@/hooks/useFormHook";
+import useSWRMutation from "swr/mutation";
+import { useToast } from "@/components/context/useContext";
+import { Drawer, Select, Table, Tooltip } from "antd";
+import { usePermissions } from "@/hooks/useAuthStore";
+import { Can } from "@/permissions/Can";
+import { EditOutlined } from "@ant-design/icons";
+import AntDButton from "antd/es/button";
+import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { useSearchParams } from "react-router-dom";
+import { updateSearchParams } from "@/utils/searchParamsUtils";
+import hasPermission from "@/permissions/hasPermission";
+import { ColumnsType } from "antd/es/table";
 
 enum PurposeType {
   SALE = 'SALE',
@@ -64,7 +63,6 @@ const InventoryCreation: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editInventoryId, setEditInventoryId] = useState<number>(0);
-  const city = useCity();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,7 +112,7 @@ const InventoryCreation: React.FC = () => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({ placementId: city }),
+    () => getOrganization({ placementId: undefined }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -583,16 +581,6 @@ const InventoryCreation: React.FC = () => {
             changeValue={e => handleInputChange('description', e.target.value)}
             {...register('description')}
           />
-          {/* <div>
-                        <div>{t("warehouse.productPh")}</div>
-                        <div>{t("pos.maxNumber")}</div>
-                        <Button
-                            form={false}
-                            iconPlus={true}
-                            type="outline"
-                            title={t("pos.download")}
-                        />
-                    </div> */}
           <div className="font-semibold text-2xl mb-5 text-text01">
             {t('warehouse.product')}
           </div>
