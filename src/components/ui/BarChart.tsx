@@ -6,7 +6,7 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
 import { useTranslation } from 'react-i18next';
 
@@ -31,14 +31,14 @@ interface BarChartProps {
 const BarChart = ({ data: orgRatingData }: BarChartProps) => {
   // Преобразуем массив объектов в данные для графика
   const { t } = useTranslation();
-  const labels = orgRatingData.map((item: { posName: string; }) => item.posName);
-  const datasetData = orgRatingData.map((item: { sum: number; }) => item.sum);
+  const labels = orgRatingData.map((item: { posName: string }) => item.posName);
+  const datasetData = orgRatingData.map((item: { sum: number }) => item.sum);
 
   const data = {
     labels,
     datasets: [
       {
-        label: t("indicators.rev"),
+        label: t('indicators.rev'),
         data: datasetData,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
@@ -46,7 +46,7 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
           'rgba(255, 206, 86, 0.2)',
           'rgba(75, 192, 192, 0.2)',
           'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
+          'rgba(255, 159, 64, 0.2)',
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
@@ -54,14 +54,14 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
           'rgba(255, 206, 86, 1)',
           'rgba(75, 192, 192, 1)',
           'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
+          'rgba(255, 159, 64, 1)',
         ],
         borderWidth: 1,
         borderRadius: 4,
         barThickness: 50,
         maxBarThickness: 100,
-      }
-    ]
+      },
+    ],
   };
 
   const options = {
@@ -74,12 +74,12 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
     },
     scales: {
       x: {
-        beginAtZero: true
+        beginAtZero: true,
       },
       y: {
-        beginAtZero: true
-      }
-    }
+        beginAtZero: true,
+      },
+    },
   };
 
   return (
@@ -90,4 +90,3 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
 };
 
 export default BarChart;
-

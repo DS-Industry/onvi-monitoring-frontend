@@ -1,7 +1,7 @@
-import { Tag } from "antd";
-import dayjs from "dayjs";
-import React from "react";
-import { TFunction } from "i18next";
+import { Tag } from 'antd';
+import dayjs from 'dayjs';
+import React from 'react';
+import { TFunction } from 'i18next';
 
 interface TagItem {
   id: number;
@@ -14,7 +14,7 @@ interface TagItem {
  */
 export function getCurrencyRender() {
   return (val: number | null | undefined): string => {
-    if (val === null || val === undefined || isNaN(val)) return "—";
+    if (val === null || val === undefined || isNaN(val)) return '—';
     return `${formatNumber(val)} ₽`;
   };
 }
@@ -24,8 +24,8 @@ export function getCurrencyRender() {
  */
 export function getDateRender() {
   return (val: Date | string | null | undefined): string => {
-    if (!val || !dayjs(val).isValid()) return "—";
-    return dayjs(val).format("YYYY-MM-DD HH:mm");
+    if (!val || !dayjs(val).isValid()) return '—';
+    return dayjs(val).format('YYYY-MM-DD HH:mm');
   };
 }
 
@@ -34,17 +34,15 @@ export function getDateRender() {
  */
 export function formatNumber(
   num: number | null | undefined,
-  type: "number" | "double" = "number"
+  type: 'number' | 'double' = 'number'
 ): string {
-  if (num === null || num === undefined || isNaN(num)) return "—";
+  if (num === null || num === undefined || isNaN(num)) return '—';
 
-  return (
-    new Intl.NumberFormat("ru-RU", {
-      minimumFractionDigits: type === "double" ? 2 : 0,
-      maximumFractionDigits: type === "double" ? 2 : 0,
-      useGrouping: true,
-    }).format(num)
-  );
+  return new Intl.NumberFormat('ru-RU', {
+    minimumFractionDigits: type === 'double' ? 2 : 0,
+    maximumFractionDigits: type === 'double' ? 2 : 0,
+    useGrouping: true,
+  }).format(num);
 }
 
 /**
@@ -52,8 +50,8 @@ export function formatNumber(
  */
 export function getPercentRender() {
   return (val: number | null | undefined): string => {
-    if (val === null || val === undefined || isNaN(val)) return "—";
-    return `${formatNumber(val, "double")} %`;
+    if (val === null || val === undefined || isNaN(val)) return '—';
+    return `${formatNumber(val, 'double')} %`;
   };
 }
 
@@ -61,12 +59,12 @@ export function getPercentRender() {
  * Render AntD tags from a list of { id, name, color } objects.
  */
 export function getTagRender(tags?: TagItem[]): React.ReactNode {
-  if (!tags || tags.length === 0) return "—";
+  if (!tags || tags.length === 0) return '—';
 
   return (
     <div className="flex flex-wrap gap-2 max-w-64">
-      {tags.map((tag) => (
-        <Tag key={tag.id} color={tag.color ?? "cyan"}>
+      {tags.map(tag => (
+        <Tag key={tag.id} color={tag.color ?? 'cyan'}>
           {tag.name}
         </Tag>
       ))}
@@ -77,26 +75,26 @@ export function getTagRender(tags?: TagItem[]): React.ReactNode {
 export function getStatusTagRender(t: TFunction) {
   return (status: string): React.ReactNode => {
     const greenStatuses = [
-      t("tables.ACTIVE"),
-      t("tables.SENT"),
-      t("tables.In Progress"),
-      t("analysis.PROGRESS"),
-      t("finance.RECEIPT"),
+      t('tables.ACTIVE'),
+      t('tables.SENT'),
+      t('tables.In Progress'),
+      t('analysis.PROGRESS'),
+      t('finance.RECEIPT'),
     ];
 
     const redStatuses = [
-      t("tables.OVERDUE"),
-      t("tables.Done"),
-      t("tables.FINISHED"),
-      t("tables.PAUSE"),
-      t("analysis.DONE"),
-      t("finance.EXPENDITURE"),
+      t('tables.OVERDUE'),
+      t('tables.Done'),
+      t('tables.FINISHED'),
+      t('tables.PAUSE'),
+      t('analysis.DONE'),
+      t('finance.EXPENDITURE'),
     ];
 
     const orangeStatuses = [
-      t("tables.SAVED"),
-      t("tables.VERIFICATE"),
-      t("tables.RETURNED")
+      t('tables.SAVED'),
+      t('tables.VERIFICATE'),
+      t('tables.RETURNED'),
     ];
 
     if (greenStatuses.includes(status)) {
@@ -117,16 +115,16 @@ export function getStatusTagRender(t: TFunction) {
 
 export function getFormatPeriodType() {
   return (periodString: string | null): string => {
-    if (!periodString) return "";
+    if (!periodString) return '';
 
-    const [startStr, endStr] = periodString.split("-").map(s => s.trim());
+    const [startStr, endStr] = periodString.split('-').map(s => s.trim());
 
     const parseDate = (dateString: string) => {
-      const cleanedDate = dateString.split("GMT")[0].trim();
+      const cleanedDate = dateString.split('GMT')[0].trim();
       const parsed = dayjs(cleanedDate);
 
-      if (!parsed.isValid()) return "";
-      return parsed.format("DD.MM.YYYY");
+      if (!parsed.isValid()) return '';
+      return parsed.format('DD.MM.YYYY');
     };
 
     return `${parseDate(startStr)} - ${parseDate(endStr)}`;
@@ -135,9 +133,11 @@ export function getFormatPeriodType() {
 
 export function getNumberRender() {
   return (val: number | null | undefined): React.ReactNode => {
-    if (val === null || val === undefined || isNaN(val)) return "—";
-    return <div className={`${val < 0 ? "text-errorFill" : "text-text01"}`}>
-      {formatNumber(val)}
-    </div>;
+    if (val === null || val === undefined || isNaN(val)) return '—';
+    return (
+      <div className={`${val < 0 ? 'text-errorFill' : 'text-text01'}`}>
+        {formatNumber(val)}
+      </div>
+    );
   };
 }

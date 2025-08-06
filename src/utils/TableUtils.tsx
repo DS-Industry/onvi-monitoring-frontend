@@ -1,39 +1,39 @@
-const createDateTimeWithoutComma = (value: Date | string, timezone: string): string => {
-
+const createDateTimeWithoutComma = (
+  value: Date | string,
+  timezone: string
+): string => {
   const date = new Date(value);
 
-  const formattedDate = date.toLocaleString("ru-RU", {
-
+  const formattedDate = date.toLocaleString('ru-RU', {
     timeZone: timezone,
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
   });
 
   return formattedDate.replace(/,/, '');
 };
 
 const createCurrencyFormat = (value: number | string): string => {
-  if (typeof value === "string") {
-    if (value === "-")
-      return value;
-    return value + " ₽";
+  if (typeof value === 'string') {
+    if (value === '-') return value;
+    return value + ' ₽';
   }
 
-  return value.toString() + " ₽";
+  return value.toString() + ' ₽';
 };
 
 const createPercentFormat = (value: number): string => {
-  return value.toString() + " %";
+  return value.toString() + ' %';
 };
 
 const DateUtils = {
   createDateTimeWithoutComma,
   createCurrencyFormat,
   createPercentFormat,
-}
+};
 
 export default DateUtils;

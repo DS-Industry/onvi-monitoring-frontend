@@ -1,19 +1,19 @@
-import React from "react";
+import React from 'react';
 
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from 'react-router-dom';
 
 // utils
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import { getCashOperCleanById } from "@/services/api/finance";
-import { getDevices } from "@/services/api/equipment";
-import { formatNumber } from "@/utils/tableUnits";
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
+import { getCashOperCleanById } from '@/services/api/finance';
+import { getDevices } from '@/services/api/equipment';
+import { formatNumber } from '@/utils/tableUnits';
 
 // components
-import { Table } from "antd";
+import { Table } from 'antd';
 
 // types
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType } from 'antd/es/table';
 
 interface TableRowData {
   key: string;
@@ -28,11 +28,11 @@ const CleaningTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const shiftId = searchParams.get("id")
-    ? Number(searchParams.get("id"))
+  const shiftId = searchParams.get('id')
+    ? Number(searchParams.get('id'))
     : undefined;
-  const posId = searchParams.get("posId")
-    ? Number(searchParams.get("posId"))
+  const posId = searchParams.get('posId')
+    ? Number(searchParams.get('posId'))
     : undefined;
 
   const { data: deviceData } = useSWR(
@@ -46,7 +46,7 @@ const CleaningTab: React.FC = () => {
   );
 
   const devices =
-    deviceData?.map((item) => ({
+    deviceData?.map(item => ({
       name: item.props.name,
       value: item.props.id,
     })) || [];
@@ -64,7 +64,7 @@ const CleaningTab: React.FC = () => {
   const tableData =
     cashOperCleanData?.flatMap(({ deviceId, programData }) => {
       const deviceName =
-        devices.find((dev) => dev.value === deviceId)?.name || "";
+        devices.find(dev => dev.value === deviceId)?.name || '';
 
       return programData.map(({ programName, countProgram, time }, index) => ({
         key: `${deviceId}-${programName}-${index}`,
@@ -77,25 +77,25 @@ const CleaningTab: React.FC = () => {
 
   const columns: ColumnsType<TableRowData> = [
     {
-      title: t("finance.deviceName"),
-      dataIndex: "deviceName",
-      key: "deviceName",
+      title: t('finance.deviceName'),
+      dataIndex: 'deviceName',
+      key: 'deviceName',
     },
     {
-      title: t("finance.program"),
-      dataIndex: "programName",
-      key: "programName",
+      title: t('finance.program'),
+      dataIndex: 'programName',
+      key: 'programName',
     },
     {
-      title: t("finance.programCount"),
-      dataIndex: "countProgram",
-      key: "countProgram",
+      title: t('finance.programCount'),
+      dataIndex: 'countProgram',
+      key: 'countProgram',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: t("finance.totalTime"),
-      dataIndex: "time",
-      key: "time",
+      title: t('finance.totalTime'),
+      dataIndex: 'time',
+      key: 'time',
     },
   ];
 
@@ -107,8 +107,8 @@ const CleaningTab: React.FC = () => {
       pagination={false}
       size="small"
       loading={loadingCashOperClean}
-      scroll={{ x: "500px" }}
-      locale={{ emptyText: t("table.noData") }}
+      scroll={{ x: '500px' }}
+      locale={{ emptyText: t('table.noData') }}
     />
   );
 };

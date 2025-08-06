@@ -14,7 +14,7 @@ import Text from '@tiptap/extension-text';
 type MenuBarProps = {
   editor: Editor | null;
   readonly?: boolean;
-}
+};
 
 const MenuBar = ({ editor, readonly }: MenuBarProps) => {
   if (!editor) {
@@ -25,7 +25,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
     <div className="flex items-center gap-2 p-2">
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleBold().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleBold().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('bold') ? 'text-primary' : 'text-text01'}`}
         title="Bold"
       >
@@ -33,7 +35,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleItalic().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleItalic().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('italic') ? 'text-primary' : 'text-text01'}`}
         title="Italic"
       >
@@ -41,7 +45,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleUnderline().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleUnderline().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('underline') ? 'text-primary' : 'text-text01'}`}
         title="Underline"
       >
@@ -49,7 +55,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleStrike().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleStrike().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('strike') ? 'text-primary' : 'text-text01'}`}
         title="Strikethrough"
       >
@@ -57,7 +65,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleBulletList().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleBulletList().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('bulletList') ? 'text-primary' : 'text-text01'}`}
         title="Bullet List"
       >
@@ -65,7 +75,9 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleOrderedList().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleOrderedList().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('orderedList') ? 'text-primary' : 'text-text01'}`}
         title="Numbered List"
       >
@@ -73,11 +85,22 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       </button>
       <button
         type="button"
-        onClick={() => readonly ? {} : editor.chain().focus().toggleTaskList().run()}
+        onClick={() =>
+          readonly ? {} : editor.chain().focus().toggleTaskList().run()
+        }
         className={`p-2 hover:bg-background06 rounded ${editor.isActive('taskList') ? 'text-primary' : 'text-text01'}`}
         title="Task List"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="3" y="5" width="6" height="6" rx="1" />
           <path d="M3 17h6" />
           <path d="M13 5h8" />
@@ -90,22 +113,42 @@ const MenuBar = ({ editor, readonly }: MenuBarProps) => {
       <div className="ml-auto flex gap-2">
         <button
           type="button"
-          onClick={() => readonly ? {} : editor.chain().focus().setContent('').run()}
+          onClick={() =>
+            readonly ? {} : editor.chain().focus().setContent('').run()
+          }
           className="p-2 hover:bg-background06 rounded text-text01"
           title="Clear content"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect width="18" height="18" x="3" y="3" rx="2" />
             <path d="M9 3v18" />
           </svg>
         </button>
         <button
           type="button"
-          onClick={() => readonly ? {} : editor.chain().focus().undo().run()}
+          onClick={() => (readonly ? {} : editor.chain().focus().undo().run())}
           className="p-2 hover:bg-background06 rounded text-text01"
           title="Undo"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M3 7v6h6" />
             <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
           </svg>
@@ -119,7 +162,7 @@ type Props = {
   value?: string;
   onChange?: (value: string) => void;
   readonly?: boolean;
-}
+};
 
 const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -139,7 +182,7 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       .ProseMirror ul[data-type="taskList"] li > label { margin-right: 0.5em; }
     `;
     document.head.appendChild(styleEl);
-    
+
     return () => {
       document.head.removeChild(styleEl);
     };
@@ -193,8 +236,7 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       isEditingRef.current = true;
       const html = editor.getHTML();
       contentRef.current = html;
-      if (onChange)
-        onChange(html);
+      if (onChange) onChange(html);
       setTimeout(() => {
         isEditingRef.current = false;
       }, 10);
@@ -206,11 +248,12 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       handleKeyDown: (_view, event) => {
         if (event.key === 'Enter') {
           // Allow default Enter behavior for lists
-          if (editor && (
-            editor.isActive('bulletList') || 
-            editor.isActive('orderedList') || 
-            editor.isActive('taskList')
-          )) {
+          if (
+            editor &&
+            (editor.isActive('bulletList') ||
+              editor.isActive('orderedList') ||
+              editor.isActive('taskList'))
+          ) {
             return false; // Let Tiptap handle the Enter key for lists
           }
           event.stopPropagation();
@@ -218,7 +261,7 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
         }
         return false;
       },
-    }
+    },
   });
 
   useEffect(() => {
@@ -231,11 +274,12 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       // Don't prevent Enter in lists
-      if (editor && (
-        editor.isActive('bulletList') || 
-        editor.isActive('orderedList') || 
-        editor.isActive('taskList')
-      )) {
+      if (
+        editor &&
+        (editor.isActive('bulletList') ||
+          editor.isActive('orderedList') ||
+          editor.isActive('taskList'))
+      ) {
         return;
       }
       e.stopPropagation();

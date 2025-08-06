@@ -1,26 +1,32 @@
-import React, { useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import { Table } from "antd";
-import { ColumnsType } from "antd/es/table";
+import React, { useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
+import { Table } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 
-import { useButtonCreate } from "@/components/context/useContext";
-import EmployeeSalaryFilter from "@/components/ui/Filter/EmployeeSalaryFilter";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { getPositions, getPrepayments, getWorkers, PrepaymentFilter, PrepaymentResponse } from "@/services/api/hr";
+import { useButtonCreate } from '@/components/context/useContext';
+import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import {
+  getPositions,
+  getPrepayments,
+  getWorkers,
+  PrepaymentFilter,
+  PrepaymentResponse,
+} from '@/services/api/hr';
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
-} from "@/utils/constants";
+} from '@/utils/constants';
 import {
   getCurrencyRender,
   getDateRender,
   getPercentRender,
-} from "@/utils/tableUnits";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
+} from '@/utils/tableUnits';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 type TablePayment = PrepaymentResponse & {
   hrPosition?: string;
@@ -32,25 +38,42 @@ const EmployeeAdvance: React.FC = () => {
   const { buttonOn } = useButtonCreate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data: positionData } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: positionData } = useSWR(
+    [`get-positions`],
+    () => getPositions(),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-  const positions: { name: string; value: number; label: string; }[] = positionData?.map((item) => ({ name: item.props.name, value: item.props.id, label: item.props.name })) || [];
+  const positions: { name: string; value: number; label: string }[] =
+    positionData?.map(item => ({
+      name: item.props.name,
+      value: item.props.id,
+      label: item.props.name,
+    })) || [];
 
-  const startPaymentDateParam = searchParams.get("startPaymentDate");
-  const endPaymentDateParam = searchParams.get("endPaymentDate");
-  const workerId = Number(searchParams.get("hrWorkerId"));
-  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+  const startPaymentDateParam = searchParams.get('startPaymentDate');
+  const endPaymentDateParam = searchParams.get('endPaymentDate');
+  const workerId = Number(searchParams.get('hrWorkerId'));
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const startPaymentDate = startPaymentDateParam ? new Date(startPaymentDateParam) : undefined;
-  const endPaymentDate = endPaymentDateParam ? new Date(endPaymentDateParam) : undefined;
+  const startPaymentDate = startPaymentDateParam
+    ? new Date(startPaymentDateParam)
+    : undefined;
+  const endPaymentDate = endPaymentDateParam
+    ? new Date(endPaymentDateParam)
+    : undefined;
 
   const filterParams = useMemo<PrepaymentFilter>(
     () => ({
-      startPaymentDate: startPaymentDate || "*",
-      endPaymentDate: endPaymentDate || "*",
+      startPaymentDate: startPaymentDate || '*',
+      endPaymentDate: endPaymentDate || '*',
       hrWorkerId: workerId,
-      billingMonth: "*",
+      billingMonth: '*',
       page: currentPage,
       size: pageSize,
     }),
@@ -59,7 +82,7 @@ const EmployeeAdvance: React.FC = () => {
 
   const swrKey = useMemo(
     () => [
-      "get-payments",
+      'get-payments',
       filterParams.startPaymentDate,
       filterParams.endPaymentDate,
       filterParams.hrWorkerId,
@@ -73,9 +96,9 @@ const EmployeeAdvance: React.FC = () => {
     swrKey,
     () =>
       getPrepayments({
-        startPaymentDate: filterParams.startPaymentDate || "*",
-        endPaymentDate: filterParams.endPaymentDate || "*",
-        hrWorkerId: filterParams.hrWorkerId || "*",
+        startPaymentDate: filterParams.startPaymentDate || '*',
+        endPaymentDate: filterParams.endPaymentDate || '*',
+        hrWorkerId: filterParams.hrWorkerId || '*',
         billingMonth: filterParams.billingMonth,
         page: filterParams.page,
         size: filterParams.size,
@@ -83,26 +106,37 @@ const EmployeeAdvance: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      keepPreviousData: true
-    });
+      keepPreviousData: true,
+    }
+  );
 
-  const payments = paymentsData?.map((pay) => ({
-    ...pay,
-    hrPosition: positions.find((pos) => pos.value === pay.hrPositionId)?.name
-  })) || [];
+  const payments =
+    paymentsData?.map(pay => ({
+      ...pay,
+      hrPosition: positions.find(pos => pos.value === pay.hrPositionId)?.name,
+    })) || [];
 
-  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({
-    placementId: "*",
-    hrPositionId: "*",
-    organizationId: "*"
-  }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: workersData } = useSWR(
+    [`get-workers`],
+    () =>
+      getWorkers({
+        placementId: '*',
+        hrPositionId: '*',
+        organizationId: '*',
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-  const workers: { name: string; value: number | "*"; }[] = [
-    { name: t("hr.all"), value: "*" },
-    ...(workersData?.map((work) => ({
+  const workers: { name: string; value: number | '*' }[] = [
+    { name: t('hr.all'), value: '*' },
+    ...(workersData?.map(work => ({
       name: work.props.name,
-      value: work.props.id
-    })) || [])
+      value: work.props.id,
+    })) || []),
   ];
 
   const totalCount = payments?.length || 0;
@@ -113,85 +147,77 @@ const EmployeeAdvance: React.FC = () => {
 
   const columnsEmployee: ColumnsType<TablePayment> = [
     {
-      title: "ФИО",
-      dataIndex: "name",
-      key: "name",
+      title: 'ФИО',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Должность",
-      dataIndex: "hrPosition",
-      key: "hrPosition",
-      render: (value) => value || "-",
+      title: 'Должность',
+      dataIndex: 'hrPosition',
+      key: 'hrPosition',
+      render: value => value || '-',
     },
     {
-      title: "Расчетный месяц",
-      dataIndex: "billingMonth",
-      key: "billingMonth",
+      title: 'Расчетный месяц',
+      dataIndex: 'billingMonth',
+      key: 'billingMonth',
       render: dateRender,
     },
     {
-      title: "Дата выдачи",
-      dataIndex: "paymentDate",
-      key: "paymentDate",
+      title: 'Дата выдачи',
+      dataIndex: 'paymentDate',
+      key: 'paymentDate',
       render: dateRender,
     },
     {
-      title: "Оклад",
-      dataIndex: "monthlySalary",
-      key: "monthlySalary",
+      title: 'Оклад',
+      dataIndex: 'monthlySalary',
+      key: 'monthlySalary',
       sorter: (a, b) => a.monthlySalary - b.monthlySalary,
       render: currencyRender,
     },
     {
-      title: "Посменное начисление",
-      dataIndex: "dailySalary",
-      key: "dailySalary",
+      title: 'Посменное начисление',
+      dataIndex: 'dailySalary',
+      key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
       render: currencyRender,
     },
     {
-      title: "Процент",
-      dataIndex: "percentageSalary",
-      key: "percentageSalary",
+      title: 'Процент',
+      dataIndex: 'percentageSalary',
+      key: 'percentageSalary',
       render: percentRender,
     },
     {
-      title: "Количество отработанных смен",
-      dataIndex: "countShifts",
-      key: "countShifts",
+      title: 'Количество отработанных смен',
+      dataIndex: 'countShifts',
+      key: 'countShifts',
       sorter: (a, b) => a.countShifts - b.countShifts,
     },
     {
-      title: "Выплачено",
-      dataIndex: "sum",
-      key: "sum",
+      title: 'Выплачено',
+      dataIndex: 'sum',
+      key: 'sum',
       sorter: (a, b) => a.sum - b.sum,
       render: currencyRender,
-    }
+    },
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector<TablePayment>(
-      columnsEmployee,
-      "employee-columns"
-    );
+    useColumnSelector<TablePayment>(columnsEmployee, 'employee-columns');
 
   useEffect(() => {
     if (buttonOn) {
-      navigate("/hr/employee/advance/creation");
+      navigate('/hr/employee/advance/creation');
     }
-  }, [buttonOn, navigate])
+  }, [buttonOn, navigate]);
 
   return (
     <div>
-
-      <EmployeeSalaryFilter
-        count={totalCount}
-        workers={workers}
-      />
+      <EmployeeSalaryFilter count={totalCount} workers={workers} />
 
       <div className="mt-8">
-
         <ColumnSelector
           checkedList={checkedList}
           options={options}
@@ -199,11 +225,13 @@ const EmployeeAdvance: React.FC = () => {
         />
 
         <Table
-          rowKey={(record) => `${record.name}-${record.billingMonth}-${record.paymentDate}`}
+          rowKey={record =>
+            `${record.name}-${record.billingMonth}-${record.paymentDate}`
+          }
           dataSource={payments}
           columns={visibleColumns}
           loading={paymentsLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
@@ -218,11 +246,9 @@ const EmployeeAdvance: React.FC = () => {
               }),
           }}
         />
-
       </div>
-
     </div>
-  )
-}
+  );
+};
 
 export default EmployeeAdvance;

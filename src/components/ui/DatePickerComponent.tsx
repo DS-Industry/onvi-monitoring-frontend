@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import Datepicker, { DateValueType } from "react-tailwindcss-datepicker";
+import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
 
 type DatePickerProps = {
   onDateChange?: (dateRange: {
@@ -36,11 +36,11 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
       useRange={true} // Enable range selection
       showFooter={true}
       popoverDirection="down"
-      displayFormat={"DD/MM/YYYY"}
+      displayFormat={'DD/MM/YYYY'}
       value={value}
       onChange={handleValueChange}
-      placeholder={"Период"}
-      separator={"-"}
+      placeholder={'Период'}
+      separator={'-'}
       inputClassName="bg-background05 focus:bg-primary02 px-3 py-3 rounded-full font-semibold text-text02"
     />
   );

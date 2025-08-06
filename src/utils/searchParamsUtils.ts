@@ -5,7 +5,7 @@ export const updateSearchParams = (
 ) => {
   const newParams = new URLSearchParams(searchParams);
   Object.entries(updates).forEach(([key, value]) => {
-    if (value === "" || value === undefined) {
+    if (value === '' || value === undefined) {
       newParams.delete(key);
     } else {
       newParams.set(key, String(value));
@@ -14,6 +14,10 @@ export const updateSearchParams = (
   setSearchParams(newParams);
 };
 
-export const getParam = (searchParams: URLSearchParams, key: string, fallback: string = ""): string => {
+export const getParam = (
+  searchParams: URLSearchParams,
+  key: string,
+  fallback: string = ''
+): string => {
   return searchParams.get(key) || fallback;
 };
