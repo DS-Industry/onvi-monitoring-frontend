@@ -7,7 +7,6 @@ import useUserStore from '@/config/store/userSlice';
 import { useSidebarNavigation } from './useSidebarNavigation';
 
 // components
-import { MenuOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import Sider from 'antd/es/layout/Sider';
 import SidebarNavItem from './SideNavbarItem';
 
@@ -16,6 +15,7 @@ import OnviLogo from '@/assets/OnviLogo.svg';
 import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
 import NotificationYes from '@icons/Notification_Yes.svg?react';
 import Avatar from '@/components/ui/Avatar';
+import { MenuOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -29,7 +29,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const user = useUserStore();
   const navigate = useNavigate();
   const screens = useBreakpoint();
-  const isMobile = !screens.sm;
+  const isMobile = !screens.md;
 
   const [isHovered, setIsHovered] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
