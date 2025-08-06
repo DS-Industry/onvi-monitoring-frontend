@@ -16,6 +16,7 @@ import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
 import NotificationYes from '@icons/Notification_Yes.svg?react';
 import Avatar from '@/components/ui/Avatar';
 import { MenuOutlined, DoubleLeftOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -30,6 +31,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
+
+  const { t } = useTranslation();
 
   const [isHovered, setIsHovered] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -130,7 +133,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               }}
             >
               <NotificationYes className={`${isOpen ? 'mr-2' : ''} text-xl`} />
-              {isOpen && <span>Notifications</span>}
+              {isOpen && <span>{t('routes.notifications')}</span>}
             </div>
 
             <div
