@@ -60,7 +60,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
   }, [isHovered, isMobile, setIsOpen]);
 
   return (
-    <SidebarNavigationProvider>
+    <>
       {isMobile && !isOpen && (
         <button
           type="button"
@@ -94,6 +94,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
         onClick={() => {
           if (!isHovered) {
             setIsHovered(true);
+            resetSubmenu();
           }
         }}
       >
@@ -190,7 +191,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           </div>
         </div>
       </Sider>
-    </SidebarNavigationProvider>
+    </>
   );
 };
 
