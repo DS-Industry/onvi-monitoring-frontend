@@ -1,6 +1,28 @@
-import { useCallback, useMemo, useState } from 'react';
+import {
+  useCallback,
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+} from 'react';
 
-export function useSidebarNavigation() {
+interface SidebarNavigationContextType {
+  openSubmenuPath: string[];
+  setOpenSubmenuPath: (path: string[]) => void;
+  openSubmenuAtLevel: (level: number, name: string) => void;
+  closeLastSubmenu: () => void;
+  resetSubmenu: () => void;
+  isSubmenuOpenAtLevel: (level: number, name: string) => boolean;
+}
+
+const SidebarNavigationContext =
+  createContext<SidebarNavigationContextType | null>(null);
+
+export function SidebarNavigationProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [openSubmenuPath, setOpenSubmenuPath] = useState<string[]>([]);
 
   const openSubmenuAtLevel = useCallback((level: number, name: string) => {
@@ -25,21 +47,28 @@ export function useSidebarNavigation() {
     [openSubmenuPath]
   );
 
-  return useMemo(
-    () => ({
-      openSubmenuPath,
-      setOpenSubmenuPath,
-      openSubmenuAtLevel,
-      closeLastSubmenu,
-      resetSubmenu,
-      isSubmenuOpenAtLevel,
-    }),
-    [
-      openSubmenuPath,
-      openSubmenuAtLevel,
-      closeLastSubmenu,
-      resetSubmenu,
-      isSubmenuOpenAtLevel,
-    ]
+  const value = {
+    openSubmenuPath,
+    setOpenSubmenuPath,
+    openSubmenuAtLevel,
+    closeLastSubmenu,
+    resetSubmenu,
+    isSubmenuOpenAtLevel,
+  };
+
+  return (
+    <SidebarNavigationContext.Provider value={value}>
+      {children}
+    </SidebarNavigationContext.Provider>
   );
+}
+
+export function useSidebarNavigation() {
+  const context = useContext(SidebarNavigationContext);
+  if (!context) {
+    throw new Error(
+      'useSidebarNavigation must be used within SidebarNavigationProvider'
+    );
+  }
+  return context;
 }

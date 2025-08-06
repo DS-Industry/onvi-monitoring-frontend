@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 // utils
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
 import useUserStore from '@/config/store/userSlice';
-import { useSidebarNavigation } from './useSidebarNavigation';
+import {
+  useSidebarNavigation,
+  SidebarNavigationProvider,
+} from './useSidebarNavigation';
 
 // components
 import Sider from 'antd/es/layout/Sider';
@@ -25,7 +28,7 @@ interface SidebarProps {
   setIsOpen: (value: boolean) => void;
 }
 
-const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
+const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
   const user = useUserStore();
   const navigate = useNavigate();
   const screens = useBreakpoint();
@@ -35,7 +38,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
 
   const [isHovered, setIsHovered] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-  const { setOpenSubmenuPath } = useSidebarNavigation();
+  const { setOpenSubmenuPath, resetSubmenu } = useSidebarNavigation();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -43,7 +46,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         sidebarRef.current &&
         !sidebarRef.current.contains(e.target as Node)
       ) {
-        setOpenSubmenuPath([]);
+        resetSubmenu();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -57,7 +60,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   }, [isHovered, isMobile, setIsOpen]);
 
   return (
-    <>
+    <SidebarNavigationProvider>
       {isMobile && !isOpen && (
         <button
           type="button"
@@ -82,7 +85,12 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
         }`}
         onMouseEnter={() => !isMobile && setIsHovered(true)}
-        onMouseLeave={() => !isMobile && setIsHovered(false)}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            resetSubmenu();
+            setIsHovered(false);
+          }
+        }}
         onClick={() => {
           if (!isHovered) {
             setIsHovered(true);
@@ -118,6 +126,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               onClick={() => {
                 setIsOpen(false);
                 setIsHovered(false);
+                resetSubmenu();
               }}
             />
           </div>
@@ -181,7 +190,15 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           </div>
         </div>
       </Sider>
-    </>
+    </SidebarNavigationProvider>
+  );
+};
+
+const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
+  return (
+    <SidebarNavigationProvider>
+      <SidebarContent isOpen={isOpen} setIsOpen={setIsOpen} />
+    </SidebarNavigationProvider>
   );
 };
 
