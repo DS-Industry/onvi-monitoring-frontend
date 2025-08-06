@@ -1,19 +1,20 @@
-// Sidebar.tsx
-import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
-import Sider from 'antd/es/layout/Sider';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
+// utils
+import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
+import { useNavigate } from 'react-router-dom';
+import useUserStore from '@/config/store/userSlice';
+import { useSidebarNavigation } from './useSidebarNavigation';
+
+// components
+import Sider from 'antd/es/layout/Sider';
 import OnviLogo from '@/assets/OnviLogo.svg';
 import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
 import NotificationYes from '@icons/Notification_Yes.svg?react';
 import Avatar from '@/components/ui/Avatar';
-import useUserStore from '@/config/store/userSlice';
 import { MenuOutlined } from '@ant-design/icons';
-
 import SidebarNavItem from './SideNavbarItem';
-import MobileSubmenuOverlay from './MobileSubmenuOverlay';
-import { useSidebarNavigation } from './useSidebarNavigation';
+import DoubleLeftOutlined from '@ant-design/icons/DoubleLeftOutlined';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
@@ -39,7 +40,6 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     if (!isMobile && isHovered && !isOpen) setIsOpen(true);
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (isMobile) return;
       const sidebarElement = document.getElementById('sidebar');
       const sideNavElements = document.querySelectorAll('.side-nav');
       let clickedInside = false;
@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           type="button"
           aria-label="Open sidebar"
           onClick={() => setIsOpen(true)}
-          className="fixed top-4 left-4 z-[9999] flex items-center justify-center w-11 h-11 rounded-full bg-background02 text-primary01 shadow-lg transition-all duration-300 ease-in-out hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
+          className="fixed top-4 left-4 z-[9999] flex items-center justify-center w-10 h-10 rounded-md bg-[#d3d4d8] text-[#FFF] shadow-lg transition-all duration-300 ease-in-out hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
         >
           <MenuOutlined className="text-xl" />
         </button>
@@ -120,6 +120,18 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                   className={`transition-opacity duration-500 ease-in-out ${isOpen ? 'opacity-0 absolute' : 'opacity-100'}`}
                 />
               </div>
+              {isMobile ? (
+                <button
+                  className="flex justify-center items-center border border-primary01 text-primary01 p-3 rounded-md"
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                >
+                  <DoubleLeftOutlined className="text-primary01" />
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
             <SidebarNavItem
               isOpen={isOpen}
@@ -183,15 +195,6 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           </div>
         </div>
       </Sider>
-
-      {isMobile && (
-        <MobileSubmenuOverlay
-          onClick={() => {
-            setIsOpen(false);
-            setIsHovered(false);
-          }}
-        />
-      )}
     </>
   );
 };

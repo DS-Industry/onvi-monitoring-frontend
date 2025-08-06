@@ -89,21 +89,29 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
             </NavLink>
 
             {/* Nested submenu panel (desktop only) */}
-            {!isMobile &&
-              isSubmenuOpenAtLevel(level, item.name) &&
+            {isSubmenuOpenAtLevel(level, item.name) &&
               isOpen &&
               item.subNav && (
                 <div
-                  className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"
+                  className={
+                    'fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md'
+                  }
                   style={{
-                    left: `${
-                      isOpen
-                        ? SIDEBAR_WIDTH + level * SIDEBAR_WIDTH
-                        : SIDEBAR_COLLAPSED_WIDTH + level * SIDEBAR_WIDTH
-                    }px`,
+                    left: isMobile
+                      ? 0
+                      : `${
+                          isOpen
+                            ? SIDEBAR_WIDTH + level * SIDEBAR_WIDTH
+                            : SIDEBAR_COLLAPSED_WIDTH + level * SIDEBAR_WIDTH
+                        }px`,
                     zIndex: 9999 + level,
                   }}
                 >
+                  {isMobile ? (
+                    <div className="w-full flex justify-end">x</div>
+                  ) : (
+                    <></>
+                  )}
                   {item.subNav.map(
                     subItem =>
                       subItem.isSidebar && renderNavItem(subItem, level + 1)
