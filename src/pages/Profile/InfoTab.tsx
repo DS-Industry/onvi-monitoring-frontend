@@ -39,8 +39,7 @@ const InfoTab: React.FC = () => {
       middlename: user.middlename || '',
       surname: user.surname || '',
       imagePreview: user.avatar
-        ? 'https://storage.yandexcloud.net/onvi-business/avatar/user/' +
-          user.avatar
+        ? `${import.meta.env.VITE_S3_CLOUD}/avatar/user/` + user.avatar
         : null,
     }),
     [user]
@@ -98,19 +97,13 @@ const InfoTab: React.FC = () => {
 
       if ((await updateUserData).props.avatar) {
         const avatarUrl =
-          'https://storage.yandexcloud.net/onvi-business/avatar/user/' +
+          `${import.meta.env.VITE_S3_CLOUD}/avatar/user/` +
             `${(await updateUserData).props.avatar}` || null;
         setImagePreview(avatarUrl);
         localStorage.setItem('avatarUrl', avatarUrl || ''); // Store the avatar URL in localStorage for persistence
       }
 
       const [updatedData] = await Promise.all([updateUserData]);
-
-      // if (avatarResult) {
-      //   const avatarUrl = avatarResult;
-      //   setImagePreview(avatarUrl);
-      //   localStorage.setItem('avatarUrl', avatarUrl);
-      // }
 
       if (updatedData) {
         setUser({ user: updatedData?.props });

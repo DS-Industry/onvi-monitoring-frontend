@@ -11,12 +11,7 @@ import { getDepositPos } from '@/services/api/pos';
 import TableSkeleton from '@ui/Table/TableSkeleton';
 import { useTranslation } from 'react-i18next';
 import { getPoses } from '@/services/api/equipment';
-import {
-  useCity,
-  useEndDate,
-  usePosType,
-  useStartDate,
-} from '@/hooks/useAuthStore';
+import { useEndDate, useStartDate } from '@/hooks/useAuthStore';
 import DynamicTable from '@ui/Table/DynamicTable';
 import {
   Card,
@@ -34,6 +29,7 @@ import { BarChartOutlined } from '@ant-design/icons';
 const { Text, Title } = Typography;
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
 
 interface PosMonitoring {
   id: number;
@@ -57,13 +53,12 @@ interface Statistic {
 }
 
 const Indicators: React.FC = () => {
-  const posType = usePosType();
   const { RangePicker } = DatePicker;
   const { useBreakpoint } = Grid;
   const screens = useBreakpoint();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [selectedValue, setSelectedValue] = useState(posType);
+  const [selectedValue, setSelectedValue] = useState();
   const startDate = useStartDate();
   const endDate = useEndDate();
   const [dateRange, setDateRange] = useState({
@@ -76,7 +71,9 @@ const Indicators: React.FC = () => {
   });
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
   const [activeDuration, setActiveDuration] = useState<
     'today' | 'week' | 'month' | null
   >(null);
@@ -137,12 +134,12 @@ const Indicators: React.FC = () => {
 
   const statisticData: Statistic = data || { cars: 0, sum: 0 };
 
-  const poses: { name: string; value: number | string }[] =
+  const poses: { name: string; value: number | undefined }[] =
     posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const posesAllObj = {
     name: allCategoriesText,
-    value: '*',
+    value: undefined,
   };
 
   poses.unshift(posesAllObj);

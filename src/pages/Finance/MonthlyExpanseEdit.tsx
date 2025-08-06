@@ -1,6 +1,5 @@
 import ExpandableTable from '@/components/ui/Table/ExpandableTable';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import { useCity } from '@/hooks/useAuthStore';
 import { getPoses } from '@/services/api/equipment';
 import {
   getManagerPeriodById,
@@ -9,7 +8,7 @@ import {
 } from '@/services/api/finance';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { CheckOutlined, UndoOutlined } from '@ant-design/icons';
 import Space from 'antd/es/space';
@@ -91,7 +90,9 @@ const MonthlyExpanseEdit: React.FC = () => {
     [t]
   );
 
-  const city = useCity();
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
 
   const { data: posData } = useSWR(
     [`get-pos`, city],

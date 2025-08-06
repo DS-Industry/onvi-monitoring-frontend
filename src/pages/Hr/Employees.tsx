@@ -16,7 +16,6 @@ import EmployeesFilter from '@/components/ui/Filter/EmployeesFilter';
 import Input from '@/components/ui/Input/Input';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import Notification from '@ui/Notification.tsx';
-import { useCity } from '@/hooks/useAuthStore';
 import useFormHook from '@/hooks/useFormHook';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import {
@@ -45,7 +44,8 @@ const Employees: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const city = useCity();
+  const city = Number(searchParams.get('city')) || undefined;
+
   const { showToast } = useToast();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {

@@ -47,7 +47,7 @@ jobs:
           VITE_API_KEY: AIzaSyBy4cTKXjWzCxV4nd4hxZi1y74TF9qo1Aw
           VITE_MESSAGING_ID: 645871534181
           VITE_APP_ID: 1:645871534181:web:8cd42b272a364cdea9c68c
-          VITE_S3_CLOUD: https://storage.yandexcloud.net/onvi-business/image/
+          VITE_S3_CLOUD: https://storage.yandexcloud.net/onvi-business
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

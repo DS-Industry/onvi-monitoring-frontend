@@ -67,13 +67,13 @@ type PosBody = {
 };
 
 type DepositParam = {
-  dateStart: Date;
-  dateEnd: Date;
-  posId: string | number;
-  placementId: number | string;
-  page?: number;
-  size?: number;
-};
+    dateStart: Date;
+    dateEnd: Date;
+    posId?: number;
+    placementId?: number;
+    page?: number;
+    size?: number;
+}
 
 type DepositResponse = {
   id: number;
