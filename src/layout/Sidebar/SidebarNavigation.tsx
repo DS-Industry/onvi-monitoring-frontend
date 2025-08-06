@@ -38,8 +38,15 @@ const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
     closeLastSubmenu,
   } = useSidebarNavigation();
 
-  const isSubmenuActive = (submenu?: RouteItem[]) =>
-    submenu?.some(child => child.path === location.pathname) ?? false;
+  const isSubmenuActive = (submenu?: RouteItem[]): boolean => {
+    if (!submenu) return false;
+
+    return submenu.some(child => {
+      if (child.path === location.pathname) return true;
+      if (child.subNav) return isSubmenuActive(child.subNav);
+      return false;
+    });
+  };
 
   const renderNavItem = (
     item: RouteItem,
@@ -67,17 +74,31 @@ const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
               className={({ isActive }) => {
                 const isOpenSubmenu = isSubmenuOpenAtLevel(level, item.name);
                 const isSubmenuHighlighted = isSubmenuActive(item.subNav);
-                return `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold duration-300 ease-in-out text-sm
-                  ${
-                    item.subMenu
-                      ? isSubmenuHighlighted || isOpenSubmenu
-                        ? 'bg-opacity01/30 text-primary01'
-                        : 'text-text02'
-                      : isActive
-                        ? 'bg-opacity01/30 text-primary01'
-                        : 'text-text02'
-                  }
-                  hover:bg-opacity01/30 hover:text-primary01`;
+
+                const active = item.subMenu
+                  ? isOpenSubmenu || isSubmenuHighlighted
+                  : isActive;
+
+                const textColor = active
+                  ? level > 0
+                    ? 'text-black'
+                    : 'text-primary01'
+                  : 'text-text02';
+                const hoverTextColor =
+                  level > 0 ? 'hover:text-black' : 'hover:text-primary01';
+
+                // bg highlight only when active or hovered (via hover:bg-opacity01/30)
+                const bgClass = active ? 'bg-opacity01/30' : '';
+
+                return [
+                  'flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold duration-300 ease-in-out text-sm',
+                  bgClass,
+                  textColor,
+                  hoverTextColor,
+                  'hover:bg-opacity01/30',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
               }}
               aria-haspopup={!!item.subMenu}
               aria-expanded={

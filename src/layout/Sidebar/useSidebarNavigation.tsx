@@ -1,4 +1,3 @@
-// useSidebarNavigation.ts
 import { useCallback, useMemo, useState } from 'react';
 
 export function useSidebarNavigation() {
