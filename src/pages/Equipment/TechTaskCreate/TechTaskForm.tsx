@@ -57,8 +57,17 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const posId = Number(searchParams.get('posId')) || undefined;
   const { showToast } = useToast();
 
-  const [tagIds, setTagIds] = useState<number[]>([]);
-  const [searchValue, setSearchValue] = useState('');
+  const defaultValues: TechTaskBody = {
+    name: '',
+    posId: 0,
+    type: '',
+    period: 0,
+    startDate: dayjs().toDate(),
+    endSpecifiedDate: undefined,
+    markdownDescription: undefined,
+    techTaskItem: [],
+    tagIds: [],
+  };
 
   const { data: poses } = useSWR(
     [`get-pos`],
@@ -90,26 +99,6 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     }
   );
 
-  const options = tagsData
-    ? tagsData.map(tag => ({
-        id: tag.props.id,
-        name: tag.props.name,
-        color: '#A0AEC0',
-      }))
-    : [];
-
-  const defaultValues: TechTaskBody = {
-    name: '',
-    posId: 0,
-    type: '',
-    period: 0,
-    startDate: dayjs().toDate(),
-    endSpecifiedDate: undefined,
-    markdownDescription: undefined,
-    techTaskItem: [],
-    tagIds: [],
-  };
-
   const techTask: { title: string; id: number; description: string }[] =
     useMemo(
       () =>
@@ -121,9 +110,20 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       [techTaskItems]
     );
 
+  const [tagIds, setTagIds] = useState<number[]>([]);
+  const [searchValue, setSearchValue] = useState('');
   const [formData, setFormData] = useState(defaultValues);
   const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+
+  const options = tagsData
+    ? tagsData.map(tag => ({
+        id: tag.props.id,
+        name: tag.props.name,
+        color: '#A0AEC0',
+      }))
+    : [];
 
   const techTasksTypes = [
     { name: t('tables.REGULAR'), value: 'REGULAR' },
@@ -163,6 +163,12 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       });
     }
   }, [techTaskToEdit]);
+
+  useEffect(() => {
+    if (techTask) {
+      setAvailableItems(techTask);
+    }
+  }, [techTask]);
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -248,14 +254,6 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
-
-  const [selected, setSelected] = useState<number[]>([]);
-
-  useEffect(() => {
-    if (techTask) {
-      setAvailableItems(techTask);
-    }
-  }, [techTask]);
 
   const handleTransferToSelected = () => {
     let updatedSelectedItems = [...selectedItems];
