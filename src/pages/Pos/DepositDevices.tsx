@@ -85,7 +85,7 @@ const DepositDevices: React.FC = () => {
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      posId: posId || location.state?.ownerId || '*',
+      posId: posId || location.state?.ownerId,
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
