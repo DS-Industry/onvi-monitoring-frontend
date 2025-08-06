@@ -8,7 +8,7 @@ import { useSidebarNavigation } from './useSidebarNavigation';
 
 // components
 import Sider from 'antd/es/layout/Sider';
-import SidebarNavItem from './SideNavbarItem';
+import SidebarNavigation from './SidebarNavigation';
 
 // icons
 import OnviLogo from '@/assets/OnviLogo.svg';
@@ -49,9 +49,10 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   }, [setOpenSubmenuPath]);
 
   useEffect(() => {
-    if (!isMobile && isHovered && !isOpen) setIsOpen(true);
-    if (!isMobile && !isHovered && isOpen) setIsOpen(false);
-  }, [isHovered, isMobile, isOpen, setIsOpen]);
+    if (!isMobile) {
+      setIsOpen(isHovered);
+    }
+  }, [isHovered, isMobile, setIsOpen]);
 
   return (
     <>
@@ -75,12 +76,9 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         collapsed={!isOpen}
         width={SIDEBAR_WIDTH}
         collapsedWidth={SIDEBAR_COLLAPSED_WIDTH}
-        className="fixed h-full z-50"
-        style={{
-          background: '#1c1917',
-          left: isMobile ? (isOpen ? 0 : -SIDEBAR_COLLAPSED_WIDTH) : 0,
-          transition: 'all 0.3s ease-in-out',
-        }}
+        className={`fixed h-full z-50 bg-[#1c1917] transition-all duration-300 ease-in-out ${
+          isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
+        }`}
         onMouseEnter={() => !isMobile && setIsHovered(true)}
         onMouseLeave={() => !isMobile && setIsHovered(false)}
       >
@@ -92,16 +90,10 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
             >
               <div className="flex items-center relative transition-all duration-500">
                 <img
-                  src={OnviLogo}
+                  src={isOpen ? OnviLogo : OnviSmallLogo}
                   alt="ONVI"
                   loading="lazy"
-                  className={`transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0 absolute'}`}
-                />
-                <img
-                  src={OnviSmallLogo}
-                  alt="ONVI small"
-                  loading="lazy"
-                  className={`transition-opacity duration-500 ${isOpen ? 'opacity-0 absolute' : 'opacity-100'}`}
+                  className="transition-all duration-300"
                 />
               </div>
               {isMobile && (
@@ -114,7 +106,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               )}
             </div>
 
-            <SidebarNavItem
+            <SidebarNavigation
               isOpen={isOpen}
               onClick={() => {
                 setIsOpen(false);
@@ -155,7 +147,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
             >
               {user?.user?.avatar ? (
                 <img
-                  src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user?.user?.avatar}`}
+                  src={`${import.meta.env.VITE_S3_CLOUD}/avatar/user/${user?.user?.avatar}`}
                   alt="Profile"
                   className="rounded-full w-10 h-10 object-cover"
                 />

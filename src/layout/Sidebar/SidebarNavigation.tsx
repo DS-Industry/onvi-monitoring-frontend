@@ -19,17 +19,17 @@ import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 
-interface Props {
+interface SidebarNavigationProps {
   isOpen: boolean;
   onClick: () => void;
 }
 
-const SidebarNavItem = ({ isOpen, onClick }: Props) => {
+const SidebarNavigation = ({ isOpen, onClick }: SidebarNavigationProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const userPermissions = useAuthStore(state => state.permissions);
   const screens = useBreakpoint();
-  const isMobile = !screens.sm;
+  const isMobile = !screens.md;
 
   const {
     setOpenSubmenuPath,
@@ -67,7 +67,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
               className={({ isActive }) => {
                 const isOpenSubmenu = isSubmenuOpenAtLevel(level, item.name);
                 const isSubmenuHighlighted = isSubmenuActive(item.subNav);
-                return `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
+                return `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold duration-300 ease-in-out text-sm
                   ${
                     item.subMenu
                       ? isSubmenuHighlighted || isOpenSubmenu
@@ -94,7 +94,12 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
               }}
             >
               {item.icon && <item.icon className={isOpen ? 'mr-2' : ''} />}
-              {isOpen && <span>{t(`routes.${item.name}`)}</span>}
+
+              <span
+                className={`inline-block overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 max-w-[180px] ml-2' : 'opacity-0 max-w-0 ml-0'}`}
+              >
+                {t(`routes.${item.name}`)}
+              </span>
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
             </NavLink>
 
@@ -103,7 +108,7 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
               isSubmenuOpenAtLevel(level, item.name) &&
               isOpen && (
                 <div
-                  className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-4 shadow-md"
+                  className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-2 shadow-md"
                   style={{
                     left: isMobile
                       ? 0
@@ -141,4 +146,4 @@ const SidebarNavItem = ({ isOpen, onClick }: Props) => {
   );
 };
 
-export default SidebarNavItem;
+export default SidebarNavigation;
