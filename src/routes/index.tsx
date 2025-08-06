@@ -494,7 +494,7 @@ const routes = [
       {
         name: 'employees',
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: 'addE',
         isVisible: true,
         path: '/hr/employees',
@@ -533,7 +533,7 @@ const routes = [
       {
         name: 'positions',
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: 'new',
         isVisible: true,
         path: '/hr/positions',
@@ -1201,7 +1201,7 @@ const routes = [
           {
             name: 'createTask',
             filter: true,
-            addButton: true,
+            addButton: false,
             addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/create',
@@ -1238,7 +1238,7 @@ const routes = [
         titleName: 'from',
         name: 'equipmentFailure',
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: 'fix',
         isVisible: true,
         path: '/equipment/failure',
@@ -1297,7 +1297,7 @@ const routes = [
       {
         name: 'ware',
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/create',
@@ -1315,7 +1315,7 @@ const routes = [
       {
         name: 'nomenclature',
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/inventory',
@@ -1353,7 +1353,7 @@ const routes = [
       {
         name: 'groups',
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/inventoryGroups',
@@ -1448,7 +1448,7 @@ const routes = [
       {
         name: 'suppliers',
         filter: false,
-        addButton: true,
+        addButton: false,
         addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/suppliers',

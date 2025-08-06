@@ -36,7 +36,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   count,
   display = ["search", "city", "organization", "pos", "device", "warehouse", "dateTime", "reset", "count"],
   children,
-  onReset
+  onReset,
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);

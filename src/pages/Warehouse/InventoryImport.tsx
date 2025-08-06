@@ -2,8 +2,6 @@ import Notification from "@/components/ui/Notification";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/ui/Button/Button";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import { useButtonCreate } from "@/components/context/useContext";
 import useSWRMutation from "swr/mutation";
 import { createNomenclatureFile } from "@/services/api/warehouse";
 import { useNavigate } from "react-router-dom";
@@ -12,13 +10,14 @@ import {
     FileOutlined,
     CloseOutlined
 } from "@ant-design/icons";
+import { Drawer } from "antd";
 
 const InventoryImport: React.FC = () => {
     const { t } = useTranslation();
     const [notificationVisible, setNotificationVisible] = useState(true);
-    const { buttonOn, setButtonOn } = useButtonCreate();
     const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] || null; // Get the first file
@@ -58,6 +57,10 @@ const InventoryImport: React.FC = () => {
         }
     };
 
+    const closeDrawer = () => {
+      setDrawerOpen(false);
+    };
+
     return (
         <>
             <div className="p-4 sm:p-6">
@@ -73,15 +76,15 @@ const InventoryImport: React.FC = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row mt-5 gap-4">
                     <div
-                        onClick={() => setButtonOn(!buttonOn)}
-                        className={`w-full sm:w-80 h-40 flex flex-col justify-center items-center cursor-pointer ${buttonOn ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}
+                        onClick={() => setDrawerOpen(true)}
+                        className={`w-full sm:w-80 h-40 flex flex-col justify-center items-center cursor-pointer ${drawerOpen ? "bg-white border-2 border-primary02" : "bg-background05"} rounded-2xl`}
                     >
-                        <div className={`flex items-center space-x-2 ${buttonOn ? "text-primary02" : "text-text01"}`}>
+                        <div className={`flex items-center space-x-2 ${drawerOpen ? "text-primary02" : "text-text01"}`}>
                             <FileOutlined />
                             <div className="font-semibold text-lg">{t("warehouse.use")}</div>
                         </div>
                         <div
-                            className={`mt-2 ml-5 text-base ${buttonOn ? "text-text01" : "text-text02"} font-normal`}
+                            className={`mt-2 ml-5 text-base ${drawerOpen ? "text-text01" : "text-text02"} font-normal`}
                         >
                             {t("warehouse.download")}
                         </div>
@@ -125,18 +128,22 @@ const InventoryImport: React.FC = () => {
                     <Button title={t("warehouse.reset")} type="outline" handleClick={() => { }} />
                     <Button title={t("pos.download")} form handleClick={handleSubmit} isLoading={isMutating} />
                 </div>
-                <DrawerCreate classname="w-full max-w-lg">
+                <Drawer
+                    title={t("warehouse.fileReq")}
+                    placement="right"
+                    size="large"
+                    onClose={closeDrawer}
+                    open={drawerOpen}
+                    className="custom-drawer"
+                >
                     <div className="space-y-6">
-                        <div className="font-semibold text-xl sm:text-2xl mb-5 text-text01">
-                            {t("warehouse.fileReq")}
-                        </div>
                         <div className="font-normal text-base text-text01">{t("warehouse.toAvoid")}</div>
                         <div className="font-normal text-base text-text01">{t("warehouse.useCorr")}</div>
                         <div className="font-normal text-base text-text01">{t("warehouse.supp")}</div>
                         <div className="flex space-x-2">
                             <Button
                                 title={t("organizations.cancel")}
-                                handleClick={() => setButtonOn(false)}
+                                handleClick={() => setDrawerOpen(false)}
                             />
                             <Button
                                 title={t("warehouse.down")}
@@ -146,7 +153,7 @@ const InventoryImport: React.FC = () => {
                             />
                         </div>
                     </div>
-                </DrawerCreate>
+                </Drawer>
             </div>
         </>
     )
