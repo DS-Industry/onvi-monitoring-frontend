@@ -38,7 +38,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
 
   const [isHovered, setIsHovered] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-  const { setOpenSubmenuPath, resetSubmenu } = useSidebarNavigation();
+  const { setOpenSubmenuPath, resetSubmenu, openSubmenuPath } =
+    useSidebarNavigation();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -70,6 +71,12 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
         >
           <MenuOutlined className="text-xl" />
         </button>
+      )}
+
+      {isOpen && openSubmenuPath?.length ? (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-40 z-40" />
+      ) : (
+        <></>
       )}
 
       <Sider
