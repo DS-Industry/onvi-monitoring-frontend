@@ -132,9 +132,6 @@ const routes = [
     name: 'dashboard',
     path: '/',
     subMenu: false,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: ReviewIcon,
     component: Dashboard,
     isSidebar: true,
@@ -144,9 +141,6 @@ const routes = [
     name: 'administration',
     path: '/administration',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: AdministrationIcon,
     subNavHeading: '',
     component: Default,
@@ -160,9 +154,6 @@ const routes = [
     subNav: [
       {
         name: 'subscriptions',
-        filter: false,
-        addButton: false,
-        addButtonText: '',
         isVisible: true,
         path: '/administration/subscriptions',
         component: Subscriptions,
@@ -184,9 +175,6 @@ const routes = [
       },
       {
         name: 'accessRights',
-        filter: false,
-        addButton: false,
-        addButtonText: '',
         isVisible: true,
         path: '/administration/accessRights',
         component: Default,
@@ -201,9 +189,6 @@ const routes = [
         subNav: [
           {
             name: 'listOf',
-            filter: false,
-            addButton: true,
-            addButtonText: 'add',
             isVisible: true,
             path: '/administration/accessRights/employees',
             component: ListOfEmployees,
@@ -219,9 +204,6 @@ const routes = [
           },
           {
             name: 'listRoles',
-            filter: false,
-            addButton: false,
-            addButtonText: 'addR',
             isVisible: true,
             path: '/administration/accessRights/roles',
             component: ListOfRoles,
@@ -237,9 +219,6 @@ const routes = [
           },
           {
             name: 'pos',
-            filter: false,
-            addButton: false,
-            addButtonText: 'addR',
             isVisible: true,
             path: '/administration/accessRights/pos/connection',
             component: PosConnection,
@@ -258,9 +237,6 @@ const routes = [
       },
       {
         name: 'legalEntities',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
         isVisible: true,
         path: '/administration/legalRights',
         component: Organization,
@@ -277,9 +253,6 @@ const routes = [
       },
       {
         name: 'objectManagement',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
         isVisible: true,
         path: '/administration/objectManagement',
         component: Pos,
@@ -301,9 +274,6 @@ const routes = [
     name: 'station',
     path: '/station',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: CarWashIcon,
     subNavHeading: '',
     permissions: [
@@ -316,9 +286,6 @@ const routes = [
     subNav: [
       {
         name: 'services',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/services',
         component: Default,
@@ -331,9 +298,6 @@ const routes = [
       },
       {
         name: 'deposits',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/enrollments',
         component: DepositDevices,
@@ -349,9 +313,6 @@ const routes = [
       },
       {
         name: 'depositDevices',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/enrollments/devices',
         component: Deposit,
@@ -363,9 +324,6 @@ const routes = [
       },
       {
         name: 'depositDevice',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/enrollments/device',
         component: DepositDevice,
@@ -377,9 +335,6 @@ const routes = [
       },
       {
         name: 'programs',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/programs',
         component: ProgramDevices,
@@ -395,9 +350,6 @@ const routes = [
       },
       {
         name: 'programDevices',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/programs/devices',
         component: Programs,
@@ -409,9 +361,6 @@ const routes = [
       },
       {
         name: 'programDevice',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/programs/device',
         component: ProgramDevice,
@@ -423,9 +372,6 @@ const routes = [
       },
       {
         name: 'planAct',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: true,
         path: '/station/plan/act',
         component: PlanAct,
@@ -441,9 +387,6 @@ const routes = [
       },
       {
         name: 'cleaning',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/cleaning',
         component: Default,
@@ -456,9 +399,6 @@ const routes = [
       },
       {
         name: 'simpleBoxes',
-        filter: true,
-        addButton: false,
-        addButtonText: '',
         isVisible: false,
         path: '/station/simpleBoxes',
         component: Default,
@@ -477,9 +417,6 @@ const routes = [
     name: 'hr',
     path: '/Hr',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
@@ -493,9 +430,6 @@ const routes = [
     subNav: [
       {
         name: 'employees',
-        filter: true,
-        addButton: false,
-        addButtonText: 'addE',
         isVisible: true,
         path: '/hr/employees',
         component: Employees,
@@ -512,9 +446,6 @@ const routes = [
       },
       {
         name: 'sid',
-        filter: false,
-        addButton: true,
-        addButtonText: 'save',
         isVisible: true,
         path: '/hr/employees/profile',
         component: EmployeeProfile,
@@ -532,9 +463,6 @@ const routes = [
       },
       {
         name: 'positions',
-        filter: false,
-        addButton: false,
-        addButtonText: 'new',
         isVisible: true,
         path: '/hr/positions',
         component: Positions,
@@ -551,9 +479,6 @@ const routes = [
       },
       {
         name: 'salary',
-        filter: true,
-        addButton: true,
-        addButtonText: 'calc',
         isVisible: true,
         path: '/hr/salary',
         component: SalaryCalculation,
@@ -570,9 +495,6 @@ const routes = [
       },
       {
         name: 'sal',
-        filter: false,
-        addButton: false,
-        addButtonText: 'calc',
         isVisible: true,
         path: '/hr/salary/creation',
         component: SalaryCalculationCreation,
@@ -590,9 +512,6 @@ const routes = [
       },
       {
         name: 'empAdv',
-        filter: true,
-        addButton: true,
-        addButtonText: 'create',
         isVisible: true,
         path: '/hr/employee/advance',
         component: EmployeeAdvance,
@@ -609,9 +528,6 @@ const routes = [
       },
       {
         name: 'empAdv',
-        filter: false,
-        addButton: true,
-        addButtonText: 'create',
         isVisible: true,
         path: '/hr/employee/advance/creation',
         component: EmployeeAdvanceCreation,
@@ -633,9 +549,6 @@ const routes = [
     name: 'finance',
     path: '/finance',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: FinancesIcon,
     component: Default,
     isSidebar: true,
@@ -659,9 +572,6 @@ const routes = [
     subNav: [
       {
         name: 'collection',
-        filter: true,
-        addButton: true,
-        addButtonText: 'create',
         isVisible: true,
         path: '/finance/collection',
         component: Collection,
@@ -678,9 +588,6 @@ const routes = [
       },
       {
         name: 'collection',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/finance/collection/creation',
         component: CollectionCreation,
@@ -698,9 +605,6 @@ const routes = [
       },
       {
         name: 'timestamp',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/finance/timestamp',
         component: Timestamps,
@@ -717,9 +621,6 @@ const routes = [
       },
       {
         name: 'period',
-        filter: false,
-        addButton: false,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/period',
         component: Default,
@@ -732,9 +633,6 @@ const routes = [
       },
       {
         name: 'employee',
-        filter: false,
-        addButton: false,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/timesheet',
         component: Timesheet,
@@ -751,9 +649,6 @@ const routes = [
       },
       {
         name: 'timesheetView',
-        filter: false,
-        addButton: false,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/timesheet/view',
         component: TimesheetView,
@@ -770,9 +665,6 @@ const routes = [
       },
       {
         name: 'financial',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/financial/accounting',
         component: Default,
@@ -789,9 +681,6 @@ const routes = [
         subNav: [
           {
             name: 'articles',
-            filter: true,
-            addButton: false,
-            addButtonText: 'add',
             isVisible: true,
             path: '/finance/financial/accounting/articles',
             component: Articles,
@@ -810,9 +699,6 @@ const routes = [
           },
           {
             name: 'direct',
-            filter: false,
-            addButton: true,
-            addButtonText: 'add',
             isVisible: true,
             path: '/finance/financial/accounting/directory/articles',
             component: DirectoryArticles,
@@ -829,9 +715,6 @@ const routes = [
           },
           {
             name: 'appo',
-            filter: true,
-            addButton: true,
-            addButtonText: 'add',
             isVisible: true,
             path: '/finance/financial/accounting/directory/appointments',
             component: Default,
@@ -847,9 +730,6 @@ const routes = [
       },
       {
         name: 'reportFor',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/report/period',
         component: MonthlyExpanse,
@@ -867,9 +747,6 @@ const routes = [
       },
       {
         name: 'reportFor',
-        filter: false,
-        addButton: false,
-        addButtonText: 'add',
         isVisible: true,
         path: '/finance/report/period/edit',
         component: MonthlyExpanseEdit,
@@ -891,9 +768,6 @@ const routes = [
     name: 'analysis',
     path: '/analysis',
     subMenu: true,
-    filter: true,
-    addButton: false,
-    addButtonText: '',
     icon: MonitoringIcon,
     component: Default,
     isSidebar: true,
@@ -902,9 +776,6 @@ const routes = [
     subNav: [
       {
         name: 'analysis',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/analysis/all',
         component: Analysis,
@@ -917,9 +788,6 @@ const routes = [
       },
       {
         name: 'income',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/analysis/report',
         component: IncomeReport,
@@ -932,9 +800,6 @@ const routes = [
       },
       {
         name: 'my',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/analysis/transactions',
         component: Transactions,
@@ -951,17 +816,11 @@ const routes = [
     name: 'marketing',
     path: '/marketing',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: LoyaltyIcon,
     subNavHeading: '',
     subNav: [
       {
         name: 'clients',
-        filter: true,
-        addButton: true,
-        addButtonText: 'addClient',
         isVisible: true,
         path: '/marketing/clients',
         component: Clients,
@@ -972,9 +831,6 @@ const routes = [
       },
       {
         name: 'importClients',
-        filter: true,
-        addButton: false,
-        addButtonText: 'addClient',
         isVisible: true,
         path: '/marketing/clients/import',
         component: ClientsImport,
@@ -985,9 +841,6 @@ const routes = [
       },
       {
         name: 'clientProfile',
-        filter: false,
-        addButton: false,
-        addButtonText: 'edit',
         isVisible: true,
         path: '/marketing/clients/profile',
         component: ClientsProfile,
@@ -998,9 +851,6 @@ const routes = [
       },
       {
         name: 'segments',
-        filter: false,
-        addButton: false,
-        addButtonText: 'addSeg',
         isVisible: true,
         path: '/marketing/segments',
         component: Default,
@@ -1011,9 +861,6 @@ const routes = [
       },
       {
         name: 'createSeg',
-        filter: false,
-        addButton: false,
-        addButtonText: 'addSeg',
         isVisible: true,
         path: '/marketing/segments/new',
         component: NewSegment,
@@ -1024,9 +871,6 @@ const routes = [
       },
       {
         name: 'share',
-        filter: false,
-        addButton: false,
-        addButtonText: 'report',
         isVisible: true,
         path: '/marketing/share/constructor',
         component: Default,
@@ -1037,9 +881,6 @@ const routes = [
       },
       {
         name: 'loyalty',
-        filter: false,
-        addButton: true,
-        addButtonText: 'newPromo',
         isVisible: true,
         path: '/marketing/loyalty',
         component: ShareConstructor,
@@ -1050,9 +891,6 @@ const routes = [
       },
       {
         name: 'bonus',
-        filter: false,
-        addButton: false,
-        addButtonText: 'newPromo',
         isVisible: true,
         path: '/marketing/loyalty/rewards',
         component: RewardsCreation,
@@ -1063,9 +901,6 @@ const routes = [
       },
       {
         name: 'bonus',
-        filter: false,
-        addButton: false,
-        addButtonText: 'newPromo',
         isVisible: true,
         path: '/marketing/loyalty/bonus',
         component: BonusProgram,
@@ -1076,9 +911,6 @@ const routes = [
       },
       {
         name: 'marketRes',
-        filter: false,
-        addButton: false,
-        addButtonText: 'report',
         isVisible: true,
         path: '/marketing/market/research',
         component: Default,
@@ -1096,18 +928,11 @@ const routes = [
     name: 'equipment',
     path: '/equipment',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: EquipmentIcon,
     subNavHeading: 'dailyOptions',
     subNav: [
-      // { name: "daily", filter: true, addButton: true, addButtonText: "report", isVisible: true, path: "/equipment/daily/options", component: DailyReports, permissions: [], isSidebar: true, subNav: [], subMenu: false },
       {
         name: 'chemical',
-        filter: true,
-        addButton: false,
-        addButtonText: 'report',
         isVisible: true,
         path: '/equipment/chemical/consumption',
         component: ChemicalConsumption,
@@ -1121,9 +946,6 @@ const routes = [
       },
       {
         name: 'technicalTasks',
-        filter: true,
-        addButton: true,
-        addButtonText: 'create',
         isVisible: true,
         path: '/equipment/technical/tasks',
         component: TechTasks,
@@ -1138,9 +960,6 @@ const routes = [
         subNav: [
           {
             name: 'list',
-            filter: false,
-            addButton: false,
-            addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/list',
             component: TechTasks,
@@ -1155,9 +974,6 @@ const routes = [
           },
           {
             name: 'list',
-            filter: false,
-            addButton: false,
-            addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/list/item',
             component: TechTaskItem,
@@ -1172,9 +988,6 @@ const routes = [
           },
           {
             name: 'progress',
-            filter: true,
-            addButton: false,
-            addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/progress',
             component: ProgressReport,
@@ -1186,9 +999,6 @@ const routes = [
           },
           {
             name: 'progress',
-            filter: false,
-            addButton: false,
-            addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/progress/item',
             component: ProgressReportItem,
@@ -1200,9 +1010,6 @@ const routes = [
           },
           {
             name: 'createTask',
-            filter: true,
-            addButton: false,
-            addButtonText: 'create',
             isVisible: true,
             path: '/equipment/technical/tasks/create',
             component: TechTaskCreate,
@@ -1220,9 +1027,6 @@ const routes = [
       },
       {
         name: 'consumption',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/equipment/consumption/rate',
         component: ConsumptionRate,
@@ -1237,9 +1041,6 @@ const routes = [
       {
         titleName: 'from',
         name: 'equipmentFailure',
-        filter: true,
-        addButton: false,
-        addButtonText: 'fix',
         isVisible: true,
         path: '/equipment/failure',
         component: EquipmentFailure,
@@ -1256,9 +1057,6 @@ const routes = [
       {
         titleName: '',
         name: 'replacing',
-        filter: false,
-        addButton: false,
-        addButtonText: 'fix',
         isVisible: true,
         path: '/equipment/replacing/programs',
         component: Default,
@@ -1286,9 +1084,6 @@ const routes = [
     name: 'store',
     path: '/warehouse',
     subMenu: true,
-    filter: false,
-    addButton: false,
-    addButtonText: '',
     icon: WarehouseIcon,
     component: Default,
     isSidebar: true,
@@ -1296,9 +1091,6 @@ const routes = [
     subNav: [
       {
         name: 'ware',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/create',
         component: Warehouse,
@@ -1314,9 +1106,6 @@ const routes = [
       },
       {
         name: 'nomenclature',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/inventory',
         component: InventoryCreation,
@@ -1333,9 +1122,6 @@ const routes = [
       },
       {
         name: 'import',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/inventory/import',
         component: InventoryImport,
@@ -1352,9 +1138,6 @@ const routes = [
       },
       {
         name: 'groups',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/inventoryGroups',
         component: InventoryGroups,
@@ -1371,9 +1154,6 @@ const routes = [
       },
       {
         name: 'documents',
-        filter: true,
-        addButton: true,
-        addButtonText: 'createDo',
         isVisible: true,
         path: '/warehouse/documents',
         component: Documents,
@@ -1390,9 +1170,6 @@ const routes = [
       },
       {
         name: 'createDo',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/documents/creation',
         component: DocumentsCreation,
@@ -1409,9 +1186,6 @@ const routes = [
       },
       {
         name: 'createDo',
-        filter: false,
-        addButton: true,
-        addButtonText: 'edit',
         isVisible: true,
         path: '/warehouse/documents/view',
         component: DocumentView,
@@ -1428,9 +1202,6 @@ const routes = [
       },
       {
         name: 'left',
-        filter: true,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/leftovers',
         component: OverheadCosts,
@@ -1447,9 +1218,6 @@ const routes = [
       },
       {
         name: 'suppliers',
-        filter: false,
-        addButton: false,
-        addButtonText: 'create',
         isVisible: true,
         path: '/warehouse/suppliers',
         component: Suppliers,
@@ -1545,7 +1313,4 @@ export interface RouteItem {
   subNavHeading?: string;
   titleName?: string;
   isHr?: boolean;
-  filter?: boolean;
-  addButton?: boolean;
-  addButtonText?: string;
 }

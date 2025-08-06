@@ -14,7 +14,6 @@ import SidebarNavigation from './SidebarNavigation';
 import OnviLogo from '@/assets/OnviLogo.svg';
 import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
 import NotificationYes from '@icons/Notification_Yes.svg?react';
-import Avatar from '@/components/ui/Avatar';
 import { MenuOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -138,7 +137,14 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               }}
             >
               <NotificationYes className={`${isOpen ? 'mr-2' : ''} text-xl`} />
-              {isOpen && <span>{t('routes.notifications')}</span>}
+              <span
+                className={`inline-block whitespace-nowrap overflow-hidden transition-[width,opacity,margin] duration-300 ease-in-out ${
+                  isOpen ? 'w-auto opacity-100 ml-0' : 'w-0 opacity-0 ml-0'
+                }`}
+                style={{ width: isOpen ? 'auto' : 0 }}
+              >
+                {t('routes.notifications')}
+              </span>
             </div>
 
             <div
@@ -160,16 +166,17 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                   className="rounded-full w-10 h-10 object-cover"
                 />
               ) : (
-                <Avatar
-                  type="sidebar"
-                  userName={{ name: user?.user?.name || '', middlename: '' }}
-                />
+                <div className="w-10 h-10 rounded-full bg-primary01 text-text02 flex items-center justify-center text-sm font-medium shrink-0">
+                  {user?.user?.name?.[0]?.toUpperCase() || '?'}
+                </div>
               )}
-              {isOpen && (
-                <p className="text-text02 text-sm hidden md:block">
-                  {user?.user?.name || ''}
-                </p>
-              )}
+              <div
+                className={`text-text02 text-sm hidden md:block transition-all duration-300 ease-in-out ${
+                  isOpen ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                {user?.user?.name || ''}
+              </div>
             </div>
           </div>
         </div>
