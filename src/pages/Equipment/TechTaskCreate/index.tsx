@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getPoses,
-  getTechTaskItem,
   getTechTaskManage,
-  TechTaskBody,
   TechTaskManagerInfo,
 } from '@/services/api/equipment';
 import useSWR from 'swr';
@@ -27,98 +25,20 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import TechTaskForm from './TechTaskForm';
 import AntDButton from 'antd/es/button';
-import { EditOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import { useButtonCreate } from '@/components/context/useContext';
-
-interface Item {
-  id: number;
-  title: string;
-  description?: string;
-}
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 const TechTaskCreate: React.FC = () => {
   const { t } = useTranslation();
 
-  const defaultValues: TechTaskBody = {
-    name: '',
-    posId: 0,
-    type: '',
-    period: 0,
-    startDate: dayjs().toDate(),
-    endSpecifiedDate: undefined,
-    markdownDescription: undefined,
-    techTaskItem: [],
-    tagIds: [],
-  };
-
-  const { data: techTaskItems } = useSWR(
-    [`get-tech-task-item`],
-    () => getTechTaskItem(),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const techTask: { title: string; id: number; description: string }[] =
-    useMemo(
-      () =>
-        techTaskItems?.map(item => ({
-          title: item.props.title,
-          id: item.props.id,
-          description: 'This is the description text.',
-        })) || [],
-      [techTaskItems]
-    );
-
-  const [formData, setFormData] = useState(defaultValues);
-  const [editTechTaskId, setEditTechTaskId] = useState<number>(0);
-  const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
-  const [selectedItems, setSelectedItems] = useState<Item[]>([]);
-  const { setButtonOn } = useButtonCreate();
-
-  const techTasksTypes = [
-    { name: t('tables.REGULAR'), value: 'REGULAR' },
-    { name: t('tables.ONETIME'), value: 'ONETIME' },
-  ];
+  const [techTaskToEdit, setTechTaskToEdit] =
+    useState<TechTaskManagerInfo | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleUpdate = (id: number) => {
-    setEditTechTaskId(id);
-    setButtonOn(true);
-    const techTaskToEdit = techTasks.find(tech => tech.id === id);
-    if (techTaskToEdit) {
-      const techTaskItemNumber: number[] =
-        techTaskToEdit.items?.map(item => item.id) || [];
-      const techSelectedTasks: {
-        id: number;
-        title: string;
-        description: string;
-      }[] = techTaskToEdit.items.map(item => ({
-        id: item.id,
-        title: item.title,
-        description: 'This is the description text.',
-      }));
-      setSelectedItems(techSelectedTasks);
-      setAvailableItems(
-        availableItems.filter(item => !techTaskItemNumber.includes(item.id))
-      );
-      setFormData({
-        name: techTaskToEdit.name,
-        posId: techTaskToEdit.posId,
-        type:
-          techTasksTypes.find(item => item.name === techTaskToEdit.type)
-            ?.value || '-',
-        period: techTaskToEdit.period,
-        startDate: techTaskToEdit.startDate,
-        endSpecifiedDate:
-          techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
-        techTaskItem: techTaskItemNumber,
-        markdownDescription: techTaskToEdit.markdownDescription,
-        tagIds: techTaskToEdit.tags.map(tag => tag.id),
-      });
-    }
+    setDrawerOpen(true);
+    setTechTaskToEdit(
+      techTasks.find(tech => tech.id === id) || ({} as TechTaskManagerInfo)
+    );
   };
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -242,6 +162,14 @@ const TechTaskCreate: React.FC = () => {
     visibleColumns,
   } = useColumnSelector(columnsTechTasks, 'tech-tasks-columns');
 
+  const onEdit = () => {
+    setTechTaskToEdit(null);
+  };
+
+  const onClose = () => {
+    setDrawerOpen(false);
+  };
+
   return (
     <>
       <GeneralFilters
@@ -249,6 +177,16 @@ const TechTaskCreate: React.FC = () => {
         display={['pos', 'reset']}
         onReset={resetFilters}
       />
+
+      <div className="absolute top-6 right-6 z-50">
+        <AntDButton
+          icon={<PlusOutlined />}
+          className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
+          onClick={() => setDrawerOpen(!drawerOpen)}
+        >
+          {t('routes.add')}
+        </AntDButton>
+      </div>
       <div className="mt-8">
         <ColumnSelector
           checkedList={checkedList}
@@ -277,14 +215,10 @@ const TechTaskCreate: React.FC = () => {
         />
       </div>
       <TechTaskForm
-        formData={formData}
-        setFormData={setFormData}
-        editTechTaskId={editTechTaskId}
-        setEditTechTaskId={setEditTechTaskId}
-        availableItems={availableItems}
-        setAvailableItems={setAvailableItems}
-        selectedItems={selectedItems}
-        setSelectedItems={setSelectedItems}
+        techTaskToEdit={techTaskToEdit}
+        onEdit={onEdit}
+        isOpen={drawerOpen}
+        onClose={onClose}
       />
     </>
   );

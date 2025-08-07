@@ -2,11 +2,10 @@ import NoDataUI from '@/components/ui/NoDataUI';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import InventoryEmpty from '@/assets/NoInventory.png';
-import DrawerCreate from '@/components/ui/Drawer/DrawerCreate';
 import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
-import { useButtonCreate, useToast } from '@/components/context/useContext';
+import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import useSWR, { mutate } from 'swr';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
@@ -18,6 +17,7 @@ import {
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
+import { Drawer } from 'antd';
 
 enum ManagerPaperTypeClass {
   RECEIPT = 'RECEIPT',
@@ -26,9 +26,9 @@ enum ManagerPaperTypeClass {
 
 const DirectoryArticles: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editPaperId, setEditPaperId] = useState<number>(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { data: paperTypeData, isLoading: loadingPaperType } = useSWR(
     [`get-manager-paper-type`],
     () => getAllManagerPaperTypes(),
@@ -84,7 +84,7 @@ const DirectoryArticles: React.FC = () => {
   const handleUpdate = async (id: number) => {
     setEditPaperId(id);
     setIsEditMode(true);
-    setButtonOn(true);
+    setDrawerOpen(true);
 
     const paperToEdit = paperTypes.find(paper => paper.id === id);
 
@@ -101,7 +101,7 @@ const DirectoryArticles: React.FC = () => {
     setIsEditMode(false);
     reset();
     setEditPaperId(0);
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -131,6 +131,14 @@ const DirectoryArticles: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t('routes.add')}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       {loadingPaperType ? (
         <TableSkeleton columnCount={columnsPaperTypes.length} />
       ) : paperTypes.length > 0 ? (
@@ -153,11 +161,15 @@ const DirectoryArticles: React.FC = () => {
           </NoDataUI>
         </div>
       )}
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t('finance.articleType')}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t('finance.articleType')}
-          </div>
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -198,7 +210,7 @@ const DirectoryArticles: React.FC = () => {
               title={t('organizations.cancel')}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
@@ -206,11 +218,10 @@ const DirectoryArticles: React.FC = () => {
               title={t('organizations.save')}
               form={true}
               isLoading={isEditMode ? updatingPaperType : isMutating}
-              handleClick={() => {}}
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };

@@ -1,11 +1,9 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import Notification from '@ui/Notification.tsx';
-import { columnsRoles } from '@/utils/OverFlowTableData';
-import useSWR from 'swr';
-import { getRoles } from '@/services/api/organization';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import Notification from "@ui/Notification.tsx";
+import useSWR from "swr";
+import { getRoles } from "@/services/api/organization";
+import { Table } from "antd";
 
 const ListOfRoles: React.FC = () => {
   const { t } = useTranslation();
@@ -22,18 +20,32 @@ const ListOfRoles: React.FC = () => {
 
   const roles = rolesData || [];
 
+  const columnsRoles = [
+    {
+      title: "Роль СRM",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Права доступа",
+      dataIndex: "description",
+      key: "description",
+    },
+  ];
+
   return (
     <div>
       <Notification
-        title={t('roles.access')}
-        message={t('roles.the')}
+        title={t("roles.access")}
+        message={t("roles.the")}
         showEmp={true}
       />
-      {loadingRoles ? (
-        <TableSkeleton columnCount={columnsRoles.length} />
-      ) : (
-        <DynamicTable data={roles} columns={columnsRoles} />
-      )}
+      <Table
+        dataSource={roles}
+        columns={columnsRoles}
+        loading={loadingRoles}
+        pagination={false}
+      />
     </div>
   );
 };
