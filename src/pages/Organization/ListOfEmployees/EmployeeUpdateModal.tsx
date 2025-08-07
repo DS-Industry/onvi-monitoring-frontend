@@ -1,34 +1,45 @@
-import Button from "@/components/ui/Button/Button";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import Modal from "@/components/ui/Modal/Modal";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import Close from "@icons/close.svg?react";
-import useSWR, { mutate } from "swr";
-import useSWRMutation from "swr/mutation";
-import { getRoles, updateRole } from "@/services/api/organization";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useSWR, { mutate } from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { getRoles, updateRole } from '@/services/api/organization';
+import { Modal, Select } from 'antd';
+import { getWorkers } from '@/services/api/equipment';
 
 type EmployeeUpdateModalProps = {
-  openModal: boolean;
-  setOpenModal: (openModal: boolean) => void;
+  open: boolean;
+  onClose: () => void;
   workerId: number;
-  roleId: number;
-  setRoleId: (roleId: number) => void;
-  selectedWorker: string;
 };
 
 const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
-  openModal,
-  setOpenModal,
+  open,
+  onClose,
   workerId,
-  roleId,
-  setRoleId,
-  selectedWorker,
 }) => {
   const { t } = useTranslation();
+  const [roleId, setRoleId] = useState(0);
+  const [selectedWorker, setSelectedWorker] = useState<string>('');
+
+  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
+
+  useEffect(() => {
+    if (workerId !== 0) {
+      const worker = workerData?.find(work => work.id === workerId)?.name || '';
+      const workerRole =
+        workerData?.find(role => role.id === workerId)?.roleName || '';
+      const roleNo = rolesData?.find(role => role.name === workerRole)?.id || 0;
+      setSelectedWorker(worker);
+      setRoleId(roleNo);
+    }
+  }, [workerId]);
 
   const { trigger: update, isMutating } = useSWRMutation(
-    ["update-role"],
+    ['update-role'],
     async () =>
       updateRole({
         userId: workerId,
@@ -41,7 +52,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
 
     if (result) {
       mutate([`get-worker`]);
-      setOpenModal(false);
+      onClose();
     }
   };
 
@@ -51,56 +62,34 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     keepPreviousData: true,
   });
 
-  const roles: { name: string; value: number }[] =
-    rolesData?.map((item) => ({
-      name: item.name,
-      value: item.id,
-      render: (
-        <div>
-          <div>{item.name}</div>
-          <div className="text-text02">
-            Lorem ipsum dolor, sit amet consectetur
-          </div>
-        </div>
-      ),
-    })) || [];
-
   return (
     <div>
-      {openModal && selectedWorker && (
-        <Modal isOpen={openModal} classname="sm:w-[552px] sm:h-[300px]">
-          <div className="flex items-center justify-between">
-            <div></div>
-            <Close
-              onClick={() => setOpenModal(false)}
-              className="cursor-pointer text-text01"
-            />
-          </div>
+      {open && selectedWorker && (
+        <Modal
+          open={open}
+          closable={true}
+          onCancel={onClose}
+          onOk={handleUpdateRole}
+          okButtonProps={{
+            loading: isMutating,
+          }}
+          okText={t('organizations.save')}
+          cancelText={t('organizations.cancel')}
+          className="sm:w-[552px] max-h-[90vh] overflow-auto"
+        >
           <h2 className="text-2xl font-semibold text-text01 mb-4">
-            {t("roles.role")}
+            {t('roles.role')}
           </h2>
           <p className="text-primary02 text-sm">{selectedWorker}</p>
-          <DropdownInput
+          <Select
             value={roleId}
-            options={roles}
-            onChange={(value) => setRoleId(value)}
-            classname="w-[300px] sm:w-[456px]"
-            renderOption={(option) =>
-              option.render || <span>{option.name}</span>
-            }
+            options={rolesData?.map(item => ({
+              label: item.name,
+              value: item.id,
+            }))}
+            onChange={value => setRoleId(value)}
+            className="w-[300px] sm:w-[456px]"
           />
-          <div className="flex justify-end space-x-4 mt-10">
-            <Button
-              title={t("organizations.cancel")}
-              type="outline"
-              handleClick={() => setOpenModal(false)}
-            />
-            <Button
-              title={t("organizations.save")}
-              isLoading={isMutating}
-              handleClick={handleUpdateRole}
-            />
-          </div>
         </Modal>
       )}
     </div>
