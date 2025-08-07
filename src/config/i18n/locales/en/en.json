@@ -988,7 +988,7 @@
     "the": "The platform cannot exist without an administrator. The first administrator is the user who registered the Onvi-BUSINESS portal",
     "job": "Job title",
     "create": "Add New",
-    "name": "Name*",
+    "name": "Name",
     "enter": "Enter CRM role name",
     "desc": "Describe the user role",
     "acc": "Access to the program",
@@ -1164,7 +1164,14 @@
     "correspondentAccountRequired": "Correspondent Account is required",
     "bankRequired": "Bank is required",
     "settlementAccountRequired": "Settlement Account is required",
-    "bankAddressRequired": "Bank Address is required"
+    "bankAddressRequired": "Bank Address is required",
+    "birthdayRequired": "Birthday is required",
+    "phoneRequired": "Phone is required",
+    "phoneValidFormat": "Phone number must start with +79 and be 11 digits long",
+    "emailRequired": "Email is required",
+    "invalidEmailFormat": "Invalid Email Format",
+    "roleRequired": "Role is required",
+    "positionRequired": "Position is required"
   },
   "table": {
     "noData": "No Data"

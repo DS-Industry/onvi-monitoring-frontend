@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useSWR from 'swr';
 import { getWorkers, WorkerResponse } from '@/services/api/equipment';
-import { getRoles } from '@/services/api/organization';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
@@ -18,10 +17,8 @@ import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 
 const ListOfEmployees: React.FC = () => {
   const { t } = useTranslation();
-  const [selectedWorker, setSelectedWorker] = useState<string>('');
-  const [openModal, setOpenModal] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [roleId, setRoleId] = useState(0);
+  const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
+  const [isModalOpenCreation, setIsModalOpenCreation] = useState(false);
   const [workerId, setWorkerId] = useState(0);
 
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
@@ -34,12 +31,6 @@ const ListOfEmployees: React.FC = () => {
     }
   );
 
-  const { data: rolesData } = useSWR([`get-role`], () => getRoles(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
   const workers =
     workerData?.map(item => ({
       ...item,
@@ -51,13 +42,8 @@ const ListOfEmployees: React.FC = () => {
     })) || [];
 
   const handleUpdate = (rowId: number) => {
-    const worker = workers.find(work => work.id === rowId)?.name || '';
-    const workerRole = workers.find(role => role.id === rowId)?.roleName || '';
-    const roleNo = rolesData?.find(role => role.name === workerRole)?.id || 0;
     setWorkerId(rowId);
-    setRoleId(roleNo);
-    setSelectedWorker(worker);
-    setOpenModal(true);
+    setIsModalOpenUpdate(true);
   };
 
   const userPermissions = usePermissions();
@@ -126,15 +112,19 @@ const ListOfEmployees: React.FC = () => {
   } = useColumnSelector(columnsEmployees, 'employees-columns');
 
   const onCloseCreation = () => {
-    setIsModalOpen(false);
-  }
+    setIsModalOpenCreation(false);
+  };
+
+  const onCloseUpdate = () => {
+    setIsModalOpenUpdate(false);
+  };
 
   return (
     <div>
       <Button
         icon={<PlusOutlined />}
         className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => setIsModalOpenCreation(true)}
       >
         {t('routes.add')}
       </Button>
@@ -157,15 +147,12 @@ const ListOfEmployees: React.FC = () => {
           loading={loadingWorkers}
         />
         <EmployeeUpdateModal
-          openModal={openModal}
-          setOpenModal={setOpenModal}
+          open={isModalOpenUpdate}
+          onClose={onCloseUpdate}
           workerId={workerId}
-          roleId={roleId}
-          setRoleId={setRoleId}
-          selectedWorker={selectedWorker}
         />
         <EmployeeCreationModal
-          open={isModalOpen}
+          open={isModalOpenCreation}
           onClose={onCloseCreation}
         />
       </div>
