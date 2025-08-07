@@ -142,8 +142,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
 
             <SidebarNavigation
               isOpen={isOpen}
-              setIsOpen={setIsOpen}
-              onClick={() => {
+              onClick={() => setIsOpen(true)}
+              onNavigate={() => {
                 setIsOpen(prev => !prev);
                 resetSubmenu();
               }}

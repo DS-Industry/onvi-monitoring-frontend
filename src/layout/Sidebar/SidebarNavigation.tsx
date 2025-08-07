@@ -23,14 +23,14 @@ const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 interface SidebarNavigationProps {
   isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onClick: () => void;
+  onNavigate: () => void;
 }
 
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   isOpen,
   onClick,
-  setIsOpen,
+  onNavigate,
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -87,14 +87,14 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                   to={subMenu ? '#' : path}
                   onClick={e => {
                     if (!isOpen) {
-                      setIsOpen(true);
+                      onClick();
                     }
                     if (subMenu) {
                       e.preventDefault();
                       openSubmenuAtLevel(level, name);
                     } else {
                       setOpenSubmenuPath([]);
-                      onClick();
+                      onNavigate();
                     }
                   }}
                   className={({ isActive }) => {
@@ -187,7 +187,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
     [
       isOpen,
       onClick,
-      setIsOpen,
+      onClick,
       setOpenSubmenuPath,
       isSubmenuOpenAtLevel,
       openSubmenuAtLevel,
