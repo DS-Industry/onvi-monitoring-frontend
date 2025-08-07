@@ -256,17 +256,19 @@ const Collection: React.FC = () => {
 
   return (
     <div>
-      <GeneralFilters
-        count={collectionsData?.length || 0}
-        display={['pos', 'city', 'dateTime']}
-      />
 
       <div className="mt-8">
+        <GeneralFilters
+          count={collectionsData?.length || 0}
+          display={['pos', 'city', 'dateTime']}
+        />
+
         <ColumnSelector
           checkedList={checkedList}
           options={options}
           onChange={setCheckedList}
         />
+
         <Table
           dataSource={transformedData}
           columns={visibleColumns}

@@ -261,38 +261,36 @@ const SalaryCalculation: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-8">
-        <EmployeeSalaryFilter count={totalCount} workers={workers} />
+      <EmployeeSalaryFilter count={totalCount} workers={workers} />
 
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
+      <ColumnSelector
+        checkedList={checkedList}
+        options={options}
+        onChange={setCheckedList}
+      />
 
-        <Table
-          rowKey={record =>
-            `${record.name}-${record.billingMonth}-${record.paymentDate}`
-          }
-          dataSource={payments}
-          columns={visibleColumns}
-          loading={isLoading || isInitialLoading}
-          scroll={{ x: 'max-content' }}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}–${range[1]} из ${total} сотрудников`,
-            onChange: (page, size) =>
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              }),
-          }}
-        />
-      </div>
+      <Table
+        rowKey={record =>
+          `${record.name}-${record.billingMonth}-${record.paymentDate}`
+        }
+        dataSource={payments}
+        columns={visibleColumns}
+        loading={isLoading || isInitialLoading}
+        scroll={{ x: 'max-content' }}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalCount,
+          pageSizeOptions: ALL_PAGE_SIZES,
+          showTotal: (total, range) =>
+            `${range[0]}–${range[1]} из ${total} сотрудников`,
+          onChange: (page, size) =>
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            }),
+        }}
+      />
     </div>
   );
 };
