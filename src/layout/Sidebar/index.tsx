@@ -115,7 +115,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           if (!isMobile) debouncedCloseSidebar();
         }}
       >
-        <div className="h-full flex flex-col justify-between relative">
+        <div className="h-full flex flex-col justify-between relative overflow-hidden">
           {/* Logo */}
           <div>
             <div
