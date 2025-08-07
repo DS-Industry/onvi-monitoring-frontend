@@ -811,7 +811,7 @@ const routes = [
           {
             name: 'direct',
             filter: false,
-            addButton: true,
+            addButton: false,
             addButtonText: 'add',
             isVisible: true,
             path: '/finance/financial/accounting/directory/articles',
@@ -848,7 +848,7 @@ const routes = [
       {
         name: 'reportFor',
         filter: true,
-        addButton: true,
+        addButton: false,
         addButtonText: 'add',
         isVisible: true,
         path: '/finance/report/period',
