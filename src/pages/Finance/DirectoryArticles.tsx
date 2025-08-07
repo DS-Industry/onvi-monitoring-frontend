@@ -17,7 +17,9 @@ import {
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { Drawer } from 'antd';
+import { Drawer, Button as AntButton } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 enum ManagerPaperTypeClass {
   RECEIPT = 'RECEIPT',
@@ -131,14 +133,22 @@ const DirectoryArticles: React.FC = () => {
 
   return (
     <>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.add')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.direct')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => setDrawerOpen(true)}
+        >
+          {t('routes.add')}
+        </AntButton>
       </div>
+
       {loadingPaperType ? (
         <TableSkeleton columnCount={columnsPaperTypes.length} />
       ) : paperTypes.length > 0 ? (

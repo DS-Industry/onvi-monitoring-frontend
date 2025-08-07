@@ -31,6 +31,7 @@ import Modal from '@/components/ui/Modal/Modal';
 import Close from '@icons/close.svg?react';
 import dayjs from 'dayjs';
 import { useToast } from '@/components/context/useContext';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type PaymentCalculateBody = {
   organizationId: number;
@@ -477,6 +478,14 @@ const SalaryCalculationCreation: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.sal')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
       <Modal isOpen={isModalOpen}>
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -515,94 +524,175 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
         </form>
       </Modal>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-          <div>
-            <div className="text-sm text-text02">
-              {t('warehouse.organization')}
+      <div className="mt-5">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+            <div>
+              <div className="text-sm text-text02">
+                {t('warehouse.organization')}
+              </div>
+              <Select
+                className="w-64 h-10"
+                options={organizations.map(item => ({
+                  label: item.name,
+                  value: item.value,
+                }))}
+                value={formData.organizationId}
+                {...register('organizationId', {
+                  required: 'Organization Id is required',
+                  validate: value => value !== 0 || 'Organization Id is required',
+                })}
+                onChange={value => handleInputChange('organizationId', value)}
+                dropdownRender={menu => (
+                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                )}
+                status={errors.organizationId ? 'error' : ''}
+              />
+              {errors.organizationId?.message && (
+                <div className="text-xs text-errorFill mt-1">
+                  {errors.organizationId.message}
+                </div>
+              )}
             </div>
-            <Select
-              className="w-64 h-10"
-              options={organizations.map(item => ({
-                label: item.name,
-                value: item.value,
+            <div>
+              <div className="text-sm text-text02">{t('hr.billing')}</div>
+              <DatePicker
+                picker="month"
+                {...register('billingMonth', {
+                  required: 'Billing Month is required',
+                })}
+                value={
+                  formData.billingMonth ? dayjs(formData.billingMonth) : null
+                }
+                onChange={(_date, dateString) =>
+                  handleInputChange('billingMonth', dateString.toString())
+                }
+                className="w-40 h-10"
+                status={errors.billingMonth ? 'error' : ''}
+                placeholder={t('finance.selMon')}
+              />
+              {errors.billingMonth?.message && (
+                <div className="text-xs text-errorFill mt-1">
+                  {errors.billingMonth.message}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-sm text-text02">{t('routes.employees')}</div>
+              <Select
+                className="w-64 h-10"
+                options={positions}
+                value={formData.hrPositionId}
+                {...register('hrPositionId')}
+                onChange={value => handleInputChange('hrPositionId', value)}
+                dropdownRender={menu => (
+                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                )}
+              />
+            </div>
+          </div>
+          <div className="flex space-x-4">
+            <Button
+              type="outline"
+              title={t('organizations.cancel')}
+              handleClick={() => navigate(-1)}
+            />
+            <Button
+              title={t('finance.form')}
+              isLoading={calculatingSal}
+              form={true}
+            />
+          </div>
+        </form>
+        {calculatingSal ? (
+          <TableSkeleton columnCount={columnsPaymentsCreation.length} />
+        ) : paymentsData.length > 0 ? (
+          <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
+            <div className="flex flex-wrap justify-between gap-2">
+              <div className="flex space-x-4">
+                <AntDButton onClick={deleteRow} danger>
+                  {t('marketing.delete')}
+                </AntDButton>
+                <Button
+                  title={t('finance.addE')}
+                  type="outline"
+                  iconPlus={true}
+                  handleClick={() => setIsModalOpen(true)}
+                />
+              </div>
+              <div className="space-x-2">
+                <button
+                  className="px-2 py-1 bg-background07/50 rounded"
+                  onClick={() => {
+                    const sortedData = [...paymentsData].sort(
+                      (a, b) => a.id - b.id
+                    );
+                    setPaymentsData(sortedData);
+                  }}
+                >
+                  <img src={ArrowUp} loading="lazy" alt="Arrow Up" />
+                </button>
+                <button
+                  className="px-2 py-1 bg-background07/50 rounded"
+                  onClick={() => {
+                    const sortedData = [...paymentsData].sort(
+                      (a, b) => b.id - a.id
+                    );
+                    setPaymentsData(sortedData);
+                  }}
+                >
+                  <img src={ArrowDown} loading="lazy" alt="Arrow Down" />
+                </button>
+              </div>
+            </div>
+            <DynamicTable
+              data={paymentsData.map((item, index) => ({
+                ...item,
+                id: index,
+                hrPosition:
+                  positions.find(pos => pos.value === item.hrPositionId)?.name ||
+                  '',
+                totalCountShifts: item.prepaymentCountShifts + item.countShifts,
+                sum:
+                  item.monthlySalary +
+                  item.dailySalary *
+                  (item.prepaymentCountShifts + item.countShifts) -
+                  item.prepaymentSum +
+                  item.prize -
+                  item.fine,
+                totalPayment:
+                  item.prepaymentSum +
+                  item.monthlySalary +
+                  item.dailySalary *
+                  (item.prepaymentCountShifts + item.countShifts) -
+                  item.prepaymentSum +
+                  item.prize -
+                  item.fine,
               }))}
-              value={formData.organizationId}
-              {...register('organizationId', {
-                required: 'Organization Id is required',
-                validate: value => value !== 0 || 'Organization Id is required',
-              })}
-              onChange={value => handleInputChange('organizationId', value)}
-              dropdownRender={menu => (
-                <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
-              )}
-              status={errors.organizationId ? 'error' : ''}
+              columns={columnsPaymentsCreation}
+              handleChange={handleTableChange}
             />
-            {errors.organizationId?.message && (
-              <div className="text-xs text-errorFill mt-1">
-                {errors.organizationId.message}
+            <div>
+              <div className="flex space-x-4">
+                <Button
+                  title={t('organizations.save')}
+                  isLoading={creatingSal}
+                  handleClick={handlePaymentCreation}
+                />
               </div>
-            )}
+            </div>
           </div>
-          <div>
-            <div className="text-sm text-text02">{t('hr.billing')}</div>
-            <DatePicker
-              picker="month"
-              {...register('billingMonth', {
-                required: 'Billing Month is required',
-              })}
-              value={
-                formData.billingMonth ? dayjs(formData.billingMonth) : null
-              }
-              onChange={(_date, dateString) =>
-                handleInputChange('billingMonth', dateString.toString())
-              }
-              className="w-40 h-10"
-              status={errors.billingMonth ? 'error' : ''}
-              placeholder={t('finance.selMon')}
-            />
-            {errors.billingMonth?.message && (
-              <div className="text-xs text-errorFill mt-1">
-                {errors.billingMonth.message}
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="text-sm text-text02">{t('routes.employees')}</div>
-            <Select
-              className="w-64 h-10"
-              options={positions}
-              value={formData.hrPositionId}
-              {...register('hrPositionId')}
-              onChange={value => handleInputChange('hrPositionId', value)}
-              dropdownRender={menu => (
-                <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
-              )}
-            />
-          </div>
-        </div>
-        <div className="flex space-x-4">
-          <Button
-            type="outline"
-            title={t('organizations.cancel')}
-            handleClick={() => navigate(-1)}
-          />
-          <Button
-            title={t('finance.form')}
-            isLoading={calculatingSal}
-            form={true}
-          />
-        </div>
-      </form>
-      {calculatingSal ? (
-        <TableSkeleton columnCount={columnsPaymentsCreation.length} />
-      ) : paymentsData.length > 0 ? (
-        <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
-          <div className="flex flex-wrap justify-between gap-2">
-            <div className="flex space-x-4">
-              <AntDButton onClick={deleteRow} danger>
-                {t('marketing.delete')}
-              </AntDButton>
+        ) : (
+          showAddButton && (
+            <div className="flex flex-col justify-center items-center space-y-4">
+              <NoDataUI title={t('marketing.nodata')} description={''}>
+                <img
+                  src={PositionEmpty}
+                  className="mx-auto"
+                  loading="lazy"
+                  alt="Position Empty"
+                />
+              </NoDataUI>
               <Button
                 title={t('finance.addE')}
                 type="outline"
@@ -610,88 +700,9 @@ const SalaryCalculationCreation: React.FC = () => {
                 handleClick={() => setIsModalOpen(true)}
               />
             </div>
-            <div className="space-x-2">
-              <button
-                className="px-2 py-1 bg-background07/50 rounded"
-                onClick={() => {
-                  const sortedData = [...paymentsData].sort(
-                    (a, b) => a.id - b.id
-                  );
-                  setPaymentsData(sortedData);
-                }}
-              >
-                <img src={ArrowUp} loading="lazy" alt="Arrow Up" />
-              </button>
-              <button
-                className="px-2 py-1 bg-background07/50 rounded"
-                onClick={() => {
-                  const sortedData = [...paymentsData].sort(
-                    (a, b) => b.id - a.id
-                  );
-                  setPaymentsData(sortedData);
-                }}
-              >
-                <img src={ArrowDown} loading="lazy" alt="Arrow Down" />
-              </button>
-            </div>
-          </div>
-          <DynamicTable
-            data={paymentsData.map((item, index) => ({
-              ...item,
-              id: index,
-              hrPosition:
-                positions.find(pos => pos.value === item.hrPositionId)?.name ||
-                '',
-              totalCountShifts: item.prepaymentCountShifts + item.countShifts,
-              sum:
-                item.monthlySalary +
-                item.dailySalary *
-                  (item.prepaymentCountShifts + item.countShifts) -
-                item.prepaymentSum +
-                item.prize -
-                item.fine,
-              totalPayment:
-                item.prepaymentSum +
-                item.monthlySalary +
-                item.dailySalary *
-                  (item.prepaymentCountShifts + item.countShifts) -
-                item.prepaymentSum +
-                item.prize -
-                item.fine,
-            }))}
-            columns={columnsPaymentsCreation}
-            handleChange={handleTableChange}
-          />
-          <div>
-            <div className="flex space-x-4">
-              <Button
-                title={t('organizations.save')}
-                isLoading={creatingSal}
-                handleClick={handlePaymentCreation}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        showAddButton && (
-          <div className="flex flex-col justify-center items-center space-y-4">
-            <NoDataUI title={t('marketing.nodata')} description={''}>
-              <img
-                src={PositionEmpty}
-                className="mx-auto"
-                loading="lazy"
-                alt="Position Empty"
-              />
-            </NoDataUI>
-            <Button
-              title={t('finance.addE')}
-              type="outline"
-              iconPlus={true}
-              handleClick={() => setIsModalOpen(true)}
-            />
-          </div>
-        )
-      )}
+          )
+        )}
+      </div>
     </div>
   );
 };
