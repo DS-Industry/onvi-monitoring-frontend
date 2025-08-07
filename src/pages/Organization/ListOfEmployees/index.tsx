@@ -14,12 +14,14 @@ import EmployeeCreationModal from './EmployeeCreationModal';
 import EmployeeUpdateModal from './EmployeeUpdateModal';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const ListOfEmployees: React.FC = () => {
   const { t } = useTranslation();
   const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
   const [isModalOpenCreation, setIsModalOpenCreation] = useState(false);
   const [workerId, setWorkerId] = useState(0);
+  const userPermissions = usePermissions();
 
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
     [`get-worker`],
@@ -45,8 +47,6 @@ const ListOfEmployees: React.FC = () => {
     setWorkerId(rowId);
     setIsModalOpenUpdate(true);
   };
-
-  const userPermissions = usePermissions();
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Organization' },
@@ -121,13 +121,23 @@ const ListOfEmployees: React.FC = () => {
 
   return (
     <div>
-      <Button
-        icon={<PlusOutlined />}
-        className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
-        onClick={() => setIsModalOpenCreation(true)}
-      >
-        {t('routes.add')}
-      </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.listOf')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setIsModalOpenCreation(true)}
+          >
+            {t('routes.add')}
+          </Button>
+        )}
+      </div>
       <div className="mt-5">
         <Notification
           title={t('roles.access')}
