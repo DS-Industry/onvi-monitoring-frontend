@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Table, Drawer } from 'antd';
+import { Table, Drawer, Button as AntButton } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useToast } from '@/components/context/useContext';
 import ProfilePhoto from '@/assets/ProfilePhoto.svg';
@@ -34,6 +34,8 @@ import {
 } from '@/utils/constants';
 import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -339,58 +341,66 @@ const Employees: React.FC = () => {
 
   return (
     <div>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.addE')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.employees')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => setDrawerOpen(true)}
+        >
+          {t('routes.addE')}
+        </AntButton>
+      </div>
+      <div className="mt-5">
+        {notificationVisible && (
+          <Notification
+            title={t('routes.employees')}
+            message={t('hr.to')}
+            onClose={() => setNotificationVisible(false)}
+            showEmp={true}
+          />
+        )}
+
+        <EmployeesFilter
+          count={totalCount}
+          positions={[allObj, ...positions]}
+          organizations={[allObj, ...organizations]}
+        />
+
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
+
+        <Table
+          className="custom-ant-table"
+          rowKey="id"
+          dataSource={tableData}
+          columns={visibleColumns}
+          scroll={{ x: 'max-content' }}
+          loading={workersLoading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} из ${total} сотрудников`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
         />
       </div>
-      {notificationVisible && (
-        <Notification
-          title={t('routes.employees')}
-          message={t('hr.to')}
-          onClose={() => setNotificationVisible(false)}
-          showEmp={true}
-        />
-      )}
-
-      <EmployeesFilter
-        count={totalCount}
-        positions={[allObj, ...positions]}
-        organizations={[allObj, ...organizations]}
-      />
-
-      <ColumnSelector
-        checkedList={checkedList}
-        options={options}
-        onChange={setCheckedList}
-      />
-
-      <Table
-        className="custom-ant-table"
-        rowKey="id"
-        dataSource={tableData}
-        columns={visibleColumns}
-        scroll={{ x: 'max-content' }}
-        loading={workersLoading}
-        pagination={{
-          current: currentPage,
-          pageSize: pageSize,
-          total: totalCount,
-          pageSizeOptions: ALL_PAGE_SIZES,
-          showTotal: (total, range) =>
-            `${range[0]}-${range[1]} из ${total} сотрудников`,
-          onChange: (page, size) => {
-            updateSearchParams(searchParams, setSearchParams, {
-              page: String(page),
-              size: String(size),
-            });
-          },
-        }}
-      />
-
       <Drawer
         title={t('routes.addE')}
         placement="right"
@@ -704,7 +714,6 @@ const Employees: React.FC = () => {
               title={t('routes.addE')}
               form={true}
               isLoading={isMutating}
-              handleClick={() => {}}
             />
           </div>
         </form>

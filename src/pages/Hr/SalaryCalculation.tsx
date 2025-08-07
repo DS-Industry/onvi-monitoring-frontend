@@ -27,6 +27,7 @@ import {
   getPercentRender,
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type TOption = {
   id: number;
@@ -251,9 +252,18 @@ const SalaryCalculation: React.FC = () => {
 
   return (
     <div>
-      <EmployeeSalaryFilter count={totalCount} workers={workers} />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.salary')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
 
       <div className="mt-8">
+        <EmployeeSalaryFilter count={totalCount} workers={workers} />
+
         <ColumnSelector
           checkedList={checkedList}
           options={options}

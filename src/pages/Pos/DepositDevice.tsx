@@ -24,6 +24,8 @@ import {
 
 // types
 import { ColumnsType } from 'antd/es/table';
+import { useTranslation } from 'react-i18next';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type FilterDepositDevice = {
   dateStart: string;
@@ -45,7 +47,7 @@ interface DepositMonitoring {
 
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { t } = useTranslation();
   const formattedDate = dayjs().format('YYYY-MM-DD');
 
   const deviceId = Number(searchParams.get('deviceId') || 0);
@@ -158,6 +160,13 @@ const DepositDevice: React.FC = () => {
 
   return (
     <>
+      <div className="flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.depositDevice')}
+        </span>
+        <QuestionMarkIcon />
+      </div>
+
       <GeneralFilters count={totalCount} display={['device', 'dateTime']} />
 
       <div className="mt-8">
