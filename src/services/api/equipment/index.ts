@@ -126,17 +126,17 @@ export type PosResponse = {
   updatedById: number;
 };
 
-type WorkerResponse = {
-  id: number;
-  name: string;
-  surname: string;
-  middlename: string;
-  organizationName: string;
-  position: string;
-  roleName: string;
-  status: string;
-  createAt: Date;
-};
+export type WorkerResponse = {
+    id: number;
+    name: string;
+    surname: string;
+    middlename: string;
+    organizationName: string;
+    position: string;
+    roleName: string;
+    status: string;
+    createAt: Date;
+}
 
 type DeviceResponse = {
   props: {
