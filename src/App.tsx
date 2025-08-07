@@ -71,7 +71,7 @@ const App: React.FC = () => {
         basename={
           import.meta.env.VITE_MODE === 'staging'
             ? '/'
-            : '/onvi-monitoring-frontend'
+            : '/onvi-monitoring-frontend/'
         }
       >
         <Routes>

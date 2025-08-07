@@ -12,7 +12,6 @@ import { getWorkers } from '@/services/api/equipment';
 import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import AntDButton from 'antd/es/button';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
@@ -130,7 +129,7 @@ const Organization: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
-          <AntDButton
+          <Button
             type="text"
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
