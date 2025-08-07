@@ -15,6 +15,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { formatNumber, getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type ProgramDetail = {
   programName: string;
@@ -146,6 +147,13 @@ const ProgramDevices: React.FC = () => {
 
   return (
     <>
+      <div className="flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.programs')}
+        </span>
+        <QuestionMarkIcon />
+      </div>
+
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}
