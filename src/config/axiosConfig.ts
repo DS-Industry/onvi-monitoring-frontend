@@ -1,11 +1,11 @@
-import axios from "axios";
-import useAuthStore from "@/config/store/authSlice";
-import i18n from "@/config/i18n";
-import { datadogLogs } from "@datadog/browser-logs";
+import axios from 'axios';
+import useAuthStore from '@/config/store/authSlice';
+import i18n from '@/config/i18n';
+import { datadogLogs } from '@datadog/browser-logs';
 
 let showToast: (
   message: string,
-  type: "success" | "error" | "info" | "warning"
+  type: 'success' | 'error' | 'info' | 'warning'
 ) => void;
 
 export const setToastFunction = (toastFunction: typeof showToast) => {
@@ -18,13 +18,13 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const jwtToken = useAuthStore.getState().tokens?.accessToken;
     if (jwtToken !== null) {
       config.headers.Authorization = `Bearer ${jwtToken}`;
     }
 
-    datadogLogs.logger.info("API Request Initiated", {
+    datadogLogs.logger.info('API Request Initiated', {
       url: config.url,
       method: config.method,
       timestamp: new Date().toISOString(),
@@ -32,8 +32,8 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    datadogLogs.logger.error("Request setup error", {
+  error => {
+    datadogLogs.logger.error('Request setup error', {
       error: error.message,
       timestamp: new Date().toISOString(),
     });
@@ -44,8 +44,8 @@ api.interceptors.request.use(
 const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
 
 api.interceptors.response.use(
-  (response) => {
-    datadogLogs.logger.info("API Response Received", {
+  response => {
+    datadogLogs.logger.info('API Response Received', {
       url: response.config.url,
       method: response.config.method,
       status: response.status,
@@ -53,13 +53,13 @@ api.interceptors.response.use(
     });
     return response;
   },
-  (error) => {
+  error => {
     const url = error.config?.url;
     const method = error.config?.method;
-    const status = error.response?.status || "No Response";
+    const status = error.response?.status || 'No Response';
     const code = error.response?.data?.code || null;
 
-    datadogLogs.logger.error("API Error", {
+    datadogLogs.logger.error('API Error', {
       url,
       method,
       status,
@@ -69,19 +69,19 @@ api.interceptors.response.use(
     });
 
     if (!showToast) {
-      console.error("Toast function is not initialized.");
+      console.error('Toast function is not initialized.');
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401) {
       const logout = useAuthStore.getState().clearTokens;
       logout();
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
 
     const endpoint = error.config?.url;
     if (!endpoint) {
-      showToast(i18n.t("errors.other.unexpectedErrorOccurred"), "error");
+      showToast(i18n.t('errors.other.unexpectedErrorOccurred'), 'error');
       return Promise.reject(error);
     }
 
@@ -89,12 +89,12 @@ api.interceptors.response.use(
       const errorCode = error.response.data?.code;
       const errorMessage = errorCode
         ? getTranslatedError(errorCode)
-        : "An error occurred. Please try again.";
-      showToast(errorMessage, "error");
+        : 'An error occurred. Please try again.';
+      showToast(errorMessage, 'error');
     } else if (error.request) {
-      showToast(i18n.t("errors.other.noResponseFromServer"), "error");
+      showToast(i18n.t('errors.other.noResponseFromServer'), 'error');
     } else {
-      showToast(i18n.t("errors.other.unexpectedErrorOccurred"), "error");
+      showToast(i18n.t('errors.other.unexpectedErrorOccurred'), 'error');
     }
 
     return Promise.reject(error);

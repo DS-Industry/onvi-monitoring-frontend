@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Select, Collapse } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import Button from "@ui/Button/Button.tsx";
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Select, Collapse } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import Button from '@ui/Button/Button.tsx';
 
 type Optional = {
   name: string;
@@ -14,21 +14,25 @@ type Optional = {
 type SearchFilterProps = {
   poses?: Optional[];
   loading?: boolean;
+  defaultOpen?: boolean;
 };
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   poses,
   loading = false,
+  defaultOpen = true,
 }) => {
   const { t } = useTranslation();
-  const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
+  const [activeFilterKey, setActiveFilterKey] = useState<string[]>(
+    defaultOpen ? ['search-filter-1'] : []
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterToggle, setFilterToggle] = useState(false);
 
-  const getParam = (key: string, fallback = "") =>
+  const getParam = (key: string, fallback = '') =>
     searchParams.get(key) || fallback;
 
-  const formattedOptions = (poses || []).map((pos) => ({
+  const formattedOptions = (poses || []).map(pos => ({
     label: pos.name,
     value: String(pos.value),
   }));
@@ -40,13 +44,13 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   };
 
   // Get current posId and ensure it matches the option values format
-  const currentPosId = getParam("posId");
+  const currentPosId = getParam('posId');
   const displayValue =
-    currentPosId && currentPosId !== "*" ? currentPosId : undefined;
+    currentPosId && currentPosId !== '*' ? currentPosId : undefined;
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
-      posId: "*",
+      posId: '*',
     });
 
     setFilterToggle(!filterToggle);
@@ -58,26 +62,27 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
       ghost
       style={{ marginBottom: 16 }}
       activeKey={activeFilterKey}
-      onChange={(keys) => setActiveFilterKey(keys as string[])}
+      onChange={keys => setActiveFilterKey(keys as string[])}
       items={[
         {
-          key: "search-filter-1",
+          key: 'search-filter-1',
           label: (
             <span className="font-semibold text-base">
-              {activeFilterKey.includes("search-filter-1")
-                ? t("routes.filter")
-                : t("routes.expand")}
+              {activeFilterKey.includes('search-filter-1')
+                ? t('routes.filter')
+                : t('routes.expand')}
             </span>
           ),
-          style: { background: "#fafafa", borderRadius: 8 },
+          style: { background: '#fafafa', borderRadius: 8 },
           children: (
             <div className="overflow-hidden transition-all duration-500 ease-in-out">
               <div className="flex flex-wrap gap-4">
                 <div className="flex flex-col text-sm text-text02">
-                  <label className="mb-1">{t("analysis.posId")}</label>
+                  <label className="mb-1">{t('analysis.posId')}</label>
                   <Select
                     showSearch
                     className="w-full sm:w-96"
+                    status={displayValue ? '' : 'error'}
                     placeholder="Выберите объект"
                     value={displayValue}
                     onChange={handlePosChange}
@@ -94,24 +99,28 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                     }}
                     suffixIcon={<SearchOutlined className="text-text02" />}
                     notFoundContent={
-                      loading ? "Поиск" : "Филиал с таким назаванием не найден"
+                      loading ? 'Поиск' : 'Филиал с таким назаванием не найден'
                     }
                     size="large"
                     style={{
-                      borderRadius: "6px",
+                      borderRadius: '6px',
                     }}
                   />
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 mt-4">
-                <Button
-                  title="Сбросить"
-                  type="outline"
-                  handleClick={resetFilters}
-                  classname="w-[168px]"
-                />
-              </div>
+              {displayValue ? (
+                <div className="flex flex-wrap items-center gap-4 mt-4">
+                  <Button
+                    title={t('filters.reset')}
+                    type="outline"
+                    handleClick={resetFilters}
+                    classname="w-[168px]"
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           ),
         },

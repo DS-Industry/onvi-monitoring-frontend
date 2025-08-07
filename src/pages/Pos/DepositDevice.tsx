@@ -1,30 +1,29 @@
-import React, { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import useSWR from "swr";
-import dayjs from "dayjs";
+import React, { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
+import dayjs from 'dayjs';
 
 // services
-import { getDepositDevice } from "@/services/api/pos";
-import { getDeviceByPosId } from "@/services/api/device";
+import { getDepositDevice } from '@/services/api/pos';
 
 // tables
-import { Table } from "antd";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+import { Table } from 'antd';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 // utils
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { getCurrencyRender, getDateRender } from "@/utils/tableUnits";
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
-} from "@/utils/constants";
+} from '@/utils/constants';
 
 // types
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType } from 'antd/es/table';
 
 type FilterDepositDevice = {
   dateStart: string;
@@ -44,24 +43,16 @@ interface DepositMonitoring {
   currencyType: string;
 }
 
-type DeviceOption = {
-  props: {
-    id: number;
-    name: string;
-  };
-};
-
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const formattedDate = dayjs().format("YYYY-MM-DD");
+  const formattedDate = dayjs().format('YYYY-MM-DD');
 
-  const posId = Number(searchParams.get("posId") || 0);
-  const deviceId = Number(searchParams.get("deviceId") || 0);
-  const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
-  const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
-  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
+  const deviceId = Number(searchParams.get('deviceId') || 0);
+  const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
+  const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -79,7 +70,7 @@ const DepositDevice: React.FC = () => {
   const swrKey = useMemo(() => {
     if (!deviceId) return null;
     return [
-      "get-pos-deposits-pos-devices",
+      'get-pos-deposits-pos-devices',
       deviceId,
       filterParams.dateStart,
       filterParams.dateEnd,
@@ -105,67 +96,49 @@ const DepositDevice: React.FC = () => {
     }
   );
 
-  const { data: deviceList } = useSWR(
-    "get-device-pos",
-    () => getDeviceByPosId(posId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
-
-  const deviceOptions = useMemo(() => {
-    return (
-      deviceList?.map((d: DeviceOption) => ({
-        name: d.props.name,
-        value: d.props.id,
-      })) || []
-    );
-  }, [deviceList]);
-
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
   const columnsMonitoringDevice: ColumnsType<DepositMonitoring> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: "Сумма операции",
-      dataIndex: "sumOper",
-      key: "sumOper",
+      title: 'Сумма операции',
+      dataIndex: 'sumOper',
+      key: 'sumOper',
       render: currencyRender,
     },
     {
-      title: "Дата операции",
-      dataIndex: "dateOper",
-      key: "dateOper",
+      title: 'Дата операции',
+      dataIndex: 'dateOper',
+      key: 'dateOper',
       render: dateRender,
     },
     {
-      title: "Дата загрузки",
-      dataIndex: "dateLoad",
-      key: "dateLoad",
+      title: 'Дата загрузки',
+      dataIndex: 'dateLoad',
+      key: 'dateLoad',
       render: dateRender,
     },
     {
-      title: "Счетчик",
-      dataIndex: "counter",
-      key: "counter",
+      title: 'Счетчик',
+      dataIndex: 'counter',
+      key: 'counter',
       sorter: (a, b) => a.counter - b.counter,
     },
     {
-      title: "Локальный ID",
-      dataIndex: "localId",
-      key: "localId",
+      title: 'Локальный ID',
+      dataIndex: 'localId',
+      key: 'localId',
     },
     {
-      title: "Валюта",
-      dataIndex: "currencyType",
-      key: "currencyType",
+      title: 'Валюта',
+      dataIndex: 'currencyType',
+      key: 'currencyType',
     },
   ];
 
@@ -181,17 +154,11 @@ const DepositDevice: React.FC = () => {
   const totalCount = filterData?.totalCount || 0;
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsMonitoringDevice, "device-deposits-table-columns");
+    useColumnSelector(columnsMonitoringDevice, 'device-deposits-table-columns');
 
   return (
     <>
-      <GeneralFilters
-        devicesSelect={deviceOptions}
-        count={totalCount}
-        hideCity={true}
-        hideSearch={true}
-        hideReset={true}
-      />
+      <GeneralFilters count={totalCount} display={['device', 'dateTime']} />
 
       <div className="mt-8">
         <ColumnSelector
@@ -205,7 +172,7 @@ const DepositDevice: React.FC = () => {
           dataSource={deviceMonitoring}
           columns={visibleColumns}
           loading={isLoading || isInitialLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
           pagination={{
             current: currentPage,
             pageSize: pageSize,

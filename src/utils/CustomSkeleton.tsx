@@ -25,45 +25,56 @@ const CustomSkeleton: React.FC<CustomSkeletonProps> = ({
     case 'table':
       return (
         <div className="table-skeleton bg-white">
-          {Array(rowCount).fill(0).map((_, rowIndex) => (
-            <div key={rowIndex} className="flex gap-2 mb-2 bg-opacity01 border rounded-2xl animate-pulse">
-              {Array(columnCount).fill(0).map((_, colIndex) => (
-                <Skeleton
-                  key={colIndex}
-                  width={`${100 / columnCount}%`}
-                  height={customHeight}
-                  className="rounded"
-                />
-              ))}
-            </div>
-          ))}
+          {Array(rowCount)
+            .fill(0)
+            .map((_, rowIndex) => (
+              <div
+                key={rowIndex}
+                className="flex gap-2 mb-2 bg-opacity01 border rounded-2xl animate-pulse"
+              >
+                {Array(columnCount)
+                  .fill(0)
+                  .map((_, colIndex) => (
+                    <Skeleton
+                      key={colIndex}
+                      width={`${100 / columnCount}%`}
+                      height={customHeight}
+                      className="rounded"
+                    />
+                  ))}
+              </div>
+            ))}
         </div>
       );
-    
+
     case 'card':
       return (
         <div className="card-skeleton grid grid-cols-1 gap-4">
-          {Array(cardCount).fill(0).map((_, cardIndex) => (
-            <div key={cardIndex} className="p-4 border rounded-lg shadow-lg">
-              <Skeleton height={150} className="mb-4 rounded" />
-              <Skeleton width="80%" height="20px" className="mb-2 rounded" />
-              <Skeleton width="60%" height="20px" className="rounded" />
-            </div>
-          ))}
+          {Array(cardCount)
+            .fill(0)
+            .map((_, cardIndex) => (
+              <div key={cardIndex} className="p-4 border rounded-lg shadow-lg">
+                <Skeleton height={150} className="mb-4 rounded" />
+                <Skeleton width="80%" height="20px" className="mb-2 rounded" />
+                <Skeleton width="60%" height="20px" className="rounded" />
+              </div>
+            ))}
         </div>
       );
-    
+
     case 'list':
       return (
         <div className="list-skeleton">
-          {Array(rowCount).fill(0).map((_, listIndex) => (
-            <Skeleton
-              key={listIndex}
-              height={customHeight}
-              width={customWidth}
-              className="mb-2 rounded"
-            />
-          ))}
+          {Array(rowCount)
+            .fill(0)
+            .map((_, listIndex) => (
+              <Skeleton
+                key={listIndex}
+                height={customHeight}
+                width={customWidth}
+                className="mb-2 rounded"
+              />
+            ))}
         </div>
       );
 

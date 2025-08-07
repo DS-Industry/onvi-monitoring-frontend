@@ -1,13 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { Select, Collapse, Space, Typography } from "antd";
+import React, { useRef, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Select, Collapse, Space, Typography } from 'antd';
 import AntInput from 'antd/es/input';
-import Button from "@ui/Button/Button.tsx";
-import { getParam, updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
-import useSWR from "swr";
-import { getPlacement } from "@/services/api/device";
+import Button from '@ui/Button/Button.tsx';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
+import useSWR from 'swr';
+import { getPlacement } from '@/services/api/device';
 
 const Text = Typography.Text;
 
@@ -30,17 +30,22 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   const { t } = useTranslation();
   const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [name, setName] = useState<string>("");
+  const [name, setName] = useState<string>('');
   const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const allCategoriesText = t("warehouse.all");
+  const allCategoriesText = t('warehouse.all');
 
-  const { data: cityData } = useSWR([`get-city`], () => getPlacement(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
-  const cities: { name: string; value: number | string; }[] = cityData?.map((item) => ({ name: item.region, value: item.id })) || [];
+  const cities: { name: string; value: number | string }[] =
+    cityData?.map(item => ({ name: item.region, value: item.id })) || [];
 
   const citiesAllObj = {
     name: allCategoriesText,
-    value: "*"
+    value: '*',
   };
 
   cities.unshift(citiesAllObj);
@@ -63,7 +68,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   }, [name]);
 
   const resetFilters = () => {
-    setName("");
+    setName('');
     updateSearchParams(searchParams, setSearchParams, {
       placementId: undefined,
       hrPositionId: undefined,
@@ -80,122 +85,105 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
       ghost
       style={{ marginBottom: 16 }}
       activeKey={activeFilterKey}
-      onChange={(keys) => setActiveFilterKey(keys)}
+      onChange={keys => setActiveFilterKey(keys)}
       items={[
         {
-          key: "filter-1",
+          key: 'filter-1',
           label: (
             <span className="font-semibold text-base">
-              {activeFilterKey.includes("filter-1")
-                ? t("routes.filter")
-                : t("routes.expand")}
+              {activeFilterKey.includes('filter-1')
+                ? t('routes.filter')
+                : t('routes.expand')}
             </span>
           ),
-          style: { background: "#fafafa", borderRadius: 8 },
+          style: { background: '#fafafa', borderRadius: 8 },
           children: (
-            <div
-              className="overflow-hidden transition-all duration-500 ease-in-out"
-            >
-
+            <div className="overflow-hidden transition-all duration-500 ease-in-out">
               <div className="mt-4">
-
                 <Space size="middle" direction="horizontal">
-
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("pos.city")}</Text>
+                    <Text>{t('pos.city')}</Text>
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam(searchParams, "placementId", "*")}
+                      value={getParam(searchParams, 'placementId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           placementId: val,
                           page: DEFAULT_PAGE,
                         });
                       }}
-                      options={cities?.map((item) => ({
+                      options={cities?.map(item => ({
                         label: item.name,
                         value: String(item.value),
                       }))}
                     />
-
                   </Space>
 
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("roles.job")}</Text>
+                    <Text>{t('roles.job')}</Text>
 
                     <Select
-
                       className="w-full sm:w-80"
-                      value={getParam(searchParams, "hrPositionId", "*")}
+                      value={getParam(searchParams, 'hrPositionId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           hrPositionId: val,
                           page: DEFAULT_PAGE,
                         });
                       }}
-                      options={positions?.map((item) => ({
+                      options={positions?.map(item => ({
                         label: item.name,
                         value: String(item.value),
                       }))}
                     />
-
                   </Space>
 
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("warehouse.organization")}</Text>
+                    <Text>{t('warehouse.organization')}</Text>
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam(searchParams, "organizationId", "*")}
+                      value={getParam(searchParams, 'organizationId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           organizationId: val,
                           page: DEFAULT_PAGE,
                         });
                       }}
-                      options={organizations?.map((item) => ({
+                      options={organizations?.map(item => ({
                         label: item.name,
                         value: String(item.value),
                       }))}
                     />
-
                   </Space>
 
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("hr.full")}</Text>
+                    <Text>{t('hr.full')}</Text>
 
                     <AntInput
                       type="string"
                       className="w-full sm:w-80 h-10"
-                      placeholder={t("hr.enter")}
+                      placeholder={t('hr.enter')}
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={e => setName(e.target.value)}
                     />
-
                   </Space>
-
                 </Space>
-
               </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
-
                 <Button
-                  title={t("analysis.reset")}
+                  title={t('analysis.reset')}
                   type="outline"
                   handleClick={resetFilters}
                   classname="w-[168px]"
                 />
 
-                <p className="font-semibold">{t("analysis.found")}: {count}</p>
-
+                <p className="font-semibold">
+                  {t('analysis.found')}: {count}
+                </p>
               </div>
-
             </div>
           ),
         },

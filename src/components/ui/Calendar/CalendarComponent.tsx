@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 type Props = {
   month: string;
@@ -49,7 +49,7 @@ const CalendarComponent: React.FC<Props> = ({
         <div
           key={day}
           className={`text-text01 border border-borderFill flex items-center justify-center ${
-            isActive ? "bg-background06" : ""
+            isActive ? 'bg-background06' : ''
           }`}
         >
           {day}
@@ -70,13 +70,13 @@ const CalendarComponent: React.FC<Props> = ({
   };
 
   const calculateActiveDays = (
-    schedule: Props["schedule"],
+    schedule: Props['schedule'],
     daysInMonth: number,
     year: number,
     monthIndex: number
   ) => {
     const { sch, repeat, date } = schedule;
-    const [startYear, startMonth, startDay] = date.split("-").map(Number);
+    const [startYear, startMonth, startDay] = date.split('-').map(Number);
 
     // If schedule starts in a future month/year, return empty
     if (
@@ -125,18 +125,18 @@ const CalendarComponent: React.FC<Props> = ({
 
   const getMonthIndex = (monthName: string) => {
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months.indexOf(monthName);
   };

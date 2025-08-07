@@ -1,39 +1,39 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   NavLink,
   useLocation,
   useNavigate,
   useSearchParams,
-} from "react-router-dom";
-import QuestionmarkIcon from "@icons/qustion-mark.svg?react";
-import EditIcon from "@icons/edit.svg?react";
-import DoubleArrowLeft from "@icons/keyboard_double_arrow_left.svg?react";
-import DoubleArrowRight from "@icons/keyboard_double_arrow_right.svg?react";
-import ArrowRight from "@icons/keyboard_arrow_right.svg?react";
-import NotificationYes from "@icons/Notification_Yes.svg?react";
-import ArrowDown from "@icons/keyboard_arrow_down.svg?react";
-import ArrowUp from "@icons/keyboard_arrow_up.svg?react";
+} from 'react-router-dom';
+import QuestionmarkIcon from '@icons/qustion-mark.svg?react';
+import EditIcon from '@icons/edit.svg?react';
+import DoubleArrowLeft from '@icons/keyboard_double_arrow_left.svg?react';
+import DoubleArrowRight from '@icons/keyboard_double_arrow_right.svg?react';
+import ArrowRight from '@icons/keyboard_arrow_right.svg?react';
+import NotificationYes from '@icons/Notification_Yes.svg?react';
+import ArrowDown from '@icons/keyboard_arrow_down.svg?react';
+import ArrowUp from '@icons/keyboard_arrow_up.svg?react';
 import {
   useButtonCreate,
   useFilterOpen,
   useToast,
-} from "@/components/context/useContext";
-import Button from "@ui/Button/Button.tsx";
-import routes from "@/routes/index.tsx";
-import { Can } from "@/permissions/Can";
-import { useUser } from "@/hooks/useUserStore";
-import { useTranslation } from "react-i18next";
-import { setToastFunction } from "@/config/axiosConfig";
-import useAuthStore from "@/config/store/authSlice";
-import Avatar from "@/components/ui/Avatar";
-import OnviLogo from "@/assets/OnviLogo.svg";
-import OnviSmallLogo from "@/assets/OnviSmallLogo.svg";
-import { datadogRum } from "@datadog/browser-rum";
-import { datadogLogs } from "@datadog/browser-logs";
-import Layout from "antd/es/layout";
-import Tag from "antd/es/tag";
-import Grid from "antd/es/grid";
-import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
+} from '@/components/context/useContext';
+import Button from '@ui/Button/Button.tsx';
+import routes from '@/routes/index.tsx';
+import { Can } from '@/permissions/Can';
+import { useUser } from '@/hooks/useUserStore';
+import { useTranslation } from 'react-i18next';
+import { setToastFunction } from '@/config/axiosConfig';
+import useAuthStore from '@/config/store/authSlice';
+import Avatar from '@/components/ui/Avatar';
+import OnviLogo from '@/assets/OnviLogo.svg';
+import OnviSmallLogo from '@/assets/OnviSmallLogo.svg';
+import { datadogRum } from '@datadog/browser-rum';
+import { datadogLogs } from '@datadog/browser-logs';
+import Layout from 'antd/es/layout';
+import Tag from 'antd/es/tag';
+import Grid from 'antd/es/grid';
+import { CloseOutlined, MenuOutlined } from '@ant-design/icons';
 
 const { Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -93,12 +93,12 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const user = useUser();
   const hoverRef = useRef(false);
-  const userPermissions = useAuthStore((state) => state.permissions);
+  const userPermissions = useAuthStore(state => state.permissions);
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
-  const doc = searchParams.get("document");
-  const status = searchParams.get("status");
-  const name = searchParams.get("name");
+  const doc = searchParams.get('document');
+  const status = searchParams.get('status');
+  const name = searchParams.get('name');
   const userName: UserName = { name: user.name, middlename: user.surname };
 
   // Get location state with proper typing
@@ -108,8 +108,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     setToastFunction(showToast);
 
-    datadogRum.addAction("Navigated", { pathname: location.pathname });
-    datadogLogs.logger.info("Route loaded", { pathname: location.pathname });
+    datadogRum.addAction('Navigated', { pathname: location.pathname });
+    datadogLogs.logger.info('Route loaded', { pathname: location.pathname });
   }, [location.pathname, showToast]);
 
   // Combined hover and click outside effects
@@ -119,11 +119,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
 
     const handleClickOutside = (e: MouseEvent) => {
       if (isMobile) return;
-      const sideBar = document.getElementById("sidebar");
-      const sideNavs = document.querySelectorAll(".side-nav");
+      const sideBar = document.getElementById('sidebar');
+      const sideNavs = document.querySelectorAll('.side-nav');
       let isInsideSidebar = false;
 
-      sideNavs.forEach((element) => {
+      sideNavs.forEach(element => {
         if (element.contains(e.target as Node)) isInsideSidebar = true;
       });
 
@@ -133,8 +133,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isHovered, isMobile, isOpen]);
 
   // Close submenus when navigating
@@ -161,24 +161,24 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   };
 
   const isParentActive = (subMenu: RouteItem[] | undefined): boolean =>
-    subMenu ? subMenu.some((child) => child.path === location.pathname) : false;
+    subMenu ? subMenu.some(child => child.path === location.pathname) : false;
 
   const getStatusTag = (status: string): React.ReactElement => {
     const greenStatuses = [
-      t("tables.ACTIVE"),
-      t("tables.SENT"),
-      t("tables.In Progress"),
+      t('tables.ACTIVE'),
+      t('tables.SENT'),
+      t('tables.In Progress'),
     ];
     const redStatuses = [
-      t("tables.OVERDUE"),
-      t("tables.Done"),
-      t("tables.FINISHED"),
-      t("tables.PAUSE"),
+      t('tables.OVERDUE'),
+      t('tables.Done'),
+      t('tables.FINISHED'),
+      t('tables.PAUSE'),
     ];
     const orangeStatuses = [
-      t("tables.SAVED"),
-      t("tables.VERIFICATE"),
-      t("tables.RETURNED"),
+      t('tables.SAVED'),
+      t('tables.VERIFICATE'),
+      t('tables.RETURNED'),
     ];
 
     if (greenStatuses.includes(status))
@@ -192,105 +192,105 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const getRequiredPermissions = (path: string): Permission[] => {
     const permissionMap: [string, Permission[]][] = [
       [
-        "hr/salary",
+        'hr/salary',
         [
-          { action: "manage", subject: "Hr" },
-          { action: "create", subject: "Hr" },
+          { action: 'manage', subject: 'Hr' },
+          { action: 'create', subject: 'Hr' },
         ],
       ],
       [
-        "hr/employee/advance",
+        'hr/employee/advance',
         [
-          { action: "manage", subject: "Hr" },
-          { action: "create", subject: "Hr" },
+          { action: 'manage', subject: 'Hr' },
+          { action: 'create', subject: 'Hr' },
         ],
       ],
       [
-        "hr",
+        'hr',
         [
-          { action: "manage", subject: "Hr" },
-          { action: "update", subject: "Hr" },
+          { action: 'manage', subject: 'Hr' },
+          { action: 'update', subject: 'Hr' },
         ],
       ],
       [
-        "/administration/accessRights/employees",
+        '/administration/accessRights/employees',
         [
-          { action: "manage", subject: "Organization" },
-          { action: "update", subject: "Organization" },
+          { action: 'manage', subject: 'Organization' },
+          { action: 'update', subject: 'Organization' },
         ],
       ],
       [
-        "administration",
+        'administration',
         [
-          { action: "manage", subject: "Organization" },
-          { action: "create", subject: "Organization" },
+          { action: 'manage', subject: 'Organization' },
+          { action: 'create', subject: 'Organization' },
         ],
       ],
       [
-        "station",
+        'station',
         [
-          { action: "manage", subject: "Pos" },
-          { action: "create", subject: "Pos" },
+          { action: 'manage', subject: 'Pos' },
+          { action: 'create', subject: 'Pos' },
         ],
       ],
       [
-        "equipment/routine",
+        'equipment/routine',
         [
-          { action: "manage", subject: "TechTask" },
-          { action: "create", subject: "TechTask" },
+          { action: 'manage', subject: 'TechTask' },
+          { action: 'create', subject: 'TechTask' },
         ],
       ],
       [
-        "equipment/failure",
+        'equipment/failure',
         [
-          { action: "manage", subject: "Incident" },
-          { action: "create", subject: "Incident" },
+          { action: 'manage', subject: 'Incident' },
+          { action: 'create', subject: 'Incident' },
         ],
       ],
       [
-        "warehouse/documents",
+        'warehouse/documents',
         [
-          { action: "manage", subject: "Warehouse" },
-          { action: "create", subject: "Warehouse" },
+          { action: 'manage', subject: 'Warehouse' },
+          { action: 'create', subject: 'Warehouse' },
         ],
       ],
       [
-        "warehouse",
+        'warehouse',
         [
-          { action: "manage", subject: "Warehouse" },
-          { action: "update", subject: "Warehouse" },
+          { action: 'manage', subject: 'Warehouse' },
+          { action: 'update', subject: 'Warehouse' },
         ],
       ],
       [
-        "finance/timesheet",
+        'finance/timesheet',
         [
-          { action: "manage", subject: "ShiftReport" },
-          { action: "create", subject: "ShiftReport" },
+          { action: 'manage', subject: 'ShiftReport' },
+          { action: 'create', subject: 'ShiftReport' },
         ],
       ],
       [
-        "finance/financial/accounting",
+        'finance/financial/accounting',
         [
-          { action: "manage", subject: "ManagerPaper" },
-          { action: "create", subject: "ManagerPaper" },
+          { action: 'manage', subject: 'ManagerPaper' },
+          { action: 'create', subject: 'ManagerPaper' },
         ],
       ],
       [
-        "finance/report/period",
-        [{ action: "manage", subject: "ManagerPaper" }],
+        'finance/report/period',
+        [{ action: 'manage', subject: 'ManagerPaper' }],
       ],
       [
-        "finance",
+        'finance',
         [
-          { action: "manage", subject: "CashCollection" },
-          { action: "create", subject: "CashCollection" },
+          { action: 'manage', subject: 'CashCollection' },
+          { action: 'create', subject: 'CashCollection' },
         ],
       ],
       [
-        "analysis",
+        'analysis',
         [
-          { action: "manage", subject: "ShiftReport" },
-          { action: "create", subject: "ShiftReport" },
+          { action: 'manage', subject: 'ShiftReport' },
+          { action: 'create', subject: 'ShiftReport' },
         ],
       ],
     ];
@@ -325,7 +325,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   };
 
   const activePage = getActivePage();
-  const activePageName = activePage?.name || "Home";
+  const activePageName = activePage?.name || 'Home';
 
   const renderNavItem = (item: RouteItem): React.ReactElement => (
     <Can
@@ -333,12 +333,12 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       requiredPermissions={item.permissions || []}
       userPermissions={userPermissions}
     >
-      {(allowed) =>
+      {allowed =>
         allowed && (
           <div key={item.name} className="side-nav">
             <NavLink
-              to={item.subMenu ? "#" : item.path}
-              onClick={(e) => {
+              to={item.subMenu ? '#' : item.path}
+              onClick={e => {
                 if (item.subMenu) {
                   e.preventDefault();
                   if (isMobile) {
@@ -353,18 +353,18 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   ? `flex items-center py-1.5 px-2 mx-4 rounded transition font-semibold text-sm
                   ${
                     isParentActive(item.subNav)
-                      ? "bg-opacity01/30 text-primary01"
+                      ? 'bg-opacity01/30 text-primary01'
                       : !isMobile && activeNavItem === item.name
-                      ? "bg-opacity01/30 text-primary01"
-                      : "text-text02"
+                        ? 'bg-opacity01/30 text-primary01'
+                        : 'text-text02'
                   } hover:bg-opacity01/30 hover:text-primary01`
                   : isActive
-                  ? `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
-                  : `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
+                    ? `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-primary01`
+                    : `flex items-center py-1.5 px-2 mx-4 font-semibold text-sm rounded transition duration-200 
                     hover:bg-opacity01/30 hover:text-primary01 text-text02`
               }
             >
-              {item.icon && <item.icon className={`${isOpen && "mr-2"}`} />}
+              {item.icon && <item.icon className={`${isOpen && 'mr-2'}`} />}
 
               {isOpen && <span>{t(`routes.${item.name}`)}</span>}
               {item.subMenu && isOpen && <ArrowRight className="ml-auto" />}
@@ -391,13 +391,13 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 requiredPermissions={subItem.permissions || []}
                 userPermissions={userPermissions}
               >
-                {(allowed) =>
+                {allowed =>
                   allowed &&
                   subItem.isSidebar && (
                     <div key={subItem.name}>
                       <NavLink
-                        to={subItem.subMenu ? "#" : subItem.path}
-                        onClick={(e) => {
+                        to={subItem.subMenu ? '#' : subItem.path}
+                        onClick={e => {
                           if (subItem.subMenu) {
                             e.preventDefault();
                             setOpenSubNavItem(
@@ -415,13 +415,13 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                             ? `flex items-center py-1.5 px-2 mx-4 rounded transition 
                           ${
                             isParentActive(subItem.subNav)
-                              ? "bg-opacity01/30 text-text01"
-                              : "text-text02"
+                              ? 'bg-opacity01/30 text-text01'
+                              : 'text-text02'
                           }
                           hover:bg-opacity01/30 hover:text-text01`
                             : isActive
-                            ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
-                            : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
+                              ? `flex items-center py-1.5 px-2 mx-4 rounded bg-opacity01/30 text-text01`
+                              : `flex items-center py-1.5 px-2 mx-4 rounded transition duration-200 
                             hover:bg-opacity01/30 hover:text-text01 text-text02`
                         }
                       >
@@ -436,7 +436,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                               requiredPermissions={subSubItem.permissions || []}
                               userPermissions={userPermissions}
                             >
-                              {(allowed) =>
+                              {allowed =>
                                 allowed &&
                                 subSubItem.isSidebar && (
                                   <NavLink
@@ -472,7 +472,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
   const renderDesktopSubNav = (item: RouteItem): React.ReactElement | null =>
     !isMobile && activeNavItem === item.name && item.subNav ? (
       <div className="absolute left-full top-0 bg-background02 w-64 h-full py-5 side-nav">
-        {item.subNavHeading !== "" && (
+        {item.subNavHeading !== '' && (
           <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
             {t(`routes.${item.subNavHeading}`)}
           </div>
@@ -490,11 +490,11 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   requiredPermissions={subItem.permissions || []}
                   userPermissions={userPermissions}
                 >
-                  {(allowed) =>
+                  {allowed =>
                     allowed && (
                       <NavLink
                         to={subItem.path}
-                        onClick={(e) => {
+                        onClick={e => {
                           if (subItem.subMenu) {
                             e.preventDefault();
                             handleSubNavItemClick(subItem.name);
@@ -505,12 +505,12 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                             ? `flex items-center p-2 mx-4 rounded transition font-semibold text-sm
                           ${
                             isParentActive(subItem.subNav)
-                              ? "bg-opacity01/30 text-text01"
-                              : "text-text02"
+                              ? 'bg-opacity01/30 text-text01'
+                              : 'text-text02'
                           } hover:bg-opacity01/30 hover:text-text01`
                             : isActive
-                            ? `flex items-center p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
-                            : `flex items-center p-2 mx-4 font-semibold text-sm rounded transition duration-200 
+                              ? `flex items-center p-2 mx-4 font-semibold text-sm rounded bg-opacity01/30 text-text01`
+                              : `flex items-center p-2 mx-4 font-semibold text-sm rounded transition duration-200 
                             hover:bg-opacity01/30 hover:text-text01 text-text02`
                         }
                       >
@@ -534,7 +534,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                               requiredPermissions={subSubItem.permissions || []}
                               userPermissions={userPermissions}
                             >
-                              {(allowed) =>
+                              {allowed =>
                                 allowed && (
                                   <NavLink
                                     to={subSubItem.path}
@@ -560,7 +560,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
     ) : null;
 
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: 'white' }}>
       {activeNavItem && !isMobile && (
         <div
           className="fixed inset-0 bg-stone-900 bg-opacity-50 z-20 pointer-events-none"
@@ -584,10 +584,10 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
         collapsedWidth={80}
         className="fixed h-full z-50"
         style={{
-          background: "#1c1917",
-          height: "100%",
+          background: '#1c1917',
+          height: '100%',
           left: isMobile ? (isOpen ? 0 : -80) : 0,
-          transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
+          transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
         }}
         {...handleSiderHover}
       >
@@ -595,7 +595,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
           <div>
             <div
               className={`flex items-center ${
-                isOpen ? "" : "justify-center"
+                isOpen ? '' : 'justify-center'
               } py-5 px-4`}
             >
               {isOpen ? (
@@ -614,7 +614,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
             </div>
 
             <nav className="mt-5 text-sm grid gap-y-1">
-              {routes.map((item) =>
+              {routes.map(item =>
                 item.isSidebar ? renderNavItem(item) : null
               )}
             </nav>
@@ -622,20 +622,20 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
           <div>
             <div
               className={`flex items-center ${
-                !isOpen && "justify-center"
+                !isOpen && 'justify-center'
               } py-2.5 px-4 rounded transition duration-200 hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
-              onClick={() => navigate("/notifications")}
+              onClick={() => navigate('/notifications')}
             >
-              <NotificationYes className={`${isOpen && "mr-2"} text-xl`} />
-              {isOpen && <span>{t("routes.notifications")}</span>}
+              <NotificationYes className={`${isOpen && 'mr-2'} text-xl`} />
+              {isOpen && <span>{t('routes.notifications')}</span>}
             </div>
             <div
               className="mt-5 py-3 border-t-2 border-text02 flex items-center gap-2 px-4 cursor-pointer"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate('/profile')}
             >
               {user.avatar ? (
                 <img
-                  src={`https://storage.yandexcloud.net/onvi-business/avatar/user/${user.avatar}`}
+                  src={`${import.meta.env.VITE_S3_CLOUD}/avatar/user/${user.avatar}`}
                   alt="Profile"
                   className="rounded-full w-10 h-10 object-cover sm:w-8 sm:h-8 md:w-12 md:h-12"
                   loading="lazy"
@@ -656,7 +656,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
       <Layout
         style={{
           marginLeft: isMobile ? 80 : isOpen ? 256 : 80,
-          transition: "all 0.3s",
+          transition: 'all 0.3s',
         }}
       >
         <Content className="min-h-screen bg-white">
@@ -675,8 +675,8 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
 
           <div className="px-4 sm:px-6 relative min-h-screen z-10">
             {!isMobile &&
-              (activeNavItem === "Администрирование" ||
-                activeNavItem === "Мониторинг") && (
+              (activeNavItem === 'Администрирование' ||
+                activeNavItem === 'Мониторинг') && (
                 <div className="absolute z-10 inset-0 bg-background01/65" />
               )}
 
@@ -691,37 +691,37 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                   </button>
                 )}
                 <div className="ml-3 lg:ml-12 flex flex-col items-start">
-                  {activePageName === "bonus" && (
+                  {activePageName === 'bonus' && (
                     <span className="text-sm text-text02">
-                      {t("routes.loyalty")}
+                      {t('routes.loyalty')}
                     </span>
                   )}
                   <div className="flex items-center mb-2">
                     <span className="text-xl sm:text-3xl font-normal text-text01">
                       {location.pathname.includes(
-                        "/equipment/technical/tasks/progress/item"
+                        '/equipment/technical/tasks/progress/item'
                       ) ||
                       location.pathname.includes(
-                        "/equipment/technical/tasks/list/item"
+                        '/equipment/technical/tasks/list/item'
                       )
                         ? name
-                        : location.pathname === "/finance/timesheet/view" &&
-                          name &&
-                          locationState?.date
-                        ? `${name} : ${locationState.date.slice(0, 10)}`
-                        : activePageName === "createDo"
-                        ? t(`routes.${doc}`)
-                        : t(`routes.${activePageName}`)}
+                        : location.pathname === '/finance/timesheet/view' &&
+                            name &&
+                            locationState?.date
+                          ? `${name} : ${locationState.date.slice(0, 10)}`
+                          : activePageName === 'createDo'
+                            ? t(`routes.${doc}`)
+                            : t(`routes.${activePageName}`)}
                     </span>
                     {location.pathname.includes(
-                      "/equipment/technical/tasks/progress/item"
+                      '/equipment/technical/tasks/progress/item'
                     ) ||
                     (location.pathname.includes(
-                      "/equipment/technical/tasks/list/item"
+                      '/equipment/technical/tasks/list/item'
                     ) &&
                       status) ? (
                       <div className="ml-5">{getStatusTag(String(status))}</div>
-                    ) : activePageName === "bonus" ? (
+                    ) : activePageName === 'bonus' ? (
                       <EditIcon className="text-text02 ml-2" />
                     ) : (
                       <QuestionmarkIcon className="text-2xl ml-2" />
@@ -733,7 +733,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                       onClick={() => setFilterOpen(!filterOpen)}
                       className="flex font-semibold text-primary02"
                     >
-                      {filterOpen ? t("routes.filter") : t("routes.expand")}
+                      {filterOpen ? t('routes.filter') : t('routes.expand')}
                       {filterOpen ? <ArrowUp /> : <ArrowDown />}
                     </button>
                   )}
@@ -743,23 +743,23 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               <div className="flex flex-wrap justify-end">
                 <Can
                   requiredPermissions={[
-                    { action: "manage", subject: "Warehouse" },
-                    { action: "update", subject: "Warehouse" },
+                    { action: 'manage', subject: 'Warehouse' },
+                    { action: 'update', subject: 'Warehouse' },
                   ]}
                   userPermissions={userPermissions}
                 >
-                  {(allowed) =>
+                  {allowed =>
                     allowed &&
-                    activePage?.name === "nomenclature" && (
+                    activePage?.name === 'nomenclature' && (
                       <Button
-                        title={isMobile ? "" : t("warehouse.import")}
+                        title={isMobile ? '' : t('warehouse.import')}
                         iconUpload={true}
                         type="outline"
                         classname={`mr-2 ${
-                          isMobile ? "h-[36px] gap-0 px-[12px] py-[9px]" : ""
+                          isMobile ? 'h-[36px] gap-0 px-[12px] py-[9px]' : ''
                         }`}
                         handleClick={() =>
-                          navigate("/warehouse/inventory/import")
+                          navigate('/warehouse/inventory/import')
                         }
                       />
                     )
@@ -767,26 +767,26 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
                 </Can>
                 <Can
                   requiredPermissions={getRequiredPermissions(
-                    activePage?.path || ""
+                    activePage?.path || ''
                   )}
                   userPermissions={userPermissions}
                 >
-                  {(allowed) =>
+                  {allowed =>
                     allowed &&
                     activePage?.addButton &&
-                    locationState?.status !== t("tables.SENT") && (
+                    locationState?.status !== t('tables.SENT') && (
                       <Button
                         title={
                           isMobile
-                            ? ""
+                            ? ''
                             : t(`routes.${activePage?.addButtonText}`)
                         }
                         iconPlus={true}
                         handleClick={() => setButtonOn(!buttonOn)}
                         classname={
                           isMobile
-                            ? "h-[36px] gap-0 px-[12px] py-[9px]"
-                            : "min-w-[166px]"
+                            ? 'h-[36px] gap-0 px-[12px] py-[9px]'
+                            : 'min-w-[166px]'
                         }
                       />
                     )
@@ -795,7 +795,7 @@ const SideNavbar: React.FC<Props> = ({ children }) => {
               </div>
             </div>
             <div
-              className={`${isMobile ? (isOpen ? "-ml-64" : "-ml-20") : ""}`}
+              className={`${isMobile ? (isOpen ? '-ml-64' : '-ml-20') : ''}`}
             >
               {children}
             </div>

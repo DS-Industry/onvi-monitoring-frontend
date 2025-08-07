@@ -1,46 +1,46 @@
 // components/Collection/CollectionDeviceTable.tsx
 import React, { useState } from "react";
 import { Table, Popconfirm, Typography, Button as AntButton } from "antd";
-import { TFunction } from "i18next";
-import dayjs from "dayjs";
-import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
-import { getCurrencyRender } from "@/utils/tableUnits";
+import { TFunction } from 'i18next';
+import dayjs from 'dayjs';
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
+import { getCurrencyRender } from '@/utils/tableUnits';
 
 type CashCollectionDevice = {
-    id: number;
-    deviceId: number;
-    deviceName: string;
-    deviceType: string;
-    oldTookMoneyTime: Date;
-    tookMoneyTime: Date;
-    sumDevice: number;
-    sumCoinDevice: number;
-    sumPaperDevice: number;
-    virtualSumDevice: number;
-}
+  id: number;
+  deviceId: number;
+  deviceName: string;
+  deviceType: string;
+  oldTookMoneyTime: Date;
+  tookMoneyTime: Date;
+  sumDevice: number;
+  sumCoinDevice: number;
+  sumPaperDevice: number;
+  virtualSumDevice: number;
+};
 
 type Props = {
-    deviceData: CashCollectionDevice[];
-    editingRow: number | null;
-    setEditingRow: (id: number | null) => void;
-    handleDateChange: (
-        e: React.ChangeEvent<HTMLInputElement>,
-        rowId: number,
-        key: string
-    ) => void;
-    status: string;
-    t: TFunction;
-    loading: boolean;
+  deviceData: CashCollectionDevice[];
+  editingRow: number | null;
+  setEditingRow: (id: number | null) => void;
+  handleDateChange: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    rowId: number,
+    key: string
+  ) => void;
+  status: string;
+  t: TFunction;
+  loading: boolean;
 };
 
 const CollectionDeviceTable: React.FC<Props> = ({
-    deviceData,
-    editingRow,
-    setEditingRow,
-    handleDateChange,
-    status,
-    t,
-    loading,
+  deviceData,
+  editingRow,
+  setEditingRow,
+  handleDateChange,
+  status,
+  t,
+  loading,
 }) => {
     const [editingValue, setEditingValue] = useState<string>("");
 
@@ -180,16 +180,16 @@ const CollectionDeviceTable: React.FC<Props> = ({
         },
     ];
 
-    return (
-        <Table
-            dataSource={deviceData}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            loading={loading}
-            scroll={{ x: "max-content" }}
-        />
-    );
+  return (
+    <Table
+      dataSource={deviceData}
+      columns={columns}
+      rowKey="id"
+      pagination={false}
+      loading={loading}
+      scroll={{ x: 'max-content' }}
+    />
+  );
 };
 
 export default CollectionDeviceTable;

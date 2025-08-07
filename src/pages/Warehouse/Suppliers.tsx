@@ -1,20 +1,19 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import InventoryEmpty from "@/assets/NoInventory.png";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import Input from "@/components/ui/Input/Input";
-import Button from "@/components/ui/Button/Button";
-import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
-import useSWRMutation from "swr/mutation";
-import { createSupplier, getSupplier } from "@/services/api/warehouse";
-import useSWR, { mutate } from "swr";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { Table } from "antd";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import { ColumnsType } from "antd/es/table";
+import NoDataUI from '@/components/ui/NoDataUI';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import InventoryEmpty from '@/assets/NoInventory.png';
+import Input from '@/components/ui/Input/Input';
+import Button from '@/components/ui/Button/Button';
+import useFormHook from '@/hooks/useFormHook';
+import { useToast } from '@/components/context/useContext';
+import useSWRMutation from 'swr/mutation';
+import { createSupplier, getSupplier } from '@/services/api/warehouse';
+import useSWR, { mutate } from 'swr';
+import TableSkeleton from '@/components/ui/Table/TableSkeleton';
+import { Drawer, Table } from 'antd';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import { ColumnsType } from 'antd/es/table';
 
 type Supplier = {
   id: number;
@@ -24,7 +23,7 @@ type Supplier = {
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
@@ -37,11 +36,11 @@ const Suppliers: React.FC = () => {
     }
   );
 
-  const supplier = supplierData?.map((sup) => sup.props) || [];
+  const supplier = supplierData?.map(sup => sup.props) || [];
 
   const defaultValues = {
-    name: "",
-    contact: "",
+    name: '',
+    contact: '',
   };
 
   const [formData, setFormData] = useState(defaultValues);
@@ -50,7 +49,7 @@ const Suppliers: React.FC = () => {
     useFormHook(formData);
 
   const { trigger: createSup, isMutating } = useSWRMutation(
-    ["create-supplier"],
+    ['create-supplier'],
     async () =>
       createSupplier({
         name: formData.name,
@@ -58,17 +57,17 @@ const Suppliers: React.FC = () => {
       })
   );
 
-  type FieldType = "name" | "contact";
+  type FieldType = 'name' | 'contact';
 
   const handleInputChange = (field: FieldType, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
 
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -78,37 +77,45 @@ const Suppliers: React.FC = () => {
         mutate([`get-supplier`]);
         resetForm();
       } else {
-        throw new Error("Invalid response from API");
+        throw new Error('Invalid response from API');
       }
     } catch (error) {
-      console.error("Error during form submission: ", error);
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
   const columnsSupplier: ColumnsType<Supplier> = [
     {
-      title: "№",
-      dataIndex: "id",
-      key: "id",
+      title: '№',
+      dataIndex: 'id',
+      key: 'id',
     },
     {
-      title: "Ниименование",
-      dataIndex: "name",
-      key: "name",
+      title: 'Ниименование',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Контакт",
-      dataIndex: "contact",
-      key: "contact",
+      title: 'Контакт',
+      dataIndex: 'contact',
+      key: 'contact',
     },
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsSupplier, "suppliers-table-columns");
+    useColumnSelector(columnsSupplier, 'suppliers-table-columns');
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t('routes.create')}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       {loadingSupplier ? (
         <TableSkeleton columnCount={columnsSupplier.length} />
       ) : supplier.length > 0 ? (
@@ -126,7 +133,7 @@ const Suppliers: React.FC = () => {
         </div>
       ) : (
         <div className="flex flex-col justify-center items-center">
-          <NoDataUI title={t("warehouse.noSupply")} description={""}>
+          <NoDataUI title={t('warehouse.noSupply')} description={''}>
             <img
               src={InventoryEmpty}
               className="mx-auto"
@@ -136,57 +143,61 @@ const Suppliers: React.FC = () => {
           </NoDataUI>
         </div>
       )}
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t('routes.suppliers')}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t("routes.suppliers")}
-          </div>
           <span className="font-semibold text-sm text-text01">
-            {t("warehouse.fields")}
+            {t('warehouse.fields')}
           </span>
           <div className="font-semibold text-2xl mb-5 text-text01">
-            {t("warehouse.basic")}
+            {t('warehouse.basic')}
           </div>
           <Input
-            type={""}
-            title={t("warehouse.supName")}
-            label={t("warehouse.enterSup")}
+            type={''}
+            title={t('warehouse.supName')}
+            label={t('warehouse.enterSup')}
             classname="w-80"
             value={formData.name}
-            changeValue={(e) => handleInputChange("name", e.target.value)}
+            changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register("name", { required: "Name is required" })}
-            helperText={errors.name?.message || ""}
+            {...register('name', { required: 'Name is required' })}
+            helperText={errors.name?.message || ''}
           />
           <Input
-            type={""}
-            title={`${t("profile.telephone")}*`}
-            label={t("warehouse.enterPhone")}
+            type={''}
+            title={`${t('profile.telephone')}*`}
+            label={t('warehouse.enterPhone')}
             classname="w-80"
             value={formData.contact}
-            changeValue={(e) => handleInputChange("contact", e.target.value)}
+            changeValue={e => handleInputChange('contact', e.target.value)}
             error={!!errors.contact}
-            {...register("contact", { required: "Contact is required" })}
-            helperText={errors.contact?.message || ""}
+            {...register('contact', { required: 'Contact is required' })}
+            helperText={errors.contact?.message || ''}
           />
           <div className="flex space-x-4">
             <Button
-              title={t("organizations.cancel")}
+              title={t('organizations.cancel')}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
             <Button
-              title={t("organizations.save")}
+              title={t('organizations.save')}
               form={true}
               isLoading={isMutating}
               handleClick={() => {}}
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };

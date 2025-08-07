@@ -1,29 +1,28 @@
-import Button from "@/components/ui/Button/Button";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import useFormHook from "@/hooks/useFormHook";
-import { getPoses } from "@/services/api/equipment";
+import Button from '@/components/ui/Button/Button';
+import DropdownInput from '@/components/ui/Input/DropdownInput';
+import useFormHook from '@/hooks/useFormHook';
+import { getPoses } from '@/services/api/equipment';
 import {
   getCollectionById,
   postCollection,
   recalculateCollection,
   returnCollection,
   sendCollection,
-} from "@/services/api/finance";
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
-import { useCity } from "@/hooks/useAuthStore";
-import DateTimeInput from "@/components/ui/Input/DateTimeInput";
-import dayjs from "dayjs";
-import { Descriptions, Divider } from "antd";
-import { usePermissions } from "@/hooks/useAuthStore";
-import { Can } from "@/permissions/Can";
-import { UpOutlined, DownOutlined } from "@ant-design/icons";
-import { useToast } from "@/components/context/useContext";
-import CashCollectionDeviceTypeTable from "@/pages/Finance/CashCollectionDeviceTypeTable";
-import CollectionDeviceTable from "@/pages/Finance/CollectionDeviceTable";
+} from '@/services/api/finance';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
+import DateTimeInput from '@/components/ui/Input/DateTimeInput';
+import dayjs from 'dayjs';
+import { Descriptions, Divider } from 'antd';
+import { usePermissions } from '@/hooks/useAuthStore';
+import { Can } from '@/permissions/Can';
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
+import { useToast } from '@/components/context/useContext';
+import CashCollectionDeviceTypeTable from '@/pages/Finance/CashCollectionDeviceTypeTable';
+import CollectionDeviceTable from '@/pages/Finance/CollectionDeviceTable';
 
 type TableRow = {
   id: number;
@@ -87,12 +86,14 @@ const CollectionCreation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const city = useCity();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
-  const id = searchParams.get("id");
-  const status = searchParams.get("status");
+  const id = searchParams.get('id');
+  const status = searchParams.get('status');
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
+
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -114,11 +115,11 @@ const CollectionCreation: React.FC = () => {
   );
 
   const poses: { name: string; value: number }[] =
-    posData?.map((item) => ({ name: item.name, value: item.id })) || [];
+    posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const defaultValues = {
     posId: 0,
-    cashCollectionDate: "",
+    cashCollectionDate: '',
   };
 
   const [formData, setFormData] = useState(defaultValues);
@@ -126,7 +127,7 @@ const CollectionCreation: React.FC = () => {
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
   const { trigger: postColl, isMutating: collectionLoading } = useSWRMutation(
-    ["post-collection"],
+    ['post-collection'],
     async () =>
       postCollection({
         cashCollectionDate: new Date(formData.cashCollectionDate),
@@ -135,16 +136,16 @@ const CollectionCreation: React.FC = () => {
   );
 
   const { trigger: returnColl, isMutating: returningColl } = useSWRMutation(
-    id ? ["return-collection"] : null,
+    id ? ['return-collection'] : null,
     async () => returnCollection(Number(id))
   );
 
-  type FieldType = "posId" | "cashCollectionDate";
+  type FieldType = 'posId' | 'cashCollectionDate';
 
   const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ["posId"];
+    const numericFields = ['posId'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
-    setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+    setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
   };
 
@@ -170,11 +171,11 @@ const CollectionCreation: React.FC = () => {
         setHideButton(true);
         // resetForm();
       } else {
-        throw new Error("Invalid update data.");
+        throw new Error('Invalid update data.');
       }
     } catch (error) {
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
-      console.error("Error during form submission: ", error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      console.error('Error during form submission: ', error);
     }
   };
 
@@ -194,10 +195,8 @@ const CollectionCreation: React.FC = () => {
     key: string,
     value: string | number
   ) => {
-    setTableData((prevData) =>
-      prevData?.map((item) =>
-        item.id === id ? { ...item, [key]: value } : item
-      )
+    setTableData(prevData =>
+      prevData?.map(item => (item.id === id ? { ...item, [key]: value } : item))
     );
   };
 
@@ -209,15 +208,15 @@ const CollectionCreation: React.FC = () => {
     const inputDate = e.target.value;
     const isoDate = new Date(inputDate).toISOString();
 
-    setDeviceData((prevData) =>
-      prevData.map((row) =>
+    setDeviceData(prevData =>
+      prevData.map(row =>
         row.deviceId === rowId ? { ...row, [key]: isoDate } : row
       )
     );
   };
 
   const { trigger: recalCollection, isMutating } = useSWRMutation(
-    ["recal-collection"],
+    ['recal-collection'],
     async (
       _,
       {
@@ -241,7 +240,7 @@ const CollectionCreation: React.FC = () => {
   );
 
   const { trigger: senCollection, isMutating: sendingColl } = useSWRMutation(
-    ["send-collection"],
+    ['send-collection'],
     async (
       _,
       {
@@ -270,7 +269,7 @@ const CollectionCreation: React.FC = () => {
       sumCoin: number;
       sumPaper: number;
     }[] =
-      tableData?.map((data) => ({
+      tableData?.map(data => ({
         cashCollectionDeviceTypeId: data.id,
         sumCoin: Number(data.sumCoinDeviceType),
         sumPaper: Number(data.sumPaperDeviceType),
@@ -280,7 +279,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDeviceId: number;
       tookMoneyTime: Date;
     }[] =
-      deviceData?.map((data) => ({
+      deviceData?.map(data => ({
         cashCollectionDeviceId: data.id,
         tookMoneyTime: data.tookMoneyTime,
       })) || [];
@@ -303,7 +302,7 @@ const CollectionCreation: React.FC = () => {
       sumCoin: number;
       sumPaper: number;
     }[] =
-      tableData?.map((data) => ({
+      tableData?.map(data => ({
         cashCollectionDeviceTypeId: data.id,
         sumCoin: Number(data.sumCoinDeviceType),
         sumPaper: Number(data.sumPaperDeviceType),
@@ -313,7 +312,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDeviceId: number;
       tookMoneyTime: Date;
     }[] =
-      deviceData?.map((data) => ({
+      deviceData?.map(data => ({
         cashCollectionDeviceId: data.id,
         tookMoneyTime: data.tookMoneyTime,
       })) || [];
@@ -327,7 +326,7 @@ const CollectionCreation: React.FC = () => {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
       setCollectionData(result);
-      navigate("/finance/collection");
+      navigate('/finance/collection');
     }
   };
 
@@ -335,55 +334,55 @@ const CollectionCreation: React.FC = () => {
     const result = await returnColl();
 
     if (result) {
-      navigate("/finance/collection");
+      navigate('/finance/collection');
     }
   };
 
   return (
     <div className="space-y-6">
-      {status === t("tables.SENT") || status === t("tables.SAVED") ? (
+      {status === t('tables.SENT') || status === t('tables.SAVED') ? (
         <></>
       ) : (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex space-x-4">
             <DateTimeInput
-              title={t("finance.start") + "*"}
+              title={t('finance.start') + '*'}
               value={
                 formData.cashCollectionDate
                   ? dayjs(formData.cashCollectionDate)
                   : undefined
               }
-              changeValue={(date) =>
+              changeValue={date =>
                 handleInputChange(
-                  "cashCollectionDate",
-                  date ? date.format("YYYY-MM-DDTHH:mm") : ""
+                  'cashCollectionDate',
+                  date ? date.format('YYYY-MM-DDTHH:mm') : ''
                 )
               }
               error={!!errors.cashCollectionDate}
-              helperText={errors.cashCollectionDate?.message || ""}
-              {...register("cashCollectionDate", {
-                required: "Cash Collection Date is required",
+              helperText={errors.cashCollectionDate?.message || ''}
+              {...register('cashCollectionDate', {
+                required: 'Cash Collection Date is required',
               })}
               classname="w-64"
             />
           </div>
           <DropdownInput
-            title={t("finance.carWash")}
+            title={t('finance.carWash')}
             options={poses}
             classname="w-64"
-            {...register("posId", {
-              required: "Pos ID is required",
-              validate: (value) => value !== 0 || "Pos ID is required",
+            {...register('posId', {
+              required: 'Pos ID is required',
+              validate: value => value !== 0 || 'Pos ID is required',
             })}
             value={formData.posId}
-            onChange={(value) => handleInputChange("posId", value)}
+            onChange={value => handleInputChange('posId', value)}
             error={!!errors.posId}
             helperText={errors.posId?.message}
           />
           {!hideButton && (
             <div className="flex justify-between">
               <Button
-                title={t("finance.form")}
+                title={t('finance.form')}
                 isLoading={collectionLoading}
                 form={true}
               />
@@ -394,7 +393,7 @@ const CollectionCreation: React.FC = () => {
       <div className="flex justify-end">
         {collectionData && Object.keys(collectionData).length > 0 && (
           <Button
-            title={t("finance.add")}
+            title={t('finance.add')}
             type="outline"
             iconUp={showData}
             iconDown={!showData}
@@ -405,35 +404,35 @@ const CollectionCreation: React.FC = () => {
       {showData && collectionData && Object.keys(collectionData).length > 0 && (
         <>
           <Descriptions
-            title={""}
+            title={''}
             column={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 3 }}
             labelStyle={{ fontWeight: 500 }}
             contentStyle={{
-              textAlign: "right",
-              fontSize: "16px",
-              fontWeight: "bold",
+              textAlign: 'right',
+              fontSize: '16px',
+              fontWeight: 'bold',
             }}
           >
-            <Descriptions.Item label={t("finance.no")}>
+            <Descriptions.Item label={t('finance.no')}>
               {collectionData.id}
             </Descriptions.Item>
-            <Descriptions.Item label={t("marketing.total")}>{`${
-              collectionData.sumFact || "00"
+            <Descriptions.Item label={t('marketing.total')}>{`${
+              collectionData.sumFact || '00'
             } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t("finance.cars")}>
+            <Descriptions.Item label={t('finance.cars')}>
               {collectionData.countCar || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t("finance.cash")}>{`${
-              collectionData.virtualSum || "00"
+            <Descriptions.Item label={t('finance.cash')}>{`${
+              collectionData.virtualSum || '00'
             } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t("finance.amt")}>{`${
-              collectionData.sumCard || "00"
+            <Descriptions.Item label={t('finance.amt')}>{`${
+              collectionData.sumCard || '00'
             } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t("finance.short")}>{`${
-              collectionData.shortage || "00"
+            <Descriptions.Item label={t('finance.short')}>{`${
+              collectionData.shortage || '00'
             } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t("marketing.avg")}>{`${
-              collectionData.averageCheck || "00"
+            <Descriptions.Item label={t('marketing.avg')}>{`${
+              collectionData.averageCheck || '00'
             } ₽`}</Descriptions.Item>
           </Descriptions>
 
@@ -451,7 +450,7 @@ const CollectionCreation: React.FC = () => {
                 {openCashColl ? <UpOutlined /> : <DownOutlined />}
               </div>
               <div className="text-2xl font-semibold text-text01">
-                {t("finance.cashColl")}
+                {t('finance.cashColl')}
               </div>
             </div>
             {openCashColl && (
@@ -479,7 +478,7 @@ const CollectionCreation: React.FC = () => {
                 {openCollDevice ? <UpOutlined /> : <DownOutlined />}
               </div>
               <div className="text-2xl font-semibold text-text01">
-                {t("finance.collDev")}
+                {t('finance.collDev')}
               </div>
             </div>
             {openCollDevice && (
@@ -502,22 +501,22 @@ const CollectionCreation: React.FC = () => {
         <div className="flex space-x-3">
           <Button
             type="outline"
-            title={t("organizations.cancel")}
-            handleClick={() => navigate("/finance/collection")}
+            title={t('organizations.cancel')}
+            handleClick={() => navigate('/finance/collection')}
           />
           <Can
             requiredPermissions={[
-              { action: "manage", subject: "CashCollection" },
-              { action: "create", subject: "CashCollection" },
+              { action: 'manage', subject: 'CashCollection' },
+              { action: 'create', subject: 'CashCollection' },
             ]}
             userPermissions={userPermissions}
           >
-            {(allowed) =>
+            {allowed =>
               allowed &&
-              status !== t("tables.SENT") && (
+              status !== t('tables.SENT') && (
                 <Button
                   type="outline"
-                  title={t("finance.recal")}
+                  title={t('finance.recal')}
                   isLoading={isMutating}
                   form={true}
                   handleClick={handleRecalculation}
@@ -527,16 +526,16 @@ const CollectionCreation: React.FC = () => {
           </Can>
           <Can
             requiredPermissions={[
-              { action: "manage", subject: "CashCollection" },
-              { action: "create", subject: "CashCollection" },
+              { action: 'manage', subject: 'CashCollection' },
+              { action: 'create', subject: 'CashCollection' },
             ]}
             userPermissions={userPermissions}
           >
-            {(allowed) =>
+            {allowed =>
               allowed &&
-              status !== t("tables.SENT") && (
+              status !== t('tables.SENT') && (
                 <Button
-                  title={t("finance.recalSend")}
+                  title={t('finance.recalSend')}
                   isLoading={sendingColl}
                   form={true}
                   handleClick={handleSend}
@@ -546,16 +545,16 @@ const CollectionCreation: React.FC = () => {
           </Can>
           <Can
             requiredPermissions={[
-              { action: "manage", subject: "CashCollection" },
-              { action: "update", subject: "CashCollection" },
+              { action: 'manage', subject: 'CashCollection' },
+              { action: 'update', subject: 'CashCollection' },
             ]}
             userPermissions={userPermissions}
           >
-            {(allowed) =>
+            {allowed =>
               allowed &&
-              status === t("tables.SENT") && (
+              status === t('tables.SENT') && (
                 <Button
-                  title={t("finance.refund")}
+                  title={t('finance.refund')}
                   isLoading={returningColl}
                   handleClick={handleReturn}
                 />

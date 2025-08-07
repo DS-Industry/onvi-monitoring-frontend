@@ -1,24 +1,26 @@
-import NoDataUI from "@/components/ui/NoDataUI";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import InventoryEmpty from "@/assets/NoInventory.png";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import Input from "@/components/ui/Input/Input";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
-import Button from "@/components/ui/Button/Button";
-import useSWR, { mutate } from "swr";
-import { createCategory, getCategory, updateCategory } from "@/services/api/warehouse";
-import useFormHook from "@/hooks/useFormHook";
-import useSWRMutation from "swr/mutation";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
-import TableSkeleton from "@/components/ui/Table/TableSkeleton";
-import { Table, Popconfirm, Input as AntInput, Button as AntButton } from "antd";
-import { usePermissions } from "@/hooks/useAuthStore";
-import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
-import { Can } from "@/permissions/Can";
-import { Tooltip } from "antd";
-import { ColumnsType } from "antd/es/table";
+import NoDataUI from '@/components/ui/NoDataUI';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import InventoryEmpty from '@/assets/NoInventory.png';
+import Input from '@/components/ui/Input/Input';
+import DropdownInput from '@/components/ui/Input/DropdownInput';
+import MultilineInput from '@/components/ui/Input/MultilineInput';
+import Button from '@/components/ui/Button/Button';
+import useSWR, { mutate } from 'swr';
+import {
+  createCategory,
+  getCategory,
+  updateCategory,
+} from '@/services/api/warehouse';
+import useFormHook from '@/hooks/useFormHook';
+import useSWRMutation from 'swr/mutation';
+import { useToast } from '@/components/context/useContext';
+import TableSkeleton from '@/components/ui/Table/TableSkeleton';
+import Table, { ColumnsType } from 'antd/es/table';
+import { usePermissions } from '@/hooks/useAuthStore';
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
+import { Can } from '@/permissions/Can';
+import { Drawer, Tooltip, Input as AntInput, Button as AntButton, Popconfirm } from 'antd';
 
 type TreeData = {
   id: number;
@@ -39,16 +41,22 @@ const buildTree = (data: unknown[]): TreeData[] => {
   const map: Record<number, TreeData> = {};
   const roots: TreeData[] = [];
 
-  data.forEach((item) => {
+  data.forEach(item => {
     const typedItem = item as TreeData;
     map[typedItem.id] = { ...typedItem, children: [] };
   });
 
-  data.forEach((item) => {
+  data.forEach(item => {
     const typedItem = item as TreeData;
-    if (typedItem.ownerCategoryId === null || typeof typedItem.ownerCategoryId !== "number") {
+    if (
+      typedItem.ownerCategoryId === null ||
+      typeof typedItem.ownerCategoryId !== 'number'
+    ) {
       roots.push(map[typedItem.id]);
-    } else if (typeof typedItem.ownerCategoryId === "number" && map[typedItem.ownerCategoryId]) {
+    } else if (
+      typeof typedItem.ownerCategoryId === 'number' &&
+      map[typedItem.ownerCategoryId]
+    ) {
       map[typedItem.ownerCategoryId]?.children?.push(map[typedItem.id]);
     }
   });
@@ -58,9 +66,9 @@ const buildTree = (data: unknown[]): TreeData[] => {
 
 const InventoryGroups: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<{name: string, description: string}>({name: '', description: ''});
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
 
   const { data: categoryData, isLoading: loadingCategory } = useSWR(
@@ -74,16 +82,16 @@ const InventoryGroups: React.FC = () => {
   );
 
   const categories: { name: string; value: number }[] =
-    categoryData?.map((item) => ({
+    categoryData?.map(item => ({
       name: item.props.name,
       value: item.props.id,
     })) || [];
 
-  const category = categoryData?.map((cat) => cat.props) || [];
+  const category = categoryData?.map(cat => cat.props) || [];
 
   const defaultValues: CATEGORY = {
-    name: "",
-    description: "",
+    name: '',
+    description: '',
     ownerCategoryId: undefined,
   };
 
@@ -91,7 +99,7 @@ const InventoryGroups: React.FC = () => {
   const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
   const { trigger: createCat, isMutating } = useSWRMutation(
-    ["create-inventory"],
+    ['create-inventory'],
     async () =>
       createCategory({
         name: formData.name,
@@ -112,19 +120,19 @@ const InventoryGroups: React.FC = () => {
       )
   );
 
-  type FieldType = "name" | "description" | "ownerCategoryId";
+  type FieldType = 'name' | 'description' | 'ownerCategoryId';
 
   const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ["ownerCategoryId"];
+    const numericFields = ['ownerCategoryId'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
-    setFormData((prev) => ({ ...prev, [field]: updatedValue }));
+    setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
   };
 
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -133,8 +141,8 @@ const InventoryGroups: React.FC = () => {
       mutate([`get-category`]);
       resetForm();
     } catch (error) {
-      console.error("Error during form submission: ", error);
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
@@ -260,6 +268,14 @@ const InventoryGroups: React.FC = () => {
 
   return (
     <>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t('routes.create')}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       {loadingCategory ? (
         <TableSkeleton columnCount={3} />
       ) : treeData.length > 0 ? (
@@ -267,16 +283,16 @@ const InventoryGroups: React.FC = () => {
           <Table<TreeData>
             columns={generateColumns()}
             dataSource={treeData}
-            rowKey={(record) => record.id}
+            rowKey={record => record.id}
             pagination={false}
             expandable={{
-              childrenColumnName: "children",
+              childrenColumnName: 'children',
             }}
             scroll={{ x: true }}
           />
         </div>
       ) : (
-        <NoDataUI title={t("warehouse.nomenclature")} description={""}>
+        <NoDataUI title={t('warehouse.nomenclature')} description={''}>
           <img
             src={InventoryEmpty}
             className="mx-auto"
@@ -285,39 +301,42 @@ const InventoryGroups: React.FC = () => {
           />
         </NoDataUI>
       )}
-      
-      <DrawerCreate classname="w-[440px]" onClose={resetForm}>
+      <Drawer
+        title={t('warehouse.groupCreate')}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {t("warehouse.groupCreate")}
-          </div>
           <span className="font-semibold text-sm text-text01">
-            {t("warehouse.fields")}
+            {t('warehouse.fields')}
           </span>
           <Input
-            title={t("profile.name")}
-            label={t("warehouse.enter")}
-            type={"text"}
+            title={t('profile.name')}
+            label={t('warehouse.enter')}
+            type={'text'}
             classname="w-80"
             value={formData.name}
-            changeValue={(e) => handleInputChange("name", e.target.value)}
+            changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
             {...register("name", {
               required: "Name is required",
             })}
-            helperText={errors.name?.message || ""}
+            helperText={errors.name?.message || ''}
           />
           <DropdownInput
             title={`${t("warehouse.included")}`}
             options={categories}
             classname="w-64"
-            {...register("ownerCategoryId")}
+            {...register('ownerCategoryId')}
             value={formData.ownerCategoryId}
             onChange={(value) => handleInputChange("ownerCategoryId", value)}
           />
           <MultilineInput
-            title={t("warehouse.desc")}
-            label={t("warehouse.about")}
+            title={t('warehouse.desc')}
+            label={t('warehouse.about')}
             classname="w-80"
             inputType="secondary"
             value={formData.description}
@@ -325,21 +344,21 @@ const InventoryGroups: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              title={t("warehouse.reset")}
+              title={t('warehouse.reset')}
               type="outline"
               handleClick={() => {
                 resetForm();
               }}
             />
             <Button
-              title={t("routes.create")}
+              title={t('routes.create')}
               form={true}
               isLoading={isMutating}
               handleClick={() => {}}
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };

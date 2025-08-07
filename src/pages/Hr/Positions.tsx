@@ -1,20 +1,23 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import DrawerCreate from "@/components/ui/Drawer/DrawerCreate";
-import Input from "@/components/ui/Input/Input";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
-import useFormHook from "@/hooks/useFormHook";
-import { useButtonCreate, useToast } from "@/components/context/useContext";
-import Button from "@/components/ui/Button/Button";
-import useSWR, { mutate } from "swr";
-import { createPosition, getPositions, updatePosition } from "@/services/api/hr";
-import useSWRMutation from "swr/mutation";
-import { useCity } from "@/hooks/useAuthStore";
-import { getOrganization } from "@/services/api/organization";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import { Table, Popconfirm, Typography, Input as AntInput, Button as AntButton } from "antd";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Input from '@/components/ui/Input/Input';
+import MultilineInput from '@/components/ui/Input/MultilineInput';
+import useFormHook from '@/hooks/useFormHook';
+import { useToast } from '@/components/context/useContext';
+import Button from '@/components/ui/Button/Button';
+import useSWR, { mutate } from 'swr';
+import {
+  createPosition,
+  getPositions,
+  updatePosition,
+} from '@/services/api/hr';
+import useSWRMutation from 'swr/mutation';
+import { getOrganization } from '@/services/api/organization';
+import DropdownInput from '@/components/ui/Input/DropdownInput';
+import { Drawer, Table, Popconfirm, Typography, Input as AntInput, Button as AntButton } from "antd";
 import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType } from 'antd/es/table';
+import { useSearchParams } from 'react-router-dom';
 
 type Positions = {
   id: number;
@@ -25,34 +28,59 @@ type Positions = {
 
 const Positions: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState<string>("");
-  const city = useCity();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
+
   const { showToast } = useToast();
 
-  const { data: organizationData } = useSWR([`get-organization`], () => getOrganization({ placementId: city }), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const { data: organizationData } = useSWR(
+    [`get-organization`],
+    () => getOrganization({ placementId: city }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-  const organizations: { name: string; value: number; }[] = organizationData?.map((item) => ({ name: item.name, value: item.id })) || [];
+  const organizations: { name: string; value: number }[] =
+    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
 
-  const { data: positionData, isLoading: positionLoading, isValidating } = useSWR([`get-positions`], () => getPositions(), { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true });
+  const {
+    data: positionData,
+    isLoading: positionLoading,
+    isValidating,
+  } = useSWR([`get-positions`], () => getPositions(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const defaultValues: Positions = {
     id: -1,
-    name: "",
+    name: '',
     organizationId: 0,
     description: undefined,
   };
 
   const [formData, setFormData] = useState(defaultValues);
 
-  const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
+  const { register, handleSubmit, errors, setValue, reset } =
+    useFormHook(formData);
 
-  const { trigger: createPos, isMutating } = useSWRMutation(['create-position'], async () => createPosition({
-    name: formData.name,
-    organizationId: formData.organizationId,
-    description: formData.description
-  }));
+  const { trigger: createPos, isMutating } = useSWRMutation(
+    ['create-position'],
+    async () =>
+      createPosition({
+        name: formData.name,
+        organizationId: formData.organizationId,
+        description: formData.description,
+      })
+  );
 
   const { trigger: updatePos } = useSWRMutation(
     'update-position',
@@ -60,17 +88,17 @@ const Positions: React.FC = () => {
       updatePosition(arg)
   );
 
-  type FieldType = "name" | "organizationId" | "description";
+  type FieldType = 'name' | 'organizationId' | 'description';
 
   const handleInputChange = (field: FieldType, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
 
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setButtonOn(!buttonOn);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -79,8 +107,8 @@ const Positions: React.FC = () => {
       mutate([`get-positions`]);
       resetForm();
     } catch (error) {
-      console.error("Error during form submission: ", error);
-      showToast(t("errors.other.errorDuringFormSubmission"), "error");
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
@@ -174,76 +202,94 @@ const Positions: React.FC = () => {
 
   return (
     <div>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t('routes.new')}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       <Table
         dataSource={positionsData}
         columns={columns}
         rowKey="id"
         pagination={false}
         loading={positionLoading || isValidating}
-        scroll={{ x: "max-content" }}
+        scroll={{ x: 'max-content' }}
       />
 
-      <DrawerCreate onClose={resetForm}>
+      <Drawer
+        title={t('hr.pos')}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">{t("hr.pos")}</div>
           <div className="flex">
-            <span className="font-semibold text-sm text-text01">{t("routine.fields")}</span>
+            <span className="font-semibold text-sm text-text01">
+              {t('routine.fields')}
+            </span>
             <span className="text-errorFill">*</span>
-            <span className="font-semibold text-sm text-text01">{t("routine.are")}</span>
+            <span className="font-semibold text-sm text-text01">
+              {t('routine.are')}
+            </span>
           </div>
           <Input
-            title={`${t("hr.name")}*`}
-            label={t("hr.enter")}
-            type={"text"}
+            title={`${t('hr.name')}*`}
+            label={t('hr.enter')}
+            type={'text'}
             classname="w-80"
             value={formData.name}
-            changeValue={(e) => handleInputChange('name', e.target.value)}
+            changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
             {...register('name', { required: 'Name is required' })}
             helperText={errors.name?.message || ''}
           />
           <DropdownInput
-            title={t("warehouse.organization")}
+            title={t('warehouse.organization')}
             options={organizations}
             classname="w-64"
             {...register('organizationId', {
               required: 'Organization Id is required',
-              validate: (value) =>
-                (value !== 0) || "Organization Id is required"
+              validate: value => value !== 0 || 'Organization Id is required',
             })}
             value={formData.organizationId}
-            onChange={(value) => handleInputChange('organizationId', value)}
+            onChange={value => handleInputChange('organizationId', value)}
             error={!!errors.organizationId}
             helperText={errors.organizationId?.message}
           />
           <MultilineInput
-            title={t("warehouse.desc")}
-            label={t("hr.about")}
+            title={t('warehouse.desc')}
+            label={t('hr.about')}
             classname="w-80"
             inputType="secondary"
             value={formData.description}
-            changeValue={(e) => handleInputChange('description', e.target.value)}
+            changeValue={e => handleInputChange('description', e.target.value)}
             {...register('description')}
           />
           <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
             <Button
-              title={t("organizations.cancel")}
-              type="outline" handleClick={() => {
-                setButtonOn(!buttonOn);
+              title={t('organizations.cancel')}
+              type="outline"
+              handleClick={() => {
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
             <Button
-              title={t("hr.pos")}
+              title={t('hr.pos')}
               form={true}
               isLoading={isMutating}
-              handleClick={() => { }}
+              handleClick={() => {}}
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </div>
-  )
-}
+  );
+};
 
 export default Positions;
