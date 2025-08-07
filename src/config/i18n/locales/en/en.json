@@ -1062,14 +1062,6 @@
     "noAdvance": "There are no more employees to calculate the advance payment during the specified period.",
     "noSalary": "There are no more employees to calculate salaries during the specified period."
   },
-  "common": {
-    "previous": "Previous",
-    "next": "Next",
-    "cancel": "Cancel",
-    "create": "Create",
-    "save": "Save",
-    "cancelChanges": "Discard changes"
-  },
   "notifications": {
     "fav": "Favorite",
     "basket": "Trash",
@@ -1151,7 +1143,28 @@
     "sumRequired": "Sum is required",
     "deviceRequired": "Device is required",
     "dateRequired": "Date is required",
-    "commentRequired": "Comment is required"
+    "commentRequired": "Comment is required",
+    "nameRequired": "Name is required",
+    "cityRequired": "City is required",
+    "locationRequired": "Location is required",
+    "timeWorkRequired": "Time work is required",
+    "monthlyPlanRequired": "Monthly Plan is required",
+    "organizationRequired": "Organization is required",
+    "carWashPosTypeRequired": "Car Wash Pos Type is required",
+    "stepSumOrderRequired": "Step Sum Order is required",
+    "minSumOrderRequired": "Min Sum Order is required",
+    "maxSumOrderRequired": "Max Sum Order is required",
+    "organizationTypeRequired": "Organization Type is required",
+    "vatRequired": "VAT is required",
+    "innRequired": "INN is required",
+    "okpoRequired": "OKPO is required",
+    "addressRegistrationRequired": "Registration Address is required",
+    "ogrnRequired": "OGRN is required",
+    "bikRequired": "BIK is required",
+    "correspondentAccountRequired": "Correspondent Account is required",
+    "bankRequired": "Bank is required",
+    "settlementAccountRequired": "Settlement Account is required",
+    "bankAddressRequired": "Bank Address is required"
   },
   "table": {
     "noData": "No Data"

@@ -14,7 +14,7 @@ import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
 import DirectoryArticles from '@/pages/Finance/DirectoryArticles';
 const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
-  () => import('@/pages/Organization/Organization')
+  () => import("@/pages/Organization/Organizations")
 );
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
@@ -92,7 +92,7 @@ const Timestamps = React.lazy(() => import('@/pages/Finance/Timestamps'));
 const IncomeReport = React.lazy(() => import('@/pages/Analysis/IncomeReport'));
 const Transactions = React.lazy(() => import('@/pages/Analysis/Transactions'));
 const ListOfEmployees = React.lazy(
-  () => import('@/pages/Organization/ListOfEmployees')
+  () => import("@/pages/Organization/ListOfEmployees/index")
 );
 const ListOfRoles = React.lazy(
   () => import('@/pages/Organization/ListOfRoles')
@@ -257,10 +257,10 @@ const routes = [
         subMenu: true,
       },
       {
-        name: 'legalEntities',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
+        name: "legalEntities",
+        filter: false,
+        addButton: false,
+        addButtonText: "add",
         isVisible: true,
         path: '/administration/legalRights',
         component: Organization,
@@ -276,10 +276,10 @@ const routes = [
         subMenu: false,
       },
       {
-        name: 'objectManagement',
-        filter: true,
-        addButton: true,
-        addButtonText: 'add',
+        name: "objectManagement",
+        filter: false,
+        addButton: false,
+        addButtonText: "add",
         isVisible: true,
         path: '/administration/objectManagement',
         component: Pos,
