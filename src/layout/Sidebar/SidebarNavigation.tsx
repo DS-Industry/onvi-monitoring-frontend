@@ -58,7 +58,16 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 
   const renderNavItem = useCallback(
     (item: RouteItem, level = 0): React.ReactNode => {
-      const { name, path, icon: Icon, subMenu, subNav, permissions } = item;
+      const {
+        name,
+        path,
+        icon: Icon,
+        subMenu,
+        subNav,
+        permissions,
+        isHr,
+        titleName,
+      } = item;
 
       return (
         <Can
@@ -69,6 +78,11 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           {(allowed: boolean) =>
             allowed ? (
               <div className="side-nav relative">
+                {titleName && (
+                  <div className="py-1 mx-4 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase text-text02">
+                    {t(`routes.${titleName}`)}
+                  </div>
+                )}
                 <NavLink
                   to={subMenu ? '#' : path}
                   onClick={e => {
@@ -134,6 +148,8 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 
                   {subMenu && isOpen && <ArrowRight className="ml-auto" />}
                 </NavLink>
+
+                {isHr && <hr className="my-3" />}
 
                 {subNav && isSubmenuOpenAtLevel(level, name) && isOpen && (
                   <div
