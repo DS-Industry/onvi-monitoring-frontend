@@ -124,14 +124,14 @@ const ListOfEmployees: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.subscriptions')}
+            {t('routes.listOf')}
           </span>
           <QuestionMarkIcon />
         </div>
         {allowed && (
           <Button
             icon={<PlusOutlined />}
-            className="bg-primary02 text-white p-5 hover:bg-primary02_Hover"
+            className="btn-primary"
             onClick={() => setIsModalOpenCreation(true)}
           >
             {t('routes.add')}
