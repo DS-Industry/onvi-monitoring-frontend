@@ -89,13 +89,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                     if (!isOpen) {
                       onClick();
                     }
+
                     if (subMenu) {
                       e.preventDefault();
                       openSubmenuAtLevel(level, name);
-                    } else {
-                      setOpenSubmenuPath([]);
-                      onNavigate();
+                      return;
                     }
+
+                    setOpenSubmenuPath([]);
+                    onNavigate();
                   }}
                   className={({ isActive }) => {
                     const isOpenSubmenu = isSubmenuOpenAtLevel(level, name);
@@ -153,7 +155,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 
                 {subNav && isSubmenuOpenAtLevel(level, name) && isOpen && (
                   <div
-                    className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-2 shadow-md"
+                    className="fixed top-0 bottom-0 w-64 overflow-y-auto bg-white p-2 shadow-md pt-5"
                     style={{
                       left: isMobile
                         ? 0
