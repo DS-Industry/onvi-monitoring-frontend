@@ -69,15 +69,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     tagIds: [],
   };
 
-  const { data: poses } = useSWR(
-    [`get-pos`],
-    () => getPoses({ placementId: '*' }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const {
     data: tagsData,

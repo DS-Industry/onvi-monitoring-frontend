@@ -1,11 +1,18 @@
-import React, { useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { Select, Collapse, DatePicker, Space, TimePicker, Typography } from "antd";
-import Button from "@ui/Button/Button.tsx";
-import dayjs, { Dayjs } from "dayjs";
-import { getParam, updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from "@/utils/constants.ts";
+import React, { useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  Select,
+  Collapse,
+  DatePicker,
+  Space,
+  TimePicker,
+  Typography,
+} from 'antd';
+import Button from '@ui/Button/Button.tsx';
+import dayjs, { Dayjs } from 'dayjs';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
 
 const Text = Typography.Text;
 
@@ -30,12 +37,12 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const rawStart = getParam(searchParams, "startPaymentDate");
+  const rawStart = getParam(searchParams, 'startPaymentDate');
   const [startDate, setStartDate] = useState<Dayjs | null>(
     rawStart ? dayjs(rawStart) : null
   );
 
-  const rawEnd = getParam(searchParams, "endPaymentDate");
+  const rawEnd = getParam(searchParams, 'endPaymentDate');
   const [endDate, setEndDate] = useState<Dayjs | null>(
     rawEnd ? dayjs(rawEnd) : null
   );
@@ -56,12 +63,12 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
   const handleStartDateChange = (date: Dayjs | null) => {
     if (date) {
       const newDateTime = (startDate || dayjs())
-        .set("year", date.year())
-        .set("month", date.month())
-        .set("date", date.date());
+        .set('year', date.year())
+        .set('month', date.month())
+        .set('date', date.date());
       setStartDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     } else {
@@ -76,11 +83,11 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
   const handleStartTimeChange = (time: Dayjs | null) => {
     if (time) {
       const newDateTime = (startDate || dayjs())
-        .set("hour", time.hour())
-        .set("minute", time.minute());
+        .set('hour', time.hour())
+        .set('minute', time.minute());
       setStartDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     } else {
@@ -88,7 +95,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
         const newDateTime = startDate.startOf('day');
         setStartDate(newDateTime);
         updateSearchParams(searchParams, setSearchParams, {
-          startPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+          startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
           page: DEFAULT_PAGE,
         });
       }
@@ -98,12 +105,12 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
   const handleEndDateChange = (date: Dayjs | null) => {
     if (date) {
       const newDateTime = (endDate || dayjs())
-        .set("year", date.year())
-        .set("month", date.month())
-        .set("date", date.date());
+        .set('year', date.year())
+        .set('month', date.month())
+        .set('date', date.date());
       setEndDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     } else {
@@ -118,11 +125,11 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
   const handleEndTimeChange = (time: Dayjs | null) => {
     if (time) {
       const newDateTime = (endDate || dayjs())
-        .set("hour", time.hour())
-        .set("minute", time.minute());
+        .set('hour', time.hour())
+        .set('minute', time.minute());
       setEndDate(newDateTime);
       updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+        endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
         page: DEFAULT_PAGE,
       });
     } else {
@@ -130,7 +137,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
         const newDateTime = endDate.startOf('day');
         setEndDate(newDateTime);
         updateSearchParams(searchParams, setSearchParams, {
-          endPaymentDate: newDateTime.format("YYYY-MM-DDTHH:mm"),
+          endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
           page: DEFAULT_PAGE,
         });
       }
@@ -146,112 +153,98 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
       onChange={(keys: string[]) => setActiveFilterKey(keys)}
       items={[
         {
-          key: "filter-1",
+          key: 'filter-1',
           label: (
             <span className="font-semibold text-base">
-              {Array.isArray(activeFilterKey) && activeFilterKey.includes("filter-1")
-                ? t("routes.filter")
-                : t("routes.expand")}
+              {Array.isArray(activeFilterKey) &&
+              activeFilterKey.includes('filter-1')
+                ? t('routes.filter')
+                : t('routes.expand')}
             </span>
           ),
-          style: { background: "#fafafa", borderRadius: 8 },
+          style: { background: '#fafafa', borderRadius: 8 },
           children: (
             <div
               ref={contentRef}
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
               <div className="mt-4">
-
                 <Space size="middle" direction="horizontal">
-
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("hr.startPaymentDate")}</Text>
+                    <Text>{t('hr.startPaymentDate')}</Text>
 
                     <div className="flex flex-row gap-1">
-
                       <DatePicker
                         value={startDate}
                         format="YYYY-MM-DD"
                         onChange={handleStartDateChange}
-                        placeholder={t("finance.sel")}
+                        placeholder={t('finance.sel')}
                       />
 
                       <TimePicker
                         value={startDate}
                         format="HH:mm"
                         onChange={handleStartTimeChange}
-                        placeholder={t("finance.selTime")}
+                        placeholder={t('finance.selTime')}
                         disabled={!startDate}
                       />
-
                     </div>
-
                   </Space>
 
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("hr.endPaymentDate")}</Text>
+                    <Text>{t('hr.endPaymentDate')}</Text>
 
                     <div className="flex flex-row gap-1">
-
                       <DatePicker
                         value={endDate}
                         format="YYYY-MM-DD"
                         onChange={handleEndDateChange}
-                        placeholder={t("finance.sel")}
+                        placeholder={t('finance.sel')}
                       />
 
                       <TimePicker
                         value={endDate}
                         format="HH:mm"
                         onChange={handleEndTimeChange}
-                        placeholder={t("finance.selTime")}
+                        placeholder={t('finance.selTime')}
                         disabled={!endDate}
                       />
-
                     </div>
-
                   </Space>
 
                   <Space direction="vertical" size={0}>
-
-                    <Text>{t("routes.employees")}</Text>
+                    <Text>{t('routes.employees')}</Text>
 
                     <Select
                       className="w-full sm:w-80"
-                      value={getParam(searchParams, "hrWorkerId", "*")}
+                      value={getParam(searchParams, 'hrWorkerId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           hrWorkerId: val,
                           page: DEFAULT_PAGE,
                         });
                       }}
-                      options={workers?.map((item) => ({
+                      options={workers?.map(item => ({
                         label: item.name,
                         value: String(item.value),
                       }))}
                     />
-
                   </Space>
-
                 </Space>
-
               </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
-
                 <Button
-                  title={t("analysis.reset")}
+                  title={t('analysis.reset')}
                   type="outline"
                   handleClick={resetFilters}
                   classname="w-[168px]"
                 />
 
-                <p className="font-semibold">{t("analysis.found")}: {count}</p>
-
+                <p className="font-semibold">
+                  {t('analysis.found')}: {count}
+                </p>
               </div>
-
             </div>
           ),
         },

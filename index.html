@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Your concise and SEO-friendly page description goes here. Onvi Monitoring Car Wash Machine System" />
+    <meta
+      name="description"
+      content="Your concise and SEO-friendly page description goes here. Onvi Monitoring Car Wash Machine System"
+    />
     <title>Onvi Monitoring</title>
     <style>
       /* Style for the loading screen */
@@ -32,8 +38,12 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -41,12 +51,12 @@
     <div id="loading-screen">
       <div class="spinner"></div>
     </div>
-    <div id="root" style="display: none;"></div>
+    <div id="root" style="display: none"></div>
     <script>
       // Hide loading screen and show app after content is loaded
-      window.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("loading-screen").style.display = "none";
-        document.getElementById("root").style.display = "block";
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('root').style.display = 'block';
       });
     </script>
     <script type="module" src="/src/main.tsx"></script>

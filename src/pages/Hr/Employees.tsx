@@ -1,33 +1,32 @@
-import React, { useState, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
-import { Table, Drawer } from "antd";
-import { ColumnsType } from "antd/es/table";
-import { useToast } from "@/components/context/useContext";
-import ProfilePhoto from "@/assets/ProfilePhoto.svg";
-import Button from "@/components/ui/Button/Button";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import DateInput from "@/components/ui/Input/DateInput";
-import DropdownInput from "@/components/ui/Input/DropdownInput";
-import EmployeesFilter from "@/components/ui/Filter/EmployeesFilter";
-import Input from "@/components/ui/Input/Input";
-import MultilineInput from "@/components/ui/Input/MultilineInput";
-import Notification from "@ui/Notification.tsx";
-import { useCity } from "@/hooks/useAuthStore";
-import useFormHook from "@/hooks/useFormHook";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
+import React, { useState, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { Table, Drawer } from 'antd';
+import { ColumnsType } from 'antd/es/table';
+import { useToast } from '@/components/context/useContext';
+import ProfilePhoto from '@/assets/ProfilePhoto.svg';
+import Button from '@/components/ui/Button/Button';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import DateInput from '@/components/ui/Input/DateInput';
+import DropdownInput from '@/components/ui/Input/DropdownInput';
+import EmployeesFilter from '@/components/ui/Filter/EmployeesFilter';
+import Input from '@/components/ui/Input/Input';
+import MultilineInput from '@/components/ui/Input/MultilineInput';
+import Notification from '@ui/Notification.tsx';
+import useFormHook from '@/hooks/useFormHook';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import {
   createWorker,
   getPositions,
   getWorkers,
   TWorker,
   WorkerParams,
-} from "@/services/api/hr";
-import { getPlacement } from "@/services/api/device";
-import { getOrganization } from "@/services/api/organization";
+} from '@/services/api/hr';
+import { getPlacement } from '@/services/api/device';
+import { getOrganization } from '@/services/api/organization';
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -45,7 +44,8 @@ const Employees: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const city = useCity();
+  const city = Number(searchParams.get('city')) || undefined;
+
   const { showToast } = useToast();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
@@ -75,14 +75,14 @@ const Employees: React.FC = () => {
   );
 
   const cities: { name: string; value: number }[] =
-    cityData?.map((item) => ({ name: item.region, value: item.id })) || [];
+    cityData?.map(item => ({ name: item.region, value: item.id })) || [];
 
   const organizations: {
     name: string;
     value: number | string;
     label: string;
   }[] =
-    organizationData?.map((item) => ({
+    organizationData?.map(item => ({
       name: item.name,
       value: item.id,
       label: item.name,
@@ -95,7 +95,7 @@ const Employees: React.FC = () => {
   };
 
   const positions: { name: string; value: number | string; label: string }[] =
-    positionData?.map((item) => ({
+    positionData?.map(item => ({
       name: item.props.name,
       value: item.props.id,
       label: item.props.name,
@@ -159,14 +159,14 @@ const Employees: React.FC = () => {
   );
 
   const tableData =
-    workersData?.map((item) => ({
+    workersData?.map(item => ({
       ...item.props,
-      placement: cities.find((city) => city.value === item.props.placementId)
+      placement: cities.find(city => city.value === item.props.placementId)
         ?.name,
       organization: organizations.find(
-        (org) => org.value === item.props.organizationId
+        org => org.value === item.props.organizationId
       )?.name,
-      position: positions.find((pos) => pos.value === item.props.hrPositionId)
+      position: positions.find(pos => pos.value === item.props.hrPositionId)
         ?.name,
     })) || [];
 
@@ -199,7 +199,7 @@ const Employees: React.FC = () => {
     useFormHook(formData);
 
   const { trigger: createEmp, isMutating } = useSWRMutation(
-    ["create-employee"],
+    ['create-employee'],
     async () =>
       createWorker(
         {
@@ -264,7 +264,7 @@ const Employees: React.FC = () => {
         refetchWorkers();
         resetForm();
       } else {
-        throw new Error("Invalid response from API");
+        throw new Error('Invalid response from API');
       }
     } catch (error) {
       console.error('Error during form submission: ', error);
@@ -335,13 +335,13 @@ const Employees: React.FC = () => {
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector<TWorker["props"]>(columnsEmployee, "employee-columns");
+    useColumnSelector<TWorker['props']>(columnsEmployee, 'employee-columns');
 
   return (
     <div>
       <div className="absolute top-6 right-6 z-50">
         <Button
-          title={t("routes.addE")}
+          title={t('routes.addE')}
           iconPlus={true}
           handleClick={() => setDrawerOpen(true)}
           classname="shadow-lg"
@@ -392,7 +392,7 @@ const Employees: React.FC = () => {
       />
 
       <Drawer
-        title={t("routes.addE")}
+        title={t('routes.addE')}
         placement="right"
         size="large"
         onClose={resetForm}
@@ -410,15 +410,15 @@ const Employees: React.FC = () => {
           )}
           <div className="flex">
             <span className="font-semibold text-sm text-text01">
-              {t("routine.fields")}
+              {t('routine.fields')}
             </span>
             <span className="text-errorFill">*</span>
             <span className="font-semibold text-sm text-text01">
-              {t("routine.are")}
+              {t('routine.are')}
             </span>
           </div>
           <div className="font-semibold text-2xl text-text01">
-            {t("warehouse.basic")}
+            {t('warehouse.basic')}
           </div>
           <Input
             title={`${t('hr.full')}*`}
@@ -426,58 +426,56 @@ const Employees: React.FC = () => {
             type={'text'}
             classname="w-80"
             value={formData.name}
-            changeValue={(e) => handleInputChange("name", e.target.value)}
+            changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register("name", { required: "Name is required" })}
-            helperText={errors.name?.message || ""}
+            {...register('name', { required: 'Name is required' })}
+            helperText={errors.name?.message || ''}
           />
           <DropdownInput
             title={`${t('roles.job')}*`}
             label={t('hr.selectPos')}
             options={positions}
             classname="w-64"
-            {...register("hrPositionId", {
-              required: "hrPositionId is required",
-              validate: (value) => value !== -1 || "Pos ID is required",
+            {...register('hrPositionId', {
+              required: 'hrPositionId is required',
+              validate: value => value !== -1 || 'Pos ID is required',
             })}
             value={formData.hrPositionId}
-            onChange={(value) => handleInputChange("hrPositionId", value)}
+            onChange={value => handleInputChange('hrPositionId', value)}
             error={!!errors.hrPositionId}
-            helperText={errors.hrPositionId?.message || ""}
+            helperText={errors.hrPositionId?.message || ''}
           />
           <DropdownInput
-            title={`${t("pos.city")} *`}
+            title={`${t('pos.city')} *`}
             label={
-              cities.length === 0 ? t("warehouse.noVal") : t("warehouse.notSel")
+              cities.length === 0 ? t('warehouse.noVal') : t('warehouse.notSel')
             }
             options={cities}
             classname="w-64"
-            {...register("placementId", {
-              required: "Placement Id is required",
-              validate: (value) =>
-                value !== -1 || "Organization ID is required",
+            {...register('placementId', {
+              required: 'Placement Id is required',
+              validate: value => value !== -1 || 'Organization ID is required',
             })}
             value={formData.placementId}
-            onChange={(value) => handleInputChange("placementId", value)}
+            onChange={value => handleInputChange('placementId', value)}
             error={!!errors.placementId}
             helperText={errors.placementId?.message}
           />
           <DropdownInput
-            title={`${t("warehouse.organization")} *`}
+            title={`${t('warehouse.organization')} *`}
             label={
               organizations.length === 0
-                ? t("warehouse.noVal")
-                : t("warehouse.notSel")
+                ? t('warehouse.noVal')
+                : t('warehouse.notSel')
             }
             options={organizations}
             classname="w-64"
-            {...register("organizationId", {
-              required: "Organization Id is required",
-              validate: (value) =>
-                value !== -1 || "Organization ID is required",
+            {...register('organizationId', {
+              required: 'Organization Id is required',
+              validate: value => value !== -1 || 'Organization ID is required',
             })}
             value={formData.organizationId}
-            onChange={(value) => handleInputChange("organizationId", value)}
+            onChange={value => handleInputChange('organizationId', value)}
             error={!!errors.organizationId}
             helperText={errors.organizationId?.message}
           />
@@ -488,13 +486,13 @@ const Employees: React.FC = () => {
               value={
                 formData.startWorkDate ? dayjs(formData.startWorkDate) : null
               }
-              changeValue={(date) =>
+              changeValue={date =>
                 handleInputChange(
-                  "startWorkDate",
-                  date ? date.format("YYYY-MM-DD") : ""
+                  'startWorkDate',
+                  date ? date.format('YYYY-MM-DD') : ''
                 )
               }
-              {...register("startWorkDate")}
+              {...register('startWorkDate')}
             />
           </div>
           <Input
@@ -503,12 +501,12 @@ const Employees: React.FC = () => {
             label={t('warehouse.enterPhone')}
             classname="w-80"
             value={formData.phone}
-            changeValue={(e) => handleInputChange("phone", e.target.value)}
-            {...register("phone", {
+            changeValue={e => handleInputChange('phone', e.target.value)}
+            {...register('phone', {
               pattern: {
                 value: /^\+79\d{9}$/,
                 message:
-                  "Phone number must start with +79 and be 11 digits long",
+                  'Phone number must start with +79 and be 11 digits long',
               },
             })}
             error={!!errors.phone}
@@ -520,8 +518,8 @@ const Employees: React.FC = () => {
             label={t('marketing.enterEmail')}
             classname="w-80"
             value={formData.email}
-            changeValue={(e) => handleInputChange("email", e.target.value)}
-            {...register("email")}
+            changeValue={e => handleInputChange('email', e.target.value)}
+            {...register('email')}
           />
           <MultilineInput
             title={t('warehouse.desc')}
@@ -529,10 +527,8 @@ const Employees: React.FC = () => {
             classname="w-80"
             inputType="secondary"
             value={formData.description}
-            changeValue={(e) =>
-              handleInputChange("description", e.target.value)
-            }
-            {...register("description")}
+            changeValue={e => handleInputChange('description', e.target.value)}
+            {...register('description')}
           />
           <div>
             <div className="text-sm text-text02">{t('profile.photo')}</div>
@@ -548,7 +544,7 @@ const Employees: React.FC = () => {
                 loading="lazy"
               />
               <div className="text-primary02 font-semibold">
-                {t("hr.upload")}
+                {t('hr.upload')}
               </div>
             </div>
 
@@ -562,7 +558,7 @@ const Employees: React.FC = () => {
             />
           </div>
           <div className="text-text01 font-semibold text-2xl">
-            {t("hr.salary")}
+            {t('hr.salary')}
           </div>
           <Input
             title={`${t('hr.month')}*`}
@@ -570,60 +566,58 @@ const Employees: React.FC = () => {
             classname="w-44"
             showIcon={true}
             IconComponent={<div className="text-text02 text-xl">₽</div>}
-            value={formData.monthlySalary === -1 ? "" : formData.monthlySalary}
-            changeValue={(e) =>
-              handleInputChange("monthlySalary", e.target.value)
+            value={formData.monthlySalary === -1 ? '' : formData.monthlySalary}
+            changeValue={e =>
+              handleInputChange('monthlySalary', e.target.value)
             }
             error={!!errors.monthlySalary}
-            {...register("monthlySalary", {
-              required: "monthlySalary is required",
+            {...register('monthlySalary', {
+              required: 'monthlySalary is required',
             })}
-            helperText={errors.monthlySalary?.message || ""}
+            helperText={errors.monthlySalary?.message || ''}
           />
           <Input
             title={`${t('hr.daily')}*`}
             type={'number'}
             classname="w-44"
-            value={formData.dailySalary === -1 ? "" : formData.dailySalary}
-            changeValue={(e) =>
-              handleInputChange("dailySalary", e.target.value)
-            }
+            value={formData.dailySalary === -1 ? '' : formData.dailySalary}
+            changeValue={e => handleInputChange('dailySalary', e.target.value)}
             error={!!errors.dailySalary}
-            {...register("dailySalary", {
-              required: "dailySalary is required",
+            {...register('dailySalary', {
+              required: 'dailySalary is required',
             })}
-            helperText={errors.dailySalary?.message || ""}
+            helperText={errors.dailySalary?.message || ''}
           />
           <Input
             title={`${t('marketing.per')}*`}
             type={'number'}
             classname="w-44"
             value={
-              formData.percentageSalary === -1 ? "" : formData.percentageSalary
+              formData.percentageSalary === -1 ? '' : formData.percentageSalary
             }
-            changeValue={(e) =>
-              handleInputChange("percentageSalary", e.target.value)
+            changeValue={e =>
+              handleInputChange('percentageSalary', e.target.value)
             }
             error={!!errors.percentageSalary}
-            {...register("percentageSalary", {
-              required: "percentageSalary is required",
+            {...register('percentageSalary', {
+              required: 'percentageSalary is required',
             })}
-            helperText={errors.percentageSalary?.message || ""}
+            helperText={errors.percentageSalary?.message || ''}
           />
           <div className="text-text01 font-semibold text-2xl">
-            {t("hr.add")}
+            {t('hr.add')}
           </div>
           <DropdownInput
             title={`${t('marketing.floor')}`}
             label={t('warehouse.notSel')}
             options={[
-              { name: t("marketing.man"), value: "Man" },
-              { name: t("marketing.woman"), value: "Woman" },
+              { name: t('marketing.man'), value: 'Man' },
+              { name: t('marketing.woman'), value: 'Woman' },
             ]}
             classname="w-64"
-            {...register("gender")}
+            {...register('gender')}
             value={formData.gender}
-            onChange={(value) => handleInputChange("gender", value)}
+            onChange={value => handleInputChange('gender', value)}
           />
           <Input
             type=""
@@ -631,20 +625,18 @@ const Employees: React.FC = () => {
             label={t('hr.enterCiti')}
             classname="w-80"
             value={formData.citizenship}
-            changeValue={(e) =>
-              handleInputChange("citizenship", e.target.value)
-            }
-            {...register("citizenship")}
+            changeValue={e => handleInputChange('citizenship', e.target.value)}
+            {...register('citizenship')}
           />
           <Input
             title={t('hr.passportSeries')}
             classname="w-80"
             inputType="secondary"
             value={formData.passportSeries}
-            changeValue={(e) =>
-              handleInputChange("passportSeries", e.target.value)
+            changeValue={e =>
+              handleInputChange('passportSeries', e.target.value)
             }
-            {...register("passportSeries")}
+            {...register('passportSeries')}
           />
           <Input
             type="number"
@@ -652,20 +644,20 @@ const Employees: React.FC = () => {
             classname="w-80"
             inputType="secondary"
             value={formData.passportNumber}
-            changeValue={(e) =>
-              handleInputChange("passportNumber", e.target.value)
+            changeValue={e =>
+              handleInputChange('passportNumber', e.target.value)
             }
-            {...register("passportNumber")}
+            {...register('passportNumber')}
           />
           <Input
             title={t('hr.passportExtradition')}
             classname="w-80"
             inputType="secondary"
             value={formData.passportExtradition}
-            changeValue={(e) =>
-              handleInputChange("passportExtradition", e.target.value)
+            changeValue={e =>
+              handleInputChange('passportExtradition', e.target.value)
             }
-            {...register("passportExtradition")}
+            {...register('passportExtradition')}
           />
           <DateInput
             title={t('hr.passportDateIssue')}
@@ -675,29 +667,29 @@ const Employees: React.FC = () => {
                 ? dayjs(formData.passportDateIssue)
                 : null
             }
-            changeValue={(date) =>
+            changeValue={date =>
               handleInputChange(
-                "passportDateIssue",
-                date ? date.format("YYYY-MM-DD") : ""
+                'passportDateIssue',
+                date ? date.format('YYYY-MM-DD') : ''
               )
             }
-            {...register("passportDateIssue")}
+            {...register('passportDateIssue')}
           />
           <Input
             type=""
             title={t('marketing.inn')}
             classname="w-80"
             value={formData.inn}
-            changeValue={(e) => handleInputChange("inn", e.target.value)}
-            {...register("inn")}
+            changeValue={e => handleInputChange('inn', e.target.value)}
+            {...register('inn')}
           />
           <Input
             type=""
             title={t('hr.snils')}
             classname="w-80"
             value={formData.snils}
-            changeValue={(e) => handleInputChange("snils", e.target.value)}
-            {...register("snils")}
+            changeValue={e => handleInputChange('snils', e.target.value)}
+            {...register('snils')}
           />
           <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
             <Button

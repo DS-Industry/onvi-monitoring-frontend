@@ -1,7 +1,7 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import Button from "antd/es/button";
-import { PlusOutlined } from "@ant-design/icons";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import Button from 'antd/es/button';
+import { PlusOutlined } from '@ant-design/icons';
 
 interface Props {
   children?: React.ReactNode;
@@ -9,7 +9,11 @@ interface Props {
   onAddEvent: (date: Date) => void;
 }
 
-const CustomSlotWrapper: React.FC<Props> = ({ children, value, onAddEvent }) => {
+const CustomSlotWrapper: React.FC<Props> = ({
+  children,
+  value,
+  onAddEvent,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -19,14 +23,14 @@ const CustomSlotWrapper: React.FC<Props> = ({ children, value, onAddEvent }) => 
         <Button
           icon={<PlusOutlined />}
           type="default"
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             onAddEvent(value);
           }}
           className="!text-xs !px-1 !py-0.5"
         >
-          <span className="hidden md:inline">{t("routes.add")}</span>
+          <span className="hidden md:inline">{t('routes.add')}</span>
         </Button>
       </div>
     </div>

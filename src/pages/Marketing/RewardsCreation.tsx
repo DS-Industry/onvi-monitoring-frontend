@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { Steps } from "antd";
-import Settings from "./Settings";
-import Levels from "./Levels";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { Steps } from 'antd';
+import Settings from './Settings';
+import Levels from './Levels';
+import { useTranslation } from 'react-i18next';
 
 const { Step } = Steps;
 
 const RewardsCreation: React.FC = () => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
-  const next = () => setCurrentStep((prev) => prev + 1);
-  const prev = () => setCurrentStep((prev) => prev - 1);
+  const next = () => setCurrentStep(prev => prev + 1);
+  const prev = () => setCurrentStep(prev => prev - 1);
 
   const steps = [
     {
-      title: t("marketing.basic"),
+      title: t('marketing.basic'),
       content: <Settings nextStep={next} />,
     },
     {
-      title: t("marketing.levels"),
+      title: t('marketing.levels'),
       content: <Levels prevStep={prev} />,
     },
   ];

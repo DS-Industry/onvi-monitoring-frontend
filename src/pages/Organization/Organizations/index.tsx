@@ -23,7 +23,7 @@ const Organization: React.FC = () => {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
   const { data, isLoading: loadingOrg } = useSWR([`get-org`, city], () =>
     getOrganization({
       placementId: city,

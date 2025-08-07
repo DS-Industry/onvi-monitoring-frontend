@@ -1,29 +1,33 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from 'react';
 
 // utils
-import useSWR from "swr";
-import { getDepositPos } from "@/services/api/pos";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { getPlacement } from "@/services/api/device";
-import { formatNumber, getCurrencyRender, getDateRender } from "@/utils/tableUnits";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
+import useSWR from 'swr';
+import { getDepositPos } from '@/services/api/pos';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { getPlacement } from '@/services/api/device';
+import {
+  formatNumber,
+  getCurrencyRender,
+  getDateRender,
+} from '@/utils/tableUnits';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 // components
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-import { Table } from "antd";
+import { Table } from 'antd';
 
 // types
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType } from 'antd/es/table';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
-} from "@/utils/constants";
+} from '@/utils/constants';
 
 interface DevicesMonitoring {
   id: number;
@@ -42,7 +46,6 @@ interface DevicesMonitoring {
 }
 
 const DepositDevices: React.FC = () => {
-  
   const location = useLocation();
 
   const today = new Date();
@@ -52,25 +55,24 @@ const DepositDevices: React.FC = () => {
 
   const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get("posId") || "*";
+  const posId = searchParams.get("posId") || undefined;
   const dateStart =
-    searchParams.get("dateStart") ?? new Date().toISOString().slice(0, 10);
+    searchParams.get('dateStart') ?? new Date().toISOString().slice(0, 10);
 
   const dateEnd =
-    searchParams.get("dateEnd") ?? new Date().toISOString().slice(0, 10);
+    searchParams.get('dateEnd') ?? new Date().toISOString().slice(0, 10);
 
-  const cityParam = Number(searchParams.get("city")) || "*";
+  const cityParam = Number(searchParams.get("city")) || undefined;
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-
 
   // Fetch cities for the dropdown filter
   const { data: cities } = useSWR(
     [`get-city`],
     () =>
       getPlacement().then(
-        (data) =>
-          data?.map((item) => ({ text: item.region, value: item.region })) || []
+        data =>
+          data?.map(item => ({ text: item.region, value: item.region })) || []
       ),
     {
       revalidateOnFocus: false,
@@ -83,7 +85,7 @@ const DepositDevices: React.FC = () => {
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      posId: posId || location.state?.ownerId || "*",
+      posId: posId || location.state?.ownerId,
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
@@ -113,7 +115,7 @@ const DepositDevices: React.FC = () => {
     swrKey,
     () =>
       getDepositPos(filterParams)
-        .then((data) => {
+        .then(data => {
           setTotalPosesCount(data.totalCount || 0);
           const sorted = [...(data.oper ?? [])].sort((a, b) => a.id - b.id);
 
@@ -134,23 +136,23 @@ const DepositDevices: React.FC = () => {
 
   const columns: ColumnsType<DevicesMonitoring> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: "Наименование",
-      dataIndex: "name",
-      key: "name",
+      title: 'Наименование',
+      dataIndex: 'name',
+      key: 'name',
       filters: [],
       onFilter: (value, record) => record.name === value,
       render: (text, record) => {
         return (
           <Link
             to={{
-              pathname: "/station/enrollments/devices",
-              search: `?posId=${record.id || "*"}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+              pathname: '/station/enrollments/devices',
+              search: `?posId=${record.id || '*'}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
             }}
             className="text-blue-500 hover:text-blue-700 font-semibold"
           >
@@ -160,65 +162,68 @@ const DepositDevices: React.FC = () => {
       },
     },
     {
-      title: "Город",
-      dataIndex: "city",
-      key: "city",
+      title: 'Город',
+      dataIndex: 'city',
+      key: 'city',
       filters: cities,
       onFilter: (value, record) => record.city === value,
     },
     {
-      title: "Последняя операция",
-      dataIndex: "lastOper",
-      key: "lastOper",
+      title: 'Последняя операция',
+      dataIndex: 'lastOper',
+      key: 'lastOper',
       render: dateRender,
       sorter: (a, b) =>
         new Date(a.lastOper).getTime() - new Date(b.lastOper).getTime(),
     },
     {
-      title: "Наличные",
-      dataIndex: "cashSum",
-      key: "cashSum",
+      title: 'Наличные',
+      dataIndex: 'cashSum',
+      key: 'cashSum',
       render: currencyRender,
     },
     {
-      title: "Безналичные",
-      dataIndex: "virtualSum",
-      key: "virtualSum",
+      title: 'Безналичные',
+      dataIndex: 'virtualSum',
+      key: 'virtualSum',
       render: currencyRender,
     },
     {
-      title: "Cashback по картам",
-      dataIndex: "cashbackSumCard",
-      key: "cashbackSumCard",
+      title: 'Cashback по картам',
+      dataIndex: 'cashbackSumCard',
+      key: 'cashbackSumCard',
       render: currencyRender,
     },
     {
-      title: "Сумма скидки",
-      dataIndex: "discountSum",
-      key: "discountSum",
+      title: 'Сумма скидки',
+      dataIndex: 'discountSum',
+      key: 'discountSum',
       render: currencyRender,
     },
     {
-      title: "Кол-во операций",
-      dataIndex: "counter",
-      key: "counter",
+      title: 'Кол-во операций',
+      dataIndex: 'counter',
+      key: 'counter',
       sorter: (a, b) => a.counter - b.counter,
-      render: (_value, record) => formatNumber(record.counter)
+      render: (_value, record) => formatNumber(record.counter),
     },
     {
-      title: "Яндекс Сумма",
-      dataIndex: "yandexSum",
-      key: "yandexSum",
+      title: 'Яндекс Сумма',
+      dataIndex: 'yandexSum',
+      key: 'yandexSum',
       render: currencyRender,
     },
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columns, "pos-deposits-table-columns");
+    useColumnSelector(columns, 'pos-deposits-table-columns');
 
   return (
     <>
-      <GeneralFilters count={totalPosesCount} display={["pos", "city", "dateTime"]} />
+      <GeneralFilters
+        count={totalPosesCount}
+        display={['pos', 'city', 'dateTime']}
+      />
 
       <div className="mt-8">
         <ColumnSelector
@@ -231,7 +236,7 @@ const DepositDevices: React.FC = () => {
           rowKey="id"
           dataSource={devices}
           columns={visibleColumns}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
           loading={filterLoading || isInitialLoading}
           pagination={{
             current: currentPage,

@@ -1,6 +1,14 @@
-import { DefaultValues, useForm, SubmitHandler, Path, PathValue } from 'react-hook-form';
+import {
+  DefaultValues,
+  useForm,
+  SubmitHandler,
+  Path,
+  PathValue,
+} from 'react-hook-form';
 
-const useFormHook = <T extends Record<string, unknown>>(defaultValues?: DefaultValues<T>) => {
+const useFormHook = <T extends Record<string, unknown>>(
+  defaultValues?: DefaultValues<T>
+) => {
   const {
     register,
     handleSubmit,
@@ -19,7 +27,7 @@ const useFormHook = <T extends Record<string, unknown>>(defaultValues?: DefaultV
   const updateField = (field: Path<T>, value: PathValue<T, Path<T>>) => {
     setValue(field, value);
   };
-  
+
   return {
     register,
     handleSubmit,

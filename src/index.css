@@ -3,18 +3,20 @@
 @tailwind utilities;
 
 :root {
-    color-scheme: light !important;
-    background-color: white !important;
+  color-scheme: light !important;
+  background-color: white !important;
 }
 
 @keyframes onAutoFill {
-    from {}
-    to {}
+  from {
+  }
+  to {
+  }
 }
 
 input:-webkit-autofill {
-    animation-name: onAutoFill;
-    animation-duration: 1ms;
+  animation-name: onAutoFill;
+  animation-duration: 1ms;
 }
 
 /* body {
@@ -22,12 +24,11 @@ input:-webkit-autofill {
     color: black; 
   } */
 
- /* input[type="date"]::-webkit-calendar-picker-indicator {
+/* input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0;
     cursor: pointer;
 } */
 
 .rbc-label {
-    padding: 0 !important;
+  padding: 0 !important;
 }
-

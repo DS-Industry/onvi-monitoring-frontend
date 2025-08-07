@@ -1,18 +1,18 @@
-import React from "react";
-import { useSearchParams } from "react-router-dom";
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 // utils
-import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import { getCashOperSuspiciousById } from "@/services/api/finance";
-import { getDevices } from "@/services/api/equipment";
-import { getDateRender } from "@/utils/tableUnits";
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
+import { getCashOperSuspiciousById } from '@/services/api/finance';
+import { getDevices } from '@/services/api/equipment';
+import { getDateRender } from '@/utils/tableUnits';
 
 // components
-import { Table } from "antd";
+import { Table } from 'antd';
 
 // types
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType } from 'antd/es/table';
 
 interface SuspiciousData {
   deviceId: number;
@@ -30,11 +30,11 @@ const SuspiciousTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const shiftId = searchParams.get("id")
-    ? Number(searchParams.get("id"))
+  const shiftId = searchParams.get('id')
+    ? Number(searchParams.get('id'))
     : undefined;
-  const posId = searchParams.get("posId")
-    ? Number(searchParams.get("posId"))
+  const posId = searchParams.get('posId')
+    ? Number(searchParams.get('posId'))
     : undefined;
 
   const { data: deviceData } = useSWR(
@@ -48,7 +48,7 @@ const SuspiciousTab: React.FC = () => {
   );
 
   const devices =
-    deviceData?.map((item) => ({
+    deviceData?.map(item => ({
       name: item.props.name,
       value: item.props.id,
     })) || [];
@@ -64,50 +64,50 @@ const SuspiciousTab: React.FC = () => {
   );
 
   const cashOperSubsArray =
-    cashOperSuspData?.map((item) => ({
+    cashOperSuspData?.map(item => ({
       ...item,
-      deviceName: devices.find((dev) => dev.value === item.deviceId)?.name,
+      deviceName: devices.find(dev => dev.value === item.deviceId)?.name,
     })) || [];
 
   const dateRender = getDateRender();
 
   const columns: ColumnsType<SuspiciousData> = [
     {
-      title: t("equipment.device"),
-      dataIndex: "deviceName",
-      key: "deviceName",
+      title: t('equipment.device'),
+      dataIndex: 'deviceName',
+      key: 'deviceName',
     },
     {
-      title: t("finance.startTime"),
-      dataIndex: "programDate",
-      key: "programDate",
+      title: t('finance.startTime'),
+      dataIndex: 'programDate',
+      key: 'programDate',
       render: dateRender,
     },
     {
-      title: t("finance.program"),
-      dataIndex: "programName",
-      key: "programName",
+      title: t('finance.program'),
+      dataIndex: 'programName',
+      key: 'programName',
     },
     {
-      title: t("finance.workingTime"),
-      dataIndex: "programTime",
-      key: "programTime",
+      title: t('finance.workingTime'),
+      dataIndex: 'programTime',
+      key: 'programTime',
     },
     {
-      title: t("finance.previousStartTime"),
-      dataIndex: "lastProgramDate",
-      key: "lastProgramDate",
+      title: t('finance.previousStartTime'),
+      dataIndex: 'lastProgramDate',
+      key: 'lastProgramDate',
       render: dateRender,
     },
     {
-      title: t("finance.previousProgram"),
-      dataIndex: "lastProgramName",
-      key: "lastProgramName",
+      title: t('finance.previousProgram'),
+      dataIndex: 'lastProgramName',
+      key: 'lastProgramName',
     },
     {
-      title: t("finance.previousWorkingTime"),
-      dataIndex: "lastProgramTime",
-      key: "lastProgramTime",
+      title: t('finance.previousWorkingTime'),
+      dataIndex: 'lastProgramTime',
+      key: 'lastProgramTime',
     },
   ];
 
@@ -116,12 +116,12 @@ const SuspiciousTab: React.FC = () => {
       <Table
         dataSource={cashOperSubsArray}
         columns={columns}
-        rowKey={(record) => `${record.deviceId}-${record.programDate}`}
+        rowKey={record => `${record.deviceId}-${record.programDate}`}
         pagination={false}
         size="small"
         loading={loadingCashOperSusp}
-        scroll={{ x: "500px" }}
-        locale={{ emptyText: t("table.noData") }}
+        scroll={{ x: '500px' }}
+        locale={{ emptyText: t('table.noData') }}
       />
     </>
   );

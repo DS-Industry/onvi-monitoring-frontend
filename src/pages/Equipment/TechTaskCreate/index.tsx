@@ -30,9 +30,8 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 const TechTaskCreate: React.FC = () => {
   const { t } = useTranslation();
 
-  const [techTaskToEdit, setTechTaskToEdit] = useState<TechTaskManagerInfo | null>(
-    null
-  );
+  const [techTaskToEdit, setTechTaskToEdit] =
+    useState<TechTaskManagerInfo | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleUpdate = (id: number) => {
@@ -65,15 +64,11 @@ const TechTaskCreate: React.FC = () => {
     }
   );
 
-  const { data: poses } = useSWR(
-    [`get-pos`],
-    () => getPoses({ placementId: '*' }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const techTasks =
     data?.techTaskManageInfo.map(item => ({
@@ -169,11 +164,11 @@ const TechTaskCreate: React.FC = () => {
 
   const onEdit = () => {
     setTechTaskToEdit(null);
-  }
+  };
 
   const onClose = () => {
     setDrawerOpen(false);
-  }
+  };
 
   return (
     <>

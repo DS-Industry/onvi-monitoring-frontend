@@ -18,7 +18,7 @@ const Pos: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
   const { data, isLoading: posLoading } = useSWR(
     [`get-pos`, city],
     () =>
@@ -33,9 +33,7 @@ const Pos: React.FC = () => {
   );
 
   const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: '*',
-    })
+    getOrganization({})
   );
 
   const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
@@ -155,11 +153,11 @@ const Pos: React.FC = () => {
 
   const onClose = () => {
     setDrawerOpen(false);
-  }
+  };
 
   return (
     <>
-      <GeneralFilters count={poses.length} display={["city", "count"]} />
+      <GeneralFilters count={poses.length} display={['city', 'count']} />
       <Button
         icon={<PlusOutlined />}
         className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"

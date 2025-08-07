@@ -1,9 +1,9 @@
-import React from "react";
-import { useSearchParams } from "react-router-dom";
-import { Input } from "antd";
-import { useTranslation } from "react-i18next";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import { DEFAULT_PAGE } from "@/utils/constants.ts";
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Input } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
 const { Search } = Input;
 
@@ -12,7 +12,7 @@ type SearchInputFilterProps = {
 };
 
 const SearchInputFilter: React.FC<SearchInputFilterProps> = ({
-  className = "w-full sm:w-80"
+  className = 'w-full sm:w-80',
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +26,7 @@ const SearchInputFilter: React.FC<SearchInputFilterProps> = ({
 
   return (
     <Search
-      placeholder={t("filters.search.placeholder")}
+      placeholder={t('filters.search.placeholder')}
       className={className}
       onSearch={handleSearch}
     />

@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import hasPermission from "./hasPermission";
+import React, { ReactNode } from 'react';
+import hasPermission from './hasPermission';
 
 interface CanProps {
   children: (allowed: boolean) => ReactNode;
