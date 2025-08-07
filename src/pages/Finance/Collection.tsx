@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { getPoses } from '@/services/api/equipment';
-import { useButtonCreate } from '@/components/context/useContext';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getCollections } from '@/services/api/finance';
 import dayjs from 'dayjs';
@@ -12,7 +11,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table } from 'antd';
+import { Table, Button as AntButton } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -22,6 +21,8 @@ import {
   getFormatPeriodType,
   getStatusTagRender,
 } from '@/utils/tableUnits';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
 
 type CashCollectionLevel = {
   id: number;
@@ -47,7 +48,6 @@ type CashCollectionLevel = {
 const Collection: React.FC = () => {
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
-  const { buttonOn } = useButtonCreate();
   const navigate = useNavigate();
 
   const today = dayjs().toDate();
@@ -128,12 +128,6 @@ const Collection: React.FC = () => {
     };
     return [posesAllObj, ...mappedPoses];
   }, [posData, allCategoriesText]);
-
-  useEffect(() => {
-    if (buttonOn) {
-      navigate('/finance/collection/creation');
-    }
-  }, [buttonOn, navigate]);
 
   const baseColumns = useMemo(
     () => [
@@ -256,6 +250,21 @@ const Collection: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.collection')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => navigate('/finance/collection/creation')}
+        >
+          {t('routes.create')}
+        </AntButton>
+      </div>
 
       <div className="mt-8">
         <GeneralFilters
