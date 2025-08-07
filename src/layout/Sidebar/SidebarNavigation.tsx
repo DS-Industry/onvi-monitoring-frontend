@@ -67,6 +67,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
         permissions,
         isHr,
         titleName,
+        subNavHeading,
       } = item;
 
       return (
@@ -172,6 +173,11 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                           onClick={closeLastSubmenu}
                           aria-label="Close submenu"
                         />
+                      </div>
+                    )}
+                    {subNavHeading && subNavHeading !== '' && (
+                      <div className="py-1 mx-4 text-text02 mb-3 font-normal text-[14px] leading-[143%] tracking-[0.02em] uppercase">
+                        {t(`routes.${subNavHeading}`)}
                       </div>
                     )}
                     {subNav.map(
