@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // utils
@@ -25,7 +25,7 @@ const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 interface SidebarProps {
   isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
@@ -36,10 +36,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
 
   const { t } = useTranslation();
 
-  const [isHovered, setIsHovered] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-  const { setOpenSubmenuPath, resetSubmenu, openSubmenuPath } =
-    useSidebarNavigation();
+  const { resetSubmenu, openSubmenuPath } = useSidebarNavigation();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -52,13 +50,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setOpenSubmenuPath]);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setIsOpen(isHovered);
-    }
-  }, [isHovered, isMobile, setIsOpen]);
+  }, [resetSubmenu]);
 
   return (
     <>
@@ -91,11 +83,11 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
         className={`fixed h-full z-50 bg-[#1c1917] transition-all duration-300 ease-in-out ${
           isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
         }`}
-        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseEnter={() => !isMobile && setIsOpen(true)}
         onMouseLeave={() => {
           if (!isMobile) {
             resetSubmenu();
-            setIsHovered(false);
+            setIsOpen(false);
           }
         }}
       >
@@ -127,12 +119,11 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
               isOpen={isOpen}
               setIsOpen={setIsOpen}
               onClick={() => {
-                if (!isHovered) {
-                  setIsHovered(true);
+                if (!isOpen) {
+                  setIsOpen(true);
                   resetSubmenu();
                 } else {
                   setIsOpen(false);
-                  setIsHovered(false);
                   resetSubmenu();
                 }
               }}
