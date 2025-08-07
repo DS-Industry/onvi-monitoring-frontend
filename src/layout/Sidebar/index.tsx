@@ -119,16 +119,17 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           {/* Logo */}
           <div>
             <div
-              className={`flex items-center ${isOpen ? '' : 'justify-center'} py-5 px-4`}
+              className={`flex items-center py-5 px-4 h-[80px] ${isOpen ? '' : 'justify-center'}`}
             >
-              <div className="flex items-center relative transition-all duration-500">
+              <div className="flex items-center relative transition-all duration-500 h-full">
                 <img
                   src={isOpen ? OnviLogo : OnviSmallLogo}
                   alt="ONVI"
                   loading="lazy"
-                  className="transition-all duration-300"
+                  className="transition-all duration-300 max-h-full"
                 />
               </div>
+
               {isMobile && (
                 <button
                   className="ml-auto flex items-center justify-center border border-primary01 text-primary01 p-2 rounded-md"
