@@ -18,10 +18,9 @@ import { useToast } from '@/components/context/useContext';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import Table, { ColumnsType } from 'antd/es/table';
 import { usePermissions } from '@/hooks/useAuthStore';
-import AntDButton from 'antd/es/button';
-import { EditOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { Can } from '@/permissions/Can';
-import { Drawer, Tooltip } from 'antd';
+import { Drawer, Tooltip, Input as AntInput, Button as AntButton, Popconfirm } from 'antd';
 
 type TreeData = {
   id: number;
@@ -67,9 +66,9 @@ const buildTree = (data: unknown[]): TreeData[] => {
 
 const InventoryGroups: React.FC = () => {
   const { t } = useTranslation();
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingKey, setEditingKey] = useState<number | null>(null);
+  const [editingData, setEditingData] = useState<{name: string, description: string}>({name: '', description: ''});
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editInventoryId, setEditInventoryId] = useState<number>(0);
   const { showToast } = useToast();
 
   const { data: categoryData, isLoading: loadingCategory } = useSWR(
@@ -97,9 +96,7 @@ const InventoryGroups: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
-
-  const { register, handleSubmit, errors, setValue, reset } =
-    useFormHook(formData);
+  const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
 
   const { trigger: createCat, isMutating } = useSWRMutation(
     ['create-inventory'],
@@ -111,15 +108,15 @@ const InventoryGroups: React.FC = () => {
       })
   );
 
-  const { trigger: updateCat, isMutating: updatingCat } = useSWRMutation(
-    ['update-inventory'],
-    async () =>
+  const { trigger: updateCat } = useSWRMutation(
+    ["update-inventory"],
+    async (_, { arg }: { arg: { id: number, name: string, description: string } }) =>
       updateCategory(
         {
-          name: formData.name,
-          description: formData.description,
+          name: arg.name,
+          description: arg.description,
         },
-        editInventoryId
+        arg.id
       )
   );
 
@@ -132,112 +129,140 @@ const InventoryGroups: React.FC = () => {
     setValue(field, value);
   };
 
-  const handleUpdate = (id: number) => {
-    setEditInventoryId(id);
-    setIsEditMode(true);
-    setDrawerOpen(true);
-    const inventoryToEdit = category.find(inventory => inventory.id === id);
-    if (inventoryToEdit) {
-      setFormData({
-        name: inventoryToEdit.name,
-        description: inventoryToEdit.description,
-        ownerCategoryId: inventoryToEdit.ownerCategoryId,
-      });
-    }
-  };
-
   const resetForm = () => {
     setFormData(defaultValues);
-    setIsEditMode(false);
     reset();
-    setEditInventoryId(0);
     setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
     try {
-      if (editInventoryId) {
-        const result = await updateCat();
-        if (result) {
-          mutate([`get-category`]);
-          resetForm();
-        } else {
-          throw new Error('Invalid update data.');
-        }
-      } else {
-        const result = await createCat();
-        if (result) {
-          mutate([`get-category`]);
-          resetForm();
-        } else {
-          throw new Error('Invalid response from API');
-        }
-      }
+      await createCat();
+      mutate([`get-category`]);
+      resetForm();
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
-  const treeData = buildTree(category);
+  const startEditing = (record: TreeData) => {
+    setEditingKey(record.id);
+    setEditingData({
+      name: record.name,
+      description: record.description || ''
+    });
+  };
 
-  const columnsCategory = [
-    {
-      label: 'Название группы',
-      key: 'name',
-    },
-    {
-      label: 'Описание',
-      key: 'description',
-    },
-  ];
+  const cancelEditing = () => {
+    setEditingKey(null);
+  };
+
+  const saveEditing = async (id: number) => {
+    try {
+      await updateCat({ id, ...editingData });
+      mutate([`get-category`]);
+      setEditingKey(null);
+    } catch (error) {
+      console.error("Update failed:", error);
+      showToast(t("errors.updateFailed"), "error");
+    }
+  };
+
+  const treeData = buildTree(category);
 
   const userPermissions = usePermissions();
 
   const generateColumns = (): ColumnsType<TreeData> => [
     {
-      title: '',
-      dataIndex: 'isExpanded',
-      key: 'isExpanded',
-      width: '15%',
+      title: "",
+      dataIndex: "isExpanded",
+      key: "isExpanded",
+      width: 50,
     },
     {
-      title: 'Название группы',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Название группы",
+      dataIndex: "name",
+      key: "name",
+      render: (text: string, record: TreeData) => {
+        if (editingKey === record.id) {
+          return (
+            <AntInput
+              value={editingData.name}
+              onChange={(e) => setEditingData(prev => ({...prev, name: e.target.value}))}
+              placeholder="Название группы"
+            />
+          );
+        }
+        return text;
+      },
     },
     {
-      title: 'Описание',
-      dataIndex: 'description',
-      key: 'description',
+      title: "Описание",
+      dataIndex: "description",
+      key: "description",
+      render: (text: string, record: TreeData) => {
+        if (editingKey === record.id) {
+          return (
+            <AntInput
+              value={editingData.description}
+              onChange={(e) => setEditingData(prev => ({...prev, description: e.target.value}))}
+              placeholder="Описание"
+            />
+          );
+        }
+        return text || "-";
+      },
     },
     {
-      title: '',
-      key: 'actions',
-      align: 'right',
-      render: (_, record) => (
-        <Can
-          requiredPermissions={[
-            { action: 'update', subject: 'Warehouse' },
-            { action: 'manage', subject: 'Warehouse' },
-          ]}
-          userPermissions={userPermissions}
-        >
-          {allowed =>
-            allowed && (
-              <Tooltip title={t('routes.edit')}>
-                <AntDButton
-                  type="link"
-                  icon={
-                    <EditOutlined className="text-blue-500 hover:text-blue-700" />
-                  }
-                  onClick={() => handleUpdate(record.id)}
+      title: "",
+      key: "actions",
+      align: "right",
+      render: (_, record) => {
+        if (editingKey === record.id) {
+          return (
+            <span>
+              <AntButton
+                type="text"
+                icon={<CheckOutlined style={{ color: 'green' }} />}
+                onClick={() => saveEditing(record.id)}
+              />
+              <Popconfirm
+                title={t("common.discardChanges")}
+                onConfirm={cancelEditing}
+                okText={t("equipment.yes")}
+                cancelText={t("equipment.no")}
+              >
+                <AntButton
+                  type="text"
+                  icon={<CloseOutlined style={{ color: 'red' }} />}
                 />
-              </Tooltip>
-            )
-          }
-        </Can>
-      ),
+              </Popconfirm>
+            </span>
+          );
+        }
+        return (
+          <Can
+            requiredPermissions={[
+              { action: "update", subject: "Warehouse" },
+              { action: "manage", subject: "Warehouse" },
+            ]}
+            userPermissions={userPermissions}
+          >
+            {(allowed) =>
+              allowed && (
+                <Tooltip title={t("routes.edit")}>
+                  <AntButton
+                    type="text"
+                    icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                    onClick={() => startEditing(record)}
+                  />
+                </Tooltip>
+              )
+            }
+          </Can>
+        );
+      },
     },
   ];
 
@@ -252,7 +277,7 @@ const InventoryGroups: React.FC = () => {
         />
       </div>
       {loadingCategory ? (
-        <TableSkeleton columnCount={columnsCategory.length} />
+        <TableSkeleton columnCount={3} />
       ) : treeData.length > 0 ? (
         <div className="mt-8">
           <Table<TreeData>
@@ -296,20 +321,18 @@ const InventoryGroups: React.FC = () => {
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register('name', {
-              required: !isEditMode && 'Name is required',
+            {...register("name", {
+              required: "Name is required",
             })}
             helperText={errors.name?.message || ''}
           />
           <DropdownInput
-            title={`${t('warehouse.included')}`}
-            // label={t("warehouse.notSel")}
+            title={`${t("warehouse.included")}`}
             options={categories}
             classname="w-64"
             {...register('ownerCategoryId')}
             value={formData.ownerCategoryId}
-            onChange={value => handleInputChange('ownerCategoryId', value)}
-            isDisabled={isEditMode}
+            onChange={(value) => handleInputChange("ownerCategoryId", value)}
           />
           <MultilineInput
             title={t('warehouse.desc')}
@@ -317,7 +340,7 @@ const InventoryGroups: React.FC = () => {
             classname="w-80"
             inputType="secondary"
             value={formData.description}
-            changeValue={e => handleInputChange('description', e.target.value)}
+            changeValue={(e) => handleInputChange("description", e.target.value)}
           />
           <div className="flex space-x-4">
             <Button
@@ -330,7 +353,7 @@ const InventoryGroups: React.FC = () => {
             <Button
               title={t('routes.create')}
               form={true}
-              isLoading={isEditMode ? updatingCat : isMutating}
+              isLoading={isMutating}
               handleClick={() => {}}
             />
           </div>
