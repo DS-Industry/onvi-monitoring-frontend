@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // utils
@@ -8,6 +8,7 @@ import {
   useSidebarNavigation,
   SidebarNavigationProvider,
 } from './useSidebarNavigation';
+import debounce from 'lodash/debounce';
 
 // components
 import Sider from 'antd/es/layout/Sider';
@@ -59,6 +60,23 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
     navigate(path);
   };
 
+  const debouncedOpenSidebar = useMemo(
+    () =>
+      debounce(() => {
+        setIsOpen(true);
+      }, 100),
+    [setIsOpen]
+  );
+
+  const debouncedCloseSidebar = useMemo(
+    () =>
+      debounce(() => {
+        resetSubmenu();
+        setIsOpen(false);
+      }, 100),
+    [resetSubmenu, setIsOpen]
+  );
+
   return (
     <>
       {isMobile && !isOpen && (
@@ -90,12 +108,11 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
         className={`fixed h-full z-50 bg-[#1c1917] transition-all duration-300 ease-in-out ${
           isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
         }`}
-        onMouseEnter={() => !isMobile && setIsOpen(true)}
+        onMouseEnter={() => {
+          if (!isMobile) debouncedOpenSidebar();
+        }}
         onMouseLeave={() => {
-          if (!isMobile) {
-            resetSubmenu();
-            setIsOpen(false);
-          }
+          if (!isMobile) debouncedCloseSidebar();
         }}
       >
         <div className="h-full flex flex-col justify-between relative">
