@@ -218,7 +218,6 @@ const DirectoryArticles: React.FC = () => {
               title={t('organizations.save')}
               form={true}
               isLoading={isEditMode ? updatingPaperType : isMutating}
-              handleClick={() => { }}
             />
           </div>
         </form>
