@@ -112,6 +112,8 @@ type OrganizationDocResponse = {
     }
 }
 
+export type OrganizationOtherDetailsResponse = OrganizationDocResponse["props"];
+
 type RolesResponse = {
     id: number;
     name: string;

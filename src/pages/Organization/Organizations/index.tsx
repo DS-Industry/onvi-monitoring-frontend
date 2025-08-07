@@ -1,37 +1,34 @@
-import React, { useState } from "react";
-import { useButtonCreate } from "@/components/context/useContext.tsx";
-import useSWR from "swr";
+import React, { useState } from 'react';
+import useSWR from 'swr';
 import {
   getOrganization,
   getOrganizationDocument,
-  OrganizationBody,
+  OrganizationOtherDetailsResponse,
   Organization as OrganizationType,
-} from "@/services/api/organization/index.ts";
-import { useTranslation } from "react-i18next";
-import { usePermissions } from "@/hooks/useAuthStore";
-import { getWorkers } from "@/services/api/equipment";
-import { Table, Tooltip } from "antd";
-import hasPermission from "@/permissions/hasPermission";
-import { EditOutlined } from "@ant-design/icons";
-import AntDButton from "antd/es/button";
-import { ColumnsType } from "antd/es/table";
-import { getDateRender } from "@/utils/tableUnits";
-import OrganizationForm from "./OrganizationForm";
-import dayjs from "dayjs";
-import { useSearchParams } from "react-router-dom";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
+} from '@/services/api/organization/index.ts';
+import { useTranslation } from 'react-i18next';
+import { usePermissions } from '@/hooks/useAuthStore';
+import { getWorkers } from '@/services/api/equipment';
+import { Button, Table, Tooltip } from 'antd';
+import hasPermission from '@/permissions/hasPermission';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import AntDButton from 'antd/es/button';
+import { ColumnsType } from 'antd/es/table';
+import { getDateRender } from '@/utils/tableUnits';
+import OrganizationDrawer from './OrganizationDrawer';
+import { useSearchParams } from 'react-router-dom';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 const Organization: React.FC = () => {
   const { t } = useTranslation();
-  const { setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
-  const city = searchParams.get("city") || "*";
+  const city = searchParams.get('city') || '*';
   const { data, isLoading: loadingOrg } = useSWR([`get-org`, city], () =>
     getOrganization({
       placementId: city,
     })
   );
-  const [editOrgId, setEditOrgId] = useState<number>(0);
 
   const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), {
     revalidateOnFocus: false,
@@ -39,56 +36,32 @@ const Organization: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const workers: { name: string; value: number }[] = [
-    ...(workersData?.map((work) => ({
-      name: work.name,
-      value: work.id,
-    })) || []),
-  ];
-
   const legalOptions = [
-    { name: t("organizations.legalEntity"), value: "LegalEntity" },
-    { name: t("organizations.ip"), value: "IndividualEntrepreneur" },
+    { name: t('organizations.legalEntity'), value: 'LegalEntity' },
+    { name: t('organizations.ip'), value: 'IndividualEntrepreneur' },
   ];
 
   const organizations =
     data
-      ?.map((item) => ({
+      ?.map(item => ({
         ...item,
         ownerName:
-          workers.find((work) => work.value === item.ownerId)?.name || "-",
+          workersData?.find(work => work.id === item.ownerId)?.name || '-',
         organizationStatus: t(`tables.${item.organizationStatus}`),
         organizationType:
-          legalOptions.find((leg) => leg.value === item.organizationType)
-            ?.name || "-",
+          legalOptions.find(leg => leg.value === item.organizationType)?.name ||
+          '-',
       }))
       .sort((a, b) => a.id - b.id) || [];
 
-  const defaultValues: OrganizationBody = {
-    fullName: "",
-    organizationType: "",
-    rateVat: "",
-    inn: "",
-    okpo: "",
-    kpp: undefined,
-    addressRegistration: "",
-    ogrn: "",
-    bik: "",
-    correspondentAccount: "",
-    bank: "",
-    settlementAccount: "",
-    addressBank: "",
-    certificateNumber: "",
-    dateCertificate: undefined,
-  };
-
-  const [formData, setFormData] = useState(defaultValues);
+  const [orgToEdit, setOrgToEdit] = useState<OrganizationType | null>(null);
+  const [orgDocuments, setOrgDocuments] =
+    useState<OrganizationOtherDetailsResponse | null>(null);
 
   const handleUpdate = async (id: number) => {
-    setEditOrgId(id);
-    setButtonOn(true);
+    setDrawerOpen(true);
 
-    const orgToEdit = organizations.find((org) => org.id === id);
+    const orgToEdit = organizations.find(org => org.id === id);
     let orgs;
     if (orgToEdit?.organizationDocumentId) {
       const fetchedOrgData = await getOrganizationDocument(
@@ -97,91 +70,64 @@ const Organization: React.FC = () => {
       orgs = fetchedOrgData.props;
     }
 
-    if (orgToEdit) {
-      setFormData({
-        fullName: orgToEdit.name,
-        organizationType:
-          legalOptions.find((leg) => leg.name === orgToEdit.organizationType)
-            ?.value || "",
-        rateVat: orgs?.rateVat ? orgs.rateVat : "",
-        inn: orgs?.inn ? orgs.inn : "",
-        okpo: orgs?.okpo ? orgs.okpo : "",
-        kpp: orgs?.kpp ? orgs.kpp : undefined,
-        addressRegistration: orgToEdit.address,
-        ogrn: orgs?.ogrn ? orgs.ogrn : "",
-        bik: orgs?.bik ? orgs.bik : "",
-        correspondentAccount: orgs?.correspondentAccount
-          ? orgs.correspondentAccount
-          : "",
-        bank: orgs?.bank ? orgs.bank : "",
-        settlementAccount: orgs?.settlementAccount
-          ? orgs.settlementAccount
-          : "",
-        addressBank: orgs?.addressBank ? orgs.addressBank : "",
-        certificateNumber: orgs?.certificateNumber
-          ? orgs.certificateNumber
-          : "",
-        dateCertificate: orgs?.dateCertificate
-          ? dayjs(orgs.dateCertificate).toDate()
-          : undefined,
-      });
-    }
+    setOrgToEdit(orgToEdit || null);
+    setOrgDocuments(orgs || null);
   };
 
   const userPermissions = usePermissions();
 
   const allowed = hasPermission(userPermissions, [
-    { action: "manage", subject: "Organization" },
-    { action: "create", subject: "Organization" },
+    { action: 'manage', subject: 'Organization' },
+    { action: 'create', subject: 'Organization' },
   ]);
 
   const dateRender = getDateRender();
 
   const columnsOrg: ColumnsType<OrganizationType> = [
     {
-      title: "id",
-      dataIndex: "id",
-      key: "id",
+      title: 'id',
+      dataIndex: 'id',
+      key: 'id',
     },
     {
-      title: "Адресс",
-      dataIndex: "address",
-      key: "address",
+      title: 'Адресс',
+      dataIndex: 'address',
+      key: 'address',
     },
     {
-      title: "Статус",
-      dataIndex: "organizationStatus",
-      key: "organizationStatus",
+      title: 'Статус',
+      dataIndex: 'organizationStatus',
+      key: 'organizationStatus',
     },
     {
-      title: "Тип",
-      dataIndex: "organizationType",
-      key: "organizationType",
+      title: 'Тип',
+      dataIndex: 'organizationType',
+      key: 'organizationType',
     },
     {
-      title: "Дата создания",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      title: 'Дата создания',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       render: dateRender,
     },
     {
-      title: "Дата обновления",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
+      title: 'Дата обновления',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
       render: dateRender,
     },
     {
-      title: "Хозяин",
-      dataIndex: "ownerName",
-      key: "ownerName",
+      title: 'Хозяин',
+      dataIndex: 'ownerName',
+      key: 'ownerName',
     },
   ];
 
   if (allowed) {
     columnsOrg.push({
-      title: "",
-      dataIndex: "actions",
-      key: "actions",
+      title: '',
+      dataIndex: 'actions',
+      key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
           <AntDButton
@@ -190,19 +136,32 @@ const Organization: React.FC = () => {
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
             }
             onClick={() => handleUpdate(record.id)}
-            style={{ height: "24px" }}
+            style={{ height: '24px' }}
           />
         </Tooltip>
       ),
     });
   }
 
+  const onEdit = () => {
+    setOrgToEdit(null);
+    setOrgDocuments(null);
+  };
+
+  const onClose = () => {
+    setDrawerOpen(false);
+  };
+
   return (
     <>
-      <GeneralFilters
-        count={organizations.length}
-        display={["city"]}
-      />
+      <GeneralFilters count={organizations.length} display={['city']} />
+      <Button
+        icon={<PlusOutlined />}
+        className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
+        onClick={() => setDrawerOpen(!drawerOpen)}
+      >
+        {t('routes.add')}
+      </Button>
       <>
         <div className="mt-8">
           <Table
@@ -210,16 +169,16 @@ const Organization: React.FC = () => {
             columns={columnsOrg}
             loading={loadingOrg}
             pagination={false}
-            scroll={{ x: "max-content" }}
+            scroll={{ x: 'max-content' }}
           />
         </div>
       </>
-      <OrganizationForm
-        defaultValues={defaultValues}
-        formData={formData}
-        setFormData={setFormData}
-        editOrgId={editOrgId}
-        setEditOrgId={setEditOrgId}
+      <OrganizationDrawer
+        orgToEdit={orgToEdit}
+        orgDocuments={orgDocuments}
+        onEdit={onEdit}
+        isOpen={drawerOpen}
+        onClose={onClose}
       />
     </>
   );
