@@ -1,6 +1,5 @@
-import { useButtonCreate, useFilterOn } from '@/components/context/useContext';
+import { useFilterOn } from '@/components/context/useContext';
 import Button from '@/components/ui/Button/Button';
-import DrawerCreate from '@/components/ui/Drawer/DrawerCreate';
 import Filter from '@/components/ui/Filter/Filter';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Input from '@/components/ui/Input/Input';
@@ -53,6 +52,7 @@ import Tag from 'antd/es/tag';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
+import { Drawer } from 'antd';
 
 const { Option } = Select;
 
@@ -162,7 +162,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const MonthlyExpanse: React.FC = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
-  const { buttonOn, setButtonOn } = useButtonCreate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const user = useUser();
   const [startPeriod, setStartPeriod] = useState<Dayjs>(
     dayjs().startOf('month')
@@ -644,7 +644,7 @@ const MonthlyExpanse: React.FC = () => {
     // setIsEditMode(false);
     reset();
     // setEditIncidentId(0);
-    setButtonOn(false);
+    setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
@@ -732,6 +732,14 @@ const MonthlyExpanse: React.FC = () => {
 
   return (
     <div>
+      <div className="absolute top-6 right-6 z-50">
+        <Button
+          title={t('routes.add')}
+          iconPlus={true}
+          handleClick={() => setDrawerOpen(true)}
+          classname="shadow-lg"
+        />
+      </div>
       <Filter
         count={managerPeriods.length}
         hideDateTime={true}
@@ -803,14 +811,18 @@ const MonthlyExpanse: React.FC = () => {
         )}
       </div>
 
-      <DrawerCreate>
+      <Drawer
+        title={t('pos.creating')}
+        placement="right"
+        size="large"
+        onClose={resetForm}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6 w-full max-w-2xl mx-auto p-4"
         >
-          <span className="font-semibold text-xl md:text-3xl text-text01 mb-5">
-            {t('pos.creating')}
-          </span>
           <DateInput
             title={`${t('finance.begin')}*`}
             classname="w-44"
@@ -886,7 +898,7 @@ const MonthlyExpanse: React.FC = () => {
               title={t('organizations.cancel')}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(false);
                 resetForm();
               }}
             />
@@ -898,7 +910,7 @@ const MonthlyExpanse: React.FC = () => {
             />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </div>
   );
 };
