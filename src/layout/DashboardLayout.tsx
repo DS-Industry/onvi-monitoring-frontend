@@ -1,13 +1,13 @@
 import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
-import SideNavbar from '@/layout/SideNavbar.tsx';
 import { ContextProvider } from '@/components/context/Context.tsx';
 import Spin from 'antd/es/spin';
+import MainLayout from './MainLayout';
 
 const DashboardLayout: React.FC = () => {
   return (
     <ContextProvider>
-      <SideNavbar>
+      <MainLayout>
         <Suspense
           fallback={
             <div
@@ -26,7 +26,7 @@ const DashboardLayout: React.FC = () => {
             <Outlet />
           </main>
         </Suspense>
-      </SideNavbar>
+      </MainLayout>
     </ContextProvider>
   );
 };

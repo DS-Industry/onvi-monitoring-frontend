@@ -9,6 +9,14 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+        sm: '576px',
+        md: '768px',
+        lg: '992px',
+        xl: '1200px',
+        xxl: '1600px',
+      },
       colors: {
         primary01: '#BFFA00',
         primary02: '#0B68E1',
