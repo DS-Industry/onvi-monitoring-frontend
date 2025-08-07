@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
+const AVATAR_URL = import.meta.env.VITE_S3_CLOUD + '/avatar/user/';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ interface SidebarProps {
 }
 
 const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
-  const user = useUserStore();
+  const { user: currentUser } = useUserStore();
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
@@ -51,6 +52,12 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [resetSubmenu]);
+
+  const handleSidebarNavigation = (path: string) => {
+    setIsOpen(false);
+    resetSubmenu();
+    navigate(path);
+  };
 
   return (
     <>
@@ -119,13 +126,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
               isOpen={isOpen}
               setIsOpen={setIsOpen}
               onClick={() => {
-                if (!isOpen) {
-                  setIsOpen(true);
-                  resetSubmenu();
-                } else {
-                  setIsOpen(false);
-                  resetSubmenu();
-                }
+                setIsOpen(prev => !prev);
+                resetSubmenu();
               }}
             />
           </div>
@@ -134,13 +136,15 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           <div>
             <div
               className={`flex items-center ${!isOpen ? 'justify-center' : ''} py-2.5 px-4 rounded hover:bg-opacity01/30 hover:text-primary01 text-text02 cursor-pointer`}
-              onClick={() => navigate('/notifications')}
+              onClick={() => {
+                handleSidebarNavigation('/notifications');
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  navigate('/notifications');
+                  handleSidebarNavigation('/notifications');
                 }
               }}
             >
@@ -157,25 +161,27 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
 
             <div
               className="mt-5 py-3 border-t border-text02 flex items-center gap-2 px-4 cursor-pointer"
-              onClick={() => navigate('/profile')}
+              onClick={() => {
+                handleSidebarNavigation('/profile');
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  navigate('/profile');
+                  handleSidebarNavigation('/profile');
                 }
               }}
             >
-              {user?.user?.avatar ? (
+              {currentUser?.avatar ? (
                 <img
-                  src={`${import.meta.env.VITE_S3_CLOUD}/avatar/user/${user?.user?.avatar}`}
+                  src={`${AVATAR_URL}${currentUser.avatar}`}
                   alt="Profile"
                   className="rounded-full w-10 h-10 object-cover"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-primary01 text-text02 flex items-center justify-center text-sm font-medium shrink-0">
-                  {user?.user?.name?.[0]?.toUpperCase() || '?'}
+                  {currentUser?.name?.[0]?.toUpperCase() || '?'}
                 </div>
               )}
               <div
@@ -183,7 +189,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
                   isOpen ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                {user?.user?.name || ''}
+                {currentUser?.name || ''}
               </div>
             </div>
           </div>
