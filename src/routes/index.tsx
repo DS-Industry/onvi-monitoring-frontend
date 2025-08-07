@@ -202,7 +202,7 @@ const routes = [
           {
             name: 'listOf',
             filter: false,
-            addButton: true,
+            addButton: false,
             addButtonText: 'add',
             isVisible: true,
             path: '/administration/accessRights/employees',

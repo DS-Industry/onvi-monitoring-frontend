@@ -6,7 +6,7 @@ import Modal from '@/components/ui/Modal/Modal';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Close from '@icons/close.svg?react';
-import { useButtonCreate, useToast } from '@/components/context/useContext';
+import { useToast } from '@/components/context/useContext';
 import {
   addRole,
   getOrganization,
@@ -19,16 +19,15 @@ import useSWRMutation from 'swr/mutation';
 import useSWR from 'swr';
 
 type EmployeeCreationModalProps = {
-  isModalOpen: boolean;
-  setIsModalOpen: (modalOpen: boolean) => void;
+  open: boolean;
+  onClose: () => void;
 };
 
 const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
-  isModalOpen,
-  setIsModalOpen,
+  open,
+  onClose
 }) => {
   const { t } = useTranslation();
-  const { setButtonOn } = useButtonCreate();
 
   const defaultValues: RoleRequestBody = {
     name: '',
@@ -85,8 +84,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
-    setIsModalOpen(false);
-    setButtonOn(false);
+    onClose();
   };
 
   const onSubmit = async () => {
@@ -131,15 +129,14 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
 
   return (
     <div>
-      <Modal isOpen={isModalOpen} classname="sm:w-[552px]">
+      <Modal isOpen={open} classname="sm:w-[552px]">
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01">
             {t('roles.create')}
           </h2>
           <Close
             onClick={() => {
-              setIsModalOpen(false);
-              setButtonOn(false);
+              onClose();
             }}
             className="cursor-pointer text-text01"
           />
@@ -277,7 +274,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               type="outline"
               handleClick={() => {
                 resetForm();
-                setIsModalOpen(false);
               }}
             />
             <Button
