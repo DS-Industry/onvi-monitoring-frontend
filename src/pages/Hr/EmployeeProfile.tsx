@@ -2,15 +2,14 @@ import SearchInput from '@/components/ui/Input/SearchInput';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import CalendarComponent from '@/components/ui/Calendar/CalendarComponent';
-import { useButtonCreate, useToast } from '@/components/context/useContext';
+import { useToast } from '@/components/context/useContext';
 import type { DatePickerProps } from 'antd';
-import { DatePicker, Skeleton } from 'antd';
+import { DatePicker, Skeleton, Button } from 'antd';
 import useSWR, { mutate } from 'swr';
 import {
   getPositions,
@@ -22,6 +21,21 @@ import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+
+const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
+
+const DoubleSkeleton = () => (
+  <>
+    {[...Array(5)].map((_, index) => (
+      <div key={index} className="flex flex-col space-y-4 mb-4">
+        <Skeleton.Input style={{ width: '20%' }} active={true} />
+        <Skeleton.Input style={{ width: '30%' }} active={true} />
+      </div>
+    ))}
+  </>
+);
 
 type UpdateWorkerRequest = {
   workerId: string;
@@ -49,7 +63,6 @@ const EmployeeProfile: React.FC = () => {
   const [searchEmp, setSearchEmp] = useState('');
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
-  const { buttonOn } = useButtonCreate();
   const location = useLocation();
   const [workerId, setWorkerId] = useState(location.state.ownerId);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -163,8 +176,8 @@ const EmployeeProfile: React.FC = () => {
   useEffect(() => {
     if (employee?.avatar)
       setImagePreview(
-        'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
-          employee.avatar
+        `${VITE_S3_CLOUD}/avatar/worker/` +
+        employee.avatar
       );
     else setImagePreview(null);
   }, [employee?.avatar]);
@@ -358,41 +371,45 @@ const EmployeeProfile: React.FC = () => {
     setYear(year + 1);
   };
 
-  useEffect(() => {
-    if (buttonOn) {
-      handleSubmit(onSubmit)();
-    }
-  }, [buttonOn]);
-
-  const saveScheduleData = () => {};
-
   return (
     <div className="mt-2">
-      <hr />
-      <div className="flex flex-col md:flex-row">
-        <div className="md:w-72 w-full border-r border-opacity01 min-h-screen p-4 space-y-4">
-          <div
-            className="flex space-x-2 text-primary02 cursor-pointer"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeftOutlined className="h-6 w-6" />
-            <div>{t('login.back')}</div>
-          </div>
-          <SearchInput
-            value={searchEmp}
-            placeholder={t('hr.search')}
-            searchType="outlined"
-            onChange={value => setSearchEmp(value)}
-          />
-          <div className="w-full md:w-60 max-h-[480px] overflow-y-auto">
-            {loadingWorkers || validatingWorkers
-              ? [...Array(5)].map((_, index) => (
-                  <div key={index} className="flex flex-col space-y-4 mb-4">
-                    <Skeleton.Input style={{ width: '20%' }} active={true} />
-                    <Skeleton.Input style={{ width: '30%' }} active={true} />
-                  </div>
-                ))
-              : employeeDetails.map(emp => (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {location.state.name}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <Button
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => handleSubmit(onSubmit)()}
+        >
+          {t('routes.save')}
+        </Button>
+      </div>
+
+      <div className="mt-5">
+        <hr />
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-72 w-full border-r border-opacity01 min-h-screen p-4 space-y-4">
+            <div
+              className="flex space-x-2 text-primary02 cursor-pointer"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeftOutlined className="h-6 w-6" />
+              <div>{t('login.back')}</div>
+            </div>
+            <SearchInput
+              value={searchEmp}
+              placeholder={t('hr.search')}
+              searchType="outlined"
+              onChange={value => setSearchEmp(value)}
+            />
+            <div className="w-full md:w-60 max-h-[480px] overflow-y-auto">
+              {loadingWorkers || validatingWorkers
+                ? DoubleSkeleton()
+                : employeeDetails.map(emp => (
                   <div
                     className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2"
                     onClick={() => setWorkerId(emp.workerId)}
@@ -400,7 +417,7 @@ const EmployeeProfile: React.FC = () => {
                     {emp.avatar ? (
                       <img
                         src={
-                          'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
+                          `${VITE_S3_CLOUD}/avatar/worker/` +
                           emp.avatar
                         }
                         alt="Profile"
@@ -420,459 +437,442 @@ const EmployeeProfile: React.FC = () => {
                     </div>
                   </div>
                 ))}
+            </div>
           </div>
-        </div>
-        <div className="px-4 w-full">
-          <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-fit overflow-x-auto">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                className={`p-2 flex-1 min-w-[120px] sm:w-40 text-center ${activeTab === tab.id ? 'text-text01 border-b-[3px] border-primary02' : 'text-text02'}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </div>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {loadingEmployee || isValidating ? (
-              <div className="mt-4">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="flex flex-col space-y-4 mb-4">
-                    <Skeleton.Input style={{ width: '20%' }} active={true} />
-                    <Skeleton.Input style={{ width: '30%' }} active={true} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-4">
-                {activeTab === 'info' && (
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm text-text02">
-                        {t('finance.status')}
+          <div className="px-4 w-full">
+            <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-fit overflow-x-auto">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  className={`p-2 flex-1 min-w-[120px] sm:w-40 text-center ${activeTab === tab.id ? 'text-text01 border-b-[3px] border-primary02' : 'text-text02'}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {loadingEmployee || isValidating ? (
+                <div className="mt-4">
+                  {DoubleSkeleton()}
+                </div>
+              ) : (
+                <div className="mt-4">
+                  {activeTab === 'info' && (
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm text-text02">
+                          {t('finance.status')}
+                        </div>
+                        <div className="rounded-2xl py-[2px] px-2 flex items-center gap-2 w-36 text-[#00A355] bg-[#D1FFEA]">
+                          <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
+                          {t('tables.ACTIVE')}
+                        </div>
                       </div>
-                      <div className="rounded-2xl py-[2px] px-2 flex items-center gap-2 w-36 text-[#00A355] bg-[#D1FFEA]">
-                        <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
-                        {t('tables.ACTIVE')}
+                      <DropdownInput
+                        title={`${t('roles.job')}`}
+                        label={t('hr.selectPos')}
+                        options={positions}
+                        classname="w-full md:w-64"
+                        {...register('hrPositionId')}
+                        value={formData.hrPositionId}
+                        onChange={value =>
+                          handleInputChange('hrPositionId', value)
+                        }
+                        inputType="secondary"
+                      />
+                      <div>
+                        <div className="text-sm text-text02">{t('hr.date')}</div>
+                        <DateInput
+                          classname="w-full md:w-40"
+                          value={
+                            formData.startWorkDate
+                              ? dayjs(formData.startWorkDate)
+                              : null
+                          }
+                          changeValue={date =>
+                            handleInputChange(
+                              'startWorkDate',
+                              date ? date.format('YYYY-MM-DD') : ''
+                            )
+                          }
+                          {...register('startWorkDate')}
+                          inputType="secondary"
+                        />
+                      </div>
+                      <Input
+                        type=""
+                        title={t('profile.telephone')}
+                        label={t('warehouse.enterPhone')}
+                        classname="w-full md:w-80"
+                        value={formData.phone}
+                        changeValue={e =>
+                          handleInputChange('phone', e.target.value)
+                        }
+                        {...register('phone')}
+                        inputType="secondary"
+                      />
+                      <Input
+                        type=""
+                        title={'E-mail'}
+                        label={t('marketing.enterEmail')}
+                        classname="w-full md:w-80"
+                        value={formData.email}
+                        changeValue={e =>
+                          handleInputChange('email', e.target.value)
+                        }
+                        {...register('email')}
+                        inputType="secondary"
+                      />
+                      <MultilineInput
+                        title={t('warehouse.desc')}
+                        label={t('warehouse.about')}
+                        classname="w-full md:w-80"
+                        inputType="secondary"
+                        value={formData.description}
+                        changeValue={e =>
+                          handleInputChange('description', e.target.value)
+                        }
+                        {...register('description')}
+                      />
+                      <div>
+                        <div className="text-sm text-text02">
+                          {t('profile.photo')}
+                        </div>
+                        <label className="cursor-pointer">
+                          {imagePreview ? (
+                            <img
+                              src={imagePreview}
+                              alt="Profile"
+                              className="rounded-full w-10 h-10 object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
+                              {getInitials(employee?.name || '')}
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </label>
                       </div>
                     </div>
-                    <DropdownInput
-                      title={`${t('roles.job')}`}
-                      label={t('hr.selectPos')}
-                      options={positions}
-                      classname="w-full md:w-64"
-                      {...register('hrPositionId')}
-                      value={formData.hrPositionId}
-                      onChange={value =>
-                        handleInputChange('hrPositionId', value)
-                      }
-                      inputType="secondary"
-                    />
-                    <div>
-                      <div className="text-sm text-text02">{t('hr.date')}</div>
+                  )}
+                  {activeTab === 'addi' && (
+                    <div className="space-y-4">
+                      <DropdownInput
+                        title={`${t('marketing.floor')}`}
+                        label={t('warehouse.notSel')}
+                        options={[
+                          { name: t('marketing.man'), value: 'Man' },
+                          { name: t('marketing.woman'), value: 'Woman' },
+                        ]}
+                        classname="w-64"
+                        {...register('gender')}
+                        value={formData.gender}
+                        onChange={value => handleInputChange('gender', value)}
+                      />
+                      <Input
+                        type=""
+                        title={t('hr.citi')}
+                        label={t('hr.enterCiti')}
+                        classname="w-full md:w-80"
+                        value={formData.citizenship}
+                        changeValue={e =>
+                          handleInputChange('citizenship', e.target.value)
+                        }
+                        {...register('citizenship')}
+                        inputType="secondary"
+                      />
+                      <Input
+                        title={t('hr.passportSeries')}
+                        classname="w-80"
+                        inputType="secondary"
+                        value={formData.passportSeries}
+                        changeValue={e =>
+                          handleInputChange('passportSeries', e.target.value)
+                        }
+                        {...register('passportSeries')}
+                      />
+                      <Input
+                        title={t('hr.passportNumber')}
+                        classname="w-80"
+                        inputType="secondary"
+                        value={formData.passportNumber}
+                        changeValue={e =>
+                          handleInputChange('passportNumber', e.target.value)
+                        }
+                        {...register('passportNumber')}
+                      />
+                      <Input
+                        title={t('hr.passportExtradition')}
+                        classname="w-80"
+                        inputType="secondary"
+                        value={formData.passportExtradition}
+                        changeValue={e =>
+                          handleInputChange('passportExtradition', e.target.value)
+                        }
+                        {...register('passportExtradition')}
+                      />
                       <DateInput
-                        classname="w-full md:w-40"
+                        title={t('hr.passportDateIssue')}
+                        classname="w-40"
+                        inputType="secondary"
                         value={
-                          formData.startWorkDate
-                            ? dayjs(formData.startWorkDate)
+                          formData.passportDateIssue
+                            ? dayjs(formData.passportDateIssue)
                             : null
                         }
                         changeValue={date =>
                           handleInputChange(
-                            'startWorkDate',
+                            'passportDateIssue',
                             date ? date.format('YYYY-MM-DD') : ''
                           )
                         }
-                        {...register('startWorkDate')}
+                        {...register('passportDateIssue')}
+                      />
+                      <Input
+                        type=""
+                        title={t('marketing.inn')}
+                        classname="w-full md:w-80"
+                        value={formData.inn}
+                        changeValue={e =>
+                          handleInputChange('inn', e.target.value)
+                        }
+                        {...register('inn')}
+                        inputType="secondary"
+                      />
+                      <Input
+                        type=""
+                        title={t('hr.snils')}
+                        classname="w-full md:w-80"
+                        value={formData.snils}
+                        changeValue={e =>
+                          handleInputChange('snils', e.target.value)
+                        }
+                        {...register('snils')}
                         inputType="secondary"
                       />
                     </div>
-                    <Input
-                      type=""
-                      title={t('profile.telephone')}
-                      label={t('warehouse.enterPhone')}
-                      classname="w-full md:w-80"
-                      value={formData.phone}
-                      changeValue={e =>
-                        handleInputChange('phone', e.target.value)
-                      }
-                      {...register('phone')}
-                      inputType="secondary"
-                    />
-                    <Input
-                      type=""
-                      title={'E-mail'}
-                      label={t('marketing.enterEmail')}
-                      classname="w-full md:w-80"
-                      value={formData.email}
-                      changeValue={e =>
-                        handleInputChange('email', e.target.value)
-                      }
-                      {...register('email')}
-                      inputType="secondary"
-                    />
-                    <MultilineInput
-                      title={t('warehouse.desc')}
-                      label={t('warehouse.about')}
-                      classname="w-full md:w-80"
-                      inputType="secondary"
-                      value={formData.description}
-                      changeValue={e =>
-                        handleInputChange('description', e.target.value)
-                      }
-                      {...register('description')}
-                    />
-                    <div>
-                      <div className="text-sm text-text02">
-                        {t('profile.photo')}
-                      </div>
-                      <label className="cursor-pointer">
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Profile"
-                            className="rounded-full w-10 h-10 object-cover"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
-                            {getInitials(employee?.name || '')}
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                )}
-                {activeTab === 'addi' && (
-                  <div className="space-y-4">
-                    <DropdownInput
-                      title={`${t('marketing.floor')}`}
-                      label={t('warehouse.notSel')}
-                      options={[
-                        { name: t('marketing.man'), value: 'Man' },
-                        { name: t('marketing.woman'), value: 'Woman' },
-                      ]}
-                      classname="w-64"
-                      {...register('gender')}
-                      value={formData.gender}
-                      onChange={value => handleInputChange('gender', value)}
-                    />
-                    <Input
-                      type=""
-                      title={t('hr.citi')}
-                      label={t('hr.enterCiti')}
-                      classname="w-full md:w-80"
-                      value={formData.citizenship}
-                      changeValue={e =>
-                        handleInputChange('citizenship', e.target.value)
-                      }
-                      {...register('citizenship')}
-                      inputType="secondary"
-                    />
-                    <Input
-                      title={t('hr.passportSeries')}
-                      classname="w-80"
-                      inputType="secondary"
-                      value={formData.passportSeries}
-                      changeValue={e =>
-                        handleInputChange('passportSeries', e.target.value)
-                      }
-                      {...register('passportSeries')}
-                    />
-                    <Input
-                      title={t('hr.passportNumber')}
-                      classname="w-80"
-                      inputType="secondary"
-                      value={formData.passportNumber}
-                      changeValue={e =>
-                        handleInputChange('passportNumber', e.target.value)
-                      }
-                      {...register('passportNumber')}
-                    />
-                    <Input
-                      title={t('hr.passportExtradition')}
-                      classname="w-80"
-                      inputType="secondary"
-                      value={formData.passportExtradition}
-                      changeValue={e =>
-                        handleInputChange('passportExtradition', e.target.value)
-                      }
-                      {...register('passportExtradition')}
-                    />
-                    <DateInput
-                      title={t('hr.passportDateIssue')}
-                      classname="w-40"
-                      inputType="secondary"
-                      value={
-                        formData.passportDateIssue
-                          ? dayjs(formData.passportDateIssue)
-                          : null
-                      }
-                      changeValue={date =>
-                        handleInputChange(
-                          'passportDateIssue',
-                          date ? date.format('YYYY-MM-DD') : ''
-                        )
-                      }
-                      {...register('passportDateIssue')}
-                    />
-                    <Input
-                      type=""
-                      title={t('marketing.inn')}
-                      classname="w-full md:w-80"
-                      value={formData.inn}
-                      changeValue={e =>
-                        handleInputChange('inn', e.target.value)
-                      }
-                      {...register('inn')}
-                      inputType="secondary"
-                    />
-                    <Input
-                      type=""
-                      title={t('hr.snils')}
-                      classname="w-full md:w-80"
-                      value={formData.snils}
-                      changeValue={e =>
-                        handleInputChange('snils', e.target.value)
-                      }
-                      {...register('snils')}
-                      inputType="secondary"
-                    />
-                  </div>
-                )}
-                {activeTab === 'salary' && (
-                  <div className="space-y-4">
-                    <Input
-                      title={`${t('hr.month')}`}
-                      type="number"
-                      classname="w-full md:w-44"
-                      showIcon={true}
-                      IconComponent={
-                        <div className="text-text02 text-xl">₽</div>
-                      }
-                      value={formData.monthlySalary}
-                      changeValue={e =>
-                        handleInputChange('monthlySalary', e.target.value)
-                      }
-                      {...register('monthlySalary')}
-                      inputType="secondary"
-                    />
-                    <Input
-                      title={`${t('hr.daily')}`}
-                      type="number"
-                      classname="w-full md:w-44"
-                      value={formData.dailySalary}
-                      changeValue={e =>
-                        handleInputChange('dailySalary', e.target.value)
-                      }
-                      {...register('dailySalary')}
-                      inputType="secondary"
-                      showIcon={true}
-                      IconComponent={
-                        <div className="text-text02 text-xl">₽</div>
-                      }
-                    />
-                    <Input
-                      title={`${t('marketing.per')}`}
-                      type={'number'}
-                      classname="w-full md:w-44"
-                      value={formData.percentageSalary}
-                      changeValue={e =>
-                        handleInputChange('percentageSalary', e.target.value)
-                      }
-                      {...register('percentageSalary')}
-                      inputType="secondary"
-                      showIcon={true}
-                      IconComponent={
-                        <div className="text-text02 text-xl">%</div>
-                      }
-                    />
-                  </div>
-                )}
-                {activeTab === 'sch' && (
-                  <div className="space-y-4">
-                    <div className="h-72 w-[457px] rounded-lg bg-background05 p-4 space-y-6">
-                      <div className="text-text01 font-semibold">
-                        {t('hr.auto')}
-                      </div>
-                      <div className="flex space-x-3 items-center">
-                        <div className="text-sm text-text01 font-semibold">
-                          {t('finance.sch')}
-                        </div>
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          classname="w-24"
-                          value={scheduleData.sch}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              sch: Number(e.target.value),
-                            }))
-                          }
-                        />
-                        <div className="text-sm text-text02">
-                          {t('finance.thr')}
-                        </div>
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          classname="w-24"
-                          value={scheduleData.repeat}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              repeat: Number(e.target.value),
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="flex space-x-3 items-center">
-                        <div className="text-sm text-text01 font-semibold">
-                          {t('finance.sta')}
-                        </div>
-                        <DatePicker onChange={onChange} />
-                      </div>
-                      <div className="flex space-x-2 items-center">
-                        <div className="text-text01 font-semibold text-sm">
-                          {t('finance.open')}
-                        </div>
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          label="09 ч"
-                          classname="w-[68px]"
-                          value={scheduleData.openingHour}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              openingHour: Number(e.target.value),
-                            }))
-                          }
-                        />
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          label="00 м"
-                          classname="w-[68px]"
-                          value={scheduleData.openingMin}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              openingMin: Number(e.target.value),
-                            }))
-                          }
-                        />
-                        <div className="text-sm text-text02">-</div>
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          label="09 ч"
-                          classname="w-[68px]"
-                          value={scheduleData.closingHour}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              closingHour: Number(e.target.value),
-                            }))
-                          }
-                        />
-                        <Input
-                          type="number"
-                          inputType="secondary"
-                          label="00 м"
-                          classname="w-[68px]"
-                          value={scheduleData.closingMinute}
-                          changeValue={e =>
-                            setScheduleData(prev => ({
-                              ...prev,
-                              closingMinute: Number(e.target.value),
-                            }))
-                          }
-                        />
-                      </div>
-                      {/* <div className="flex space-x-3 items-center">
-                                        <div className="text-sm text-text01 font-semibold">{t("finance.ex")}</div>
-                                        <Input
-                                            type="number"
-                                            inputType="secondary"
-                                            classname="w-24"
-                                        />
-                                        <div className="text-sm text-text02">{t("finance.a")}</div>
-                                    </div> */}
-                      <Button
-                        title={t('finance.fill')}
-                        handleClick={saveScheduleData}
+                  )}
+                  {activeTab === 'salary' && (
+                    <div className="space-y-4">
+                      <Input
+                        title={`${t('hr.month')}`}
+                        type="number"
+                        classname="w-full md:w-44"
+                        showIcon={true}
+                        IconComponent={
+                          <div className="text-text02 text-xl">₽</div>
+                        }
+                        value={formData.monthlySalary}
+                        changeValue={e =>
+                          handleInputChange('monthlySalary', e.target.value)
+                        }
+                        {...register('monthlySalary')}
+                        inputType="secondary"
+                      />
+                      <Input
+                        title={`${t('hr.daily')}`}
+                        type="number"
+                        classname="w-full md:w-44"
+                        value={formData.dailySalary}
+                        changeValue={e =>
+                          handleInputChange('dailySalary', e.target.value)
+                        }
+                        {...register('dailySalary')}
+                        inputType="secondary"
+                        showIcon={true}
+                        IconComponent={
+                          <div className="text-text02 text-xl">₽</div>
+                        }
+                      />
+                      <Input
+                        title={`${t('marketing.per')}`}
+                        type={'number'}
+                        classname="w-full md:w-44"
+                        value={formData.percentageSalary}
+                        changeValue={e =>
+                          handleInputChange('percentageSalary', e.target.value)
+                        }
+                        {...register('percentageSalary')}
+                        inputType="secondary"
+                        showIcon={true}
+                        IconComponent={
+                          <div className="text-text02 text-xl">%</div>
+                        }
                       />
                     </div>
-                    <div className="flex items-center justify-center w-full md:w-[800px] space-x-4">
-                      <button
-                        onClick={handlePrevYear}
-                        className="p-2 rounded-full bg-background05 text-text03"
-                      >
-                        <ArrowLeftOutlined size={20} />
-                      </button>
-                      <div className="text-xl font-semibold">{year}</div>
-                      <button
-                        onClick={handleNextYear}
-                        className="p-2 rounded-full bg-background05 text-text03"
-                      >
-                        <ArrowRightOutlined size={20} />
-                      </button>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center space-x-4">
-                      {/* Left Arrow */}
-                      <button
-                        onClick={handlePrev}
-                        className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
-                        disabled={startIndex === 0}
-                      >
-                        <ArrowLeftOutlined size={20} />
-                      </button>
-
-                      {/* Calendars */}
-                      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
-                        {months
-                          .slice(startIndex, startIndex + 3)
-                          .map((month, index) => (
-                            <div key={index}>
-                              <div className="w-56 text-center font-semibold text-text01">
-                                {month.name} {year}
-                              </div>
-                              <CalendarComponent
-                                month={month.en}
-                                year={year}
-                                schedule={{
-                                  sch: scheduleData.sch,
-                                  repeat: scheduleData.repeat,
-                                  date: scheduleData.date,
-                                }}
-                              />
-                            </div>
-                          ))}
+                  )}
+                  {activeTab === 'sch' && (
+                    <div className="space-y-4">
+                      <div className="h-72 w-[457px] rounded-lg bg-background05 p-4 space-y-6">
+                        <div className="text-text01 font-semibold">
+                          {t('hr.auto')}
+                        </div>
+                        <div className="flex space-x-3 items-center">
+                          <div className="text-sm text-text01 font-semibold">
+                            {t('finance.sch')}
+                          </div>
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            classname="w-24"
+                            value={scheduleData.sch}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                sch: Number(e.target.value),
+                              }))
+                            }
+                          />
+                          <div className="text-sm text-text02">
+                            {t('finance.thr')}
+                          </div>
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            classname="w-24"
+                            value={scheduleData.repeat}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                repeat: Number(e.target.value),
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="flex space-x-3 items-center">
+                          <div className="text-sm text-text01 font-semibold">
+                            {t('finance.sta')}
+                          </div>
+                          <DatePicker onChange={onChange} />
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                          <div className="text-text01 font-semibold text-sm">
+                            {t('finance.open')}
+                          </div>
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            label="09 ч"
+                            classname="w-[68px]"
+                            value={scheduleData.openingHour}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                openingHour: Number(e.target.value),
+                              }))
+                            }
+                          />
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            label="00 м"
+                            classname="w-[68px]"
+                            value={scheduleData.openingMin}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                openingMin: Number(e.target.value),
+                              }))
+                            }
+                          />
+                          <div className="text-sm text-text02">-</div>
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            label="09 ч"
+                            classname="w-[68px]"
+                            value={scheduleData.closingHour}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                closingHour: Number(e.target.value),
+                              }))
+                            }
+                          />
+                          <Input
+                            type="number"
+                            inputType="secondary"
+                            label="00 м"
+                            classname="w-[68px]"
+                            value={scheduleData.closingMinute}
+                            changeValue={e =>
+                              setScheduleData(prev => ({
+                                ...prev,
+                                closingMinute: Number(e.target.value),
+                              }))
+                            }
+                          />
+                        </div>
                       </div>
+                      <div className="flex items-center justify-center w-full md:w-[800px] space-x-4">
+                        <button
+                          onClick={handlePrevYear}
+                          className="p-2 rounded-full bg-background05 text-text03"
+                        >
+                          <ArrowLeftOutlined size={20} />
+                        </button>
+                        <div className="text-xl font-semibold">{year}</div>
+                        <button
+                          onClick={handleNextYear}
+                          className="p-2 rounded-full bg-background05 text-text03"
+                        >
+                          <ArrowRightOutlined size={20} />
+                        </button>
+                      </div>
+                      <div className="flex flex-col md:flex-row items-center space-x-4">
+                        {/* Left Arrow */}
+                        <button
+                          onClick={handlePrev}
+                          className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
+                          disabled={startIndex === 0}
+                        >
+                          <ArrowLeftOutlined size={20} />
+                        </button>
 
-                      {/* Right Arrow */}
-                      <button
-                        onClick={handleNext}
-                        className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
-                        disabled={startIndex >= months.length - 3}
-                      >
-                        <ArrowRightOutlined size={20} />
-                      </button>
+                        {/* Calendars */}
+                        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
+                          {months
+                            .slice(startIndex, startIndex + 3)
+                            .map((month, index) => (
+                              <div key={index}>
+                                <div className="w-56 text-center font-semibold text-text01">
+                                  {month.name} {year}
+                                </div>
+                                <CalendarComponent
+                                  month={month.en}
+                                  year={year}
+                                  schedule={{
+                                    sch: scheduleData.sch,
+                                    repeat: scheduleData.repeat,
+                                    date: scheduleData.date,
+                                  }}
+                                />
+                              </div>
+                            ))}
+                        </div>
+
+                        {/* Right Arrow */}
+                        <button
+                          onClick={handleNext}
+                          className="p-2 rounded-full bg-background05 text-text03 disabled:opacity-50"
+                          disabled={startIndex >= months.length - 3}
+                        >
+                          <ArrowRightOutlined size={20} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </form>
+                  )}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
     </div>

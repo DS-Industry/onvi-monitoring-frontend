@@ -1,4 +1,3 @@
-import Filter from '@/components/ui/Filter/Filter';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { getDevices, getPoses } from '@/services/api/equipment';
 import React, { useState } from 'react';
@@ -161,108 +160,103 @@ const IncomeReport: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
+      <div className="mt-5">
 
-      <Filter
-        count={0}
-        hideSearch={true}
-        hideCity={true}
-        hideDateTime={true}
-        children={undefined}
-      ></Filter>
-      {/* Dynamic Input Fields Based on API Response */}
-      <div className="p-4 bg-white rounded-lg shadow-md">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <h3 className="text-lg font-semibold mb-4">{t('analysis.repo')}</h3>
-          <div className="flex flex-wrap gap-4">
-            {loadingReport || validatingReport ? (
-              <div className="flex flex-wrap gap-4">
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-              </div>
-            ) : (
-              reportData &&
-              reportData.params.params.map(value => (
-                <div key={value.name}>
-                  {value.type === 'date' ? (
-                    <DateInput
-                      title={value.description}
-                      value={
-                        formData[value.name]
-                          ? dayjs(formData[value.name])
-                          : null
-                      }
-                      changeValue={date =>
-                        handleInputChange(
-                          value.name,
-                          date ? date.format('YYYY-MM-DD') : ''
-                        )
-                      }
-                      classname="w-64"
-                    />
-                  ) : value.name.toLowerCase().includes('pos') ? (
-                    <DropdownInput
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={poses}
-                      onChange={val => handleInputChange(value.name, val)}
-                      classname="w-64"
-                    />
-                  ) : value.name.toLowerCase().includes('device') ? (
-                    <DropdownInput
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={devices}
-                      onChange={val => handleInputChange(value.name, val)}
-                      classname="w-64"
-                    />
-                  ) : value.name.toLowerCase().includes('warehouse') ? (
-                    <DropdownInput
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={warehouses}
-                      onChange={value => handleInputChange(value.name, value)}
-                      classname="w-64"
-                    />
-                  ) : value.name.toLowerCase().includes('org') ? (
-                    <DropdownInput
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={organizations}
-                      onChange={val => handleInputChange(value.name, val)}
-                      classname="w-64"
-                    />
-                  ) : value.type === 'number' ? (
-                    <Input
-                      title={t(`analysis.${value.name}`)}
-                      type="number"
-                      value={formData[value.name] || ''}
-                      changeValue={e =>
-                        handleInputChange(value.name, Number(e.target.value))
-                      }
-                      classname="w-64"
-                    />
-                  ) : (
-                    <Input
-                      title={t(`analysis.${value.name}`)}
-                      type="text"
-                      value={formData[value.name] || ''}
-                      changeValue={e =>
-                        handleInputChange(value.name, e.target.value)
-                      }
-                      classname="w-64"
-                    />
-                  )}
+        {/* Dynamic Input Fields Based on API Response */}
+        <div className="p-4 bg-white rounded-lg shadow-md">
+          <form onSubmit={onSubmit} className="space-y-4">
+            <h3 className="text-lg font-semibold mb-4">{t('analysis.repo')}</h3>
+            <div className="flex flex-wrap gap-4">
+              {loadingReport || validatingReport ? (
+                <div className="flex flex-wrap gap-4">
+                  <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                  <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                  <Skeleton.Input active style={{ width: 150, height: 32 }} />
                 </div>
-              ))
-            )}
-          </div>
-          <Button
-            title={t('analysis.add')}
-            form={true}
-            isLoading={isMutating}
-          />
-        </form>
+              ) : (
+                reportData &&
+                reportData.params.params.map(value => (
+                  <div key={value.name}>
+                    {value.type === 'date' ? (
+                      <DateInput
+                        title={value.description}
+                        value={
+                          formData[value.name]
+                            ? dayjs(formData[value.name])
+                            : null
+                        }
+                        changeValue={date =>
+                          handleInputChange(
+                            value.name,
+                            date ? date.format('YYYY-MM-DD') : ''
+                          )
+                        }
+                        classname="w-64"
+                      />
+                    ) : value.name.toLowerCase().includes('pos') ? (
+                      <DropdownInput
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={poses}
+                        onChange={val => handleInputChange(value.name, val)}
+                        classname="w-64"
+                      />
+                    ) : value.name.toLowerCase().includes('device') ? (
+                      <DropdownInput
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={devices}
+                        onChange={val => handleInputChange(value.name, val)}
+                        classname="w-64"
+                      />
+                    ) : value.name.toLowerCase().includes('warehouse') ? (
+                      <DropdownInput
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={warehouses}
+                        onChange={value => handleInputChange(value.name, value)}
+                        classname="w-64"
+                      />
+                    ) : value.name.toLowerCase().includes('org') ? (
+                      <DropdownInput
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={organizations}
+                        onChange={val => handleInputChange(value.name, val)}
+                        classname="w-64"
+                      />
+                    ) : value.type === 'number' ? (
+                      <Input
+                        title={t(`analysis.${value.name}`)}
+                        type="number"
+                        value={formData[value.name] || ''}
+                        changeValue={e =>
+                          handleInputChange(value.name, Number(e.target.value))
+                        }
+                        classname="w-64"
+                      />
+                    ) : (
+                      <Input
+                        title={t(`analysis.${value.name}`)}
+                        type="text"
+                        value={formData[value.name] || ''}
+                        changeValue={e =>
+                          handleInputChange(value.name, e.target.value)
+                        }
+                        classname="w-64"
+                      />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+            <Button
+              title={t('analysis.add')}
+              form={true}
+              isLoading={isMutating}
+            />
+          </form>
+        </div>
       </div>
     </div>
   );

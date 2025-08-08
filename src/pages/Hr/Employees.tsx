@@ -288,7 +288,7 @@ const Employees: React.FC = () => {
         return (
           <Link
             to="/hr/employees/profile"
-            state={{ ownerId: record.hrPositionId }}
+            state={{ ownerId: record.hrPositionId, name: record.name }}
             className="text-blue-500 hover:text-blue-700 font-semibold"
           >
             {text}
