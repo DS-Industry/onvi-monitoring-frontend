@@ -1,33 +1,26 @@
-import { useFilterOn } from '@/components/context/useContext';
-import Filter from '@/components/ui/Filter/Filter';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import {
-  useCurrentPage,
-  usePageNumber,
-  useSetCurrentPage,
-  useSetPageSize,
-} from '@/hooks/useAuthStore';
 import { getAllReports, getTransactions } from '@/services/api/reports';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import useSWR from 'swr';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
-import { Button } from 'antd';
+import useSWR, { mutate } from 'swr';
+import { Button, Table } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
-import { useLocation } from 'react-router-dom';
 import { DownloadOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
+import { useSearchParams } from 'react-router-dom';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const Transactions: React.FC = () => {
   const { t } = useTranslation();
-  const pageNumber = usePageNumber();
-  const currentPage = useCurrentPage();
-  const setTotalCount = useSetPageSize();
-  const { filterOn, setFilterOn } = useFilterOn();
-  const [tableLoading, setTableLoading] = useState(false);
-  const location = useLocation();
-  const setCurrentPage = useSetCurrentPage();
-  const pageSize = usePageNumber();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const { data: filter } = useSWR(['get-all-report'], () => getAllReports({}));
 
@@ -40,20 +33,25 @@ const Transactions: React.FC = () => {
     );
   }, [filter?.reports]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [location, setCurrentPage]);
+  const filterParams = {
+    page: currentPage,
+    size: pageSize
+  }
 
-  const {
-    data: transactionData,
-    mutate: mutateTransactions,
-    isLoading: loadingTransactions,
-  } = useSWR(
-    [`get-transaction`],
+  const swrKey = useMemo(() => {
+      return [
+        'get-transactions',
+        filterParams.page,
+        filterParams.size,
+      ];
+    }, [filterParams]);
+
+  const { data: transactionData, isLoading: loadingTransactions } = useSWR(
+    swrKey,
     () =>
       getTransactions({
-        page: currentPage,
-        size: pageNumber,
+        page: filterParams.page,
+        size: filterParams.size,
       }),
     {
       revalidateOnFocus: false,
@@ -61,25 +59,6 @@ const Transactions: React.FC = () => {
       keepPreviousData: true,
     }
   );
-
-  const totalRecords = transactionData?.count || 0;
-  const maxPages = Math.ceil(totalRecords / pageSize);
-
-  useEffect(() => {
-    if (currentPage > maxPages) {
-      setCurrentPage(maxPages > 0 ? maxPages : 1);
-    }
-  }, [maxPages, currentPage, setCurrentPage]);
-
-  useEffect(() => {
-    setTableLoading(true);
-    mutateTransactions().then(() => setTableLoading(false));
-  }, [filterOn, mutateTransactions]);
-
-  useEffect(() => {
-    if (!loadingTransactions && transactionData?.count)
-      setTotalCount(transactionData?.count);
-  }, [transactionData?.count, loadingTransactions, setTotalCount]);
 
   const transactions = useMemo(() => {
     return (
@@ -90,39 +69,43 @@ const Transactions: React.FC = () => {
           allReports.find(rep => rep.value === item.reportTemplateId)?.name ||
           '',
       })) || []
-    ).sort(
-      (a, b) =>
-        new Date(b.startTemplateAt).getTime() -
-        new Date(a.startTemplateAt).getTime()
     );
   }, [allReports, t, transactionData?.transactions]);
 
   const handleDownload = (reportKey: string, id: number) => {
-    const downloadUrl = `https://storage.yandexcloud.net/onvi-business/report/${id}/${reportKey}`; // Adjust API path
+    const downloadUrl = `${import.meta.env.VITE_S3_CLOUD}/report/${id}/${reportKey}`;
     window.open(downloadUrl, '_blank');
   };
 
+  const statusRender = getStatusTagRender(t);
+  const dateRender = getDateRender();
+
   const columnsTransactions = [
     {
-      label: 'Отчет',
+      title: 'Отчет',
+      dataIndex: 'reportTemplateId',
       key: 'reportTemplateId',
     },
     {
-      label: 'Статус',
+      title: 'Статус',
+      dataIndex: 'status',
       key: 'status',
+      render: statusRender,
     },
     {
-      label: 'Дата начала создания',
+      title: 'Дата начала создания',
+      dataIndex: 'startTemplateAt',
       key: 'startTemplateAt',
-      type: 'date',
+      render: dateRender,
     },
     {
-      label: 'Дата окончания создания',
+      title: 'Дата окончания создания',
+      dataIndex: 'endTemplateAt',
       key: 'endTemplateAt',
-      type: 'date',
+      render: dateRender,
     },
     {
-      label: '',
+      title: '',
       key: 'Download',
       render: (row: { status: string; reportKey: string; userId: number }) =>
         row.status === t('analysis.DONE') && (
@@ -141,7 +124,7 @@ const Transactions: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.my')}
@@ -150,43 +133,34 @@ const Transactions: React.FC = () => {
         </div>
       </div>
 
-      <Filter
-        count={transactions.length}
-        hideSearch={true}
-        hideCity={true}
-        hideDateTime={true}
-        children={undefined}
-      ></Filter>
       <div className="mt-5">
-        {loadingTransactions || tableLoading ? (
-          <TableSkeleton columnCount={columnsTransactions.length} />
-        ) : transactions.length > 0 ? (
-          <div className="space-y-4">
-            <Button
-              onClick={() => setFilterOn(!filterOn)}
-              icon={
-                <UndoOutlined style={{ color: 'orange', fontSize: '24px' }} />
-              }
-              style={{
-                width: '48px',
-                height: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            />
-            <DynamicTable
-              data={transactions}
-              columns={columnsTransactions}
-              showPagination={true}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center mt-40 text-text02">
-            <div>{t('analysis.there')}</div>
-            <div>{t('analysis.you')}</div>
-          </div>
-        )}
+        <div className="space-y-4">
+          <Button
+            icon={
+              <UndoOutlined style={{ color: 'orange', fontSize: '24px' }} />
+            }
+            className='h-12 !w-12 flex items-center justify-center'
+            onClick={() => mutate(swrKey)}
+          />
+          <Table
+            dataSource={transactions}
+            columns={columnsTransactions}
+            loading={loadingTransactions}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: transactionData?.count,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}–${range[1]} из ${total} операций`,
+              onChange: (page, size) =>
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                }),
+            }}
+          />
+        </div>
       </div>
     </div>
   );
