@@ -1,4 +1,3 @@
-import Filter from '@/components/ui/Filter/Filter';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { getDevices, getPoses } from '@/services/api/equipment';
 import React, { useState } from 'react';
@@ -161,15 +160,7 @@ const IncomeReport: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-
       <div className="mt-5">
-        <Filter
-          count={0}
-          hideSearch={true}
-          hideCity={true}
-          hideDateTime={true}
-          children={undefined}
-        ></Filter>
 
         {/* Dynamic Input Fields Based on API Response */}
         <div className="p-4 bg-white rounded-lg shadow-md">

@@ -2,7 +2,6 @@ import SearchInput from '@/components/ui/Input/SearchInput';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
@@ -10,7 +9,7 @@ import MultilineInput from '@/components/ui/Input/MultilineInput';
 import CalendarComponent from '@/components/ui/Calendar/CalendarComponent';
 import { useToast } from '@/components/context/useContext';
 import type { DatePickerProps } from 'antd';
-import { DatePicker, Skeleton, Button as AntButton } from 'antd';
+import { DatePicker, Skeleton, Button } from 'antd';
 import useSWR, { mutate } from 'swr';
 import {
   getPositions,
@@ -24,6 +23,8 @@ import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
+
+const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
 type UpdateWorkerRequest = {
   workerId: string;
@@ -164,7 +165,7 @@ const EmployeeProfile: React.FC = () => {
   useEffect(() => {
     if (employee?.avatar)
       setImagePreview(
-        'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
+        `${VITE_S3_CLOUD}/avatar/worker/` +
         employee.avatar
       );
     else setImagePreview(null);
@@ -359,8 +360,6 @@ const EmployeeProfile: React.FC = () => {
     setYear(year + 1);
   };
 
-  const saveScheduleData = () => { };
-
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between">
@@ -370,13 +369,13 @@ const EmployeeProfile: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        <AntButton
+        <Button
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => handleSubmit(onSubmit)()}
         >
           {t('routes.save')}
-        </AntButton>
+        </Button>
       </div>
 
       <div className="mt-5">
@@ -412,7 +411,7 @@ const EmployeeProfile: React.FC = () => {
                     {emp.avatar ? (
                       <img
                         src={
-                          'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
+                          `${VITE_S3_CLOUD}/avatar/worker/` +
                           emp.avatar
                         }
                         alt="Profile"
@@ -810,19 +809,6 @@ const EmployeeProfile: React.FC = () => {
                             }
                           />
                         </div>
-                        {/* <div className="flex space-x-3 items-center">
-                                        <div className="text-sm text-text01 font-semibold">{t("finance.ex")}</div>
-                                        <Input
-                                            type="number"
-                                            inputType="secondary"
-                                            classname="w-24"
-                                        />
-                                        <div className="text-sm text-text02">{t("finance.a")}</div>
-                                    </div> */}
-                        <Button
-                          title={t('finance.fill')}
-                          handleClick={saveScheduleData}
-                        />
                       </div>
                       <div className="flex items-center justify-center w-full md:w-[800px] space-x-4">
                         <button
