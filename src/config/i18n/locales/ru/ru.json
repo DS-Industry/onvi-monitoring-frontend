@@ -1184,6 +1184,28 @@
     "status": "Cтатус"
   },
   "filters": {
-    "reset": "Сбросить"
+    "reset": "Сбросить",
+    "found": "Найдено",
+    "search": {
+      "placeholder": "Поиск"
+    },
+    "dateTime": {
+      "startDate": "Дата начала",
+      "startTime": "Время начала",
+      "endDate": "Дата окончания",
+      "endTime": "Время окончания"
+    },
+    "device": {
+      "placeholder": "Выберите устройство"
+    },
+    "organization": {
+      "placeholder": "Выберите организацию"
+    },
+    "pos": {
+      "placeholder": "Выберите POS"
+    },
+    "warehouse": {
+      "placeholder": "Выберите склад"
+    }
   }
 }
