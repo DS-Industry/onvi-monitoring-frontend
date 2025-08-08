@@ -12,6 +12,8 @@ import { formatNumber } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import { useTranslation } from 'react-i18next';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 interface TableRow {
   period: string;
@@ -49,7 +51,7 @@ const ChemicalConsumption: React.FC = () => {
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
   const [searchParams] = useSearchParams();
-
+  const { t } = useTranslation();
   const posId = searchParams.get('posId') || '*';
   const dateStart = searchParams.get('dateStart') || `${formattedDate}T00:00`;
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate}T23:59`;
@@ -204,6 +206,14 @@ const ChemicalConsumption: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.chemical')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
       <GeneralFilters
         count={tableRows.length}
         display={['city', 'pos', 'dateTime', 'reset', 'count']}

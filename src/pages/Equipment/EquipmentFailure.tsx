@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
-import Button from '@/components/ui/Button/Button';
 import { useToast } from '@/components/context/useContext';
 import useSWR, { mutate } from 'swr';
 import {
@@ -30,10 +29,11 @@ import { getDateRender } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { ColumnsType } from 'antd/es/table';
-import { EditOutlined } from '@ant-design/icons';
-import AntDButton from 'antd/es/button';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -44,10 +44,10 @@ const EquipmentFailure: React.FC = () => {
   const formattedDate = today.toISOString().slice(0, 10);
   const [deviceCheck, setDeviceCheck] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const posId = Number(searchParams.get("posId")) || undefined;
-  const dateStart = searchParams.get("dateStart") || `${formattedDate} 00:00`;
-  const dateEnd = searchParams.get("dateEnd") || `${formattedDate} 23:59`;
-  const cityParam = Number(searchParams.get("city")) || undefined;
+  const posId = Number(searchParams.get('posId')) || undefined;
+  const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
+  const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
+  const cityParam = Number(searchParams.get('city')) || undefined;
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
@@ -504,7 +504,7 @@ const EquipmentFailure: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
-          <AntDButton
+          <Button
             type="text"
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
@@ -525,13 +525,22 @@ const EquipmentFailure: React.FC = () => {
 
   return (
     <>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.fix')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.equipmentFailure')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.fix')}
+          </Button>
+        )}
       </div>
       <GeneralFilters
         count={incidents.length}
@@ -802,19 +811,21 @@ const EquipmentFailure: React.FC = () => {
           />
           <div className="flex justify-end space-x-4">
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
+              onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
               }}
-            />
+              className="btn-outline-primary"
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isEditMode ? updatingIncident : isMutating}
-              handleClick={() => {}}
-            />
+              htmlType={'submit'}
+              loading={isEditMode ? updatingIncident : isMutating}
+              className="btn-primary"
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>

@@ -12,6 +12,7 @@ import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/li
 import { useToast } from '@/components/context/useContext';
 import TechTaskCard from './TechTaskCard';
 import Button from '@/components/ui/Button/Button';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
 const TechTaskItem: React.FC = () => {
   const { t } = useTranslation();
@@ -145,41 +146,53 @@ const TechTaskItem: React.FC = () => {
     }
   };
 
+  const getStatusRender = getStatusTagRender(t);
+
   return (
-    <div className="mt-5">
-      {techTaskLoading || isValidating ? (
-        <TableSkeleton columnCount={5} />
-      ) : (
-        <div>
-          <TechTaskCard
-            techTaskData={techTaskData}
-            items={techTaskItems}
-            values={taskValues}
-            uploadedFiles={uploadedFiles}
-            onChange={handleChange}
-            onFileUpload={handleUpload}
-            onImageRemove={removeImage}
-            status={status ? status : undefined}
-          />
-          {status !== t('tables.FINISHED') && (
-            <div className="flex flex-col sm:flex-row gap-4 mt-2">
-              <Button
-                title={t('organizations.cancel')}
-                type="outline"
-                handleClick={() => {
-                  navigate(-1);
-                }}
-              />
-              <Button
-                title={t('routine.done')}
-                isLoading={isMutating}
-                handleClick={handleSubmit}
-              />
-            </div>
-          )}
+    <>
+      <div className="ml-12 md:ml-0">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.list')}
+          </span>
+          {getStatusRender(status || '')}
         </div>
-      )}
-    </div>
+      </div>
+      <div className="mt-5">
+        {techTaskLoading || isValidating ? (
+          <TableSkeleton columnCount={5} />
+        ) : (
+          <div>
+            <TechTaskCard
+              techTaskData={techTaskData}
+              items={techTaskItems}
+              values={taskValues}
+              uploadedFiles={uploadedFiles}
+              onChange={handleChange}
+              onFileUpload={handleUpload}
+              onImageRemove={removeImage}
+              status={status ? status : undefined}
+            />
+            {status !== t('tables.FINISHED') && (
+              <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                <Button
+                  title={t('organizations.cancel')}
+                  type="outline"
+                  handleClick={() => {
+                    navigate(-1);
+                  }}
+                />
+                <Button
+                  title={t('routine.done')}
+                  isLoading={isMutating}
+                  handleClick={handleSubmit}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

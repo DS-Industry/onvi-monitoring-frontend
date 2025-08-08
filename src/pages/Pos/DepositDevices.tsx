@@ -28,6 +28,8 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
+import { useTranslation } from 'react-i18next';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 interface DevicesMonitoring {
   id: number;
@@ -47,22 +49,22 @@ interface DevicesMonitoring {
 
 const DepositDevices: React.FC = () => {
   const location = useLocation();
-
+  const { t } = useTranslation();
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentPage = Number(searchParams.get("page") || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get("size") || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get("posId") || undefined;
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const posId = searchParams.get('posId') || undefined;
   const dateStart =
     searchParams.get('dateStart') ?? new Date().toISOString().slice(0, 10);
 
   const dateEnd =
     searchParams.get('dateEnd') ?? new Date().toISOString().slice(0, 10);
 
-  const cityParam = Number(searchParams.get("city")) || undefined;
+  const cityParam = Number(searchParams.get('city')) || undefined;
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -220,6 +222,13 @@ const DepositDevices: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.deposits')}
+        </span>
+        <QuestionMarkIcon />
+      </div>
+
       <GeneralFilters
         count={totalPosesCount}
         display={['pos', 'city', 'dateTime']}

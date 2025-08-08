@@ -16,6 +16,7 @@ import { Button } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import { DownloadOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const Transactions: React.FC = () => {
   const { t } = useTranslation();
@@ -140,6 +141,15 @@ const Transactions: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.my')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
       <Filter
         count={transactions.length}
         hideSearch={true}

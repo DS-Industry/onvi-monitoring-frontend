@@ -15,6 +15,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { formatNumber, getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type ProgramDetail = {
   programName: string;
@@ -87,9 +88,6 @@ const ProgramDevices: React.FC = () => {
     }
   );
 
-  /**
-   * Columns for inner Table (programs list inside device row)
-   */
   const programColumns: ColumnsType<ProgramDetail> = [
     {
       title: t('Программа'),
@@ -146,6 +144,13 @@ const ProgramDevices: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.programs')}
+        </span>
+        <QuestionMarkIcon />
+      </div>
+
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}

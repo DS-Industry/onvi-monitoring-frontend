@@ -23,8 +23,8 @@ import {
 
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
-// Types
 interface PlanFact {
   posId: number;
   posName?: string;
@@ -188,6 +188,13 @@ const PlanAct: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.planAct')}
+        </span>
+        <QuestionMarkIcon />
+      </div>
+
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}

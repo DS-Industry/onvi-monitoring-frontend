@@ -4,6 +4,7 @@ const News = React.lazy(() => import('./News'));
 // const Indicators = React.lazy(() => import("./Indicators"));
 // const RatingOfCarWases = React.lazy(() => import("./RatingOfCarWases"));
 import GenericTabs from '@ui/Tabs/GenericTab';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -27,8 +28,18 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="py-5">
-      <GenericTabs tabs={tabItems} />
+    <div>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.dashboard')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+      <div className="py-5">
+        <GenericTabs tabs={tabItems} />
+      </div>
     </div>
   );
 };

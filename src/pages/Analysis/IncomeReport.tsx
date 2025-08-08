@@ -15,6 +15,7 @@ import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import { message, Skeleton } from 'antd';
 import { useToast } from '@/components/context/useContext';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
@@ -152,6 +153,15 @@ const IncomeReport: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.income')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
       <Filter
         count={0}
         hideSearch={true}

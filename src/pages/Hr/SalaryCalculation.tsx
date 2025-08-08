@@ -2,10 +2,8 @@ import React, { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Table } from 'antd';
+import { Table, Button as AntButton } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-
-import { useButtonCreate } from '@/components/context/useContext';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
@@ -27,6 +25,8 @@ import {
   getPercentRender,
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
 
 type TOption = {
   id: number;
@@ -41,7 +41,6 @@ type TablePayment = PaymentsResponse & {
 const SalaryCalculation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { buttonOn } = useButtonCreate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
@@ -245,15 +244,27 @@ const SalaryCalculation: React.FC = () => {
       'salary-calc-columns'
     );
 
-  React.useEffect(() => {
-    if (buttonOn) navigate('/hr/salary/creation');
-  }, [buttonOn, navigate]);
-
   return (
     <div>
-      <EmployeeSalaryFilter count={totalCount} workers={workers} />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.salary')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => navigate('/hr/salary/creation')}
+        >
+          {t('routes.calc')}
+        </AntButton>
+      </div>
 
-      <div className="mt-8">
+      <div className="mt-5">
+        <EmployeeSalaryFilter count={totalCount} workers={workers} />
+
         <ColumnSelector
           checkedList={checkedList}
           options={options}

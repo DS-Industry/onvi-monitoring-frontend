@@ -11,6 +11,7 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { Drawer } from 'antd';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const InventoryImport: React.FC = () => {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ const InventoryImport: React.FC = () => {
     });
 
     if (result) {
-      navigate('/warehouse/inventory');
+      navigate(-1);
     }
   };
 
@@ -63,6 +64,14 @@ const InventoryImport: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.import')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
       <div className="p-4 sm:p-6">
         {notificationVisible && (
           <Notification

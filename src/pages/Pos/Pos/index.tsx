@@ -8,10 +8,13 @@ import { getPlacement } from '@/services/api/device';
 import { Button, Table } from 'antd';
 import PosCreationDrawer from './PosCreationDrawer';
 import { Link, useSearchParams } from 'react-router-dom';
-import { getDateRender } from '@/utils/tableUnits';
+import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const Pos: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +22,13 @@ const Pos: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
+  const userPermissions = usePermissions();
+
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Organization' },
+    { action: 'create', subject: 'Organization' },
+  ]);
+
   const { data, isLoading: posLoading } = useSWR(
     [`get-pos`, city],
     () =>
@@ -77,6 +87,7 @@ const Pos: React.FC = () => {
   );
 
   const dateRender = getDateRender();
+  const statusRender = getStatusTagRender(t);
 
   const columnsPos: ColumnsType<PosResponse> = [
     {
@@ -126,6 +137,7 @@ const Pos: React.FC = () => {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
+      render: statusRender,
     },
     {
       title: 'Дата создания',
@@ -157,14 +169,24 @@ const Pos: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.objectManagement')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </Button>
+        )}
+      </div>
       <GeneralFilters count={poses.length} display={['city', 'count']} />
-      <Button
-        icon={<PlusOutlined />}
-        className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
-        onClick={() => setDrawerOpen(!drawerOpen)}
-      >
-        {t('routes.add')}
-      </Button>
       {poses.length > 0 ? (
         <>
           <div className="mt-8">

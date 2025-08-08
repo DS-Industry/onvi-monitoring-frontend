@@ -13,10 +13,11 @@ import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { getDateRender } from '@/utils/tableUnits';
+import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const Organization: React.FC = () => {
   const { t } = useTranslation();
@@ -81,6 +82,7 @@ const Organization: React.FC = () => {
   ]);
 
   const dateRender = getDateRender();
+  const statusRender = getStatusTagRender(t);
 
   const columnsOrg: ColumnsType<OrganizationType> = [
     {
@@ -97,6 +99,7 @@ const Organization: React.FC = () => {
       title: 'Статус',
       dataIndex: 'organizationStatus',
       key: 'organizationStatus',
+      render: statusRender,
     },
     {
       title: 'Тип',
@@ -153,16 +156,26 @@ const Organization: React.FC = () => {
 
   return (
     <>
-      <GeneralFilters count={organizations.length} display={['city']} />
-      <Button
-        icon={<PlusOutlined />}
-        className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
-        onClick={() => setDrawerOpen(!drawerOpen)}
-      >
-        {t('routes.add')}
-      </Button>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.legalEntities')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </Button>
+        )}
+      </div>
       <>
-        <div className="mt-8">
+        <div className="mt-5">
+          <GeneralFilters count={organizations.length} display={['city']} />
           <Table
             dataSource={organizations}
             columns={columnsOrg}

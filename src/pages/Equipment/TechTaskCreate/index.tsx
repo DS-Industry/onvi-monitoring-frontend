@@ -24,12 +24,15 @@ import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import TechTaskForm from './TechTaskForm';
-import AntDButton from 'antd/es/button';
+import Button from 'antd/es/button';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const TechTaskCreate: React.FC = () => {
   const { t } = useTranslation();
-
+  const userPermissions = usePermissions();
   const [techTaskToEdit, setTechTaskToEdit] =
     useState<TechTaskManagerInfo | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -136,7 +139,7 @@ const TechTaskCreate: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
-          <AntDButton
+          <Button
             type="text"
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
@@ -170,23 +173,35 @@ const TechTaskCreate: React.FC = () => {
     setDrawerOpen(false);
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'TechTask' },
+    { action: 'create', subject: 'TechTask' },
+  ]);
+
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.createTask')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </Button>
+        )}
+      </div>
       <GeneralFilters
         count={data?.totalCount || 0}
         display={['pos', 'reset']}
         onReset={resetFilters}
       />
-
-      <div className="absolute top-6 right-6 z-50">
-        <AntDButton
-          icon={<PlusOutlined />}
-          className="absolute top-6 right-6 bg-primary02 text-white p-5 hover:bg-primary02_Hover"
-          onClick={() => setDrawerOpen(!drawerOpen)}
-        >
-          {t('routes.add')}
-        </AntDButton>
-      </div>
       <div className="mt-8">
         <ColumnSelector
           checkedList={checkedList}

@@ -16,6 +16,7 @@ import AntDButton from 'antd/es/button';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useToast } from '@/components/context/useContext';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 enum ManagerPaperGroup {
   RENT = 'RENT',
@@ -279,6 +280,15 @@ const MonthlyExpanseEdit: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.reportFor')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
       <div className="mt-8">
         {periodsLoading || periodsValidating ? (
           <TableSkeleton columnCount={categoryColumns.length} />

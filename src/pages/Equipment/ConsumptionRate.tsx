@@ -1,32 +1,27 @@
-import Button from '@/components/ui/Button/Button';
-import Filter from '@/components/ui/Filter/Filter';
-import NoDataUI from '@/components/ui/NoDataUI';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import {
+  ConsumptionRateResponse,
   getConsumptionRate,
   getPoses,
   patchProgramCoefficient,
 } from '@/services/api/equipment';
-import { columnsConsumptionRate } from '@/utils/OverFlowTableData';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
-import SalyImage from '@/assets/NoEquipment.png';
-import { usePosType } from '@/hooks/useAuthStore';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
-import { Select } from 'antd';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useSearchParams } from 'react-router-dom';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import Input from '@/components/ui/Input/Input';
+import { Table, Button } from 'antd';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
-  const posType = usePosType();
-  const [searchPosId, setSearchPosId] = useState(posType);
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
+  const posId = searchParams.get('posId');
   const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
   const { data: posData } = useSWR(
@@ -40,8 +35,8 @@ const ConsumptionRate: React.FC = () => {
   );
 
   const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
-    searchPosId !== '*' ? [`get-consumption-rate`, searchPosId] : null,
-    () => getConsumptionRate(searchPosId),
+    posId !== '*' ? [`get-consumption-rate`, posId] : null,
+    () => getConsumptionRate(Number(posId)),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -50,7 +45,7 @@ const ConsumptionRate: React.FC = () => {
   );
 
   const { trigger: patchProgramCoeff, isMutating } = useSWRMutation(
-    ['patch-program-coeff', searchPosId],
+    ['patch-program-coeff', posId],
     async (
       _,
       {
@@ -65,7 +60,7 @@ const ConsumptionRate: React.FC = () => {
         };
       }
     ) => {
-      return patchProgramCoefficient(searchPosId, arg);
+      return patchProgramCoefficient(Number(posId), arg);
     }
   );
 
@@ -140,61 +135,88 @@ const ConsumptionRate: React.FC = () => {
     });
 
     if (result) {
-      mutate([`get-consumption-rate`, searchPosId]);
+      mutate([`get-consumption-rate`, posId]);
     }
   };
 
+  const columnsConsumptionRate = [
+    {
+      title: 'Программа',
+      dataIndex: 'programTypeName',
+      key: 'programTypeName',
+      render: (row: { programTypeName: string }) => (
+        <span>{row.programTypeName}</span>
+      ),
+    },
+    {
+      title: 'Расход литр/минута',
+      dataIndex: 'literRate',
+      key: 'literRate',
+      render: (
+        row: { literRate: number; id: number },
+        handleChange: (arg0: number, arg1: string, arg2: string) => void
+      ) => (
+        <Input
+          type="number"
+          value={row.literRate}
+          changeValue={e => handleChange(row.id, 'literRate', e.target.value)}
+          error={row.literRate < 0}
+        />
+      ),
+    },
+    {
+      title: 'Концентрация 1/х',
+      dataIndex: 'concentration',
+      key: 'concentration',
+      render: (
+        row: { concentration: number; id: number },
+        handleChange: (arg0: number, arg1: string, arg2: string) => void
+      ) => (
+        <Input
+          type="number"
+          value={row.concentration}
+          changeValue={e =>
+            handleChange(row.id, 'concentration', e.target.value)
+          }
+          error={row.concentration < 0}
+        />
+      ),
+    },
+  ];
+
   return (
     <div>
-      <Filter
-        count={tableData?.length !== undefined ? tableData?.length : 0}
-        hideCity={true}
-        hideDateTime={true}
-        hidePage={true}
-        hideSearch={true}
-        hideCancel={true}
-      >
-        <div>
-          <div className="text-sm text-text02">{t('equipment.carWash')}</div>
-          <Select
-            className="w-full sm:w-80 h-10"
-            options={poses.map(item => ({
-              label: item.name,
-              value: item.value,
-            }))}
-            value={searchPosId}
-            onChange={value => setSearchPosId(value)}
-          />
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.consumption')}
+          </span>
+          <QuestionMarkIcon />
         </div>
-      </Filter>
-      {programCoeffsLoading ? (
-        <TableSkeleton columnCount={columnsConsumptionRate.length} />
-      ) : tableData && tableData.length > 0 ? (
-        <div className="mt-8">
-          <DynamicTable
-            data={tableData}
-            columns={columnsConsumptionRate}
-            handleChange={handleTableChange}
-          />
-        </div>
-      ) : (
-        <NoDataUI title={t('chemical.noText')} description={t('chemical.dont')}>
-          <img
-            src={SalyImage}
-            className="mx-auto"
-            loading="lazy"
-            alt="CONSUMPTION"
-          />
-        </NoDataUI>
-      )}
+      </div>
+      <GeneralFilters
+        count={tableData?.length || 0}
+        display={['city', 'pos', 'count']}
+      />
+      <div className="mt-8">
+        <Table
+          dataSource={tableData}
+          columns={columnsConsumptionRate.map(col => ({
+            ...col,
+            render: (text: number, record: ConsumptionRateResponse) =>
+              col.render ? col.render(record, handleTableChange) : text,
+          }))}
+          rowKey="id"
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          loading={programCoeffsLoading}
+        />
+      </div>
       {tableData && tableData.length > 0 && (
         <div className="flex mt-4 space-x-4">
-          <Button
-            title={t('organizations.cancel')}
-            type="outline"
-            handleClick={() => {}}
-            classname="w-[168px]"
-          />
+          <Button className="w-[168px] btn-outline-primary">
+            {t('organizations.cancel')}
+          </Button>
           <Can
             requiredPermissions={[
               { action: 'manage', subject: 'TechTask' },
@@ -205,12 +227,13 @@ const ConsumptionRate: React.FC = () => {
             {allowed =>
               allowed && (
                 <Button
-                  title={t('organizations.save')}
-                  form={true}
-                  isLoading={isMutating}
-                  handleClick={handleSubmit}
-                  classname="w-[168px]"
-                />
+                  htmlType="submit"
+                  loading={isMutating}
+                  onClick={handleSubmit}
+                  className="w-[168px] btn-primary"
+                >
+                  {t('organizations.save')}
+                </Button>
               )
             }
           </Can>
