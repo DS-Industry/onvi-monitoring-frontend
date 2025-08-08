@@ -1,4 +1,3 @@
-import { useButtonCreate } from '@/components/context/useContext';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Modal from '@/components/ui/Modal/Modal';
 import React, { useMemo, useState } from 'react';
@@ -17,7 +16,7 @@ import { getWorkers } from '@/services/api/equipment';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table } from 'antd';
+import { Table, Button as AntDButton } from 'antd';
 import SavedIcon from '@icons/SavedIcon.png';
 import SentIcon from '@icons/SentIcon.png';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -25,6 +24,10 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type Documents = {
   statusCheck: string;
@@ -38,13 +41,12 @@ type Documents = {
 };
 
 const Documents: React.FC = () => {
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
-
+  const userPermissions = usePermissions();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const document = searchParams.get('document') as WarehouseDocumentType;
@@ -255,8 +257,30 @@ const Documents: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsAllDocuments, 'documents-table-columns');
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'create', subject: 'Warehouse' },
+  ]);
+
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.documents')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <AntDButton
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setIsModalOpen(!isModalOpen)}
+          >
+            {t('routes.add')}
+          </AntDButton>
+        )}
+      </div>
       <GeneralFilters
         count={data.length}
         display={['warehouse', 'city', 'dateTime']}
@@ -272,11 +296,12 @@ const Documents: React.FC = () => {
           columns={visibleColumns}
           pagination={false}
           loading={documentsLoading}
+          scroll={{ x: "max-content" }}
         />
       </div>
       <Modal
-        isOpen={buttonOn}
-        onClose={() => setButtonOn(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         handleClick={handleModalSubmit}
         classname="w-96 h-72"
         loading={loadingDocument}
@@ -287,7 +312,7 @@ const Documents: React.FC = () => {
           </h2>
           <div className="flex items-center gap-6">
             <Close
-              onClick={() => setButtonOn(false)}
+              onClick={() => setIsModalOpen(false)}
               className="cursor-pointer"
             />
           </div>

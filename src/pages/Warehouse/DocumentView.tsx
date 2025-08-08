@@ -3,19 +3,22 @@ import {
   getNomenclature,
   getWarehouses,
 } from '@/services/api/warehouse';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { useButtonCreate } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
 import { getOrganization } from '@/services/api/organization';
-import { Skeleton } from 'antd';
+import { Skeleton, Button as AntDButton } from 'antd';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import DocumentsViewTable from './DocumentsTables/DocumentsViewTable';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type InventoryMetaData = {
   oldQuantity: number;
@@ -28,13 +31,13 @@ type MovingMetaData = {
 
 const DocumentView: React.FC = () => {
   const { t } = useTranslation();
-  const { buttonOn } = useButtonCreate();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const posId = searchParams.get('posId') || '*';
   const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const documentId = searchParams.get('documentId');
   const {
@@ -185,15 +188,34 @@ const DocumentView: React.FC = () => {
           comment: doc.props.comment,
         }));
 
-  useEffect(() => {
-    if (buttonOn)
-      navigate(
-        `/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`
-      );
-  }, [buttonOn, documentId, documentType, navigate]);
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'create', subject: 'Warehouse' },
+  ]);
 
   return (
     <div>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t(`routes.${documentType}`)}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <AntDButton
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => {
+              navigate(
+                `/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`
+              );
+            }}
+          >
+            {t(`routes.edit`)}
+          </AntDButton>
+        )}
+      </div>
       {loadingDocument || validatingDocument ? (
         <div className="mt-16">
           <Skeleton.Input
