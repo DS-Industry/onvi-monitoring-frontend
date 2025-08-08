@@ -9,12 +9,16 @@ import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
-import { Drawer, Table } from 'antd';
+import { Drawer, Table, Button as AntDButton } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { ColumnsType } from 'antd/es/table';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useSearchParams } from 'react-router-dom';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type Warehouse = {
   name: string;
@@ -28,7 +32,7 @@ const Warehouse: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
-
+  const userPermissions = usePermissions();
   const posId = searchParams.get('posId') || '*';
   const placementId = Number(searchParams.get('city')) || undefined;
 
@@ -170,15 +174,29 @@ const Warehouse: React.FC = () => {
     visibleColumns,
   } = useColumnSelector(columnsWarehouses, 'plan-fact-columns');
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'update', subject: 'Warehouse' },
+  ]);
+
   return (
     <div>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.create')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.ware')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <AntDButton
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </AntDButton>
+        )}
       </div>
       <GeneralFilters count={warehouses.length} display={['pos', 'city']} />
       <div className="mt-8">
@@ -193,6 +211,7 @@ const Warehouse: React.FC = () => {
           columns={visibleColumns}
           loading={warehouseLoading}
           pagination={false}
+          scroll={{ x: "max-content" }}
         />
       </div>
       <Drawer
