@@ -16,6 +16,7 @@ import { useFilterOn } from '@/components/context/useContext';
 import CardSkeleton from '@/components/ui/Card/CardSkeleton';
 import { Select } from 'antd';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 enum CategoryReportTemplate {
   POS = 'POS',
@@ -98,6 +99,15 @@ const Analysis: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.analysis')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
       <Filter
         count={reportsData.length}
         hideDateTime={true}
