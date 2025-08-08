@@ -68,6 +68,7 @@ import type { TablePaginationConfig } from 'antd/es/table';
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const { Title, Text } = Typography;
 
@@ -1117,6 +1118,15 @@ const Articles: React.FC = () => {
 
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.articles')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+      
       <Filter
         count={data.length}
         hideSearch={true}

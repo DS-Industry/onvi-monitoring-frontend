@@ -52,7 +52,9 @@ import Tag from 'antd/es/tag';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
-import { Drawer } from 'antd';
+import { Drawer, Button as AntButton } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const { Option } = Select;
 
@@ -732,14 +734,22 @@ const MonthlyExpanse: React.FC = () => {
 
   return (
     <div>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.add')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.reportFor')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => setDrawerOpen(true)}
+        >
+          {t('routes.add')}
+        </AntButton>
       </div>
+
       <Filter
         count={managerPeriods.length}
         hideDateTime={true}

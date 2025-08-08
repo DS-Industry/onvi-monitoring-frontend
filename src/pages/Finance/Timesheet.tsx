@@ -20,6 +20,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 interface FilterShifts {
   dateStart: Date;
@@ -219,6 +220,15 @@ const Timesheet: React.FC = () => {
 
   return (
     <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.employee')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
       <SearchFilter poses={poses} loading={isPosLoading} defaultOpen />
 
       <div className="mb-4">

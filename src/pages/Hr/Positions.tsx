@@ -18,6 +18,8 @@ import { Drawer, Table, Popconfirm, Typography, Input as AntInput, Button as Ant
 import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
 import { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
 
 type Positions = {
   id: number;
@@ -202,22 +204,32 @@ const Positions: React.FC = () => {
 
   return (
     <div>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.new')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.positions')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <AntButton
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => setDrawerOpen(true)}
+        >
+          {t('routes.new')}
+        </AntButton>
+      </div>
+
+      <div className="mt-5">
+        <Table
+          dataSource={positionsData}
+          columns={columns}
+          rowKey="id"
+          pagination={false}
+          loading={positionLoading || isValidating}
+          scroll={{ x: 'max-content' }}
         />
       </div>
-      <Table
-        dataSource={positionsData}
-        columns={columns}
-        rowKey="id"
-        pagination={false}
-        loading={positionLoading || isValidating}
-        scroll={{ x: 'max-content' }}
-      />
 
       <Drawer
         title={t('hr.pos')}
@@ -283,7 +295,6 @@ const Positions: React.FC = () => {
               title={t('hr.pos')}
               form={true}
               isLoading={isMutating}
-              handleClick={() => {}}
             />
           </div>
         </form>

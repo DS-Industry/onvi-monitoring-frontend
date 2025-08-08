@@ -4,6 +4,7 @@ import Notification from "@ui/Notification.tsx";
 import useSWR from "swr";
 import { getRoles } from "@/services/api/organization";
 import { Table } from "antd";
+import QuestionMarkIcon from "@icons/qustion-mark.svg?react";
 
 const ListOfRoles: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +36,10 @@ const ListOfRoles: React.FC = () => {
 
   return (
     <div>
+      <div className='flex items-center space-x-2 mb-5'>
+        <span className="text-xl sm:text-3xl font-normal text-text01">{t("routes.listRoles")}</span>
+        <QuestionMarkIcon />
+      </div>
       <Notification
         title={t("roles.access")}
         message={t("roles.the")}
