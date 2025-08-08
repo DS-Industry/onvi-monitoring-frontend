@@ -26,6 +26,17 @@ import { PlusOutlined } from '@ant-design/icons';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
+const DoubleSkeleton = () => (
+  <>
+    {[...Array(5)].map((_, index) => (
+      <div key={index} className="flex flex-col space-y-4 mb-4">
+        <Skeleton.Input style={{ width: '20%' }} active={true} />
+        <Skeleton.Input style={{ width: '30%' }} active={true} />
+      </div>
+    ))}
+  </>
+);
+
 type UpdateWorkerRequest = {
   workerId: string;
   hrPositionId?: string;
@@ -397,12 +408,7 @@ const EmployeeProfile: React.FC = () => {
             />
             <div className="w-full md:w-60 max-h-[480px] overflow-y-auto">
               {loadingWorkers || validatingWorkers
-                ? [...Array(5)].map((_, index) => (
-                  <div key={index} className="flex flex-col space-y-4 mb-4">
-                    <Skeleton.Input style={{ width: '20%' }} active={true} />
-                    <Skeleton.Input style={{ width: '30%' }} active={true} />
-                  </div>
-                ))
+                ? DoubleSkeleton()
                 : employeeDetails.map(emp => (
                   <div
                     className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2"
@@ -448,12 +454,7 @@ const EmployeeProfile: React.FC = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
               {loadingEmployee || isValidating ? (
                 <div className="mt-4">
-                  {[...Array(5)].map((_, index) => (
-                    <div key={index} className="flex flex-col space-y-4 mb-4">
-                      <Skeleton.Input style={{ width: '20%' }} active={true} />
-                      <Skeleton.Input style={{ width: '30%' }} active={true} />
-                    </div>
-                  ))}
+                  {DoubleSkeleton()}
                 </div>
               ) : (
                 <div className="mt-4">
