@@ -13,6 +13,7 @@ import FilterCount from './FilterCount';
 import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import EmployeeFilter from './EmployeeFilter';
 
 type FilterType =
   | 'search'
@@ -23,7 +24,8 @@ type FilterType =
   | 'warehouse'
   | 'dateTime'
   | 'reset'
-  | 'count';
+  | 'count'
+  | 'employee';
 
 type GeneralFiltersProps = {
   count: number;
@@ -44,6 +46,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     'dateTime',
     'reset',
     'count',
+    'employee',
   ],
   children,
   onReset,
@@ -105,6 +108,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 {shouldShow('pos') && <PosFilter />}
                 {shouldShow('device') && <DeviceFilter />}
                 {shouldShow('warehouse') && <WarehouseFilter />}
+                {shouldShow('employee') && <EmployeeFilter />}
                 {children}
               </div>
 

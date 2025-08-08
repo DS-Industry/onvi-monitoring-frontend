@@ -1,42 +1,29 @@
-import { useFilterOn } from '@/components/context/useContext';
 import Button from '@/components/ui/Button/Button';
-import Filter from '@/components/ui/Filter/Filter';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Input from '@/components/ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import { getWorkers } from '@/services/api/equipment';
 import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import React, {
   ClassAttributes,
   ThHTMLAttributes,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import useSWR, { mutate } from 'swr';
-import { useLocation, useNavigate } from 'react-router-dom';
-import DateInput from '@/components/ui/Input/DateInput';
-import {
-  usePageNumber,
-  useSetPageNumber,
-  useCurrentPage,
-  usePageSize,
-  useSetCurrentPage,
-  useSetPageSize,
-} from '@/hooks/useAuthStore';
+import useSWR from 'swr';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@/hooks/useUserStore';
+import DateInput from '@/components/ui/Input/DateInput';
 import {
   createManagerPaperPeriod,
   deleteManagerPaperPeriod,
   getAllManagerPeriods,
   updateManagerPaperPeriod,
 } from '@/services/api/finance';
-import DateTimeInput from '@/components/ui/Input/DateTimeInput';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import useSWRMutation from 'swr/mutation';
+
 import TableUtils from '@/utils/TableUtils.tsx';
 import Table from 'antd/es/table';
 import Select from 'antd/es/select';
@@ -49,12 +36,14 @@ import Form from 'antd/es/form';
 import AntInput from 'antd/es/input';
 import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
-import type { TablePaginationConfig } from 'antd/es/table';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
 import { Drawer, Button as AntButton } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Option } = Select;
 
@@ -71,14 +60,6 @@ interface DataRecord {
   userId: number;
   status: ManagerReportPeriodStatus;
 }
-
-type ManagerPeriodParams = {
-  startPeriod: Date;
-  endPeriod: Date;
-  userId: number;
-  page?: number;
-  size?: number;
-};
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -114,7 +95,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
           </Select>
         );
       case 'period':
-        // This case is handled separately below
         return null;
       default:
         return <AntInput />;
@@ -166,22 +146,17 @@ const MonthlyExpanse: React.FC = () => {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const user = useUser();
-  const [startPeriod, setStartPeriod] = useState<Dayjs>(
-    dayjs().startOf('month')
-  );
-  const [endPeriod, setEndPeriod] = useState<Dayjs>(dayjs().endOf('month'));
-  const [userId, setUserId] = useState<number>(user.id);
-  const [isTableLoading, setIsTableLoading] = useState(false);
-  const pageNumber = usePageNumber();
-  const setPageNumber = useSetPageNumber();
-  const currentPage = useCurrentPage();
-  const { filterOn, setFilterOn } = useFilterOn();
-  const pageSize = usePageNumber();
-  const location = useLocation();
-  const curr = useCurrentPage();
-  const setCurr = useSetCurrentPage();
-  const rowsPerPage = usePageNumber();
-  const totalCount = usePageSize();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const dateStartParam = searchParams.get('dateStart')
+  ? dayjs(searchParams.get('dateStart')).toDate()
+  : dayjs().startOf('month').toDate();
+  const dateEndParam = searchParams.get('dateEnd')
+  ? dayjs(searchParams.get('dateEnd')).toDate()
+  : dayjs().endOf('month').toDate();
+  const userIdParam = Number(searchParams.get('userId')) || user.id;
+  const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
+  
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
@@ -198,44 +173,26 @@ const MonthlyExpanse: React.FC = () => {
     }).format(num);
   };
 
-  const paginationConfig: TablePaginationConfig = {
-    current: curr,
-    pageSize: rowsPerPage,
-    total: totalCount,
-    showSizeChanger: false,
-    showQuickJumper: false,
-    onChange: (page, pageSize) => {
-      setFilterOn(!filterOn);
-      setPageSize(pageSize);
-      setCurr(page);
-    },
-    onShowSizeChange: (_current, size) => {
-      setCurr(1); // Reset to first page when changing page size
-      setPageSize(size);
-      setFilterOn(!filterOn);
-    },
-    position: ['bottomLeft'],
-    size: 'default',
-  };
+  const filterParams = useMemo(
+    () => ({
+      startPeriod: dateStartParam,
+      endPeriod: dateEndParam,
+      userId: userIdParam,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [dateStartParam, dateEndParam, userIdParam, currentPage, pageSize]
+  );
 
-  const setCurrentPage = useSetCurrentPage();
-  const setPageSize = useSetPageNumber();
-  const setTotalCount = useSetPageSize();
+  const swrKey = `get-all-manager-periods-${filterParams.startPeriod}-${filterParams.endPeriod}-${filterParams.userId}-${filterParams.page}-${filterParams.page}-${filterParams.size}`;
 
   const {
     data: managerPeriodData,
     isLoading: periodsLoading,
-    mutate: managerPeriodsMutating,
+    mutate: mutateManagerPeriods,
   } = useSWR(
-    [`get-manager-period`],
-    () =>
-      getAllManagerPeriods({
-        startPeriod: dataFilter.startPeriod,
-        endPeriod: dataFilter.endPeriod,
-        userId: dataFilter.userId,
-        page: dataFilter.page,
-        size: dataFilter.size,
-      }),
+    [swrKey, filterParams],
+    () => getAllManagerPeriods(filterParams),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -248,19 +205,10 @@ const MonthlyExpanse: React.FC = () => {
     [managerPeriodData]
   );
 
-  const initialFilter = {
-    startPeriod: startPeriod ? startPeriod.toDate() : new Date(),
-    endPeriod: endPeriod ? endPeriod.toDate() : new Date(),
-    userId: userId,
-    page: currentPage,
-    size: pageNumber,
-  };
-
-  useEffect(() => {
-    if (managerPeriods) {
-      setData(managerPeriods);
-    }
-  }, [managerPeriods]);
+  const totalCount = useMemo(
+    () => managerPeriodData?.totalCount || 0,
+    [managerPeriodData]
+  );
 
   const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
     revalidateOnFocus: false,
@@ -285,8 +233,6 @@ const MonthlyExpanse: React.FC = () => {
     sumEndPeriod: 0,
     userId: 0,
   };
-
-  const [data, setData] = useState<DataRecord[]>([]);
 
   const [editingKey, setEditingKey] = useState<string>('');
 
@@ -315,7 +261,7 @@ const MonthlyExpanse: React.FC = () => {
     try {
       const row = await form.validateFields();
 
-      const result = await updateManagerPer({
+      await updateManagerPaperPeriod({
         managerReportPeriodId: id,
         sumStartPeriod: row.sumStartPeriod,
         sumEndPeriod: row.sumEndPeriod,
@@ -323,12 +269,10 @@ const MonthlyExpanse: React.FC = () => {
         endPeriod: row.endPeriod ? row.endPeriod.toDate() : undefined,
       });
 
-      if (result) {
-        mutate([`get-manager-period`]);
-        showToast(t('success.recordUpdated'), 'success');
-        setEditingKey('');
-        form.resetFields();
-      }
+      await mutateManagerPeriods();
+      showToast(t('success.recordUpdated'), 'success');
+      setEditingKey('');
+      form.resetFields();
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
       showToast(t('errors.other.pleaseCheckFormFields'), 'error');
@@ -372,18 +316,9 @@ const MonthlyExpanse: React.FC = () => {
       cancelText: 'Cancel',
       async onOk() {
         try {
-          const result = await mutate(
-            [`delete-manager-data`],
-            () => deleteManagerPaperPeriod(Number(id)),
-            false
-          );
-
-          if (result) {
-            mutate([`get-manager-period`]);
-            const newData = data.filter(item => item.id !== id);
-            setData(newData);
-            showToast(t('success.recordDeleted'), 'success');
-          }
+          await deleteManagerPaperPeriod(Number(id));
+          await mutateManagerPeriods();
+          showToast(t('success.recordDeleted'), 'success');
         } catch (error) {
           showToast(t('errors.other.errorDeletingNomenclature'), 'error');
         }
@@ -595,38 +530,6 @@ const MonthlyExpanse: React.FC = () => {
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
 
-  const { trigger: createManagerPer, isMutating } = useSWRMutation(
-    ['create-manager-period'],
-    async () =>
-      createManagerPaperPeriod({
-        startPeriod: formData.startPeriod,
-        endPeriod: formData.endPeriod,
-        sumStartPeriod: formData.sumStartPeriod,
-        sumEndPeriod: formData.sumEndPeriod,
-        userId: formData.userId,
-      })
-  );
-
-  const { trigger: updateManagerPer } = useSWRMutation(
-    ['update-manager-period'],
-    async (
-      _,
-      {
-        arg,
-      }: {
-        arg: {
-          managerReportPeriodId: number;
-          startPeriod?: Date;
-          endPeriod?: Date;
-          sumStartPeriod?: number;
-          sumEndPeriod?: number;
-        };
-      }
-    ) => {
-      return updateManagerPaperPeriod(arg);
-    }
-  );
-
   type FieldType =
     | 'startPeriod'
     | 'endPeriod'
@@ -643,93 +546,27 @@ const MonthlyExpanse: React.FC = () => {
 
   const resetForm = () => {
     setFormData(defaultValues);
-    // setIsEditMode(false);
     reset();
-    // setEditIncidentId(0);
     setDrawerOpen(false);
   };
 
   const onSubmit = async () => {
     try {
-      const result = await createManagerPer();
-      if (result) {
-        mutate([`get-manager-period`]);
-        resetForm();
-      } else {
-        throw new Error('Invalid response from API');
-      }
+      await createManagerPaperPeriod({
+        startPeriod: formData.startPeriod,
+        endPeriod: formData.endPeriod,
+        sumStartPeriod: formData.sumStartPeriod,
+        sumEndPeriod: formData.sumEndPeriod,
+        userId: formData.userId,
+      });
+
+      await mutateManagerPeriods();
+      resetForm();
+      showToast(t('success.recordCreated'), 'success');
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
-  };
-
-  const [dataFilter, setDataFilter] =
-    useState<ManagerPeriodParams>(initialFilter);
-
-  useEffect(() => {
-    setCurrentPage(1);
-    setDataFilter(prevFilter => ({
-      ...prevFilter,
-      page: 1,
-    }));
-  }, [location, setCurrentPage]);
-
-  const totalRecords = managerPeriodData?.totalCount || 0;
-  const maxPages = Math.ceil(totalRecords / pageSize);
-
-  useEffect(() => {
-    if (currentPage > maxPages) {
-      setCurrentPage(maxPages > 0 ? maxPages : 1);
-      setDataFilter(prevFilter => ({
-        ...prevFilter,
-        page: maxPages > 0 ? maxPages : 1,
-      }));
-    }
-  }, [maxPages, currentPage, setCurrentPage]);
-
-  const handleDataFilter = (newFilterData: Partial<ManagerPeriodParams>) => {
-    setDataFilter(prevFilter => ({ ...prevFilter, ...newFilterData }));
-    setIsTableLoading(true);
-
-    if (newFilterData.startPeriod) {
-      setStartPeriod(dayjs(newFilterData.startPeriod));
-    }
-
-    if (newFilterData.endPeriod) {
-      setEndPeriod(dayjs(newFilterData.endPeriod));
-    }
-
-    if (newFilterData.userId) setUserId(newFilterData.userId);
-    if (newFilterData.page) setCurrentPage(newFilterData.page);
-    if (newFilterData.size) setPageNumber(newFilterData.size);
-  };
-
-  useEffect(() => {
-    handleDataFilter({
-      startPeriod: startPeriod?.toDate(),
-      endPeriod: endPeriod?.toDate(),
-      userId: userId,
-      page: currentPage,
-      size: pageNumber,
-    });
-  }, [filterOn]);
-
-  useEffect(() => {
-    managerPeriodsMutating().then(() => setIsTableLoading(false));
-  }, [dataFilter, managerPeriodsMutating]);
-
-  useEffect(() => {
-    if (!periodsLoading && managerPeriodData?.totalCount)
-      setTotalCount(managerPeriodData?.totalCount);
-  }, [managerPeriodData, periodsLoading, setTotalCount]);
-
-  const handleClear = () => {
-    setStartPeriod(dayjs().startOf('month'));
-    setEndPeriod(dayjs().endOf('month'));
-    setUserId(user.id);
-    setPageSize(15);
-    setCurrentPage(1);
   };
 
   return (
@@ -750,38 +587,13 @@ const MonthlyExpanse: React.FC = () => {
         </AntButton>
       </div>
 
-      <Filter
-        count={managerPeriods.length}
-        hideDateTime={true}
-        hideCity={true}
-        hideSearch={true}
-        handleClear={handleClear}
-      >
-        <DateTimeInput
-          title={t('hr.startPaymentDate')}
-          classname="w-64"
-          value={startPeriod}
-          changeValue={date => setStartPeriod(dayjs(date))}
+      <div className="mt-5">
+        <GeneralFilters
+          count={managerPeriods.length}
+          display={['dateTime', 'employee', 'count']}
         />
-        <DateTimeInput
-          title={t('hr.endPaymentDate')}
-          classname="w-64"
-          value={endPeriod}
-          changeValue={date => setEndPeriod(dayjs(date))}
-        />
-        <DropdownInput
-          title={t('routes.employees')}
-          classname="w-full sm:w-80"
-          label={t('warehouse.notSel')}
-          options={workers}
-          value={userId}
-          onChange={value => setUserId(value)}
-        />
-      </Filter>
-      <div className="mt-8">
-        {periodsLoading || isTableLoading ? (
-          <TableSkeleton columnCount={columnsExpanse.length} />
-        ) : (
+
+        <div className="mt-5">
           <Form form={form} component={false}>
             <Table
               components={{
@@ -810,15 +622,27 @@ const MonthlyExpanse: React.FC = () => {
                   cell: EditableCell,
                 },
               }}
-              dataSource={data}
+              loading={periodsLoading}
+              dataSource={managerPeriods}
               columns={memoizedColumns}
               rowClassName="editable-row"
-              pagination={paginationConfig}
-              rowKey="id"
-              scroll={{ x: 'max-content' }}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: totalCount,
+                pageSizeOptions: ALL_PAGE_SIZES,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} items`,
+                onChange: (page, size) => {
+                  updateSearchParams(searchParams, setSearchParams, {
+                    page: String(page),
+                    size: String(size),
+                  });
+                },
+              }}
             />
           </Form>
-        )}
+        </div>
       </div>
 
       <Drawer
@@ -915,7 +739,7 @@ const MonthlyExpanse: React.FC = () => {
             <Button
               title={t('organizations.save')}
               form={true}
-              isLoading={isMutating}
+              isLoading={periodsLoading}
               handleClick={() => {}}
             />
           </div>
