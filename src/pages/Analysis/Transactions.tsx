@@ -1,5 +1,3 @@
-import { useFilterOn } from '@/components/context/useContext';
-import Filter from '@/components/ui/Filter/Filter';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import {
   useCurrentPage,
@@ -23,7 +21,6 @@ const Transactions: React.FC = () => {
   const pageNumber = usePageNumber();
   const currentPage = useCurrentPage();
   const setTotalCount = useSetPageSize();
-  const { filterOn, setFilterOn } = useFilterOn();
   const [tableLoading, setTableLoading] = useState(false);
   const location = useLocation();
   const setCurrentPage = useSetCurrentPage();
@@ -74,7 +71,7 @@ const Transactions: React.FC = () => {
   useEffect(() => {
     setTableLoading(true);
     mutateTransactions().then(() => setTableLoading(false));
-  }, [filterOn, mutateTransactions]);
+  }, [mutateTransactions]);
 
   useEffect(() => {
     if (!loadingTransactions && transactionData?.count)
@@ -98,7 +95,7 @@ const Transactions: React.FC = () => {
   }, [allReports, t, transactionData?.transactions]);
 
   const handleDownload = (reportKey: string, id: number) => {
-    const downloadUrl = `https://storage.yandexcloud.net/onvi-business/report/${id}/${reportKey}`; // Adjust API path
+    const downloadUrl = `https://storage.yandexcloud.net/onvi-business/report/${id}/${reportKey}`; 
     window.open(downloadUrl, '_blank');
   };
 
@@ -150,20 +147,12 @@ const Transactions: React.FC = () => {
         </div>
       </div>
 
-      <Filter
-        count={transactions.length}
-        hideSearch={true}
-        hideCity={true}
-        hideDateTime={true}
-        children={undefined}
-      ></Filter>
       <div className="mt-5">
         {loadingTransactions || tableLoading ? (
           <TableSkeleton columnCount={columnsTransactions.length} />
         ) : transactions.length > 0 ? (
           <div className="space-y-4">
             <Button
-              onClick={() => setFilterOn(!filterOn)}
               icon={
                 <UndoOutlined style={{ color: 'orange', fontSize: '24px' }} />
               }

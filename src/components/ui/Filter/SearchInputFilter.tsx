@@ -25,11 +25,17 @@ const SearchInputFilter: React.FC<SearchInputFilterProps> = ({
   };
 
   return (
-    <Search
-      placeholder={t('filters.search.placeholder')}
-      className={className}
-      onSearch={handleSearch}
-    />
+    <div>
+      <label className="block text-sm text-gray-700">
+        {t('analysis.search')}
+      </label>
+      <Search
+        placeholder={t('filters.search.placeholder')}
+        className={className}
+        onSearch={handleSearch}
+        size="large"
+      />
+    </div>
   );
 };
 

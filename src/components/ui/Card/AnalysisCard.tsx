@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Card, Divider, Typography } from 'antd';
 import {
   PieChartOutlined,
   BarChartOutlined,
@@ -8,6 +9,8 @@ import {
   DatabaseOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
+
+const { Title, Text, Link } = Typography;
 
 enum CategoryReportTemplate {
   POS = 'POS',
@@ -28,7 +31,6 @@ type Props = {
   reports?: Reports;
 };
 
-// Mapping string to icon component
 const iconMap: Record<string, React.ReactNode> = {
   pie: <PieChartOutlined className="text-white text-[16px]" />,
   bar: <BarChartOutlined className="text-white text-[16px]" />,
@@ -42,7 +44,7 @@ const AnalysisCard: React.FC<Props> = ({
   firstText,
   secondText,
   reports,
-}: Props) => {
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -51,26 +53,32 @@ const AnalysisCard: React.FC<Props> = ({
   );
 
   return (
-    <div className="h-[200px] w-[456px] rounded-lg shadow-card flex flex-col justify-between p-4">
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <div className="bg-primary02 h-8 w-8 rounded-3xl flex justify-center items-center">
+    <Card
+      className="w-[456px] h-[200px] shadow-card"
+      bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}
+    >
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="bg-primary02 h-8 w-8 rounded-full flex justify-center items-center">
             {IconComponent}
           </div>
-          <div className="font-semibold text-lg text-text01">{firstText}</div>
+          <Title level={5} style={{ margin: 0, color: '#1F1F1F' }}>
+            {firstText}
+          </Title>
         </div>
-        <hr />
-        <div className="text-text02 w-64">{secondText}</div>
+        <Divider style={{ margin: '12px 0' }} />
+        <Text type="secondary">{secondText}</Text>
       </div>
-      <div
-        className="font-semibold text-primary02 mt-auto cursor-pointer"
+
+      <Link
         onClick={() =>
           navigate('/analysis/report', { state: { ownerId: reports?.id } })
         }
+        style={{ marginTop: 'auto' }}
       >
         {t('analysis.to')}
-      </div>
-    </div>
+      </Link>
+    </Card>
   );
 };
 
