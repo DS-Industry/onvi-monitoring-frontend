@@ -908,7 +908,7 @@ export async function returnManagerPaperPeriod(
 
 export async function getAllManagerPeriods(
   params: ManagerPeriodParams
-): Promise<ManagersPeriodResponse> {
+): Promise<ManagersPeriodResponse> {  
   const response: AxiosResponse<ManagersPeriodResponse> = await api.get(
     FINANCE.MANAGER_PAPER + `/period`,
     { params }
