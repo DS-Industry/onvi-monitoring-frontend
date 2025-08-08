@@ -4,17 +4,20 @@ import AnalysisCard from '@ui/Card/AnalysisCard';
 import useSWR from 'swr';
 import { CategoryReportTemplate, getAllReports } from '@/services/api/reports';
 import CardSkeleton from '@/components/ui/Card/CardSkeleton';
-import { Button, Select } from 'antd';
-import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { Pagination, Select } from 'antd';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { useSearchParams } from 'react-router-dom';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const Analysis: React.FC = () => {
   const { t } = useTranslation();
-  const [cat, setCat] = useState<CategoryReportTemplate>(
+  const [category, setCategory] = useState<CategoryReportTemplate>(
     'POS' as CategoryReportTemplate
   );
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,15 +25,16 @@ const Analysis: React.FC = () => {
   const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
   const searchReport = searchParams.get('search') || '';
   const [tableLoading, setTableLoading] = useState(false);
+  const navigate = useNavigate();
 
   const {
     data: filter,
     mutate: mutateGetAllReport,
     isLoading: loadingReports,
     isValidating: validatingReports,
-  } = useSWR(['get-all-report', cat, currentPage, pageSize], () =>
+  } = useSWR(['get-all-report', category, currentPage, pageSize], () =>
     getAllReports({
-      category: cat,
+      category: category,
       page: currentPage,
       size: pageSize,
     })
@@ -39,7 +43,7 @@ const Analysis: React.FC = () => {
   useEffect(() => {
     setTableLoading(true);
     mutateGetAllReport().finally(() => setTableLoading(false));
-  }, [cat, currentPage, pageSize, mutateGetAllReport]);
+  }, [category, currentPage, pageSize, mutateGetAllReport]);
 
   const reportsData = useMemo(
     () =>
@@ -50,42 +54,12 @@ const Analysis: React.FC = () => {
   );
 
   const totalCount = filter?.count || 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
-
-  const generatePaginationRange = () => {
-    const range: (number | string)[] = [];
-
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) range.push(i);
-    } else {
-      range.push(1);
-      if (currentPage > 3) range.push('...');
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) range.push(i);
-      if (currentPage < totalPages - 2) range.push('...');
-      range.push(totalPages);
-    }
-    return range;
-  };
 
   const updatePage = (page: number) => {
     updateSearchParams(searchParams, setSearchParams, {
       page: String(page),
       size: String(pageSize),
     });
-  };
-
-  const handlePageClick = (page: number | string) => {
-    if (typeof page === 'number') updatePage(page);
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 1) updatePage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) updatePage(currentPage + 1);
   };
 
   return (
@@ -104,9 +78,9 @@ const Analysis: React.FC = () => {
           <div className="text-sm text-text02">{t('warehouse.category')}</div>
           <Select
             className="w-full sm:w-80 h-10"
-            value={cat}
+            value={category}
             onChange={value => {
-              setCat(value);
+              setCategory(value);
               updatePage(1);
             }}
             options={[{ label: t('analysis.posId'), value: 'POS' }]}
@@ -131,43 +105,28 @@ const Analysis: React.FC = () => {
                 iconText="file"
                 title={report.name}
                 description={report.description || ''}
-                reports={report}
+                onNavigate={() => {
+                  navigate(`/analysis/report?id=${report?.id}`);
+                }}
               />
             ))
           )}
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={handlePrev}
-          disabled={currentPage === 1}
-          type="text"
-        />
-
-        {generatePaginationRange().map((page, index) =>
-          page === '...' ? (
-            <span key={index} className="px-2 py-1 text-gray-400">
-              ...
-            </span>
-          ) : (
-            <Button
-              key={index}
-              onClick={() => handlePageClick(page)}
-              type={currentPage === page ? 'primary' : 'default'}
-              ghost={currentPage !== page}
-            >
-              {page}
-            </Button>
-          )
-        )}
-
-        <Button
-          icon={<ArrowRightOutlined />}
-          onClick={handleNext}
-          disabled={currentPage === totalPages}
-          type="text"
+      <div className="mt-4">
+        <Pagination
+          current={currentPage}
+          total={totalCount}
+          pageSize={pageSize}
+          pageSizeOptions={ALL_PAGE_SIZES}
+          onChange={(page, size) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            });
+          }}
+          showSizeChanger={true}
         />
       </div>
     </div>

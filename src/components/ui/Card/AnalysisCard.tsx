@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { Card, Divider, Typography } from 'antd';
 import {
   PieChartOutlined,
@@ -9,7 +8,6 @@ import {
   DatabaseOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
-import { AllReportsParams } from '@/services/api/reports';
 
 const { Title, Text, Link } = Typography;
 
@@ -17,7 +15,7 @@ type Props = {
   iconText: string;
   title: string;
   description: string;
-  reports?: AllReportsParams;
+  onNavigate: () => void;
 };
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -32,10 +30,9 @@ const AnalysisCard: React.FC<Props> = ({
   iconText,
   title,
   description,
-  reports,
+  onNavigate
 }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const IconComponent = iconMap[iconText] || (
     <FileTextOutlined className="text-white text-[16px]" />
@@ -68,7 +65,7 @@ const AnalysisCard: React.FC<Props> = ({
 
       <Link
         onClick={() =>
-          navigate(`/analysis/report?id=${reports?.id}`)
+          onNavigate()
         }
         style={{ marginTop: 'auto' }}
       >
