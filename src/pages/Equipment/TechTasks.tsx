@@ -24,6 +24,7 @@ import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
@@ -149,6 +150,14 @@ const TechTasks: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.technicalTasks')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
       <GeneralFilters
         count={data?.totalCount || 0}
         display={['pos', 'reset']}
