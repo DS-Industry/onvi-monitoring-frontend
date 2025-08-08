@@ -84,7 +84,7 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           type="button"
           aria-label="Open sidebar"
           onClick={() => setIsOpen(true)}
-          className="fixed top-4 left-4 z-[9999] flex items-center justify-center w-10 h-10 rounded-md bg-[#d3d4d8] text-white shadow-lg hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
+          className="fixed top-6 left-4 z-[9999] flex items-center justify-center w-10 h-10 rounded-md bg-[#d3d4d8] text-white shadow-lg hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
         >
           <MenuOutlined className="text-xl" />
         </button>

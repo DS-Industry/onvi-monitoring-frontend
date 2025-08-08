@@ -20,7 +20,16 @@ import Table, { ColumnsType } from 'antd/es/table';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { Can } from '@/permissions/Can';
-import { Drawer, Tooltip, Input as AntInput, Button as AntButton, Popconfirm } from 'antd';
+import {
+  Drawer,
+  Tooltip,
+  Input as AntInput,
+  Button as AntButton,
+  Popconfirm,
+} from 'antd';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+import hasPermission from '@/permissions/hasPermission';
 
 type TreeData = {
   id: number;
@@ -67,7 +76,10 @@ const buildTree = (data: unknown[]): TreeData[] => {
 const InventoryGroups: React.FC = () => {
   const { t } = useTranslation();
   const [editingKey, setEditingKey] = useState<number | null>(null);
-  const [editingData, setEditingData] = useState<{name: string, description: string}>({name: '', description: ''});
+  const [editingData, setEditingData] = useState<{
+    name: string;
+    description: string;
+  }>({ name: '', description: '' });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
 
@@ -96,7 +108,8 @@ const InventoryGroups: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
-  const { register, handleSubmit, errors, setValue, reset } = useFormHook(formData);
+  const { register, handleSubmit, errors, setValue, reset } =
+    useFormHook(formData);
 
   const { trigger: createCat, isMutating } = useSWRMutation(
     ['create-inventory'],
@@ -109,8 +122,11 @@ const InventoryGroups: React.FC = () => {
   );
 
   const { trigger: updateCat } = useSWRMutation(
-    ["update-inventory"],
-    async (_, { arg }: { arg: { id: number, name: string, description: string } }) =>
+    ['update-inventory'],
+    async (
+      _,
+      { arg }: { arg: { id: number; name: string; description: string } }
+    ) =>
       updateCategory(
         {
           name: arg.name,
@@ -150,7 +166,7 @@ const InventoryGroups: React.FC = () => {
     setEditingKey(record.id);
     setEditingData({
       name: record.name,
-      description: record.description || ''
+      description: record.description || '',
     });
   };
 
@@ -164,8 +180,8 @@ const InventoryGroups: React.FC = () => {
       mutate([`get-category`]);
       setEditingKey(null);
     } catch (error) {
-      console.error("Update failed:", error);
-      showToast(t("errors.updateFailed"), "error");
+      console.error('Update failed:', error);
+      showToast(t('errors.updateFailed'), 'error');
     }
   };
 
@@ -175,21 +191,23 @@ const InventoryGroups: React.FC = () => {
 
   const generateColumns = (): ColumnsType<TreeData> => [
     {
-      title: "",
-      dataIndex: "isExpanded",
-      key: "isExpanded",
+      title: '',
+      dataIndex: 'isExpanded',
+      key: 'isExpanded',
       width: 50,
     },
     {
-      title: "Название группы",
-      dataIndex: "name",
-      key: "name",
+      title: 'Название группы',
+      dataIndex: 'name',
+      key: 'name',
       render: (text: string, record: TreeData) => {
         if (editingKey === record.id) {
           return (
             <AntInput
               value={editingData.name}
-              onChange={(e) => setEditingData(prev => ({...prev, name: e.target.value}))}
+              onChange={e =>
+                setEditingData(prev => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Название группы"
             />
           );
@@ -198,26 +216,31 @@ const InventoryGroups: React.FC = () => {
       },
     },
     {
-      title: "Описание",
-      dataIndex: "description",
-      key: "description",
+      title: 'Описание',
+      dataIndex: 'description',
+      key: 'description',
       render: (text: string, record: TreeData) => {
         if (editingKey === record.id) {
           return (
             <AntInput
               value={editingData.description}
-              onChange={(e) => setEditingData(prev => ({...prev, description: e.target.value}))}
+              onChange={e =>
+                setEditingData(prev => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Описание"
             />
           );
         }
-        return text || "-";
+        return text || '-';
       },
     },
     {
-      title: "",
-      key: "actions",
-      align: "right",
+      title: '',
+      key: 'actions',
+      align: 'right',
       render: (_, record) => {
         if (editingKey === record.id) {
           return (
@@ -228,10 +251,10 @@ const InventoryGroups: React.FC = () => {
                 onClick={() => saveEditing(record.id)}
               />
               <Popconfirm
-                title={t("common.discardChanges")}
+                title={t('common.discardChanges')}
                 onConfirm={cancelEditing}
-                okText={t("equipment.yes")}
-                cancelText={t("equipment.no")}
+                okText={t('equipment.yes')}
+                cancelText={t('equipment.no')}
               >
                 <AntButton
                   type="text"
@@ -244,17 +267,19 @@ const InventoryGroups: React.FC = () => {
         return (
           <Can
             requiredPermissions={[
-              { action: "update", subject: "Warehouse" },
-              { action: "manage", subject: "Warehouse" },
+              { action: 'update', subject: 'Warehouse' },
+              { action: 'manage', subject: 'Warehouse' },
             ]}
             userPermissions={userPermissions}
           >
-            {(allowed) =>
+            {allowed =>
               allowed && (
-                <Tooltip title={t("routes.edit")}>
+                <Tooltip title={t('routes.edit')}>
                   <AntButton
                     type="text"
-                    icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
+                    icon={
+                      <EditOutlined className="text-blue-500 hover:text-blue-700" />
+                    }
                     onClick={() => startEditing(record)}
                   />
                 </Tooltip>
@@ -266,15 +291,29 @@ const InventoryGroups: React.FC = () => {
     },
   ];
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'update', subject: 'Warehouse' },
+  ]);
+
   return (
     <>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.create')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.groups')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <AntButton
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </AntButton>
+        )}
       </div>
       {loadingCategory ? (
         <TableSkeleton columnCount={3} />
@@ -321,18 +360,18 @@ const InventoryGroups: React.FC = () => {
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register("name", {
-              required: "Name is required",
+            {...register('name', {
+              required: 'Name is required',
             })}
             helperText={errors.name?.message || ''}
           />
           <DropdownInput
-            title={`${t("warehouse.included")}`}
+            title={`${t('warehouse.included')}`}
             options={categories}
             classname="w-64"
             {...register('ownerCategoryId')}
             value={formData.ownerCategoryId}
-            onChange={(value) => handleInputChange("ownerCategoryId", value)}
+            onChange={value => handleInputChange('ownerCategoryId', value)}
           />
           <MultilineInput
             title={t('warehouse.desc')}
@@ -340,7 +379,7 @@ const InventoryGroups: React.FC = () => {
             classname="w-80"
             inputType="secondary"
             value={formData.description}
-            changeValue={(e) => handleInputChange("description", e.target.value)}
+            changeValue={e => handleInputChange('description', e.target.value)}
           />
           <div className="flex space-x-4">
             <Button
