@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { getWorkers } from '@/services/api/equipment';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -12,9 +12,6 @@ const EmployeeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
 
   const { data: workerData, isLoading } = useSWR(
     [`get-worker`],
@@ -35,7 +32,10 @@ const EmployeeFilter: React.FC = () => {
 
   if (!workerData?.length && !isLoading) return null;
 
-  const workers = [...(workerData?.map(item => ({ label: `${item.name} ${item.surname}`, value: String(item.id), }))) || []];
+  const workers = (workerData ?? []).map(item => ({
+    label: `${item.name} ${item.surname}`,
+    value: String(item.id)
+  }));
 
   return (
     <div className="w-full sm:w-80">
@@ -46,7 +46,7 @@ const EmployeeFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('filters.employee.placeholder')}
-        value={getParam("userId", String(user.id))}
+        value={getParam(searchParams, "userId", String(user.id))}
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
