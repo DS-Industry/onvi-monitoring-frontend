@@ -1184,6 +1184,28 @@
     "status": "Status"
   },
   "filters": {
-    "reset": "Reset"
+    "reset": "Reset",
+    "found": "Found",
+    "search": {
+      "placeholder": "Search"
+    },
+    "dateTime": {
+      "startDate": "Start Date",
+      "startTime": "Start Time",
+      "endDate": "End Date",
+      "endTime": "End Time"
+    },
+    "device": {
+      "placeholder": "Select Device"
+    },
+    "organization": {
+      "placeholder": "Select Organization"
+    },
+    "pos": {
+      "placeholder": "Select POS"
+    },
+    "warehouse": {
+      "placeholder": "Select Warehouse"
+    }
   }
 }
