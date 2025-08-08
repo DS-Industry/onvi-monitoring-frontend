@@ -9,26 +9,15 @@ import {
   DatabaseOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
+import { AllReportsParams } from '@/services/api/reports';
 
 const { Title, Text, Link } = Typography;
 
-enum CategoryReportTemplate {
-  POS = 'POS',
-}
-
-type Reports = {
-  id: number;
-  name: string;
-  category: CategoryReportTemplate;
-  description?: string;
-  params: JSON;
-};
-
 type Props = {
   iconText: string;
-  firstText: string;
-  secondText: string;
-  reports?: Reports;
+  title: string;
+  description: string;
+  reports?: AllReportsParams;
 };
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -41,8 +30,8 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const AnalysisCard: React.FC<Props> = ({
   iconText,
-  firstText,
-  secondText,
+  title,
+  description,
   reports,
 }) => {
   const { t } = useTranslation();
@@ -55,7 +44,14 @@ const AnalysisCard: React.FC<Props> = ({
   return (
     <Card
       className="w-[456px] h-[200px] shadow-card"
-      bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}
+      styles={{
+        body: {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '100%',
+        },
+      }}
     >
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -63,16 +59,16 @@ const AnalysisCard: React.FC<Props> = ({
             {IconComponent}
           </div>
           <Title level={5} style={{ margin: 0, color: '#1F1F1F' }}>
-            {firstText}
+            {title}
           </Title>
         </div>
         <Divider style={{ margin: '12px 0' }} />
-        <Text type="secondary">{secondText}</Text>
+        <Text type="secondary">{description}</Text>
       </div>
 
       <Link
         onClick={() =>
-          navigate('/analysis/report', { state: { ownerId: reports?.id } })
+          navigate(`/analysis/report?id=${reports?.id}`)
         }
         style={{ marginTop: 'auto' }}
       >

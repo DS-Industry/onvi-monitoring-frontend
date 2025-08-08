@@ -163,7 +163,7 @@ const EmployeeProfile: React.FC = () => {
   useEffect(() => {
     if (employee?.avatar)
       setImagePreview(
-        'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
+        `${import.meta.env.VITE_S3_CLOUD}/avatar/worker/` +
           employee.avatar
       );
     else setImagePreview(null);
@@ -400,7 +400,7 @@ const EmployeeProfile: React.FC = () => {
                     {emp.avatar ? (
                       <img
                         src={
-                          'https://storage.yandexcloud.net/onvi-business/avatar/worker/' +
+                          `${import.meta.env.VITE_S3_CLOUD}/avatar/worker/` +
                           emp.avatar
                         }
                         alt="Profile"

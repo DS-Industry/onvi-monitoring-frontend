@@ -2,18 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AnalysisCard from '@ui/Card/AnalysisCard';
 import useSWR from 'swr';
-import { getAllReports } from '@/services/api/reports';
+import { CategoryReportTemplate, getAllReports } from '@/services/api/reports';
 import CardSkeleton from '@/components/ui/Card/CardSkeleton';
-import { Select } from 'antd';
+import { Button, Select } from 'antd';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
-
-enum CategoryReportTemplate {
-  POS = 'POS',
-}
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const Analysis: React.FC = () => {
   const { t } = useTranslation();
@@ -62,27 +59,20 @@ const Analysis: React.FC = () => {
       for (let i = 1; i <= totalPages; i++) range.push(i);
     } else {
       range.push(1);
-
       if (currentPage > 3) range.push('...');
-
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
       for (let i = start; i <= end; i++) range.push(i);
-
       if (currentPage < totalPages - 2) range.push('...');
-
       range.push(totalPages);
     }
-
     return range;
   };
 
   const updatePage = (page: number) => {
-    setSearchParams(prev => {
-      const updated = new URLSearchParams(prev.toString());
-      updated.set('page', page.toString());
-      updated.set('size', pageSize.toString());
-      return updated;
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(page),
+      size: String(pageSize),
     });
   };
 
@@ -100,7 +90,7 @@ const Analysis: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="ml-12 md:ml-0 flex items-center justify-between mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.analysis')}
@@ -117,10 +107,10 @@ const Analysis: React.FC = () => {
             value={cat}
             onChange={value => {
               setCat(value);
-              updatePage(1); // Reset to first page on category change
+              updatePage(1);
             }}
             options={[{ label: t('analysis.posId'), value: 'POS' }]}
-            dropdownRender={menu => (
+            popupRender={menu => (
               <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
             )}
           />
@@ -139,8 +129,8 @@ const Analysis: React.FC = () => {
               <AnalysisCard
                 key={report.id}
                 iconText="file"
-                firstText={report.name}
-                secondText={report.description || ''}
+                title={report.name}
+                description={report.description || ''}
                 reports={report}
               />
             ))
@@ -149,17 +139,12 @@ const Analysis: React.FC = () => {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <button
+        <Button
+          icon={<ArrowLeftOutlined />}
           onClick={handlePrev}
           disabled={currentPage === 1}
-          className={`px-2 py-1 ${
-            currentPage === 1
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-text01'
-          }`}
-        >
-          <ArrowLeftOutlined />
-        </button>
+          type="text"
+        />
 
         {generatePaginationRange().map((page, index) =>
           page === '...' ? (
@@ -167,31 +152,23 @@ const Analysis: React.FC = () => {
               ...
             </span>
           ) : (
-            <button
+            <Button
               key={index}
               onClick={() => handlePageClick(page)}
-              className={`px-4 py-2 font-semibold ${
-                currentPage === page
-                  ? 'bg-white text-primary02 rounded-lg border border-primary02'
-                  : 'text-text01'
-              }`}
+              type={currentPage === page ? 'primary' : 'default'}
+              ghost={currentPage !== page}
             >
               {page}
-            </button>
+            </Button>
           )
         )}
 
-        <button
+        <Button
+          icon={<ArrowRightOutlined />}
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className={`px-2 py-1 ${
-            currentPage === totalPages
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-text01'
-          }`}
-        >
-          <ArrowRightOutlined />
-        </button>
+          type="text"
+        />
       </div>
     </div>
   );

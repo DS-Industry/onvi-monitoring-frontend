@@ -1,26 +1,24 @@
 import { getDevices, getPoses } from '@/services/api/equipment';
 import React, { useState } from 'react';
 import useSWR from 'swr';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { applyReport, getReportById } from '@/services/api/reports';
 import useSWRMutation from 'swr/mutation';
-import Button from '@/components/ui/Button/Button';
 import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
 import { useTranslation } from 'react-i18next';
-import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
-import { message, Skeleton, Input, Select } from 'antd';
+import { message, Skeleton, Input, Select, DatePicker, Button } from 'antd';
 import { useToast } from '@/components/context/useContext';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const city = Number(searchParams.get('city')) || undefined;
   const posId = Number(searchParams.get('posId')) || undefined;
+  const reportId = Number(searchParams.get("id"));
   const { showToast } = useToast();
 
   const { data: posData } = useSWR(
@@ -71,7 +69,7 @@ const IncomeReport: React.FC = () => {
     data: reportData,
     isLoading: loadingReport,
     isValidating: validatingReport,
-  } = useSWR([`get-report`], () => getReportById(location.state.ownerId), {
+  } = useSWR([`get-report`], () => getReportById(reportId), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
@@ -97,7 +95,7 @@ const IncomeReport: React.FC = () => {
   };
 
   const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     if (!reportData?.id) {
       console.error('Report ID is missing');
@@ -113,13 +111,13 @@ const IncomeReport: React.FC = () => {
 
     if (missingFields.length > 0) {
       message.error(
-        `Please fill in the following fields: ${missingFields.join(', ')}`
+        `${t("register.for")} : ${missingFields.join(', ')}`
       );
       return;
     }
 
     try {
-      await createReport(); 
+      await createReport();
       navigate('/analysis/transactions');
     } catch (error) {
       console.error('Error creating report:', error);
@@ -129,7 +127,7 @@ const IncomeReport: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.income')}
@@ -152,76 +150,93 @@ const IncomeReport: React.FC = () => {
               reportData.params.params.map(value => (
                 <div key={value.name}>
                   {value.type === 'date' ? (
-                    <DateInput
-                      title={value.description}
-                      value={
-                        formData[value.name]
-                          ? dayjs(formData[value.name])
-                          : null
-                      }
-                      changeValue={date =>
-                        handleInputChange(
-                          value.name,
-                          date ? date.format('YYYY-MM-DD') : ''
-                        )
-                      }
-                      classname="w-64"
-                    />
+                    <div>
+                      <div className="text-sm text-text02">
+                        {value.description}
+                      </div>
+                      <DatePicker
+                        value={
+                          formData[value.name]
+                            ? dayjs(formData[value.name])
+                            : null
+                        }
+                        onChange={date =>
+                          handleInputChange(
+                            value.name,
+                            date ? date.format('YYYY-MM-DD') : ''
+                          )
+                        }
+                        className="w-64"
+                        size="large"
+                      />
+                    </div>
                   ) : value.name.toLowerCase().includes('pos') ? (
                     <div>
                       <div className="text-sm text-text02">
                         {value.description}
                       </div>
-                    <Select
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={posData?.map((item) => ({ label: item.name, value: item.id }))}
-                      onChange={val => handleInputChange(value.name, val)}
-                      className="w-64"
-                      size="large"
-                    />
+                      <Select
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={posData?.map(item => ({
+                          label: item.name,
+                          value: item.id,
+                        }))}
+                        onChange={val => handleInputChange(value.name, val)}
+                        className="w-64"
+                        size="large"
+                      />
                     </div>
                   ) : value.name.toLowerCase().includes('device') ? (
                     <div>
                       <div className="text-sm text-text02">
                         {value.description}
                       </div>
-                    <Select
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={deviceData?.map((item) => ({ label: item.props.name, value: item.props.id }))}
-                      onChange={val => handleInputChange(value.name, val)}
-                      className="w-64"
-                      size="large"
-                    />
+                      <Select
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={deviceData?.map(item => ({
+                          label: item.props.name,
+                          value: item.props.id,
+                        }))}
+                        onChange={val => handleInputChange(value.name, val)}
+                        className="w-64"
+                        size="large"
+                      />
                     </div>
                   ) : value.name.toLowerCase().includes('warehouse') ? (
                     <div>
                       <div className="text-sm text-text02">
                         {value.description}
                       </div>
-                    <Select
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={warehouseData?.map((item) => ({ label: item.props.name, value: item.props.id }))}
-                      onChange={val => handleInputChange(value.name, val)}
-                      className="w-64"
-                      size="large"
-                    />
+                      <Select
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={warehouseData?.map(item => ({
+                          label: item.props.name,
+                          value: item.props.id,
+                        }))}
+                        onChange={val => handleInputChange(value.name, val)}
+                        className="w-64"
+                        size="large"
+                      />
                     </div>
                   ) : value.name.toLowerCase().includes('org') ? (
                     <div>
                       <div className="text-sm text-text02">
                         {value.description}
                       </div>
-                    <Select
-                      title={value.description}
-                      value={formData[value.name] || ''}
-                      options={organizationData?.map((item) => ({ label: item.name, value: item.id }))}
-                      onChange={val => handleInputChange(value.name, val)}
-                      className="w-64"
-                      size="large"
-                    />
+                      <Select
+                        title={value.description}
+                        value={formData[value.name] || ''}
+                        options={organizationData?.map(item => ({
+                          label: item.name,
+                          value: item.id,
+                        }))}
+                        onChange={val => handleInputChange(value.name, val)}
+                        className="w-64"
+                        size="large"
+                      />
                     </div>
                   ) : value.type === 'number' ? (
                     <div>
@@ -235,7 +250,7 @@ const IncomeReport: React.FC = () => {
                           handleInputChange(value.name, Number(e.target.value))
                         }
                         className="w-64"
-                        size='large'
+                        size="large"
                       />
                     </div>
                   ) : (
@@ -251,7 +266,7 @@ const IncomeReport: React.FC = () => {
                           handleInputChange(value.name, e.target.value)
                         }
                         className="w-64"
-                        size='large'
+                        size="large"
                       />
                     </div>
                   )}
@@ -259,11 +274,9 @@ const IncomeReport: React.FC = () => {
               ))
             )}
           </div>
-          <Button
-            title={t('analysis.add')}
-            form={true}
-            isLoading={isMutating}
-          />
+          <Button htmlType="submit" className='btn-primary' loading={isMutating}>
+            {t('analysis.add')}
+          </Button>
         </form>
       </div>
     </div>
