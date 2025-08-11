@@ -35,10 +35,10 @@ const App: React.FC = () => {
 
   useFirebaseMessaging();
 
-  const jwtToken = useAuthStore(state => state.tokens)?.accessToken;
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   const { trigger: updateUser } = useSWRMutation(
-    jwtToken ? 'user' : null,
+    isAuthenticated ? 'user' : null,
     async () =>
       updateUserProfile(
         {
@@ -50,7 +50,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const getTokenAndUpdate = async () => {
-      if (!jwtToken) return; // Skip if no token
+      if (!isAuthenticated) return; // Skip if not authenticated
 
       const result = await requestFirebaseNotificationPermission();
       if (result) {
@@ -63,7 +63,7 @@ const App: React.FC = () => {
     };
 
     getTokenAndUpdate();
-  }, [updateUser, jwtToken]);
+  }, [updateUser, isAuthenticated]);
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>

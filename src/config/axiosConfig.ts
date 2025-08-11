@@ -19,11 +19,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
-    const jwtToken = useAuthStore.getState().tokens?.accessToken;
-    if (jwtToken !== null) {
-      config.headers.Authorization = `Bearer ${jwtToken}`;
-    }
-
     datadogLogs.logger.info('API Request Initiated', {
       url: config.url,
       method: config.method,
@@ -74,7 +69,7 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      const logout = useAuthStore.getState().clearTokens;
+      const logout = useAuthStore.getState().logout;
       logout();
       window.location.href = '/login';
     }

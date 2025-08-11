@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { precreateOrganization } from '@/services/api/platform';
-import { useSetTokens, useSetPermissions } from '@/hooks/useAuthStore';
+import { useSetAuthenticated, useSetPermissions } from '@/hooks/useAuthStore';
 import { useClearUserData, useSetUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
 
@@ -53,13 +53,12 @@ type Props = {
 
 const PostRegisterForm: React.FC<Props> = ({
   registerUser,
-  registerToken,
   registerPermissions,
 }: Props) => {
   const { t } = useTranslation();
   const [isToggled, setIsToggled] = useState(false);
   const setUser = useSetUser();
-  const setTokens = useSetTokens();
+  const setAuthenticated = useSetAuthenticated();
   const setPermissions = useSetPermissions();
   const clearData = useClearUserData();
   const { showToast } = useToast();
@@ -98,7 +97,7 @@ const PostRegisterForm: React.FC<Props> = ({
       const result = await trigger();
       if (result) {
         setUser({ user: registerUser });
-        setTokens({ tokens: registerToken });
+        setAuthenticated(true);
         setPermissions(registerPermissions);
       }
     } catch (error) {

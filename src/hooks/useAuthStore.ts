@@ -1,16 +1,31 @@
 import useAuthStore from '@/config/store/authSlice';
-import { Tokens } from '@/config/store/authSlice';
+import api from '@/config/axiosConfig';
 
-export const useTokens = () => {
-  return useAuthStore(state => state.tokens as Tokens);
+export const useIsAuthenticated = () => {
+  return useAuthStore(state => state.isAuthenticated);
 };
 
-export const useSetTokens = () => {
-  return useAuthStore(state => state.setTokens);
+export const useSetAuthenticated = () => {
+  return useAuthStore(state => state.setAuthenticated);
 };
 
-export const useClearJwtToken = () => {
-  return useAuthStore(state => state.clearTokens);
+export const useLogout = () => {
+  return useAuthStore(state => state.logout);
+};
+
+export const useCheckAuth = () => {
+  const setAuthenticated = useSetAuthenticated();
+  
+  return async () => {
+    try {
+      await api.get('/auth/validate');
+      setAuthenticated(true);
+      return true;
+    } catch (error) {
+      setAuthenticated(false);
+      return false;
+    }
+  };
 };
 
 export const usePosType = () => {

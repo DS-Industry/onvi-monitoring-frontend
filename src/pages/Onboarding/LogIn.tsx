@@ -4,7 +4,7 @@ import { loginPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import { useSetTokens } from '@/hooks/useAuthStore';
+import { useSetAuthenticated } from '@/hooks/useAuthStore';
 import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
@@ -52,7 +52,7 @@ const LogIn: React.FC = () => {
 
   const setUser = useSetUser();
   const clearData = useClearUserData();
-  const setTokens = useSetTokens();
+  const setAuthenticated = useSetAuthenticated();
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -72,10 +72,10 @@ const LogIn: React.FC = () => {
     try {
       const result = await trigger();
 
-      if (result && result.admin && result.tokens) {
-        const { admin, tokens, permissionInfo } = result;
+      if (result && result.admin) {
+        const { admin, permissionInfo } = result;
         setUser({ user: admin?.props });
-        setTokens({ tokens });
+        setAuthenticated(true);
         useAuthStore.getState().setPermissions(permissionInfo.permissions);
         navigate('/');
       } else {

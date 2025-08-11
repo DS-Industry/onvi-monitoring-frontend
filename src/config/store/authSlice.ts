@@ -1,19 +1,13 @@
 import { create, StateCreator } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 
-export interface Tokens {
-  accessToken: string;
-  accessTokenExp: Date;
-  refreshToken: string;
-  refreshTokenExp: Date;
-}
 
 type Permission = {
   subject: string;
   action: string;
 };
 interface AuthState {
-  tokens: Tokens | null;
+  isAuthenticated: boolean;
   permissions: Permission[];
   posType: number | string;
   startDate: Date;
@@ -25,8 +19,8 @@ interface AuthState {
   currentPage: number;
   pageSize: number;
   city: number | string;
-  setTokens: (tokens: { tokens: Tokens }) => void;
-  clearTokens: () => void;
+  setAuthenticated: (isAuthenticated: boolean) => void;
+  logout: () => void;
   setPermissions: (permissions: Permission[]) => void;
   setPosType: (posType: number | string) => void;
   setStartDate: (startDate: Date) => void;
@@ -49,7 +43,7 @@ const endDate = new Date(`${formattedDate} 23:59`);
 
 const createAuthStore: StateCreator<AuthState> = set => {
   const initialState: AuthState = {
-    tokens: null,
+    isAuthenticated: false,
     permissions: [],
     posType: '*',
     startDate: startDate,
@@ -61,8 +55,8 @@ const createAuthStore: StateCreator<AuthState> = set => {
     currentPage: 1,
     pageSize: 10,
     city: '*',
-    setTokens: tokens => set(() => ({ tokens: tokens.tokens })),
-    clearTokens: () => set(() => ({ tokens: null })),
+    setAuthenticated: isAuthenticated => set({ isAuthenticated }),
+    logout: () => set({ isAuthenticated: false, permissions: [] }),
     setPermissions: permissions => set({ permissions }),
     setPosType: posType => set({ posType }),
     setStartDate: startDate => set({ startDate }),
@@ -87,6 +81,19 @@ const useAuthStore = create<AuthState>()(
   devtools(
     persist(createAuthStore, {
       name: 'auth-storage',
+      partialize: (state) => ({
+        permissions: state.permissions,
+        posType: state.posType,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        deviceId: state.deviceId,
+        documentType: state.documentType,
+        wareHouseId: state.wareHouseId,
+        pageNumber: state.pageNumber,
+        currentPage: state.currentPage,
+        pageSize: state.pageSize,
+        city: state.city,
+      }),
     }),
     { name: 'AuthStore' }
   )
