@@ -12,23 +12,25 @@ import {
   getNomenclature,
   getSupplier,
   updateNomenclature,
-} from "@/services/api/warehouse";
-import { getOrganization } from "@/services/api/organization";
-import useFormHook from "@/hooks/useFormHook";
-import useSWRMutation from "swr/mutation";
-import { useToast } from "@/components/context/useContext";
-import { Drawer, Select, Table, Tooltip } from "antd";
-import { usePermissions } from "@/hooks/useAuthStore";
-import { Can } from "@/permissions/Can";
-import { EditOutlined } from "@ant-design/icons";
-import AntDButton from "antd/es/button";
-import { useColumnSelector } from "@/hooks/useTableColumnSelector";
-import ColumnSelector from "@/components/ui/Table/ColumnSelector";
-import GeneralFilters from "@/components/ui/Filter/GeneralFilters";
-import { useSearchParams } from "react-router-dom";
-import { updateSearchParams } from "@/utils/searchParamsUtils";
-import hasPermission from "@/permissions/hasPermission";
-import { ColumnsType } from "antd/es/table";
+} from '@/services/api/warehouse';
+import { getOrganization } from '@/services/api/organization';
+import useFormHook from '@/hooks/useFormHook';
+import useSWRMutation from 'swr/mutation';
+import { useToast } from '@/components/context/useContext';
+import { Drawer, Select, Table, Tooltip } from 'antd';
+import { usePermissions } from '@/hooks/useAuthStore';
+import { Can } from '@/permissions/Can';
+import { DownloadOutlined, EditOutlined } from '@ant-design/icons';
+import AntDButton from 'antd/es/button';
+import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import hasPermission from '@/permissions/hasPermission';
+import { ColumnsType } from 'antd/es/table';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -66,6 +68,7 @@ const InventoryCreation: React.FC = () => {
   const userPermissions = usePermissions();
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const organizationId = searchParams.get('organizationId') || null;
   const category = searchParams.get('category') || '*';
@@ -402,13 +405,33 @@ const InventoryCreation: React.FC = () => {
 
   return (
     <>
-      <div className="absolute top-8 right-80 z-50">
-        <Button
-          title={t('routes.create')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.nomenclature')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <div className="xs:flex xs:space-x-2">
+          <AntDButton
+            icon={<DownloadOutlined />}
+            className="btn-outline-primary"
+            onClick={() => {
+              navigate('/warehouse/inventory/import')
+            }}
+          >
+            <span className='hidden sm:flex'>{t('routes.import')}</span>
+          </AntDButton>
+          {allowed && (
+            <AntDButton
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => setDrawerOpen(!drawerOpen)}
+            >
+              {t('routes.add')}
+            </AntDButton>
+          )}
+        </div>
       </div>
       <GeneralFilters
         count={inventoriesDisplay.length}
@@ -460,6 +483,7 @@ const InventoryCreation: React.FC = () => {
           columns={visibleColumns}
           pagination={false}
           loading={inventoryLoading}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Drawer

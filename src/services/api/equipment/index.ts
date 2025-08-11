@@ -298,7 +298,7 @@ export type ChemicalConsumptionResponse = {
   }[];
 };
 
-type ConsumptionRateResponse = {
+export type ConsumptionRateResponse = {
   id: number;
   programTypeName: string;
   literRate: number;

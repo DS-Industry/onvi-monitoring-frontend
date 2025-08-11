@@ -1,133 +1,98 @@
-// import DropdownInput from "@ui/Input/DropdownInput";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AnalysisCard from '@ui/Card/AnalysisCard';
-import Filter from '@/components/ui/Filter/Filter';
 import useSWR from 'swr';
-import { getAllReports } from '@/services/api/reports';
-import {
-  useCurrentPage,
-  usePageNumber,
-  usePageSize,
-  useSetCurrentPage,
-  useSetPageSize,
-} from '@/hooks/useAuthStore';
-import { useFilterOn } from '@/components/context/useContext';
+import { CategoryReportTemplate, getAllReports } from '@/services/api/reports';
 import CardSkeleton from '@/components/ui/Card/CardSkeleton';
-import { Select } from 'antd';
-import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-
-enum CategoryReportTemplate {
-  POS = 'POS',
-}
+import { Pagination, Select } from 'antd';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const Analysis: React.FC = () => {
   const { t } = useTranslation();
-
-  const [cat, setCat] = useState('POS');
-  const pageNumber = usePageNumber();
-  const currentPage = useCurrentPage();
-  const curr = useCurrentPage();
-  const setCurr = useSetCurrentPage();
-  const rowsPerPage = usePageNumber();
-  const totalCount = usePageSize();
-  const setTotalCount = useSetPageSize();
-  const totalPages = Math.ceil(totalCount / rowsPerPage);
-  const { filterOn, setFilterOn } = useFilterOn();
+  const [category, setCategory] = useState<CategoryReportTemplate>(
+    'POS' as CategoryReportTemplate
+  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
+  const searchReport = searchParams.get('search') || '';
   const [tableLoading, setTableLoading] = useState(false);
-  const [searchReport, setSearchReport] = useState('');
+  const navigate = useNavigate();
 
   const {
     data: filter,
     mutate: mutateGetAllReport,
     isLoading: loadingReports,
     isValidating: validatingReports,
-  } = useSWR(['get-all-report'], () =>
+  } = useSWR(['get-all-report', category, currentPage, pageSize], () =>
     getAllReports({
-      category: cat as CategoryReportTemplate,
+      category: category,
       page: currentPage,
-      size: pageNumber,
+      size: pageSize,
     })
   );
 
   useEffect(() => {
     setTableLoading(true);
-    mutateGetAllReport().then(() => setTableLoading(false));
-  }, [filterOn, mutateGetAllReport]);
-
-  useEffect(() => {
-    if (!loadingReports && filter?.count) setTotalCount(filter?.count);
-  }, [filter?.count, loadingReports, setTotalCount]);
+    mutateGetAllReport().finally(() => setTableLoading(false));
+  }, [category, currentPage, pageSize, mutateGetAllReport]);
 
   const reportsData = useMemo(
     () =>
-      filter?.reports.filter(report =>
+      filter?.reports?.filter(report =>
         report.name.toLowerCase().includes(searchReport.toLowerCase())
       ) || [],
     [filter?.reports, searchReport]
   );
 
-  const generatePaginationRange = () => {
-    const range: (number | string)[] = [];
+  const totalCount = filter?.count || 0;
 
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) range.push(i);
-    } else {
-      range.push(1);
-
-      if (curr > 3) range.push('...');
-
-      const start = Math.max(2, curr - 1);
-      const end = Math.min(totalPages - 1, curr + 1);
-      for (let i = start; i <= end; i++) range.push(i);
-
-      if (curr < totalPages - 2) range.push('...');
-
-      range.push(totalPages);
-    }
-
-    return range;
-  };
-
-  const handlePageClick = (page: number | string) => {
-    if (typeof page === 'number') {
-      setFilterOn(!filterOn);
-      setCurr(page);
-    }
+  const updatePage = (page: number) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(page),
+      size: String(pageSize),
+    });
   };
 
   return (
     <div>
-      <Filter
-        count={reportsData.length}
-        hideDateTime={true}
-        hideCity={true}
-        search={searchReport}
-        setSearch={setSearchReport}
-      >
-        {/* <DropdownInput
-                    title={t("warehouse.category")}
-                    value={cat}
-                    classname="w-64"
-                    options={[
-                        { name: "POS", value: "POS" }
-                    ]}
-                    onChange={(value) => setCat(value)}
-                /> */}
+      <div className="ml-12 md:ml-0 flex items-center justify-between mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.analysis')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
+
+      <GeneralFilters count={reportsData.length} display={['search']}>
         <div>
           <div className="text-sm text-text02">{t('warehouse.category')}</div>
           <Select
             className="w-full sm:w-80 h-10"
-            value={cat}
-            onChange={value => setCat(value)}
+            value={category}
+            onChange={value => {
+              setCategory(value);
+              updatePage(1);
+            }}
             options={[{ label: t('analysis.posId'), value: 'POS' }]}
-            dropdownRender={menu => (
+            popupRender={menu => (
               <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
             )}
           />
         </div>
-      </Filter>
+      </GeneralFilters>
+
       <hr className="my-4" />
+
       <div className="space-y-3">
         <div className="text-text01 uppercase">{t('analysis.oper')}</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -136,52 +101,33 @@ const Analysis: React.FC = () => {
           ) : (
             reportsData.map(report => (
               <AnalysisCard
+                key={report.id}
                 iconText="file"
-                firstText={report.name}
-                secondText={report.description || ''}
-                reports={report}
+                title={report.name}
+                description={report.description || ''}
+                onNavigate={() => {
+                  navigate(`/analysis/report?id=${report?.id}`);
+                }}
               />
             ))
           )}
         </div>
       </div>
-      <div className="mt-4 flex gap-2">
-        <button
-          onClick={() => {
-            const newPage = Math.max(1, curr - 1);
-            setFilterOn(!filterOn);
-            setCurr(newPage);
+
+      <div className="mt-4">
+        <Pagination
+          current={currentPage}
+          total={totalCount}
+          pageSize={pageSize}
+          pageSizeOptions={ALL_PAGE_SIZES}
+          onChange={(page, size) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            });
           }}
-          disabled={curr === 1}
-          className={`px-2 py-1 ${curr === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-text01'}`}
-        >
-          <ArrowLeftOutlined />
-        </button>
-        {generatePaginationRange().map((page, index) =>
-          page === '...' ? (
-            <span key={index} className="px-2 py-1 text-gray-400">
-              ...
-            </span>
-          ) : (
-            <button
-              key={index}
-              onClick={() => handlePageClick(page)}
-              className={`px-4 py-2 font-semibold ${curr === page ? 'bg-white text-primary02 rounded-lg border border-primary02' : 'text-text01'}`}
-            >
-              {page}
-            </button>
-          )
-        )}
-        <button
-          onClick={() => {
-            setFilterOn(!filterOn);
-            setCurr(Math.min(totalPages, curr + 1));
-          }}
-          disabled={curr === totalPages}
-          className={`px-2 py-1 ${curr === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-text01'}`}
-        >
-          <ArrowRightOutlined />
-        </button>
+          showSizeChanger={true}
+        />
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const ProgressReport: React.FC = () => {
   const { t } = useTranslation();
@@ -146,6 +147,14 @@ const ProgressReport: React.FC = () => {
 
   return (
     <>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.progress')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
       <GeneralFilters
         count={data?.totalCount || 0}
         display={['pos', 'reset']}

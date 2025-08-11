@@ -10,10 +10,14 @@ import useSWRMutation from 'swr/mutation';
 import { createSupplier, getSupplier } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import { Drawer, Table } from 'antd';
+import { Drawer, Table, Button as AntDButton } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type Supplier = {
   id: number;
@@ -25,6 +29,7 @@ const Suppliers: React.FC = () => {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
+  const userPermissions = usePermissions();
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
     [`get-supplier`],
@@ -106,15 +111,29 @@ const Suppliers: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsSupplier, 'suppliers-table-columns');
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'update', subject: 'Warehouse' },
+  ]);
+
   return (
     <>
-      <div className="absolute top-6 right-6 z-50">
-        <Button
-          title={t('routes.create')}
-          iconPlus={true}
-          handleClick={() => setDrawerOpen(true)}
-          classname="shadow-lg"
-        />
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.suppliers')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        {allowed && (
+          <AntDButton
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </AntDButton>
+        )}
       </div>
       {loadingSupplier ? (
         <TableSkeleton columnCount={columnsSupplier.length} />
