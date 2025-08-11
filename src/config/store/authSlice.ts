@@ -1,7 +1,6 @@
 import { create, StateCreator } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 
-
 type Permission = {
   subject: string;
   action: string;
@@ -81,19 +80,9 @@ const useAuthStore = create<AuthState>()(
   devtools(
     persist(createAuthStore, {
       name: 'auth-storage',
-      partialize: (state) => ({
+      partialize: state => ({
         isAuthenticated: state.isAuthenticated,
         permissions: state.permissions,
-        posType: state.posType,
-        startDate: state.startDate,
-        endDate: state.endDate,
-        deviceId: state.deviceId,
-        documentType: state.documentType,
-        wareHouseId: state.wareHouseId,
-        pageNumber: state.pageNumber,
-        currentPage: state.currentPage,
-        pageSize: state.pageSize,
-        city: state.city,
       }),
     }),
     { name: 'AuthStore' }
