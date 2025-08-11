@@ -1,4 +1,3 @@
-import Filter from '@/components/ui/Filter/Filter';
 import React, {
   ClassAttributes,
   ThHTMLAttributes,
@@ -18,21 +17,12 @@ import Close from '@icons/close.svg?react';
 import { useTranslation } from 'react-i18next';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 import useSWR, { mutate } from 'swr';
-import { getPoses, getWorkers } from '@/services/api/equipment';
-import {
-  useCurrentPage,
-  usePageNumber,
-  usePageSize,
-  useSetCurrentPage,
-  useSetPageNumber,
-  useSetPageSize,
-} from '@/hooks/useAuthStore';
+import { getPoses } from '@/services/api/equipment';
 import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import dayjs, { Dayjs } from 'dayjs';
 import DateInput from '@/components/ui/Input/DateInput';
-import DropdownInput from '@/components/ui/Input/DropdownInput';
 import {
   createManagerPaper,
   deleteManagerPapers,
@@ -40,14 +30,14 @@ import {
   getAllManagerPaperGraph,
   getAllManagerPaperTypes,
   getAllWorkers,
+  ManagerParams,
   updateManagerPaper,
 } from '@/services/api/finance';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import useSWRMutation from 'swr/mutation';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
-import { useFilterOn, useToast } from '@/components/context/useContext';
-import DateTimeInput from '@/components/ui/Input/DateTimeInput';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useToast } from '@/components/context/useContext';
+import { useSearchParams } from 'react-router-dom';
 import { useUser } from '@/hooks/useUserStore';
 import Card from 'antd/es/card';
 import Row from 'antd/es/row';
@@ -64,11 +54,13 @@ import Skeleton from 'antd/es/skeleton';
 import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
 import type { TableProps } from 'antd';
-import type { TablePaginationConfig } from 'antd/es/table';
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Title, Text } = Typography;
 
@@ -121,17 +113,6 @@ type ManagerPaperBody = {
   sum: number;
   userId: number;
   comment?: string;
-};
-
-type ManagerParams = {
-  group: ManagerPaperGroup | '*';
-  posId: number | '*';
-  paperTypeId: number | '*';
-  userId: number | '*';
-  dateStartEvent?: Date;
-  dateEndEvent?: Date;
-  page?: number;
-  size?: number;
 };
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -225,7 +206,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     },
   ];
 
-  // Get current form instance to access form values
   const form = Form.useFormInstance();
 
   const inputNode =
@@ -398,57 +378,36 @@ const Articles: React.FC = () => {
   const [isStateOpen, setIsStateOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [group, setGroup] = useState<ManagerPaperGroup | '*'>('*');
-  const [posId, setPosId] = useState<number | '*'>('*');
-  const [paperTypeId, setPaperTypeId] = useState<number | '*'>('*');
-  const [userId, setUserId] = useState<number | '*'>('*');
-  const [startPeriod, setStartPeriod] = useState<Dayjs | undefined>(undefined);
-  const [endPeriod, setEndPeriod] = useState<Dayjs | undefined>(undefined);
-  const [isTableLoading, setIsTableLoading] = useState(false);
-  const { filterOn, setFilterOn } = useFilterOn();
-  const currentPage = useCurrentPage();
-  const pageSize = usePageNumber();
-  const location = useLocation();
-  const curr = useCurrentPage();
-  const setCurr = useSetCurrentPage();
-  const rowsPerPage = usePageNumber();
-  const totalCount = usePageSize();
+  const [searchText, setSearchText] = useState('');
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const paginationConfig: TablePaginationConfig = {
-    current: curr,
-    pageSize: rowsPerPage,
-    total: totalCount,
-    showSizeChanger: false,
-    showQuickJumper: false,
-    onChange: (page, pageSize) => {
-      setFilterOn(!filterOn);
-      setPageSize(pageSize);
-      setCurr(page);
-    },
-    onShowSizeChange: (_current, size) => {
-      setCurr(1); // Reset to first page when changing page size
-      setPageSize(size);
-      setFilterOn(!filterOn);
-    },
-    position: ['bottomLeft'],
-    size: 'default',
-  };
+  const groupParam = searchParams.get('group') as ManagerPaperGroup || '*';
+  const posIdParam = searchParams.get('posId') ? Number(searchParams.get('posId')) : '*';
+  const paperTypeIdParam = searchParams.get('paperTypeId') ? Number(searchParams.get('paperTypeId')) : '*';
+  const userIdParam = searchParams.get('userId') ? Number(searchParams.get('userId')) : '*';
+  const dateStartParam = searchParams.get('dateStart')
+    ? dayjs(searchParams.get('dateStart')).toDate()
+    : undefined;
+  const dateEndParam = searchParams.get('dateEnd')
+    ? dayjs(searchParams.get('dateEnd')).toDate()
+    : undefined;
+  const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
 
-  const setCurrentPage = useSetCurrentPage();
-  const setPageSize = useSetPageNumber();
-  const setTotalCount = useSetPageSize();
+  const placementId = searchParams.get('city');
+  const city = placementId ? Number(placementId) : undefined;
 
-  const initialFilter = {
-    group: group,
-    posId: posId,
-    paperTypeId: paperTypeId,
-    userId: userId,
-    dateStartEvent: startPeriod ? startPeriod.toDate() : undefined,
-    dateEndEvent: endPeriod ? endPeriod.toDate() : undefined,
+  const filterParams: ManagerParams = useMemo(() => ({
+    group: groupParam,
+    posId: posIdParam,
+    paperTypeId: paperTypeIdParam,
+    userId: userIdParam,
+    dateStartEvent: dateStartParam,
+    dateEndEvent: dateEndParam,
     page: currentPage,
     size: pageSize,
-  };
+  }), [groupParam, posIdParam, paperTypeIdParam, userIdParam, dateStartParam, dateEndParam, currentPage, pageSize]);
 
   const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -461,23 +420,14 @@ const Articles: React.FC = () => {
     setEditingKey('');
   };
 
+  const swrKeyManagerData = `get-manager-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}`;
+
   const {
     data: allManagersData,
     isLoading: loadingManagerData,
-    mutate: managerMutating,
   } = useSWR(
-    [`get-manager-data`],
-    () =>
-      getAllManagerPaper({
-        group: dataFilter.group,
-        posId: dataFilter.posId,
-        paperTypeId: dataFilter.paperTypeId,
-        userId: dataFilter.userId,
-        dateStartEvent: dataFilter.dateStartEvent,
-        dateEndEvent: dataFilter.dateEndEvent,
-        page: currentPage,
-        size: pageSize,
-      }),
+    swrKeyManagerData,
+    () => getAllManagerPaper(filterParams),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -485,21 +435,14 @@ const Articles: React.FC = () => {
     }
   );
 
+  const swrKeyManagerPaperGraph = `get-manager-graph-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}`;
+
   const {
     data: allManagersGraphData,
     isLoading: loadingGraphData,
-    mutate: managerGraphMutating,
   } = useSWR(
-    [`get-manager-graph-data`],
-    () =>
-      getAllManagerPaperGraph({
-        group: dataFilter.group,
-        posId: dataFilter.posId,
-        paperTypeId: dataFilter.paperTypeId,
-        userId: dataFilter.userId,
-        dateStartEvent: dataFilter.dateStartEvent,
-        dateEndEvent: dataFilter.dateEndEvent,
-      }),
+    swrKeyManagerPaperGraph,
+    () => getAllManagerPaperGraph(filterParams),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -515,7 +458,6 @@ const Articles: React.FC = () => {
       trend: 'up' as const,
       color: '#52c41a',
       backgroundColor: '#f6ffed',
-      loading: loadingGraphData || isTableLoading,
     },
     {
       title: 'Расходы',
@@ -524,7 +466,6 @@ const Articles: React.FC = () => {
       trend: 'down' as const,
       color: '#ff4d4f',
       backgroundColor: '#fff2f0',
-      loading: loadingGraphData || isTableLoading,
     },
     {
       title: 'Баланс',
@@ -533,13 +474,8 @@ const Articles: React.FC = () => {
       trend: 'neutral' as const,
       color: '#1890ff',
       backgroundColor: '#f0f5ff',
-      loading: loadingGraphData || isTableLoading,
     },
   ];
-
-  const [searchParams] = useSearchParams();
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -560,20 +496,6 @@ const Articles: React.FC = () => {
       keepPreviousData: true,
     }
   );
-
-  const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
-  const workers: { name: string; value: number | '*' }[] = [
-    { name: t('hr.all'), value: '*' },
-    ...(workersData?.map(work => ({
-      name: work.name,
-      value: work.id,
-    })) || []),
-  ];
 
   const poses: { name: string; value: number | undefined }[] = (
     posData?.map(item => ({ name: item.name, value: item.id })) || []
@@ -650,8 +572,8 @@ const Articles: React.FC = () => {
         const result = await updateManager(apiPayload);
 
         if (result) {
-          mutate([`get-manager-data`]);
-          mutate([`get-manager-graph-data`]);
+          mutate([`get-manager-data`, filterParams]);
+          mutate([`get-manager-graph-data`, filterParams]);
           newData.splice(index, 1, updatedItem);
           setData(newData);
           setEditingKey('');
@@ -674,17 +596,8 @@ const Articles: React.FC = () => {
   // Add new row function
   const handleAddRow = () => {
     setIsOpenModal(true);
-    // const newKey = Math.max(Math.max(...data.map(item => parseInt(item.key))) + 1, 0);
-    // const newRow: DataType = {
-    //     key: newKey.toString(),
-    //     name: `Edward ${newKey}`,
-    //     age: 25,
-    //     address: `London Park no. ${newKey}`,
-    // };
-    // setData([...data, newRow]);
   };
 
-  // Delete selected rows function
   const handleDeleteRow = async () => {
     try {
       const result = await mutate(
@@ -695,8 +608,8 @@ const Articles: React.FC = () => {
       );
 
       if (result) {
-        mutate([`get-manager-data`]);
-        mutate([`get-manager-graph-data`]);
+        mutate([`get-manager-data`, filterParams]);
+        mutate([`get-manager-graph-data`, filterParams]);
         setSelectedRowKeys([]);
         if (selectedRowKeys.includes(editingKey)) {
           setEditingKey('');
@@ -946,8 +859,8 @@ const Articles: React.FC = () => {
     try {
       const result = await createManager();
       if (result) {
-        mutate([`get-manager-data`]);
-        mutate([`get-manager-graph-data`]);
+        mutate([`get-manager-data`, filterParams]);
+        mutate([`get-manager-graph-data`, filterParams]);
         resetForm();
       } else {
         throw new Error('Invalid response from API');
@@ -957,17 +870,6 @@ const Articles: React.FC = () => {
       console.error('Error during form submission: ', error);
     }
   };
-
-  // const stateTypeOptions = useMemo(() => [
-  //     { label: "Active", value: "active", color: "#52c41a" },      // Green
-  //     { label: "Pending", value: "pending", color: "#faad14" },     // Orange
-  //     { label: "Completed", value: "completed", color: "#1890ff" }, // Blue
-  //     { label: "Cancelled", value: "cancelled", color: "#f5222d" }, // Red
-  //     { label: "Archived", value: "archived", color: "#8c8c8c" },   // Gray
-  //     { label: "In Progress", value: "in_progress", color: "#13c2c2" }, // Cyan
-  // ], []);
-
-  const [searchText, setSearchText] = useState('');
 
   const filteredOptions = useMemo(() => {
     return paperTypes.filter(opt =>
@@ -1041,79 +943,6 @@ const Articles: React.FC = () => {
     },
   ];
 
-  const [dataFilter, setDataFilter] = useState<ManagerParams>(initialFilter);
-
-  useEffect(() => {
-    setCurrentPage(1);
-    setDataFilter(prevFilter => ({
-      ...prevFilter,
-      page: 1,
-    }));
-  }, [location, setCurrentPage]);
-
-  const totalRecords = allManagersData?.totalCount || 0;
-  const maxPages = Math.ceil(totalRecords / pageSize);
-
-  useEffect(() => {
-    if (currentPage > maxPages) {
-      setCurrentPage(maxPages > 0 ? maxPages : 1);
-      setDataFilter(prevFilter => ({
-        ...prevFilter,
-        page: maxPages > 0 ? maxPages : 1,
-      }));
-    }
-  }, [maxPages, currentPage, setCurrentPage]);
-
-  const handleDataFilter = (newFilterData: Partial<ManagerParams>) => {
-    setDataFilter(prevFilter => ({ ...prevFilter, ...newFilterData }));
-    setIsTableLoading(true);
-    if (newFilterData.group) setGroup(newFilterData.group);
-    if (newFilterData.posId) setPosId(newFilterData.posId);
-    if (newFilterData.paperTypeId) setPaperTypeId(newFilterData.paperTypeId);
-    if (newFilterData.userId) setUserId(newFilterData.userId);
-    if (newFilterData.dateStartEvent)
-      setStartPeriod(dayjs(newFilterData.dateStartEvent));
-    if (newFilterData.dateEndEvent)
-      setEndPeriod(dayjs(newFilterData.dateEndEvent));
-    if (newFilterData.page) setCurrentPage(newFilterData.page);
-    if (newFilterData.size) setPageSize(newFilterData.size);
-  };
-
-  useEffect(() => {
-    handleDataFilter({
-      group: group,
-      posId: posId,
-      paperTypeId: paperTypeId,
-      userId: userId,
-      dateStartEvent: startPeriod ? startPeriod.toDate() : undefined,
-      dateEndEvent: endPeriod ? endPeriod.toDate() : undefined,
-    });
-  }, [filterOn]);
-
-  useEffect(() => {
-    managerMutating().then(() => setIsTableLoading(false));
-  }, [dataFilter, managerMutating]);
-
-  useEffect(() => {
-    managerGraphMutating().then(() => setIsTableLoading(false));
-  }, [dataFilter, managerGraphMutating]);
-
-  useEffect(() => {
-    if (!loadingManagerData && allManagersData?.totalCount)
-      setTotalCount(allManagersData?.totalCount);
-  }, [allManagersData, loadingManagerData, setTotalCount]);
-
-  const handleClear = () => {
-    setGroup('*');
-    setPosId('*');
-    setPaperTypeId('*');
-    setUserId('*');
-    setStartPeriod(undefined);
-    setEndPeriod(undefined);
-    setPageSize(15);
-    setCurrentPage(1);
-  };
-
   const userPermissions = usePermissions();
 
   return (
@@ -1126,54 +955,14 @@ const Articles: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-      
-      <Filter
-        count={data.length}
-        hideSearch={true}
-        hideDateTime={true}
-        handleClear={handleClear}
-      >
-        <SearchDropdownInput
-          title={t('analysis.posId')}
-          classname="w-80"
-          options={[...poses, { name: t('warehouse.all'), value: '*' }]}
-          value={posId}
-          onChange={value => setPosId(value)}
+
+      <div className="mt-5">
+        <GeneralFilters
+          count={data.length}
+          display={['dateTime', 'count']}
         />
-        <DropdownInput
-          title="Группа"
-          classname="w-80"
-          value={group}
-          options={[...groups, { name: t('warehouse.all'), value: '*' }]}
-          onChange={value => setGroup(value)}
-        />
-        <DropdownInput
-          title="Статья"
-          classname="w-80"
-          value={paperTypeId}
-          options={[...paperTypes, { name: t('warehouse.all'), value: '*' }]}
-          onChange={value => setPaperTypeId(value)}
-        />
-        <DropdownInput
-          title={t('equipment.user')}
-          classname="w-80"
-          value={userId}
-          options={workers}
-          onChange={value => setUserId(value)}
-        />
-        <DateTimeInput
-          title={t('hr.startPaymentDate')}
-          classname="w-64"
-          value={startPeriod}
-          changeValue={date => setStartPeriod(dayjs(date))}
-        />
-        <DateTimeInput
-          title={t('hr.endPaymentDate')}
-          classname="w-64"
-          value={endPeriod}
-          changeValue={date => setEndPeriod(dayjs(date))}
-        />
-      </Filter>
+      </div>
+
       <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -1483,7 +1272,7 @@ const Articles: React.FC = () => {
         </div>
 
         <Form form={form} component={false}>
-          {loadingManagerData || isTableLoading ? (
+          {loadingManagerData ? (
             <TableSkeleton columnCount={mergedColumns.length} />
           ) : (
             <div>
@@ -1491,7 +1280,7 @@ const Articles: React.FC = () => {
                 dataSource={data}
                 columns={mergedColumns}
                 rowClassName="editable-row"
-                pagination={paginationConfig}
+                loading={loadingGraphData}
                 rowSelection={rowSelection}
                 components={{
                   header: {
@@ -1517,6 +1306,20 @@ const Articles: React.FC = () => {
                   },
                   body: {
                     cell: EditableCell,
+                  },
+                }}
+                pagination={{
+                  current: currentPage,
+                  pageSize: pageSize,
+                  total: data.length,
+                  pageSizeOptions: ALL_PAGE_SIZES,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                  onChange: (page, size) => {
+                    updateSearchParams(searchParams, setSearchParams, {
+                      page: String(page),
+                      size: String(size),
+                    });
                   },
                 }}
                 scroll={{ x: 'max-content' }}

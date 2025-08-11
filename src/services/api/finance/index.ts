@@ -399,7 +399,7 @@ type UpdateManagerBody = {
   comment?: string;
 };
 
-type ManagerParams = {
+export type ManagerParams = {
   group: ManagerPaperGroup | '*';
   posId: number | '*';
   paperTypeId: number | '*';
