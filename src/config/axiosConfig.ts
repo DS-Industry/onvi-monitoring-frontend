@@ -70,9 +70,12 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const originalRequest = error.config;
-      
+
       // Prevent infinite refresh loops
-      if (originalRequest._retry || originalRequest.url?.includes('/auth/refresh')) {
+      if (
+        originalRequest._retry ||
+        originalRequest.url?.includes('/user/auth/refresh')
+      ) {
         const logout = useAuthStore.getState().logout;
         logout();
         window.location.href = '/login';
@@ -83,8 +86,8 @@ api.interceptors.response.use(
 
       try {
         // Attempt to refresh the token
-        await api.post('/auth/refresh');
-        
+        await api.post('/user/auth/refresh');
+
         // Retry the original request
         return api(originalRequest);
       } catch (refreshError) {
@@ -93,7 +96,7 @@ api.interceptors.response.use(
           error: refreshError,
           timestamp: new Date().toISOString(),
         });
-        
+
         const logout = useAuthStore.getState().logout;
         logout();
         window.location.href = '/login';

@@ -82,6 +82,7 @@ const useAuthStore = create<AuthState>()(
     persist(createAuthStore, {
       name: 'auth-storage',
       partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
         permissions: state.permissions,
         posType: state.posType,
         startDate: state.startDate,

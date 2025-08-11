@@ -15,10 +15,10 @@ export const useLogout = () => {
 
 export const useCheckAuth = () => {
   const setAuthenticated = useSetAuthenticated();
-  
+
   return async () => {
     try {
-      await api.get('/auth/validate');
+      await api.get('/user/auth/validate');
       setAuthenticated(true);
       return true;
     } catch (error) {
