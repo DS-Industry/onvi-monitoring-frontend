@@ -10,7 +10,7 @@ const FilterCount: React.FC<FilterCountProps> = ({ count }) => {
 
   return (
     <p className="font-semibold">
-      {t('filters.found')}: {count}
+      {t('analysis.found')}: {count}
     </p>
   );
 };

@@ -713,7 +713,8 @@
   },
   "success": {
     "recordUpdated": "Record updated successfully",
-    "recordDeleted": "Record deleted successfully"
+    "recordDeleted": "Record deleted successfully",
+    "recordCreated": "Record created successfully"
   },
   "info": {
     "deleteCancelled": "Delete cancelled"
