@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Button, Space, Tag } from 'antd';
+import { Table, Button, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { getPoses } from '@/services/api/equipment';
 import {
@@ -10,16 +10,16 @@ import {
   returnManagerPaperPeriod,
   sendManagerPaperPeriod,
 } from '@/services/api/finance';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useToast } from '@/components/context/useContext';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import {
   CheckOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
+import { ManagerReportPeriodStatus } from './MonthlyExpanse';
 
 enum ManagerPaperGroup {
   RENT = 'RENT',
@@ -67,7 +67,6 @@ type PeriodItem = {
 };
 
 const MonthlyExpanseEdit: React.FC = () => {
-  const location = useLocation();
   const { t } = useTranslation();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
@@ -76,6 +75,11 @@ const MonthlyExpanseEdit: React.FC = () => {
 
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
+
+  const ownerId = Number(searchParams.get('ownerId'));
+  const status = searchParams.get('status') as ManagerReportPeriodStatus;
+
+  const statusRender = getStatusTagRender(t);
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -100,50 +104,16 @@ const MonthlyExpanseEdit: React.FC = () => {
     isLoading: periodsLoading,
     isValidating: periodsValidating,
   } = useSWR(
-    location.state.ownerId
-      ? [`get-manager-period`, location.state.ownerId]
+    ownerId
+      ? [`get-manager-period`, ownerId]
       : null,
-    () => getManagerPeriodById(location.state.ownerId),
+    () => getManagerPeriodById(ownerId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
     }
   );
-
-  const getStatusTag = (statusKey: string) => {
-    console.log(statusKey);
-    
-    const statusText = t(`tables.${statusKey}`);
-
-    if (
-      statusKey === 'ACTIVE' ||
-      statusKey === 'SENT' ||
-      statusKey === 'In Progress' ||
-      statusKey === 'PROGRESS' ||
-      statusKey === 'RECEIPT'
-    ) {
-      return <Tag color="green">{statusText}</Tag>;
-    }
-    if (
-      statusKey === 'OVERDUE' ||
-      statusKey === 'Done' ||
-      statusKey === 'FINISHED' ||
-      statusKey === 'PAUSE' ||
-      statusKey === 'DONE' ||
-      statusKey === 'EXPENDITURE'
-    ) {
-      return <Tag color="red">{statusText}</Tag>;
-    }
-    if (
-      statusKey === 'SAVED' ||
-      statusKey === 'VERIFICATE' ||
-      statusKey === 'SAVE'
-    ) {
-      return <Tag color="orange">{statusText}</Tag>;
-    }
-    return <Tag color="default">{statusText}</Tag>;
-  };
 
   const groups = useMemo(
     () => [
@@ -237,7 +207,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       setIsLoading(true);
       await mutate(
         [`send-manager-period`],
-        () => sendManagerPaperPeriod(location.state.ownerId),
+        () => sendManagerPaperPeriod(ownerId),
         false
       );
       navigate(-1);
@@ -253,7 +223,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       setIsReturning(true);
       await mutate(
         [`return-manager-period`],
-        () => returnManagerPaperPeriod(location.state.ownerId),
+        () => returnManagerPaperPeriod(ownerId),
         false
       );
       navigate(-1);
@@ -273,7 +243,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       title: t('Статус'),
       dataIndex: 'status',
       key: 'status',
-      render: (statusKey: string) => getStatusTag(statusKey)
+      render: statusRender
     }, {
       title: t('Начало периода'),
       dataIndex: 'startPeriod',
@@ -353,83 +323,80 @@ const MonthlyExpanseEdit: React.FC = () => {
       </div>
 
       <div className="mt-8">
-        {periodsLoading || periodsValidating ? (
-          <TableSkeleton columnCount={periodColumns.length} />
-        ) : (
-          <div className="space-y-4">
-            <Space>
-              <Can
-                requiredPermissions={[
-                  { action: 'manage', subject: 'ManagerPaper' },
-                  { action: 'create', subject: 'ManagerPaper' },
-                ]}
-                userPermissions={userPermissions}
-              >
-                {allowed =>
-                  allowed &&
-                  location.state.status === 'SAVE' && (
-                    <Button
-                      type="primary"
-                      icon={<CheckOutlined />}
-                      onClick={handleSendPeriod}
-                      loading={isLoading}
-                    >
-                      {t('finance.send')}
-                    </Button>
-                  )
-                }
-              </Can>
-              <Can
-                requiredPermissions={[
-                  { action: 'manage', subject: 'ManagerPaper' },
-                ]}
-                userPermissions={userPermissions}
-              >
-                {allowed =>
-                  allowed &&
-                  location.state.status === 'SENT' && (
-                    <Button
-                      type="primary"
-                      icon={<UndoOutlined />}
-                      onClick={handleReturnPeriod}
-                      loading={isReturning}
-                    >
-                      {t('finance.returns')}
-                    </Button>
-                  )
-                }
-              </Can>
-            </Space>
+        <div className="space-y-4">
+          <Space>
+            <Can
+              requiredPermissions={[
+                { action: 'manage', subject: 'ManagerPaper' },
+                { action: 'create', subject: 'ManagerPaper' },
+              ]}
+              userPermissions={userPermissions}
+            >
+              {allowed =>
+                allowed &&
+                status === 'SAVE' && (
+                  <Button
+                    type="primary"
+                    icon={<CheckOutlined />}
+                    onClick={handleSendPeriod}
+                    loading={isLoading}
+                  >
+                    {t('finance.send')}
+                  </Button>
+                )
+              }
+            </Can>
+            <Can
+              requiredPermissions={[
+                { action: 'manage', subject: 'ManagerPaper' },
+              ]}
+              userPermissions={userPermissions}
+            >
+              {allowed =>
+                allowed &&
+                status === 'SENT' && (
+                  <Button
+                    type="primary"
+                    icon={<UndoOutlined />}
+                    onClick={handleReturnPeriod}
+                    loading={isReturning}
+                  >
+                    {t('finance.returns')}
+                  </Button>
+                )
+              }
+            </Can>
+          </Space>
 
-            <Table
-              rowKey="id"
-              dataSource={periodData}
-              columns={periodColumns}
-              expandable={{
-                expandedRowRender: record => {
-                  const expensesForRecord = expenseData.filter(
-                    item => item.deviceId === record.id
-                  );
-                  return (
-                    <Table
-                      rowKey="id"
-                      dataSource={expensesForRecord}
-                      columns={expenseColumns}
-                      pagination={false}
-                    />
-                  );
-                },
-                rowExpandable: record => {
-                  const hasExpenses = expenseData.some(
-                    item => item.deviceId === record.id
-                  );
-                  return hasExpenses;
-                }
-              }}
-              pagination={false}
-            />
-          </div>
-        )}
+          <Table
+            rowKey="id"
+            dataSource={periodData}
+            columns={periodColumns}
+            loading={periodsLoading || periodsValidating}
+            expandable={{
+              expandedRowRender: record => {
+                const expensesForRecord = expenseData.filter(
+                  item => item.deviceId === record.id
+                );
+                return (
+                  <Table
+                    rowKey="id"
+                    dataSource={expensesForRecord}
+                    columns={expenseColumns}
+                    pagination={false}
+                  />
+                );
+              },
+              rowExpandable: record => {
+                const hasExpenses = expenseData.some(
+                  item => item.deviceId === record.id
+                );
+                return hasExpenses;
+              }
+            }}
+            pagination={false}
+          />
+        </div>
       </div>
     </div>
   );
