@@ -17,6 +17,8 @@ import EmployeeFilter from './EmployeeFilter';
 import PhoneFilter from './PhoneFilter';
 import UserTypeFilter from './UserTypeFilter';
 import TagsFilter from './TagsFilter';
+import PaperTypeFilter from './PaperTypeFilter';
+import GroupFilter from './GroupFilter';
 
 type FilterType =
   | 'search'
@@ -31,7 +33,9 @@ type FilterType =
   | 'employee'
   | 'phone'
   | 'userType'
-  | 'tagIds';
+  | 'tagIds'
+  | 'paper'
+  | 'group';
 
 type GeneralFiltersProps = {
   count: number;
@@ -56,6 +60,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     'phone',
     'userType',
     'tagIds',
+    'paper',
+    'group',
   ],
   children,
   onReset,
@@ -121,6 +127,8 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 {shouldShow('phone') && <PhoneFilter />}
                 {shouldShow('userType') && <UserTypeFilter />}
                 {shouldShow('tagIds') && <TagsFilter />}
+                {shouldShow('paper') && <PaperTypeFilter />}
+                {shouldShow('group') && <GroupFilter />}
                 {children}
               </div>
 
