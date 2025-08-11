@@ -713,7 +713,8 @@
   },
   "success": {
     "recordUpdated": "Запись успешно обновлена",
-    "recordDeleted": "Запись успешно удалена"
+    "recordDeleted": "Запись успешно удалена",
+    "recordCreated": "Запись успешно создана"
   },
   "info": {
     "deleteCancelled": "Удаление отменено"
