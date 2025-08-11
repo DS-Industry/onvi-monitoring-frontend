@@ -14,6 +14,9 @@ import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import EmployeeFilter from './EmployeeFilter';
+import PhoneFilter from './PhoneFilter';
+import UserTypeFilter from './UserTypeFilter';
+import TagsFilter from './TagsFilter';
 
 type FilterType =
   | 'search'
@@ -25,7 +28,10 @@ type FilterType =
   | 'dateTime'
   | 'reset'
   | 'count'
-  | 'employee';
+  | 'employee'
+  | 'phone'
+  | 'userType'
+  | 'tagIds';
 
 type GeneralFiltersProps = {
   count: number;
@@ -47,6 +53,9 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     'reset',
     'count',
     'employee',
+    'phone',
+    'userType',
+    'tagIds',
   ],
   children,
   onReset,
@@ -109,6 +118,9 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 {shouldShow('device') && <DeviceFilter />}
                 {shouldShow('warehouse') && <WarehouseFilter />}
                 {shouldShow('employee') && <EmployeeFilter />}
+                {shouldShow('phone') && <PhoneFilter />}
+                {shouldShow('userType') && <UserTypeFilter />}
+                {shouldShow('tagIds') && <TagsFilter />}
                 {children}
               </div>
 
