@@ -11,7 +11,7 @@ enum StatusReportTemplate {
   ERROR = 'ERROR',
 }
 
-enum CategoryReportTemplate {
+export enum CategoryReportTemplate {
   POS = 'POS',
 }
 
@@ -41,6 +41,8 @@ type AllReportsResponse = {
   }[];
   count: number;
 };
+
+export type AllReportsParams = AllReportsResponse["reports"][0]
 
 type ReportParam = {
   name: string;
