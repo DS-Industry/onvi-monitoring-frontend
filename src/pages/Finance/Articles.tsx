@@ -59,7 +59,7 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES, ManagerPaperGroup, groups } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Title, Text } = Typography;
@@ -83,26 +83,6 @@ interface DataType {
   eventDate: Dayjs;
   sum: number;
   comment: string;
-}
-
-enum ManagerPaperGroup {
-  RENT = 'RENT',
-  REVENUE = 'REVENUE',
-  WAGES = 'WAGES',
-  INVESTMENT_DEVIDENTS = 'INVESTMENT_DEVIDENTS',
-  UTILITY_BILLS = 'UTILITY_BILLS',
-  TAXES = 'TAXES',
-  ACCOUNTABLE_FUNDS = 'ACCOUNTABLE_FUNDS',
-  REPRESENTATIVE_EXPENSES = 'REPRESENTATIVE_EXPENSES',
-  SALE_EQUIPMENT = 'SALE_EQUIPMENT',
-  MANUFACTURE = 'MANUFACTURE',
-  OTHER = 'OTHER',
-  SUPPLIES = 'SUPPLIES',
-  P_C = 'P_C',
-  WAREHOUSE = 'WAREHOUSE',
-  CONSTRUCTION = 'CONSTRUCTION',
-  MAINTENANCE_REPAIR = 'MAINTENANCE_REPAIR',
-  TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
 type ManagerPaperBody = {
@@ -658,10 +638,10 @@ const Articles: React.FC = () => {
           <Tag
             color={
               paperTypes.find(pap => pap.value === value)?.type ===
-              'EXPENDITURE'
+                'EXPENDITURE'
                 ? 'red'
                 : paperTypes.find(pap => pap.value === value)?.type ===
-                    'RECEIPT'
+                  'RECEIPT'
                   ? 'green'
                   : ''
             }
@@ -902,47 +882,6 @@ const Articles: React.FC = () => {
     }
   };
 
-  const groups: { name: string; value: string }[] = [
-    { value: ManagerPaperGroup.RENT, name: t('finance.RENT') },
-    { value: ManagerPaperGroup.REVENUE, name: t('finance.REVENUE') },
-    { value: ManagerPaperGroup.WAGES, name: t('finance.WAGES') },
-    {
-      value: ManagerPaperGroup.INVESTMENT_DEVIDENTS,
-      name: t('finance.INVESTMENT_DEVIDENTS'),
-    },
-    {
-      value: ManagerPaperGroup.UTILITY_BILLS,
-      name: t('finance.UTILITY_BILLS'),
-    },
-    { value: ManagerPaperGroup.TAXES, name: t('finance.TAXES') },
-    {
-      value: ManagerPaperGroup.ACCOUNTABLE_FUNDS,
-      name: t('finance.ACCOUNTABLE_FUNDS'),
-    },
-    {
-      value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES,
-      name: t('finance.REPRESENTATIVE_EXPENSES'),
-    },
-    {
-      value: ManagerPaperGroup.SALE_EQUIPMENT,
-      name: t('finance.SALE_EQUIPMENT'),
-    },
-    { value: ManagerPaperGroup.MANUFACTURE, name: t('finance.MANUFACTURE') },
-    { value: ManagerPaperGroup.OTHER, name: t('finance.OTHER') },
-    { value: ManagerPaperGroup.SUPPLIES, name: t('finance.SUPPLIES') },
-    { value: ManagerPaperGroup.P_C, name: t('finance.P_C') },
-    { value: ManagerPaperGroup.WAREHOUSE, name: t('finance.WAREHOUSE') },
-    { value: ManagerPaperGroup.CONSTRUCTION, name: t('finance.CONSTRUCTION') },
-    {
-      value: ManagerPaperGroup.MAINTENANCE_REPAIR,
-      name: t('finance.MAINTENANCE_REPAIR'),
-    },
-    {
-      value: ManagerPaperGroup.TRANSPORTATION_COSTS,
-      name: t('finance.TRANSPORTATION_COSTS'),
-    },
-  ];
-
   const userPermissions = usePermissions();
 
   return (
@@ -959,7 +898,7 @@ const Articles: React.FC = () => {
       <div className="mt-5">
         <GeneralFilters
           count={data.length}
-          display={['dateTime', 'count']}
+          display={['dateTime', 'count', 'employee', 'paper', 'group', 'city', 'pos']}
         />
       </div>
 
@@ -989,9 +928,8 @@ const Articles: React.FC = () => {
               <div
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                  formData.paperTypeId === opt.value ? 'text-primary02' : ''
-                }`}
+                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.paperTypeId === opt.value ? 'text-primary02' : ''
+                  }`}
               >
                 {opt.name}
               </div>
@@ -1081,8 +1019,8 @@ const Articles: React.FC = () => {
                       ?.type === 'EXPENDITURE'
                       ? 'green'
                       : paperTypes.find(
-                            pap => pap.value === formData.paperTypeId
-                          )?.type === 'RECEIPT'
+                        pap => pap.value === formData.paperTypeId
+                      )?.type === 'RECEIPT'
                         ? 'red'
                         : ''
                   }
@@ -1091,8 +1029,8 @@ const Articles: React.FC = () => {
                   {paperTypes.find(pap => pap.value === formData.paperTypeId)
                     ?.type
                     ? t(
-                        `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
-                      )
+                      `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
+                    )
                     : ''}
                 </Tag>
               </div>

@@ -3,17 +3,17 @@ import { useSearchParams } from 'react-router-dom';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getWorkers } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import { getAllManagerPaperTypes } from '@/services/api/finance';
 
-const EmployeeFilter: React.FC = () => {
+const PaperTypeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data: workerData, isLoading } = useSWR(
-    [`get-worker`],
-    () => getWorkers(),
+  const { data: paperTypeData, isLoading } = useSWR(
+    'get-paper-type',
+    () => getAllManagerPaperTypes(),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -21,36 +21,41 @@ const EmployeeFilter: React.FC = () => {
     }
   );
 
+  const paperTypes = (paperTypeData?.map(item => ({
+    id: item.props.id,
+    name: item.props.name,
+    type: item.props.type,
+  })) || []).sort((a, b) => a.name.localeCompare(b.name));
+
   const handleChange = (val: string) => {
-      updateSearchParams(searchParams, setSearchParams, {
-        userId: val === '*' ? undefined : val, 
-        page: DEFAULT_PAGE,
-      });
-    };
+    updateSearchParams(searchParams, setSearchParams, {
+      paperTypeId: val === '*' ? undefined : val, 
+      page: DEFAULT_PAGE,
+    });
+  };
 
-  if (!workerData?.length && !isLoading) return null;
-
-  const workers = [
-    { label: t("warehouse.all"), value: "*" },
-    ...(workerData ?? []).map(item => ({
-      label: `${item.name} ${item.surname}`,
-      value: String(item.id)
-    }))];
+  const papers = [
+    { label: t('warehouse.all'), value: '*' },
+    ...paperTypes.map(item => ({
+      label: item.name,
+      value: String(item.id),
+    })),
+  ];
 
   return (
     <div className="w-full sm:w-80">
       <label className="block mb-1 text-sm font-medium text-gray-700">
-        {t('equipment.user')}
+        {t('finance.article')}
       </label>
       <Select
         showSearch
         allowClear={false}
-        placeholder={t('filters.employee.placeholder')}
-        value={getParam(searchParams, "userId", "*")}
+        placeholder={t('finance.article')}
+        value={getParam(searchParams, "paperTypeId", "*")} 
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
-        options={workers}
+        options={papers}
         optionFilterProp="label"
         filterOption={(input, option) =>
           (option?.label ?? '')
@@ -63,4 +68,4 @@ const EmployeeFilter: React.FC = () => {
   );
 };
 
-export default EmployeeFilter;
+export default PaperTypeFilter;
