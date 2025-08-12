@@ -4,15 +4,11 @@ import ProfitIcon from '@icons/profit.svg?react';
 import TotalDownTimeIcon from '@icons/total-downtime.svg?react';
 import Notification from '@ui/Notification';
 import LineChart from '@ui/LineChart';
-import { columnsMonitoringPos } from '@/utils/OverFlowTableData';
 import useSWR from 'swr';
 import { getStatistic, getStatisticsGraph } from '@/services/api/organization';
 import { getDepositPos } from '@/services/api/pos';
-import TableSkeleton from '@ui/Table/TableSkeleton';
 import { useTranslation } from 'react-i18next';
 import { getPoses } from '@/services/api/equipment';
-import { useEndDate, useStartDate } from '@/hooks/useAuthStore';
-import DynamicTable from '@ui/Table/DynamicTable';
 import {
   Card,
   Row,
@@ -24,12 +20,15 @@ import {
   DatePicker,
   Grid,
   Skeleton,
+  Table,
 } from 'antd';
 import { BarChartOutlined } from '@ant-design/icons';
 const { Text, Title } = Typography;
 import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
+import { getParam } from '@/utils/searchParamsUtils';
 
 interface PosMonitoring {
   id: number;
@@ -59,8 +58,9 @@ const Indicators: React.FC = () => {
 
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState();
-  const startDate = useStartDate();
-  const endDate = useEndDate();
+  const [searchParams] = useSearchParams();
+  const startDate = dayjs(getParam(searchParams, 'dateStart') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();
+  const endDate = dayjs(getParam(searchParams, 'dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();
   const [dateRange, setDateRange] = useState({
     dateStart: startDate,
     dateEnd: endDate,
@@ -71,7 +71,6 @@ const Indicators: React.FC = () => {
   });
   const { t } = useTranslation();
   const allCategoriesText = t('warehouse.all');
-  const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
   const [activeDuration, setActiveDuration] = useState<
@@ -247,6 +246,81 @@ const Indicators: React.FC = () => {
       setActiveDurationRev(null);
     }
   };
+
+  const currencyRender = getCurrencyRender();
+  const dateRender = getDateRender();
+
+  const columnsMonitoringPos = [
+    {
+      title: 'id',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: 'Наименование',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string) => {
+        return (
+          <Link
+            to={{
+              pathname: '/station/enrollments/devices',
+            }}
+            className="text-blue-500 hover:text-blue-700 font-semibold"
+          >
+            {text}
+          </Link>
+        );
+      },
+    },
+    {
+      title: 'Город',
+      dataIndex: 'city',
+      key: 'city',
+    },
+    {
+      title: 'Последняя операция',
+      dataIndex: 'lastOper',
+      key: 'lastOper',
+      render: dateRender,
+    },
+    {
+      title: 'Наличные',
+      dataIndex: 'currency',
+      key: 'cashSum',
+      render: currencyRender,
+    },
+    {
+      title: 'Безналичные',
+      dataIndex: 'virtualSum',
+      key: 'virtualSum',
+      render: currencyRender,
+    },
+    {
+      title: 'Сashback по картам',
+      dataIndex: 'cashbackSumCard',
+      key: 'cashbackSumCard',
+      render: currencyRender,
+    },
+    {
+      title: 'Сумма скидки',
+      dataIndex: 'discountSum',
+      key: 'discountSum',
+      render: currencyRender,
+    },
+    {
+      title: 'Кол-во опреаций',
+      dataIndex: 'counter',
+      key: 'counter',
+      render: currencyRender,
+    },
+    {
+      title: 'Яндекс Сумма',
+      dataIndex: 'yandexSum',
+      key: 'yandexSum',
+      render: currencyRender,
+    },
+  ];
 
   return (
     <>
@@ -506,21 +580,12 @@ const Indicators: React.FC = () => {
             </Col>
           </Row>
           <div className="overflow-x-auto px-5">
-            {filterLoading || filterValidating ? (
-              <TableSkeleton columnCount={columnsMonitoringPos.length} />
-            ) : (
-              <DynamicTable
-                data={posMonitoring}
+              <Table
+                dataSource={posMonitoring}
                 columns={columnsMonitoringPos}
-                isDisplayEdit={true}
-                navigableFields={[
-                  {
-                    key: 'name',
-                    getPath: () => '/station/enrollments/devices',
-                  },
-                ]}
+                loading={filterLoading || filterValidating}
+                scroll={{ x: 'max-content' }}
               />
-            )}
           </div>
         </div>
       </div>

@@ -11,7 +11,6 @@ import TwoArrow from '@/assets/TwoArrow.png';
 import { Select, Skeleton } from 'antd';
 import useSWR, { mutate } from 'swr';
 import { getPlacement } from '@/services/api/device';
-import { useCity, useSetCity } from '@/hooks/useAuthStore';
 import { getOrganization } from '@/services/api/organization';
 import useFormHook from '@/hooks/useFormHook';
 import Button from '@/components/ui/Button/Button';
@@ -21,8 +20,9 @@ import {
   getLoyaltyProgramById,
   updateLoyaltyProgram,
 } from '@/services/api/marketing';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/context/useContext';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Option } = Select;
 
@@ -46,10 +46,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const { t } = useTranslation();
   const [isEditMode, setIsEditMode] = useState(false);
   const { showToast } = useToast();
-  // const [isToggled, setIsToggled] = useState(false);
-  // const [isToggledTwo, setIsToggledTwo] = useState(false);
-  // const [isToggledThree, setIsToggledThree] = useState(false);
-  // const [isToggledFour, setIsToggledFour] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState<string>('never');
 
@@ -66,7 +62,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({ placementId: undefined }),
+    () => getOrganization({ }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -76,9 +72,9 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const organizations: { label: string; value: number | string }[] =
     organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const placementId = useCity();
-  const setPlacementId = useSetCity();
+  const placementId = searchParams.get('city');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
@@ -97,23 +93,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   );
 
   const loyaltyById = loyaltyData;
-
-  // const handleToggle = () => {
-  //     setIsToggled(!isToggled);
-  // };
-
-  // const handleToggleTwo = () => {
-  //     setIsToggledTwo(!isToggledTwo);
-  // };
-
-  // const handleToggleThree = () => {
-  //     setIsToggledThree(!isToggledThree);
-  // };
-
-  // const handleToggleFour = () => {
-  //     setIsToggledFour(!isToggledFour);
-  // };
-
   const defaultValues: LoyaltyPrograms = {
     name: '',
     organizationIds: [],
@@ -163,7 +142,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   };
 
   const handleChangeTags = (values: number[]) => {
-    // setSelectedTags(values);
     setFormData(prev => ({ ...prev, ['organizationIds']: values }));
     setValue('organizationIds', values);
   };
@@ -235,7 +213,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
             </div>
           ) : (
             <div>
-              {/* Expanded content goes here */}
               <div className="text-2xl font-semibold text-text01">
                 {t('marketing.branch')}
               </div>
@@ -262,14 +239,10 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   options={cities}
                   classname="w-64"
                   inputType="secondary"
-                  onChange={value => setPlacementId(value)}
+                  onChange={value => updateSearchParams(searchParams, setSearchParams, {
+                    city: value
+                  })}
                 />
-                {/* <DropdownInput
-                            title={t("marketing.carWash")}
-                            value={undefined}
-                            options={[]}
-                            classname="w-64"
-                        /> */}
                 <div>
                   <div className="text-sm text-text02">
                     {t('warehouse.organization')}
@@ -302,39 +275,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                     </div>
                   )}
                 </div>
-                {/* <DropdownInput
-                            title={t("routes.segments")}
-                            value={undefined}
-                            options={[]}
-                            classname="w-64"
-                        /> */}
               </div>
-
-              {/* <div className="mt-8">
-                        <div className="text-2xl font-semibold text-text01">{t("marketing.price")}</div>
-                        <div className="text-text02">
-                            <div>{t("marketing.amount")}</div>
-                            <div>{t("marketing.based")}</div>
-                        </div>
-                        <label className="flex space-x-2 mt-5">
-                            <div>
-                                <div
-                                    onClick={handleToggle}
-                                    className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggled ? 'bg-primary02' : 'bg-opacity01'
-                                        }`}
-                                >
-                                    <div
-                                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggled ? 'translate-x-6' : 'translate-x-0'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-lg font-semibold text-text01">{t("marketing.take")}</div>
-                                <div className="text-text02">{t("marketing.addCost")}</div>
-                            </div>
-                        </label>
-                    </div> */}
             </div>
           )}
         </div>
@@ -345,54 +286,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         Component={DiamondImage}
       >
         <div className="px-4 sm:px-8 lg:pl-14 space-y-6">
-          {/* <div className="w-full bg-disabledFill rounded-lg p-5">
-                        <div className="text-lg font-semibold text-primary02">{t("marketing.work")}</div>
-                        <div className="text-text02 max-w-full lg:max-w-[515px]">
-                            <ul className="list-disc list-inside space-y-1">
-                                <li>{t("marketing.when")}</li>
-                                <li>{t("marketing.bonuses")}</li>
-                                <li>{t("marketing.minus")}</li>
-                                <li>{t("marketing.whenRet")}</li>
-                                <li>
-                                    <span>{t("marketing.config")} </span>
-                                    <span className="text-primary02">«{t("marketing.levels")}»</span>
-                                </li>
-                                <li>{t("marketing.to")}</li>
-                            </ul>
-                        </div>
-                    </div> */}
-          {/* <div className="text-2xl text-text01 font-semibold">{t("marketing.accBonus")}</div>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div>
-                            <div
-                                onClick={handleToggleTwo}
-                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggledTwo ? 'bg-primary02' : 'bg-opacity01'}`}
-                            >
-                                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggledTwo ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-lg font-semibold text-text01">{t("marketing.delay")}</div>
-                            <div className="text-text02">{t("marketing.cal")}</div>
-                            <DropdownInput value={undefined} options={[]} classname="w-full sm:w-40 mt-2" />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div>
-                            <div
-                                onClick={handleToggle}
-                                className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${isToggled ? 'bg-primary02' : 'bg-opacity01'}`}
-                            >
-                                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isToggled ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-lg font-semibold text-text01">{t("marketing.round")}</div>
-                            <div className="text-text02">{t("marketing.whenCal")}</div>
-                            <div className="text-text02">{t("marketing.whenWrit")}</div>
-                        </div>
-                    </div> */}
 
           <div className="text-2xl text-text01 font-semibold mb-4">
             {t('marketing.write')}
@@ -423,37 +316,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
               />
             </div>
           </div>
-
-          {/* <div>
-                        <div className="text-lg font-semibold text-text01">{t("marketing.max")}</div>
-                        <div className="text-text02">{t("marketing.no")}</div>
-                    </div>
-                    <div>
-                        <div className="text-sm text-text02">{t("marketing.maxi")}</div>
-                        <Input type="number" value={50} disabled={true} classname="w-20" />
-                    </div>
-
-                    {[{ toggle: isToggledThree, handler: handleToggleThree, title: t("marketing.use"), desc: t("marketing.allow") },
-                    { toggle: isToggledFour, handler: handleToggleFour, title: t("marketing.min"), desc: t("marketing.set"), input: true }].map((item, i) => (
-                        <div key={i} className="flex flex-col sm:flex-row gap-4">
-                            <div>
-                                <div
-                                    onClick={item.handler}
-                                    className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${item.toggle ? 'bg-primary02' : 'bg-opacity01'}`}
-                                >
-                                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${item.toggle ? 'translate-x-6' : 'translate-x-0'}`} />
-                                </div>
-                            </div>
-                            <div className="max-w-full sm:max-w-[480px]">
-                                <div className="text-lg font-semibold text-text01">{item.title}</div>
-                                <div className="text-text02">{item.desc}</div>
-                                {item.input && (
-                                    <Input type="number" value={1} disabled={true} classname="w-20" />
-                                )}
-                            </div>
-                        </div>
-                    ))} */}
-
           <div className="max-w-full lg:max-w-[560px]">
             <div className="text-2xl text-text01 font-semibold">
               {t('marketing.burni')}
@@ -508,11 +370,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
           )}
         </div>
       </ExpandedCard>
-      {/* <ExpandedCard firstText={t("marketing.present")} secondText={t("marketing.rules")} Component={GiftImage}>
-                <div>
-
-                </div>
-            </ExpandedCard> */}
       {location.state.ownerId === 0 && (
         <div className="flex space-x-4">
           <Button
