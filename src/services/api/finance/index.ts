@@ -62,7 +62,7 @@ enum ManagerPaperGroup {
   TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
-enum ManagerPaperTypeClass {
+export enum ManagerPaperTypeClass {
   RECEIPT = 'RECEIPT',
   EXPENDITURE = 'EXPENDITURE',
 }
@@ -431,7 +431,7 @@ type ManagersResponse = {
   totalCount: number;
 };
 
-type ManagerPaperTypeResponse = {
+export type ManagerPaperTypeResponse = {
   props: {
     id: number;
     name: string;
@@ -908,7 +908,7 @@ export async function returnManagerPaperPeriod(
 
 export async function getAllManagerPeriods(
   params: ManagerPeriodParams
-): Promise<ManagersPeriodResponse> {  
+): Promise<ManagersPeriodResponse> {
   const response: AxiosResponse<ManagersPeriodResponse> = await api.get(
     FINANCE.MANAGER_PAPER + `/period`,
     { params }

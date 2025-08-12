@@ -1,45 +1,43 @@
-import Button from '@/components/ui/Button/Button';
-import Input from '@/components/ui/Input/Input';
-import useFormHook from '@/hooks/useFormHook';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getOrganization } from '@/services/api/organization';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/context/useContext';
+import useSWRMutation from 'swr/mutation';
+import useFormHook from '@/hooks/useFormHook';
 import {
   addWorkerPayment,
+  addWorkerRequest,
   calculatePayment,
   createPayment,
   getPositions,
   getWorkers,
+  PaymentCreateRequest,
+  PrepaymentCalculateBody,
 } from '@/services/api/hr';
-import useSWRMutation from 'swr/mutation';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
-import { useNavigate } from 'react-router-dom';
 import {
-  Button as AntDButton,
+  Button,
+  Table,
   DatePicker,
-  message,
   Select,
   Transfer,
+  Modal,
+  InputNumber
 } from 'antd';
-import ArrowUp from '@icons/ArrowUp.png';
-import ArrowDown from '@icons/ArrowDown.png';
+import {
+  PlusOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined
+} from '@ant-design/icons';
+import dayjs from 'dayjs';
+import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
-import dayjs from 'dayjs';
-import { useToast } from '@/components/context/useContext';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { getOrganization } from '@/services/api/organization';
+import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
 
-type PaymentCalculateBody = {
-  organizationId: number;
-  billingMonth: string;
-  hrPositionId: number | '*';
-};
-
-type PaymentsCreation = {
+interface PaymentRecord {
   check: boolean;
   id: number;
   hrWorkerId: number;
@@ -56,18 +54,15 @@ type PaymentsCreation = {
   sum: number;
   prize: number;
   fine: number;
-};
-
-type AddWorker = {
-  organizationId: number;
-  billingMonth: string;
-  workerIds: number[];
-};
+  hrPosition?: string;
+  totalCountShifts?: number;
+  totalPayment?: number;
+}
 
 const SalaryCalculationCreation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [paymentsData, setPaymentsData] = useState<PaymentsCreation[]>([]);
+  const [paymentsData, setPaymentsData] = useState<PaymentRecord[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
@@ -107,13 +102,12 @@ const SalaryCalculationCreation: React.FC = () => {
     }
   );
 
-  const organizations: { name: string; value: number }[] = [
+  const organizations = [
     { name: t('chemical.select'), value: 0 },
-    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) ||
-      []),
+    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) || []),
   ];
 
-  const workers: { key: string; title: string; value: number | '*' }[] = [
+  const workers = [
     ...(workersData?.map(work => ({
       key: String(work.props.id),
       title: work.props.name,
@@ -121,7 +115,7 @@ const SalaryCalculationCreation: React.FC = () => {
     })) || []),
   ];
 
-  const positions: { label: string; value: number | '*'; name: string }[] = [
+  const positions = [
     { label: t('analysis.all'), value: '*', name: t('analysis.all') },
     ...(positionData?.map(pos => ({
       label: pos.props.name,
@@ -130,7 +124,7 @@ const SalaryCalculationCreation: React.FC = () => {
     })) || []),
   ];
 
-  const defaultValues: PaymentCalculateBody = {
+  const defaultValues: PrepaymentCalculateBody = {
     organizationId: 0,
     billingMonth: '',
     hrPositionId: '*',
@@ -149,7 +143,6 @@ const SalaryCalculationCreation: React.FC = () => {
         hrPositionId: formData.hrPositionId,
       });
 
-      // On successful API call
       setShowAddButton(true);
       return result;
     }
@@ -157,26 +150,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
   const { trigger: createSal, isMutating: creatingSal } = useSWRMutation(
     ['create-salary'],
-    async (
-      _,
-      {
-        arg,
-      }: {
-        arg: {
-          payments: {
-            hrWorkerId: number;
-            paymentDate: Date;
-            billingMonth: Date;
-            countShifts: number;
-            sum: number;
-            prize: number;
-            fine: number;
-          }[];
-        };
-      }
-    ) => {
-      return createPayment(arg);
-    }
+    (_key, { arg }: { arg: PaymentCreateRequest }) => createPayment(arg)
   );
 
   type FieldType = 'organizationId' | 'billingMonth' | 'hrPositionId';
@@ -193,11 +167,13 @@ const SalaryCalculationCreation: React.FC = () => {
 
   const handleTableChange = (
     id: number,
-    key: string,
-    value: string | number
+    key: keyof PaymentRecord,
+    value: any
   ) => {
     setPaymentsData(prevData =>
-      prevData?.map(item => (item.id === id ? { ...item, [key]: value } : item))
+      prevData?.map(item =>
+        item.id === id ? { ...item, [key]: value } : item
+      )
     );
   };
 
@@ -238,180 +214,42 @@ const SalaryCalculationCreation: React.FC = () => {
       if (item.fine == null || item.fine <= 0) errors.push('Штраф');
 
       if (errors.length > 0) {
-        message.error(
-          `Строка ${i + 1}: Заполните корректно поля: ${errors.join(', ')}`
+        showToast(
+          `Строка ${i + 1}: Заполните корректно поля: ${errors.join(', ')}`,
+          'error'
         );
         return;
       }
     }
 
-    const paymentCreate: {
-      hrWorkerId: number;
-      paymentDate: Date;
-      billingMonth: Date;
-      countShifts: number;
-      sum: number;
-      prize: number;
-      fine: number;
-    }[] =
-      paymentsData?.map(data => ({
+    const paymentCreate: PaymentCreateRequest = {
+      payments: paymentsData?.map(data => ({
         hrWorkerId: data.hrWorkerId,
         paymentDate: data.paymentDate,
         billingMonth: data.billingMonth,
         countShifts: Number(data.countShifts),
-        sum:
-          data.monthlySalary +
-          data.dailySalary * data.countShifts -
-          data.prepaymentSum,
+        sum: data.monthlySalary + data.dailySalary * data.countShifts - data.prepaymentSum,
         prize: Number(data.prize),
         fine: Number(data.fine),
-      })) || [];
+      })) || [],
+    };
 
-    const result = await createSal({
-      payments: paymentCreate,
-    });
-
-    if (result) {
-      navigate(-1);
+    try {
+      const result = await createSal(paymentCreate);
+      if (result) {
+        navigate(-1);
+      }
+    } catch (error) {
+      console.error('Error during payment creation:', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
-
-  const columnsPaymentsCreation = [
-    {
-      label: '',
-      key: 'check',
-      render: (
-        row: { check: boolean | undefined; id: number },
-        handleChange: (arg0: number, arg1: string, arg2: boolean) => void
-      ) => (
-        <input
-          type="checkbox"
-          checked={row.check}
-          className="w-[18px] h-[18px]"
-          onChange={() => handleChange(row.id, 'check', !row.check)}
-        />
-      ),
-    },
-    {
-      label: 'ФИО',
-      key: 'name',
-    },
-    {
-      label: 'Должность',
-      key: 'hrPosition',
-    },
-    {
-      label: 'Месяц расчёта',
-      key: 'billingMonth',
-      type: 'date',
-    },
-    {
-      label: 'Оклад',
-      key: 'monthlySalary',
-      type: 'number',
-    },
-    {
-      label: 'Посменное начисление',
-      key: 'dailySalary',
-      type: 'number',
-    },
-    {
-      label: 'Процент',
-      key: 'percentageSalary',
-      type: 'number',
-    },
-    {
-      label: 'Выплачено аванс',
-      key: 'prepaymentSum',
-      type: 'number',
-    },
-    {
-      label: 'Количество отработанных смен аванс',
-      key: 'prepaymentCountShifts',
-      type: 'number',
-    },
-    {
-      label: 'Количество отработанных смен',
-      key: 'countShifts',
-      render: (
-        row: { countShifts: number; id: number },
-        handleChange: (arg0: number, arg1: string, arg2: string) => void
-      ) => (
-        <Input
-          type="number"
-          placeholder="00,00"
-          value={row.countShifts}
-          changeValue={e => handleChange(row.id, 'countShifts', e.target.value)}
-        />
-      ),
-    },
-    {
-      label: 'Количество отработанных смен итог',
-      key: 'totalCountShifts',
-      type: 'number',
-    },
-    {
-      label: 'Выплачено ЗП',
-      key: 'sum',
-      type: 'number',
-    },
-    {
-      label: 'Премия',
-      key: 'prize',
-      render: (
-        row: { prize: number; id: number },
-        handleChange: (arg0: number, arg1: string, arg2: string) => void
-      ) => (
-        <Input
-          type="number"
-          placeholder="00,00"
-          value={row.prize}
-          changeValue={e => handleChange(row.id, 'prize', e.target.value)}
-        />
-      ),
-    },
-    {
-      label: 'Штраф',
-      key: 'fine',
-      render: (
-        row: { fine: number; id: number },
-        handleChange: (arg0: number, arg1: string, arg2: string) => void
-      ) => (
-        <Input
-          type="number"
-          placeholder="00,00"
-          value={row.fine}
-          changeValue={e => handleChange(row.id, 'fine', e.target.value)}
-        />
-      ),
-    },
-    {
-      label: 'Выплачено итог',
-      key: 'totalPayment',
-      type: 'number',
-    },
-    {
-      label: 'Дата выдачи',
-      key: 'paymentDate',
-      render: (
-        row: { paymentDate: Date; id: number },
-        handleChange: (arg0: number, arg1: string, arg2: string) => void
-      ) => (
-        <Input
-          type="date"
-          placeholder="00,00"
-          value={row.paymentDate}
-          changeValue={e => handleChange(row.id, 'paymentDate', e.target.value)}
-        />
-      ),
-    },
-  ];
 
   const deleteRow = () => {
     setPaymentsData(prevData => prevData.filter(row => !row.check));
   };
 
-  const defaultValuesWorker: AddWorker = {
+  const defaultValuesWorker: addWorkerRequest = {
     organizationId: 0,
     billingMonth: '',
     workerIds: [],
@@ -443,17 +281,14 @@ const SalaryCalculationCreation: React.FC = () => {
 
   const resetFormWorker = () => {
     setFormDataWorker(defaultValuesWorker);
-    // setIsEditMode(false);
     resetWorker();
-    // setEditInventoryId(0);
-    // setButtonOn(!buttonOn);
   };
 
   const onSubmitWorker = async () => {
     try {
       const result = await addWork();
       if (result) {
-        if (result.length === 0) message.error(t('hr.noSalary'));
+        if (result.length === 0) showToast(t('hr.noSalary'), 'error');
         setPaymentsData(
           result.map((res, index) => ({
             ...res,
@@ -476,6 +311,173 @@ const SalaryCalculationCreation: React.FC = () => {
     }
   };
 
+  const transformPaymentsData = (paymentsData: PaymentRecord[]) => {
+    return paymentsData.map(item => ({
+      ...item,
+      hrPosition: positions.find(pos => pos.value === item.hrPositionId)?.name || '',
+      totalCountShifts: (item.prepaymentCountShifts || 0) + (item.countShifts || 0),
+      sum: item.monthlySalary +
+        item.dailySalary *
+        ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
+        item.prepaymentSum +
+        (item.prize || 0) -
+        (item.fine || 0),
+      totalPayment: (item.prepaymentSum || 0) +
+        (item.monthlySalary || 0) +
+        (item.dailySalary || 0) *
+        ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
+        (item.prepaymentSum || 0) +
+        (item.prize || 0) -
+        (item.fine || 0)
+    }));
+  };
+
+  const columnsPaymentsCreation: ColumnsType<PaymentRecord> = [
+    {
+      title: '',
+      key: 'check',
+      render: (_, record) => (
+        <input
+          type="checkbox"
+          checked={record.check}
+          className="w-[18px] h-[18px]"
+          onChange={(e) =>
+            handleTableChange(record.id, 'check', e.target.checked)
+          }
+        />
+      ),
+    },
+    {
+      title: 'ФИО',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Должность',
+      key: 'hrPosition',
+      render: (_, record) =>
+        positions.find(pos => pos.value === record.hrPositionId)?.name || ''
+    },
+    {
+      title: 'Месяц расчёта',
+      key: 'billingMonth',
+      render: (_, record) =>
+        record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : ''
+    },
+    {
+      title: 'Оклад',
+      dataIndex: 'monthlySalary',
+      key: 'monthlySalary',
+      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
+      render: getCurrencyRender()
+    },
+    {
+      title: 'Посменное начисление',
+      dataIndex: 'dailySalary',
+      key: 'dailySalary',
+      sorter: (a, b) => a.dailySalary - b.dailySalary,
+      render: getCurrencyRender()
+    },
+    {
+      title: 'Процент',
+      dataIndex: 'percentageSalary',
+      key: 'percentageSalary',
+      sorter: (a, b) => a.percentageSalary - b.percentageSalary,
+      render: getPercentRender()
+    },
+    {
+      title: 'Выплачено аванс',
+      dataIndex: 'prepaymentSum',
+      key: 'prepaymentSum',
+      sorter: (a, b) => a.prepaymentSum - b.prepaymentSum,
+      render: getCurrencyRender()
+    },
+    {
+      title: 'Количество отработанных смен аванс',
+      dataIndex: 'prepaymentCountShifts',
+      key: 'prepaymentCountShifts',
+      sorter: (a, b) => a.prepaymentCountShifts - b.prepaymentCountShifts,
+    },
+    {
+      title: 'Количество отработанных смен',
+      key: 'countShifts',
+      render: (_, record) => (
+        <InputNumber
+          value={record.countShifts}
+          onChange={(value) =>
+            handleTableChange(record.id, 'countShifts', value)
+          }
+        />
+      ),
+    },
+    {
+      title: 'Количество отработанных смен итог',
+      key: 'totalCountShifts',
+      sorter: (a, b) => (a?.totalCountShifts || 0) - (b?.totalCountShifts || 0),
+      render: (_, record) =>
+        (record.prepaymentCountShifts || 0) + (record.countShifts || 0)
+    },
+    {
+      title: 'Выплачено ЗП',
+      dataIndex: 'sum',
+      key: 'sum',
+      sorter: (a, b) => a.sum - b.sum,
+      render: getCurrencyRender()
+    },
+    {
+      title: 'Премия',
+      key: 'prize',
+      render: (_, record) => (
+        <InputNumber
+          value={record.prize}
+          onChange={(value) =>
+            handleTableChange(record.id, 'prize', value)
+          }
+        />
+      ),
+    },
+    {
+      title: 'Штраф',
+      key: 'fine',
+      render: (_, record) => (
+        <InputNumber
+          value={record.fine}
+          onChange={(value) =>
+            handleTableChange(record.id, 'fine', value)
+          }
+        />
+      ),
+    },
+    {
+      title: 'Выплачено итог',
+      key: 'totalPayment',
+      sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
+      render: (_, record) => {
+        const totalPayment = ((record.prepaymentSum || 0) +
+          (record.monthlySalary || 0) +
+          (record.dailySalary || 0) *
+          ((record.prepaymentCountShifts || 0) + (record.countShifts || 0)) -
+          (record.prepaymentSum || 0) +
+          (record.prize || 0) -
+          (record.fine || 0));
+
+        return getCurrencyRender()(totalPayment);
+      }
+    },
+    {
+      title: 'Дата выдачи',
+      key: 'paymentDate',
+      render: (_, record) => (
+        <DatePicker
+          value={record.paymentDate ? dayjs(record.paymentDate) : null}
+          onChange={(date) =>
+            handleTableChange(record.id, 'paymentDate', date?.toDate())
+          }
+        />
+      ),
+    },
+  ];
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -486,18 +488,19 @@ const SalaryCalculationCreation: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-      <Modal isOpen={isModalOpen}>
+
+      <Modal
+        open={isModalOpen}
+        onCancel={() => {
+          resetFormWorker();
+          setIsModalOpen(false);
+        }}
+        footer={null}
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {t('roles.create')}
           </h2>
-          <Close
-            onClick={() => {
-              resetFormWorker();
-              setIsModalOpen(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
           <div className="flex flex-col space-y-4 text-text02">
@@ -516,11 +519,17 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-3 mt-5">
             <Button
-              title={'Сбросить'}
-              handleClick={() => setIsModalOpen(false)}
-              type="outline"
-            />
-            <Button title={'Сохранить'} form={true} isLoading={addingWorker} />
+              onClick={() => setIsModalOpen(false)}
+            >
+              {t('organizations.cancel')}
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={addingWorker}
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Modal>
@@ -593,92 +602,81 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
           <div className="flex space-x-4">
             <Button
-              type="outline"
-              title={t('organizations.cancel')}
-              handleClick={() => navigate(-1)}
-            />
+              onClick={() => navigate(-1)}
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('finance.form')}
-              isLoading={calculatingSal}
-              form={true}
-            />
+              type="primary"
+              htmlType="submit"
+              loading={calculatingSal}
+            >
+              {t('finance.form')}
+            </Button>
           </div>
         </form>
+
         {calculatingSal ? (
-          <TableSkeleton columnCount={columnsPaymentsCreation.length} />
+          <Table
+            columns={columnsPaymentsCreation}
+            dataSource={[]}
+            loading={true}
+            rowKey="id"
+            className="mt-8"
+          />
         ) : paymentsData.length > 0 ? (
           <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
             <div className="flex flex-wrap justify-between gap-2">
               <div className="flex space-x-4">
-                <AntDButton onClick={deleteRow} danger>
+                <Button onClick={deleteRow} danger>
                   {t('marketing.delete')}
-                </AntDButton>
+                </Button>
                 <Button
-                  title={t('finance.addE')}
-                  type="outline"
-                  iconPlus={true}
-                  handleClick={() => setIsModalOpen(true)}
-                />
+                  icon={<PlusOutlined />}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  {t('finance.addE')}
+                </Button>
               </div>
               <div className="space-x-2">
-                <button
-                  className="px-2 py-1 bg-background07/50 rounded"
+                <Button
+                  icon={<ArrowUpOutlined />}
                   onClick={() => {
                     const sortedData = [...paymentsData].sort(
                       (a, b) => a.id - b.id
                     );
                     setPaymentsData(sortedData);
                   }}
-                >
-                  <img src={ArrowUp} loading="lazy" alt="Arrow Up" />
-                </button>
-                <button
-                  className="px-2 py-1 bg-background07/50 rounded"
+                />
+                <Button
+                  icon={<ArrowDownOutlined />}
                   onClick={() => {
                     const sortedData = [...paymentsData].sort(
                       (a, b) => b.id - a.id
                     );
                     setPaymentsData(sortedData);
                   }}
-                >
-                  <img src={ArrowDown} loading="lazy" alt="Arrow Down" />
-                </button>
+                />
               </div>
             </div>
-            <DynamicTable
-              data={paymentsData.map((item, index) => ({
-                ...item,
-                id: index,
-                hrPosition:
-                  positions.find(pos => pos.value === item.hrPositionId)?.name ||
-                  '',
-                totalCountShifts: item.prepaymentCountShifts + item.countShifts,
-                sum:
-                  item.monthlySalary +
-                  item.dailySalary *
-                  (item.prepaymentCountShifts + item.countShifts) -
-                  item.prepaymentSum +
-                  item.prize -
-                  item.fine,
-                totalPayment:
-                  item.prepaymentSum +
-                  item.monthlySalary +
-                  item.dailySalary *
-                  (item.prepaymentCountShifts + item.countShifts) -
-                  item.prepaymentSum +
-                  item.prize -
-                  item.fine,
-              }))}
+
+            <Table
               columns={columnsPaymentsCreation}
-              handleChange={handleTableChange}
+              dataSource={transformPaymentsData(paymentsData)}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: '150%' }}
             />
+
             <div>
               <div className="flex space-x-4">
                 <Button
-                  title={t('organizations.save')}
-                  isLoading={creatingSal}
-                  handleClick={handlePaymentCreation}
-                />
+                  type="primary"
+                  loading={creatingSal}
+                  onClick={handlePaymentCreation}
+                >
+                  {t('organizations.save')}
+                </Button>
               </div>
             </div>
           </div>
@@ -694,11 +692,11 @@ const SalaryCalculationCreation: React.FC = () => {
                 />
               </NoDataUI>
               <Button
-                title={t('finance.addE')}
-                type="outline"
-                iconPlus={true}
-                handleClick={() => setIsModalOpen(true)}
-              />
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalOpen(true)}
+              >
+                {t('finance.addE')}
+              </Button>
             </div>
           )
         )}
