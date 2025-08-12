@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import SegmentsDialog from '@/components/ui/Dialog/SegmentsDialog';
 import Button from '@/components/ui/Button/Button';
 import { PlusOutlined } from '@ant-design/icons';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const columns = [
   { label: 'Тип клиента', key: 'clientType' },
@@ -103,88 +104,98 @@ const NewSegment: React.FC = () => {
   );
 
   return (
-    <div className="space-y-4">
-      {/* Header Section */}
-      <div>
-        <div className="flex font-semibold space-x-1">
-          <div className="text-text01">{t('routine.fields')}</div>
-          <div className="text-textError">*</div>
-          <div className="text-text01">{t('routine.are')}</div>
-        </div>
-        <div className="flex space-x-4">
-          <Input title={t('marketing.segName')} classname="w-96" />
-          <DropdownInput
-            title={`${t('pos.city')}*`}
-            classname="w-64"
-            value={undefined}
-            options={[]}
-          />
-          <DropdownInput
-            title={t('equipment.carWash')}
-            classname="w-64"
-            value={undefined}
-            options={[]}
-          />
+    <>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.createSeg')}
+          </span>
+          <QuestionMarkIcon />
         </div>
       </div>
-
-      {/* Add Selection Button */}
-      {selectedColumns.length === 0 && (
-        <div className="shadow-card h-20 w-[1128px] rounded-2xl flex items-center justify-center">
-          <div
-            className="flex text-primary02 cursor-pointer items-center justify-center font-semibold space-x-1"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <PlusOutlined className="w-6 h-6" />
-            <div>{t('marketing.addSel')}</div>
+      <div className="space-y-4">
+        {/* Header Section */}
+        <div>
+          <div className="flex font-semibold space-x-1">
+            <div className="text-text01">{t('routine.fields')}</div>
+            <div className="text-textError">*</div>
+            <div className="text-text01">{t('routine.are')}</div>
+          </div>
+          <div className="flex space-x-4">
+            <Input title={t('marketing.segName')} classname="w-96" />
+            <DropdownInput
+              title={`${t('pos.city')}*`}
+              classname="w-64"
+              value={undefined}
+              options={[]}
+            />
+            <DropdownInput
+              title={t('equipment.carWash')}
+              classname="w-64"
+              value={undefined}
+              options={[]}
+            />
           </div>
         </div>
-      )}
 
-      {/* Dynamic Inputs Section */}
-      <div>
-        <SegmentsDialog
-          columns={columns}
-          selectedColumns={selectedColumns}
-          onColumnToggle={handleColumnToggle}
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          setSelectedColumns={setSelectedColumns}
-        />
-        {selectedColumns.length > 0 && (
-          <div className="mt-6 space-y-4">
-            <div className="font-semibold text-2xl text-text01">
-              {t('marketing.filterC')}
-            </div>
-            {groupedInputs.map(({ group, components }) => (
-              <div key={group}>
-                <div className="text-sm text-text01 uppercase mb-4">
-                  {group}
-                </div>
-                <div className="flex flex-wrap space-x-4">
-                  {components.map(key => (
-                    <div key={key}>{inputComponents[key]}</div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            <div className="flex space-x-4 items-center">
-              <Button title={t('warehouse.reset')} type="outline" />
-              <Button title={t('marketing.apply')} />
-              <div
-                className="text-primary02 cursor-pointer font-semibold"
-                onClick={() => setIsModalOpen(true)}
-              >
-                {t('marketing.edit')}
-              </div>
-            </div>
-            <div className="font-semibold text-2xl text-text01">
-              {t('marketing.list')}
+        {/* Add Selection Button */}
+        {selectedColumns.length === 0 && (
+          <div className="shadow-card h-20 w-[1128px] rounded-2xl flex items-center justify-center">
+            <div
+              className="flex text-primary02 cursor-pointer items-center justify-center font-semibold space-x-1"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <PlusOutlined className="w-6 h-6" />
+              <div>{t('marketing.addSel')}</div>
             </div>
           </div>
         )}
+
+        {/* Dynamic Inputs Section */}
+        <div>
+          <SegmentsDialog
+            columns={columns}
+            selectedColumns={selectedColumns}
+            onColumnToggle={handleColumnToggle}
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            setSelectedColumns={setSelectedColumns}
+          />
+          {selectedColumns.length > 0 && (
+            <div className="mt-6 space-y-4">
+              <div className="font-semibold text-2xl text-text01">
+                {t('marketing.filterC')}
+              </div>
+              {groupedInputs.map(({ group, components }) => (
+                <div key={group}>
+                  <div className="text-sm text-text01 uppercase mb-4">
+                    {group}
+                  </div>
+                  <div className="flex flex-wrap space-x-4">
+                    {components.map(key => (
+                      <div key={key}>{inputComponents[key]}</div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="flex space-x-4 items-center">
+                <Button title={t('warehouse.reset')} type="outline" />
+                <Button title={t('marketing.apply')} />
+                <div
+                  className="text-primary02 cursor-pointer font-semibold"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  {t('marketing.edit')}
+                </div>
+              </div>
+              <div className="font-semibold text-2xl text-text01">
+                {t('marketing.list')}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

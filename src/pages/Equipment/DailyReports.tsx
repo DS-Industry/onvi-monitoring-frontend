@@ -2,20 +2,43 @@ import NoDataUI from '@/components/ui/NoDataUI';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SalyImage from '@/assets/NoEquipment.png';
-import DrawerCreate from '@/components/ui/Drawer/DrawerCreate';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { UpOutlined, DownOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Drawer } from 'antd';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const DailyReports: React.FC = () => {
   const { t } = useTranslation();
 
   const [openSetting, setOpenSetting] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <>
-      <DrawerCreate>
+      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.daily')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+        <Button
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() => setDrawerOpen(!drawerOpen)}
+        >
+          {t('routes.add')}
+        </Button>
+      </div>
+     <Drawer
+        placement="right"
+        size="large"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6">
           <div className="text-text01 font-semibold text-2xl">
             {t('daily.report')}
@@ -72,7 +95,7 @@ const DailyReports: React.FC = () => {
               className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01"
               onClick={() => setOpenSetting(!openSetting)}
             >
-              {openSetting ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+              {openSetting ? <UpOutlined /> : <DownOutlined />}
             </div>
             <div className="text-text01 font-semibold text-2xl">
               {t('daily.setting')}
@@ -118,7 +141,7 @@ const DailyReports: React.FC = () => {
             </div>
           )}
         </form>
-      </DrawerCreate>
+      </Drawer>
       <NoDataUI title={t('daily.noText')} description={t('daily.create')}>
         <img src={SalyImage} className="mx-auto" loading="lazy" alt="DAILY" />
       </NoDataUI>
