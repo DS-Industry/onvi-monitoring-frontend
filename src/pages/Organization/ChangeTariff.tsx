@@ -8,12 +8,11 @@ import {
   Checkbox,
   Radio,
   RadioChangeEvent,
+  Drawer,
 } from 'antd';
 import Button from '@/components/ui/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { useButtonCreate } from '@/components/context/useContext';
-import DrawerCreate from '@/components/ui/Drawer/DrawerCreate';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
 
@@ -27,7 +26,7 @@ type TariffType = {
   modules: { key: string; label: string }[];
   canChange: boolean;
   t: TFunction;
-  setButtonOn: (buttonOn: boolean) => void;
+  setDrawerOpen: (drawerOpen: boolean) => void;
 };
 
 const TariffCard: React.FC<TariffType> = ({
@@ -38,7 +37,7 @@ const TariffCard: React.FC<TariffType> = ({
   modules,
   canChange,
   t,
-  setButtonOn,
+  setDrawerOpen,
 }) => {
   const [openItems, setOpenItems] = useState<{ [key: string]: boolean }>({});
 
@@ -46,8 +45,8 @@ const TariffCard: React.FC<TariffType> = ({
     setOpenItems(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleButtonOn = () => {
-    setButtonOn(true);
+  const handledrawerOpen = () => {
+    setDrawerOpen(true);
   };
 
   return (
@@ -66,7 +65,7 @@ const TariffCard: React.FC<TariffType> = ({
           {active && (
             <Button
               title={t('subscriptions.current')}
-              handleClick={handleButtonOn}
+              handleClick={handledrawerOpen}
               disabled={true}
             />
           )}
@@ -156,7 +155,7 @@ const TariffCard: React.FC<TariffType> = ({
         <Row justify="start" className="mt-4">
           <Button
             title={t('subscriptions.change')}
-            handleClick={handleButtonOn}
+            handleClick={handledrawerOpen}
           />
         </Row>
       )}
@@ -167,9 +166,8 @@ const TariffCard: React.FC<TariffType> = ({
 const ChangeTariff: React.FC = () => {
   const { t } = useTranslation();
 
-  const { buttonOn, setButtonOn } = useButtonCreate();
-
   const [paymentType, setPaymentType] = useState('bank');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const onChange = (e: RadioChangeEvent) => {
     setPaymentType(e.target.value);
@@ -222,11 +220,17 @@ const ChangeTariff: React.FC = () => {
             key={tariff.name}
             {...tariff}
             t={t}
-            setButtonOn={setButtonOn}
+            setDrawerOpen={setDrawerOpen}
           />
         ))}
       </div>
-      <DrawerCreate>
+      <Drawer
+        placement="right"
+        size="large"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+        className="custom-drawer"
+      >
         <form className="space-y-6">
           <div className="font-semibold text-2xl text-text01">
             {t('subscriptions.payment')}
@@ -300,13 +304,13 @@ const ChangeTariff: React.FC = () => {
               title={t('organizations.cancel')}
               type="outline"
               handleClick={() => {
-                setButtonOn(!buttonOn);
+                setDrawerOpen(!drawerOpen);
               }}
             />
             <Button title={t('subscriptions.pay')} />
           </div>
         </form>
-      </DrawerCreate>
+      </Drawer>
     </>
   );
 };
