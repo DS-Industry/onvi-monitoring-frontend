@@ -9,6 +9,7 @@ import {
   createManagerPaperType,
   getAllManagerPaperTypes,
   ManagerPaperTypeClass,
+  ManagerPaperTypeResponse,
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
@@ -18,12 +19,9 @@ import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import type { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 
-interface PaperTypeRecord {
-  id: number;
-  name: string;
-  type: ManagerPaperTypeClass;
+type PaperTypeRecord = ManagerPaperTypeResponse['props'] & {
   typeName: string;
-}
+};
 
 const DirectoryArticles: React.FC = () => {
   const { t } = useTranslation();
@@ -42,7 +40,7 @@ const DirectoryArticles: React.FC = () => {
   const { showToast } = useToast();
   const getStatusTag = getStatusTagRender(t);
 
-  const paperTypes: PaperTypeRecord[] =
+  const paperTypes =
     paperTypeData?.map(type => ({
       ...type.props,
       typeName: t(`finance.${type.props.type}`),
@@ -50,31 +48,29 @@ const DirectoryArticles: React.FC = () => {
 
   const columns: ColumnsType<PaperTypeRecord> = [
     {
-      title: "№",
-      dataIndex: "id",
-      key: "id",
+      title: '№',
+      dataIndex: 'id',
+      key: 'id',
     },
     {
-      title: "Наименование",
-      dataIndex: "name",
-      key: "name",
+      title: 'Наименование',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Тип статьи",
-      dataIndex: "typeName",
-      key: "typeName",
+      title: 'Тип статьи',
+      dataIndex: 'typeName',
+      key: 'typeName',
       render: getStatusTag,
     },
     {
-      key: "actions",
+      key: 'actions',
       render: (_, record) => (
         <Button
           type="text"
-          icon={
-            <EditOutlined className="text-blue-500 hover:text-blue-700" />
-          }
+          icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
           onClick={() => handleUpdate(record.id)}
-          style={{ height: "24px" }}
+          style={{ height: '24px' }}
         />
       ),
     },
@@ -246,7 +242,8 @@ const DirectoryArticles: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              loading={isEditMode ? updatingPaperType : isMutating}>
+              loading={isEditMode ? updatingPaperType : isMutating}
+            >
               {t('organizations.save')}
             </Button>
           </div>
