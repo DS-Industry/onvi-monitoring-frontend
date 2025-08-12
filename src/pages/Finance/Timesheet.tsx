@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getPoses } from '@/services/api/equipment';
 import useSWR from 'swr';
-import { useButtonCreate } from '@/components/context/useContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getShifts, TypeWorkDay } from '@/services/api/finance';
 import dayjs from 'dayjs';
@@ -61,7 +60,6 @@ const Timesheet: React.FC = () => {
     work_week: t('calendar.WORK_WEEK', 'Work week'),
   };
 
-  const { buttonOn } = useButtonCreate();
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -156,12 +154,6 @@ const Timesheet: React.FC = () => {
       keepPreviousData: true,
     }
   );
-
-  useEffect(() => {
-    if (buttonOn) {
-      navigate('/finance/timesheet/creation', { state: { ownerId: 0 } });
-    }
-  }, [buttonOn, navigate]);
 
   const [openSlot, setOpenSlot] = useState(false);
 

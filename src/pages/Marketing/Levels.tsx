@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Profile from '@icons/ProfileIcon.svg?react';
 import ExpandedCard from '@ui/Card/ExpandedCard';
 import Input from '@/components/ui/Input/Input';
-// import PercentageIcon from "@icons/Percentage.svg?react";
-// import DiamondIcon from "@icons/Diamond.svg?react";
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import useFormHook from '@/hooks/useFormHook';
 import {
   createTier,
@@ -55,15 +53,14 @@ type Props = {
 const Levels: React.FC<Props> = ({ prevStep }) => {
   const { t } = useTranslation();
 
-  // const [isDiscount, setIsDiscount] = useState(false);
-  // const [isBonus, setIsBonus] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
   const [tiers, setTiers] = useState<TierType[]>([]);
   const [tierId, setTierId] = useState(0);
-  const location = useLocation();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
+  const loyaltyId = Number(searchParams.get("loyaltyId")) || undefined;
 
   const addTier = () => {
     setIsModalOpen(true);
@@ -74,10 +71,10 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     isLoading,
     isValidating,
   } = useSWR(
-    [`get-tiers`, location.state.ownerId],
+    [`get-tiers`, loyaltyId],
     () =>
       getTiers({
-        programId: location.state.ownerId,
+        programId: loyaltyId ? loyaltyId : '*',
       }),
     {
       revalidateOnFocus: false,
@@ -150,16 +147,10 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     }
   }, [t, tiersData]);
 
-  // const [selectedOption, setSelectedOption] = useState<string>("percent");
-
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     setSelectedOption(event.target.value);
-  // };
-
   const defaultValues: Tier = {
     name: '',
     description: undefined,
-    loyaltyProgramId: location.state.ownerId,
+    loyaltyProgramId: loyaltyId ? loyaltyId : 0,
     limitBenefit: 0,
   };
 
@@ -248,7 +239,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     try {
       const result = await createTi();
       if (result) {
-        mutate([`get-tiers`, location.state.ownerId]);
+        mutate([`get-tiers`, loyaltyId]);
         resetForm();
         setIsModalOpen(false);
       } else {
@@ -264,7 +255,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     try {
       const result = await updateTi();
       if (result) {
-        mutate([`get-tiers`, location.state.ownerId]);
+        mutate([`get-tiers`, loyaltyId]);
         resetForm();
         setIsModalOpenUpdate(false);
       } else {
@@ -510,7 +501,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
             <div>{t('marketing.addLevel')}</div>
           </div>
         </div>
-        {location.state.ownerId === 0 && (
+        {loyaltyId === undefined && (
           <Button title="Назад" handleClick={prevStep} />
         )}
       </div>

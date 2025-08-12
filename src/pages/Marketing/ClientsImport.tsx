@@ -2,8 +2,6 @@ import Notification from '@/components/ui/Notification';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button/Button';
-import DrawerCreate from '@/components/ui/Drawer/DrawerCreate';
-import { useButtonCreate } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import { createNomenclatureFile } from '@/services/api/warehouse';
 import { useNavigate } from 'react-router-dom';
@@ -13,21 +11,22 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { Drawer } from 'antd';
 
 const ClientsImport: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const { buttonOn, setButtonOn } = useButtonCreate();
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null; // Get the first file
-    setSelectedFile(file); // Update state with the single file
+    const file = event.target.files?.[0] || null;
+    setSelectedFile(file);
   };
 
   const handleFileRemove = () => {
-    setSelectedFile(null); // Reset the selected file
+    setSelectedFile(null);
   };
 
   const handleDownload = () => {
@@ -83,12 +82,12 @@ const ClientsImport: React.FC = () => {
         <div className="flex mt-5">
           <div
             onClick={() => {
-              setButtonOn(!buttonOn);
+              setDrawerOpen(!drawerOpen);
             }}
-            className={`w-80 h-40 flex flex-col justify-center text-center cursor-pointer ${buttonOn ? 'bg-white border-2 border-primary02' : 'bg-background05'} rounded-2xl`}
+            className={`w-80 h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen ? 'bg-white border-2 border-primary02' : 'bg-background05'} rounded-2xl`}
           >
             <div
-              className={`flex justify-center text-center ${buttonOn ? 'text-primary02' : 'text-text01'}`}
+              className={`flex justify-center text-center ${drawerOpen ? 'text-primary02' : 'text-text01'}`}
             >
               <FileOutlined />
               <div className="ml-2 font-semibold text-lg">
@@ -96,7 +95,7 @@ const ClientsImport: React.FC = () => {
               </div>
             </div>
             <div
-              className={`mt-2 ml-5 text-base ${buttonOn ? 'text-text01' : 'text-text02'} font-normal`}
+              className={`mt-2 ml-5 text-base ${drawerOpen ? 'text-text01' : 'text-text02'} font-normal`}
             >
               {t('warehouse.download')}
             </div>
@@ -166,7 +165,13 @@ const ClientsImport: React.FC = () => {
             isLoading={isMutating}
           />
         </div>
-        <DrawerCreate classname="w-[444px]">
+        <Drawer
+          placement="right"
+          size="large"
+          onClose={() => setDrawerOpen(false)}
+          open={drawerOpen}
+          className="custom-drawer"
+        >
           <div className="space-y-6">
             <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
               {t('warehouse.fileReq')}
@@ -187,7 +192,7 @@ const ClientsImport: React.FC = () => {
               handleClick={handleDownload}
             />
           </div>
-        </DrawerCreate>
+        </Drawer>
       </div>
     </>
   );
