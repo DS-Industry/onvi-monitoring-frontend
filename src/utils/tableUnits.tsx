@@ -92,6 +92,7 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const orangeStatuses = [
+      t('tables.SAVE'),
       t('tables.SAVED'),
       t('tables.VERIFICATE'),
       t('tables.RETURNED'),
@@ -141,3 +142,12 @@ export function getNumberRender() {
     );
   };
 }
+
+export const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};

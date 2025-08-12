@@ -47,7 +47,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Option } = Select;
 
-enum ManagerReportPeriodStatus {
+export enum ManagerReportPeriodStatus {
   SAVE = 'SAVE',
   SENT = 'SENT',
 }
@@ -351,11 +351,12 @@ const MonthlyExpanse: React.FC = () => {
         return (
           <div
             className="text-primary02 hover:text-primary02_Hover cursor-pointer font-semibold"
-            onClick={() =>
-              navigate('/finance/report/period/edit', {
-                state: { ownerId: record.id, status: record.status },
-              })
-            }
+            onClick={() => {              
+              navigate({
+                pathname: '/finance/report/period/edit',
+                search: `?ownerId=${record.id}&status=${record.status}`
+              });
+            }}
           >
             {`${start} - ${end}`}
           </div>
