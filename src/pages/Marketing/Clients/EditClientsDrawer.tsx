@@ -110,9 +110,8 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       })
   );
 
-  const { trigger: updateClientTrigger, isMutating: updatingClient } = useSWRMutation(
-    ['update-client'],
-    async () =>
+  const { trigger: updateClientTrigger, isMutating: updatingClient } =
+    useSWRMutation(['update-client'], async () =>
       updateClient({
         clientId: Number(clientId),
         name: formData.name,
@@ -123,7 +122,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         monthlyLimit: formData.monthlyLimit,
         tagIds: formData.tagIds,
       })
-  );
+    );
 
   const { trigger: createTagTrigger, isMutating: creatingTag } = useSWRMutation(
     ['create-tag'],
@@ -165,7 +164,10 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const onSubmit = async () => {
     try {
-      const result = clientId !== 0 ? await updateClientTrigger() : await createClientTrigger();
+      const result =
+        clientId
+          ? await updateClientTrigger()
+          : await createClientTrigger();
       if (result) {
         mutate([
           `get-clients`,
@@ -223,9 +225,14 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       name: searchValue,
       color: getRandomColor(),
     });
-
-    if (result) {
-      mutate([`get-tags`]);
+    try {
+      if (result) {
+        mutate([`get-tags`]);
+      } else {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
+    } catch (error) {
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
 
@@ -263,7 +270,8 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 { label: t('marketing.legal'), value: 'LEGAL' },
               ]}
               {...register('type', {
-                required: clientId === undefined && t("validation.typeRequired"),
+                required:
+                  clientId === undefined && t('validation.typeRequired'),
               })}
               onChange={value => handleInputChange('type', value)}
               status={errors.type ? 'error' : ''}
@@ -283,7 +291,8 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               value={formData.name}
               status={errors.name ? 'error' : ''}
               {...register('name', {
-                required: clientId === undefined && t("validation.nameRequired"),
+                required:
+                  clientId === undefined && t('validation.nameRequired'),
               })}
               onChange={e => handleInputChange('name', e.target.value)}
               size="large"
