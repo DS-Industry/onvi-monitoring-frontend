@@ -69,8 +69,8 @@ const DocumentsCreation = React.lazy(
 );
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
-const ShareConstructor = React.lazy(
-  () => import('@/pages/Marketing/ShareConstructor')
+const MarketingLoyalty = React.lazy(
+  () => import('@/pages/Marketing/MarketingLoyalty')
 );
 const ClientsImport = React.lazy(
   () => import('@/pages/Marketing/ClientsImport')
@@ -883,7 +883,7 @@ const routes = [
         name: 'loyalty',
         isVisible: true,
         path: '/marketing/loyalty',
-        component: ShareConstructor,
+        component: MarketingLoyalty,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
