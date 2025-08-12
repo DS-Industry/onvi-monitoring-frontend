@@ -1,29 +1,28 @@
-import NoDataUI from '@/components/ui/NoDataUI';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
-import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import useSWR, { mutate } from 'swr';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import { columnsPaperTypes } from '@/utils/OverFlowTableData';
-import DynamicTable from '@/components/ui/Table/DynamicTable';
 import {
   createManagerPaperType,
   getAllManagerPaperTypes,
+  ManagerPaperTypeClass,
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { Drawer, Button as AntButton } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Drawer, Button, Table } from 'antd';
+import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import type { ColumnsType } from 'antd/es/table';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
-enum ManagerPaperTypeClass {
-  RECEIPT = 'RECEIPT',
-  EXPENDITURE = 'EXPENDITURE',
+interface PaperTypeRecord {
+  id: number;
+  name: string;
+  type: ManagerPaperTypeClass;
+  typeName: string;
 }
 
 const DirectoryArticles: React.FC = () => {
@@ -41,12 +40,45 @@ const DirectoryArticles: React.FC = () => {
     }
   );
   const { showToast } = useToast();
+  const getStatusTag = getStatusTagRender(t);
 
-  const paperTypes =
+  const paperTypes: PaperTypeRecord[] =
     paperTypeData?.map(type => ({
       ...type.props,
       typeName: t(`finance.${type.props.type}`),
     })) || [];
+
+  const columns: ColumnsType<PaperTypeRecord> = [
+    {
+      title: "№",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Наименование",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Тип статьи",
+      dataIndex: "typeName",
+      key: "typeName",
+      render: getStatusTag,
+    },
+    {
+      key: "actions",
+      render: (_, record) => (
+        <Button
+          type="text"
+          icon={
+            <EditOutlined className="text-blue-500 hover:text-blue-700" />
+          }
+          onClick={() => handleUpdate(record.id)}
+          style={{ height: "24px" }}
+        />
+      ),
+    },
+  ];
 
   const defaultValues = {
     name: '',
@@ -140,37 +172,24 @@ const DirectoryArticles: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        <AntButton
+        <Button
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => setDrawerOpen(true)}
         >
           {t('routes.add')}
-        </AntButton>
+        </Button>
       </div>
 
-      {loadingPaperType ? (
-        <TableSkeleton columnCount={columnsPaperTypes.length} />
-      ) : paperTypes.length > 0 ? (
-        <div className="mt-8">
-          <DynamicTable
-            data={paperTypes}
-            columns={columnsPaperTypes}
-            onEdit={handleUpdate}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col justify-center items-center">
-          <NoDataUI title={t('warehouse.noExpanse')} description={''}>
-            <img
-              src={InventoryEmpty}
-              className="mx-auto"
-              loading="lazy"
-              alt="Suppliers"
-            />
-          </NoDataUI>
-        </div>
-      )}
+      <div className="mt-8">
+        <Table
+          columns={columns}
+          dataSource={paperTypes}
+          loading={loadingPaperType}
+          rowKey="id"
+        />
+      </div>
+
       <Drawer
         title={t('finance.articleType')}
         placement="right"
@@ -217,18 +236,19 @@ const DirectoryArticles: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
+              onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
               }}
-            />
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isEditMode ? updatingPaperType : isMutating}
-            />
+              type="primary"
+              htmlType="submit"
+              loading={isEditMode ? updatingPaperType : isMutating}>
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>

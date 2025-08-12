@@ -150,7 +150,7 @@ type PaymentCalculateResponse = {
   prepaymentCountShifts: number;
 };
 
-type PaymentCreateRequest = {
+export type PaymentCreateRequest = {
   payments: {
     hrWorkerId: number;
     paymentDate: Date;

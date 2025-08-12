@@ -62,7 +62,7 @@ enum ManagerPaperGroup {
   TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
-enum ManagerPaperTypeClass {
+export enum ManagerPaperTypeClass {
   RECEIPT = 'RECEIPT',
   EXPENDITURE = 'EXPENDITURE',
 }
