@@ -378,30 +378,35 @@ const SalaryCalculationCreation: React.FC = () => {
       title: 'Оклад',
       dataIndex: 'monthlySalary',
       key: 'monthlySalary',
+      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
       render: getCurrencyRender()
     },
     {
       title: 'Посменное начисление',
       dataIndex: 'dailySalary',
       key: 'dailySalary',
+      sorter: (a, b) => a.dailySalary - b.dailySalary,
       render: getCurrencyRender()
     },
     {
       title: 'Процент',
       dataIndex: 'percentageSalary',
       key: 'percentageSalary',
+      sorter: (a, b) => a.percentageSalary - b.percentageSalary,
       render: getPercentRender()
     },
     {
       title: 'Выплачено аванс',
       dataIndex: 'prepaymentSum',
       key: 'prepaymentSum',
+      sorter: (a, b) => a.prepaymentSum - b.prepaymentSum,
       render: getCurrencyRender()
     },
     {
       title: 'Количество отработанных смен аванс',
       dataIndex: 'prepaymentCountShifts',
       key: 'prepaymentCountShifts',
+      sorter: (a, b) => a.prepaymentCountShifts - b.prepaymentCountShifts,
     },
     {
       title: 'Количество отработанных смен',
@@ -418,6 +423,7 @@ const SalaryCalculationCreation: React.FC = () => {
     {
       title: 'Количество отработанных смен итог',
       key: 'totalCountShifts',
+      sorter: (a, b) => (a?.totalCountShifts || 0) - (b?.totalCountShifts || 0),
       render: (_, record) =>
         (record.prepaymentCountShifts || 0) + (record.countShifts || 0)
     },
@@ -425,6 +431,7 @@ const SalaryCalculationCreation: React.FC = () => {
       title: 'Выплачено ЗП',
       dataIndex: 'sum',
       key: 'sum',
+      sorter: (a, b) => a.sum - b.sum,
       render: getCurrencyRender()
     },
     {
@@ -454,6 +461,7 @@ const SalaryCalculationCreation: React.FC = () => {
     {
       title: 'Выплачено итог',
       key: 'totalPayment',
+      sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {
         const totalPayment = ((record.prepaymentSum || 0) +
           (record.monthlySalary || 0) +

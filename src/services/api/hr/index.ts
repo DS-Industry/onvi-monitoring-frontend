@@ -100,7 +100,7 @@ type PrepaymentCalculateResponse = {
   percentageSalary: number;
 };
 
-type PrepaymentCreateRequest = {
+export type PrepaymentCreateRequest = {
   payments: {
     hrWorkerId: number;
     paymentDate: Date;
