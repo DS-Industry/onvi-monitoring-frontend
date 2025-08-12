@@ -126,6 +126,8 @@ type TagResponse = {
   };
 };
 
+export type TagsType = TagResponse["props"];
+
 type DeleteTagResponse = {
   status: 'SUCCESS';
 };

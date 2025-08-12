@@ -1,18 +1,14 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 import { Input } from 'antd';
 
 const PhoneFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
-
-  const phone = getParam('phone', undefined);
+  const phone = getParam(searchParams, 'phone');
 
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {

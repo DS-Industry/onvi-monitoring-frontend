@@ -2,15 +2,12 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Select } from 'antd';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 
 const UserTypeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
 
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -34,7 +31,7 @@ const UserTypeFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('marketing.phys')}
-        value={getParam('userType', '*')}
+        value={getParam(searchParams, 'userType', '*')}
         onChange={handleChange}
         className="w-full"
         options={userTypeOptions}

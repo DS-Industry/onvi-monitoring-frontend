@@ -8,16 +8,25 @@ import {
 } from '@/services/api/marketing';
 import { Button, Table, Tooltip } from 'antd';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DownloadOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 import { ColumnsType } from 'antd/es/table';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import ClientsDrawer from './ClientsDrawer';
+import EditClientsDrawer from './EditClientsDrawer';
 
 const Clients: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city') || undefined;
   const type = (searchParams.get('userType') as UserType) || undefined;
@@ -26,7 +35,9 @@ const Clients: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const [editClientId, setEditClientId] = useState<number>(0);
+  const [selectedClientId, setSelectedClientId] = useState<number | undefined>(
+    undefined
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { data: clientsData, isLoading: loadingClients } = useSWR(
@@ -53,19 +64,19 @@ const Clients: React.FC = () => {
       status: t(`tables.${client.status}`),
     })) || [];
 
-  const handleUpdate = (id: number) => {
-    setEditClientId(id);
+  const onEditClick = (id: number) => {
+    setSelectedClientId(id);
     setDrawerOpen(true);
   };
 
   const columnsClients: ColumnsType<ClientsResponse> = [
     {
-      title: 'Тип клиента',
+      title: t('marketing.type'),
       dataIndex: 'type',
       key: 'type',
     },
     {
-      title: 'Имя клиента',
+      title: t('marketing.name'),
       dataIndex: 'name',
       key: 'name',
       render: text => {
@@ -82,22 +93,22 @@ const Clients: React.FC = () => {
       },
     },
     {
-      title: 'Телефон',
+      title: t('profile.telephone'),
       dataIndex: 'phone',
       key: 'phone',
     },
     {
-      title: 'Статус',
+      title: t('constants.status'),
       dataIndex: 'status',
       key: 'status',
     },
     {
-      title: 'Теги',
+      title: t('marketing.tags'),
       dataIndex: 'tags',
       key: 'tags',
     },
     {
-      title: 'Комментарий',
+      title: t('equipment.comment'),
       dataIndex: 'comment',
       key: 'comment',
     },
@@ -112,7 +123,7 @@ const Clients: React.FC = () => {
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
             }
-            onClick={() => handleUpdate(record.id)}
+            onClick={() => onEditClick(record.id)}
             style={{ height: '24px' }}
           />
         </Tooltip>
@@ -129,47 +140,58 @@ const Clients: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => setDrawerOpen(!drawerOpen)}
-        >
-          {t('routes.add')}
-        </Button>
+        <div className="xs:flex xs:space-x-2">
+          <Button
+            icon={<DownloadOutlined />}
+            className="btn-outline-primary"
+            onClick={() => {
+              navigate('/marketing/clients/import');
+            }}
+          >
+            <span className="hidden sm:flex">{t('routes.importClients')}</span>
+          </Button>
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            {t('routes.add')}
+          </Button>
+        </div>
       </div>
       <GeneralFilters
         count={clients.length}
         display={['city', 'count', 'phone', 'tagIds', 'userType']}
       />
-        <div className="mt-8 flex flex-col min-h-screen">
-          <Table
-            columns={columnsClients}
-            dataSource={clients}
-            loading={loadingClients}
-            scroll={{ x: 'max-content' }}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: clients.length,
-              pageSizeOptions: ALL_PAGE_SIZES,
-              showTotal: (total, range) =>
-                `${range[0]}–${range[1]} из ${total} операций`,
-              onChange: (page, size) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                  size: String(size),
-                }),
-            }}
-          />
-        </div>
-        <ClientsDrawer 
-          isOpen={drawerOpen}
-          onClose={() => {
-            setDrawerOpen(false);
-            setEditClientId(0);
+      <div className="mt-8 flex flex-col min-h-screen">
+        <Table
+          columns={columnsClients}
+          dataSource={clients}
+          loading={loadingClients}
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: clients.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} операций`,
+            onChange: (page, size) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              }),
           }}
-          clientId={editClientId}
         />
+      </div>
+      <EditClientsDrawer
+        isOpen={drawerOpen}
+        onClose={() => {
+          setDrawerOpen(false);
+          setSelectedClientId(undefined);
+        }}
+        clientId={selectedClientId}
+      />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 import MultiInput from '@ui/Input/MultiInput';
 import useSWR from 'swr';
@@ -17,10 +17,7 @@ const TagsFilter: React.FC = () => {
 
   const options = tagsData ? tagsData.map(tag => tag.props) : [];
 
-  const getParam = (key: string, fallback = undefined) =>
-    searchParams.get(key) || fallback;
-
-  const tagIdsParam = getParam('tagIds', undefined);
+  const tagIdsParam = getParam(searchParams, 'tagIds');
 
   const tagIds: number[] | undefined = tagIdsParam
     ? tagIdsParam

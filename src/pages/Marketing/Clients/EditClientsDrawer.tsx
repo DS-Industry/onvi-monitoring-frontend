@@ -7,12 +7,13 @@ import {
   createClient,
   createTag,
   getClientById,
-  getClients,
   getTags,
+  TagsType,
   updateClient,
   UserType,
 } from '@/services/api/marketing';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { getRandomColor } from '@/utils/tableUnits';
 import { Button, DatePicker, Drawer, Form, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -24,10 +25,10 @@ import useSWRMutation from 'swr/mutation';
 type ClientDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
-  clientId: number;
+  clientId?: number;
 };
 
-const ClientsDrawer: React.FC<ClientDrawerProps> = ({
+const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   isOpen,
   onClose,
   clientId,
@@ -49,6 +50,8 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
     number: undefined,
     monthlyLimit: undefined,
   };
+
+  type FieldType = keyof typeof defaultValues;
 
   const [formData, setFormData] = useState(defaultValues);
   const [viewLoyalty, setViewLoyalty] = useState(false);
@@ -80,14 +83,14 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
     keepPreviousData: true,
   });
 
-  const options = tagsData ? tagsData.map(tag => tag.props) : [];
+  const tagsOptions = tagsData ? tagsData.map(tag => tag.props) : [];
 
-  const handleSelectionChange = (selected: typeof options) => {
+  const handleSelectionChange = (selected: TagsType[]) => {
     const selectedIds = selected.map(sel => sel.id);
     handleInputChange('tagIds', selectedIds);
   };
 
-  const { trigger: createCl, isMutating } = useSWRMutation(
+  const { trigger: createClientTrigger, isMutating } = useSWRMutation(
     ['create-client'],
     async () =>
       createClient({
@@ -107,11 +110,11 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
       })
   );
 
-  const { trigger: updateCl, isMutating: updatingClient } = useSWRMutation(
+  const { trigger: updateClientTrigger, isMutating: updatingClient } = useSWRMutation(
     ['update-client'],
     async () =>
       updateClient({
-        clientId: clientId,
+        clientId: Number(clientId),
         name: formData.name,
         type: formData.type,
         inn: formData.inn,
@@ -122,7 +125,7 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
       })
   );
 
-  const { trigger: createT, isMutating: creatingTag } = useSWRMutation(
+  const { trigger: createTagTrigger, isMutating: creatingTag } = useSWRMutation(
     ['create-tag'],
     async (
       _,
@@ -138,8 +141,6 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
       return createTag(arg);
     }
   );
-
-  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (
     field: FieldType,
@@ -164,7 +165,7 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const onSubmit = async () => {
     try {
-      const result = clientId !== 0 ? await updateCl() : await createCl();
+      const result = clientId !== 0 ? await updateClientTrigger() : await createClientTrigger();
       if (result) {
         mutate([
           `get-clients`,
@@ -184,27 +185,9 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
     }
   };
 
-  const { data: clientData } = useSWR(
-    clientId !== 0 ? [`get-client-by-id`] : null,
-    () => getClientById(clientId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const { data: clientsData } = useSWR(
-    [`get-clients`, currentPage, pageSize, placementId, type, tagIds, phone],
-    () =>
-      getClients({
-        placementId: placementId || '*',
-        type: type,
-        tagIds: undefined,
-        phone: phone,
-        page: currentPage,
-        size: pageSize,
-      }),
+  const { data: clientDataById } = useSWR(
+    clientId ? [`get-client-by-id`] : null,
+    () => getClientById(Number(clientId)),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -213,45 +196,30 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
   );
 
   useEffect(() => {
-    const clientToEdit = clientsData?.find(client => client.id === clientId);
-    if (clientToEdit) {
-      setFormData({
-        type: clientToEdit.type,
-        name: clientToEdit.name,
-        phone: clientToEdit.phone,
-        comment: clientToEdit.comment,
-        tagIds: clientToEdit.tags.map(tag => tag.id),
-        placementId: clientToEdit.placementId,
-      });
-    }
-
-    if (clientData) {
+    if (clientDataById) {
       setFormData(prevData => ({
         ...prevData,
-        birthday: clientData.birthday
-          ? dayjs(String(clientData.birthday).split('T')[0]).toDate()
+        type: clientDataById.type,
+        name: clientDataById.name,
+        phone: clientDataById.phone,
+        comment: clientDataById.comment,
+        tagIds: clientDataById.tags.map(tag => tag.id),
+        placementId: clientDataById.placementId,
+        birthday: clientDataById.birthday
+          ? dayjs(String(clientDataById.birthday).split('T')[0]).toDate()
           : undefined,
-        email: clientData.email,
-        inn: clientData.inn,
-        gender: clientData.gender,
-        devNumber: clientData.card?.devNumber,
-        number: clientData.card?.number,
-        monthlyLimit: clientData.card?.monthlyLimit,
+        email: clientDataById.email,
+        inn: clientDataById.inn,
+        gender: clientDataById.gender,
+        devNumber: clientDataById.card?.devNumber,
+        number: clientDataById.card?.number,
+        monthlyLimit: clientDataById.card?.monthlyLimit,
       }));
     }
-  }, [clientData]);
+  }, [clientDataById]);
 
-  const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
-  const createTa = async () => {
-    const result = await createT({
+  const createTags = async () => {
+    const result = await createTagTrigger({
       name: searchValue,
       color: getRandomColor(),
     });
@@ -295,7 +263,7 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
                 { label: t('marketing.legal'), value: 'LEGAL' },
               ]}
               {...register('type', {
-                required: clientId === 0 && 'Type is required',
+                required: clientId === undefined && t("validation.typeRequired"),
               })}
               onChange={value => handleInputChange('type', value)}
               status={errors.type ? 'error' : ''}
@@ -315,7 +283,7 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
               value={formData.name}
               status={errors.name ? 'error' : ''}
               {...register('name', {
-                required: clientId === 0 && 'Name is required',
+                required: clientId === undefined && t("validation.nameRequired"),
               })}
               onChange={e => handleInputChange('name', e.target.value)}
               size="large"
@@ -427,12 +395,12 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
           </div>
         )}
         <MultiInput
-          options={options}
+          options={tagsOptions}
           value={formData.tagIds}
           onChange={handleSelectionChange}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
-          handleChange={createTa}
+          handleChange={createTags}
           isLoading={creatingTag}
           loadingOptions={loadingTags || validatingTags}
         />
@@ -509,7 +477,7 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
           <Button
             htmlType="submit"
             className="btn-primary"
-            loading={clientId !== 0 ? updatingClient : isMutating}
+            loading={clientId ? updatingClient : isMutating}
           >
             {t('organizations.save')}
           </Button>
@@ -519,4 +487,4 @@ const ClientsDrawer: React.FC<ClientDrawerProps> = ({
   );
 };
 
-export default ClientsDrawer;
+export default EditClientsDrawer;
