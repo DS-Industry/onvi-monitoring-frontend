@@ -31,11 +31,8 @@ const BasicInformation: React.FC = () => {
     <div className="max-w-6xl">
       {loadingClients ? (
         <div className="flex flex-col md:flex-row gap-6 mb-5">
-          {/* Left Column */}
           <div className="flex flex-col space-y-6 w-full">
             <Skeleton.Input active style={{ width: 150, height: 32 }} />
-
-            {/* Type */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -43,8 +40,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 256, height: 40 }} />
             </div>
-
-            {/* Name */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -52,8 +47,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 384, height: 40 }} />
             </div>
-
-            {/* Floor */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -61,8 +54,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 56, height: 40 }} />
             </div>
-
-            {/* Register Date */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -70,8 +61,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 144, height: 40 }} />
             </div>
-
-            {/* Phone */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -79,8 +68,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 384, height: 40 }} />
             </div>
-
-            {/* Email */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -88,8 +75,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 384, height: 40 }} />
             </div>
-
-            {/* Comment */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -97,8 +82,6 @@ const BasicInformation: React.FC = () => {
               />
               <Skeleton.Input active style={{ width: 384, height: 80 }} />
             </div>
-
-            {/* Tags */}
             <div className="flex flex-col space-y-2">
               <Skeleton.Input
                 active
@@ -115,8 +98,6 @@ const BasicInformation: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            {/* Segments */}
             <div>
               <Skeleton.Input
                 active
@@ -128,8 +109,6 @@ const BasicInformation: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Right Column */}
           <div className="flex flex-col lg:ml-40 w-full space-y-4">
             <div className="flex items-center gap-2">
               <Skeleton.Input active style={{ width: 160, height: 32 }} />
@@ -238,8 +217,6 @@ const BasicInformation: React.FC = () => {
                 </Space>
               </Form.Item>
             </Col>
-
-            {/* Right Column */}
             <Col xs={24} lg={12}>
               <div className="flex items-center space-x-2 mb-3">
                 <Title level={4} className="!mb-0 whitespace-nowrap">
