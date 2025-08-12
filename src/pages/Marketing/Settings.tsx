@@ -20,7 +20,7 @@ import {
   getLoyaltyProgramById,
   updateLoyaltyProgram,
 } from '@/services/api/marketing';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/context/useContext';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
@@ -62,7 +62,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({ }),
+    () => getOrganization({}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -75,16 +75,15 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const placementId = searchParams.get('city');
+  const loyaltyId = Number(searchParams.get('loyaltyId')) || undefined;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
   };
 
-  const location = useLocation();
-
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
-    location.state.ownerId !== 0 ? [`get-loyalty-program-by-id`] : null,
-    () => getLoyaltyProgramById(location.state.ownerId),
+    loyaltyId ? [`get-loyalty-program-by-id`] : null,
+    () => getLoyaltyProgramById(loyaltyId ? loyaltyId : 0),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -115,7 +114,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   );
 
   const payload: UpdateLoyalty = {
-    loyaltyProgramId: location.state.ownerId,
+    loyaltyProgramId: loyaltyId ? loyaltyId : 0,
     name: formData.name,
   };
 
@@ -155,7 +154,9 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     try {
       const result = await createLoyalty();
       if (result) {
-        location.state.ownerId = result.props.id;
+        updateSearchParams(searchParams, setSearchParams, {
+          loyaltyId: result.props.id,
+        });
         nextStep;
         resetForm();
       } else {
@@ -199,7 +200,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         firstText={t('marketing.basic')}
         secondText={t('marketing.setup')}
         Component={BonusImage}
-        handleClick={location.state.ownerId !== 0 ? handleUpdate : undefined}
+        handleClick={loyaltyId ? handleUpdate : undefined}
       >
         <div className="pl-14 mt-5">
           {loadingPrograms ? (
@@ -239,9 +240,11 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   options={cities}
                   classname="w-64"
                   inputType="secondary"
-                  onChange={value => updateSearchParams(searchParams, setSearchParams, {
-                    city: value
-                  })}
+                  onChange={value =>
+                    updateSearchParams(searchParams, setSearchParams, {
+                      city: value,
+                    })
+                  }
                 />
                 <div>
                   <div className="text-sm text-text02">
@@ -286,7 +289,6 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         Component={DiamondImage}
       >
         <div className="px-4 sm:px-8 lg:pl-14 space-y-6">
-
           <div className="text-2xl text-text01 font-semibold mb-4">
             {t('marketing.write')}
           </div>
@@ -335,7 +337,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   value={option}
                   checked={selectedOption === option}
                   onChange={handleChange}
-                  disabled={location.state.ownerId !== 0}
+                  disabled={!!loyaltyId}
                 />
                 <div
                   className={
@@ -364,13 +366,13 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   handleInputChange('lifetimeDays', e.target.value)
                 }
                 {...register('lifetimeDays')}
-                disabled={location.state.ownerId !== 0}
+                disabled={!!loyaltyId}
               />
             </div>
           )}
         </div>
       </ExpandedCard>
-      {location.state.ownerId === 0 && (
+      {loyaltyId === undefined && (
         <div className="flex space-x-4">
           <Button
             title={t('organizations.cancel')}
