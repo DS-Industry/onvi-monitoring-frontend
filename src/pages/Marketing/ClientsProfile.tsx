@@ -6,6 +6,7 @@ const Communication = React.lazy(() => import('./Communication'));
 const Loyalty = React.lazy(() => import('./Loyalty'));
 const Actions = React.lazy(() => import('./Actions'));
 import GenericTabs from '@ui/Tabs/GenericTab';
+import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const ClientsProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -39,6 +40,15 @@ const ClientsProfile: React.FC = () => {
   ];
 
   return (
+    <>
+    <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.clientProfile')}
+          </span>
+          <QuestionMarkIcon />
+        </div>
+      </div>
     <div className="max-w-5xl ml-10 bg-white p-4 rounded-md shadow-sm">
       <GenericTabs
         tabs={tabItems}
@@ -48,6 +58,7 @@ const ClientsProfile: React.FC = () => {
         type="line"
       />
     </div>
+    </>
   );
 };
 
