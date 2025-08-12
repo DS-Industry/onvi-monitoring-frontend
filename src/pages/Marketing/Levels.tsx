@@ -60,7 +60,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
-  const loyaltyId = Number(searchParams.get("loyaltyId"));
+  const loyaltyId = Number(searchParams.get("loyaltyId")) || undefined;
 
   const addTier = () => {
     setIsModalOpen(true);
@@ -74,7 +74,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     [`get-tiers`, loyaltyId],
     () =>
       getTiers({
-        programId: loyaltyId,
+        programId: Number(loyaltyId),
       }),
     {
       revalidateOnFocus: false,
@@ -150,7 +150,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
   const defaultValues: Tier = {
     name: '',
     description: undefined,
-    loyaltyProgramId: loyaltyId,
+    loyaltyProgramId: Number(loyaltyId),
     limitBenefit: 0,
   };
 
@@ -501,7 +501,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
             <div>{t('marketing.addLevel')}</div>
           </div>
         </div>
-        {loyaltyId === 0 && (
+        {loyaltyId === undefined && (
           <Button title="Назад" handleClick={prevStep} />
         )}
       </div>

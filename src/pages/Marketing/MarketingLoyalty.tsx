@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,11 +14,7 @@ const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const navigate = useNavigate();
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    setRefreshKey(Date.now());
-  }, []);
+  const refreshKey = Date.now();
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR([`get-loyalty-programs`, refreshKey], () => getLoyaltyPrograms(), {
@@ -81,7 +77,7 @@ const MarketingLoyalty: React.FC = () => {
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => {
-            navigate('/marketing/loyalty/rewards?loyaltyId=0',);
+            navigate('/marketing/loyalty/rewards',);
           }}
         >
           {t('routes.add')}

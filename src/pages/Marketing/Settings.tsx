@@ -75,15 +75,15 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const placementId = searchParams.get('city');
-  const loyaltyId = Number(searchParams.get('loyaltyId'));
+  const loyaltyId = Number(searchParams.get('loyaltyId')) || undefined;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
   };
 
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
-    loyaltyId !== 0 ? [`get-loyalty-program-by-id`] : null,
-    () => getLoyaltyProgramById(loyaltyId),
+    loyaltyId ? [`get-loyalty-program-by-id`] : null,
+    () => getLoyaltyProgramById(Number(loyaltyId)),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -114,7 +114,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   );
 
   const payload: UpdateLoyalty = {
-    loyaltyProgramId: loyaltyId,
+    loyaltyProgramId: Number(loyaltyId),
     name: formData.name,
   };
 
@@ -200,7 +200,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         firstText={t('marketing.basic')}
         secondText={t('marketing.setup')}
         Component={BonusImage}
-        handleClick={loyaltyId !== 0 ? handleUpdate : undefined}
+        handleClick={loyaltyId ? handleUpdate : undefined}
       >
         <div className="pl-14 mt-5">
           {loadingPrograms ? (
@@ -337,7 +337,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   value={option}
                   checked={selectedOption === option}
                   onChange={handleChange}
-                  disabled={loyaltyId !== 0}
+                  disabled={!!loyaltyId}
                 />
                 <div
                   className={
@@ -366,13 +366,13 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                   handleInputChange('lifetimeDays', e.target.value)
                 }
                 {...register('lifetimeDays')}
-                disabled={loyaltyId !== 0}
+                disabled={!!loyaltyId}
               />
             </div>
           )}
         </div>
       </ExpandedCard>
-      {loyaltyId === 0 && (
+      {loyaltyId === undefined && (
         <div className="flex space-x-4">
           <Button
             title={t('organizations.cancel')}

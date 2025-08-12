@@ -133,7 +133,6 @@ const Loyalty: React.FC = () => {
         <Col xs={24} md={24} lg={8}>
           <div className="rounded-2xl shadow-card h-80">
             <div className="flex flex-col h-full">
-              {/* Upper half: white background */}
               <div className="flex-1 bg-white p-4">
                 <Row className="flex justify-between">
                   <Title level={4} className="text-text01">
