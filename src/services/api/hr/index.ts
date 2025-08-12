@@ -84,7 +84,7 @@ type UpdatePositionRequest = {
   description?: string;
 };
 
-type PrepaymentCalculateBody = {
+export type PrepaymentCalculateBody = {
   organizationId: number;
   billingMonth: string;
   hrPositionId: number | '*';
@@ -181,7 +181,7 @@ export type PaymentsResponse = {
   createdById: number;
 };
 
-type addWorkerRequest = {
+export type addWorkerRequest = {
   organizationId: number;
   billingMonth: string;
   workerIds: number[];

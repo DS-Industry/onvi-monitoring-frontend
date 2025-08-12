@@ -12,6 +12,8 @@ import {
   calculatePrepayment,
   createPrepayment,
   PrepaymentCreateRequest,
+  addWorkerRequest,
+  PrepaymentCalculateBody,
 } from '@/services/api/hr';
 import {
   Table,
@@ -35,18 +37,6 @@ import PositionEmpty from '@/assets/NoPosition.png';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
-
-type PaymentCalculateBody = {
-  organizationId: number;
-  billingMonth: string;
-  hrPositionId: number | '*';
-};
-
-type AddWorker = {
-  organizationId: number;
-  billingMonth: string;
-  workerIds: number[];
-};
 
 interface PaymentRecord {
   check: boolean;
@@ -132,7 +122,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
     })) || []),
   ];
 
-  const defaultValues: PaymentCalculateBody = {
+  const defaultValues: PrepaymentCalculateBody = {
     organizationId: 0,
     billingMonth: '',
     hrPositionId: '*',
@@ -252,7 +242,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
     setPaymentsData(prevData => prevData.filter(row => !row.check));
   };
 
-  const defaultValuesWorker: AddWorker = {
+  const defaultValuesWorker: addWorkerRequest = {
     organizationId: 0,
     billingMonth: '',
     workerIds: [],
