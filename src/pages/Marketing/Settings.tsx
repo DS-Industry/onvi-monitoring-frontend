@@ -83,7 +83,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
     loyaltyId ? [`get-loyalty-program-by-id`] : null,
-    () => getLoyaltyProgramById(Number(loyaltyId)),
+    () => getLoyaltyProgramById(loyaltyId ? loyaltyId : 0),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
