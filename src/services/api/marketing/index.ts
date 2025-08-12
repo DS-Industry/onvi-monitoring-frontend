@@ -7,7 +7,7 @@ enum MARKETING {
   LOYALTY = 'user/loyalty',
 }
 
-enum UserType {
+export enum UserType {
   PHYSICAL = 'PHYSICAL',
   LEGAL = 'LEGAL',
 }
@@ -30,7 +30,7 @@ enum BenefitType {
   GIFT_POINTS = 'GIFT_POINTS',
 }
 
-type ClientRequestBody = {
+export type ClientRequestBody = {
   name: string;
   birthday?: Date;
   phone: string;
@@ -98,11 +98,11 @@ type ClientsParams = {
   size?: number;
 };
 
-type ClientsResponse = {
+export type ClientsResponse = {
   id: number;
   name: string;
   phone: string;
-  status: StatusUser;
+  status: string;
   type: UserType;
   comment?: string;
   placementId?: number;
@@ -125,6 +125,8 @@ type TagResponse = {
     color: string;
   };
 };
+
+export type TagsType = TagResponse["props"];
 
 type DeleteTagResponse = {
   status: 'SUCCESS';
