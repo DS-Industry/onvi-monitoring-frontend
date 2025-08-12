@@ -74,7 +74,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     [`get-tiers`, loyaltyId],
     () =>
       getTiers({
-        programId: Number(loyaltyId),
+        programId: loyaltyId ? loyaltyId : '*',
       }),
     {
       revalidateOnFocus: false,
@@ -150,7 +150,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
   const defaultValues: Tier = {
     name: '',
     description: undefined,
-    loyaltyProgramId: Number(loyaltyId),
+    loyaltyProgramId: loyaltyId ? loyaltyId : 0,
     limitBenefit: 0,
   };
 

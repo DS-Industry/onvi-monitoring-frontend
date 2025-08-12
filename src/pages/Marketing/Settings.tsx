@@ -114,7 +114,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   );
 
   const payload: UpdateLoyalty = {
-    loyaltyProgramId: Number(loyaltyId),
+    loyaltyProgramId: loyaltyId ? loyaltyId : 0,
     name: formData.name,
   };
 
