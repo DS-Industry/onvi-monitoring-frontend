@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import useAuthStore from '@/config/store/authSlice';
+import { useIsAuthenticated, useCheckAuth, useSetAuthenticated } from '@/hooks/useAuthStore';
 import useUserStore from '@/config/store/userSlice';
 
 type Props = {
@@ -12,30 +12,39 @@ const PrivateRoute: React.FC<Props> = ({ element }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useUserStore(state => state.user);
-  const jwtToken = useAuthStore(state => state.tokens?.accessToken);
-  const accessTokenExp = useAuthStore(state => state.tokens?.accessTokenExp); // Get the expiration time of the access token
-
-  const isTokenExpired = useCallback(() => {
-    if (!accessTokenExp) return true;
-
-    const currentTime = new Date();
-    const tokenExpiryTime = new Date(accessTokenExp);
-
-    return currentTime >= tokenExpiryTime; // Returns true if token is expired
-  }, [accessTokenExp]);
+  const isAuthenticated = useIsAuthenticated();
+  const checkAuth = useCheckAuth();
+  const setAuthenticated = useSetAuthenticated();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the token is expired or if user/token is missing
-    const checkTokenExpiry = () => {
-      if (!user || !jwtToken || !accessTokenExp || isTokenExpired()) {
-        navigate('/login'); // If user or token is missing/expired, navigate to login
+    const validateAuth = async () => {
+      try {
+        const isValid = await checkAuth();
+        if (!isValid || !user) {
+          setAuthenticated(false);
+          navigate('/login');
+        }
+      } catch (error) {
+        setAuthenticated(false);
+        navigate('/login');
+      } finally {
+        setLoading(false);
       }
     };
 
-    checkTokenExpiry();
-  }, [user, jwtToken, accessTokenExp, navigate, isTokenExpired]);
+    if (!isAuthenticated || !user) {
+      validateAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, checkAuth, setAuthenticated, navigate]);
 
-  if (!user || !jwtToken || !accessTokenExp || isTokenExpired()) {
+  if (loading) {
+    return <div>{t('loading')}</div>;
+  }
+
+  if (!isAuthenticated || !user) {
     return <div>{t('loading')}</div>;
   }
 

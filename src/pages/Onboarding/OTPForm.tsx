@@ -5,7 +5,7 @@ import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { registerActivationUser } from '@/services/api/platform';
 import { useClearUserData } from '@/hooks/useUserStore';
-import { useSetTokens } from '@/hooks/useAuthStore';
+import { useSetAuthenticated } from '@/hooks/useAuthStore';
 
 type User = {
   id: number;
@@ -64,7 +64,7 @@ const OTPForm: React.FC<Props> = ({
   const [otpString, setOtpString] = useState('');
   const [isError, setIsError] = useState(false);
   const clearData = useClearUserData();
-  const setTokens = useSetTokens();
+  const setAuthenticated = useSetAuthenticated();
 
   const defaultValues = {
     confirmString: '',
@@ -109,11 +109,11 @@ const OTPForm: React.FC<Props> = ({
   const onSubmit = async () => {
     try {
       const result = await trigger();
-      if (result && result.admin && result.tokens && result.permissionInfo) {
-        const { admin, tokens, permissionInfo } = result;
+      if (result && result.admin && result.permissionInfo) {
+        const { admin, permissionInfo } = result;
         setRegisterUser(admin?.props);
-        setRegisterToken(tokens);
-        setTokens({ tokens });
+        setRegisterToken(null);
+        setAuthenticated(true);
         setRegisterPermissions(permissionInfo.permissions);
         setCount(count + 1);
       } else {

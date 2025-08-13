@@ -10,7 +10,7 @@ enum FINANCE {
   GET_WORKER = 'user/permission/worker-by-pos',
 }
 
-enum ManagerReportPeriodStatus {
+export enum ManagerReportPeriodStatus {
   SAVE = 'SAVE',
   SENT = 'SENT',
 }

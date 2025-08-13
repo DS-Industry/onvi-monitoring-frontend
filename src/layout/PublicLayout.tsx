@@ -1,12 +1,19 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { ContextProvider } from '@/components/context/Context.tsx';
 import Spin from 'antd/es/spin';
+import { setToastFunction } from '@/config/axiosConfig';
+import { useToast } from '@/hooks/useToast';
 
-const PublicLayout: React.FC = () => {
+const PublicLayoutContent: React.FC = () => {
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    setToastFunction(showToast);
+  }, [showToast]);
+
   return (
-    <ContextProvider>
-      <Suspense
+    <Suspense
         fallback={
           <div
             style={{
@@ -23,7 +30,14 @@ const PublicLayout: React.FC = () => {
         <main>
           <Outlet />
         </main>
-      </Suspense>
+    </Suspense>
+  );
+};
+
+const PublicLayout: React.FC = () => {
+  return (
+    <ContextProvider>
+      <PublicLayoutContent />
     </ContextProvider>
   );
 };

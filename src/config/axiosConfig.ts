@@ -19,11 +19,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
-    const jwtToken = useAuthStore.getState().tokens?.accessToken;
-    if (jwtToken !== null) {
-      config.headers.Authorization = `Bearer ${jwtToken}`;
-    }
-
     datadogLogs.logger.info('API Request Initiated', {
       url: config.url,
       method: config.method,
@@ -53,7 +48,7 @@ api.interceptors.response.use(
     });
     return response;
   },
-  error => {
+  async error => {
     const url = error.config?.url;
     const method = error.config?.method;
     const status = error.response?.status || 'No Response';
@@ -74,9 +69,39 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      const logout = useAuthStore.getState().clearTokens;
-      logout();
-      window.location.href = '/login';
+      const originalRequest = error.config;
+
+      // Prevent infinite refresh loops
+      if (
+        originalRequest._retry ||
+        originalRequest.url?.includes('/user/auth/refresh')
+      ) {
+        const logout = useAuthStore.getState().logout;
+        logout();
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
+      try {
+        // Attempt to refresh the token
+        await api.post('/user/auth/refresh');
+
+        // Retry the original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        datadogLogs.logger.error('Token refresh failed', {
+          error: refreshError,
+          timestamp: new Date().toISOString(),
+        });
+
+        const logout = useAuthStore.getState().logout;
+        logout();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
 
     const endpoint = error.config?.url;
