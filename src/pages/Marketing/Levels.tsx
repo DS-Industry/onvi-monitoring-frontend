@@ -16,9 +16,15 @@ import useSWRMutation from 'swr/mutation';
 import Button from '@/components/ui/Button/Button';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import useSWR, { mutate } from 'swr';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
-import { Transfer, List, Typography, Tag, Skeleton, message } from 'antd';
+import {
+  Transfer,
+  List,
+  Typography,
+  Tag,
+  Skeleton,
+  message,
+  Modal,
+} from 'antd';
 import { GiftOutlined, PlusOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 
@@ -60,7 +66,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
-  const loyaltyId = Number(searchParams.get("loyaltyId")) || undefined;
+  const loyaltyId = Number(searchParams.get('loyaltyId')) || undefined;
 
   const addTier = () => {
     setIsModalOpen(true);
@@ -269,18 +275,18 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
 
   return (
     <div>
-      <Modal isOpen={isModalOpen}>
+      <Modal
+        open={isModalOpen}
+        onCancel={() => {
+          resetForm();
+          setIsModalOpen(false);
+        }}
+        footer={null}
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {t('marketing.addLevel')}
           </h2>
-          <Close
-            onClick={() => {
-              resetForm();
-              setIsModalOpen(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -339,17 +345,15 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
           </div>
         </form>
       </Modal>
-      <Modal isOpen={isModalOpenUpdate}>
+      <Modal
+        open={isModalOpenUpdate}
+        onCancel={() => setIsModalOpenUpdate(false)}
+        footer={null}
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {tiers.find(item => item.id === tierId)?.name || ''}
           </h2>
-          <Close
-            onClick={() => {
-              setIsModalOpenUpdate(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         {loadingTier ? (
           <div className="w-full max-w-[540px] space-y-4 flex flex-col">

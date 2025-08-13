@@ -14,10 +14,8 @@ import {
 } from '@/services/api/marketing';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
 import Button from '@/components/ui/Button/Button';
-import { Descriptions, Tag, Skeleton } from 'antd';
+import { Descriptions, Tag, Skeleton, Modal } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 
@@ -217,18 +215,18 @@ const Events: React.FC = () => {
 
   return (
     <div>
-      <Modal isOpen={isModalOpen}>
+      <Modal
+        open={isModalOpen}
+        onCancel={() => {
+          resetForm();
+          setIsModalOpen(false);
+        }}
+        footer={null}
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {t('marketing.addBen')}
           </h2>
-          <Close
-            onClick={() => {
-              resetForm();
-              setIsModalOpen(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -301,17 +299,15 @@ const Events: React.FC = () => {
           </div>
         </form>
       </Modal>
-      <Modal isOpen={isModalOpenUpdate}>
+      <Modal
+        open={isModalOpenUpdate}
+        onCancel={() => setIsModalOpenUpdate(false)}
+        footer={null}
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {benefit.find(item => item.id === benefitId)?.name || ''}
           </h2>
-          <Close
-            onClick={() => {
-              setIsModalOpenUpdate(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         {loadingBenefit ? (
           <div className="w-80 space-y-4">
