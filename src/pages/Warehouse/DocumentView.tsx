@@ -33,7 +33,7 @@ const DocumentView: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
   const user = useUser();
@@ -80,7 +80,7 @@ const DocumentView: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: city || '*',
+        placementId: city,
       }),
     {
       revalidateOnFocus: false,

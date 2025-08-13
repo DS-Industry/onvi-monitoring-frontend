@@ -25,7 +25,7 @@ interface FilterShifts {
   dateStart: Date;
   dateEnd: Date;
   posId: number;
-  placementId: number | string;
+  placementId?: number;
   page?: number;
   size?: number;
 }
@@ -70,7 +70,7 @@ const Timesheet: React.FC = () => {
   const posId = Number(searchParams.get('posId') || '*');
   const dateStart = searchParams.get('dateStart') || defaultStartDate;
   const dateEnd = searchParams.get('dateEnd') || defaultEndDate;
-  const placementId = searchParams.get('city') || '*';
+  const placementId = Number(searchParams.get('city')) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -92,7 +92,7 @@ const Timesheet: React.FC = () => {
   const { data: poses, isLoading: isPosLoading } = useSWR(
     `get-pos-${placementId}`,
     () =>
-      getPoses({ placementId: Number(placementId) })
+      getPoses({ placementId: placementId })
         .then((data) => data?.sort((a, b) => a.id - b.id) || [])
         .then((data) => {
           const options = data.map((item) => ({
@@ -145,8 +145,6 @@ const Timesheet: React.FC = () => {
     () =>
       getWorkers({
         organizationId: 1,
-        hrPositionId: '*',
-        placementId: '*',
       }),
     {
       revalidateOnFocus: false,
@@ -241,8 +239,6 @@ const Timesheet: React.FC = () => {
           onSubmit={refetchShifts}
           employeeData={{
             organizationId: 1,
-            hrPositionId: '*',
-            placementId: '*',
           }}
         />
         <div

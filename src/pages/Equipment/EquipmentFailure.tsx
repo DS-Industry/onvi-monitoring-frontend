@@ -138,7 +138,7 @@ const EquipmentFailure: React.FC = () => {
 
   const { data: allProgramsData } = useSWR(
     formData.posId !== 0 ? [`get-all-programs`, formData.posId] : null,
-    () => getPrograms({ posId: formData.posId }),
+    () => getPrograms({ posId: Number(formData.posId) || undefined }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

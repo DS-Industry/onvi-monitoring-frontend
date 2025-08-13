@@ -73,8 +73,7 @@ const MonthlyExpanseEdit: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
 
   const ownerId = Number(searchParams.get('ownerId'));
   const status = searchParams.get('status') as ManagerReportPeriodStatus;

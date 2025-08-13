@@ -56,9 +56,9 @@ type UpdateWorkerRequest = {
 };
 
 export type WorkerParams = {
-  placementId: number | string;
-  hrPositionId: number | '*';
-  organizationId: number | '*';
+  placementId?: number;
+  hrPositionId?: number;
+  organizationId?: number;
   name?: string;
   page?: number;
   size?: number;
@@ -87,7 +87,7 @@ type UpdatePositionRequest = {
 export type PrepaymentCalculateBody = {
   organizationId: number;
   billingMonth: string;
-  hrPositionId: number | '*';
+  hrPositionId?: number;
 };
 
 type PrepaymentCalculateResponse = {
@@ -115,10 +115,10 @@ type PrepaymentCreateResponse = {
 };
 
 export type PrepaymentFilter = {
-  startPaymentDate: Date | '*';
-  endPaymentDate: Date | '*';
-  hrWorkerId: number | string;
-  billingMonth: Date | '*';
+  startPaymentDate?: Date;
+  endPaymentDate?: Date;
+  hrWorkerId?: number;
+  billingMonth?: Date;
   page?: number;
   size?: number;
 };
