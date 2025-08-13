@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
-import { updateUserProfile } from '@/services/api/platform';
+import { updateUserProfile, logoutPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,7 @@ import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
 import Input from '@/components/ui/Input/Input';
 import { useToast } from '@/components/context/useContext';
+import { clearCookie } from '@/utils/cookies';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -116,9 +117,17 @@ const InfoTab: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutPlatformUser();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+
     localStorage.clear();
     sessionStorage.clear();
+
+    clearCookie('csrf-token');
 
     setClearUser();
     logout();
