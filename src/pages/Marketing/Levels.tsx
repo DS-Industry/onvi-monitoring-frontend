@@ -282,6 +282,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
           setIsModalOpen(false);
         }}
         footer={null}
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -349,6 +350,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
         open={isModalOpenUpdate}
         onCancel={() => setIsModalOpenUpdate(false)}
         footer={null}
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">

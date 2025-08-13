@@ -930,7 +930,7 @@ const Articles: React.FC = () => {
         open={isStateOpen}
         onCancel={() => setIsStateOpen(false)}
         footer={false}
-        className="w-full sm:w-[600px]"
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -975,7 +975,7 @@ const Articles: React.FC = () => {
           setIsOpenModal(false);
         }}
         footer={false}
-        className="w-full sm:w-[600px]"
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
