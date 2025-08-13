@@ -92,8 +92,7 @@ const CollectionCreation: React.FC = () => {
 
   const id = searchParams.get('id');
   const status = searchParams.get('status');
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
 
   const { data: posData } = useSWR(
     [`get-pos`, city],

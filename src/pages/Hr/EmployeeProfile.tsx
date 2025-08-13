@@ -120,11 +120,7 @@ const EmployeeProfile: React.FC = () => {
   } = useSWR(
     [`get-workers`, employee],
     () =>
-      getWorkers({
-        placementId: '*',
-        hrPositionId: '*',
-        organizationId: '*',
-      }),
+      getWorkers({}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

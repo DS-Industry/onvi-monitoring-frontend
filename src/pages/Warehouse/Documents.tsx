@@ -50,14 +50,14 @@ const Documents: React.FC = () => {
   const document = searchParams.get('document') as WarehouseDocumentType;
   const [documentType, setDocumentType] =
     useState<WarehouseDocumentType>(document);
-  const posId = searchParams.get('posId') || '*';
-  const warehouseId = searchParams.get('warehouseId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
+  const warehouseId = Number(searchParams.get('warehouseId')) || undefined;
   const dateStart =
     searchParams.get('dateStart') ??
     dayjs().toDate().toISOString().slice(0, 10);
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
-  const cityParam = Number(searchParams.get('city')) || '*';
+  const cityParam = Number(searchParams.get('city')) || undefined;
 
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -102,7 +102,7 @@ const Documents: React.FC = () => {
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      warehouseId: warehouseId || '*',
+      warehouseId: warehouseId,
       placementId: cityParam,
     }),
     [dateStart, dateEnd, warehouseId, cityParam, formattedDate]
