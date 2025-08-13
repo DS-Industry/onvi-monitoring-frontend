@@ -2,6 +2,7 @@ import axios from 'axios';
 import useAuthStore from '@/config/store/authSlice';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
+import { getCookie, clearCookie } from '@/utils/cookies';
 
 let showToast: (
   message: string,
@@ -12,6 +13,24 @@ export const setToastFunction = (toastFunction: typeof showToast) => {
   showToast = toastFunction;
 };
 
+const handleLogout = async () => {
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/user/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch (error) {
+    console.error('Server logout failed:', error);
+  }
+
+  localStorage.clear();
+  sessionStorage.clear();
+  clearCookie('csrf-token');
+
+  const logout = useAuthStore.getState().logout;
+  logout();
+};
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -19,16 +38,22 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
-    const jwtToken = useAuthStore.getState().tokens?.accessToken;
-    if (jwtToken !== null) {
-      config.headers.Authorization = `Bearer ${jwtToken}`;
-    }
-
     datadogLogs.logger.info('API Request Initiated', {
       url: config.url,
       method: config.method,
       timestamp: new Date().toISOString(),
     });
+
+    if (
+      ['post', 'put', 'patch', 'delete'].includes(
+        config.method?.toLowerCase() || ''
+      )
+    ) {
+      const csrfToken = getCookie('csrf-token');
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+      }
+    }
 
     return config;
   },
@@ -53,7 +78,7 @@ api.interceptors.response.use(
     });
     return response;
   },
-  error => {
+  async error => {
     const url = error.config?.url;
     const method = error.config?.method;
     const status = error.response?.status || 'No Response';
@@ -74,9 +99,37 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      const logout = useAuthStore.getState().clearTokens;
-      logout();
-      window.location.href = '/login';
+      const originalRequest = error.config;
+
+      // Prevent infinite refresh loops
+      if (
+        originalRequest._retry ||
+        originalRequest.url?.includes('/user/auth/refresh')
+      ) {
+        await handleLogout();
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
+      try {
+        // Attempt to refresh the token
+        await api.post('/user/auth/refresh');
+
+        // Retry the original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        datadogLogs.logger.error('Token refresh failed', {
+          error: refreshError,
+          timestamp: new Date().toISOString(),
+        });
+
+        await handleLogout();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
 
     const endpoint = error.config?.url;

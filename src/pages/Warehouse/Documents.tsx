@@ -1,7 +1,5 @@
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import Modal from '@/components/ui/Modal/Modal';
 import React, { useMemo, useState } from 'react';
-import Close from '@icons/close.svg?react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -16,7 +14,7 @@ import { getWorkers } from '@/services/api/equipment';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Button as AntDButton } from 'antd';
+import { Table, Button as AntDButton, Modal } from 'antd';
 import SavedIcon from '@icons/SavedIcon.png';
 import SentIcon from '@icons/SentIcon.png';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -296,26 +294,24 @@ const Documents: React.FC = () => {
           columns={visibleColumns}
           pagination={false}
           loading={documentsLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        handleClick={handleModalSubmit}
-        classname="w-96 h-72"
-        loading={loadingDocument}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={handleModalSubmit}
+        className="w-96 h-72"
+        okButtonProps={{
+          loading: loadingDocument,
+        }}
+        okText={t('organizations.save')}
+        cancelText={t('organizations.cancel')}
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-text01">
             {t('warehouse.createDoc')}
           </h2>
-          <div className="flex items-center gap-6">
-            <Close
-              onClick={() => setIsModalOpen(false)}
-              className="cursor-pointer"
-            />
-          </div>
         </div>
         <DropdownInput
           value={documentType}

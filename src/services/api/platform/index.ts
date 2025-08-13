@@ -10,6 +10,8 @@ enum LOGIN {
   PASSWORD_RESET = 'user/auth/password/reset',
   WORKER = 'user/auth/worker',
   ORGANIZATION = 'user/organization/pre-create',
+  CSRF_TOKEN = 'user/auth/csrf-token',
+  LOGOUT = 'user/auth/logout',
 }
 
 enum USER {
@@ -257,6 +259,10 @@ type OrganizationCreateResponse = {
   ownerId: number;
 };
 
+type CSRFTokenResponse = {
+  csrfToken: string;
+};
+
 export async function loginPlatformUser(
   body: LOGINBODY
 ): Promise<LOGINRESPONSE> {
@@ -388,4 +394,15 @@ export async function precreateOrganization(
     body
   );
   return response.data;
+}
+
+export async function getCsrfToken(): Promise<CSRFTokenResponse> {
+  const response: AxiosResponse<CSRFTokenResponse> = await api.get(
+    LOGIN.CSRF_TOKEN
+  );
+  return response.data;
+}
+
+export async function logoutPlatformUser(): Promise<void> {
+  await api.post(LOGIN.LOGOUT);
 }
