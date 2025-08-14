@@ -14,8 +14,7 @@ const PosFilter: React.FC = () => {
   const getParam = (key: string, fallback = '') =>
     searchParams.get(key) || fallback;
 
-  const city = getParam("city", undefined);
-  const placementId = city ? Number(city) : undefined;
+  const placementId = Number(searchParams.get("city")) || undefined;
 
   const { data: posData, isLoading } = useSWR(
     placementId ? [`get-pos`, placementId] : null,
@@ -34,10 +33,8 @@ const PosFilter: React.FC = () => {
     });
   };
 
-  if (!posData?.length && !isLoading) return null;
-
   const poses = [
-    { label: t('warehouse.all'), value: '*' },
+    { label: t('warehouse.all'), value: '' },
     ...(posData?.map(item => ({
       label: item.name,
       value: String(item.id),
@@ -53,7 +50,7 @@ const PosFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('filters.pos.placeholder')}
-        value={getParam('posId', '*')}
+        value={getParam('posId', '')}
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
