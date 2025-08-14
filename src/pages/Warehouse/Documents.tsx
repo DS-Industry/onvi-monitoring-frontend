@@ -8,11 +8,9 @@ import useSWR from 'swr';
 import {
   createDocument,
   getAllDocuments,
-  getWarehouses,
   WarehouseDocumentType,
 } from '@/services/api/warehouse';
 import useSWRMutation from 'swr/mutation';
-import { getWorkers } from '@/services/api/equipment';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -42,7 +40,6 @@ type Documents = {
 
 const Documents: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -52,7 +49,6 @@ const Documents: React.FC = () => {
   const document = searchParams.get('document') as WarehouseDocumentType;
   const [documentType, setDocumentType] =
     useState<WarehouseDocumentType>(document);
-  const posId = searchParams.get('posId') || '*';
   const warehouseId = searchParams.get('warehouseId') || '*';
   const dateStart =
     searchParams.get('dateStart') ??
@@ -63,42 +59,6 @@ const Documents: React.FC = () => {
 
   const navigate = useNavigate();
   const { showToast } = useToast();
-
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
-  const { data: warehouseData } = useSWR(
-    posId && cityParam ? [`get-warehouse`] : null,
-    () =>
-      getWarehouses({
-        posId: posId,
-        placementId: cityParam,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const workers: { name: string; value: number }[] =
-    workerData?.map(item => ({ name: item.name, value: item.id })) || [];
-
-  const warehouses: { name: string; value: number | string }[] =
-    warehouseData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
-  const warehousesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
-  warehouses.unshift(warehousesAllObj);
 
   const filterParams = useMemo(
     () => ({
@@ -131,10 +91,6 @@ const Documents: React.FC = () => {
   const data =
     allDocuments?.map(item => ({
       ...item,
-      warehouseName:
-        warehouses.find(ware => ware.value === item.warehouseId)?.name || '-',
-      responsibleName:
-        workers.find(wor => wor.value === item.responsibleId)?.name || '-',
       status: t(`tables.${item.status}`),
       type: t(`routes.${item.type}`),
       statusCheck: '',
@@ -296,7 +252,7 @@ const Documents: React.FC = () => {
           columns={visibleColumns}
           pagination={false}
           loading={documentsLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Modal

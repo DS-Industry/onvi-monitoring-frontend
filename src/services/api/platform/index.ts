@@ -10,6 +10,7 @@ enum LOGIN {
   PASSWORD_RESET = 'user/auth/password/reset',
   WORKER = 'user/auth/worker',
   ORGANIZATION = 'user/organization/pre-create',
+  LOGOUT = 'user/auth/logout',
 }
 
 enum USER {
@@ -257,6 +258,7 @@ type OrganizationCreateResponse = {
   ownerId: number;
 };
 
+
 export async function loginPlatformUser(
   body: LOGINBODY
 ): Promise<LOGINRESPONSE> {
@@ -388,4 +390,9 @@ export async function precreateOrganization(
     body
   );
   return response.data;
+}
+
+
+export async function logoutPlatformUser(): Promise<void> {
+  await api.post(LOGIN.LOGOUT);
 }

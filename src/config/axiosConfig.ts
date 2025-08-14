@@ -2,7 +2,6 @@ import axios from 'axios';
 import useAuthStore from '@/config/store/authSlice';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
-
 let showToast: (
   message: string,
   type: 'success' | 'error' | 'info' | 'warning'
@@ -10,6 +9,23 @@ let showToast: (
 
 export const setToastFunction = (toastFunction: typeof showToast) => {
   showToast = toastFunction;
+};
+
+const handleLogout = async () => {
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/user/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch (error) {
+    console.error('Server logout failed:', error);
+  }
+
+  localStorage.clear();
+  sessionStorage.clear();
+
+  const logout = useAuthStore.getState().logout;
+  logout();
 };
 
 const api = axios.create({
@@ -76,8 +92,7 @@ api.interceptors.response.use(
         originalRequest._retry ||
         originalRequest.url?.includes('/user/auth/refresh')
       ) {
-        const logout = useAuthStore.getState().logout;
-        logout();
+        await handleLogout();
         window.location.href = '/login';
         return Promise.reject(error);
       }
@@ -97,8 +112,7 @@ api.interceptors.response.use(
           timestamp: new Date().toISOString(),
         });
 
-        const logout = useAuthStore.getState().logout;
-        logout();
+        await handleLogout();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

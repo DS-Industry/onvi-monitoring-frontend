@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
-import { updateUserProfile } from '@/services/api/platform';
+import { updateUserProfile, logoutPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
@@ -116,7 +116,13 @@ const InfoTab: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutPlatformUser();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+
     localStorage.clear();
     sessionStorage.clear();
 

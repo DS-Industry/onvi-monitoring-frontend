@@ -19,6 +19,7 @@ export const useCheckAuth = () => {
   return async () => {
     try {
       await api.get('/user/auth/validate');
+
       setAuthenticated(true);
       return true;
     } catch (error) {
