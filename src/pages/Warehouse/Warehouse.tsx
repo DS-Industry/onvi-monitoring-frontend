@@ -87,7 +87,7 @@ const Warehouse: React.FC = () => {
   const warehouses =
     warehouseData?.map(item => ({
       ...item.props,
-      manager: workers.find(work => work.value === item.props.managerId)?.name,
+      manager: item.props.managerName ?? '',
       posName: poses.find(pos => pos.value === item.props.posId)?.name,
     })) || [];
 
@@ -211,7 +211,7 @@ const Warehouse: React.FC = () => {
           columns={visibleColumns}
           loading={warehouseLoading}
           pagination={false}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Drawer
