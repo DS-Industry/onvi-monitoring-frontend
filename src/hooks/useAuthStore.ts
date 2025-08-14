@@ -1,6 +1,5 @@
 import useAuthStore from '@/config/store/authSlice';
 import api from '@/config/axiosConfig';
-import { getCsrfToken } from '@/services/api/platform';
 
 export const useIsAuthenticated = () => {
   return useAuthStore(state => state.isAuthenticated);
@@ -21,7 +20,6 @@ export const useCheckAuth = () => {
     try {
       await api.get('/user/auth/validate');
 
-      await getCsrfToken();
       setAuthenticated(true);
       return true;
     } catch (error) {

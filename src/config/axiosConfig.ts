@@ -2,8 +2,6 @@ import axios from 'axios';
 import useAuthStore from '@/config/store/authSlice';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
-import { getCookie, clearCookie } from '@/utils/cookies';
-
 let showToast: (
   message: string,
   type: 'success' | 'error' | 'info' | 'warning'
@@ -25,7 +23,6 @@ const handleLogout = async () => {
 
   localStorage.clear();
   sessionStorage.clear();
-  clearCookie('csrf-token');
 
   const logout = useAuthStore.getState().logout;
   logout();
@@ -43,17 +40,6 @@ api.interceptors.request.use(
       method: config.method,
       timestamp: new Date().toISOString(),
     });
-
-    if (
-      ['post', 'put', 'patch', 'delete'].includes(
-        config.method?.toLowerCase() || ''
-      )
-    ) {
-      const csrfToken = getCookie('csrf-token');
-      if (csrfToken) {
-        config.headers['X-CSRF-Token'] = csrfToken;
-      }
-    }
 
     return config;
   },
