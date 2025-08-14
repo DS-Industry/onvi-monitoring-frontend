@@ -141,6 +141,7 @@ type WAREHOUSE_RESPONSE = {
   props: {
     id: number;
     name: string;
+    managerName?: string;
     location: string;
     managerId: number;
     posId: number;
@@ -208,7 +209,9 @@ type DOCUMENTS_RESPONSE = {
   name: string;
   type: WarehouseDocumentType;
   warehouseId: number;
+  warehouseName: string;
   responsibleId: number;
+  responsibleName: string;
   status: WarehouseDocumentStatus;
   carryingAt: Date;
 };
@@ -221,6 +224,7 @@ type GET_DOCUMENT_RESPONSE = {
       type: WarehouseDocumentType;
       warehouseId: number;
       responsibleId: number;
+      responsibleName: string;
       status: WarehouseDocumentStatus;
       carryingAt: Date;
       createdAt: Date;

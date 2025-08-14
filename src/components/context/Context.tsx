@@ -1,8 +1,7 @@
-import React, { useState, createContext, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { createContext, useCallback } from 'react';
 import { message } from 'antd';
 
-interface ButtonCreateProviderProps {
+interface ContextProviderProps {
   children: React.ReactNode;
 }
 
@@ -13,32 +12,11 @@ type ToastContextType = {
   ) => void;
 };
 
-export const ButtonCreateContext = createContext({
-  buttonOn: false,
-  setButtonOn: (buttonOn: boolean) => {
-    console.log(buttonOn);
-  },
-});
-export const FilterContext = createContext({
-  filterOpen: false,
-  setFilterOpen: (filterOpen: boolean) => {
-    console.log(filterOpen);
-  },
-});
-export const FilterOpenContext = createContext({
-  filterOn: false,
-  setFilterOn: (filterOn: boolean) => {
-    console.log(filterOn);
-  },
-});
 export const ToastContext = createContext<ToastContextType | undefined>(
   undefined
 );
 
-export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
-  const [buttonOn, setButtonOn] = useState(false);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [filterOn, setFilterOn] = useState(false);
+export const ContextProvider = ({ children }: ContextProviderProps) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const showToast = useCallback(
@@ -68,23 +46,10 @@ export const ContextProvider = ({ children }: ButtonCreateProviderProps) => {
     [messageApi]
   );
 
-  const location = useLocation();
-
-  useEffect(() => {
-    setButtonOn(false);
-    setFilterOpen(false);
-  }, [location.pathname]);
-
   return (
-    <ButtonCreateContext.Provider value={{ buttonOn, setButtonOn }}>
-      <FilterContext.Provider value={{ filterOpen, setFilterOpen }}>
-        <FilterOpenContext.Provider value={{ filterOn, setFilterOn }}>
-          <ToastContext.Provider value={{ showToast }}>
-            {contextHolder}
-            {children}
-          </ToastContext.Provider>
-        </FilterOpenContext.Provider>
-      </FilterContext.Provider>
-    </ButtonCreateContext.Provider>
+    <ToastContext.Provider value={{ showToast }}>
+      {contextHolder}
+      {children}
+    </ToastContext.Provider>
   );
 };

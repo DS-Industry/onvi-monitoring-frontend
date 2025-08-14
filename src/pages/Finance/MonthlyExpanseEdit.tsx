@@ -14,32 +14,14 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useToast } from '@/components/context/useContext';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-import { getCurrencyRender, getDateRender, getStatusTagRender } from '@/utils/tableUnits';
+import { formatNumber, getCurrencyRender, getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import {
   CheckOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
 import { ManagerReportPeriodStatus } from './MonthlyExpanse';
-
-enum ManagerPaperGroup {
-  RENT = 'RENT',
-  REVENUE = 'REVENUE',
-  WAGES = 'WAGES',
-  INVESTMENT_DEVIDENTS = 'INVESTMENT_DEVIDENTS',
-  UTILITY_BILLS = 'UTILITY_BILLS',
-  TAXES = 'TAXES',
-  ACCOUNTABLE_FUNDS = 'ACCOUNTABLE_FUNDS',
-  REPRESENTATIVE_EXPENSES = 'REPRESENTATIVE_EXPENSES',
-  SALE_EQUIPMENT = 'SALE_EQUIPMENT',
-  MANUFACTURE = 'MANUFACTURE',
-  OTHER = 'OTHER',
-  SUPPLIES = 'SUPPLIES',
-  P_C = 'P_C',
-  WAREHOUSE = 'WAREHOUSE',
-  CONSTRUCTION = 'CONSTRUCTION',
-  MAINTENANCE_REPAIR = 'MAINTENANCE_REPAIR',
-  TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
-}
+import { groups } from '@/utils/constants';
+import TableUtils from '@/utils/TableUtils.tsx';
 
 type ExpenseItem = {
   id: number;
@@ -78,7 +60,7 @@ const MonthlyExpanseEdit: React.FC = () => {
   const ownerId = Number(searchParams.get('ownerId'));
   const status = searchParams.get('status') as ManagerReportPeriodStatus;
 
-  const statusRender = getStatusTagRender(t);
+  const tagRender = getStatusTagRender(t);
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -112,53 +94,6 @@ const MonthlyExpanseEdit: React.FC = () => {
       revalidateOnReconnect: false,
       keepPreviousData: true,
     }
-  );
-
-  const groups = useMemo(
-    () => [
-      { value: ManagerPaperGroup.RENT, name: t('finance.RENT') },
-      { value: ManagerPaperGroup.REVENUE, name: t('finance.REVENUE') },
-      { value: ManagerPaperGroup.WAGES, name: t('finance.WAGES') },
-      {
-        value: ManagerPaperGroup.INVESTMENT_DEVIDENTS,
-        name: t('finance.INVESTMENT_DEVIDENTS'),
-      },
-      {
-        value: ManagerPaperGroup.UTILITY_BILLS,
-        name: t('finance.UTILITY_BILLS'),
-      },
-      { value: ManagerPaperGroup.TAXES, name: t('finance.TAXES') },
-      {
-        value: ManagerPaperGroup.ACCOUNTABLE_FUNDS,
-        name: t('finance.ACCOUNTABLE_FUNDS'),
-      },
-      {
-        value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES,
-        name: t('finance.REPRESENTATIVE_EXPENSES'),
-      },
-      {
-        value: ManagerPaperGroup.SALE_EQUIPMENT,
-        name: t('finance.SALE_EQUIPMENT'),
-      },
-      { value: ManagerPaperGroup.MANUFACTURE, name: t('finance.MANUFACTURE') },
-      { value: ManagerPaperGroup.OTHER, name: t('finance.OTHER') },
-      { value: ManagerPaperGroup.SUPPLIES, name: t('finance.SUPPLIES') },
-      { value: ManagerPaperGroup.P_C, name: t('finance.P_C') },
-      { value: ManagerPaperGroup.WAREHOUSE, name: t('finance.WAREHOUSE') },
-      {
-        value: ManagerPaperGroup.CONSTRUCTION,
-        name: t('finance.CONSTRUCTION'),
-      },
-      {
-        value: ManagerPaperGroup.MAINTENANCE_REPAIR,
-        name: t('finance.MAINTENANCE_REPAIR'),
-      },
-      {
-        value: ManagerPaperGroup.TRANSPORTATION_COSTS,
-        name: t('finance.TRANSPORTATION_COSTS'),
-      },
-    ],
-    [t]
   );
 
   const { periodData, expenseData } = useMemo(() => {
@@ -236,13 +171,23 @@ const MonthlyExpanseEdit: React.FC = () => {
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
+  const statusOptions: { name: string; value: ManagerReportPeriodStatus }[] = [
+    { name: t('tables.SAVED'), value: ManagerReportPeriodStatus.SAVE },
+    { name: t('tables.SENT'), value: ManagerReportPeriodStatus.SENT },
+  ];
+
   const periodColumns: ColumnsType<PeriodItem> = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
     {
       title: t('Статус'),
       dataIndex: 'status',
       key: 'status',
-      render: statusRender
+      render: (text: string) => {
+        const statusOption = statusOptions.find(
+          option => option.value === text
+        );
+        return statusOption ? tagRender(statusOption.name) : text;
+      },
     }, {
       title: t('Начало периода'),
       dataIndex: 'startPeriod',
@@ -294,7 +239,8 @@ const MonthlyExpanseEdit: React.FC = () => {
     {
       title: t('Тип статьи'),
       dataIndex: 'paperTypeType',
-      key: 'paperTypeType'
+      key: 'paperTypeType',
+      render: tagRender
     },
     {
       title: t('Дата'),
@@ -306,7 +252,15 @@ const MonthlyExpanseEdit: React.FC = () => {
       title: t('Сумма'),
       dataIndex: 'sum',
       key: 'sum',
-      render: currencyRender
+      render: (value, record) => {
+        const formattedCurrency = TableUtils.createCurrencyFormat(formatNumber(Number(value)));
+        if (record.paperTypeType === t('finance.RECEIPT')) {
+          return <div className="text-successFill">+{formattedCurrency}</div>;
+        } else if (record.paperTypeType === t('finance.EXPENDITURE')) {
+          return <div className="text-errorFill">-{formattedCurrency}</div>;
+        }
+        return formattedCurrency;
+      },
     },
   ];
 
