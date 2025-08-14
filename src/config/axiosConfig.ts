@@ -3,6 +3,7 @@ import useAuthStore from '@/config/store/authSlice';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
 import { getCookie, clearCookie } from '@/utils/cookies';
+import { getCsrfToken } from '@/services/api/platform';
 
 let showToast: (
   message: string,
@@ -96,6 +97,75 @@ api.interceptors.response.use(
     if (!showToast) {
       console.error('Toast function is not initialized.');
       return Promise.reject(error);
+    }
+
+    const isCSRFError =
+      error.response?.data?.code === 574 &&
+      error.response?.data?.message === 'invalid csrf token';
+
+    if (isCSRFError) {
+      const originalRequest = error.config;
+
+      if (
+        originalRequest._csrfRetry ||
+        originalRequest.url?.includes('/user/auth/csrf-token')
+      ) {
+        datadogLogs.logger.error('CSRF token refresh failed', {
+          status: error.response?.status,
+          code: error.response?.data?.code,
+          message: error.response?.data?.message,
+          url: originalRequest.url,
+          timestamp: new Date().toISOString(),
+        });
+        showToast('Session expired. Please refresh the page.', 'error');
+        return Promise.reject(error);
+      }
+
+      originalRequest._csrfRetry = true;
+
+      try {
+        datadogLogs.logger.info('Attempting CSRF token refresh', {
+          status: error.response?.status,
+          code: error.response?.data?.code,
+          message: error.response?.data?.message,
+          url: originalRequest.url,
+          timestamp: new Date().toISOString(),
+        });
+
+        await getCsrfToken();
+
+        if (!originalRequest.headers) {
+          originalRequest.headers = {};
+        }
+
+        const newCsrfToken = getCookie('csrf-token');
+        if (newCsrfToken) {
+          originalRequest.headers['X-CSRF-Token'] = newCsrfToken;
+
+          datadogLogs.logger.info('Updated request with new CSRF token', {
+            url: originalRequest.url,
+            newTokenPrefix: newCsrfToken.substring(0, 10) + '...',
+            timestamp: new Date().toISOString(),
+          });
+        } else {
+          datadogLogs.logger.error(
+            'No CSRF token found in cookies after refresh',
+            {
+              url: originalRequest.url,
+              timestamp: new Date().toISOString(),
+            }
+          );
+        }
+
+        return api(originalRequest);
+      } catch (csrfRefreshError) {
+        datadogLogs.logger.error('CSRF token refresh failed', {
+          error: csrfRefreshError,
+          timestamp: new Date().toISOString(),
+        });
+        showToast('Unable to refresh session. Please try again.', 'error');
+        return Promise.reject(csrfRefreshError);
+      }
     }
 
     if (error.response?.status === 401) {
