@@ -943,7 +943,8 @@
     "summary": "Сводка",
     "startDateTime": "Начало смены",
     "endDateTime": "Конец смены",
-    "user": "Сотрудник"
+    "user": "Сотрудник",
+    "shift": "Смена"
   },
   "common": {
     "previous": "Назад",

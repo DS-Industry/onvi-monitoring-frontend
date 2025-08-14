@@ -944,7 +944,8 @@
     "summary": "Summary",
     "startDateTime": "Shift Start",
     "endDateTime": "Shift End",
-    "user": "Employee"
+    "user": "Employee",
+    "shift": "Shift"
   },
   "common": {
     "previous": "Previous",

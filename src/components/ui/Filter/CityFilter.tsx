@@ -22,7 +22,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
     searchParams.get(key) || fallback;
 
   const cities = [
-    { label: t("warehouse.all"), value: undefined },
+    { label: t("warehouse.all"), value: "" },
     ...(cityData?.map((item) => ({
       label: item.region,
       value: String(item.id),
@@ -45,7 +45,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
       showSearch
       allowClear={false}
       className={className}
-      value={getParam("city", undefined)}
+      value={getParam("city", "")}
       onChange={handleChange}
       options={cities}
       optionFilterProp="label"
