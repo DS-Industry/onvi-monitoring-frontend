@@ -8,6 +8,29 @@ enum HR {
   PAYMENT = 'user/hr/payment',
 }
 
+type WorkerRequestBody = {
+  name: string;
+  hrPositionId: number;
+  placementId: number;
+  organizationId: number;
+  startWorkDate?: Date;
+  phone?: string;
+  email?: string;
+  description?: string;
+  avatar?: string;
+  monthlySalary: number;
+  dailySalary: number;
+  percentageSalary: number;
+  gender?: string;
+  citizenship?: string;
+  passportSeries?: string;
+  passportNumber?: string;
+  passportExtradition?: string;
+  passportDateIssue?: Date;
+  inn?: string;
+  snils?: string;
+};
+
 export type TWorker = {
   props: {
     id: number;
@@ -188,13 +211,13 @@ export type addWorkerRequest = {
 };
 
 export async function createWorker(
-  body: TWorker['props'],
+  body: WorkerRequestBody,
   file?: File | null
 ): Promise<TWorker> {
   const formData = new FormData();
 
   for (const key in body) {
-    const value = body[key as keyof TWorker['props']];
+    const value = body[key as keyof WorkerRequestBody];
     if (value !== undefined) {
       // Convert value to a string if it's a number
       formData.append(key, value.toString());

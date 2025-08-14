@@ -173,7 +173,6 @@ const Employees: React.FC = () => {
     })) || [];
 
   const defaultValues = {
-    id: 0,
     name: '',
     hrPositionId: -1,
     placementId: -1,
@@ -205,7 +204,6 @@ const Employees: React.FC = () => {
     async () =>
       createWorker(
         {
-          id: 9,
           name: formData.name,
           hrPositionId: formData.hrPositionId,
           placementId: formData.placementId,
