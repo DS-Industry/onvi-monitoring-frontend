@@ -224,7 +224,7 @@ const DocumentsCreation: React.FC = () => {
     }
   );
 
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
   const { data: organizationData } = useSWR([`get-org`], () =>
@@ -251,7 +251,7 @@ const DocumentsCreation: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: city || "*",
+        placementId: city,
       }),
     {
       revalidateOnFocus: false,

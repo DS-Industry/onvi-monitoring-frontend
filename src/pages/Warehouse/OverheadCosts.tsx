@@ -34,8 +34,8 @@ const OverheadCosts: React.FC = () => {
   const allCategoriesText = t('warehouse.all');
   const [searchParams, setSearchParams] = useSearchParams();
   const orgId = searchParams.get('orgId') || null;
-  const warehouseId = searchParams.get('warehouseId') || '*';
-  const categoryId = searchParams.get('categoryId') || '*';
+  const warehouseId = Number(searchParams.get('warehouseId')) || undefined;
+  const categoryId = Number(searchParams.get('categoryId')) || undefined;
 
   const baseColumns = useMemo(
     () => [
@@ -63,7 +63,7 @@ const OverheadCosts: React.FC = () => {
     []
   );
 
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
   const { data: categoryData } = useSWR([`get-category`], () => getCategory(), {
@@ -77,7 +77,7 @@ const OverheadCosts: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: Number(city),
+        placementId: city,
       }),
     {
       revalidateOnFocus: false,
@@ -134,9 +134,9 @@ const OverheadCosts: React.FC = () => {
 
   const filterParams = useMemo(
     () => ({
-      warehouseId: warehouseId || '*',
-      categoryId: categoryId || '*',
-      placementId: city || '*',
+      warehouseId: warehouseId,
+      categoryId: categoryId,
+      placementId: city,
     }),
     [warehouseId, categoryId, city]
   );

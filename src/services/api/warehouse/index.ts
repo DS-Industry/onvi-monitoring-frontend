@@ -200,8 +200,8 @@ type DocumentResponse = {
 type DOCUMENT_PARAMS = {
   dateStart: Date;
   dateEnd: Date;
-  warehouseId: number | string;
-  placementId: number | string;
+  warehouseId?: number;
+  placementId?: number;
 };
 
 type DOCUMENTS_RESPONSE = {
@@ -254,9 +254,9 @@ type INVENTORY_RESPONSE = {
 };
 
 type STOCK_PARAMS = {
-  categoryId: number | string;
-  warehouseId: number | string;
-  placementId: number | string;
+  categoryId?: number
+  warehouseId?: number
+  placementId?: number
 };
 
 type STOCK_RESPONSE = {
@@ -279,8 +279,8 @@ type WAREHOUSE_BODY = {
 };
 
 type WarehouseParams = {
-  posId: number | string;
-  placementId: number | string;
+  posId?: number;
+  placementId?: number;
 };
 
 export async function createNomenclature(

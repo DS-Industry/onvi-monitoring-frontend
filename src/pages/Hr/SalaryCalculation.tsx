@@ -46,7 +46,7 @@ const SalaryCalculation: React.FC = () => {
 
   const startPaymentDateParam = searchParams.get('startPaymentDate');
   const endPaymentDateParam = searchParams.get('endPaymentDate');
-  const workerId = Number(searchParams.get('hrWorkerId'));
+  const workerId = Number(searchParams.get('hrWorkerId')) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -59,10 +59,9 @@ const SalaryCalculation: React.FC = () => {
 
   const filterParams = useMemo<PrepaymentFilter>(
     () => ({
-      startPaymentDate: startPaymentDate || '*',
-      endPaymentDate: endPaymentDate || '*',
+      startPaymentDate: startPaymentDate,
+      endPaymentDate: endPaymentDate,
       hrWorkerId: workerId,
-      billingMonth: '*',
       page: currentPage,
       size: pageSize,
     }),
@@ -85,10 +84,9 @@ const SalaryCalculation: React.FC = () => {
     swrKey,
     () =>
       getPayments({
-        startPaymentDate: filterParams.startPaymentDate || '*',
-        endPaymentDate: filterParams.endPaymentDate || '*',
-        hrWorkerId: filterParams.hrWorkerId || '*',
-        billingMonth: filterParams.billingMonth,
+        startPaymentDate: filterParams.startPaymentDate,
+        endPaymentDate: filterParams.endPaymentDate,
+        hrWorkerId: filterParams.hrWorkerId,
         page: filterParams.page,
         size: filterParams.size,
       }).finally(() => setIsInitialLoading(false)),
@@ -102,11 +100,7 @@ const SalaryCalculation: React.FC = () => {
   const { data: workersData } = useSWR(
     ['get-workers'],
     () =>
-      getWorkers({
-        placementId: '*',
-        hrPositionId: '*',
-        organizationId: '*',
-      }),
+      getWorkers({}),
     { revalidateOnFocus: false }
   );
 

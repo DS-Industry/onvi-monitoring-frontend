@@ -116,8 +116,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -366,16 +365,10 @@ const Articles: React.FC = () => {
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const groupParam = (searchParams.get('group') as ManagerPaperGroup) || '*';
-  const posIdParam = searchParams.get('posId')
-    ? Number(searchParams.get('posId'))
-    : '*';
-  const paperTypeIdParam = searchParams.get('paperTypeId')
-    ? Number(searchParams.get('paperTypeId'))
-    : '*';
-  const userIdParam = searchParams.get('userId')
-    ? Number(searchParams.get('userId'))
-    : '*';
+  const groupParam = searchParams.get('group') as ManagerPaperGroup || undefined;
+  const posIdParam = Number(searchParams.get('posId')) || undefined;
+  const paperTypeIdParam = Number(searchParams.get('paperTypeId')) || undefined;
+  const userIdParam = Number(searchParams.get('userId')) || undefined;
   const dateStartParam = searchParams.get('dateStart')
     ? dayjs(searchParams.get('dateStart')).toDate()
     : undefined;
@@ -385,8 +378,7 @@ const Articles: React.FC = () => {
   const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
 
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
 
   const filterParams: ManagerParams = useMemo(
     () => ({

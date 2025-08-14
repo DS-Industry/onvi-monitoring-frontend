@@ -14,12 +14,11 @@ const WarehouseFilter: React.FC = () => {
   const getParam = (key: string, fallback = '') =>
     searchParams.get(key) || fallback;
 
-  const city = getParam('city', '*');
-  const posId = getParam('posId', '*');
-  const placementId = city === '*' ? '' : city;
+  const placementId = Number(searchParams.get('city')) || undefined;
+  const posId = Number(searchParams.get('posId')) || undefined;
 
   const { data: warehouseData, isLoading } = useSWR(
-    placementId && posId && posId !== '*'
+    placementId && posId
       ? [`get-warehouse`, placementId, posId]
       : null,
     () => getWarehouses({ placementId, posId }),

@@ -328,7 +328,7 @@ type PosParams = {
 };
 
 type ProgramParams = {
-  posId: number | string;
+  posId?: number;
 };
 
 type CreateTags = {
