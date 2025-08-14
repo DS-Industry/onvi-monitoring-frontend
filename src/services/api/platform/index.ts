@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import { setCookie } from '@/utils/cookies';
 
 enum LOGIN {
   CREATE_LOGIN = 'user/auth/login',
@@ -400,6 +401,9 @@ export async function getCsrfToken(): Promise<CSRFTokenResponse> {
   const response: AxiosResponse<CSRFTokenResponse> = await api.get(
     LOGIN.CSRF_TOKEN
   );
+
+  setCookie('csrf-token', response.data.csrfToken);
+
   return response.data;
 }
 
