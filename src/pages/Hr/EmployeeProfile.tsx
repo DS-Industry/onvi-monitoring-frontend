@@ -16,6 +16,7 @@ import {
   getWorkerById,
   getWorkers,
   updateWorker,
+  UpdateWorkerRequest,
 } from '@/services/api/hr';
 import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
@@ -36,27 +37,6 @@ const DoubleSkeleton = () => (
     ))}
   </>
 );
-
-type UpdateWorkerRequest = {
-  workerId: string;
-  hrPositionId?: string;
-  placementId?: string;
-  startWorkDate?: Date;
-  phone?: string;
-  email?: string;
-  description?: string;
-  monthlySalary?: string;
-  dailySalary?: string;
-  percentageSalary?: string;
-  gender?: string;
-  citizenship?: string;
-  passportSeries?: string;
-  passportNumber?: string;
-  passportExtradition?: string;
-  passportDateIssue?: Date;
-  inn?: string;
-  snils?: string;
-};
 
 const EmployeeProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -268,25 +248,7 @@ const EmployeeProfile: React.FC = () => {
     )
   );
 
-  type FieldType =
-    | 'workerId'
-    | 'description'
-    | 'hrPositionId'
-    | 'placementId'
-    | 'startWorkDate'
-    | 'phone'
-    | 'email'
-    | 'monthlySalary'
-    | 'dailySalary'
-    | 'percentageSalary'
-    | 'gender'
-    | 'citizenship'
-    | 'passportSeries'
-    | 'passportNumber'
-    | 'passportExtradition'
-    | 'passportDateIssue'
-    | 'inn'
-    | 'snils';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = ['monthlySalary', 'dailySalary', 'percentageSalary'];

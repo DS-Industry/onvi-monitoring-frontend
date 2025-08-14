@@ -9,6 +9,7 @@ import InventoryEmpty from '@/assets/NoInventory.png';
 import useSWR from 'swr';
 import { getInventoryItems, getNomenclature } from '@/services/api/warehouse';
 import { useUser } from '@/hooks/useUserStore';
+import { usePermissions } from '@/hooks/useAuthStore';
 
 type NomenclatureItem = {
   oldQuantity?: number | undefined;
@@ -43,6 +44,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
     {}
   );
   const warehouseId = searchParams.get('warehouseId') || '*';
+  const userPermissions = usePermissions();
 
   const handleCheckboxChange = (id: number) => {
     setSelectedItems(prev => ({
@@ -171,6 +173,8 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
       key: 'nomenclatureName',
     },
   ];
+
+  console.log("Permissions : ", userPermissions);
 
   return (
     <Modal

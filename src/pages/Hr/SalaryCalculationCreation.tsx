@@ -611,15 +611,7 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
         </form>
 
-        {calculatingSal ? (
-          <Table
-            columns={columnsPaymentsCreation}
-            dataSource={[]}
-            loading={true}
-            rowKey="id"
-            className="mt-8"
-          />
-        ) : paymentsData.length > 0 ? (
+        {paymentsData.length > 0 ? (
           <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
             <div className="flex flex-wrap justify-between gap-2">
               <div className="flex space-x-4">

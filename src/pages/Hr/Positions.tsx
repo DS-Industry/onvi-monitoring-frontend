@@ -9,6 +9,7 @@ import useSWR, { mutate } from 'swr';
 import {
   createPosition,
   getPositions,
+  PositionsRequest,
   updatePosition,
 } from '@/services/api/hr';
 import useSWRMutation from 'swr/mutation';
@@ -20,13 +21,6 @@ import { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
-
-type Positions = {
-  id: number;
-  name: string;
-  organizationId: number;
-  description?: string;
-};
 
 const Positions: React.FC = () => {
   const { t } = useTranslation();
@@ -62,7 +56,7 @@ const Positions: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const defaultValues: Positions = {
+  const defaultValues: PositionsRequest = {
     id: -1,
     name: '',
     organizationId: 0,
@@ -116,7 +110,7 @@ const Positions: React.FC = () => {
 
   const positionsData = positionData?.map((pos) => pos.props) || [];
 
-  const startEditing = (record: Positions) => {
+  const startEditing = (record: PositionsRequest) => {
     setEditingKey(record.id);
     setEditingValue(record.description || "");
   };
@@ -135,7 +129,7 @@ const Positions: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<Positions> = [
+  const columns: ColumnsType<PositionsRequest> = [
     {
       title: t("Должность"),
       dataIndex: "name",
@@ -147,7 +141,7 @@ const Positions: React.FC = () => {
       dataIndex: "description",
       key: "description",
       width: '50%',
-      render: (text: string, record: Positions) => {
+      render: (text: string, record: PositionsRequest) => {
         if (editingKey === record.id) {
           return (
             <AntInput
@@ -165,7 +159,7 @@ const Positions: React.FC = () => {
       title: "",
       key: "actions",
       width: '15%',
-      render: (_: any, record: Positions) => {
+      render: (_: any, record: PositionsRequest) => {
         if (editingKey === record.id) {
           return (
             <span>

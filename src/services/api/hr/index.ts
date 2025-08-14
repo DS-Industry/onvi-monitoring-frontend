@@ -57,7 +57,7 @@ export type TWorker = {
   };
 };
 
-type UpdateWorkerRequest = {
+export type UpdateWorkerRequest = {
   workerId: string;
   hrPositionId?: string;
   placementId?: string;
@@ -101,6 +101,8 @@ type PositionResponse = {
     description?: string;
   };
 };
+
+export type PositionsRequest = PositionResponse["props"];
 
 type UpdatePositionRequest = {
   positionId: number;
