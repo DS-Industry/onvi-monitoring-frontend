@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { loginPlatformUser, getCsrfToken } from '@/services/api/platform';
+import { loginPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
@@ -78,7 +78,6 @@ const LogIn: React.FC = () => {
         setAuthenticated(true);
         useAuthStore.getState().setPermissions(permissionInfo.permissions);
 
-        await getCsrfToken();
         navigate('/');
       } else {
         throw new Error(t('Invalid email or password. Please try again.'));

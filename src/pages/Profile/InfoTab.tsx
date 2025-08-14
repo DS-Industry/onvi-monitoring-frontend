@@ -16,7 +16,6 @@ import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
 import Input from '@/components/ui/Input/Input';
 import { useToast } from '@/components/context/useContext';
-import { clearCookie } from '@/utils/cookies';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -126,8 +125,6 @@ const InfoTab: React.FC = () => {
 
     localStorage.clear();
     sessionStorage.clear();
-
-    clearCookie('csrf-token');
 
     setClearUser();
     logout();
