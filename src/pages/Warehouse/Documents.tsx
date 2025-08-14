@@ -68,13 +68,7 @@ const Documents: React.FC = () => {
     [dateStart, dateEnd, warehouseId, cityParam, formattedDate]
   );
 
-  const swrKey = useMemo(
-    () =>
-      warehouseId
-        ? `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`
-        : null,
-    [filterParams, warehouseId]
-  );
+  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;
 
   const { data: allDocuments, isLoading: documentsLoading } = useSWR(
     swrKey,
