@@ -8,7 +8,7 @@ import SearchInput from '@ui/Input/SearchInput';
 import InventoryEmpty from '@/assets/NoInventory.png';
 import useSWR from 'swr';
 import { getInventoryItems, getNomenclature } from '@/services/api/warehouse';
-import { useUser } from '@/hooks/useUserStore';
+import { useOrganizationIds, useUser } from '@/hooks/useUserStore';
 import { usePermissions } from '@/hooks/useAuthStore';
 
 type NomenclatureItem = {
@@ -45,6 +45,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
   );
   const warehouseId = searchParams.get('warehouseId') || '*';
   const userPermissions = usePermissions();
+  const organizationIds = useOrganizationIds();
 
   const handleCheckboxChange = (id: number) => {
     setSelectedItems(prev => ({
@@ -97,7 +98,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
 
   const { data: nomenclatureData } = useSWR(
     ['get-inventory'],
-    () => getNomenclature(1),
+    () => getNomenclature(organizationIds[0]),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

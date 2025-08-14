@@ -110,10 +110,8 @@ const Documents: React.FC = () => {
 
   const swrKey = useMemo(
     () =>
-      warehouseId
-        ? `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`
-        : null,
-    [filterParams, warehouseId]
+      `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`,
+    [filterParams]
   );
 
   const { data: allDocuments, isLoading: documentsLoading } = useSWR(

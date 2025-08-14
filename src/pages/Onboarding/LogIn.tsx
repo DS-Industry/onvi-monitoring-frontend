@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { loginPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
-import { useSetUser, useClearUserData } from '@/hooks/useUserStore';
+import { useSetUser, useClearUserData, useSetOrganizationIds } from '@/hooks/useUserStore';
 import { useNavigate } from 'react-router-dom';
 import { useSetAuthenticated } from '@/hooks/useAuthStore';
 import Button from '@ui/Button/Button';
@@ -51,6 +51,7 @@ const LogIn: React.FC = () => {
   );
 
   const setUser = useSetUser();
+  const setOrganizationIds = useSetOrganizationIds();
   const clearData = useClearUserData();
   const setAuthenticated = useSetAuthenticated();
 
@@ -75,6 +76,7 @@ const LogIn: React.FC = () => {
       if (result && result.admin) {
         const { admin, permissionInfo } = result;
         setUser({ user: admin?.props });
+        setOrganizationIds(permissionInfo.organizationIds.sort());
         setAuthenticated(true);
         useAuthStore.getState().setPermissions(permissionInfo.permissions);
 

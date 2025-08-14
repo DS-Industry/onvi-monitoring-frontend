@@ -12,3 +12,12 @@ export const useSetUser = () => {
 export const useClearUserData = () => {
   return useUserStore(state => state.clearUserData);
 };
+
+export const useOrganizationIds = () => {
+  return useUserStore(state => state.organizationIds);
+};
+
+export const useSetOrganizationIds = () => {
+  return useUserStore(state => state.setOrganizationIds);
+};
+

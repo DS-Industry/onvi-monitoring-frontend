@@ -2,8 +2,7 @@ import Button from '@ui/Button/Button';
 import DropdownInput from '@ui/Input/DropdownInput';
 import Input from '@ui/Input/Input';
 import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
-import { useUser } from '@/hooks/useUserStore';
-import { getOrganization } from '@/services/api/organization';
+import { useOrganizationIds, useUser } from '@/hooks/useUserStore';
 import {
   DocumentBody,
   DocumentsTableRow,
@@ -58,6 +57,7 @@ const DocumentsCreation: React.FC = () => {
   const navigate = useNavigate();
   const user = useUser();
   const userPermissions = usePermissions();
+  const organizationIds = useOrganizationIds();
 
   const {
     data: document,
@@ -227,18 +227,9 @@ const DocumentsCreation: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
-
   const { data: nomenclatureData } = useSWR(
-    organizations ? [`get-inventory`] : null,
-    () => getNomenclature(organizations.at(0)?.value || 0),
+    [`get-inventory`],
+    () => getNomenclature(organizationIds[0]),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

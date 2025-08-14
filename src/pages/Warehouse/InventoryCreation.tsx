@@ -115,7 +115,7 @@ const InventoryCreation: React.FC = () => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({ placementId: undefined }),
+    () => getOrganization({}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -417,10 +417,10 @@ const InventoryCreation: React.FC = () => {
             icon={<DownloadOutlined />}
             className="btn-outline-primary"
             onClick={() => {
-              navigate('/warehouse/inventory/import')
+              navigate('/warehouse/inventory/import');
             }}
           >
-            <span className='hidden sm:flex'>{t('routes.import')}</span>
+            <span className="hidden sm:flex">{t('routes.import')}</span>
           </AntDButton>
           {allowed && (
             <AntDButton

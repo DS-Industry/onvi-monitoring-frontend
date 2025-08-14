@@ -24,16 +24,23 @@ export interface User {
 }
 interface UserState {
   user: User | null;
+  organizationIds: number[];
   setUser: (user: { user: User }) => void;
+  setOrganizationIds: (organizationIds: number[]) => void;
   clearUserData: () => void;
 }
 
 // Define a state creator that applies both devtools and persist middleware
 const createUserStore: StateCreator<UserState> = set => ({
   user: null,
+  organizationIds: [],
   setUser: user =>
     set(() => ({
       user: user.user,
+    })),
+  setOrganizationIds: organizationIds =>
+    set(() => ({
+      organizationIds: organizationIds,
     })),
   clearUserData: () => set(() => ({ user: null })),
 });

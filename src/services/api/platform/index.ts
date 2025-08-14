@@ -56,6 +56,7 @@ type LOGINRESPONSE = {
     refreshTokenExp: Date;
   };
   permissionInfo: {
+    organizationIds: number[];
     permissions: Array<{ subject: string; action: string }>;
     role: string;
   };
@@ -258,7 +259,6 @@ type OrganizationCreateResponse = {
   ownerId: number;
 };
 
-
 export async function loginPlatformUser(
   body: LOGINBODY
 ): Promise<LOGINRESPONSE> {
@@ -391,7 +391,6 @@ export async function precreateOrganization(
   );
   return response.data;
 }
-
 
 export async function logoutPlatformUser(): Promise<void> {
   await api.post(LOGIN.LOGOUT);

@@ -277,8 +277,8 @@ const DocumentView: React.FC = () => {
                   </div>
                   <DropdownInput
                     value={
-                      isMovingMetaData(document?.details[0].props.metaData) &&
-                      document?.details[0].props.metaData?.warehouseReceirId
+                      isMovingMetaData(document?.details[0]?.props.metaData) &&
+                      document?.details[0]?.props.metaData?.warehouseReceirId
                     }
                     options={warehouses}
                     classname="w-48 sm:w-80"
