@@ -1,22 +1,18 @@
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import Modal from '@/components/ui/Modal/Modal';
 import React, { useMemo, useState } from 'react';
-import Close from '@icons/close.svg?react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import {
   createDocument,
   getAllDocuments,
-  getWarehouses,
   WarehouseDocumentType,
 } from '@/services/api/warehouse';
 import useSWRMutation from 'swr/mutation';
-import { getWorkers } from '@/services/api/equipment';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Button as AntDButton } from 'antd';
+import { Table, Button as AntDButton, Modal } from 'antd';
 import SavedIcon from '@icons/SavedIcon.png';
 import SentIcon from '@icons/SentIcon.png';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -42,7 +38,6 @@ type Documents = {
 
 const Documents: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -52,71 +47,28 @@ const Documents: React.FC = () => {
   const document = searchParams.get('document') as WarehouseDocumentType;
   const [documentType, setDocumentType] =
     useState<WarehouseDocumentType>(document);
-  const posId = searchParams.get('posId') || '*';
-  const warehouseId = searchParams.get('warehouseId') || '*';
+  const warehouseId = Number(searchParams.get('warehouseId')) || undefined;
   const dateStart =
     searchParams.get('dateStart') ??
     dayjs().toDate().toISOString().slice(0, 10);
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
-  const cityParam = Number(searchParams.get('city')) || '*';
+  const cityParam = Number(searchParams.get('city')) || undefined;
 
   const navigate = useNavigate();
   const { showToast } = useToast();
-
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
-  const { data: warehouseData } = useSWR(
-    posId && cityParam ? [`get-warehouse`] : null,
-    () =>
-      getWarehouses({
-        posId: posId,
-        placementId: cityParam,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const workers: { name: string; value: number }[] =
-    workerData?.map(item => ({ name: item.name, value: item.id })) || [];
-
-  const warehouses: { name: string; value: number | string }[] =
-    warehouseData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
-  const warehousesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
-  warehouses.unshift(warehousesAllObj);
 
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      warehouseId: warehouseId || '*',
+      warehouseId: warehouseId,
       placementId: cityParam,
     }),
     [dateStart, dateEnd, warehouseId, cityParam, formattedDate]
   );
 
-  const swrKey = useMemo(
-    () =>
-      warehouseId
-        ? `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`
-        : null,
-    [filterParams, warehouseId]
-  );
+  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;
 
   const { data: allDocuments, isLoading: documentsLoading } = useSWR(
     swrKey,
@@ -131,10 +83,6 @@ const Documents: React.FC = () => {
   const data =
     allDocuments?.map(item => ({
       ...item,
-      warehouseName:
-        warehouses.find(ware => ware.value === item.warehouseId)?.name || '-',
-      responsibleName:
-        workers.find(wor => wor.value === item.responsibleId)?.name || '-',
       status: t(`tables.${item.status}`),
       type: t(`routes.${item.type}`),
       statusCheck: '',
@@ -296,26 +244,24 @@ const Documents: React.FC = () => {
           columns={visibleColumns}
           pagination={false}
           loading={documentsLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        handleClick={handleModalSubmit}
-        classname="w-96 h-72"
-        loading={loadingDocument}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={handleModalSubmit}
+        className="w-96 h-72"
+        okButtonProps={{
+          loading: loadingDocument,
+        }}
+        okText={t('organizations.save')}
+        cancelText={t('organizations.cancel')}
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-text01">
             {t('warehouse.createDoc')}
           </h2>
-          <div className="flex items-center gap-6">
-            <Close
-              onClick={() => setIsModalOpen(false)}
-              className="cursor-pointer"
-            />
-          </div>
         </div>
         <DropdownInput
           value={documentType}

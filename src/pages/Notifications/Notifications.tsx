@@ -7,6 +7,7 @@ import {
   ColorPicker,
   MenuProps,
   Button as AntdButton,
+  Modal,
 } from 'antd';
 import OnviSmall from '@/assets/onvi_small.png';
 import { Input as SearchInp } from 'antd';
@@ -18,8 +19,6 @@ import {
   TagFilled,
 } from '@ant-design/icons';
 import NoToken from '@/assets/NoToken.png';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
 import Input from '@/components/ui/Input/Input';
 import { Layout, List, Avatar, Tag, Empty, Card, Typography } from 'antd';
 
@@ -553,7 +552,12 @@ const Notifications: React.FC = () => {
 
   return (
     <div className="mt-2">
-      <Modal isOpen={isModalOpen} classname="p-6 w-full sm:w-[635px]">
+      <Modal
+        open={isModalOpen}
+        onCancel={() => resetForm()}
+        footer={null}
+        className="p-6 w-full sm:w-[635px]"
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-row items-center justify-between mb-4">
             <div className="text-text01 font-semibold text-2xl mt-4">
@@ -561,10 +565,6 @@ const Notifications: React.FC = () => {
                 ? t('notifications.add')
                 : t('notifications.new')}
             </div>
-            <Close
-              onClick={() => resetForm()}
-              className="cursor-pointer text-text01 mb-4"
-            />
           </div>
           {!isCustomColorMode && (
             <div className="mb-5">
@@ -607,8 +607,6 @@ const Notifications: React.FC = () => {
                     )}
                   </div>
                 ))}
-
-                {/* Navigate to Custom Color Picker */}
                 <div
                   className="w-14 h-8 rounded border border-gray-300 flex items-center justify-center cursor-pointer"
                   onClick={() => setIsCustomColorMode(true)}
@@ -618,7 +616,6 @@ const Notifications: React.FC = () => {
               </div>
             </div>
           ) : (
-            // Custom Color Palette Screen
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <ArrowLeftOutlined

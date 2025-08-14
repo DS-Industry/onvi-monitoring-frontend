@@ -33,7 +33,7 @@ const Warehouse: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
   const userPermissions = usePermissions();
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const placementId = Number(searchParams.get('city')) || undefined;
 
   const filterParams = useMemo(
@@ -69,7 +69,7 @@ const Warehouse: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: placementId || '*',
+        placementId: placementId,
       }),
     {
       revalidateOnFocus: false,
@@ -87,7 +87,7 @@ const Warehouse: React.FC = () => {
   const warehouses =
     warehouseData?.map(item => ({
       ...item.props,
-      manager: workers.find(work => work.value === item.props.managerId)?.name,
+      manager: item.props.managerName ?? '',
       posName: poses.find(pos => pos.value === item.props.posId)?.name,
     })) || [];
 
@@ -211,7 +211,7 @@ const Warehouse: React.FC = () => {
           columns={visibleColumns}
           loading={warehouseLoading}
           pagination={false}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
       <Drawer

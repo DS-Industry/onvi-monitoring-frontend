@@ -12,8 +12,6 @@ import {
   PlusOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import Modal from '@/components/ui/Modal/Modal';
-import Close from '@icons/close.svg?react';
 import { useTranslation } from 'react-i18next';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 import useSWR, { mutate } from 'swr';
@@ -53,13 +51,19 @@ import DatePicker from 'antd/es/date-picker';
 import Skeleton from 'antd/es/skeleton';
 import Tag from 'antd/es/tag';
 import Upload from 'antd/es/upload';
-import type { TableProps } from 'antd';
+import { Modal, type TableProps } from 'antd';
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES, ManagerPaperGroup, groups } from '@/utils/constants';
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  ALL_PAGE_SIZES,
+  ManagerPaperGroup,
+  groups,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Title, Text } = Typography;
@@ -112,8 +116,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -362,10 +365,10 @@ const Articles: React.FC = () => {
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const groupParam = searchParams.get('group') as ManagerPaperGroup || '*';
-  const posIdParam = searchParams.get('posId') ? Number(searchParams.get('posId')) : '*';
-  const paperTypeIdParam = searchParams.get('paperTypeId') ? Number(searchParams.get('paperTypeId')) : '*';
-  const userIdParam = searchParams.get('userId') ? Number(searchParams.get('userId')) : '*';
+  const groupParam = searchParams.get('group') as ManagerPaperGroup || undefined;
+  const posIdParam = Number(searchParams.get('posId')) || undefined;
+  const paperTypeIdParam = Number(searchParams.get('paperTypeId')) || undefined;
+  const userIdParam = Number(searchParams.get('userId')) || undefined;
   const dateStartParam = searchParams.get('dateStart')
     ? dayjs(searchParams.get('dateStart')).toDate()
     : undefined;
@@ -375,19 +378,30 @@ const Articles: React.FC = () => {
   const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
 
-  const placementId = searchParams.get('city');
-  const city = placementId ? Number(placementId) : undefined;
+  const city = Number(searchParams.get('city')) || undefined;
 
-  const filterParams: ManagerParams = useMemo(() => ({
-    group: groupParam,
-    posId: posIdParam,
-    paperTypeId: paperTypeIdParam,
-    userId: userIdParam,
-    dateStartEvent: dateStartParam,
-    dateEndEvent: dateEndParam,
-    page: currentPage,
-    size: pageSize,
-  }), [groupParam, posIdParam, paperTypeIdParam, userIdParam, dateStartParam, dateEndParam, currentPage, pageSize]);
+  const filterParams: ManagerParams = useMemo(
+    () => ({
+      group: groupParam,
+      posId: posIdParam,
+      paperTypeId: paperTypeIdParam,
+      userId: userIdParam,
+      dateStartEvent: dateStartParam,
+      dateEndEvent: dateEndParam,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [
+      groupParam,
+      posIdParam,
+      paperTypeIdParam,
+      userIdParam,
+      dateStartParam,
+      dateEndParam,
+      currentPage,
+      pageSize,
+    ]
+  );
 
   const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -402,10 +416,7 @@ const Articles: React.FC = () => {
 
   const swrKeyManagerData = `get-manager-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}`;
 
-  const {
-    data: allManagersData,
-    isLoading: loadingManagerData,
-  } = useSWR(
+  const { data: allManagersData, isLoading: loadingManagerData } = useSWR(
     swrKeyManagerData,
     () => getAllManagerPaper(filterParams),
     {
@@ -417,10 +428,7 @@ const Articles: React.FC = () => {
 
   const swrKeyManagerPaperGraph = `get-manager-graph-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}`;
 
-  const {
-    data: allManagersGraphData,
-    isLoading: loadingGraphData,
-  } = useSWR(
+  const { data: allManagersGraphData, isLoading: loadingGraphData } = useSWR(
     swrKeyManagerPaperGraph,
     () => getAllManagerPaperGraph(filterParams),
     {
@@ -638,10 +646,10 @@ const Articles: React.FC = () => {
           <Tag
             color={
               paperTypes.find(pap => pap.value === value)?.type ===
-                'EXPENDITURE'
+              'EXPENDITURE'
                 ? 'red'
                 : paperTypes.find(pap => pap.value === value)?.type ===
-                  'RECEIPT'
+                    'RECEIPT'
                   ? 'green'
                   : ''
             }
@@ -898,21 +906,28 @@ const Articles: React.FC = () => {
       <div className="mt-5">
         <GeneralFilters
           count={data.length}
-          display={['dateTime', 'count', 'employee', 'paper', 'group', 'city', 'pos']}
+          display={[
+            'dateTime',
+            'count',
+            'employee',
+            'paper',
+            'group',
+            'city',
+            'pos',
+          ]}
         />
       </div>
 
-      <Modal isOpen={isStateOpen} classname="w-full sm:w-[600px]">
+      <Modal
+        open={isStateOpen}
+        onCancel={() => setIsStateOpen(false)}
+        footer={false}
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {t('finance.addN')}
           </h2>
-          <Close
-            onClick={() => {
-              setIsStateOpen(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         <Input
           placeholder="Search state type..."
@@ -928,8 +943,9 @@ const Articles: React.FC = () => {
               <div
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.paperTypeId === opt.value ? 'text-primary02' : ''
-                  }`}
+                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
+                  formData.paperTypeId === opt.value ? 'text-primary02' : ''
+                }`}
               >
                 {opt.name}
               </div>
@@ -945,17 +961,18 @@ const Articles: React.FC = () => {
           classname="mt-4 w-full"
         />
       </Modal>
-      <Modal isOpen={isOpenModal} classname="w-full sm:w-[600px]">
+      <Modal
+        open={isOpenModal}
+        onCancel={() => {
+          setIsOpenModal(false);
+        }}
+        footer={false}
+        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
+      >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
             {t('roles.create')}
           </h2>
-          <Close
-            onClick={() => {
-              setIsOpenModal(false);
-            }}
-            className="cursor-pointer text-text01"
-          />
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col space-y-4 text-text02">
@@ -1019,8 +1036,8 @@ const Articles: React.FC = () => {
                       ?.type === 'EXPENDITURE'
                       ? 'green'
                       : paperTypes.find(
-                        pap => pap.value === formData.paperTypeId
-                      )?.type === 'RECEIPT'
+                            pap => pap.value === formData.paperTypeId
+                          )?.type === 'RECEIPT'
                         ? 'red'
                         : ''
                   }
@@ -1029,8 +1046,8 @@ const Articles: React.FC = () => {
                   {paperTypes.find(pap => pap.value === formData.paperTypeId)
                     ?.type
                     ? t(
-                      `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
-                    )
+                        `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
+                      )
                     : ''}
                 </Tag>
               </div>

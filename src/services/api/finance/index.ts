@@ -10,7 +10,7 @@ enum FINANCE {
   GET_WORKER = 'user/permission/worker-by-pos',
 }
 
-enum ManagerReportPeriodStatus {
+export enum ManagerReportPeriodStatus {
   SAVE = 'SAVE',
   SENT = 'SENT',
 }
@@ -400,10 +400,10 @@ type UpdateManagerBody = {
 };
 
 export type ManagerParams = {
-  group: ManagerPaperGroup | '*';
-  posId: number | '*';
-  paperTypeId: number | '*';
-  userId: number | '*';
+  group?: ManagerPaperGroup;
+  posId?: number;
+  paperTypeId?: number;
+  userId?: number;
   dateStartEvent?: Date;
   dateEndEvent?: Date;
   page?: number;
@@ -543,10 +543,10 @@ type AllWorkersResponse = {
 };
 
 type ManagerGraphParams = {
-  group: ManagerPaperGroup | '*';
-  posId: number | '*';
-  paperTypeId: number | '*';
-  userId: number | '*';
+  group?: ManagerPaperGroup;
+  posId?: number;
+  paperTypeId?: number;
+  userId?: number;
   dateStartEvent?: Date;
   dateEndEvent?: Date;
 };

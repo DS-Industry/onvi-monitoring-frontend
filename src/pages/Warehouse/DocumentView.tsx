@@ -9,7 +9,6 @@ import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { useUser } from '@/hooks/useUserStore';
 import { getOrganization } from '@/services/api/organization';
 import { Skeleton, Button as AntDButton } from 'antd';
 import DateInput from '@/components/ui/Input/DateInput';
@@ -33,10 +32,10 @@ const DocumentView: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
-  const user = useUser();
+
   const userPermissions = usePermissions();
 
   const documentId = searchParams.get('documentId');
@@ -80,7 +79,7 @@ const DocumentView: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: city || '*',
+        placementId: city,
       }),
     {
       revalidateOnFocus: false,
@@ -165,7 +164,7 @@ const DocumentView: React.FC = () => {
     documentType === 'INVENTORY'
       ? (document?.details || []).map(doc => ({
           id: doc.props.id,
-          responsibleName: user.name,
+          responsibleName: document?.document.props.responsibleName ?? '',
           nomenclatureName:
             nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
               ?.name || '',
@@ -180,7 +179,7 @@ const DocumentView: React.FC = () => {
         }))
       : (document?.details || []).map(doc => ({
           id: doc.props.id,
-          responsibleName: user.name,
+          responsibleName: document?.document.props.responsibleName ?? '',
           nomenclatureName:
             nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
               ?.name || '',

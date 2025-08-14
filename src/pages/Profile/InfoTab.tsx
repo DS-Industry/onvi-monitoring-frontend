@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useClearUserData, useUser } from '@/hooks/useUserStore';
-import { updateUserProfile } from '@/services/api/platform';
+import { updateUserProfile, logoutPlatformUser } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
 import {
-  useClearJwtToken,
+  useLogout,
   useClearPermissions,
   useSetPermissions,
 } from '@/hooks/useAuthStore';
@@ -24,7 +24,7 @@ const InfoTab: React.FC = () => {
   const user = useUser();
   const setUser = useSetUser();
   const setClearUser = useClearUserData();
-  const setClearToken = useClearJwtToken();
+  const logout = useLogout();
   const setClearPermissions = useClearPermissions();
   const setPermissions = useSetPermissions();
   const { showToast } = useToast();
@@ -116,12 +116,18 @@ const InfoTab: React.FC = () => {
     }
   };
 
-  const logout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutPlatformUser();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+
     localStorage.clear();
     sessionStorage.clear();
 
     setClearUser();
-    setClearToken();
+    logout();
     setClearPermissions();
     setPermissions([]);
 
@@ -219,7 +225,7 @@ const InfoTab: React.FC = () => {
               form={false}
               title={t('profile.logout')}
               classname="mt-2"
-              handleClick={logout}
+              handleClick={handleLogout}
             />
           </div>
         </div>

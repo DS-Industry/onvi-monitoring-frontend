@@ -57,7 +57,7 @@ const Indicators: React.FC = () => {
   const screens = useBreakpoint();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
-  const [selectedValue, setSelectedValue] = useState();
+  const [selectedValue, setSelectedValue] = useState<number | undefined>();
   const [searchParams] = useSearchParams();
   const startDate = dayjs(getParam(searchParams, 'dateStart') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();
   const endDate = dayjs(getParam(searchParams, 'dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();

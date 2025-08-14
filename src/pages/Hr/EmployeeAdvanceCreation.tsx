@@ -88,11 +88,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const { data: workersData } = useSWR(
     [`get-workers`],
     () =>
-      getWorkers({
-        placementId: '*',
-        hrPositionId: '*',
-        organizationId: '*',
-      }),
+      getWorkers({}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -125,7 +121,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const defaultValues: PrepaymentCalculateBody = {
     organizationId: 0,
     billingMonth: '',
-    hrPositionId: '*',
   };
 
   const [formData, setFormData] = useState(defaultValues);
