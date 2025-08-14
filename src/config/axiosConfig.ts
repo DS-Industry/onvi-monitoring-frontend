@@ -52,7 +52,7 @@ api.interceptors.request.use(
     ) {
       const csrfToken = getCookie('csrf-token');
       if (csrfToken) {
-        config.headers['X-CSRF-Token'] = csrfToken;
+        config.headers['_csrf'] = csrfToken;
       }
     }
 
@@ -140,7 +140,7 @@ api.interceptors.response.use(
 
         const newCsrfToken = getCookie('csrf-token');
         if (newCsrfToken) {
-          originalRequest.headers['X-CSRF-Token'] = newCsrfToken;
+          originalRequest.headers['_csrf'] = newCsrfToken;
 
           datadogLogs.logger.info('Updated request with new CSRF token', {
             url: originalRequest.url,
