@@ -400,10 +400,10 @@ type UpdateManagerBody = {
 };
 
 export type ManagerParams = {
-  group: ManagerPaperGroup | '*';
-  posId: number | '*';
-  paperTypeId: number | '*';
-  userId: number | '*';
+  group?: ManagerPaperGroup;
+  posId?: number;
+  paperTypeId?: number;
+  userId?: number;
   dateStartEvent?: Date;
   dateEndEvent?: Date;
   page?: number;
@@ -543,10 +543,10 @@ type AllWorkersResponse = {
 };
 
 type ManagerGraphParams = {
-  group: ManagerPaperGroup | '*';
-  posId: number | '*';
-  paperTypeId: number | '*';
-  userId: number | '*';
+  group?: ManagerPaperGroup;
+  posId?: number;
+  paperTypeId?: number;
+  userId?: number;
   dateStartEvent?: Date;
   dateEndEvent?: Date;
 };

@@ -103,9 +103,9 @@ const Employees: React.FC = () => {
       label: item.props.name,
     })) || [];
 
-  const placementId = Number(searchParams.get('placementId'));
-  const hrPositionId = Number(searchParams.get('hrPositionId'));
-  const organizationId = Number(searchParams.get('organizationId'));
+  const placementId = Number(searchParams.get('placementId')) || undefined;
+  const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
+  const organizationId = Number(searchParams.get('organizationId')) || undefined;
   const name = searchParams.get('name') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -143,9 +143,9 @@ const Employees: React.FC = () => {
     swrKey,
     () =>
       getWorkers({
-        placementId: filterParams.placementId || '*',
-        hrPositionId: filterParams.hrPositionId || '*',
-        organizationId: filterParams.organizationId || '*',
+        placementId: filterParams.placementId,
+        hrPositionId: filterParams.hrPositionId,
+        organizationId: filterParams.organizationId,
         name: filterParams.name || undefined,
         page: filterParams.page,
         size: filterParams.size,

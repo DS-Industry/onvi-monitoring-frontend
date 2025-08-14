@@ -33,7 +33,7 @@ const Warehouse: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
   const userPermissions = usePermissions();
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId')) || undefined;
   const placementId = Number(searchParams.get('city')) || undefined;
 
   const filterParams = useMemo(
@@ -69,7 +69,7 @@ const Warehouse: React.FC = () => {
     () =>
       getWarehouses({
         posId: posId,
-        placementId: placementId || '*',
+        placementId: placementId,
       }),
     {
       revalidateOnFocus: false,
