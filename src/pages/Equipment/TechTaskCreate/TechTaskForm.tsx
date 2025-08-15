@@ -353,7 +353,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           options={
             poses?.map(item => ({ name: item.name, value: item.id })) || []
           }
-          classname="w-64"
+          classname="w-96"
           {...register('posId', {
             required: techTaskToEdit === null && t("validation.posRequired"),
             validate: value =>
@@ -370,7 +370,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         <DropdownInput
           title={`${t('routine.type')} *`}
           label={t('warehouse.notSel')}
-          classname="w-64"
+          classname="w-96"
           options={[
             { name: t('tables.ONETIME'), value: 'ONETIME' },
             { name: t('tables.REGULAR'), value: 'REGULAR' },

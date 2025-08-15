@@ -10,8 +10,11 @@ import { DEFAULT_PAGE } from '@/utils/constants';
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const placementId = searchParams.get("city") || undefined;
 
-  const { data: posData, isLoading } = useSWR([`get-pos`], () => getPoses({}), {
+  const { data: posData, isLoading } = useSWR([`get-pos`], () => getPoses({
+    placementId: Number(placementId)
+  }), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
