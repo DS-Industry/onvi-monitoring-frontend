@@ -132,7 +132,9 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 {children}
               </div>
 
-              {shouldShow('dateTime') && <DateTimeFilter />}
+              <div className="flex flex-wrap">
+                {shouldShow('dateTime') && <DateTimeFilter />}
+              </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
                 {shouldShow('reset') && <ResetButton onReset={onReset} />}

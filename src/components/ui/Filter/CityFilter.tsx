@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { Select } from 'antd';
 import { getPlacement } from '@/services/api/device';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 
 type CityFilterProps = {
@@ -17,9 +17,6 @@ const CityFilter: React.FC<CityFilterProps> = ({
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: cityData } = useSWR('get-city', getPlacement);
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
 
   const cities = [
     { label: t("warehouse.all"), value: "" },
@@ -37,7 +34,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
   };
 
   return (
-    <div>
+    <div className="w-full sm:w-80">
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('pos.city')}
       </label>
@@ -45,7 +42,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
       showSearch
       allowClear={false}
       className={className}
-      value={getParam("city", "")}
+      value={getParam(searchParams, "city", "")}
       onChange={handleChange}
       options={cities}
       optionFilterProp="label"
