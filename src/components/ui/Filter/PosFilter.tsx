@@ -4,27 +4,21 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { Select, Spin } from 'antd';
 import { getPoses } from '@/services/api/equipment';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
-
   const placementId = Number(searchParams.get("city")) || undefined;
 
-  const { data: posData, isLoading } = useSWR(
-    placementId ? [`get-pos`, placementId] : null,
-    () => getPoses({ placementId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: posData, isLoading } = useSWR([`get-pos`, placementId], () => getPoses({
+    placementId: placementId
+  }), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -50,7 +44,7 @@ const PosFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('filters.pos.placeholder')}
-        value={getParam('posId', '')}
+        value={getParam(searchParams, 'posId')}
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
