@@ -15,6 +15,7 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 type StockLevel = {
   nomenclatureId: number;
@@ -36,6 +37,8 @@ const OverheadCosts: React.FC = () => {
   const orgId = searchParams.get('orgId') || null;
   const warehouseId = Number(searchParams.get('warehouseId')) || undefined;
   const categoryId = Number(searchParams.get('categoryId')) || undefined;
+  const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
 
   const baseColumns = useMemo(
     () => [
@@ -212,27 +215,40 @@ const OverheadCosts: React.FC = () => {
       </div>
       <GeneralFilters count={transformedData.length} display={['city']}>
         <div>
-          <div className="text-sm text-text02">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.organization')}
-          </div>
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
-            options={organizations.map(item => ({
-              label: item.name,
-              value: String(item.value),
-            }))}
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             value={searchParams.get('orgId') || null}
             onChange={value => {
               updateSearchParams(searchParams, setSearchParams, {
                 orgId: value,
               });
             }}
+            options={organizations.map(item => ({
+              label: item.name,
+              value: String(item.value),
+            }))}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <div>
-          <div className="text-sm text-text02">{t('warehouse.category')}</div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('warehouse.category')}
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={categories.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -243,12 +259,23 @@ const OverheadCosts: React.FC = () => {
                 categoryId: value,
               });
             }}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <div>
-          <div className="text-sm text-text02">{t('warehouse.ware')}</div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('warehouse.ware')}
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={warehouses.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -259,6 +286,13 @@ const OverheadCosts: React.FC = () => {
                 warehouseId: value,
               });
             }}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
       </GeneralFilters>
@@ -275,7 +309,20 @@ const OverheadCosts: React.FC = () => {
           }))}
           columns={visibleColumns}
           loading={stocksLoading}
-          pagination={false}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: transformedData.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
         />
       </div>
     </>
