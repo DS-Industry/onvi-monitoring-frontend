@@ -511,7 +511,7 @@ const InventoryCreation: React.FC = () => {
           dataSource={inventoriesDisplay}
           columns={visibleColumns}
           loading={inventoryLoading}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: '500px' }}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
