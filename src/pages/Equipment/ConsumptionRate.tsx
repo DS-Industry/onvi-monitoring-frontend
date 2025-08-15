@@ -1,7 +1,6 @@
 import {
   ConsumptionRateResponse,
   getConsumptionRate,
-  getPoses,
   patchProgramCoefficient,
 } from '@/services/api/equipment';
 import React, { useEffect, useState } from 'react';
@@ -18,24 +17,12 @@ import { Table, Button } from 'antd';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
   const [searchParams] = useSearchParams();
-  const placementId = searchParams.get('city');
-  const posId = searchParams.get('posId');
-  const city = placementId ? Number(placementId) : undefined;
+  const posId = searchParams.get('posId') || undefined;
   const userPermissions = usePermissions();
-  const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
 
   const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
-    posId !== '*' ? [`get-consumption-rate`, posId] : null,
+    posId ? [`get-consumption-rate`, posId] : null,
     () => getConsumptionRate(Number(posId)),
     {
       revalidateOnFocus: false,
@@ -63,16 +50,6 @@ const ConsumptionRate: React.FC = () => {
       return patchProgramCoefficient(Number(posId), arg);
     }
   );
-
-  const poses: { name: string; value: number | string }[] =
-    posData?.map(item => ({ name: item.name, value: item.id })) || [];
-
-  const posesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
-  poses.unshift(posesAllObj);
 
   const [tableData, setTableData] = useState(consumptionRateData);
 
