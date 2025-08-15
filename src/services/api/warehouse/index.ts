@@ -281,6 +281,8 @@ type WAREHOUSE_BODY = {
 type WarehouseParams = {
   posId?: number;
   placementId?: number;
+  page?: number;
+  size?: number;
 };
 
 type NomenclatureParams = {
