@@ -21,7 +21,6 @@ import { getPlacement } from '@/services/api/device';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const posId = searchParams.get('posId');
@@ -67,14 +66,6 @@ const ConsumptionRate: React.FC = () => {
     }
   );
 
-  const poses: { name: string; value: number | string }[] =
-    posData?.map(item => ({ name: item.name, value: item.id })) || [];
-
-  const posesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
   const { data: cityData } = useSWR('get-city', getPlacement);
 
   const cities = [
@@ -90,8 +81,6 @@ const ConsumptionRate: React.FC = () => {
       value: String(item.id),
     })) || []),
   ];
-
-  poses.unshift(posesAllObj);
 
   const [tableData, setTableData] = useState(consumptionRateData);
 
