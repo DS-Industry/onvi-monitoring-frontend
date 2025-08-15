@@ -80,8 +80,8 @@ const TechTasks: React.FC = () => {
   const dateRender = getDateRender();
 
   const statuses = [
-    { name: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
-    { name: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
+    { label: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
+    { label: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
   ];
 
   const columnsTechTasks: ColumnsType<TechTaskReadAll> = [

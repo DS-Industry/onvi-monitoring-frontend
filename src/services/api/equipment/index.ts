@@ -583,7 +583,7 @@ export async function getChemicalReport(
 }
 
 export async function getConsumptionRate(
-  posId: number | string
+  posId: number
 ): Promise<ConsumptionRateResponse[]> {
   const response: AxiosResponse<ConsumptionRateResponse[]> = await api.get(
     TECHTASKS.GET_CONSUMPTION_RATE + `/${posId}`
@@ -593,7 +593,7 @@ export async function getConsumptionRate(
 }
 
 export async function patchProgramCoefficient(
-  id: number | string,
+  id: number,
   body: ConsumptionRateCoeffPatch
 ): Promise<ConsumptionRateCoeffPatchResponse[]> {
   const response: AxiosResponse<ConsumptionRateCoeffPatchResponse[]> =

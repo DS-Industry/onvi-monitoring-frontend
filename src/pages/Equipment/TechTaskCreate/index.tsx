@@ -163,7 +163,7 @@ const TechTaskCreate: React.FC = () => {
     setCheckedList,
     options: optionsColumns,
     visibleColumns,
-  } = useColumnSelector(columnsTechTasks, 'tech-tasks-columns');
+  } = useColumnSelector(columnsTechTasks, 'tech-tasks-create-columns');
 
   const onEdit = () => {
     setTechTaskToEdit(null);
