@@ -368,7 +368,8 @@
     "dueDate": "Срок оплаты",
     "responsiblePerson": "Ответственное лицо",
     "taskName": "Имя задачи",
-    "attachImage": "Прикрепить изображение"
+    "attachImage": "Прикрепить изображение",
+    "return": "Вернуть в работу"
   },
   "warehouse": {
     "nomenclature": "У вас нет номенклатуры в программе",
