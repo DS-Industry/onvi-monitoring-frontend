@@ -365,10 +365,11 @@
     "regulation": "Регулирование",
     "reports": "В этом разделе отображаются отчеты о регламентных работах",
     "done": "Выполнено",
-    "dueDate": "Срок оплаты",
+    "deadline": "Крайний срок",
     "responsiblePerson": "Ответственное лицо",
     "taskName": "Имя задачи",
-    "attachImage": "Прикрепить изображение"
+    "attachImage": "Прикрепить изображение",
+    "return": "Вернуть в работу"
   },
   "warehouse": {
     "nomenclature": "У вас нет номенклатуры в программе",
@@ -1176,7 +1177,13 @@
     "positionRequired": "Должность обязательна",
     "categoryIdRequired": "ID категории обязателен",
     "measurementRequired": "Единица измерения обязательна",
-    "skuRequired": "Артикул обязателен"
+    "skuRequired": "Артикул обязателен",
+    "posRequired": "Выберите автомойку",
+    "workerRequired": "Работник обязателен",
+    "appearanceDateRequired": "Дата явки обязательна",
+    "startDateRequired": "Дата начала обязательна",
+    "finishDateRequired": "Дата окончания обязательна",
+    "downtimeRequired": "Время простоя обязательно"
   },
   "table": {
     "noData": "Ничего не найдено"
