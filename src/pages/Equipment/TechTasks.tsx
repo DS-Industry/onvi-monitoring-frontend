@@ -164,9 +164,11 @@ const TechTasks: React.FC = () => {
         onReset={resetFilters}
       >
         <div>
-          <div className="text-sm text-text02">{t('constants.status')}</div>
+          <div className="block mb-1 text-sm font-medium text-gray-700">
+            {t('constants.status')}
+          </div>
           <Select
-            className="w-full sm:w-80 h-10"
+            className="w-full sm:w-80"
             options={statuses}
             value={searchParams.get('status') || null}
             onChange={value => {

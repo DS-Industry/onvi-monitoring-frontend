@@ -34,7 +34,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
   };
 
   return (
-    <div>
+    <div className="w-full sm:w-80">
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('pos.city')}
       </label>
@@ -52,7 +52,6 @@ const CityFilter: React.FC<CityFilterProps> = ({
           .toLowerCase()
           .includes(input.toLowerCase())
       }
-      size='large'
     />
     </div>
   );

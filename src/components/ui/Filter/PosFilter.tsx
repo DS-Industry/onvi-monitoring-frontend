@@ -57,7 +57,6 @@ const PosFilter: React.FC = () => {
             .includes(input.toLowerCase())
         }
         notFoundContent={isLoading ? <Spin size="small" /> : null}
-        size='large'
       />
     </div>
   );

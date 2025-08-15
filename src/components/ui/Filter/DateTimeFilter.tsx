@@ -3,22 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import { DatePicker, TimePicker, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
 const DateTimeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
-
   const [startDate, setStartDate] = useState(
-    dayjs(getParam('dateStart') || dayjs().format('YYYY-MM-DDTHH:mm'))
+    dayjs(getParam(searchParams, 'dateStart') || dayjs().format('YYYY-MM-DDTHH:mm'))
   );
 
   const [endDate, setEndDate] = useState(
-    dayjs(getParam('dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm'))
+    dayjs(getParam(searchParams, 'dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm'))
   );
 
   const handleStartDateChange = (date: any) => {
@@ -77,7 +74,7 @@ const DateTimeFilter: React.FC = () => {
 
   return (
     <div className="mt-4">
-      <Space size="middle" direction="horizontal">
+      <Space size="middle" direction="horizontal" className='flex flex-wrap'>
         <div className="flex flex-row gap-1">
           <DatePicker
             value={startDate}

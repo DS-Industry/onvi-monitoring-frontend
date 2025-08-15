@@ -58,6 +58,7 @@ const EmployeeFilter: React.FC = () => {
             .toLowerCase()
             .includes(input.toLowerCase())
         }
+        size='large'
       />
     </div>
   );

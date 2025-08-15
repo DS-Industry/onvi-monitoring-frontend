@@ -165,7 +165,7 @@ const ProgressReport: React.FC = () => {
             {t('constants.status')}
           </div>
           <Select
-            className="w-full sm:w-80 h-10"
+            className="w-full sm:w-80"
             options={techTasksTypes}
             value={searchParams.get('type') || null}
             onChange={value => {
