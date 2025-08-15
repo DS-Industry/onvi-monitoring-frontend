@@ -140,6 +140,8 @@ const OverheadCosts: React.FC = () => {
       warehouseId: warehouseId,
       categoryId: categoryId,
       placementId: city,
+      page: currentPage,
+      size: pageSize
     }),
     [warehouseId, categoryId, city]
   );
