@@ -198,7 +198,7 @@ const OverheadCosts: React.FC = () => {
   }, [stockLevels, baseColumns, t]);
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columns, 'pos-deposits-table-columns');
+    useColumnSelector(columns, 'table-warehouse-leftovers-columns');
 
   return (
     <>
