@@ -9,7 +9,6 @@ import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import { createSupplier, getSupplier } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import { Drawer, Table, Button as AntDButton } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -18,6 +17,9 @@ import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { useSearchParams } from 'react-router-dom';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 type Supplier = {
   id: number;
@@ -30,6 +32,9 @@ const Suppliers: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
   const userPermissions = usePermissions();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
     [`get-supplier`],
@@ -135,9 +140,7 @@ const Suppliers: React.FC = () => {
           </AntDButton>
         )}
       </div>
-      {loadingSupplier ? (
-        <TableSkeleton columnCount={columnsSupplier.length} />
-      ) : supplier.length > 0 ? (
+      {supplier.length > 0 ? (
         <div className="mt-8">
           <ColumnSelector
             checkedList={checkedList}
@@ -147,7 +150,21 @@ const Suppliers: React.FC = () => {
           <Table
             dataSource={supplier}
             columns={visibleColumns}
-            pagination={false}
+            loading={loadingSupplier}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: supplier.length,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`,
+              onChange: (page, size) => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                });
+              },
+            }}
           />
         </div>
       ) : (
@@ -185,7 +202,7 @@ const Suppliers: React.FC = () => {
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register('name', { required: 'Name is required' })}
+            {...register('name', { required: t('validation.nameRequired') })}
             helperText={errors.name?.message || ''}
           />
           <Input
@@ -196,7 +213,7 @@ const Suppliers: React.FC = () => {
             value={formData.contact}
             changeValue={e => handleInputChange('contact', e.target.value)}
             error={!!errors.contact}
-            {...register('contact', { required: 'Contact is required' })}
+            {...register('contact', { required: t('validation.phoneRequired') })}
             helperText={errors.contact?.message || ''}
           />
           <div className="flex space-x-4">
