@@ -566,9 +566,7 @@ const InventoryCreation: React.FC = () => {
             options={categories}
             classname="w-64"
             {...register('categoryId', {
-              required: !isEditMode && t('validation.categoryIdRequired'),
-              validate: value =>
-                value !== 0 || isEditMode || t('validation.categoryIdRequired'),
+              required: !isEditMode && t('validation.categoryIdRequired')
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}
@@ -589,24 +587,21 @@ const InventoryCreation: React.FC = () => {
             onChange={value => handleInputChange('supplierId', value)}
           />
           <DropdownInput
-            title={`${t('warehouse.organization')} *`}
+            title={`${t('warehouse.category')} *`}
             label={
-              organizations.length === 0
+              categories.length === 0
                 ? t('warehouse.noVal')
                 : t('warehouse.notSel')
             }
-            options={organizations}
+            options={categories}
             classname="w-64"
-            {...register('organizationId', {
-              required: !isEditMode && t('validation.organizationRequired'),
-              validate: value =>
-                value !== 0 || isEditMode || t('validation.organizationRequired'),
+            {...register('categoryId', {
+              required: !isEditMode && t('validation.categoryIdRequired'),
             })}
-            value={formData.organizationId}
-            onChange={value => handleInputChange('organizationId', value)}
-            error={!!errors.organizationId}
-            helperText={errors.organizationId?.message}
-            isDisabled={isEditMode}
+            value={formData.categoryId}
+            onChange={value => handleInputChange('categoryId', value)}
+            error={!!errors.categoryId}
+            helperText={errors.categoryId?.message}
           />
           <DropdownInput
             title={`${t('warehouse.unit')} *`}
