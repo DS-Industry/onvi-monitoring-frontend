@@ -74,6 +74,8 @@ const Warehouse: React.FC = () => {
       getWarehouses({
         posId: posId,
         placementId: placementId,
+        page: currentPage,
+        size: pageSize,
       }),
     {
       revalidateOnFocus: false,
