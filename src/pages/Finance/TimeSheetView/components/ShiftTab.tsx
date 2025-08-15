@@ -188,7 +188,6 @@ const ShiftTab: React.FC = () => {
       <h1 className="text-[20px] font-bold mb-5">
         {t('finance.employeeShiftView')}
       </h1>
-
       <Card>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
           <div>
@@ -224,7 +223,6 @@ const ShiftTab: React.FC = () => {
           </div>
         </div>
       </Card>
-
       <div className="mt-8">
         <h2 className="text-[20px] font-bold mb-2">
           {t('finance.shiftGradingWithBonus')}
@@ -313,6 +311,7 @@ const ShiftTab: React.FC = () => {
             hasPermissionToReturn ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
+                type="primary"
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
