@@ -466,7 +466,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           </Form.Item>
         </div>
         <div>
-          <div className="text-text02 text-sm">{t('finance.dat')}</div>
+          <div className="text-text02 text-sm">{t('organizations.dateCertificate')}</div>
           <DatePicker
             className="w-40"
             {...register('dateCertificate')}

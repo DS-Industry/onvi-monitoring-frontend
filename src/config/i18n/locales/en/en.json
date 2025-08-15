@@ -168,7 +168,8 @@
     "new": "New Legal Entity",
     "update": "Update Legal Entity",
     "token": "The token is sent to your respective Email Id.",
-    "user": "The user token is expired."
+    "user": "The user token is expired.",
+    "dateCertificate": "Certification date" 
   },
   "pos": {
     "companyName": "Company Name",
