@@ -65,7 +65,7 @@ const InventoryImport = React.lazy(
 );
 const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
-  () => import('@/pages/Warehouse/DocumentsCreation/index')
+  () => import('@/pages/Warehouse/DocCreation/index')
 );
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
