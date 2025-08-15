@@ -12,7 +12,7 @@ const PosFilter: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = Number(searchParams.get("city")) || undefined;
 
-  const { data: posData, isLoading } = useSWR([`get-pos`], () => getPoses({
+  const { data: posData, isLoading } = useSWR([`get-pos`, placementId], () => getPoses({
     placementId: placementId
   }), {
     revalidateOnFocus: false,

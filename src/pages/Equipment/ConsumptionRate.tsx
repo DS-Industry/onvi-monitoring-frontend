@@ -35,7 +35,7 @@ const ConsumptionRate: React.FC = () => {
   );
 
   const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
-    posId !== '*' ? [`get-consumption-rate`, posId] : null,
+    posId ? [`get-consumption-rate`, posId] : null,
     () => getConsumptionRate(Number(posId)),
     {
       revalidateOnFocus: false,
