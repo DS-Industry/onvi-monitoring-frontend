@@ -155,7 +155,7 @@ const TechTaskItem: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.list')}
           </span>
-          {getStatusRender(status || '')}
+          <div className='mt-2'>{getStatusRender(status || '')}</div>
         </div>
       </div>
       <div className="mt-5">
