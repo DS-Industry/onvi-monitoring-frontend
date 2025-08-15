@@ -18,9 +18,8 @@ export function useColumnSelector<T>(
 
     try {
       const saved = localStorage.getItem(storageKey);
-      return saved
-        ? (JSON.parse(saved) as (string | number)[])
-        : defaultCheckedList;
+      const parsed = saved ? (JSON.parse(saved) as (string | number)[]) : null;
+      return parsed && parsed.length ? parsed : defaultCheckedList;
     } catch (error) {
       console.warn('Failed to read from localStorage', error);
       return defaultCheckedList;
