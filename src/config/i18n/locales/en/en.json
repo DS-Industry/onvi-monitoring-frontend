@@ -365,10 +365,11 @@
     "regulation": "Regulation",
     "reports": "This section displays routine maintenance reports",
     "done": "Done",
-    "dueDate": "Due Date",
+    "deadline": "Deadline",
     "responsiblePerson": "Responsible Person",
     "taskName": "Имя задачи",
-    "attachImage": "Attach Image"
+    "attachImage": "Attach Image",
+    "return": "Return to work"
   },
   "warehouse": {
     "nomenclature": "You don't have nomenclature in the program",
@@ -1174,7 +1175,13 @@
     "invalidEmailFormat": "Invalid Email Format",
     "roleRequired": "Role is required",
     "positionRequired": "Position is required",
-    "categoryIdRequired": "Category ID is required"
+    "categoryIdRequired": "Category ID is required",
+    "posRequired": "POS is required",
+    "workerRequired": "Worker is required",
+    "appearanceDateRequired": "Appearance Date is required",
+    "startDateRequired": "Start date is required",
+    "finishDateRequired": "Finish date is required",
+    "downtimeRequired": "Downtime is required"
   },
   "table": {
     "noData": "No Data"
