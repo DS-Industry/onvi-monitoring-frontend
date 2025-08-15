@@ -95,7 +95,13 @@ const InventoryCreation: React.FC = () => {
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     organizationId ? swrKey : null,
     () => {
-      return getNomenclature(Number(organizationId)!);
+      return getNomenclature(
+        Number(organizationId)!,
+        {
+          page: currentPage,
+          size: pageSize
+        }
+      );
     },
     {
       revalidateOnFocus: false,
