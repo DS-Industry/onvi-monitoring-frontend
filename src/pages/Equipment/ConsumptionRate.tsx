@@ -173,7 +173,7 @@ const ConsumptionRate: React.FC = () => {
       </div>
       <GeneralFilters
         count={tableData?.length || 0}
-        display={['city', 'pos', 'count']}
+        display={['pos', 'count']}
       />
       <div className="mt-8">
         <Table
