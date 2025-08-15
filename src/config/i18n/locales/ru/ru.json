@@ -1173,7 +1173,10 @@
     "emailRequired": "Email обязателен",
     "invalidEmailFormat": "Неверный формат Email",
     "roleRequired": "Роль обязательна",
-    "positionRequired": "Должность обязательна"
+    "positionRequired": "Должность обязательна",
+    "categoryIdRequired": "ID категории обязателен",
+    "measurementRequired": "Единица измерения обязательна",
+    "skuRequired": "Артикул обязателен"
   },
   "table": {
     "noData": "Ничего не найдено"
