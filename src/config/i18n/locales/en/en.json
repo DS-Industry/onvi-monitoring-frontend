@@ -1175,6 +1175,7 @@
     "invalidEmailFormat": "Invalid Email Format",
     "roleRequired": "Role is required",
     "positionRequired": "Position is required",
+    "categoryIdRequired": "Category ID is required",
     "posRequired": "POS is required",
     "workerRequired": "Worker is required",
     "appearanceDateRequired": "Appearance Date is required",
