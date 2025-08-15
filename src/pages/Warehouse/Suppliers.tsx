@@ -38,7 +38,10 @@ const Suppliers: React.FC = () => {
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
     [`get-supplier`],
-    () => getSupplier(),
+    () => getSupplier({
+      page: currentPage,
+      size: pageSize
+    }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
