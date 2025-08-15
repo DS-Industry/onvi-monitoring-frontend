@@ -1174,7 +1174,7 @@
     "invalidEmailFormat": "Неверный формат Email",
     "roleRequired": "Роль обязательна",
     "positionRequired": "Должность обязательна",
-    "posRequired": "POS обязательно",
+    "posRequired": "Выберите автомойку",
     "workerRequired": "Работник обязателен",
     "appearanceDateRequired": "Дата явки обязательна",
     "startDateRequired": "Дата начала обязательна",
