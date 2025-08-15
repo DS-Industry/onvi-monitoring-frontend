@@ -1173,7 +1173,8 @@
     "emailRequired": "Email is required",
     "invalidEmailFormat": "Invalid Email Format",
     "roleRequired": "Role is required",
-    "positionRequired": "Position is required"
+    "positionRequired": "Position is required",
+    "categoryIdRequired": "Category ID is required"
   },
   "table": {
     "noData": "No Data"

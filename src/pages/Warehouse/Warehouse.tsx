@@ -19,6 +19,8 @@ import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 type Warehouse = {
   name: string;
@@ -29,12 +31,14 @@ type Warehouse = {
 
 const Warehouse: React.FC = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { showToast } = useToast();
   const userPermissions = usePermissions();
   const posId = Number(searchParams.get('posId')) || undefined;
   const placementId = Number(searchParams.get('city')) || undefined;
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const filterParams = useMemo(
     () => ({
@@ -70,6 +74,8 @@ const Warehouse: React.FC = () => {
       getWarehouses({
         posId: posId,
         placementId: placementId,
+        page: currentPage,
+        size: pageSize,
       }),
     {
       revalidateOnFocus: false,
@@ -82,7 +88,7 @@ const Warehouse: React.FC = () => {
     posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const workers: { name: string; value: number }[] =
-    workerData?.map(item => ({ name: item.name, value: item.id })) || [];
+    workerData?.map(item => ({ name: item.name + " " + item.surname, value: item.id })) || [];
 
   const warehouses =
     warehouseData?.map(item => ({
@@ -206,11 +212,23 @@ const Warehouse: React.FC = () => {
           onChange={setCheckedList}
         />
         <Table
-          rowKey="posId"
           dataSource={warehouses}
           columns={visibleColumns}
           loading={warehouseLoading}
-          pagination={false}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: warehouses.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
           scroll={{ x: 'max-content' }}
         />
       </div>
@@ -234,7 +252,7 @@ const Warehouse: React.FC = () => {
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register('name', { required: 'Name is required' })}
+            {...register('name', { required: t('validation.nameRequired') })}
             helperText={errors.name?.message || ''}
           />
           <Input
@@ -245,7 +263,7 @@ const Warehouse: React.FC = () => {
             value={formData.location}
             changeValue={e => handleInputChange('location', e.target.value)}
             error={!!errors.location}
-            {...register('location', { required: 'Location is required' })}
+            {...register('location', { required: t('validation.locationRequired') })}
             helperText={errors.location?.message || ''}
           />
           <DropdownInput
@@ -254,8 +272,8 @@ const Warehouse: React.FC = () => {
             options={workers}
             classname="w-64"
             {...register('managerId', {
-              required: 'Category Id is required',
-              validate: value => value !== 0 || 'Category ID is required',
+              required: t('validation.categoryIdRequired'),
+              validate: value => value !== 0 || t('validation.categoryIdRequired'),
             })}
             value={formData.managerId}
             onChange={value => handleInputChange('managerId', value)}
@@ -268,8 +286,8 @@ const Warehouse: React.FC = () => {
             options={poses}
             classname="w-64"
             {...register('posId', {
-              required: 'Category Id is required',
-              validate: value => value !== 0 || 'Category ID is required',
+              required: t('validation.categoryIdRequired'),
+              validate: value => value !== 0 || t('validation.categoryIdRequired'),
             })}
             value={formData.posId}
             onChange={value => handleInputChange('posId', value)}
