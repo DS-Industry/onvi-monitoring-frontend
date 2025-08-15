@@ -151,7 +151,7 @@ const EquipmentFailure: React.FC = () => {
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   const workers: { name: string; value: number }[] = (
-    workerData?.map(item => ({ name: item.name, value: item.id })) || []
+    workerData?.map(item => ({ name: `${item.name} ${item.surname}`, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   const programs: { name: string; value: number }[] =
@@ -283,20 +283,7 @@ const EquipmentFailure: React.FC = () => {
       })
   );
 
-  type FieldType =
-    | 'posId'
-    | 'workerId'
-    | 'appearanceDate'
-    | 'startDate'
-    | 'finishDate'
-    | 'objectName'
-    | 'equipmentKnotId'
-    | 'incidentNameId'
-    | 'incidentReasonId'
-    | 'incidentSolutionId'
-    | 'downtime'
-    | 'comment'
-    | 'carWashDeviceProgramsTypeId';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = [
@@ -578,9 +565,9 @@ const EquipmentFailure: React.FC = () => {
             options={poses}
             classname="w-72"
             {...register('posId', {
-              required: !isEditMode && 'Pos ID is required',
+              required: !isEditMode && t("validation.posRequired"),
               validate: value =>
-                value !== 0 || isEditMode || 'Pos ID is required',
+                value !== 0 || isEditMode || t("validation.posRequired"),
             })}
             value={formData.posId}
             onChange={value => {
@@ -603,9 +590,9 @@ const EquipmentFailure: React.FC = () => {
             options={workers}
             classname="w-72"
             {...register('workerId', {
-              required: !isEditMode && 'Worker ID is required',
+              required: !isEditMode && t("validation.workerRequired"),
               validate: value =>
-                value !== 0 || isEditMode || 'Worker ID is required',
+                value !== 0 || isEditMode || t("validation.workerRequired"),
             })}
             value={formData.workerId}
             onChange={value => handleInputChange('workerId', value)}
@@ -628,7 +615,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.appearanceDate}
             {...register('appearanceDate', {
-              required: !isEditMode && 'Appearance Date is required',
+              required: !isEditMode && t("validation.appearanceDateRequired")
             })}
             helperText={errors.appearanceDate?.message || ''}
           />
@@ -644,7 +631,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.startDate}
             {...register('startDate', {
-              required: !isEditMode && 'Start Date is required',
+              required: !isEditMode && t("validation.startDateRequired"),
             })}
             helperText={errors.startDate?.message || ''}
           />
@@ -660,7 +647,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.finishDate}
             {...register('finishDate', {
-              required: !isEditMode && 'Finish Date is required',
+              required: !isEditMode && t("validation.finishDateRequired"),
             })}
             helperText={errors.finishDate?.message || ''}
           />
@@ -685,7 +672,7 @@ const EquipmentFailure: React.FC = () => {
             options={devices}
             classname="w-72"
             {...register('objectName', {
-              required: !isEditMode && 'Device is required',
+              required: !isEditMode && t("validation.deviceRequired"),
             })}
             value={formData.objectName}
             onChange={value => handleInputChange('objectName', value)}
@@ -757,7 +744,7 @@ const EquipmentFailure: React.FC = () => {
                   checked={formData.downtime === 1}
                   className="mr-2"
                   {...register('downtime', {
-                    required: !isEditMode && 'Downtime is required',
+                    required: !isEditMode && t("validation.downtimeRequired"),
                   })}
                   onChange={e => handleInputChange('downtime', e.target.value)}
                 />
@@ -769,7 +756,7 @@ const EquipmentFailure: React.FC = () => {
                   value={0}
                   checked={formData.downtime === 0}
                   {...register('downtime', {
-                    required: !isEditMode && 'Downtime is required',
+                    required: !isEditMode && t("validation.downtimeRequired"),
                   })}
                   onChange={e => handleInputChange('downtime', e.target.value)}
                   className="mr-2"
@@ -779,7 +766,7 @@ const EquipmentFailure: React.FC = () => {
             </div>
             {errors.downtime && (
               <div className={`text-[11px] font-normal text-errorFill`}>
-                Downtime is required.
+                {t("validation.downtimeRequired")}
               </div>
             )}
           </div>
@@ -805,7 +792,7 @@ const EquipmentFailure: React.FC = () => {
             changeValue={e => handleInputChange('comment', e.target.value)}
             error={!!errors.comment}
             {...register('comment', {
-              required: !isEditMode && 'Comment is required',
+              required: !isEditMode && t("validation.commentRequired"),
             })}
             helperText={errors.comment?.message || ''}
           />

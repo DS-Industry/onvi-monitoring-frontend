@@ -1173,7 +1173,13 @@
     "emailRequired": "Email обязателен",
     "invalidEmailFormat": "Неверный формат Email",
     "roleRequired": "Роль обязательна",
-    "positionRequired": "Должность обязательна"
+    "positionRequired": "Должность обязательна",
+    "posRequired": "POS обязательно",
+    "workerRequired": "Работник обязателен",
+    "appearanceDateRequired": "Дата явки обязательна",
+    "startDateRequired": "Дата начала обязательна",
+    "finishDateRequired": "Дата окончания обязательна",
+    "downtimeRequired": "Время простоя обязательно"
   },
   "table": {
     "noData": "Ничего не найдено"
