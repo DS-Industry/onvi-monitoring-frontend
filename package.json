@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/DS-Industry/onvi-monitoring-frontend/",
+  "homepage": "https://st.app.onvione.ru/",
   "scripts": {
     "dev": "vite --mode development",
     "staging": "vite --mode staging",
