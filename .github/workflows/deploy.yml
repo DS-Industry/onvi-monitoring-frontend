@@ -36,7 +36,7 @@ jobs:
       - name: Build project
         run: npm run build && cp dist/index.html dist/404.html
         env:
-          VITE_API_URL: https://d5dgrl80pu15j74ov536.apigw.yandexcloud.net
+          VITE_API_URL: https://st.api.onvione.ru
           VITE_MODE: development
           VITE_DATADOG_APPLICATION_ID: c5d600a5-9d7a-4ee1-a0c1-331e003dd5d0
           VITE_DATADOG_CLIENT_TOKEN: pub77753e297dbf5f47be6374c56d9f17e1
