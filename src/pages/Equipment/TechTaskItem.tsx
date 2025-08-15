@@ -174,7 +174,7 @@ const TechTaskItem: React.FC = () => {
               status={status ? status : undefined}
             />
             {status !== t('tables.FINISHED') && (
-              <div className="flex flex-col sm:flex-row gap-4 mt-2">
+              <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-10">
                 <Button
                   title={t('organizations.cancel')}
                   type="outline"
