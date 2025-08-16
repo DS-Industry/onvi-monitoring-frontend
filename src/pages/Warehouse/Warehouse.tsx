@@ -172,7 +172,7 @@ const Warehouse: React.FC = () => {
     setCheckedList,
     options: columnOptions,
     visibleColumns,
-  } = useColumnSelector(columnsWarehouses, 'plan-fact-columns');
+  } = useColumnSelector(columnsWarehouses, 'warehouse-plan-fact-columns');
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Warehouse' },

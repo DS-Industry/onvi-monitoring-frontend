@@ -14,8 +14,6 @@ import { ColumnsType } from 'antd/es/table';
 import { JSX } from 'react/jsx-runtime';
 import { t } from 'i18next';
 
-const { Option } = Select;
-
 interface TableRow {
   id: number;
   check: boolean;
@@ -87,18 +85,22 @@ const EditableCell: React.FC<EditableCellProps> = ({
     case 'select':
       inputNode = (
         <Select
+          showSearch
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
+          }
           value={value}
           onChange={value => onChange(record.id, dataIndex, value)}
           placeholder={`Select ${title}`}
           style={{ width: '100%' }}
-        >
-          <Option value={0}>{t('warehouse.notSel')}</Option>
-          {options?.map(opt => (
-            <Option value={opt.value} key={opt.value}>
-              {opt.label}
-            </Option>
-          ))}
-        </Select>
+          options={[
+            { value: 0, label: t('warehouse.notSel') },
+            ...(options || []),
+          ]}
+        />
       );
       break;
     case 'checkbox':

@@ -1,5 +1,4 @@
 import Button from '@ui/Button/Button';
-import DropdownInput from '@ui/Input/DropdownInput';
 import Input from '@ui/Input/Input';
 import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
 import { useUser } from '@/hooks/useUserStore';
@@ -22,9 +21,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Skeleton } from 'antd';
-import DateInput from '@ui/Input/DateInput';
-import dayjs from 'dayjs';
+import { DatePicker, Select, Skeleton } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import DocumentTypesTable from '@/pages/Warehouse/DocumentsTables/DocumentTypesTable';
@@ -40,6 +38,7 @@ interface TableRow {
   comment: string;
   oldQuantity?: number;
   deviation?: number;
+  isDeleted?: boolean;
 }
 
 const DocumentsCreation: React.FC = () => {
@@ -155,7 +154,7 @@ const DocumentsCreation: React.FC = () => {
       }
 
       const responsibleId = documentsData.responsibleId;
-      const responsibleName = user.name;
+      const responsibleName = documentsData.responsibleName || '';
 
       const tableData =
         documentType === WarehouseDocumentType.INVENTORY
@@ -308,7 +307,9 @@ const DocumentsCreation: React.FC = () => {
   };
 
   const deleteRow = () => {
-    setTableData(prevData => prevData.filter(row => !row.check));
+    setTableData(prevData =>
+      prevData.map(row => (row.check ? { ...row, isDeleted: true } : row))
+    );
   };
 
   const sortAscending = () => {
@@ -320,7 +321,7 @@ const DocumentsCreation: React.FC = () => {
   };
 
   const handleSubmitAction = async (action: 'save' | 'send') => {
-    const filteredTableData = tableData.filter(data => data.check === true);
+    const filteredTableData = tableData.filter(row => !row.isDeleted);
 
     const detailValues =
       filteredTableData?.map(data => {
@@ -414,12 +415,12 @@ const DocumentsCreation: React.FC = () => {
                   <div className="flex mt-3 text-text01 font-normal text-sm mx-2">
                     {t('warehouse.from')}
                   </div>
-                  <DateInput
+                  <DatePicker
+                    showTime
+                    format="YYYY-MM-DD HH:mm"
                     value={selectedDate ? dayjs(selectedDate) : null}
-                    changeValue={date =>
-                      setSelectedDate(
-                        date ? date.format('YYYY-MM-DDTHH:mm') : ''
-                      )
+                    onChange={(date: Dayjs | null) =>
+                      setSelectedDate(date ? date.toISOString() : '')
                     }
                   />
                 </div>
@@ -431,12 +432,23 @@ const DocumentsCreation: React.FC = () => {
                       ? t('warehouse.warehouseSend')
                       : t('warehouse.ware')}
                   </div>
-                  <DropdownInput
+                  <Select
+                    showSearch
+                    allowClear
+                    placeholder={t('warehouse.enterWare')}
+                    optionFilterProp="label"
+                    filterOption={(input, option) =>
+                      (option?.label as string)
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
                     value={warehouseId}
-                    options={warehouses}
-                    label={t('warehouse.enterWare')}
-                    classname="w-48 sm:w-80"
                     onChange={value => setWarehouseId(value)}
+                    style={{ width: '20rem' }}
+                    options={warehouses.map(w => ({
+                      value: w.value,
+                      label: w.name,
+                    }))}
                   />
                 </div>
                 {documentType === WarehouseDocumentType.MOVING && (
@@ -444,19 +456,30 @@ const DocumentsCreation: React.FC = () => {
                     <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">
                       {t('warehouse.warehouseRec')}
                     </div>
-                    <DropdownInput
+                    <Select
+                      showSearch
+                      allowClear
+                      placeholder={t('warehouse.enterWare')}
+                      optionFilterProp="label"
+                      filterOption={(input, option) =>
+                        (option?.label as string)
+                          ?.toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                       value={warehouseRecId}
-                      options={warehouses}
-                      label={t('warehouse.enterWare')}
-                      classname="w-48 sm:w-80"
                       onChange={value => setWarehouseRecId(value)}
+                      style={{ width: '20rem' }}
+                      options={warehouses.map(w => ({
+                        value: w.value,
+                        label: w.name,
+                      }))}
                     />
                   </div>
                 )}
               </div>
             </div>
             <DocumentTypesTable
-              tableData={tableData}
+              tableData={tableData.filter(row => !row.isDeleted)}
               setTableData={setTableData}
               addRow={updateRow}
               addProduct={addProduct}
