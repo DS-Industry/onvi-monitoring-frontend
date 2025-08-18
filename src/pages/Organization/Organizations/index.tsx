@@ -24,7 +24,11 @@ const Organization: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
-  const { data, isLoading: loadingOrg } = useSWR([`get-org`, city], () =>
+  const {
+    data,
+    isLoading: loadingOrg,
+    mutate: mutateOrgs,
+  } = useSWR([`get-org`, city], () =>
     getOrganization({
       placementId: city,
     })
@@ -148,6 +152,7 @@ const Organization: React.FC = () => {
   const onEdit = () => {
     setOrgToEdit(null);
     setOrgDocuments(null);
+    mutateOrgs();
   };
 
   const onClose = () => {
