@@ -551,433 +551,452 @@ const Notifications: React.FC = () => {
   ];
 
   return (
-    <div className="mt-2">
-      <Modal
-        open={isModalOpen}
-        onCancel={() => resetForm()}
-        footer={null}
-        className="p-6 w-full sm:w-[635px]"
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-row items-center justify-between mb-4">
-            <div className="text-text01 font-semibold text-2xl mt-4">
-              {isCustomColorMode
-                ? t('notifications.add')
-                : t('notifications.new')}
+    <div>
+      <div className="ml-12 md:ml-0 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.notifications')}
+          </span>
+        </div>
+      </div>
+      <div className="mt-2">
+        <Modal
+          open={isModalOpen}
+          onCancel={() => resetForm()}
+          footer={null}
+          className="p-6 w-full sm:w-[635px]"
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-row items-center justify-between mb-4">
+              <div className="text-text01 font-semibold text-2xl mt-4">
+                {isCustomColorMode
+                  ? t('notifications.add')
+                  : t('notifications.new')}
+              </div>
             </div>
-          </div>
-          {!isCustomColorMode && (
-            <div className="mb-5">
-              <div className="text-text01 mb-2">{t('notifications.enter')}</div>
-              <Input
-                label={t('notifications.new')}
-                classname="w-full"
-                {...register('name', {
-                  required: !isEditMode && 'Name is required',
-                })}
-                value={formValues.name}
-                changeValue={e => handleInputChange('name', e.target.value)}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            </div>
-          )}
+            {!isCustomColorMode && (
+              <div className="mb-5">
+                <div className="text-text01 mb-2">
+                  {t('notifications.enter')}
+                </div>
+                <Input
+                  label={t('notifications.new')}
+                  classname="w-full"
+                  {...register('name', {
+                    required: !isEditMode && 'Name is required',
+                  })}
+                  value={formValues.name}
+                  changeValue={e => handleInputChange('name', e.target.value)}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              </div>
+            )}
 
-          {/* Ant Design Color Picker */}
-          {!isCustomColorMode ? (
-            <div className="flex flex-col space-y-5">
-              <span>Цвет ярлыка:</span>
-              <div className="flex items-center space-x-2">
-                {predefinedColors.map(color => (
+            {/* Ant Design Color Picker */}
+            {!isCustomColorMode ? (
+              <div className="flex flex-col space-y-5">
+                <span>Цвет ярлыка:</span>
+                <div className="flex items-center space-x-2">
+                  {predefinedColors.map(color => (
+                    <div
+                      key={color}
+                      className="w-14 h-8 rounded cursor-pointer flex items-center justify-center border"
+                      style={{
+                        backgroundColor: color,
+                        borderColor:
+                          formValues.color === color ? '#000' : 'transparent',
+                      }}
+                      onClick={() => {
+                        setFormValues(prev => ({ ...prev, color }));
+                        setValue('color', color);
+                      }}
+                    >
+                      {formValues.color === color && (
+                        <CheckOutlined className="text-white" />
+                      )}
+                    </div>
+                  ))}
                   <div
-                    key={color}
-                    className="w-14 h-8 rounded cursor-pointer flex items-center justify-center border"
-                    style={{
-                      backgroundColor: color,
-                      borderColor:
-                        formValues.color === color ? '#000' : 'transparent',
-                    }}
-                    onClick={() => {
-                      setFormValues(prev => ({ ...prev, color }));
-                      setValue('color', color);
-                    }}
+                    className="w-14 h-8 rounded border border-gray-300 flex items-center justify-center cursor-pointer"
+                    onClick={() => setIsCustomColorMode(true)}
                   >
-                    {formValues.color === color && (
-                      <CheckOutlined className="text-white" />
-                    )}
+                    <PlusOutlined />
                   </div>
-                ))}
-                <div
-                  className="w-14 h-8 rounded border border-gray-300 flex items-center justify-center cursor-pointer"
-                  onClick={() => setIsCustomColorMode(true)}
-                >
-                  <PlusOutlined />
                 </div>
               </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <ArrowLeftOutlined
-                  className="cursor-pointer"
-                  onClick={() => setIsCustomColorMode(false)}
+            ) : (
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <ArrowLeftOutlined
+                    className="cursor-pointer"
+                    onClick={() => setIsCustomColorMode(false)}
+                  />
+                  <span className="text-text01">Выберите цвет</span>
+                </div>
+                <div className="flex space-x-2 mb-4">
+                  <TagFilled style={{ color: formValues.color }} />
+                  <div className="text-text01">
+                    {t('notifications.labelCol')}
+                  </div>
+                </div>
+                <ColorPicker
+                  value={formValues.color}
+                  onChange={color => {
+                    setFormValues(prev => ({
+                      ...prev,
+                      color: `#${color.toHex()}`,
+                    }));
+                    setValue('color', `#${color.toHex()}`);
+                  }}
+                  showText
                 />
-                <span className="text-text01">Выберите цвет</span>
               </div>
-              <div className="flex space-x-2 mb-4">
-                <TagFilled style={{ color: formValues.color }} />
-                <div className="text-text01">{t('notifications.labelCol')}</div>
-              </div>
-              <ColorPicker
-                value={formValues.color}
-                onChange={color => {
-                  setFormValues(prev => ({
-                    ...prev,
-                    color: `#${color.toHex()}`,
-                  }));
-                  setValue('color', `#${color.toHex()}`);
-                }}
-                showText
-              />
-            </div>
-          )}
-          <div className="mt-4">
-            <div className="flex space-x-2 justify-end mt-10">
-              <Button
-                type="outline"
-                handleClick={() => {
-                  resetForm();
-                  setIsModalOpen(false);
-                }}
-                title={t('organizations.cancel')}
-              />
-              {isEditMode && (
+            )}
+            <div className="mt-4">
+              <div className="flex space-x-2 justify-end mt-10">
                 <Button
-                  title={t('marketing.delete')}
-                  handleClick={handleDelete}
-                  classname="bg-red-600 hover:bg-red-300"
+                  type="outline"
+                  handleClick={() => {
+                    resetForm();
+                    setIsModalOpen(false);
+                  }}
+                  title={t('organizations.cancel')}
                 />
-              )}
-              <Button
-                form={true}
-                title="Создать"
-                isLoading={isEditMode ? updatingTag : isMutating}
-              />
+                {isEditMode && (
+                  <Button
+                    title={t('marketing.delete')}
+                    handleClick={handleDelete}
+                    classname="bg-red-600 hover:bg-red-300"
+                  />
+                )}
+                <Button
+                  form={true}
+                  title="Создать"
+                  isLoading={isEditMode ? updatingTag : isMutating}
+                />
+              </div>
             </div>
-          </div>
-        </form>
-      </Modal>
-      <hr />
-      <Layout className="min-h-screen">
-        {/* Sidebar */}
-        <Sider
-          width={220}
-          className="border-r border-borderFill bg-white"
-          breakpoint="sm"
-          collapsedWidth="0"
-        >
-          <div className="p-4 border-b border-borderFill">
-            <Text type="secondary">TITLE</Text>
-            <Menu
-              mode="vertical"
-              selectable={false}
-              className="bg-transparent border-none"
-            >
-              <Menu.Item className="!p-0" onClick={() => setFilterParams({})}>
-                <div className="flex justify-between pr-2">
+          </form>
+        </Modal>
+        <hr />
+        <Layout className="min-h-screen">
+          {/* Sidebar */}
+          <Sider
+            width={220}
+            className="border-r border-borderFill bg-white"
+            breakpoint="sm"
+            collapsedWidth="0"
+          >
+            <div className="p-4 border-b border-borderFill">
+              <Text type="secondary">TITLE</Text>
+              <Menu
+                mode="vertical"
+                selectable={false}
+                className="bg-transparent border-none"
+              >
+                <Menu.Item className="!p-0" onClick={() => setFilterParams({})}>
+                  <div className="flex justify-between pr-2">
+                    <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                      <MailOutlined
+                        style={{ fontSize: '24px' }}
+                        className="text-text02 group-hover:text-text01"
+                      />
+                      <span className="font-semibold text-text02 group-hover:text-text01">
+                        {t('analysis.all')}
+                      </span>
+                    </div>
+                    <div className="hover:bg-opacity01 px-2 rounded-lg h-8 flex items-center mt-1">
+                      {notificationsData?.length}
+                    </div>
+                  </div>
+                </Menu.Item>
+                <Menu.Item
+                  className="!p-0"
+                  onClick={() =>
+                    setFilterParams({ type: UserNotificationType.FAVORITE })
+                  }
+                >
                   <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                    <MailOutlined
+                    <StarOutlined
                       style={{ fontSize: '24px' }}
                       className="text-text02 group-hover:text-text01"
                     />
                     <span className="font-semibold text-text02 group-hover:text-text01">
-                      {t('analysis.all')}
+                      {t('notifications.fav')}
                     </span>
                   </div>
-                  <div className="hover:bg-opacity01 px-2 rounded-lg h-8 flex items-center mt-1">
-                    {notificationsData?.length}
-                  </div>
-                </div>
-              </Menu.Item>
-              <Menu.Item
-                className="!p-0"
-                onClick={() =>
-                  setFilterParams({ type: UserNotificationType.FAVORITE })
-                }
-              >
-                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                  <StarOutlined
-                    style={{ fontSize: '24px' }}
-                    className="text-text02 group-hover:text-text01"
-                  />
-                  <span className="font-semibold text-text02 group-hover:text-text01">
-                    {t('notifications.fav')}
-                  </span>
-                </div>
-              </Menu.Item>
-              <Menu.Item
-                className="!p-0"
-                onClick={() =>
-                  setFilterParams({ type: UserNotificationType.DELETED })
-                }
-              >
-                <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                  <DeleteOutlined
-                    style={{ fontSize: '24px' }}
-                    className="text-text02 group-hover:text-text01"
-                  />
-                  <span className="font-semibold text-text02 group-hover:text-text01">
-                    {t('notifications.basket')}
-                  </span>
-                </div>
-              </Menu.Item>
-            </Menu>
-          </div>
-          <div className="p-4">
-            <div className="flex justify-between items-center">
-              <Text type="secondary">TITLE</Text>
-              <AntdButton
-                size="small"
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center space-x-2"
-              >
-                <PlusOutlined />
-              </AntdButton>
-            </div>
-            <Menu
-              mode="vertical"
-              selectable={false}
-              className="bg-transparent border-none"
-            >
-              {loadingTags ? (
-                <Menu.Item className="!p-0">
-                  <div className="flex items-center px-2">
-                    <span>Загрузка...</span>
+                </Menu.Item>
+                <Menu.Item
+                  className="!p-0"
+                  onClick={() =>
+                    setFilterParams({ type: UserNotificationType.DELETED })
+                  }
+                >
+                  <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
+                    <DeleteOutlined
+                      style={{ fontSize: '24px' }}
+                      className="text-text02 group-hover:text-text01"
+                    />
+                    <span className="font-semibold text-text02 group-hover:text-text01">
+                      {t('notifications.basket')}
+                    </span>
                   </div>
                 </Menu.Item>
-              ) : (
-                tags?.map(tag => (
-                  <Menu.Item
-                    key={tag.props.name}
-                    className="!p-0"
-                    onClick={() => setFilterParams({ tagId: tag.props.id })}
-                  >
-                    <div className="flex justify-between">
-                      <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
-                        <div
-                          style={{
-                            color: tag.props.color,
-                            fill: tag.props.color,
-                            marginTop: '5px',
-                          }}
-                        >
-                          <TagFilled style={{ fontSize: '24px' }} />
-                        </div>
-                        <span className="font-semibold text-text02 group-hover:text-text01">
-                          {tag.props.name}
-                        </span>
-                      </div>
-                      <Dropdown
-                        overlay={
-                          <Menu>
-                            <Menu.Item
-                              key={'Edit'}
-                              onClick={() => handleUpdate(tag.props.id)}
-                            >
-                              <div>Edit</div>
-                            </Menu.Item>
-                          </Menu>
-                        }
-                      >
-                        <MoreOutlined
-                          className="cursor-pointer text-text03 hover:text-opacity01"
-                          style={{
-                            fontSize: '24px',
-                          }}
-                        />
-                      </Dropdown>
+              </Menu>
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between items-center">
+                <Text type="secondary">TITLE</Text>
+                <AntdButton
+                  size="small"
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center space-x-2"
+                >
+                  <PlusOutlined />
+                </AntdButton>
+              </div>
+              <Menu
+                mode="vertical"
+                selectable={false}
+                className="bg-transparent border-none"
+              >
+                {loadingTags ? (
+                  <Menu.Item className="!p-0">
+                    <div className="flex items-center px-2">
+                      <span>Загрузка...</span>
                     </div>
                   </Menu.Item>
-                ))
-              )}
-            </Menu>
-          </div>
-        </Sider>
-
-        <Layout className="bg-white px-4 sm:px-6 py-4">
-          <Content className="w-full max-w-full sm:max-w-[740px]">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Checkbox />
-                <Dropdown overlay={menu}>
-                  <div className="hover:text-primary02 hover:bg-background06 cursor-pointer w-10 h-10 flex items-center justify-center rounded">
-                    <DownOutlined className="text-lg" />
-                  </div>
-                </Dropdown>
-                <MoreOutlined className="text-xl cursor-pointer text-text01 hover:text-primary02" />
-              </div>
-
-              <Search
-                placeholder="Поиск"
-                allowClear
-                className="w-full sm:w-80"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                onSearch={value => setSearchTerm(value)}
-              />
-            </div>
-
-            {selectedNotification ? (
-              <div className="space-y-4">
-                <Card
-                  variant={'borderless'}
-                  className="shadow"
-                  styles={{ body: { padding: 24 } }}
-                >
-                  <div className="flex justify-between">
-                    <AntdButton
-                      type="link"
-                      icon={<ArrowLeftOutlined />}
-                      onClick={() => setSelectedNotification(null)}
-                      style={{ paddingLeft: 0 }}
+                ) : (
+                  tags?.map(tag => (
+                    <Menu.Item
+                      key={tag.props.name}
+                      className="!p-0"
+                      onClick={() => setFilterParams({ tagId: tag.props.id })}
                     >
-                      {t('login.back')}
-                    </AntdButton>
-                    <div className="flex space-x-2 text-text01">
-                      <StarOutlined
-                        className={`text-lg cursor-pointer ${selectedNotification.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
-                        onClick={addToFavorite}
-                      />
-                      <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                        <MoreOutlined className="text-lg cursor-pointer" />
-                      </Dropdown>
-                    </div>
-                  </div>
-                  <div className="flex justify-between mt-4">
-                    <div className="flex space-x-2">
-                      <Avatar src={OnviSmall} size="large" />
-                      <Text className="text-sm text-text01">
-                        {selectedNotification.heading || 'Onvi_бизнес'}
-                      </Text>
-                    </div>
-                    <Text type="secondary">
-                      {dayjs(selectedNotification.sendAt).format(
-                        'D MMMM, YYYY'
-                      )}
-                    </Text>
-                  </div>
-                  <div className="mt-10 px-20">
-                    <Title level={4} className="mt-2">
-                      {selectedNotification.heading}
-                    </Title>
-
-                    <Paragraph className="whitespace-pre-line mt-2">
-                      {selectedNotification.body ||
-                        `Добро пожаловать!\n\nПриветствуем вас!\nНаша система поможет вам оптимизировать и контролировать все аспекты вашего бизнеса, начиная с учёта заказов и заканчивая взаимодействием с партнёрами и клиентами.\n\nФункциональные возможности CRM позволяют настраивать различные параметры в зависимости от ваших потребностей, такие как воронка продаж, учёт эффективности сотрудников и интеграция с различными приложениями.\n\nВыбирайте подходящий тариф и начните использовать наш сервис уже сегодня.\nМы уверены, что он значительно повысит вашу продуктивность и прибыль.`}
-                    </Paragraph>
-                    <div className="mt-6 text-center">
-                      <img
-                        src={PosEmpty}
-                        alt="Welcome"
-                        className="w-48 inline-block"
-                      />
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            ) : notificationsLoading ? (
-              <TableSkeleton columnCount={5} />
-            ) : notifications.length > 0 ? (
-              <List
-                itemLayout="vertical"
-                dataSource={notificationsData}
-                renderItem={item => (
-                  <Card
-                    onClick={() => {
-                      handleUpdateNotification(item.id);
-                    }}
-                    hoverable
-                    style={{
-                      background: item.openingAt ? '#EEEFF1' : '#ffffff',
-                      marginBottom: '1rem',
-                    }}
-                    className="relative"
-                    styles={{
-                      body: {
-                        padding: 20,
-                      },
-                    }}
-                  >
-                    <div className="flex items-start justify-between space-x-4">
-                      <div className="flex items-start space-x-3">
-                        <Checkbox />
-                        <Avatar src={OnviSmall} size="large" />
-                        <div className="space-y-1">
-                          <Text type="secondary" className="text-sm">
-                            {item.heading || 'Onvi_бизнес'}
-                          </Text>
-                          <Text strong className="block">
-                            {item.heading || 'Модерация'}
-                          </Text>
-                          <div className="max-w-[300px] max-h-[30px] overflow-hidden">
-                            {item.body ||
-                              'Команда Onvi_бизнес приветствует вас!'}
+                      <div className="flex justify-between">
+                        <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
+                          <div
+                            style={{
+                              color: tag.props.color,
+                              fill: tag.props.color,
+                              marginTop: '5px',
+                            }}
+                          >
+                            <TagFilled style={{ fontSize: '24px' }} />
                           </div>
-                          {item.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {item.tags.map(tag => (
-                                <Tag
-                                  key={tag.id}
-                                  color={tag.color}
-                                  className="text-xs"
-                                  style={{
-                                    backgroundColor: tag.color,
-                                    color: '#fff',
-                                    borderRadius: '999px',
-                                  }}
-                                >
-                                  {tag.name}
-                                </Tag>
-                              ))}
-                            </div>
-                          )}
+                          <span className="font-semibold text-text02 group-hover:text-text01">
+                            {tag.props.name}
+                          </span>
                         </div>
+                        <Dropdown
+                          overlay={
+                            <Menu>
+                              <Menu.Item
+                                key={'Edit'}
+                                onClick={() => handleUpdate(tag.props.id)}
+                              >
+                                <div>Edit</div>
+                              </Menu.Item>
+                            </Menu>
+                          }
+                        >
+                          <MoreOutlined
+                            className="cursor-pointer text-text03 hover:text-opacity01"
+                            style={{
+                              fontSize: '24px',
+                            }}
+                          />
+                        </Dropdown>
                       </div>
-                      <div className="text-text02 text-xs max-w-[100px] truncate sm:max-w-none sm:whitespace-nowrap">
-                        {item.sendAt
-                          ? dayjs(item.sendAt).format('D MMMM, YYYY')
-                          : '10 Апреля, 2024'}
-                      </div>
-                    </div>
-                    <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
-                      <StarFilled
-                        className={`text-lg cursor-pointer ${item.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
-                      />
-                      <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                        <MoreOutlined className="text-lg cursor-pointer" />
-                      </Dropdown>
-                    </div>
-                  </Card>
+                    </Menu.Item>
+                  ))
                 )}
-              />
-            ) : (
-              <div className="flex flex-col justify-center items-center mt-16">
-                <Empty
-                  description={t('notifications.you')}
-                  image={
-                    <img
-                      src={NoToken}
-                      alt="no-data"
-                      className="mx-auto"
-                      loading="lazy"
-                    />
-                  }
+              </Menu>
+            </div>
+          </Sider>
+
+          <Layout className="bg-white px-4 sm:px-6 py-4">
+            <Content className="w-full max-w-full sm:max-w-[740px]">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Checkbox />
+                  <Dropdown overlay={menu}>
+                    <div className="hover:text-primary02 hover:bg-background06 cursor-pointer w-10 h-10 flex items-center justify-center rounded">
+                      <DownOutlined className="text-lg" />
+                    </div>
+                  </Dropdown>
+                  <MoreOutlined className="text-xl cursor-pointer text-text01 hover:text-primary02" />
+                </div>
+
+                <Search
+                  placeholder="Поиск"
+                  allowClear
+                  className="w-full sm:w-80"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  onSearch={value => setSearchTerm(value)}
                 />
               </div>
-            )}
-          </Content>
+
+              {selectedNotification ? (
+                <div className="space-y-4">
+                  <Card
+                    variant={'borderless'}
+                    className="shadow"
+                    styles={{ body: { padding: 24 } }}
+                  >
+                    <div className="flex justify-between">
+                      <AntdButton
+                        type="link"
+                        icon={<ArrowLeftOutlined />}
+                        onClick={() => setSelectedNotification(null)}
+                        style={{ paddingLeft: 0 }}
+                      >
+                        {t('login.back')}
+                      </AntdButton>
+                      <div className="flex space-x-2 text-text01">
+                        <StarOutlined
+                          className={`text-lg cursor-pointer ${selectedNotification.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
+                          onClick={addToFavorite}
+                        />
+                        <Dropdown
+                          menu={{ items: menuItems }}
+                          trigger={['click']}
+                        >
+                          <MoreOutlined className="text-lg cursor-pointer" />
+                        </Dropdown>
+                      </div>
+                    </div>
+                    <div className="flex justify-between mt-4">
+                      <div className="flex space-x-2">
+                        <Avatar src={OnviSmall} size="large" />
+                        <Text className="text-sm text-text01">
+                          {selectedNotification.heading || 'Onvi_бизнес'}
+                        </Text>
+                      </div>
+                      <Text type="secondary">
+                        {dayjs(selectedNotification.sendAt).format(
+                          'D MMMM, YYYY'
+                        )}
+                      </Text>
+                    </div>
+                    <div className="mt-10 px-20">
+                      <Title level={4} className="mt-2">
+                        {selectedNotification.heading}
+                      </Title>
+
+                      <Paragraph className="whitespace-pre-line mt-2">
+                        {selectedNotification.body ||
+                          `Добро пожаловать!\n\nПриветствуем вас!\nНаша система поможет вам оптимизировать и контролировать все аспекты вашего бизнеса, начиная с учёта заказов и заканчивая взаимодействием с партнёрами и клиентами.\n\nФункциональные возможности CRM позволяют настраивать различные параметры в зависимости от ваших потребностей, такие как воронка продаж, учёт эффективности сотрудников и интеграция с различными приложениями.\n\nВыбирайте подходящий тариф и начните использовать наш сервис уже сегодня.\nМы уверены, что он значительно повысит вашу продуктивность и прибыль.`}
+                      </Paragraph>
+                      <div className="mt-6 text-center">
+                        <img
+                          src={PosEmpty}
+                          alt="Welcome"
+                          className="w-48 inline-block"
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ) : notificationsLoading ? (
+                <TableSkeleton columnCount={5} />
+              ) : notifications.length > 0 ? (
+                <List
+                  itemLayout="vertical"
+                  dataSource={notificationsData}
+                  renderItem={item => (
+                    <Card
+                      onClick={() => {
+                        handleUpdateNotification(item.id);
+                      }}
+                      hoverable
+                      style={{
+                        background: item.openingAt ? '#EEEFF1' : '#ffffff',
+                        marginBottom: '1rem',
+                      }}
+                      className="relative"
+                      styles={{
+                        body: {
+                          padding: 20,
+                        },
+                      }}
+                    >
+                      <div className="flex items-start justify-between space-x-4">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox />
+                          <Avatar src={OnviSmall} size="large" />
+                          <div className="space-y-1">
+                            <Text type="secondary" className="text-sm">
+                              {item.heading || 'Onvi_бизнес'}
+                            </Text>
+                            <Text strong className="block">
+                              {item.heading || 'Модерация'}
+                            </Text>
+                            <div className="max-w-[300px] max-h-[30px] overflow-hidden">
+                              {item.body ||
+                                'Команда Onvi_бизнес приветствует вас!'}
+                            </div>
+                            {item.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {item.tags.map(tag => (
+                                  <Tag
+                                    key={tag.id}
+                                    color={tag.color}
+                                    className="text-xs"
+                                    style={{
+                                      backgroundColor: tag.color,
+                                      color: '#fff',
+                                      borderRadius: '999px',
+                                    }}
+                                  >
+                                    {tag.name}
+                                  </Tag>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-text02 text-xs max-w-[100px] truncate sm:max-w-none sm:whitespace-nowrap">
+                          {item.sendAt
+                            ? dayjs(item.sendAt).format('D MMMM, YYYY')
+                            : '10 Апреля, 2024'}
+                        </div>
+                      </div>
+                      <div className="absolute bottom-4 right-4 flex space-x-2 text-black">
+                        <StarFilled
+                          className={`text-lg cursor-pointer ${item.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
+                        />
+                        <Dropdown
+                          menu={{ items: menuItems }}
+                          trigger={['click']}
+                        >
+                          <MoreOutlined className="text-lg cursor-pointer" />
+                        </Dropdown>
+                      </div>
+                    </Card>
+                  )}
+                />
+              ) : (
+                <div className="flex flex-col justify-center items-center mt-16">
+                  <Empty
+                    description={t('notifications.you')}
+                    image={
+                      <img
+                        src={NoToken}
+                        alt="no-data"
+                        className="mx-auto"
+                        loading="lazy"
+                      />
+                    }
+                  />
+                </div>
+              )}
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
+      </div>
     </div>
   );
 };
