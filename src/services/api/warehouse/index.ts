@@ -287,6 +287,11 @@ type WarehouseParams = {
   size?: number;
 };
 
+type NomenclatureParams = {
+  page?: number;
+  size?: number;
+}
+
 export async function createNomenclature(
   body: NOMENCLATURE_REQUEST
 ): Promise<NOMENCLATURE_RESPONSE> {
@@ -374,11 +379,13 @@ export async function getSupplier(): Promise<SUPPLIER_RESPONSE[]> {
 }
 
 export async function getNomenclature(
-  orgId: number
+  orgId: number,
+  params?: NomenclatureParams
 ): Promise<NOMENCLATURE_RESPONSE[]> {
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`
-  );
+    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
+    { params }
+  );  
   return response.data;
 }
 
