@@ -121,7 +121,7 @@ const ListOfEmployees: React.FC = () => {
 
   return (
     <div>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.listOf')}
@@ -134,7 +134,7 @@ const ListOfEmployees: React.FC = () => {
             className="btn-primary"
             onClick={() => setIsModalOpenCreation(true)}
           >
-            {t('routes.add')}
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
           </Button>
         )}
       </div>
