@@ -25,6 +25,7 @@ const ProfileForm: React.FC = () => {
         <div className="flex space-x-4 border-b mb-6 w-fit">
           {tabs.map(tab => (
             <button
+              key={`tab-${tab.id}`}
               className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
               onClick={() => setActiveTab(tab.id)}
             >
