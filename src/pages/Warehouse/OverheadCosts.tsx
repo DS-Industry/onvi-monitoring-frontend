@@ -14,7 +14,6 @@ import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type StockLevel = {
   nomenclatureId: number;
@@ -207,7 +206,6 @@ const OverheadCosts: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.left')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <GeneralFilters count={transformedData.length} display={['city']}>
