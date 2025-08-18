@@ -13,7 +13,6 @@ import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 interface TableRow {
   period: string;
@@ -211,7 +210,6 @@ const ChemicalConsumption: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.chemical')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <GeneralFilters

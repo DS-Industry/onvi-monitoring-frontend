@@ -10,7 +10,6 @@ import { Drawer, Table, Button, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -148,12 +147,11 @@ const Suppliers: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.suppliers')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
           <Button
@@ -161,7 +159,7 @@ const Suppliers: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {t('routes.add')}
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
           </Button>
         )}
       </div>

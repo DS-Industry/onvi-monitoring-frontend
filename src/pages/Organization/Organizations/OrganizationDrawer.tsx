@@ -13,8 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Select, Input, Button, DatePicker } from 'antd';
-import dayjs from 'dayjs';
+import { Select, Input, Button } from 'antd';
 
 type OrganizationDrawerProps = {
   orgToEdit: Organization | null;
@@ -50,7 +49,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
     settlementAccount: '',
     addressBank: '',
     certificateNumber: '',
-    dateCertificate: undefined,
   };
 
   const [formData, setFormData] = useState(initialValues);
@@ -80,9 +78,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         certificateNumber: orgDocuments?.certificateNumber
           ? orgDocuments.certificateNumber
           : '',
-        dateCertificate: orgDocuments?.dateCertificate
-          ? dayjs(orgDocuments.dateCertificate).toDate()
-          : undefined,
       });
     }
   }, [orgToEdit, orgDocuments]);
@@ -107,7 +102,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         bank: formData.bank,
         settlementAccount: formData.settlementAccount,
         addressBank: formData.addressBank,
-        dateCertificate: formData.dateCertificate,
       })
   );
 
@@ -127,7 +121,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         bank: formData.bank,
         settlementAccount: formData.settlementAccount,
         addressBank: formData.addressBank,
-        dateCertificate: formData.dateCertificate,
       })
     );
 
@@ -237,11 +230,9 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             </Form.Item>
           </div>
         </div>
-
         <div className="text-sm text-text01 font-normal mb-4 uppercase">
           {t('organizations.legalDetails')}
         </div>
-
         <div className="grid grid-cols-1 gap-4">
           <div>
             <div className="text-text02 text-sm">{t('organizations.tin')}</div>
@@ -352,11 +343,9 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             />
           </Form.Item>
         </div>
-
         <div className="text-sm text-text01 font-normal mb-4 uppercase">
           {t('organizations.bankDetails')}
         </div>
-
         <div className="grid grid-cols-1 gap-4">
           <div>
             <div className="text-text02 text-sm">{t('organizations.bik')}</div>
@@ -465,26 +454,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             />
           </Form.Item>
         </div>
-        <div>
-          <div className="text-text02 text-sm">{t('finance.dat')}</div>
-          <DatePicker
-            className="w-40"
-            {...register('dateCertificate')}
-            value={
-              formData.dateCertificate
-                ? dayjs(formData.dateCertificate)
-                : undefined
-            }
-            onChange={date =>
-              handleInputChange(
-                'dateCertificate',
-                date ? dayjs(date).format('YYYY-MM-DD') : undefined
-              )
-            }
-            size="large"
-          />
-        </div>
-
         <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
           <Button onClick={() => resetForm()} className="btn-outline-primary">
             {t('organizations.cancel')}

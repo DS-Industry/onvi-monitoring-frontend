@@ -23,18 +23,18 @@ import {
   Select,
   Transfer,
   InputNumber,
-  Space
+  Space,
+  Grid,
 } from 'antd';
 import {
   PlusOutlined,
   ArrowUpOutlined,
-  ArrowDownOutlined
+  ArrowDownOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
 
@@ -65,6 +65,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
 
+  const screens = Grid.useBreakpoint();
+
   const { data: organizationData } = useSWR(
     [`get-organization`],
     () => getOrganization({ placementId: city }),
@@ -85,20 +87,16 @@ const EmployeeAdvanceCreation: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR(
-    [`get-workers`],
-    () =>
-      getWorkers({}),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const organizations = [
     { name: t('chemical.select'), value: 0 },
-    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) || []),
+    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) ||
+      []),
   ];
 
   const workers = [
@@ -164,9 +162,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
     value: any
   ) => {
     setPaymentsData(prevData =>
-      prevData?.map(item =>
-        item.id === id ? { ...item, [key]: value } : item
-      )
+      prevData?.map(item => (item.id === id ? { ...item, [key]: value } : item))
     );
   };
 
@@ -213,13 +209,14 @@ const EmployeeAdvanceCreation: React.FC = () => {
     }
 
     const paymentCreate: PrepaymentCreateRequest = {
-      payments: paymentsData?.map(data => ({
-        hrWorkerId: data.hrWorkerId,
-        paymentDate: data.paymentDate,
-        billingMonth: data.billingMonth,
-        countShifts: Number(data.countShifts),
-        sum: Number(data.sum),
-      })) || [],
+      payments:
+        paymentsData?.map(data => ({
+          hrWorkerId: data.hrWorkerId,
+          paymentDate: data.paymentDate,
+          billingMonth: data.billingMonth,
+          countShifts: Number(data.countShifts),
+          sum: Number(data.sum),
+        })) || [],
     };
 
     try {
@@ -307,7 +304,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
           type="checkbox"
           checked={record.check}
           className="w-[18px] h-[18px]"
-          onChange={(e) =>
+          onChange={e =>
             handleTableChange(record.id, 'check', e.target.checked)
           }
         />
@@ -322,34 +319,34 @@ const EmployeeAdvanceCreation: React.FC = () => {
       title: 'Должность',
       key: 'hrPosition',
       render: (_, record) =>
-        positions.find(pos => pos.value === record.hrPositionId)?.name || ''
+        positions.find(pos => pos.value === record.hrPositionId)?.name || '',
     },
     {
       title: 'Месяц расчёта',
       key: 'billingMonth',
       render: (_, record) =>
-        record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : ''
+        record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
       title: 'Оклад',
       dataIndex: 'monthlySalary',
       key: 'monthlySalary',
       sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: getCurrencyRender()
+      render: getCurrencyRender(),
     },
     {
       title: 'Посменное начисление',
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
-      render: getCurrencyRender()
+      render: getCurrencyRender(),
     },
     {
       title: 'Процент',
       dataIndex: 'percentageSalary',
       key: 'percentageSalary',
       sorter: (a, b) => a.percentageSalary - b.percentageSalary,
-      render: getPercentRender()
+      render: getPercentRender(),
     },
     {
       title: 'Количество отработанных смен',
@@ -357,9 +354,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <InputNumber
           value={record.countShifts}
-          onChange={(value) =>
-            handleTableChange(record.id, 'countShifts', value)
-          }
+          onChange={value => handleTableChange(record.id, 'countShifts', value)}
         />
       ),
     },
@@ -369,9 +364,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <InputNumber
           value={record.sum}
-          onChange={(value) =>
-            handleTableChange(record.id, 'sum', value)
-          }
+          onChange={value => handleTableChange(record.id, 'sum', value)}
         />
       ),
     },
@@ -381,7 +374,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <DatePicker
           value={record.paymentDate ? dayjs(record.paymentDate) : null}
-          onChange={(date) =>
+          onChange={date =>
             handleTableChange(record.id, 'paymentDate', date?.toDate())
           }
         />
@@ -391,12 +384,15 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div
+        className={`flex items-center ${screens.md ? 'justify-between' : 'justify-center'}`}
+      >
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+          >
             {t('routes.empAdv')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 
@@ -429,16 +425,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
             />
           </div>
           <div className="flex flex-wrap gap-3 mt-5">
-            <Button
-              onClick={() => setIsModalOpen(false)}
-            >
+            <Button onClick={() => setIsModalOpen(false)}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={addingWorker}
-            >
+            <Button type="primary" htmlType="submit" loading={addingWorker}>
               {t('organizations.save')}
             </Button>
           </div>
@@ -461,11 +451,14 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 value={formData.organizationId}
                 {...register('organizationId', {
                   required: 'Organization Id is required',
-                  validate: value => value !== 0 || 'Organization Id is required',
+                  validate: value =>
+                    value !== 0 || 'Organization Id is required',
                 })}
                 onChange={value => handleInputChange('organizationId', value)}
                 dropdownRender={menu => (
-                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {menu}
+                  </div>
                 )}
                 status={errors.organizationId ? 'error' : ''}
               />
@@ -507,22 +500,18 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 {...register('hrPositionId')}
                 onChange={value => handleInputChange('hrPositionId', value)}
                 dropdownRender={menu => (
-                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {menu}
+                  </div>
                 )}
               />
             </div>
           </div>
           <div className="flex space-x-4">
-            <Button
-              onClick={() => navigate(-1)}
-            >
+            <Button onClick={() => navigate(-1)}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={calculatingSal}
-            >
+            <Button type="primary" htmlType="submit" loading={calculatingSal}>
               {t('finance.form')}
             </Button>
           </div>
@@ -576,7 +565,9 @@ const EmployeeAdvanceCreation: React.FC = () => {
               columns={columnsPaymentsCreation}
               dataSource={paymentsData.map(item => ({
                 ...item,
-                hrPosition: positions.find(pos => pos.value === item.hrPositionId)?.name || '',
+                hrPosition:
+                  positions.find(pos => pos.value === item.hrPositionId)
+                    ?.name || '',
               }))}
               rowKey="id"
               pagination={false}
