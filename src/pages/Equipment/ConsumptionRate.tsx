@@ -11,7 +11,6 @@ import useSWRMutation from 'swr/mutation';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useSearchParams } from 'react-router-dom';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import Input from '@/components/ui/Input/Input';
 import { Table, Button, Select, Spin } from 'antd';
@@ -199,7 +198,6 @@ const ConsumptionRate: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.consumption')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <GeneralFilters count={tableData?.length || 0} display={['count']}>
