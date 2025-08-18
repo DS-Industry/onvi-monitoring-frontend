@@ -9,7 +9,7 @@ import MultilineInput from '@/components/ui/Input/MultilineInput';
 import CalendarComponent from '@/components/ui/Calendar/CalendarComponent';
 import { useToast } from '@/components/context/useContext';
 import type { DatePickerProps } from 'antd';
-import { DatePicker, Skeleton, Button } from 'antd';
+import { DatePicker, Skeleton, Button, Grid } from 'antd';
 import useSWR, { mutate } from 'swr';
 import {
   getPositions,
@@ -21,7 +21,6 @@ import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
@@ -68,6 +67,8 @@ const EmployeeProfile: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { showToast } = useToast();
+
+  const screens = Grid.useBreakpoint();
 
   const { data: positionData } = useSWR(
     [`get-positions`],
@@ -117,16 +118,11 @@ const EmployeeProfile: React.FC = () => {
     data: workersData,
     isLoading: loadingWorkers,
     isValidating: validatingWorkers,
-  } = useSWR(
-    [`get-workers`, employee],
-    () =>
-      getWorkers({}),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  } = useSWR([`get-workers`, employee], () => getWorkers({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const employeeDetails =
     workersData
@@ -171,10 +167,7 @@ const EmployeeProfile: React.FC = () => {
 
   useEffect(() => {
     if (employee?.avatar)
-      setImagePreview(
-        `${VITE_S3_CLOUD}/avatar/worker/` +
-        employee.avatar
-      );
+      setImagePreview(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
     else setImagePreview(null);
   }, [employee?.avatar]);
 
@@ -371,10 +364,11 @@ const EmployeeProfile: React.FC = () => {
     <div className="mt-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01  ${screens.md ? '' : 'ml-12'}`}
+          >
             {location.state.name}
           </span>
-          <QuestionMarkIcon />
         </div>
         <Button
           icon={<PlusOutlined />}
@@ -406,33 +400,30 @@ const EmployeeProfile: React.FC = () => {
               {loadingWorkers || validatingWorkers
                 ? DoubleSkeleton()
                 : employeeDetails.map(emp => (
-                  <div
-                    className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2"
-                    onClick={() => setWorkerId(emp.workerId)}
-                  >
-                    {emp.avatar ? (
-                      <img
-                        src={
-                          `${VITE_S3_CLOUD}/avatar/worker/` +
-                          emp.avatar
-                        }
-                        alt="Profile"
-                        className="rounded-full w-10 h-10 object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
-                        {getInitials(emp.fullName)}
+                    <div
+                      className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2"
+                      onClick={() => setWorkerId(emp.workerId)}
+                    >
+                      {emp.avatar ? (
+                        <img
+                          src={`${VITE_S3_CLOUD}/avatar/worker/` + emp.avatar}
+                          alt="Profile"
+                          className="rounded-full w-10 h-10 object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-background03 flex items-center justify-center text-xs text-text01">
+                          {getInitials(emp.fullName)}
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-text01 font-semibold max-w-44 truncate overflow-hidden whitespace-nowrap">
+                          {emp.fullName}
+                        </div>
+                        <div className="text-text02 text-sm">{emp.job}</div>
                       </div>
-                    )}
-                    <div>
-                      <div className="text-text01 font-semibold max-w-44 truncate overflow-hidden whitespace-nowrap">
-                        {emp.fullName}
-                      </div>
-                      <div className="text-text02 text-sm">{emp.job}</div>
                     </div>
-                  </div>
-                ))}
+                  ))}
             </div>
           </div>
           <div className="px-4 w-full">
@@ -449,9 +440,7 @@ const EmployeeProfile: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               {loadingEmployee || isValidating ? (
-                <div className="mt-4">
-                  {DoubleSkeleton()}
-                </div>
+                <div className="mt-4">{DoubleSkeleton()}</div>
               ) : (
                 <div className="mt-4">
                   {activeTab === 'info' && (
@@ -478,7 +467,9 @@ const EmployeeProfile: React.FC = () => {
                         inputType="secondary"
                       />
                       <div>
-                        <div className="text-sm text-text02">{t('hr.date')}</div>
+                        <div className="text-sm text-text02">
+                          {t('hr.date')}
+                        </div>
                         <DateInput
                           classname="w-full md:w-40"
                           value={
@@ -610,7 +601,10 @@ const EmployeeProfile: React.FC = () => {
                         inputType="secondary"
                         value={formData.passportExtradition}
                         changeValue={e =>
-                          handleInputChange('passportExtradition', e.target.value)
+                          handleInputChange(
+                            'passportExtradition',
+                            e.target.value
+                          )
                         }
                         {...register('passportExtradition')}
                       />

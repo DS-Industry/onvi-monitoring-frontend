@@ -1,14 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Select,
-  Collapse,
-  DatePicker,
-  Space,
-  TimePicker,
-  Typography,
-} from 'antd';
+import { Select, Collapse, DatePicker, TimePicker, Typography } from 'antd';
 import Button from '@ui/Button/Button.tsx';
 import dayjs, { Dayjs } from 'dayjs';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
@@ -169,54 +162,53 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
               <div className="mt-4">
-                <Space size="middle" direction="horizontal">
-                  <Space direction="vertical" size={0}>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 w-full">
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('hr.startPaymentDate')}</Text>
-
-                    <div className="flex flex-row gap-1">
+                    <div className="flex flex-row gap-1 w-full">
                       <DatePicker
                         value={startDate}
                         format="YYYY-MM-DD"
                         onChange={handleStartDateChange}
                         placeholder={t('finance.sel')}
+                        className="w-1/2 sm:w-full"
                       />
-
                       <TimePicker
                         value={startDate}
                         format="HH:mm"
                         onChange={handleStartTimeChange}
                         placeholder={t('finance.selTime')}
                         disabled={!startDate}
+                        className="w-1/2 sm:w-full"
                       />
                     </div>
-                  </Space>
+                  </div>
 
-                  <Space direction="vertical" size={0}>
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('hr.endPaymentDate')}</Text>
-
-                    <div className="flex flex-row gap-1">
+                    <div className="flex flex-row gap-1 w-full">
                       <DatePicker
                         value={endDate}
                         format="YYYY-MM-DD"
                         onChange={handleEndDateChange}
                         placeholder={t('finance.sel')}
+                        className="w-1/2 sm:w-full"
                       />
-
                       <TimePicker
                         value={endDate}
                         format="HH:mm"
                         onChange={handleEndTimeChange}
                         placeholder={t('finance.selTime')}
                         disabled={!endDate}
+                        className="w-1/2 sm:w-full"
                       />
                     </div>
-                  </Space>
+                  </div>
 
-                  <Space direction="vertical" size={0}>
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('routes.employees')}</Text>
-
                     <Select
-                      className="w-full sm:w-80"
+                      className="w-full"
                       value={getParam(searchParams, 'hrWorkerId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
@@ -229,8 +221,8 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                         value: String(item.value),
                       }))}
                     />
-                  </Space>
-                </Space>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">

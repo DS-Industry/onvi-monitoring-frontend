@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Select, Collapse, Space, Typography } from 'antd';
-import AntInput from 'antd/es/input';
+import { Select, Collapse, Typography, Input } from 'antd';
 import Button from '@ui/Button/Button.tsx';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
@@ -100,12 +99,11 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
           children: (
             <div className="overflow-hidden transition-all duration-500 ease-in-out">
               <div className="mt-4">
-                <Space size="middle" direction="horizontal">
-                  <Space direction="vertical" size={0}>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('pos.city')}</Text>
-
                     <Select
-                      className="w-full sm:w-80"
+                      className="w-full"
                       value={getParam(searchParams, 'placementId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
@@ -118,13 +116,12 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         value: String(item.value),
                       }))}
                     />
-                  </Space>
+                  </div>
 
-                  <Space direction="vertical" size={0}>
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('roles.job')}</Text>
-
                     <Select
-                      className="w-full sm:w-80"
+                      className="w-full"
                       value={getParam(searchParams, 'hrPositionId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
@@ -137,13 +134,12 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         value: String(item.value),
                       }))}
                     />
-                  </Space>
+                  </div>
 
-                  <Space direction="vertical" size={0}>
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('warehouse.organization')}</Text>
-
                     <Select
-                      className="w-full sm:w-80"
+                      className="w-full"
                       value={getParam(searchParams, 'organizationId', '*')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
@@ -156,20 +152,18 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         value: String(item.value),
                       }))}
                     />
-                  </Space>
+                  </div>
 
-                  <Space direction="vertical" size={0}>
+                  <div className="flex flex-col w-full sm:w-80">
                     <Text>{t('hr.full')}</Text>
-
-                    <AntInput
-                      type="string"
-                      className="w-full sm:w-80 h-10"
+                    <Input
+                      className="w-full"
                       placeholder={t('hr.enter')}
                       value={name}
                       onChange={e => setName(e.target.value)}
                     />
-                  </Space>
-                </Space>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">

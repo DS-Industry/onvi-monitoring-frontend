@@ -11,7 +11,6 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import { Drawer } from 'antd';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const InventoryImport: React.FC = () => {
   const { t } = useTranslation();
@@ -69,7 +68,6 @@ const InventoryImport: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.import')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <div className="p-4 sm:p-6">

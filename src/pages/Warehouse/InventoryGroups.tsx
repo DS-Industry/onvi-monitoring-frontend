@@ -5,7 +5,6 @@ import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
-import Button from '@/components/ui/Button/Button';
 import useSWR, { mutate } from 'swr';
 import {
   createCategory,
@@ -24,10 +23,9 @@ import {
   Drawer,
   Tooltip,
   Input as AntInput,
-  Button as AntButton,
+  Button,
   Popconfirm,
 } from 'antd';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import hasPermission from '@/permissions/hasPermission';
 
@@ -245,7 +243,7 @@ const InventoryGroups: React.FC = () => {
         if (editingKey === record.id) {
           return (
             <span>
-              <AntButton
+              <Button
                 type="text"
                 icon={<CheckOutlined style={{ color: 'green' }} />}
                 onClick={() => saveEditing(record.id)}
@@ -256,7 +254,7 @@ const InventoryGroups: React.FC = () => {
                 okText={t('equipment.yes')}
                 cancelText={t('equipment.no')}
               >
-                <AntButton
+                <Button
                   type="text"
                   icon={<CloseOutlined style={{ color: 'red' }} />}
                 />
@@ -275,7 +273,7 @@ const InventoryGroups: React.FC = () => {
             {allowed =>
               allowed && (
                 <Tooltip title={t('routes.edit')}>
-                  <AntButton
+                  <Button
                     type="text"
                     icon={
                       <EditOutlined className="text-blue-500 hover:text-blue-700" />
@@ -298,21 +296,20 @@ const InventoryGroups: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.groups')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
-          <AntButton
+          <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {t('routes.add')}
-          </AntButton>
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
+          </Button>
         )}
       </div>
       {loadingCategory ? (
@@ -383,18 +380,20 @@ const InventoryGroups: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              title={t('warehouse.reset')}
-              type="outline"
-              handleClick={() => {
+              className='btn-outline-primary'
+              onClick={() => {
                 resetForm();
               }}
-            />
+            >
+              {t('warehouse.reset')}
+            </Button>
             <Button
-              title={t('routes.create')}
-              form={true}
-              isLoading={isMutating}
-              handleClick={() => {}}
-            />
+              htmlType={'submit'}
+              className='btn-primary'
+              loading={isMutating}
+            >
+              {t("routes.create")}
+            </Button>
           </div>
         </form>
       </Drawer>
