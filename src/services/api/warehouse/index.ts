@@ -257,6 +257,8 @@ type STOCK_PARAMS = {
   categoryId?: number
   warehouseId?: number
   placementId?: number
+  page?: number
+  size?: number
 };
 
 type STOCK_RESPONSE = {
@@ -281,7 +283,19 @@ type WAREHOUSE_BODY = {
 type WarehouseParams = {
   posId?: number;
   placementId?: number;
+  page?: number;
+  size?: number;
 };
+
+type GetSupplierParams = {
+  name?: string;
+  page?: number;
+  size?: number;
+};
+type NomenclatureParams = {
+  page?: number;
+  size?: number;
+}
 
 export async function createNomenclature(
   body: NOMENCLATURE_REQUEST
@@ -362,19 +376,24 @@ export async function getCategory(): Promise<CATEGORY_RESPONSE[]> {
   return response.data;
 }
 
-export async function getSupplier(): Promise<SUPPLIER_RESPONSE[]> {
+export async function getSupplier(
+  params: GetSupplierParams
+): Promise<SUPPLIER_RESPONSE[]> {
   const response: AxiosResponse<SUPPLIER_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_SUPPLIER
-  );
+    WAREHOUSE.CREATE_SUPPLIER,
+    { params }
+  );  
   return response.data;
 }
 
 export async function getNomenclature(
-  orgId: number
+  orgId: number,
+  params?: NomenclatureParams
 ): Promise<NOMENCLATURE_RESPONSE[]> {
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`
-  );
+    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
+    { params }
+  );  
   return response.data;
 }
 

@@ -33,7 +33,6 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -512,12 +511,11 @@ const EquipmentFailure: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.equipmentFailure')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
           <Button
@@ -525,7 +523,7 @@ const EquipmentFailure: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {t('routes.fix')}
+            <div className='hidden sm:flex'>{t('routes.fix')}</div>
           </Button>
         )}
       </div>

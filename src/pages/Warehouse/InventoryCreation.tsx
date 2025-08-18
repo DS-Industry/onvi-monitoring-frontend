@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
@@ -21,7 +20,7 @@ import { Drawer, Select, Table, Tooltip } from 'antd';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { DownloadOutlined, EditOutlined } from '@ant-design/icons';
-import AntDButton from 'antd/es/button';
+import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -29,8 +28,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -72,6 +71,8 @@ const InventoryCreation: React.FC = () => {
 
   const organizationId = searchParams.get('organizationId') || null;
   const category = searchParams.get('category') || '*';
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const filterParams = useMemo(
     () => ({
@@ -92,7 +93,13 @@ const InventoryCreation: React.FC = () => {
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     organizationId ? swrKey : null,
     () => {
-      return getNomenclature(Number(organizationId)!);
+      return getNomenclature(
+        Number(organizationId)!,
+        {
+          page: currentPage,
+          size: pageSize
+        }
+      );
     },
     {
       revalidateOnFocus: false,
@@ -107,7 +114,7 @@ const InventoryCreation: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), {
+  const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier({}), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
@@ -383,7 +390,7 @@ const InventoryCreation: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
-          <AntDButton
+          <Button
             type="text"
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
@@ -405,15 +412,14 @@ const InventoryCreation: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.nomenclature')}
           </span>
-          <QuestionMarkIcon />
         </div>
-        <div className="xs:flex xs:space-x-2">
-          <AntDButton
+        <div className="flex space-x-2">
+          <Button
             icon={<DownloadOutlined />}
             className="btn-outline-primary"
             onClick={() => {
@@ -421,15 +427,15 @@ const InventoryCreation: React.FC = () => {
             }}
           >
             <span className='hidden sm:flex'>{t('routes.import')}</span>
-          </AntDButton>
+          </Button>
           {allowed && (
-            <AntDButton
+            <Button
               icon={<PlusOutlined />}
               className="btn-primary"
               onClick={() => setDrawerOpen(!drawerOpen)}
             >
-              {t('routes.add')}
-            </AntDButton>
+              <span className='hidden sm:flex'>{t('routes.add')}</span>
+            </Button>
           )}
         </div>
       </div>
@@ -438,11 +444,13 @@ const InventoryCreation: React.FC = () => {
         display={['organization']}
       >
         <div>
-          <div className="text-sm text-text02">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.organization')}
-          </div>
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={organizations.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -453,12 +461,23 @@ const InventoryCreation: React.FC = () => {
                 organizationId: value,
               })
             }
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <div>
-          <div className="text-sm text-text02">{t('warehouse.category')}</div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('warehouse.category')}
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={categories.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -468,6 +487,13 @@ const InventoryCreation: React.FC = () => {
               updateSearchParams(searchParams, setSearchParams, {
                 category: value,
               })
+            }
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
             }
           />
         </div>
@@ -481,9 +507,22 @@ const InventoryCreation: React.FC = () => {
         <Table
           dataSource={inventoriesDisplay}
           columns={visibleColumns}
-          pagination={false}
           loading={inventoryLoading}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: '500px' }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: inventoriesDisplay.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
         />
       </div>
       <Drawer
@@ -510,7 +549,7 @@ const InventoryCreation: React.FC = () => {
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
             {...register('name', {
-              required: !isEditMode && 'Name is required',
+              required: !isEditMode && t('validation.nameRequired'),
             })}
             helperText={errors.name?.message || ''}
           />
@@ -524,9 +563,7 @@ const InventoryCreation: React.FC = () => {
             options={categories}
             classname="w-64"
             {...register('categoryId', {
-              required: !isEditMode && 'Category Id is required',
-              validate: value =>
-                value !== 0 || isEditMode || 'Category ID is required',
+              required: !isEditMode && t('validation.categoryIdRequired')
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}
@@ -547,24 +584,21 @@ const InventoryCreation: React.FC = () => {
             onChange={value => handleInputChange('supplierId', value)}
           />
           <DropdownInput
-            title={`${t('warehouse.organization')} *`}
+            title={`${t('warehouse.category')} *`}
             label={
-              organizations.length === 0
+              categories.length === 0
                 ? t('warehouse.noVal')
                 : t('warehouse.notSel')
             }
-            options={organizations}
+            options={categories}
             classname="w-64"
-            {...register('organizationId', {
-              required: !isEditMode && 'Organization Id is required',
-              validate: value =>
-                value !== 0 || isEditMode || 'Organization ID is required',
+            {...register('categoryId', {
+              required: !isEditMode && t('validation.categoryIdRequired'),
             })}
-            value={formData.organizationId}
-            onChange={value => handleInputChange('organizationId', value)}
-            error={!!errors.organizationId}
-            helperText={errors.organizationId?.message}
-            isDisabled={isEditMode}
+            value={formData.categoryId}
+            onChange={value => handleInputChange('categoryId', value)}
+            error={!!errors.categoryId}
+            helperText={errors.categoryId?.message}
           />
           <DropdownInput
             title={`${t('warehouse.unit')} *`}
@@ -577,7 +611,7 @@ const InventoryCreation: React.FC = () => {
             ]}
             classname="w-64"
             {...register('measurement', {
-              required: !isEditMode && 'Measurement is required',
+              required: !isEditMode && t('validation.measurementRequired'),
             })}
             value={formData.measurement}
             onChange={value => handleInputChange('measurement', value)}
@@ -592,7 +626,7 @@ const InventoryCreation: React.FC = () => {
             value={formData.sku}
             changeValue={e => handleInputChange('sku', e.target.value)}
             error={!!errors.sku}
-            {...register('sku', { required: !isEditMode && 'sku is required' })}
+            {...register('sku', { required: !isEditMode && t('validation.skuRequired') })}
             helperText={errors.sku?.message || ''}
             disabled={isEditMode}
           />
@@ -676,12 +710,13 @@ const InventoryCreation: React.FC = () => {
           </div>
           <div className="flex space-x-4">
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
+              onClick={() => {
                 resetForm();
               }}
-            />
+              className='btn-outline-primary'
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Can
               requiredPermissions={[
                 { action: 'manage', subject: 'Warehouse' },
@@ -693,18 +728,21 @@ const InventoryCreation: React.FC = () => {
                 allowed &&
                 isEditMode && (
                   <Button
-                    title={t('warehouse.deletePos')}
-                    handleClick={handleDelete}
-                    classname="bg-red-600 hover:bg-red-300"
-                  />
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-300"
+                  >
+                   {t('warehouse.deletePos')} 
+                    </Button>
                 )
               }
             </Can>
             <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isEditMode ? updatingInventory : isMutating}
-            />
+              htmlType={'submit'}
+              className='btn-primary'
+              loading={isEditMode ? updatingInventory : isMutating}
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>

@@ -460,7 +460,8 @@
     "noWare": "You don't have warehouse in the program",
     "manager": "Manager",
     "all": "All",
-    "noExpanse": "You do not have expanse tracker data in the program"
+    "noExpanse": "You do not have expanse tracker data in the program",
+    "supplierName": "Name"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
@@ -1175,6 +1176,9 @@
     "invalidEmailFormat": "Invalid Email Format",
     "roleRequired": "Role is required",
     "positionRequired": "Position is required",
+    "categoryIdRequired": "Category ID is required",
+    "measurementRequired": "Measurement is required",
+    "skuRequired": "Sku is required",
     "posRequired": "POS is required",
     "workerRequired": "Worker is required",
     "appearanceDateRequired": "Appearance Date is required",

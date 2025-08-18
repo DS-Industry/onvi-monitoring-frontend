@@ -460,7 +460,8 @@
     "noWare": "У вас нет склада в программе",
     "manager": "Менеджер",
     "all": "Все",
-    "noExpanse": "У вас нет данных трекера экспансии в программе"
+    "noExpanse": "У вас нет данных трекера экспансии в программе",
+    "supplierName": "Наименование"
   },
   "marketing": {
     "noClient": "В данный момент у вас нет клиентов в системе",
@@ -1175,6 +1176,9 @@
     "invalidEmailFormat": "Неверный формат Email",
     "roleRequired": "Роль обязательна",
     "positionRequired": "Должность обязательна",
+    "categoryIdRequired": "ID категории обязателен",
+    "measurementRequired": "Единица измерения обязательна",
+    "skuRequired": "Артикул обязателен",
     "posRequired": "Выберите автомойку",
     "workerRequired": "Работник обязателен",
     "appearanceDateRequired": "Дата явки обязательна",
