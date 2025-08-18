@@ -24,7 +24,6 @@ import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
@@ -80,8 +79,8 @@ const TechTasks: React.FC = () => {
   const dateRender = getDateRender();
 
   const statuses = [
-    { name: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
-    { name: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
+    { label: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
+    { label: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
   ];
 
   const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
@@ -155,7 +154,6 @@ const TechTasks: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.technicalTasks')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <GeneralFilters
@@ -164,9 +162,11 @@ const TechTasks: React.FC = () => {
         onReset={resetFilters}
       >
         <div>
-          <div className="text-sm text-text02">{t('constants.status')}</div>
+          <div className="block mb-1 text-sm font-medium text-gray-700">
+            {t('constants.status')}
+          </div>
           <Select
-            className="w-full sm:w-80 h-10"
+            className="w-full sm:w-80"
             options={statuses}
             value={searchParams.get('status') || null}
             onChange={value => {

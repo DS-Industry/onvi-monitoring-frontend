@@ -3,17 +3,15 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
-import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import { createSupplier, getSupplier } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
-import { Drawer, Table, Button as AntDButton, Input as AntInput } from 'antd';
+import { Drawer, Table, Button, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -148,21 +146,20 @@ const Suppliers: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.suppliers')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
-          <AntDButton
+          <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {t('routes.add')}
-          </AntDButton>
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
+          </Button>
         )}
       </div>
       <GeneralFilters
@@ -258,19 +255,20 @@ const Suppliers: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
+              className="btn-outline-primary"
+              onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
               }}
-            />
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isMutating}
-              handleClick={() => {}}
-            />
+              htmlType={'submit'}
+              loading={isMutating}
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>
