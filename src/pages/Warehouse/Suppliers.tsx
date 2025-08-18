@@ -1,13 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
-import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import { createSupplier, getSupplier } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
-import { Drawer, Table, Button as AntDButton, Input as AntInput } from 'antd';
+import { Drawer, Table, Button, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
@@ -157,13 +156,13 @@ const Suppliers: React.FC = () => {
           <QuestionMarkIcon />
         </div>
         {allowed && (
-          <AntDButton
+          <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
             {t('routes.add')}
-          </AntDButton>
+          </Button>
         )}
       </div>
       <GeneralFilters
@@ -246,19 +245,21 @@ const Suppliers: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
+              className="btn-outline-primary"
+              onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
               }}
-            />
+            >
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isMutating}
-              handleClick={() => {}}
-            />
+              className="btn-primary"
+              htmlType={'submit'}
+              loading={isMutating}
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>
