@@ -449,7 +449,7 @@ const Employees: React.FC = () => {
             title={`${t('roles.job')}*`}
             label={t('hr.selectPos')}
             options={positions}
-            classname="w-64"
+            classname="w-80"
             {...register('hrPositionId', {
               required: 'hrPositionId is required',
               validate: value => value !== -1 || 'Pos ID is required',
@@ -465,7 +465,7 @@ const Employees: React.FC = () => {
               cities.length === 0 ? t('warehouse.noVal') : t('warehouse.notSel')
             }
             options={cities}
-            classname="w-64"
+            classname="w-80"
             {...register('placementId', {
               required: 'Placement Id is required',
               validate: value => value !== -1 || 'Organization ID is required',
@@ -483,7 +483,7 @@ const Employees: React.FC = () => {
                 : t('warehouse.notSel')
             }
             options={organizations}
-            classname="w-64"
+            classname="w-80"
             {...register('organizationId', {
               required: 'Organization Id is required',
               validate: value => value !== -1 || 'Organization ID is required',
@@ -496,7 +496,7 @@ const Employees: React.FC = () => {
           <div>
             <div className="text-sm text-text02">{t('hr.date')}</div>
             <DateInput
-              classname="w-40"
+              classname="w-80"
               value={
                 formData.startWorkDate ? dayjs(formData.startWorkDate) : null
               }
@@ -577,7 +577,7 @@ const Employees: React.FC = () => {
           <Input
             title={`${t('hr.month')}*`}
             type={'number'}
-            classname="w-44"
+            classname="w-80"
             showIcon={true}
             IconComponent={<div className="text-text02 text-xl">₽</div>}
             value={formData.monthlySalary === -1 ? '' : formData.monthlySalary}
@@ -593,7 +593,7 @@ const Employees: React.FC = () => {
           <Input
             title={`${t('hr.daily')}*`}
             type={'number'}
-            classname="w-44"
+            classname="w-80"
             value={formData.dailySalary === -1 ? '' : formData.dailySalary}
             changeValue={e => handleInputChange('dailySalary', e.target.value)}
             error={!!errors.dailySalary}
@@ -605,7 +605,7 @@ const Employees: React.FC = () => {
           <Input
             title={`${t('marketing.per')}*`}
             type={'number'}
-            classname="w-44"
+            classname="w-80"
             value={
               formData.percentageSalary === -1 ? '' : formData.percentageSalary
             }
@@ -628,7 +628,7 @@ const Employees: React.FC = () => {
               { name: t('marketing.man'), value: 'Man' },
               { name: t('marketing.woman'), value: 'Woman' },
             ]}
-            classname="w-64"
+            classname="w-80"
             {...register('gender')}
             value={formData.gender}
             onChange={value => handleInputChange('gender', value)}
@@ -675,7 +675,7 @@ const Employees: React.FC = () => {
           />
           <DateInput
             title={t('hr.passportDateIssue')}
-            classname="w-40"
+            classname="w-80"
             value={
               formData.passportDateIssue
                 ? dayjs(formData.passportDateIssue)

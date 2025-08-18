@@ -276,7 +276,7 @@ const Positions: React.FC = () => {
           <DropdownInput
             title={t('warehouse.organization')}
             options={organizations}
-            classname="w-64"
+            classname="w-80"
             {...register('organizationId', {
               required: 'Organization Id is required',
               validate: value => value !== 0 || 'Organization Id is required',
