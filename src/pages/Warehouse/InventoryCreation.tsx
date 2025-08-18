@@ -114,7 +114,7 @@ const InventoryCreation: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier(), {
+  const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier({}), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
