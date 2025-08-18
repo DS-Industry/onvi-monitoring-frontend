@@ -29,6 +29,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
 import { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -70,6 +71,8 @@ const InventoryCreation: React.FC = () => {
 
   const organizationId = searchParams.get('organizationId') || null;
   const category = searchParams.get('category') || '*';
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const filterParams = useMemo(
     () => ({
@@ -90,7 +93,13 @@ const InventoryCreation: React.FC = () => {
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     organizationId ? swrKey : null,
     () => {
-      return getNomenclature(Number(organizationId)!);
+      return getNomenclature(
+        Number(organizationId)!,
+        {
+          page: currentPage,
+          size: pageSize
+        }
+      );
     },
     {
       revalidateOnFocus: false,
@@ -435,11 +444,13 @@ const InventoryCreation: React.FC = () => {
         display={['organization']}
       >
         <div>
-          <div className="text-sm text-text02">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.organization')}
-          </div>
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={organizations.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -450,12 +461,23 @@ const InventoryCreation: React.FC = () => {
                 organizationId: value,
               })
             }
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <div>
-          <div className="text-sm text-text02">{t('warehouse.category')}</div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('warehouse.category')}
+          </label>
           <Select
-            className="w-full sm:w-80 h-10"
+            showSearch
+            allowClear={false}
+            className="w-full sm:w-80"
             options={categories.map(item => ({
               label: item.name,
               value: String(item.value),
@@ -465,6 +487,13 @@ const InventoryCreation: React.FC = () => {
               updateSearchParams(searchParams, setSearchParams, {
                 category: value,
               })
+            }
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
             }
           />
         </div>
@@ -478,9 +507,22 @@ const InventoryCreation: React.FC = () => {
         <Table
           dataSource={inventoriesDisplay}
           columns={visibleColumns}
-          pagination={false}
           loading={inventoryLoading}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: '500px' }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: inventoriesDisplay.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
         />
       </div>
       <Drawer
@@ -507,7 +549,7 @@ const InventoryCreation: React.FC = () => {
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
             {...register('name', {
-              required: !isEditMode && 'Name is required',
+              required: !isEditMode && t('validation.nameRequired'),
             })}
             helperText={errors.name?.message || ''}
           />
@@ -521,9 +563,7 @@ const InventoryCreation: React.FC = () => {
             options={categories}
             classname="w-64"
             {...register('categoryId', {
-              required: !isEditMode && 'Category Id is required',
-              validate: value =>
-                value !== 0 || isEditMode || 'Category ID is required',
+              required: !isEditMode && t('validation.categoryIdRequired')
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}
@@ -544,24 +584,21 @@ const InventoryCreation: React.FC = () => {
             onChange={value => handleInputChange('supplierId', value)}
           />
           <DropdownInput
-            title={`${t('warehouse.organization')} *`}
+            title={`${t('warehouse.category')} *`}
             label={
-              organizations.length === 0
+              categories.length === 0
                 ? t('warehouse.noVal')
                 : t('warehouse.notSel')
             }
-            options={organizations}
+            options={categories}
             classname="w-64"
-            {...register('organizationId', {
-              required: !isEditMode && 'Organization Id is required',
-              validate: value =>
-                value !== 0 || isEditMode || 'Organization ID is required',
+            {...register('categoryId', {
+              required: !isEditMode && t('validation.categoryIdRequired'),
             })}
-            value={formData.organizationId}
-            onChange={value => handleInputChange('organizationId', value)}
-            error={!!errors.organizationId}
-            helperText={errors.organizationId?.message}
-            isDisabled={isEditMode}
+            value={formData.categoryId}
+            onChange={value => handleInputChange('categoryId', value)}
+            error={!!errors.categoryId}
+            helperText={errors.categoryId?.message}
           />
           <DropdownInput
             title={`${t('warehouse.unit')} *`}
@@ -574,7 +611,7 @@ const InventoryCreation: React.FC = () => {
             ]}
             classname="w-64"
             {...register('measurement', {
-              required: !isEditMode && 'Measurement is required',
+              required: !isEditMode && t('validation.measurementRequired'),
             })}
             value={formData.measurement}
             onChange={value => handleInputChange('measurement', value)}
@@ -589,7 +626,7 @@ const InventoryCreation: React.FC = () => {
             value={formData.sku}
             changeValue={e => handleInputChange('sku', e.target.value)}
             error={!!errors.sku}
-            {...register('sku', { required: !isEditMode && 'sku is required' })}
+            {...register('sku', { required: !isEditMode && t('validation.skuRequired') })}
             helperText={errors.sku?.message || ''}
             disabled={isEditMode}
           />

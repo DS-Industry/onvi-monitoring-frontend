@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Table, Button as AntButton } from 'antd';
+import { Table, Button as AntButton, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -25,7 +25,6 @@ import {
   getPercentRender,
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 
 type TOption = {
@@ -43,6 +42,8 @@ const SalaryCalculation: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+
+  const screens = Grid.useBreakpoint();
 
   const startPaymentDateParam = searchParams.get('startPaymentDate');
   const endPaymentDateParam = searchParams.get('endPaymentDate');
@@ -97,12 +98,9 @@ const SalaryCalculation: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR(
-    ['get-workers'],
-    () =>
-      getWorkers({}),
-    { revalidateOnFocus: false }
-  );
+  const { data: workersData } = useSWR(['get-workers'], () => getWorkers({}), {
+    revalidateOnFocus: false,
+  });
 
   const { data: positionData } = useSWR(
     ['get-positions'],
@@ -242,17 +240,18 @@ const SalaryCalculation: React.FC = () => {
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+          >
             {t('routes.salary')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <AntButton
           icon={<PlusOutlined />}
-          className="btn-primary"
+          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => navigate('/hr/salary/creation')}
         >
-          {t('routes.calc')}
+          {screens.md && t('routes.calc')}
         </AntButton>
       </div>
 
