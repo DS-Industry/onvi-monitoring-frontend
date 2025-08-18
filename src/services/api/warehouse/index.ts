@@ -287,6 +287,11 @@ type WarehouseParams = {
   size?: number;
 };
 
+type GetSupplierParams = {
+  name?: string;
+  page?: number;
+  size?: number;
+};
 type NomenclatureParams = {
   page?: number;
   size?: number;
@@ -371,10 +376,13 @@ export async function getCategory(): Promise<CATEGORY_RESPONSE[]> {
   return response.data;
 }
 
-export async function getSupplier(): Promise<SUPPLIER_RESPONSE[]> {
+export async function getSupplier(
+  params: GetSupplierParams
+): Promise<SUPPLIER_RESPONSE[]> {
   const response: AxiosResponse<SUPPLIER_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_SUPPLIER
-  );
+    WAREHOUSE.CREATE_SUPPLIER,
+    { params }
+  );  
   return response.data;
 }
 
