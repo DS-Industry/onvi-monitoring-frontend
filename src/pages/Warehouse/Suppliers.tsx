@@ -1,7 +1,5 @@
-import NoDataUI from '@/components/ui/NoDataUI';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
@@ -180,45 +178,32 @@ const Suppliers: React.FC = () => {
           />
         </div>
       </GeneralFilters>
-      {supplier.length > 0 ? (
-        <div className="mt-8">
-          <ColumnSelector
-            checkedList={checkedList}
-            options={options}
-            onChange={setCheckedList}
-          />
-          <Table
-            dataSource={supplier}
-            columns={visibleColumns}
-            loading={loadingSupplier}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: supplier.length,
-              pageSizeOptions: ALL_PAGE_SIZES,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} items`,
-              onChange: (page, size) => {
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                  size: String(size),
-                });
-              },
-            }}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col justify-center items-center">
-          <NoDataUI title={t('warehouse.noSupply')} description={''}>
-            <img
-              src={InventoryEmpty}
-              className="mx-auto"
-              loading="lazy"
-              alt="Suppliers"
-            />
-          </NoDataUI>
-        </div>
-      )}
+      <div className="mt-8">
+        <ColumnSelector
+          checkedList={checkedList}
+          options={options}
+          onChange={setCheckedList}
+        />
+        <Table
+          dataSource={supplier}
+          columns={visibleColumns}
+          loading={loadingSupplier}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: supplier.length,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              });
+            },
+          }}
+        />
+      </div>
       <Drawer
         title={t('routes.suppliers')}
         placement="right"
