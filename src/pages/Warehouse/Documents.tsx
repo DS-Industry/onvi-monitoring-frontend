@@ -12,7 +12,7 @@ import useSWRMutation from 'swr/mutation';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Button as AntDButton, Modal } from 'antd';
+import { Table, Button, Modal } from 'antd';
 import SavedIcon from '@icons/SavedIcon.png';
 import SentIcon from '@icons/SentIcon.png';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -20,7 +20,6 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -212,21 +211,20 @@ const Documents: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.documents')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
-          <AntDButton
+          <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => setIsModalOpen(!isModalOpen)}
           >
-            {t('routes.add')}
-          </AntDButton>
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
+          </Button>
         )}
       </div>
       <GeneralFilters

@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import {
   getPoses,
   getTechTaskReport,
+  getWorkers,
   TechTaskReadAll,
   TypeTechTask,
 } from '@/services/api/equipment';
@@ -20,7 +21,6 @@ import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const ProgressReport: React.FC = () => {
   const { t } = useTranslation();
@@ -60,12 +60,19 @@ const ProgressReport: React.FC = () => {
     keepPreviousData: true,
   });
 
+  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
+
   const techTasks =
     data?.techTaskReadAll?.map(item => ({
       ...item,
       posName: poses?.find(pos => pos.id === item.posId)?.name || '-',
       type: t(`tables.${item.type}`),
       status: t(`tables.${item.status}`),
+      executorName: workerData?.find((work) => work.id === item.executorId)?.name || "-"
     })) || [];
 
   const statusRender = getStatusTagRender(t);
@@ -125,14 +132,14 @@ const ProgressReport: React.FC = () => {
     },
     {
       title: 'Исполнитель',
-      dataIndex: 'executorId',
-      key: 'executorId',
+      dataIndex: 'executorName',
+      key: 'executorName',
     },
   ];
 
   const techTasksTypes = [
-    { name: t('tables.REGULAR'), value: TypeTechTask.REGULAR },
-    { name: t('tables.ONETIME'), value: TypeTechTask.ONETIME },
+    { label: t('tables.REGULAR'), value: TypeTechTask.REGULAR },
+    { label: t('tables.ONETIME'), value: TypeTechTask.ONETIME },
   ];
 
   const resetFilters = () => {
@@ -152,7 +159,6 @@ const ProgressReport: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.progress')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <GeneralFilters
@@ -161,9 +167,11 @@ const ProgressReport: React.FC = () => {
         onReset={resetFilters}
       >
         <div>
-          <div className="text-sm text-text02">{t('constants.status')}</div>
+          <div className="block mb-1 text-sm font-medium text-gray-700">
+            {t('constants.status')}
+          </div>
           <Select
-            className="w-full sm:w-80 h-10"
+            className="w-full sm:w-80"
             options={techTasksTypes}
             value={searchParams.get('type') || null}
             onChange={value => {

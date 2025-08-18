@@ -18,9 +18,11 @@ const PhoneFilter: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col text-sm text-text02">
-      <div className='mb-1'>{t('profile.telephone')}</div>
-      <Input
+     <div className="w-full sm:w-80">
+      <label className="block mb-1 text-sm font-medium text-gray-700">
+        {t('profile.telephone')}
+      </label>
+     <Input
         className="w-full sm:w-80"
         placeholder={t('warehouse.enterPhone')}
         value={phone}
