@@ -344,6 +344,7 @@ const Employees: React.FC = () => {
   return (
     <div>
       <div className="flex items-center justify-between">
+        {screens.md ? <></> : <div></div>}
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
@@ -721,7 +722,6 @@ const Employees: React.FC = () => {
           </div>
         </form>
       </Drawer>
-
       <style>{`
       .custom-ant-table .ant-table-thead th.ant-table-column-has-sorters {
         z-index: 0 !important;

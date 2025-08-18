@@ -21,7 +21,7 @@ import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import { PlusOutlined } from '@ant-design/icons';
+import { SaveOutlined } from '@ant-design/icons';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
@@ -363,6 +363,7 @@ const EmployeeProfile: React.FC = () => {
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between">
+        {screens.md ? <></> : <div></div>}
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01  ${screens.md ? '' : 'ml-12'}`}
@@ -371,11 +372,11 @@ const EmployeeProfile: React.FC = () => {
           </span>
         </div>
         <Button
-          icon={<PlusOutlined />}
+          icon={<SaveOutlined />}
           className="btn-primary"
           onClick={() => handleSubmit(onSubmit)()}
         >
-          {t('routes.save')}
+          {screens.md && t('routes.save')}
         </Button>
       </div>
 

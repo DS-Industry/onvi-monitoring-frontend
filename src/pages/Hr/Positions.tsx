@@ -215,6 +215,7 @@ const Positions: React.FC = () => {
   return (
     <div>
       <div className="flex items-center justify-between">
+        {screens.md ? <></> : <div></div>}
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
@@ -224,10 +225,10 @@ const Positions: React.FC = () => {
         </div>
         <AntButton
           icon={<PlusOutlined />}
-          className="btn-primary"
+          className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => setDrawerOpen(true)}
         >
-          {t('routes.new')}
+          {screens.md && t('routes.new')}
         </AntButton>
       </div>
 
