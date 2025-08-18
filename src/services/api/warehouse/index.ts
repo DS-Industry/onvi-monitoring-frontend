@@ -284,6 +284,7 @@ type WarehouseParams = {
 };
 
 type GetSupplierParams = {
+  name?: string;
   page?: number;
   size?: number;
 };

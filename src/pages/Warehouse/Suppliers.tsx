@@ -1,5 +1,5 @@
 import NoDataUI from '@/components/ui/NoDataUI';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
@@ -9,7 +9,7 @@ import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import { createSupplier, getSupplier } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
-import { Drawer, Table, Button as AntDButton } from 'antd';
+import { Drawer, Table, Button as AntDButton, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
@@ -20,6 +20,7 @@ import hasPermission from '@/permissions/hasPermission';
 import { useSearchParams } from 'react-router-dom';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 type Supplier = {
   id: number;
@@ -35,13 +36,34 @@ const Suppliers: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const supplierName = searchParams.get('supplierName') || undefined;
+
+  const handleChange = (val: string) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      supplierName: val,
+    });
+  };
+
+  const resetFilter = (): void => {
+    updateSearchParams(searchParams, setSearchParams, {
+      supplierName: undefined,
+    });
+  }
+
+  const filterParams = useMemo(
+    () => ({
+      name: supplierName,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [supplierName, currentPage, pageSize]
+  );
+
+  const swrKey = `get-supplier-${filterParams.name}-${filterParams.page}-${filterParams.size}`;
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
-    [`get-supplier`],
-    () => getSupplier({
-      page: currentPage,
-      size: pageSize
-    }),
+    swrKey,
+    () => getSupplier(filterParams),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -105,7 +127,7 @@ const Suppliers: React.FC = () => {
       key: 'id',
     },
     {
-      title: 'Ниименование',
+      title: 'Наименование',
       dataIndex: 'name',
       key: 'name',
     },
@@ -143,6 +165,21 @@ const Suppliers: React.FC = () => {
           </AntDButton>
         )}
       </div>
+      <GeneralFilters
+        count={supplier.length}
+        display={['reset']}
+        onReset={resetFilter}
+      >
+        <div className="flex flex-col text-sm text-text02">
+          <div className='mb-1'>{t('warehouse.supplierName')}</div>
+          <AntInput
+            className="w-full sm:w-80"
+            placeholder={t('warehouse.enterSup')}
+            value={supplierName}
+            onChange={e => handleChange(e.target.value)}
+          />
+        </div>
+      </GeneralFilters>
       {supplier.length > 0 ? (
         <div className="mt-8">
           <ColumnSelector

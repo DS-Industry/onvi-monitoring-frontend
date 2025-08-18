@@ -459,7 +459,8 @@
     "noWare": "You don't have warehouse in the program",
     "manager": "Manager",
     "all": "All",
-    "noExpanse": "You do not have expanse tracker data in the program"
+    "noExpanse": "You do not have expanse tracker data in the program",
+    "supplierName": "Name"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
