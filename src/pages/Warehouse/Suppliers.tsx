@@ -252,6 +252,7 @@ const Suppliers: React.FC = () => {
               {t('organizations.cancel')}
             </Button>
             <Button
+              className="btn-primary"
               htmlType={'submit'}
               loading={isMutating}
             >
