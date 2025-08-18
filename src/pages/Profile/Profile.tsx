@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 const InfoTab = React.lazy(() => import('./InfoTab'));
 const ServicesTab = React.lazy(() => import('./ServicesTab'));
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 const ProfileForm: React.FC = () => {
   const { t } = useTranslation();
@@ -20,14 +19,12 @@ const ProfileForm: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.profile')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <div className="max-w-5xl sm:ml-20 bg-white">
         <div className="flex space-x-4 border-b mb-6 w-fit">
           {tabs.map(tab => (
             <button
-              key={tab.id}
               className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
               onClick={() => setActiveTab(tab.id)}
             >
