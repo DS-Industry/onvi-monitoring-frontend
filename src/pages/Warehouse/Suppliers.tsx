@@ -41,12 +41,15 @@ const Suppliers: React.FC = () => {
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {
       supplierName: val,
+      page: DEFAULT_PAGE,
     });
   };
 
   const resetFilter = (): void => {
     updateSearchParams(searchParams, setSearchParams, {
       supplierName: undefined,
+      page: DEFAULT_PAGE,
+      pageSize: DEFAULT_PAGE_SIZE,
     });
   }
 
