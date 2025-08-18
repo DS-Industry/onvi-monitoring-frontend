@@ -1,9 +1,9 @@
 /* src/styles/components.css */
 
 .btn-primary {
-  @apply bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center px-6 py-5;
+  @apply bg-primary02 hover:bg-primary02_Hover text-text04 flex items-center px-4 sm:px-6 py-5;
 }
 
 .btn-outline-primary {
-  @apply bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center px-6 py-5;
+  @apply bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center px-4 sm:px-6 py-5;
 }
