@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Table, Drawer, Button as AntButton } from 'antd';
+import { Table, Drawer, Button as AntButton, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useToast } from '@/components/context/useContext';
 import ProfilePhoto from '@/assets/ProfilePhoto.svg';
@@ -34,7 +34,6 @@ import {
 } from '@/utils/constants';
 import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 
 const Employees: React.FC = () => {
@@ -49,6 +48,8 @@ const Employees: React.FC = () => {
   const city = Number(searchParams.get('city')) || undefined;
 
   const { showToast } = useToast();
+
+  const screens = Grid.useBreakpoint();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
     revalidateOnFocus: false,
@@ -105,7 +106,8 @@ const Employees: React.FC = () => {
 
   const placementId = Number(searchParams.get('placementId')) || undefined;
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
-  const organizationId = Number(searchParams.get('organizationId')) || undefined;
+  const organizationId =
+    Number(searchParams.get('organizationId')) || undefined;
   const name = searchParams.get('name') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -343,17 +345,18 @@ const Employees: React.FC = () => {
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+          >
             {t('routes.employees')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <AntButton
           icon={<PlusOutlined />}
-          className="btn-primary"
+          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => setDrawerOpen(true)}
         >
-          {t('routes.addE')}
+          {screens.md && t('routes.addE')}
         </AntButton>
       </div>
       <div className="mt-5">
@@ -407,7 +410,7 @@ const Employees: React.FC = () => {
         size="large"
         onClose={resetForm}
         open={drawerOpen}
-        className="custom-drawer"
+        zIndex={9999}
       >
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           {notificationVisibleForm && (
