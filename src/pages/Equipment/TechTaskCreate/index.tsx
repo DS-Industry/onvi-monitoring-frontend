@@ -26,7 +26,6 @@ import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import TechTaskForm from './TechTaskForm';
 import Button from 'antd/es/button';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 
@@ -180,12 +179,11 @@ const TechTaskCreate: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.createTask')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
           <Button
@@ -193,7 +191,7 @@ const TechTaskCreate: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {t('routes.add')}
+            <div className='hidden sm:flex'>{t('routes.add')}</div>
           </Button>
         )}
       </div>
