@@ -23,7 +23,8 @@ import {
   Select,
   Transfer,
   InputNumber,
-  Space
+  Space,
+  ConfigProvider
 } from 'antd';
 import {
   PlusOutlined,
@@ -37,6 +38,8 @@ import PositionEmpty from '@/assets/NoPosition.png';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
+import ruRU from 'antd/locale/ru_RU';
+import enUS from 'antd/locale/en_US';
 
 interface PaymentRecord {
   check: boolean;
@@ -55,7 +58,7 @@ interface PaymentRecord {
 }
 
 const EmployeeAdvanceCreation: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
@@ -64,6 +67,9 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
+
+  const currentLocale = i18n.language === 'ru' ? ruRU : enUS;
+  dayjs.locale(i18n.language);
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
@@ -110,7 +116,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
   ];
 
   const positions = [
-    { label: t('analysis.all'), value: '*', name: t('analysis.all') },
+    { label: t('analysis.all'), value: '', name: t('analysis.all') },
     ...(positionData?.map(pos => ({
       label: pos.props.name,
       value: pos.props.id,
@@ -133,7 +139,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       const result = await calculatePrepayment({
         organizationId: formData.organizationId,
         billingMonth: formData.billingMonth,
-        hrPositionId: formData.hrPositionId,
+        hrPositionId: formData.hrPositionId || undefined,
       });
 
       setShowAddButton(true);
@@ -150,12 +156,17 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   const handleInputChange = (
     field: FieldType,
-    value: string | number | '*'
+    value: string | number | ''
   ) => {
-    const numericFields = ['organizationId', 'hrPositionId'];
-    const updatedValue = numericFields.includes(field) ? Number(value) : value;
+    const numericFields = ['organizationId'];
+    let updatedValue: any = value;
+
+    if (numericFields.includes(field)) {
+      updatedValue = Number(value);
+    }
+
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
-    setValue(field, value);
+    setValue(field, updatedValue);
   };
 
   const handleTableChange = (
@@ -390,159 +401,223 @@ const EmployeeAdvanceCreation: React.FC = () => {
   ];
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.empAdv')}
-          </span>
-          <QuestionMarkIcon />
-        </div>
-      </div>
-
-      <Modal
-        open={isModalOpen}
-        onCancel={() => {
-          resetFormWorker();
-          setIsModalOpen(false);
-        }}
-        footer={null}
-      >
-        <div className="flex flex-row items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
-            {t('roles.create')}
-          </h2>
-        </div>
-        <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
-          <div className="flex flex-col space-y-4 text-text02">
-            <Transfer
-              dataSource={workers}
-              targetKeys={formDataWorker.workerIds.map(String)}
-              onChange={handleTransfer}
-              render={item => item.title}
-              showSearch
-              listStyle={{
-                width: 'calc(50% - 8px)',
-                height: 300,
-              }}
-              style={{ width: '100%' }}
-            />
+    <ConfigProvider locale={currentLocale}>
+      <div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-xl sm:text-3xl font-normal text-text01">
+              {t('routes.empAdv')}
+            </span>
+            <QuestionMarkIcon />
           </div>
-          <div className="flex flex-wrap gap-3 mt-5">
-            <Button
-              onClick={() => setIsModalOpen(false)}
-            >
-              {t('organizations.cancel')}
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={addingWorker}
-            >
-              {t('organizations.save')}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </div>
 
-      <div className="mt-5">
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <div>
-              <div className="text-sm text-text02">
-                {t('warehouse.organization')}
+        <Modal
+          open={isModalOpen}
+          onCancel={() => {
+            resetFormWorker();
+            setIsModalOpen(false);
+          }}
+          footer={null}
+        >
+          <div className="flex flex-row items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
+              {t('roles.create')}
+            </h2>
+          </div>
+          <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
+            <div className="flex flex-col space-y-4 text-text02">
+              <Transfer
+                dataSource={workers}
+                targetKeys={formDataWorker.workerIds.map(String)}
+                onChange={handleTransfer}
+                render={item => item.title}
+                showSearch
+                listStyle={{
+                  width: 'calc(50% - 8px)',
+                  height: 300,
+                }}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-3 mt-5">
+              <Button
+                onClick={() => setIsModalOpen(false)}
+              >
+                {t('organizations.cancel')}
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={addingWorker}
+              >
+                {t('organizations.save')}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        <div className="mt-5">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+              <div>
+                <div className="text-sm text-text02">
+                  {t('warehouse.organization')}
+                </div>
+                <Select
+                  className="w-64 h-10"
+                  options={organizations.map(item => ({
+                    label: item.name,
+                    value: item.value,
+                  }))}
+                  value={formData.organizationId}
+                  {...register('organizationId', {
+                    required: t('validation.organizationRequired'),
+                    validate: value => value !== 0 || t('validation.organizationRequired'),
+                  })}
+                  onChange={value => handleInputChange('organizationId', value)}
+                  dropdownRender={menu => (
+                    <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                  )}
+                  status={errors.organizationId ? 'error' : ''}
+                />
+                {errors.organizationId?.message && (
+                  <div className="text-xs text-errorFill mt-1">
+                    {errors.organizationId.message}
+                  </div>
+                )}
               </div>
-              <Select
-                className="w-64 h-10"
-                options={organizations.map(item => ({
-                  label: item.name,
-                  value: item.value,
-                }))}
-                value={formData.organizationId}
-                {...register('organizationId', {
-                  required: 'Organization Id is required',
-                  validate: value => value !== 0 || 'Organization Id is required',
-                })}
-                onChange={value => handleInputChange('organizationId', value)}
-                dropdownRender={menu => (
-                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+              <div>
+                <div className="text-sm text-text02">{t('hr.billing')}</div>
+                <DatePicker
+                  picker="month"
+                  {...register('billingMonth', {
+                    required: t("validation.billingMonthRequired"),
+                  })}
+                  value={
+                    formData.billingMonth ? dayjs(formData.billingMonth) : null
+                  }
+                  onChange={(_date, dateString) =>
+                    handleInputChange('billingMonth', dateString.toString())
+                  }
+                  className="w-40 h-10"
+                  status={errors.billingMonth ? 'error' : ''}
+                  placeholder={t('finance.selMon')}
+                />
+                {errors.billingMonth?.message && (
+                  <div className="text-xs text-errorFill mt-1">
+                    {errors.billingMonth.message}
+                  </div>
                 )}
-                status={errors.organizationId ? 'error' : ''}
-              />
-              {errors.organizationId?.message && (
-                <div className="text-xs text-errorFill mt-1">
-                  {errors.organizationId.message}
-                </div>
-              )}
+              </div>
+              <div>
+                <div className="text-sm text-text02">{t('routes.employees')}</div>
+                <Select
+                  className="w-64 h-10"
+                  options={positions}
+                  value={formData.hrPositionId}
+                  {...register('hrPositionId')}
+                  placeholder={t('analysis.all')}
+                  onChange={value => handleInputChange('hrPositionId', value)}
+                  dropdownRender={menu => (
+                    <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
+                  )}
+                />
+              </div>
             </div>
-            <div>
-              <div className="text-sm text-text02">{t('hr.billing')}</div>
-              <DatePicker
-                picker="month"
-                {...register('billingMonth', {
-                  required: 'Billing Month is required',
-                })}
-                value={
-                  formData.billingMonth ? dayjs(formData.billingMonth) : null
-                }
-                onChange={(_date, dateString) =>
-                  handleInputChange('billingMonth', dateString.toString())
-                }
-                className="w-40 h-10"
-                status={errors.billingMonth ? 'error' : ''}
-                placeholder={t('finance.selMon')}
-              />
-              {errors.billingMonth?.message && (
-                <div className="text-xs text-errorFill mt-1">
-                  {errors.billingMonth.message}
-                </div>
-              )}
+            <div className="flex space-x-4">
+              <Button
+                onClick={() => navigate(-1)}
+              >
+                {t('organizations.cancel')}
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={calculatingSal}
+              >
+                {t('finance.form')}
+              </Button>
             </div>
-            <div>
-              <div className="text-sm text-text02">{t('routes.employees')}</div>
-              <Select
-                className="w-64 h-10"
-                options={positions}
-                value={formData.hrPositionId}
-                {...register('hrPositionId')}
-                onChange={value => handleInputChange('hrPositionId', value)}
-                dropdownRender={menu => (
-                  <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
-                )}
-              />
-            </div>
-          </div>
-          <div className="flex space-x-4">
-            <Button
-              onClick={() => navigate(-1)}
-            >
-              {t('organizations.cancel')}
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={calculatingSal}
-            >
-              {t('finance.form')}
-            </Button>
-          </div>
-        </form>
+          </form>
 
-        {calculatingSal ? (
-          <Table
-            columns={columnsPaymentsCreation}
-            dataSource={[]}
-            loading={true}
-            rowKey="id"
-            className="mt-8"
-          />
-        ) : paymentsData.length > 0 ? (
-          <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
-            <div className="flex flex-wrap justify-between gap-2">
-              <div className="flex space-x-4">
-                <Button onClick={deleteRow} danger>
-                  {t('marketing.delete')}
-                </Button>
+          {calculatingSal ? (
+            <Table
+              columns={columnsPaymentsCreation}
+              dataSource={[]}
+              loading={true}
+              rowKey="id"
+              className="mt-8"
+            />
+          ) : paymentsData.length > 0 ? (
+            <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
+              <div className="flex flex-wrap justify-between gap-2">
+                <div className="flex space-x-4">
+                  <Button onClick={deleteRow} danger>
+                    {t('marketing.delete')}
+                  </Button>
+                  <Button
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    {t('finance.addE')}
+                  </Button>
+                </div>
+                <Space>
+                  <Button
+                    icon={<ArrowUpOutlined />}
+                    onClick={() => {
+                      const sortedData = [...paymentsData].sort(
+                        (a, b) => a.id - b.id
+                      );
+                      setPaymentsData(sortedData);
+                    }}
+                  />
+                  <Button
+                    icon={<ArrowDownOutlined />}
+                    onClick={() => {
+                      const sortedData = [...paymentsData].sort(
+                        (a, b) => b.id - a.id
+                      );
+                      setPaymentsData(sortedData);
+                    }}
+                  />
+                </Space>
+              </div>
+
+              <Table
+                columns={columnsPaymentsCreation}
+                dataSource={paymentsData.map(item => ({
+                  ...item,
+                  hrPosition: positions.find(pos => pos.value === item.hrPositionId)?.name || '',
+                }))}
+                rowKey="id"
+                pagination={false}
+              />
+
+              <div>
+                <div className="flex space-x-4">
+                  <Button
+                    type="primary"
+                    loading={creatingSal}
+                    onClick={handlePaymentCreation}
+                  >
+                    {t('organizations.save')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            showAddButton && (
+              <div className="flex flex-col justify-center items-center space-y-4">
+                <NoDataUI title={t('marketing.nodata')} description={''}>
+                  <img
+                    src={PositionEmpty}
+                    className="mx-auto"
+                    loading="lazy"
+                    alt="Position Empty"
+                  />
+                </NoDataUI>
                 <Button
                   icon={<PlusOutlined />}
                   onClick={() => setIsModalOpen(true)}
@@ -550,72 +625,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   {t('finance.addE')}
                 </Button>
               </div>
-              <Space>
-                <Button
-                  icon={<ArrowUpOutlined />}
-                  onClick={() => {
-                    const sortedData = [...paymentsData].sort(
-                      (a, b) => a.id - b.id
-                    );
-                    setPaymentsData(sortedData);
-                  }}
-                />
-                <Button
-                  icon={<ArrowDownOutlined />}
-                  onClick={() => {
-                    const sortedData = [...paymentsData].sort(
-                      (a, b) => b.id - a.id
-                    );
-                    setPaymentsData(sortedData);
-                  }}
-                />
-              </Space>
-            </div>
-
-            <Table
-              columns={columnsPaymentsCreation}
-              dataSource={paymentsData.map(item => ({
-                ...item,
-                hrPosition: positions.find(pos => pos.value === item.hrPositionId)?.name || '',
-              }))}
-              rowKey="id"
-              pagination={false}
-            />
-
-            <div>
-              <div className="flex space-x-4">
-                <Button
-                  type="primary"
-                  loading={creatingSal}
-                  onClick={handlePaymentCreation}
-                >
-                  {t('organizations.save')}
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          showAddButton && (
-            <div className="flex flex-col justify-center items-center space-y-4">
-              <NoDataUI title={t('marketing.nodata')} description={''}>
-                <img
-                  src={PositionEmpty}
-                  className="mx-auto"
-                  loading="lazy"
-                  alt="Position Empty"
-                />
-              </NoDataUI>
-              <Button
-                icon={<PlusOutlined />}
-                onClick={() => setIsModalOpen(true)}
-              >
-                {t('finance.addE')}
-              </Button>
-            </div>
-          )
-        )}
+            )
+          )}
+        </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 };
 

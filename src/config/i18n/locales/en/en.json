@@ -1180,7 +1180,8 @@
     "appearanceDateRequired": "Appearance Date is required",
     "startDateRequired": "Start date is required",
     "finishDateRequired": "Finish date is required",
-    "downtimeRequired": "Downtime is required"
+    "downtimeRequired": "Downtime is required",
+    "billingMonthRequired": "Billing Month is required"
   },
   "table": {
     "noData": "No Data"

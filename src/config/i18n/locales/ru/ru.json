@@ -1180,7 +1180,8 @@
     "appearanceDateRequired": "Дата явки обязательна",
     "startDateRequired": "Дата начала обязательна",
     "finishDateRequired": "Дата окончания обязательна",
-    "downtimeRequired": "Время простоя обязательно"
+    "downtimeRequired": "Время простоя обязательно",
+    "billingMonthRequired": "Расчетный месяц обязателен"
   },
   "table": {
     "noData": "Ничего не найдено"

@@ -151,9 +151,6 @@ const Employees: React.FC = () => {
         size: filterParams.size,
       }),
     {
-      onSuccess(data) {
-        console.log(data);
-      },
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
