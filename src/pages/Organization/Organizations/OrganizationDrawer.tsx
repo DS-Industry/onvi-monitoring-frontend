@@ -77,7 +77,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         addressBank: orgDocuments?.addressBank ? orgDocuments.addressBank : '',
         certificateNumber: orgDocuments?.certificateNumber
           ? orgDocuments.certificateNumber
-          : ''
+          : '',
       });
     }
   }, [orgToEdit, orgDocuments]);
@@ -230,11 +230,9 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             </Form.Item>
           </div>
         </div>
-
         <div className="text-sm text-text01 font-normal mb-4 uppercase">
           {t('organizations.legalDetails')}
         </div>
-
         <div className="grid grid-cols-1 gap-4">
           <div>
             <div className="text-text02 text-sm">{t('organizations.tin')}</div>
@@ -345,11 +343,9 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             />
           </Form.Item>
         </div>
-
         <div className="text-sm text-text01 font-normal mb-4 uppercase">
           {t('organizations.bankDetails')}
         </div>
-
         <div className="grid grid-cols-1 gap-4">
           <div>
             <div className="text-text02 text-sm">{t('organizations.bik')}</div>
@@ -458,7 +454,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             />
           </Form.Item>
         </div>
-
         <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
           <Button onClick={() => resetForm()} className="btn-outline-primary">
             {t('organizations.cancel')}
