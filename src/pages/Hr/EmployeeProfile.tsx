@@ -381,8 +381,8 @@ const EmployeeProfile: React.FC = () => {
 
       <div className="mt-5">
         <hr />
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-72 w-full border-r border-opacity01 min-h-screen p-4 space-y-4">
+        <div className="flex">
+          <div className="w-25 md:w-72 border-r border-opacity01 min-h-screen p-4 space-y-4">
             <div
               className="flex space-x-2 text-primary02 cursor-pointer"
               onClick={() => navigate(-1)}
@@ -390,13 +390,15 @@ const EmployeeProfile: React.FC = () => {
               <ArrowLeftOutlined className="h-6 w-6" />
               <div>{t('login.back')}</div>
             </div>
-            <SearchInput
-              value={searchEmp}
-              placeholder={t('hr.search')}
-              searchType="outlined"
-              onChange={value => setSearchEmp(value)}
-            />
-            <div className="w-full md:w-60 max-h-[480px] overflow-y-auto">
+            {screens.md ? (
+              <SearchInput
+                value={searchEmp}
+                placeholder={t('hr.search')}
+                searchType="outlined"
+                onChange={value => setSearchEmp(value)}
+              />
+            ) : null}
+            <div className="w-full w-25 md:w-60 max-h-[500px] overflow-y-auto">
               {loadingWorkers || validatingWorkers
                 ? DoubleSkeleton()
                 : employeeDetails.map(emp => (
@@ -416,7 +418,7 @@ const EmployeeProfile: React.FC = () => {
                           {getInitials(emp.fullName)}
                         </div>
                       )}
-                      <div>
+                      <div className="hidden md:block">
                         <div className="text-text01 font-semibold max-w-44 truncate overflow-hidden whitespace-nowrap">
                           {emp.fullName}
                         </div>
@@ -427,7 +429,7 @@ const EmployeeProfile: React.FC = () => {
             </div>
           </div>
           <div className="px-4 w-full">
-            <div className="flex flex-wrap sm:flex-nowrap space-x-4 border-b mb-6 w-fit overflow-x-auto">
+            <div className="flex flex-nowrap space-x-4 border-b mb-6 overflow-x-auto">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
@@ -438,6 +440,7 @@ const EmployeeProfile: React.FC = () => {
                 </button>
               ))}
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)}>
               {loadingEmployee || isValidating ? (
                 <div className="mt-4">{DoubleSkeleton()}</div>
