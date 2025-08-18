@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Table, Button as AntButton } from 'antd';
+import { Table, Button as AntButton, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -25,7 +25,7 @@ import {
   getPercentRender,
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+
 import { PlusOutlined } from '@ant-design/icons';
 
 type TablePayment = PrepaymentResponse & {
@@ -36,6 +36,8 @@ const EmployeeAdvance: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const screens = Grid.useBreakpoint();
 
   const { data: positionData } = useSWR(
     [`get-positions`],
@@ -113,16 +115,11 @@ const EmployeeAdvance: React.FC = () => {
       hrPosition: positions.find(pos => pos.value === pay.hrPositionId)?.name,
     })) || [];
 
-  const { data: workersData } = useSWR(
-    [`get-workers`],
-    () =>
-      getWorkers({}),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({}), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const workers: { name: string; value: number | '*' }[] = [
     { name: t('hr.all'), value: '*' },
@@ -204,17 +201,18 @@ const EmployeeAdvance: React.FC = () => {
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+          >
             {t('routes.empAdv')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <AntButton
           icon={<PlusOutlined />}
-          className="btn-primary"
+          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => navigate('/hr/employee/advance/creation')}
         >
-          {t('routes.create')}
+          {screens.md && t('routes.create')}
         </AntButton>
       </div>
 

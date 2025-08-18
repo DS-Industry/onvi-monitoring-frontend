@@ -14,11 +14,19 @@ import {
 import useSWRMutation from 'swr/mutation';
 import { getOrganization } from '@/services/api/organization';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { Drawer, Table, Popconfirm, Typography, Input as AntInput, Button as AntButton } from "antd";
-import { EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
+import {
+  Drawer,
+  Table,
+  Popconfirm,
+  Typography,
+  Input as AntInput,
+  Button as AntButton,
+  Grid,
+} from 'antd';
+import { EditOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+
 import { PlusOutlined } from '@ant-design/icons';
 
 type Positions = {
@@ -31,11 +39,13 @@ type Positions = {
 const Positions: React.FC = () => {
   const { t } = useTranslation();
   const [editingKey, setEditingKey] = useState<number | null>(null);
-  const [editingValue, setEditingValue] = useState<string>("");
+  const [editingValue, setEditingValue] = useState<string>('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
+
+  const screens = Grid.useBreakpoint();
 
   const { showToast } = useToast();
 
@@ -114,11 +124,11 @@ const Positions: React.FC = () => {
     }
   };
 
-  const positionsData = positionData?.map((pos) => pos.props) || [];
+  const positionsData = positionData?.map(pos => pos.props) || [];
 
   const startEditing = (record: Positions) => {
     setEditingKey(record.id);
-    setEditingValue(record.description || "");
+    setEditingValue(record.description || '');
   };
 
   const cancelEditing = () => {
@@ -131,39 +141,39 @@ const Positions: React.FC = () => {
       mutate([`get-positions`]);
       setEditingKey(null);
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error('Update failed:', error);
     }
   };
 
   const columns: ColumnsType<Positions> = [
     {
-      title: t("Должность"),
-      dataIndex: "name",
-      key: "name",
+      title: t('Должность'),
+      dataIndex: 'name',
+      key: 'name',
       width: '35%',
     },
     {
-      title: t("Описание"),
-      dataIndex: "description",
-      key: "description",
+      title: t('Описание'),
+      dataIndex: 'description',
+      key: 'description',
       width: '50%',
       render: (text: string, record: Positions) => {
         if (editingKey === record.id) {
           return (
             <AntInput
               value={editingValue}
-              onChange={(e) => setEditingValue(e.target.value)}
+              onChange={e => setEditingValue(e.target.value)}
               onPressEnter={() => saveEditing(record.id)}
               autoFocus
             />
           );
         }
-        return text || "-";
+        return text || '-';
       },
     },
     {
-      title: "",
-      key: "actions",
+      title: '',
+      key: 'actions',
       width: '15%',
       render: (_: any, record: Positions) => {
         if (editingKey === record.id) {
@@ -173,18 +183,18 @@ const Positions: React.FC = () => {
                 type="text"
                 icon={<CheckOutlined />}
                 onClick={() => saveEditing(record.id)}
-                style={{ marginRight: 8, color: "green" }}
+                style={{ marginRight: 8, color: 'green' }}
               />
               <Popconfirm
-                title={`${t("common.discardChanges")}?`}
+                title={`${t('common.discardChanges')}?`}
                 onConfirm={cancelEditing}
-                okText={t("equipment.yes")}
-                cancelText={t("equipment.no")}
+                okText={t('equipment.yes')}
+                cancelText={t('equipment.no')}
               >
                 <AntButton
                   type="text"
                   icon={<CloseOutlined />}
-                  style={{ marginRight: 8, color: "red" }}
+                  style={{ marginRight: 8, color: 'red' }}
                 />
               </Popconfirm>
             </span>
@@ -206,10 +216,11 @@ const Positions: React.FC = () => {
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span
+            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+          >
             {t('routes.positions')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <AntButton
           icon={<PlusOutlined />}
@@ -238,6 +249,7 @@ const Positions: React.FC = () => {
         onClose={resetForm}
         open={drawerOpen}
         className="custom-drawer"
+        zIndex={9999}
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex">
@@ -291,11 +303,7 @@ const Positions: React.FC = () => {
                 resetForm();
               }}
             />
-            <Button
-              title={t('hr.pos')}
-              form={true}
-              isLoading={isMutating}
-            />
+            <Button title={t('hr.pos')} form={true} isLoading={isMutating} />
           </div>
         </form>
       </Drawer>
