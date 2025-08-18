@@ -257,6 +257,8 @@ type STOCK_PARAMS = {
   categoryId?: number
   warehouseId?: number
   placementId?: number
+  page?: number
+  size?: number
 };
 
 type STOCK_RESPONSE = {

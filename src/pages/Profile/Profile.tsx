@@ -13,20 +13,29 @@ const ProfileForm: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-5xl sm:ml-20 bg-white">
-      <div className="flex space-x-4 border-b mb-6 w-fit">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.name}
-          </button>
-        ))}
+    <div>
+      <div className="ml-12 sm:ml-20 mb-5">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.profile')}
+          </span>
+        </div>
       </div>
-      <div className="flex space-x-10">
-        {tabs.find(tab => tab.id === activeTab)?.content}
+      <div className="max-w-5xl sm:ml-20 bg-white">
+        <div className="flex space-x-4 border-b mb-6 w-fit">
+          {tabs.map(tab => (
+            <button
+              key={`tab-${tab.id}`}
+              className={`pb-2 ${activeTab === tab.id ? 'text-text01 border-b-4 border-primary02' : 'text-text02'}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
+        <div className="flex space-x-10">
+          {tabs.find(tab => tab.id === activeTab)?.content}
+        </div>
       </div>
     </div>
   );

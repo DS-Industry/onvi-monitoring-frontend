@@ -341,7 +341,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           changeValue={e => handleInputChange('name', e.target.value)}
           error={!!errors.name}
           {...register('name', {
-            required: techTaskToEdit === null && 'Name is required',
+            required: techTaskToEdit === null && t("validation.nameRequired"),
           })}
           helperText={errors.name?.message || ''}
         />
@@ -353,11 +353,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           options={
             poses?.map(item => ({ name: item.name, value: item.id })) || []
           }
-          classname="w-64"
+          classname="w-96"
           {...register('posId', {
-            required: techTaskToEdit === null && 'Pos ID is required',
+            required: techTaskToEdit === null && t("validation.posRequired"),
             validate: value =>
-              value !== 0 || techTaskToEdit !== null || 'Pos ID is required',
+              value !== 0 || techTaskToEdit !== null || t("validation.posRequired"),
           })}
           value={formData.posId}
           onChange={value => {
@@ -370,13 +370,13 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         <DropdownInput
           title={`${t('routine.type')} *`}
           label={t('warehouse.notSel')}
-          classname="w-64"
+          classname="w-96"
           options={[
             { name: t('tables.ONETIME'), value: 'ONETIME' },
             { name: t('tables.REGULAR'), value: 'REGULAR' },
           ]}
           {...register('type', {
-            required: techTaskToEdit === null && 'Type is required',
+            required: techTaskToEdit === null && t("validation.typeRequired"),
           })}
           value={formData.type}
           onChange={value => handleInputChange('type', value)}
@@ -405,7 +405,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           }
           error={!!errors.startDate}
           {...register('startDate', {
-            required: techTaskToEdit === null && 'Start Date is required',
+            required: techTaskToEdit === null && t("validation.startDateRequired"),
           })}
           helperText={errors.startDate?.message || ''}
           disabled={techTaskToEdit !== null}
