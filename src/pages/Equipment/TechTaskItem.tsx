@@ -155,7 +155,7 @@ const TechTaskItem: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.list')}
           </span>
-          {getStatusRender(status || '')}
+          <div className='mt-2'>{getStatusRender(status || '')}</div>
         </div>
       </div>
       <div className="mt-5">
@@ -174,7 +174,7 @@ const TechTaskItem: React.FC = () => {
               status={status ? status : undefined}
             />
             {status !== t('tables.FINISHED') && (
-              <div className="flex flex-col sm:flex-row gap-4 mt-2">
+              <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-10">
                 <Button
                   title={t('organizations.cancel')}
                   type="outline"

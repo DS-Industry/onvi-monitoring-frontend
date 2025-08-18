@@ -116,7 +116,7 @@ const ProgressReportItem: React.FC = () => {
 
       const fileEntries = techTaskItems.map(item => {
         const file = item.image
-          ? `${import.meta.env.VITE_S3_CLOUD}pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
+          ? `${import.meta.env.VITE_S3_CLOUD}/pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
           : null;
         return [item.id, file];
       });
@@ -193,7 +193,7 @@ const ProgressReportItem: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.list')}
           </span>
-          {getStatusRender(status || '')}
+          <div className='mt-2'>{getStatusRender(status || '')}</div>
         </div>
       </div>
       {techTaskLoading ? (
@@ -211,7 +211,7 @@ const ProgressReportItem: React.FC = () => {
         />
       )}
       {status !== t('tables.FINISHED') && (
-        <div className="flex justify-start space-x-4">
+        <div className="flex justify-start space-x-4 mt-2 mb-10">
           <Button
             title={t('organizations.cancel')}
             type="outline"
@@ -226,9 +226,9 @@ const ProgressReportItem: React.FC = () => {
         </div>
       )}
       {status === t('tables.FINISHED') && (
-        <div className="mt-2">
+        <div className="mt-2 mb-10">
           <Button
-            title={t('finance.returns')}
+            title={t('routine.return')}
             isLoading={updatingTechTask}
             handleClick={onUpdate}
           />

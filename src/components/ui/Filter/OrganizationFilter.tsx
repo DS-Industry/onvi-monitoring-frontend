@@ -4,17 +4,14 @@ import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { getOrganization } from '@/services/api/organization/index.ts';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
 const OrganizationFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
-
-  const city = getParam("city", undefined);
+  const city = getParam(searchParams, "city", undefined);
   const placementId = city ? Number(city) : undefined;
 
   const { data: organizationData, isLoading } = useSWR(
@@ -45,10 +42,14 @@ const OrganizationFilter: React.FC = () => {
   ];
 
   return (
+    <div className="w-full sm:w-80">
+      <label className="block mb-1 text-sm font-medium text-gray-700">
+        {t('analysis.organizationId')}
+      </label>
     <Select
       className="w-full sm:w-80"
       placeholder={t('filters.organization.placeholder')}
-      value={getParam('orgId', '')}
+      value={getParam(searchParams, 'orgId', '')}
       onChange={handleChange}
       loading={isLoading}
       options={organizations.map(item => ({
@@ -56,6 +57,7 @@ const OrganizationFilter: React.FC = () => {
         value: item.value,
       }))}
     />
+    </div>
   );
 };
 

@@ -14,17 +14,19 @@ import { useSearchParams } from 'react-router-dom';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import Input from '@/components/ui/Input/Input';
-import { Table, Button } from 'antd';
+import { Table, Button, Select, Spin } from 'antd';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants';
+import { getPlacement } from '@/services/api/device';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const posId = searchParams.get('posId');
   const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
-  const { data: posData } = useSWR(
+  const { data: posData, isLoading } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
     {
@@ -35,7 +37,7 @@ const ConsumptionRate: React.FC = () => {
   );
 
   const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
-    posId !== '*' ? [`get-consumption-rate`, posId] : null,
+    posId ? [`get-consumption-rate`, posId] : null,
     () => getConsumptionRate(Number(posId)),
     {
       revalidateOnFocus: false,
@@ -64,15 +66,21 @@ const ConsumptionRate: React.FC = () => {
     }
   );
 
-  const poses: { name: string; value: number | string }[] =
-    posData?.map(item => ({ name: item.name, value: item.id })) || [];
+  const { data: cityData } = useSWR('get-city', getPlacement);
 
-  const posesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
+  const cities = [
+    ...(cityData?.map(item => ({
+      label: item.region,
+      value: String(item.id),
+    })) || []),
+  ];
 
-  poses.unshift(posesAllObj);
+  const posesFilter = [
+    ...(posData?.map(item => ({
+      label: item.name,
+      value: String(item.id),
+    })) || []),
+  ];
 
   const [tableData, setTableData] = useState(consumptionRateData);
 
@@ -194,10 +202,62 @@ const ConsumptionRate: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-      <GeneralFilters
-        count={tableData?.length || 0}
-        display={['city', 'pos', 'count']}
-      />
+      <GeneralFilters count={tableData?.length || 0} display={['count']}>
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.city')}
+          </label>
+          <Select
+            showSearch
+            allowClear={false}
+            className="w-full"
+            placeholder={t("chemical.select")}
+            value={getParam(searchParams, 'city', '') || null}
+            onChange={(value: string | undefined) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                city: value,
+                page: DEFAULT_PAGE,
+              });
+            }}
+            options={cities}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          />
+        </div>
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('analysis.posId')}
+          </label>
+          <Select
+            showSearch
+            allowClear={false}
+            placeholder={t("chemical.select")}
+            value={getParam(searchParams, 'posId') || null}
+            onChange={(value: string | undefined) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                posId: value,
+                page: DEFAULT_PAGE,
+              });
+            }}
+            loading={isLoading}
+            className="w-full"
+            options={posesFilter}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            notFoundContent={isLoading ? <Spin size="small" /> : null}
+          />
+        </div>
+      </GeneralFilters>
       <div className="mt-8">
         <Table
           dataSource={tableData}

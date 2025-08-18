@@ -60,7 +60,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
         {techTaskData?.endSpecifiedDate && (
           <div>
             <div className="text-sm font-medium mb-1">
-              {t('routine.dueDate')}
+              {t('routine.deadline')}
             </div>
             <FieldBox>
               <div className="flex justify-between items-center">
