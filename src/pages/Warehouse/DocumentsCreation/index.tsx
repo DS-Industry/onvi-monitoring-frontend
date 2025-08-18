@@ -26,7 +26,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import DocumentTypesTable from '@/pages/Warehouse/DocumentsTables/DocumentTypesTable';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 interface TableRow {
   id: number;
@@ -378,7 +377,6 @@ const DocumentsCreation: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t(`routes.${documentType}`)}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <div>
