@@ -206,7 +206,7 @@ const InventoryCreation: React.FC = () => {
     useFormHook(formData);
 
   const { trigger: createInventory, isMutating } = useSWRMutation(
-    ['create-inventory'],
+    ['create-inventory', organizationId],
     async () =>
       createNomenclature({
         name: formData.name,
