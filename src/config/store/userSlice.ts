@@ -21,7 +21,10 @@ export interface User {
   receiveNotifications: number;
   createdAt: Date;
   updatedAt: Date;
+  organizations?: { id: number; name: string }[];
+  organizationId?: number;
 }
+
 interface UserState {
   user: User | null;
   setUser: (user: { user: User }) => void;
