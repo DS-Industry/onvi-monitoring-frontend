@@ -29,7 +29,11 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
 import { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -93,13 +97,10 @@ const InventoryCreation: React.FC = () => {
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     organizationId ? swrKey : null,
     () => {
-      return getNomenclature(
-        Number(organizationId)!,
-        {
-          page: currentPage,
-          size: pageSize
-        }
-      );
+      return getNomenclature(Number(organizationId)!, {
+        page: currentPage,
+        size: pageSize,
+      });
     },
     {
       revalidateOnFocus: false,
@@ -114,11 +115,15 @@ const InventoryCreation: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const { data: supplierData } = useSWR([`get-supplier`], () => getSupplier({}), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: supplierData } = useSWR(
+    [`get-supplier`],
+    () => getSupplier({}),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
@@ -206,7 +211,7 @@ const InventoryCreation: React.FC = () => {
       createNomenclature({
         name: formData.name,
         sku: formData.sku,
-        organizationId: formData.organizationId,
+        organizationId: organizationId ? Number(organizationId) : 0,
         categoryId: formData.categoryId,
         supplierId: formData.supplierId,
         measurement: formData.measurement,
@@ -423,10 +428,10 @@ const InventoryCreation: React.FC = () => {
             icon={<DownloadOutlined />}
             className="btn-outline-primary"
             onClick={() => {
-              navigate('/warehouse/inventory/import')
+              navigate('/warehouse/inventory/import');
             }}
           >
-            <span className='hidden sm:flex'>{t('routes.import')}</span>
+            <span className="hidden sm:flex">{t('routes.import')}</span>
           </Button>
           {allowed && (
             <Button
@@ -434,7 +439,7 @@ const InventoryCreation: React.FC = () => {
               className="btn-primary"
               onClick={() => setDrawerOpen(!drawerOpen)}
             >
-              <span className='hidden sm:flex'>{t('routes.add')}</span>
+              <span className="hidden sm:flex">{t('routes.add')}</span>
             </Button>
           )}
         </div>
@@ -463,7 +468,7 @@ const InventoryCreation: React.FC = () => {
             }
             optionFilterProp="label"
             filterOption={(input, option) =>
-              (option?.label ?? "")
+              (option?.label ?? '')
                 .toString()
                 .toLowerCase()
                 .includes(input.toLowerCase())
@@ -490,7 +495,7 @@ const InventoryCreation: React.FC = () => {
             }
             optionFilterProp="label"
             filterOption={(input, option) =>
-              (option?.label ?? "")
+              (option?.label ?? '')
                 .toString()
                 .toLowerCase()
                 .includes(input.toLowerCase())
@@ -563,7 +568,7 @@ const InventoryCreation: React.FC = () => {
             options={categories}
             classname="w-64"
             {...register('categoryId', {
-              required: !isEditMode && t('validation.categoryIdRequired')
+              required: !isEditMode && t('validation.categoryIdRequired'),
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}
@@ -626,7 +631,9 @@ const InventoryCreation: React.FC = () => {
             value={formData.sku}
             changeValue={e => handleInputChange('sku', e.target.value)}
             error={!!errors.sku}
-            {...register('sku', { required: !isEditMode && t('validation.skuRequired') })}
+            {...register('sku', {
+              required: !isEditMode && t('validation.skuRequired'),
+            })}
             helperText={errors.sku?.message || ''}
             disabled={isEditMode}
           />
@@ -713,7 +720,7 @@ const InventoryCreation: React.FC = () => {
               onClick={() => {
                 resetForm();
               }}
-              className='btn-outline-primary'
+              className="btn-outline-primary"
             >
               {t('organizations.cancel')}
             </Button>
@@ -731,14 +738,14 @@ const InventoryCreation: React.FC = () => {
                     onClick={handleDelete}
                     className="bg-red-600 hover:bg-red-300"
                   >
-                   {t('warehouse.deletePos')} 
-                    </Button>
+                    {t('warehouse.deletePos')}
+                  </Button>
                 )
               }
             </Can>
             <Button
               htmlType={'submit'}
-              className='btn-primary'
+              className="btn-primary"
               loading={isEditMode ? updatingInventory : isMutating}
             >
               {t('organizations.save')}
