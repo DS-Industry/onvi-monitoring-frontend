@@ -137,7 +137,7 @@ type SUPPLIER_RESPONSE = {
   };
 };
 
-type WAREHOUSE_RESPONSE = {
+export type WAREHOUSE_RESPONSE = {
   props: {
     id: number;
     name: string;
@@ -149,6 +149,7 @@ type WAREHOUSE_RESPONSE = {
     updatedAt: Date;
     createdById: number;
     updatedById: number;
+    organizationId?: number;
   };
 };
 
@@ -216,7 +217,7 @@ type DOCUMENTS_RESPONSE = {
   carryingAt: Date;
 };
 
-type GET_DOCUMENT_RESPONSE = {
+export type GET_DOCUMENT_RESPONSE = {
   document: {
     props: {
       id: number;
@@ -254,11 +255,11 @@ type INVENTORY_RESPONSE = {
 };
 
 type STOCK_PARAMS = {
-  categoryId?: number
-  warehouseId?: number
-  placementId?: number
-  page?: number
-  size?: number
+  categoryId?: number;
+  warehouseId?: number;
+  placementId?: number;
+  page?: number;
+  size?: number;
 };
 
 type STOCK_RESPONSE = {
@@ -295,7 +296,7 @@ type GetSupplierParams = {
 type NomenclatureParams = {
   page?: number;
   size?: number;
-}
+};
 
 export async function createNomenclature(
   body: NOMENCLATURE_REQUEST
@@ -382,7 +383,7 @@ export async function getSupplier(
   const response: AxiosResponse<SUPPLIER_RESPONSE[]> = await api.get(
     WAREHOUSE.CREATE_SUPPLIER,
     { params }
-  );  
+  );
   return response.data;
 }
 
@@ -393,7 +394,7 @@ export async function getNomenclature(
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
     WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
     { params }
-  );  
+  );
   return response.data;
 }
 

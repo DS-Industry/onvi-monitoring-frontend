@@ -3,11 +3,18 @@ import { useSearchParams } from 'react-router-dom';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getWarehouses } from '@/services/api/warehouse/index.ts';
+import {
+  WAREHOUSE_RESPONSE,
+  getWarehouses,
+} from '@/services/api/warehouse/index.ts';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
-const WarehouseFilter: React.FC = () => {
+interface WarehouseFilterProps {
+  onSelect?: (val: WAREHOUSE_RESPONSE) => void;
+}
+
+const WarehouseFilter: React.FC<WarehouseFilterProps> = ({ onSelect }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -18,9 +25,7 @@ const WarehouseFilter: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
 
   const { data: warehouseData, isLoading } = useSWR(
-    placementId && posId
-      ? [`get-warehouse`, placementId, posId]
-      : null,
+    [`get-warehouse`, placementId, posId],
     () => getWarehouses({ placementId, posId }),
     {
       revalidateOnFocus: false,
@@ -30,10 +35,18 @@ const WarehouseFilter: React.FC = () => {
   );
 
   const handleChange = (val: string) => {
-    updateSearchParams(searchParams, setSearchParams, {
-      warehouseId: val,
-      page: DEFAULT_PAGE,
-    });
+    if (onSelect) {
+      const warehouse = warehouseData?.find(wd => wd.props.id === Number(val));
+
+      if (warehouse) {
+        onSelect(warehouse);
+      }
+    } else {
+      updateSearchParams(searchParams, setSearchParams, {
+        warehouseId: val,
+        page: DEFAULT_PAGE,
+      });
+    }
   };
 
   if (!warehouseData?.length && !isLoading) return null;

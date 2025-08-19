@@ -1,67 +1,115 @@
-import Button from '@ui/Button/Button';
-import Input from '@ui/Input/Input';
-import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
-import { useUser } from '@/hooks/useUserStore';
-import { getOrganization } from '@/services/api/organization';
+import { useSearchParams } from 'react-router-dom';
+
+// utils
+import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import {
-  DocumentBody,
-  DocumentsTableRow,
+  GET_DOCUMENT_RESPONSE,
+  WarehouseDocumentType,
   getDocument,
   getNomenclature,
-  getWarehouses,
-  InventoryMetaData,
-  MovingMetaData,
-  saveDocument,
-  sendDocument,
-  WarehouseDocumentStatus,
-  WarehouseDocumentType,
 } from '@/services/api/warehouse';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
-import useSWRMutation from 'swr/mutation';
-import { DatePicker, Select, Skeleton } from 'antd';
+
+// components
+import {
+  Table,
+  Input,
+  InputNumber,
+  Popconfirm,
+  Form,
+  Button,
+  Select,
+  DatePicker,
+} from 'antd';
+import type { FormInstance } from 'antd/es/form';
+import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { usePermissions } from '@/hooks/useAuthStore';
-import { Can } from '@/permissions/Can';
-import DocumentTypesTable from '@/pages/Warehouse/DocumentsTables/DocumentTypesTable';
+import WarehouseFilter from '@/components/ui/Filter/WarehouseFilter';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants';
 
-interface TableRow {
-  id: number;
-  check: boolean;
-  responsibleId: number;
-  responsibleName: string;
-  nomenclatureId: number;
-  quantity: number;
-  comment: string;
-  oldQuantity?: number;
-  deviation?: number;
-  isDeleted?: boolean;
-}
+const { Option } = Select;
 
-const DocumentsCreation: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const documentType = searchParams.get('document');
-  const { t } = useTranslation();
-  const [warehouseId, setWarehouseId] = useState<number | string | null>(
-    searchParams.get('warehouseId') || '*'
+type Detail = GET_DOCUMENT_RESPONSE['details'][0]['props'];
+
+const EditableCell: React.FC<{
+  editing: boolean;
+  dataIndex: string;
+  title: any;
+  inputType: 'number' | 'text' | 'select';
+  record: Detail;
+  index: number;
+  children: React.ReactNode;
+  options?: { value: number; label: string }[];
+}> = ({
+  editing,
+  dataIndex,
+  title,
+  inputType,
+  record,
+  index,
+  children,
+  options,
+  ...restProps
+}) => {
+  let inputNode;
+  if (inputType === 'number') {
+    inputNode = <InputNumber min={1} />;
+  } else if (inputType === 'select') {
+    inputNode = (
+      <Select placeholder="Select nomenclature">
+        {options?.map(opt => (
+          <Option key={opt.value} value={opt.value}>
+            {opt.label}
+          </Option>
+        ))}
+      </Select>
+    );
+  } else {
+    inputNode = <Input />;
+  }
+
+  return (
+    <td {...restProps}>
+      {editing ? (
+        <Form.Item
+          name={dataIndex}
+          style={{ margin: 0 }}
+          rules={[
+            {
+              required: dataIndex === 'nomenclatureId',
+              message: `Please Input ${title}!`,
+            },
+          ]}
+        >
+          {inputNode}
+        </Form.Item>
+      ) : (
+        children
+      )}
+    </td>
   );
-  const [warehouseRecId, setWarehouseRecId] = useState(0);
-  const [docId, setDocId] = useState(0);
+};
+
+export default function DocumentsCreation() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { t } = useTranslation();
+
+  const documentType = searchParams.get('document');
+  const warehouseId = searchParams.get('warehouseId')
+    ? Number(searchParams.get('warehouseId'))
+    : undefined;
+  const organizationId = searchParams.get('organizationId')
+    ? Number(searchParams.get('organizationId'))
+    : undefined;
+
   const [noOverhead, setNoOverHead] = useState('');
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     return dayjs().toDate().toISOString().split('T')[0];
   });
-  const navigate = useNavigate();
-  const user = useUser();
-  const userPermissions = usePermissions();
 
-  const {
-    data: document,
-    isLoading: loadingDocument,
-    isValidating: validatingDocument,
-  } = useSWR(
+  const { data: document, isLoading } = useSWR(
     [`get-document-view`],
     () => getDocument(Number(searchParams.get('documentId'))),
     {
@@ -71,457 +119,259 @@ const DocumentsCreation: React.FC = () => {
     }
   );
 
-  function isInventoryMetaData(
-    metaData: InventoryMetaData | MovingMetaData | undefined
-  ): metaData is InventoryMetaData {
-    return !!metaData && 'oldQuantity' in metaData && 'deviation' in metaData;
-  }
+  const { data: nomenclatureData, mutate } = useSWR(
+    organizationId ? ['get-inventory', organizationId] : null,
+    () => getNomenclature(organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
-  function isMovingMetaData(
-    metaData: InventoryMetaData | MovingMetaData | undefined
-  ): metaData is MovingMetaData {
-    return !!metaData && 'warehouseReceirId' in metaData;
-  }
+  const nomenclatureOptions = [
+    { value: 3, label: 'Nomenclature A' },
+    { value: 6, label: 'Nomenclature B' },
+    { value: 7, label: 'Nomenclature C' },
+  ];
 
-  const documentsData = document?.document.props;
-  const documentDetails = document?.details || [];
+  const [form] = Form.useForm();
+  const [data, setData] = useState<
+    GET_DOCUMENT_RESPONSE['details'][0]['props'][]
+  >([]);
+  const [editingKey, setEditingKey] = useState<number | ''>('');
 
   useEffect(() => {
-    if (loadingDocument) return;
-
-    const isSavedOrSent =
-      documentsData?.status === WarehouseDocumentStatus.SAVED ||
-      documentsData?.status === WarehouseDocumentStatus.SENT;
-
-    const mapInventoryDetails = (
-      details: DocumentsTableRow[],
-      responsibleId: number,
-      responsibleName: string
-    ) =>
-      details.map(doc => {
-        const detailsProps = doc.props;
-        return {
-          id: detailsProps.id,
-          check: false,
-          responsibleId,
-          responsibleName,
-          nomenclatureId: detailsProps.nomenclatureId,
-          quantity: detailsProps.quantity,
-          comment: detailsProps.comment || '',
-          oldQuantity: isInventoryMetaData(detailsProps.metaData)
-            ? detailsProps.metaData.oldQuantity
-            : 0,
-          deviation: isInventoryMetaData(detailsProps.metaData)
-            ? detailsProps.metaData.deviation
-            : 0,
-        };
-      });
-
-    const mapOtherDetails = (
-      details: DocumentsTableRow[],
-      responsibleId: number,
-      responsibleName: string
-    ) =>
-      details.map(doc => {
-        const detailsProps = doc.props;
-        return {
-          id: detailsProps.id,
-          check: false,
-          responsibleId,
-          responsibleName,
-          nomenclatureId: detailsProps.nomenclatureId,
-          quantity: detailsProps.quantity,
-          comment: detailsProps.comment || '',
-        };
-      });
-
-    if (isSavedOrSent) {
-      setWarehouseId(documentsData.warehouseId);
-      setNoOverHead(documentsData.name);
-      setSelectedDate(
-        new Date(documentsData.carryingAt).toISOString().split('T')[0]
-      );
-      setDocId(documentsData.id);
-
-      const metaData = documentDetails.at(0)?.props.metaData;
-      if (
-        documentType === WarehouseDocumentType.MOVING &&
-        metaData &&
-        isMovingMetaData(metaData)
-      ) {
-        setWarehouseRecId(metaData.warehouseReceirId);
-      }
-
-      const responsibleId = documentsData.responsibleId;
-      const responsibleName = documentsData.responsibleName || '';
-
-      const tableData =
-        documentType === WarehouseDocumentType.INVENTORY
-          ? mapInventoryDetails(documentDetails, responsibleId, responsibleName)
-          : mapOtherDetails(documentDetails, responsibleId, responsibleName);
-
-      setTableData(tableData);
-    } else {
-      setWarehouseId(searchParams.get('warehouseId') || null);
-      setNoOverHead(searchParams.get('name') || '');
-
-      const carryingAtParam = searchParams.get('carryingAt') ?? '';
-      const validDate = dayjs(carryingAtParam).toDate();
-      setSelectedDate(
-        !isNaN(validDate.getTime())
-          ? validDate.toISOString().split('T')[0]
-          : null
-      );
-
-      const documentIdParam = Number(searchParams.get('documentId'));
-      setDocId(documentIdParam);
-
-      const baseRow = {
-        id: 1,
-        check: false,
-        responsibleId: user.id,
-        responsibleName: user.name,
-        nomenclatureId: 0,
-        quantity: 0,
-        comment: '',
-      };
-
-      const inventoryRow =
-        documentType === WarehouseDocumentType.INVENTORY
-          ? { ...baseRow, oldQuantity: 0, deviation: 0 }
-          : baseRow;
-
-      setTableData([inventoryRow]);
+    if (document) {
+      setData(document.details.map(d => d.props));
     }
-  }, [
-    document,
-    documentType,
-    searchParams,
-    loadingDocument,
-    user.id,
-    user.name,
-  ]);
+  }, [document]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const isEditing = (record: Detail) => record.id === editingKey;
 
-  const addProduct = () => {
-    setIsModalOpen(true);
-  };
-
-  const { trigger: saveDoc, isMutating } = useSWRMutation(
-    ['save-document'],
-    async (_, { arg }: { arg: DocumentBody }) => {
-      return saveDocument(arg, docId);
+  const edit = (
+    record: Partial<Detail> & {
+      id: number;
     }
-  );
-
-  const { trigger: sendDoc, isMutating: sendingDoc } = useSWRMutation(
-    ['send-document'],
-    async (_, { arg }: { arg: DocumentBody }) => {
-      return sendDocument(arg, docId);
-    }
-  );
-
-  const posId = Number(searchParams.get('posId')) || undefined;
-  const city = Number(searchParams.get('city')) || undefined;
-
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
-
-  const { data: nomenclatureData } = useSWR(
-    organizations ? [`get-inventory`] : null,
-    () => getNomenclature(organizations.at(0)?.value || 0),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const { data: warehouseData } = useSWR(
-    [`get-warehouse`],
-    () =>
-      getWarehouses({
-        posId: posId,
-        placementId: city,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const nomenclatures: { name: string; value: number }[] =
-    nomenclatureData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
-  const warehouses: { name: string; value: number }[] =
-    warehouseData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
-  const [tableData, setTableData] = useState<TableRow[]>([]);
-
-  const updateRow = () => {
-    setTableData(prevData => {
-      const maxId =
-        prevData.length > 0 ? Math.max(...prevData.map(row => row.id)) : 0;
-      const existingNomenclatureIds = new Set(
-        prevData.map(row => row.nomenclatureId)
-      );
-      const availableNomenclature = nomenclatures.find(
-        nom => !existingNomenclatureIds.has(nom.value)
-      );
-
-      if (!availableNomenclature) {
-        return prevData;
-      }
-
-      const newRow = {
-        id: maxId + 1,
-        check: false,
-        responsibleId: user.id,
-        responsibleName: user.name,
-        nomenclatureId: availableNomenclature.value,
-        quantity: 0,
-        comment: '',
-        ...(documentType === WarehouseDocumentType.INVENTORY && {
-          oldQuantity: 0,
-          deviation: 0,
-        }),
-      };
-
-      return [...prevData, newRow];
+  ) => {
+    form.setFieldsValue({
+      nomenclatureId: '',
+      quantity: 1,
+      comment: '',
+      ...record,
     });
+    setEditingKey(record.id);
   };
 
-  const deleteRow = () => {
-    setTableData(prevData =>
-      prevData.map(row => (row.check ? { ...row, isDeleted: true } : row))
-    );
+  const cancel = () => {
+    setEditingKey('');
   };
 
-  const sortAscending = () => {
-    setTableData(prevData => [...prevData].sort((a, b) => a.id - b.id));
+  const save = async (id: number) => {
+    try {
+      const row = (await form.validateFields()) as Detail;
+      const newData = [...data];
+      const index = newData.findIndex(item => id === item.id);
+
+      if (index > -1) {
+        const item = newData[index];
+        newData.splice(index, 1, { ...item, ...row });
+        setData(newData);
+        setEditingKey('');
+      }
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
+    }
   };
 
-  const sortDescending = () => {
-    setTableData(prevData => [...prevData].sort((a, b) => b.id - a.id));
+  const handleDelete = (id: number) => {
+    setData(data.filter(item => item.id !== id));
   };
 
-  const handleSubmitAction = async (action: 'save' | 'send') => {
-    const filteredTableData = tableData.filter(row => !row.isDeleted);
+  const handleAdd = () => {
+    if (!document) return;
 
-    const detailValues =
-      filteredTableData?.map(data => {
-        const base = {
-          nomenclatureId: data.nomenclatureId,
-          quantity: Number(data.quantity),
-          comment: data.comment,
-        };
-
-        if (documentType === WarehouseDocumentType.MOVING) {
-          return {
-            ...base,
-            metaData: { warehouseReceirId: warehouseRecId },
-          };
-        }
-
-        if (documentType === WarehouseDocumentType.INVENTORY) {
-          return {
-            ...base,
-            metaData: {
-              oldQuantity: Number(data.oldQuantity),
-              deviation: Number(data.deviation),
-            },
-          };
-        }
-        return base;
-      }) || [];
-
-    const payload = {
-      warehouseId: warehouseId == null ? 0 : Number(warehouseId),
-      responsibleId: tableData.at(0)?.responsibleId || user.id,
-      carryingAt: dayjs(
-        selectedDate === null ? dayjs().toDate() : selectedDate
-      ).toDate(),
-      details: detailValues,
+    const newRow: Detail = {
+      id: Date.now(),
+      warehouseDocumentId: document.document.props.id,
+      quantity: 1,
+      comment: '',
+      nomenclatureId: 0,
     };
-
-    let result;
-    if (action === 'save') {
-      result = await saveDoc(payload);
-    } else if (action === 'send') {
-      result = await sendDoc(payload);
-    }
-
-    if (result) {
-      navigate('/warehouse/documents');
-    }
+    setData([...data, newRow]);
+    edit(newRow);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!document) return <div>No document found</div>;
+
+  const columns = [
+    {
+      title: 'Document ID',
+      dataIndex: 'warehouseDocumentId',
+      width: '12%',
+      editable: false,
+    },
+    {
+      title: 'Responsible',
+      dataIndex: 'responsibleName',
+      render: () => document.document.props.responsibleName ?? '',
+      width: '15%',
+      editable: false,
+    },
+    {
+      title: 'Nomenclature',
+      dataIndex: 'nomenclatureId',
+      width: '20%',
+      editable: true,
+      render: (value: number) =>
+        nomenclatureData?.map(n => n.props).find(opt => opt.id === value)
+          ?.id || <span style={{ color: '#aaa' }}>Not selected</span>,
+    },
+    {
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      width: '10%',
+      editable: true,
+    },
+    {
+      title: 'Comment',
+      dataIndex: 'comment',
+      width: '20%',
+      editable: true,
+    },
+    {
+      title: 'Operation',
+      dataIndex: 'operation',
+      render: (_: any, record: Detail) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <span>
+            <a onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+              Save
+            </a>
+            <Popconfirm title="Cancel?" onConfirm={cancel}>
+              <a>Cancel</a>
+            </Popconfirm>
+          </span>
+        ) : (
+          <span>
+            <a
+              onClick={editingKey !== '' ? undefined : () => edit(record)}
+              style={{
+                marginRight: 8,
+                pointerEvents: editingKey !== '' ? 'none' : 'auto',
+                color: editingKey !== '' ? 'gray' : 'blue',
+                cursor: editingKey !== '' ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Edit
+            </a>
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => handleDelete(record.id)}
+            >
+              <a>Delete</a>
+            </Popconfirm>
+          </span>
+        );
+      },
+    },
+  ];
+
+  const mergedColumns = columns.map(col =>
+    col.editable
+      ? {
+          ...col,
+          onCell: (record: Detail) => ({
+            record,
+            inputType:
+              col.dataIndex === 'quantity'
+                ? 'number'
+                : col.dataIndex === 'nomenclatureId'
+                  ? 'select'
+                  : 'text',
+            dataIndex: col.dataIndex,
+            title: col.title,
+            editing: isEditing(record),
+            options: nomenclatureData?.map(n => n.props),
+          }),
+        }
+      : col
+  );
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t(`routes.${documentType}`)}
-          </span>
+      <div className="flex flex-col sm:flex-row gap-y-4 py-4">
+        <div className="flex flex-wrap gap-4">
+          <div className="flex">
+            <div className="mr-10 text-text01 font-normal text-sm">
+              <div>{t('warehouse.no')}</div>
+              <div>{t('warehouse.overhead')}</div>
+            </div>
+            <Input
+              type={''}
+              value={noOverhead}
+              changeValue={e => setNoOverHead(e.target.value)}
+              disabled={true}
+            />
+          </div>
+          <div className="flex">
+            <div className="flex mt-3 text-text01 font-normal text-sm mx-2">
+              {t('warehouse.from')}
+            </div>
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              value={selectedDate ? dayjs(selectedDate) : null}
+              onChange={(date: Dayjs | null) =>
+                setSelectedDate(date ? date.toISOString() : '')
+              }
+            />
+          </div>
+        </div>
+        <div className="flex flex-col space-y-6">
+          <div className="flex space-x-2">
+            <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">
+              {documentType === WarehouseDocumentType.MOVING
+                ? t('warehouse.warehouseSend')
+                : t('warehouse.ware')}
+            </div>
+            <WarehouseFilter
+              onSelect={val => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  organizationId: val?.props.organizationId,
+                  warehouseId: val?.props.id,
+                  page: DEFAULT_PAGE,
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
-      <div>
-        <DocumentCreationModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onClick={setTableData}
+      <Form form={form} component={false}>
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          style={{ marginBottom: 16 }}
+          disabled={editingKey !== ''}
+        >
+          Add Row
+        </Button>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={data}
+          columns={mergedColumns as any}
+          rowClassName="editable-row"
+          pagination={false}
+          rowKey="id"
         />
-        {loadingDocument || validatingDocument ? (
-          <div className="mt-16">
-            <Skeleton.Input
-              style={{ width: '100%', height: '300px' }}
-              active
-              block
-            />
-          </div>
-        ) : (
-          <div>
-            <div className="flex flex-col sm:flex-row gap-y-4 py-4">
-              <div className="flex flex-wrap gap-4">
-                <div className="flex">
-                  <div className="mr-10 text-text01 font-normal text-sm">
-                    <div>{t('warehouse.no')}</div>
-                    <div>{t('warehouse.overhead')}</div>
-                  </div>
-                  <Input
-                    type={''}
-                    value={noOverhead}
-                    changeValue={e => setNoOverHead(e.target.value)}
-                    disabled={true}
-                  />
-                </div>
-                <div className="flex">
-                  <div className="flex mt-3 text-text01 font-normal text-sm mx-2">
-                    {t('warehouse.from')}
-                  </div>
-                  <DatePicker
-                    showTime
-                    format="YYYY-MM-DD HH:mm"
-                    value={selectedDate ? dayjs(selectedDate) : null}
-                    onChange={(date: Dayjs | null) =>
-                      setSelectedDate(date ? date.toISOString() : '')
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col space-y-6">
-                <div className="flex space-x-2">
-                  <div className="flex items-center justify-start sm:justify-center sm:w-64 text-text01 font-normal text-sm">
-                    {documentType === WarehouseDocumentType.MOVING
-                      ? t('warehouse.warehouseSend')
-                      : t('warehouse.ware')}
-                  </div>
-                  <Select
-                    showSearch
-                    allowClear
-                    placeholder={t('warehouse.enterWare')}
-                    optionFilterProp="label"
-                    filterOption={(input, option) =>
-                      (option?.label as string)
-                        ?.toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={warehouseId}
-                    onChange={value => setWarehouseId(value)}
-                    style={{ width: '20rem' }}
-                    options={warehouses.map(w => ({
-                      value: w.value,
-                      label: w.name,
-                    }))}
-                  />
-                </div>
-                {documentType === WarehouseDocumentType.MOVING && (
-                  <div className="flex space-x-2">
-                    <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">
-                      {t('warehouse.warehouseRec')}
-                    </div>
-                    <Select
-                      showSearch
-                      allowClear
-                      placeholder={t('warehouse.enterWare')}
-                      optionFilterProp="label"
-                      filterOption={(input, option) =>
-                        (option?.label as string)
-                          ?.toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      value={warehouseRecId}
-                      onChange={value => setWarehouseRecId(value)}
-                      style={{ width: '20rem' }}
-                      options={warehouses.map(w => ({
-                        value: w.value,
-                        label: w.name,
-                      }))}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-            <DocumentTypesTable
-              tableData={tableData.filter(row => !row.isDeleted)}
-              setTableData={setTableData}
-              addRow={updateRow}
-              addProduct={addProduct}
-              deleteRow={deleteRow}
-              sortAscending={sortAscending}
-              sortDescending={sortDescending}
-            />
-            <Can
-              requiredPermissions={[
-                { action: 'manage', subject: 'Warehouse' },
-                { action: 'create', subject: 'Warehouse' },
-              ]}
-              userPermissions={userPermissions}
-            >
-              {allowed =>
-                allowed && (
-                  <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
-                    <Button
-                      type="outline"
-                      title={t('organizations.cancel')}
-                      handleClick={() => navigate('/warehouse/documents')}
-                    />
-                    <Button
-                      type="outline"
-                      title={t('warehouse.saveDraft')}
-                      form={true}
-                      isLoading={isMutating}
-                      handleClick={() => handleSubmitAction('save')}
-                    />
-                    <Button
-                      title={t('warehouse.saveAccept')}
-                      form={true}
-                      isLoading={sendingDoc}
-                      handleClick={() => handleSubmitAction('send')}
-                    />
-                  </div>
-                )
-              }
-            </Can>
-          </div>
-        )}
-      </div>
+      </Form>
     </>
   );
-};
-
-export default DocumentsCreation;
+}
