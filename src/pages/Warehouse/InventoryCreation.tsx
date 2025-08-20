@@ -206,12 +206,12 @@ const InventoryCreation: React.FC = () => {
     useFormHook(formData);
 
   const { trigger: createInventory, isMutating } = useSWRMutation(
-    ['create-inventory', organizationId],
-    async () =>
+    ['create-inventory'],
+    async (_key, { arg }: { arg: number }) =>
       createNomenclature({
         name: formData.name,
         sku: formData.sku,
-        organizationId: organizationId ? Number(organizationId) : 0,
+        organizationId: arg,
         categoryId: formData.categoryId,
         supplierId: formData.supplierId,
         measurement: formData.measurement,
@@ -348,7 +348,7 @@ const InventoryCreation: React.FC = () => {
           throw new Error('Invalid update data.');
         }
       } else {
-        const result = await createInventory();
+        const result = await createInventory(Number(organizationId));
         if (result) {
           updateSearchParams(searchParams, setSearchParams, {
             category: result.props.categoryId,
