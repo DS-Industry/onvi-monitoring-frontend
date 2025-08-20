@@ -31,12 +31,12 @@ const Dashboard: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex flex-col md:flex-row md:items-center">
           <label className="block text-sm font-medium text-gray-700 mr-2">
             {t('warehouse.organization')}
           </label>
           <Select
-            className="w-full sm:w-80"
+            className="w-40 truncate"
             placeholder={t('filters.device.placeholder')}
             value={user?.organizationId || ''}
             onChange={val => {
