@@ -3,7 +3,6 @@ import { Table, Input, Select, Button, Card } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getOrganization } from '@/services/api/organization';
 import {
   getInventoryItems,
   getNomenclature,
@@ -13,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import { JSX } from 'react/jsx-runtime';
 import { t } from 'i18next';
+import { useUser } from '@/hooks/useUserStore';
 
 interface TableRow {
   id: number;
@@ -137,17 +137,10 @@ const DocumentTypesTable: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
   const warehouseId = searchParams.get('warehouseId');
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
-  const organizations =
-    organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
+  const user = useUser();
 
   const { data: inventoryItemData } = useSWR(
     warehouseId !== null && !isNaN(Number(warehouseId))
@@ -168,8 +161,8 @@ const DocumentTypesTable: React.FC<Props> = ({
   );
 
   const { data: nomenclatureData } = useSWR(
-    organizations ? [`get-inventory`] : null,
-    () => getNomenclature(organizations[0]?.value),
+    user.organizationId ? [`get-inventory`, user.organizationId] : null,
+    () => getNomenclature(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

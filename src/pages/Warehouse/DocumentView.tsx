@@ -9,7 +9,6 @@ import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { getOrganization } from '@/services/api/organization';
 import { Skeleton, Button } from 'antd';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
@@ -17,6 +16,7 @@ import DocumentsViewTable from './DocumentsTables/DocumentsViewTable';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { useUser } from '@/hooks/useUserStore';
 
 type InventoryMetaData = {
   oldQuantity: number;
@@ -35,6 +35,8 @@ const DocumentView: React.FC = () => {
   const city = Number(searchParams.get('city')) || undefined;
   const documentType = searchParams.get('document');
 
+  const user = useUser();
+
   const userPermissions = usePermissions();
 
   const documentId = searchParams.get('documentId');
@@ -48,18 +50,9 @@ const DocumentView: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
-
   const { data: nomenclatureData } = useSWR(
-    organizations ? [`get-inventory`] : null,
-    () => getNomenclature(organizations[0].value),
+    user.organizationId ? [`get-inventory`, user.organizationId] : null,
+    () => getNomenclature(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -209,7 +202,7 @@ const DocumentView: React.FC = () => {
               );
             }}
           >
-            <div className='hidden sm:flex'>{t(`routes.edit`)}</div>
+            <div className="hidden sm:flex">{t(`routes.edit`)}</div>
           </Button>
         )}
       </div>

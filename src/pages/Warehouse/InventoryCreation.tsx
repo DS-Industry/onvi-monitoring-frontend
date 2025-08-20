@@ -545,6 +545,7 @@ const InventoryCreation: React.FC = () => {
           <div className="font-semibold text-2xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>
+
           <Input
             title={t('profile.name')}
             label={t('warehouse.enter')}
@@ -557,23 +558,6 @@ const InventoryCreation: React.FC = () => {
               required: !isEditMode && t('validation.nameRequired'),
             })}
             helperText={errors.name?.message || ''}
-          />
-          <DropdownInput
-            title={`${t('warehouse.category')} *`}
-            label={
-              categories.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={categories}
-            classname="w-64"
-            {...register('categoryId', {
-              required: !isEditMode && t('validation.categoryIdRequired'),
-            })}
-            value={formData.categoryId}
-            onChange={value => handleInputChange('categoryId', value)}
-            error={!!errors.categoryId}
-            helperText={errors.categoryId?.message}
           />
           <DropdownInput
             title={`${t('routes.suppliers')}`}

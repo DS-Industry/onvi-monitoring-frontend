@@ -2,7 +2,6 @@ import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
 import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
 import { useUser } from '@/hooks/useUserStore';
-import { getOrganization } from '@/services/api/organization';
 import {
   DocumentBody,
   DocumentsTableRow,
@@ -225,18 +224,10 @@ const DocumentsCreation: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({
-      placementId: city,
-    })
-  );
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
-
   const { data: nomenclatureData } = useSWR(
-    organizations ? [`get-inventory`] : null,
-    () => getNomenclature(organizations.at(0)?.value || 0),
+    user.organizationId ? [`get-inventory`, user.organizationId] : null,
+    () =>
+      getNomenclature(user.organizationId!).finally(() => console.log('la')),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

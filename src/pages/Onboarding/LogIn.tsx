@@ -74,7 +74,14 @@ const LogIn: React.FC = () => {
 
       if (result && result.admin) {
         const { admin, permissionInfo } = result;
-        setUser({ user: admin?.props });
+
+        setUser({
+          user: {
+            ...admin?.props,
+            organizations: permissionInfo.organizations ?? [],
+            organizationId: permissionInfo.organizations?.at(0)?.id,
+          },
+        });
         setAuthenticated(true);
         useAuthStore.getState().setPermissions(permissionInfo.permissions);
 
