@@ -425,7 +425,7 @@ const InventoryCreation: React.FC = () => {
           )}
         </div>
       </div>
-      <GeneralFilters count={inventoriesDisplay.length}>
+      <GeneralFilters count={inventoriesDisplay.length} display={['none']}>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.category')}

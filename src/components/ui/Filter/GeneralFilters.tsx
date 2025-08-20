@@ -35,7 +35,8 @@ type FilterType =
   | 'userType'
   | 'tagIds'
   | 'paper'
-  | 'group';
+  | 'group'
+  | 'none';
 
 type GeneralFiltersProps = {
   count: number;
@@ -62,6 +63,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     'tagIds',
     'paper',
     'group',
+    'none',
   ],
   children,
   onReset,
