@@ -14,15 +14,13 @@ const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const navigate = useNavigate();
-  const refreshKey = Date.now();
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
-    useSWR([`get-loyalty-programs`, refreshKey], () => getLoyaltyPrograms(), {
+    useSWR('get-loyalty-programs', getLoyaltyPrograms, {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
     });
-
   const loyaltyPrograms =
     loyaltyProgramsData?.map(item => ({
       ...item.props,
@@ -54,13 +52,13 @@ const MarketingLoyalty: React.FC = () => {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
-      render: statusRender
+      render: statusRender,
     },
     {
       title: 'Дата запуска',
       dataIndex: 'startDate',
       key: 'startDate',
-      render: dateRender
+      render: dateRender,
     },
   ];
 
@@ -77,7 +75,7 @@ const MarketingLoyalty: React.FC = () => {
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => {
-            navigate('/marketing/loyalty/rewards',);
+            navigate('/marketing/loyalty/rewards');
           }}
         >
           {t('routes.add')}
@@ -93,16 +91,16 @@ const MarketingLoyalty: React.FC = () => {
           />
         )}
         <div className="mt-8">
-            <Table
-              dataSource={loyaltyPrograms.sort(
-                (a, b) =>
-                  dayjs(b.startDate).toDate().getTime() -
-                  dayjs(a.startDate).toDate().getTime()
-              )}
-              columns={columnsLoyaltyPrograms}
-              loading={loyaltyProgramsLoading}
-              scroll={{ x: 'max-content' }}
-            />
+          <Table
+            dataSource={loyaltyPrograms.sort(
+              (a, b) =>
+                dayjs(b.startDate).toDate().getTime() -
+                dayjs(a.startDate).toDate().getTime()
+            )}
+            columns={columnsLoyaltyPrograms}
+            loading={loyaltyProgramsLoading}
+            scroll={{ x: 'max-content' }}
+          />
         </div>
       </div>
     </>
