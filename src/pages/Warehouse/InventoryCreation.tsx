@@ -12,7 +12,6 @@ import {
   getSupplier,
   updateNomenclature,
 } from '@/services/api/warehouse';
-import { getOrganization } from '@/services/api/organization';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/components/context/useContext';
@@ -127,23 +126,6 @@ const InventoryCreation: React.FC = () => {
     }
   );
 
-  const { data: organizationData } = useSWR(
-    [`get-organization`],
-    () => getOrganization({ placementId: undefined }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      onSuccess: data => {
-        if (data && data.length > 0) {
-          updateSearchParams(searchParams, setSearchParams, {
-            organizationId: data[0].id,
-          });
-        }
-      },
-    }
-  );
-
   const inventories =
     inventoryData
       ?.map(item => item.props)
@@ -183,9 +165,6 @@ const InventoryCreation: React.FC = () => {
       name: item.props.name,
       value: item.props.id,
     })) || [];
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const defaultValues: INVENTORY = {
     name: '',
@@ -450,33 +429,6 @@ const InventoryCreation: React.FC = () => {
         count={inventoriesDisplay.length}
         display={['organization']}
       >
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            {t('warehouse.organization')}
-          </label>
-          <Select
-            showSearch
-            allowClear={false}
-            className="w-full sm:w-80"
-            options={organizations.map(item => ({
-              label: item.name,
-              value: String(item.value),
-            }))}
-            value={searchParams.get('organizationId') || ''}
-            onChange={value =>
-              updateSearchParams(searchParams, setSearchParams, {
-                organizationId: value,
-              })
-            }
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </div>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.category')}
