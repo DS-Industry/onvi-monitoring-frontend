@@ -224,8 +224,6 @@ const DocumentsCreation: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
-  console.log('user: ', user);
-
   const { data: nomenclatureData } = useSWR(
     user.organizationId ? [`get-inventory`, user.organizationId] : null,
     () =>
