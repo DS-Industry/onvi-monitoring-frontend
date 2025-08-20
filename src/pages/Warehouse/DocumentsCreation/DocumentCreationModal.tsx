@@ -44,14 +44,14 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
   );
   const warehouseId = searchParams.get('warehouseId') || '*';
 
+  const user = useUser();
+
   const handleCheckboxChange = (id: number) => {
     setSelectedItems(prev => ({
       ...prev,
       [id]: !prev[id],
     }));
   };
-
-  const user = useUser();
 
   const addProductItem = () => {
     const dataSource =
@@ -94,8 +94,8 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
   };
 
   const { data: nomenclatureData } = useSWR(
-    ['get-inventory'],
-    () => getNomenclature(1),
+    user.organizationId ? ['get-inventory', user.organizationId] : null,
+    () => getNomenclature(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
