@@ -34,6 +34,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -73,17 +74,18 @@ const InventoryCreation: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const organizationId = searchParams.get('organizationId') || null;
   const category = searchParams.get('category') || '*';
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
+  const user = useUser();
+
   const filterParams = useMemo(
     () => ({
-      organizationId,
+      organizationId: user.organizationId,
       category,
     }),
-    [organizationId, category]
+    [user, category]
   );
 
   const swrKey = useMemo(() => {
@@ -95,9 +97,9 @@ const InventoryCreation: React.FC = () => {
   }, [filterParams]);
 
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
-    organizationId ? swrKey : null,
+    user.organizationId ? swrKey : null,
     () => {
-      return getNomenclature(Number(organizationId)!, {
+      return getNomenclature(Number(user.organizationId!)!, {
         page: currentPage,
         size: pageSize,
       });
@@ -348,7 +350,7 @@ const InventoryCreation: React.FC = () => {
           throw new Error('Invalid update data.');
         }
       } else {
-        const result = await createInventory(Number(organizationId));
+        const result = await createInventory(Number(user.organizationId));
         if (result) {
           updateSearchParams(searchParams, setSearchParams, {
             category: result.props.categoryId,
