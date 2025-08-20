@@ -12,7 +12,6 @@ import {
   getSupplier,
   updateNomenclature,
 } from '@/services/api/warehouse';
-import { getOrganization } from '@/services/api/organization';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/components/context/useContext';
@@ -34,6 +33,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 enum PurposeType {
   SALE = 'SALE',
@@ -73,17 +73,18 @@ const InventoryCreation: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const organizationId = searchParams.get('organizationId') || null;
   const category = searchParams.get('category') || '*';
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
+  const user = useUser();
+
   const filterParams = useMemo(
     () => ({
-      organizationId,
+      organizationId: user.organizationId,
       category,
     }),
-    [organizationId, category]
+    [user, category]
   );
 
   const swrKey = useMemo(() => {
@@ -95,9 +96,9 @@ const InventoryCreation: React.FC = () => {
   }, [filterParams]);
 
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
-    organizationId ? swrKey : null,
+    user.organizationId ? swrKey : null,
     () => {
-      return getNomenclature(Number(organizationId)!, {
+      return getNomenclature(Number(user.organizationId!)!, {
         page: currentPage,
         size: pageSize,
       });
@@ -122,23 +123,6 @@ const InventoryCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-    }
-  );
-
-  const { data: organizationData } = useSWR(
-    [`get-organization`],
-    () => getOrganization({ placementId: undefined }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      onSuccess: data => {
-        if (data && data.length > 0) {
-          updateSearchParams(searchParams, setSearchParams, {
-            organizationId: data[0].id,
-          });
-        }
-      },
     }
   );
 
@@ -181,9 +165,6 @@ const InventoryCreation: React.FC = () => {
       name: item.props.name,
       value: item.props.id,
     })) || [];
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const defaultValues: INVENTORY = {
     name: '',
@@ -348,7 +329,7 @@ const InventoryCreation: React.FC = () => {
           throw new Error('Invalid update data.');
         }
       } else {
-        const result = await createInventory(Number(organizationId));
+        const result = await createInventory(Number(user.organizationId));
         if (result) {
           updateSearchParams(searchParams, setSearchParams, {
             category: result.props.categoryId,
@@ -448,33 +429,6 @@ const InventoryCreation: React.FC = () => {
         count={inventoriesDisplay.length}
         display={['organization']}
       >
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            {t('warehouse.organization')}
-          </label>
-          <Select
-            showSearch
-            allowClear={false}
-            className="w-full sm:w-80"
-            options={organizations.map(item => ({
-              label: item.name,
-              value: String(item.value),
-            }))}
-            value={searchParams.get('organizationId') || ''}
-            onChange={value =>
-              updateSearchParams(searchParams, setSearchParams, {
-                organizationId: value,
-              })
-            }
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </div>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.category')}
