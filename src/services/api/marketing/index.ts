@@ -19,7 +19,7 @@ enum StatusUser {
   DELETED = 'DELETED',
 }
 
-enum LoyaltyProgramStatus {
+export enum LoyaltyProgramStatus {
   ACTIVE = 'ACTIVE',
   PAUSE = 'PAUSE',
 }
@@ -126,7 +126,7 @@ type TagResponse = {
   };
 };
 
-export type TagsType = TagResponse["props"];
+export type TagsType = TagResponse['props'];
 
 type DeleteTagResponse = {
   status: 'SUCCESS';
@@ -144,7 +144,7 @@ type UpdateLoyaltyRequest = {
   organizationIds?: number[];
 };
 
-type LoyaltyProgramsResponse = {
+export type LoyaltyProgramsResponse = {
   props: {
     id: number;
     name: string;
@@ -158,7 +158,10 @@ type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
-  organizationIds: number[];
+  organizations: {
+    id: number;
+    name: string;
+  }[];
   startDate: Date;
   lifetimeDays?: number;
 };

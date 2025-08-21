@@ -62,7 +62,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({}),
+    () => getOrganization({ noLoyaltyProgram: true }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -98,6 +98,16 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     lifetimeDays: undefined,
   };
 
+  const organizationOptions = [
+    ...(loyaltyData?.organizations.map(org => {
+      return {
+        label: org.name,
+        value: org.id,
+      };
+    }) ?? []),
+    ...organizations,
+  ];
+
   const [formData, setFormData] = useState(defaultValues);
 
   const { register, handleSubmit, errors, setValue, reset } =
@@ -118,9 +128,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     name: formData.name,
   };
 
-  if (formData.organizationIds !== loyaltyById?.organizationIds) {
-    payload.organizationIds = formData.organizationIds;
-  }
+  payload.organizationIds = formData.organizationIds;
 
   const { trigger: updateLoyalty } = useSWRMutation(
     ['update-loyalty-program'],
@@ -173,7 +181,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       setIsEditMode(true);
       setFormData({
         name: loyaltyById.name,
-        organizationIds: loyaltyById.organizationIds,
+        organizationIds: loyaltyById.organizations.map(org => org.id),
         lifetimeDays: loyaltyById.lifetimeDays,
       });
       if (loyaltyById.lifetimeDays !== undefined) setSelectedOption('fromThe');
@@ -264,7 +272,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                     value={formData.organizationIds}
                     size="large"
                   >
-                    {organizations.map(tag => (
+                    {organizationOptions?.map(tag => (
                       <Option key={tag.value} value={tag.value}>
                         {tag.label}
                       </Option>
