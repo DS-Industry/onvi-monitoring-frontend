@@ -158,7 +158,10 @@ type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
-  organizationIds: number[];
+  organizations: {
+    id: number;
+    name: string;
+  }[];
   startDate: Date;
   lifetimeDays?: number;
 };
