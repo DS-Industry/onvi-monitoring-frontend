@@ -62,7 +62,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({}),
+    () => getOrganization({ noLoyaltyProgram: true }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
