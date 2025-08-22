@@ -97,6 +97,9 @@ type ClientsParams = {
   page?: number;
   size?: number;
   workerCorporateId?: number;
+  registrationFrom?: string;
+  registrationTo?: string;
+  search?: string;
 };
 
 export type ClientsResponse = {
