@@ -4,6 +4,7 @@ import api from '@/config/axiosConfig';
 enum WAREHOUSE {
   CREATE_NOMENCLATURE = 'user/warehouse/nomenclature',
   CREATE_NOMENCLATURE_FILE = 'user/warehouse/nomenclature-file',
+  GET_NOMENCLATURE_SALE = 'user/warehouse/nomenclature-sale',
   CREATE_CATEGORY = 'user/warehouse/category',
   CREATE_SUPPLIER = 'user/warehouse/supplier',
   GET_WAREHOUSE_POS = 'user/warehouse/pos',
@@ -394,6 +395,15 @@ export async function getNomenclature(
     WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
     { params }
   );  
+  return response.data;
+}
+
+export async function getNomenclatureSale(
+    orgId: number,
+): Promise<NOMENCLATURE_RESPONSE[]> {
+  const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
+      WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`,
+  );
   return response.data;
 }
 
