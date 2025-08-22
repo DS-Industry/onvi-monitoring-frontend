@@ -23,13 +23,14 @@ import {
 import { ColumnsType } from 'antd/es/table';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import EditClientsDrawer from './EditClientsDrawer';
+import { useUser } from '@/hooks/useUserStore';
 
 const Clients: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city') || undefined;
-  const type = (searchParams.get('userType') as UserType) || undefined;
+  const type = (searchParams.get('userType') as UserType) || '*';
   const tagIds = searchParams.get('tagIds') || undefined;
   const phone = searchParams.get('phone') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -40,16 +41,24 @@ const Clients: React.FC = () => {
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const user = useUser();
+
   const { data: clientsData, isLoading: loadingClients } = useSWR(
     [`get-clients`, currentPage, pageSize, placementId, type, tagIds, phone],
     () =>
       getClients({
         placementId: placementId || '*',
-        type: type,
+        contractType:
+          type === 'PHYSICAL'
+            ? 'INDIVIDUAL'
+            : type === 'LEGAL'
+              ? 'CORPORATE'
+              : '*',
         tagIds: undefined,
         phone: phone,
         page: currentPage,
         size: pageSize,
+        workerCorporateId: Number(user.organizationId),
       }),
     {
       revalidateOnFocus: false,
@@ -79,11 +88,12 @@ const Clients: React.FC = () => {
       title: t('marketing.name'),
       dataIndex: 'name',
       key: 'name',
-      render: text => {
+      render: (text, record) => {
         return (
           <Link
             to={{
               pathname: '/marketing/clients/profile',
+              search: `?userId=${record.id}`,
             }}
             className="text-blue-500 hover:text-blue-700 font-semibold"
           >

@@ -91,11 +91,12 @@ type ClientUpdate = {
 
 type ClientsParams = {
   placementId: number | string;
-  type: UserType | string;
+  contractType: UserType | string;
   tagIds?: number[];
   phone?: string;
   page?: number;
   size?: number;
+  workerCorporateId?: number;
 };
 
 export type ClientsResponse = {
