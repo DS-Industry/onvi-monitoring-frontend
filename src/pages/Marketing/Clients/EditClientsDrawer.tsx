@@ -1,19 +1,14 @@
 import { useToast } from '@/components/context/useContext';
-import MultiInput from '@/components/ui/Input/MultiInput';
 import useFormHook from '@/hooks/useFormHook';
 import { getPlacement } from '@/services/api/device';
 import {
   ClientRequestBody,
   createClient,
-  createTag,
   getClientById,
-  getTags,
-  TagsType,
   updateClient,
   UserType,
 } from '@/services/api/marketing';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
-import { getRandomColor } from '@/utils/tableUnits';
 import { Button, DatePicker, Drawer, Form, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -55,7 +50,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const [formData, setFormData] = useState(defaultValues);
   const [viewLoyalty, setViewLoyalty] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city') || undefined;
   const type = (searchParams.get('userType') as UserType) || undefined;
@@ -67,28 +61,11 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
 
-  const {
-    data: tagsData,
-    isLoading: loadingTags,
-    isValidating: validatingTags,
-  } = useSWR([`get-tags`], () => getTags(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
   });
-
-  const tagsOptions = tagsData ? tagsData.map(tag => tag.props) : [];
-
-  const handleSelectionChange = (selected: TagsType[]) => {
-    const selectedIds = selected.map(sel => sel.id);
-    handleInputChange('tagIds', selectedIds);
-  };
 
   const { trigger: createClientTrigger, isMutating } = useSWRMutation(
     ['create-client'],
@@ -124,23 +101,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       })
     );
 
-  const { trigger: createTagTrigger, isMutating: creatingTag } = useSWRMutation(
-    ['create-tag'],
-    async (
-      _,
-      {
-        arg,
-      }: {
-        arg: {
-          name: string;
-          color: string;
-        };
-      }
-    ) => {
-      return createTag(arg);
-    }
-  );
-
   const handleInputChange = (
     field: FieldType,
     value: string | number | number[]
@@ -164,10 +124,9 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const onSubmit = async () => {
     try {
-      const result =
-        clientId
-          ? await updateClientTrigger()
-          : await createClientTrigger();
+      const result = clientId
+        ? await updateClientTrigger()
+        : await createClientTrigger();
       if (result) {
         mutate([
           `get-clients`,
@@ -219,22 +178,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       }));
     }
   }, [clientDataById]);
-
-  const createTags = async () => {
-    const result = await createTagTrigger({
-      name: searchValue,
-      color: getRandomColor(),
-    });
-    try {
-      if (result) {
-        mutate([`get-tags`]);
-      } else {
-        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-      }
-    } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-    }
-  };
 
   return (
     <Drawer
@@ -403,16 +346,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </div>
         )}
-        <MultiInput
-          options={tagsOptions}
-          value={formData.tagIds}
-          onChange={handleSelectionChange}
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          handleChange={createTags}
-          isLoading={creatingTag}
-          loadingOptions={loadingTags || validatingTags}
-        />
         <div className="font-semibold text-2xl text-text01">
           {t('marketing.loyalty')}
         </div>
