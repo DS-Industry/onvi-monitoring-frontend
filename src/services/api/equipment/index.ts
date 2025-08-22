@@ -127,16 +127,16 @@ export type PosResponse = {
 };
 
 export type WorkerResponse = {
-    id: number;
-    name: string;
-    surname: string;
-    middlename: string;
-    organizationName: string;
-    position: string;
-    roleName: string;
-    status: string;
-    createAt: Date;
-}
+  id: number;
+  name: string;
+  surname: string;
+  middlename: string;
+  organizationName: string;
+  position: string;
+  roleName: string;
+  status: string;
+  createAt: Date;
+};
 
 type DeviceResponse = {
   props: {
@@ -325,6 +325,7 @@ type ConsumptionRateCoeffPatchResponse = {
 
 type PosParams = {
   placementId?: number;
+  organizationId?: number;
 };
 
 type ProgramParams = {

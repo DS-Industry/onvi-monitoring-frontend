@@ -1,29 +1,14 @@
-import React, { useState } from 'react';
-import { Steps } from 'antd';
+import React from 'react';
 import Settings from './Settings';
-import Levels from './Levels';
+
 import { useTranslation } from 'react-i18next';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-
-const { Step } = Steps;
+import { useNavigate } from 'react-router-dom';
 
 const RewardsCreation: React.FC = () => {
   const { t } = useTranslation();
-  const [currentStep, setCurrentStep] = useState(0);
 
-  const next = () => setCurrentStep(prev => prev + 1);
-  const prev = () => setCurrentStep(prev => prev - 1);
-
-  const steps = [
-    {
-      title: t('marketing.basic'),
-      content: <Settings nextStep={next} />,
-    },
-    {
-      title: t('marketing.levels'),
-      content: <Levels prevStep={prev} />,
-    },
-  ];
+  const navigate = useNavigate();
 
   return (
     <>
@@ -35,14 +20,12 @@ const RewardsCreation: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-      <div className="p-6 bg-white rounded shadow-md">
-        <Steps current={currentStep} className="mb-6">
-          {steps.map((step, index) => (
-            <Step key={index} title={step.title} />
-          ))}
-        </Steps>
-
-        <div className="mb-6">{steps[currentStep].content}</div>
+      <div>
+        <Settings
+          nextStep={id =>
+            navigate(`/marketing/loyalty/bonus?loyaltyId=${id}&tab=levels`)
+          }
+        />
       </div>
     </>
   );

@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
-import DropdownInput from '@ui/Input/DropdownInput';
-import ExpandedCard from '@ui/Card/ExpandedCard';
-import DiamondImage from '@icons/DiamondIcon.svg?react';
-import Input from '@/components/ui/Input/Input';
-import Alert from '@icons/AlertTriangle.svg?react';
-import DiamondOne from '@/assets/DiamondOne.png';
-import TwoArrow from '@/assets/TwoArrow.png';
-import { Select, Skeleton } from 'antd';
+import { Input } from 'antd';
+
+import { Skeleton } from 'antd';
 import useSWR, { mutate } from 'swr';
-import { getPlacement } from '@/services/api/device';
-import { getOrganization } from '@/services/api/organization';
 import useFormHook from '@/hooks/useFormHook';
 import Button from '@/components/ui/Button/Button';
 import useSWRMutation from 'swr/mutation';
@@ -23,8 +16,13 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/context/useContext';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
+import { getPoses } from '@/services/api/equipment';
 
-const { Option } = Select;
+import { Checkbox, Collapse, Space } from 'antd';
+const { Panel } = Collapse;
+
+const MAX_VISIBLE = 5;
 
 type LoyaltyPrograms = {
   name: string;
@@ -35,51 +33,21 @@ type LoyaltyPrograms = {
 type UpdateLoyalty = {
   loyaltyProgramId: number;
   name?: string;
-  organizationIds?: number[];
 };
 
 type Props = {
-  nextStep?: () => void;
+  nextStep?: (val: number) => void;
 };
 
 const Settings: React.FC<Props> = ({ nextStep }) => {
   const { t } = useTranslation();
-  const [isEditMode, setIsEditMode] = useState(false);
   const { showToast } = useToast();
 
-  const [selectedOption, setSelectedOption] = useState<string>('never');
+  const user = useUser();
 
-  const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-
-  const cities: { name: string; value: number | string }[] = [
-    { name: t('analysis.all'), value: '*' },
-    ...(cityData?.map(item => ({ name: item.region, value: item.id })) || []),
-  ];
-
-  const { data: organizationData } = useSWR(
-    [`get-organization`],
-    () => getOrganization({ noLoyaltyProgram: true }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
-
-  const organizations: { label: string; value: number | string }[] =
-    organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const placementId = searchParams.get('city');
   const loyaltyId = Number(searchParams.get('loyaltyId')) || undefined;
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedOption(event.target.value);
-  };
 
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
     loyaltyId ? [`get-loyalty-program-by-id`] : null,
@@ -98,29 +66,32 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     lifetimeDays: undefined,
   };
 
-  const organizationOptions = [
-    ...(loyaltyData?.organizations.map(org => {
-      return {
-        label: org.name,
-        value: org.id,
-      };
-    }) ?? []),
-    ...organizations,
-  ];
-
   const [formData, setFormData] = useState(defaultValues);
 
-  const { register, handleSubmit, errors, setValue, reset } =
-    useFormHook(formData);
+  const { handleSubmit, errors, reset, setValue } = useFormHook(formData);
 
   const { trigger: createLoyalty, isMutating } = useSWRMutation(
     ['create-loyalty-program'],
-    async () =>
-      createLoyaltyProgram({
-        name: formData.name,
-        organizationIds: formData.organizationIds,
-        lifetimeDays: formData.lifetimeDays,
-      })
+    async (
+      _,
+      {
+        arg,
+      }: {
+        arg: { name: string; organizationIds: number[]; lifetimeDays?: number };
+      }
+    ) => {
+      return createLoyaltyProgram(arg);
+    }
+  );
+
+  const { data: posData } = useSWR(
+    [`get-pos`, user.organizationId],
+    () => getPoses({ organizationId: user.organizationId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
   );
 
   const payload: UpdateLoyalty = {
@@ -128,30 +99,10 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     name: formData.name,
   };
 
-  payload.organizationIds = formData.organizationIds;
-
   const { trigger: updateLoyalty } = useSWRMutation(
     ['update-loyalty-program'],
     async () => updateLoyaltyProgram(payload)
   );
-
-  type FieldType =
-    | 'name'
-    | 'organizationIds'
-    | 'lifetimeDays'
-    | `organizationIds.${number}`;
-
-  const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ['lifetimeDays'];
-    const updatedValue = numericFields.includes(field) ? Number(value) : value;
-    setFormData(prev => ({ ...prev, [field]: updatedValue }));
-    setValue(field, value);
-  };
-
-  const handleChangeTags = (values: number[]) => {
-    setFormData(prev => ({ ...prev, ['organizationIds']: values }));
-    setValue('organizationIds', values);
-  };
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -160,12 +111,18 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const onSubmit = async () => {
     try {
-      const result = await createLoyalty();
+      if (!user.organizationId) return;
+      const result = await createLoyalty({
+        name: formData.name,
+        organizationIds: [user.organizationId],
+        lifetimeDays: formData.lifetimeDays,
+      });
       if (result) {
         updateSearchParams(searchParams, setSearchParams, {
           loyaltyId: result.props.id,
         });
-        nextStep;
+
+        nextStep?.(result.props.id);
         resetForm();
       } else {
         throw new Error('Invalid response from API');
@@ -178,13 +135,11 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   useEffect(() => {
     if (loyaltyById?.id) {
-      setIsEditMode(true);
       setFormData({
         name: loyaltyById.name,
         organizationIds: loyaltyById.organizations.map(org => org.id),
         lifetimeDays: loyaltyById.lifetimeDays,
       });
-      if (loyaltyById.lifetimeDays !== undefined) setSelectedOption('fromThe');
     }
   }, [loyaltyById]);
 
@@ -203,200 +158,113 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
-      <ExpandedCard
-        firstText={t('marketing.basic')}
-        secondText={t('marketing.setup')}
-        Component={BonusImage}
-        handleClick={loyaltyId ? handleUpdate : undefined}
-      >
-        <div className="pl-14 mt-5">
-          {loadingPrograms ? (
-            <div className="space-y-6">
-              <Skeleton active paragraph={{ rows: 3 }} />
-              <Skeleton.Input active size="large" style={{ width: 320 }} />
-              <div className="flex flex-col sm:flex-row gap-4 mt-5">
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
-              </div>
+    <form className="space-y-3">
+      <div>
+        <div className="flex items-center space-x-4">
+          <BonusImage />
+
+          <div>
+            <div className="text-lg font-semibold text-text01">
+              {t('marketing.basic')}
             </div>
-          ) : (
-            <div>
-              <div className="text-2xl font-semibold text-text01">
-                {t('marketing.branch')}
-              </div>
-              <div className="text-text02">
-                <div>{t('marketing.setUpBranch')}</div>
-                <div>{t('marketing.branchCan')}</div>
-              </div>
-              <Input
-                title={t('equipment.name')}
-                classname="w-80"
-                inputType="secondary"
-                value={formData.name}
-                changeValue={e => handleInputChange('name', e.target.value)}
-                error={!!errors.name}
-                {...register('name', {
-                  required: !isEditMode && 'Name is required',
-                })}
-                helperText={errors.name?.message || ''}
-              />
-              <div className="flex flex-col sm:flex-row gap-4 mt-5">
-                <DropdownInput
-                  title={t('marketing.cities')}
-                  value={placementId}
-                  options={cities}
-                  classname="w-64"
-                  inputType="secondary"
-                  onChange={value =>
-                    updateSearchParams(searchParams, setSearchParams, {
-                      city: value,
-                    })
-                  }
+            <div className="text-text02">{t('marketing.setup')}</div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-5">
+        {loadingPrograms ? (
+          <div className="space-y-6">
+            <Skeleton active paragraph={{ rows: 3 }} />
+            <Skeleton.Input active size="large" style={{ width: 320 }} />
+            <div className="flex flex-col sm:flex-row gap-4 mt-5">
+              <Skeleton.Input active size="large" style={{ width: 320 }} />
+              <Skeleton.Input active size="large" style={{ width: 320 }} />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="text-2xl font-semibold text-text01">
+              {t('marketing.branch')}
+            </div>
+            <div className="text-text02">
+              <div>{t('marketing.setUpBranch')}</div>
+              <div>{t('marketing.branchCan')}</div>
+            </div>
+
+            <div className="">
+              <div className="w-80">
+                <label className="block text-sm font-medium mb-1">
+                  {t('equipment.name')}
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={e => {
+                    setFormData(prev => ({ ...prev, name: e.target.value }));
+                    setValue('name', e.target.value, { shouldValidate: true });
+                  }}
+                  status={errors.name ? 'error' : ''}
+                  placeholder={t('equipment.name')}
                 />
-                <div>
-                  <div className="text-sm text-text02">
-                    {t('warehouse.organization')}
+                {errors.name && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.name.message}
                   </div>
-                  <Select
-                    mode="tags"
-                    allowClear
-                    placeholder="Select organizations"
-                    dropdownStyle={{ zIndex: 9999 }}
-                    style={{ width: '320px' }}
-                    status={errors.organizationIds ? 'error' : undefined}
-                    {...register('organizationIds', {
-                      required: !isEditMode && 'Organizations is required',
-                    })}
-                    onChange={handleChangeTags}
-                    value={formData.organizationIds}
-                    size="large"
-                  >
-                    {organizationOptions?.map(tag => (
-                      <Option key={tag.value} value={tag.value}>
-                        {tag.label}
-                      </Option>
-                    ))}
-                  </Select>
-                  {!!errors.organizationIds && (
-                    <div
-                      className={`text-[11px] font-normal ${errors.organizationIds ? 'text-errorFill' : 'text-text02'}`}
-                    >
-                      {errors.organizationIds.message || ''}
+                )}
+              </div>
+              <div className="mt-6">
+                <div className="mt-6">
+                  {posData && posData.length > 0 && (
+                    <div>
+                      <Space direction="vertical" className="w-full">
+                        {posData.slice(0, MAX_VISIBLE).map(pos => (
+                          <Checkbox key={pos.id} value={pos.id} checked>
+                            {pos.name} — {pos.address}
+                          </Checkbox>
+                        ))}
+
+                        {posData.length > MAX_VISIBLE && (
+                          <Collapse ghost>
+                            <Panel
+                              header={`+${posData.length - MAX_VISIBLE} more`}
+                              key="more"
+                            >
+                              <Space direction="vertical" className="w-full">
+                                {posData.slice(MAX_VISIBLE).map(pos => (
+                                  <Checkbox key={pos.id} value={pos.id}>
+                                    {pos.name} — {pos.address}
+                                  </Checkbox>
+                                ))}
+                              </Space>
+                            </Panel>
+                          </Collapse>
+                        )}
+                      </Space>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </ExpandedCard>
-      <ExpandedCard
-        firstText={t('marketing.bonus')}
-        secondText={t('marketing.setUpAcc')}
-        Component={DiamondImage}
-      >
-        <div className="px-4 sm:px-8 lg:pl-14 space-y-6">
-          <div className="text-2xl text-text01 font-semibold mb-4">
-            {t('marketing.write')}
           </div>
+        )}
+      </div>
 
-          <div className="bg-Bonus-Image bg-blend-multiply h-auto min-h-40 rounded-lg w-full sm:w-96 bg-[#0a0a0b]/70 px-4 py-6 space-y-6">
-            <div className="text-background02 font-semibold text-2xl sm:text-3xl">
-              {t('marketing.ex')}
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
-              <div className="flex justify-center sm:justify-start">
-                <img src={DiamondOne} />
-              </div>
-
-              <div className="flex justify-center sm:justify-start">
-                <img src={TwoArrow} />
-              </div>
-
-              <Input
-                label={t('marketing.1')}
-                inputType="primary"
-                showIcon={true}
-                classname="w-full sm:w-48"
-                IconComponent={
-                  <div className="text-3xl font-semibold text-text01">₽</div>
-                }
-              />
-            </div>
-          </div>
-          <div className="max-w-full lg:max-w-[560px]">
-            <div className="text-2xl text-text01 font-semibold">
-              {t('marketing.burni')}
-            </div>
-            <div className="text-text02">{t('marketing.bonusesCan')}</div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {['never', 'fromThe'].map(option => (
-              <div
-                key={option}
-                className={`flex items-center gap-2 ${selectedOption === option ? 'bg-background06' : 'bg-disabledFill'} rounded-md px-5 py-4`}
-              >
-                <input
-                  type="radio"
-                  name="marketing"
-                  value={option}
-                  checked={selectedOption === option}
-                  onChange={handleChange}
-                  disabled={!!loyaltyId}
-                />
-                <div
-                  className={
-                    selectedOption === option ? 'text-primary02' : 'text-text01'
-                  }
-                >
-                  {t(`marketing.${option}`)}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {selectedOption !== 'never' && (
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-disabledFill rounded-lg px-5 py-4">
-                <Alert />
-                <div className="text-text02">{t('marketing.after')}</div>
-              </div>
-              <Input
-                type="number"
-                inputType="secondary"
-                value={formData.lifetimeDays}
-                title={t('marketing.burnout')}
-                classname="w-full sm:w-40"
-                changeValue={e =>
-                  handleInputChange('lifetimeDays', e.target.value)
-                }
-                {...register('lifetimeDays')}
-                disabled={!!loyaltyId}
-              />
-            </div>
-          )}
-        </div>
-      </ExpandedCard>
-      {loyaltyId === undefined && (
-        <div className="flex space-x-4">
+      <div className="flex space-x-4">
+        {loyaltyId === undefined ? (
           <Button
-            title={t('organizations.cancel')}
-            type="outline"
-            handleClick={() => {
-              resetForm();
-            }}
+            title={t('common.create')}
+            isLoading={isMutating}
+            handleClick={() => handleSubmit(onSubmit)()}
+            form={false}
           />
+        ) : (
           <Button
             title={t('organizations.save')}
-            form={true}
             isLoading={isMutating}
-            handleClick={() => {}}
+            handleClick={handleUpdate}
+            form={false}
           />
-        </div>
-      )}
+        )}
+      </div>
     </form>
   );
 };

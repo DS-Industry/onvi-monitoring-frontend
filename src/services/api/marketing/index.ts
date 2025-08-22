@@ -322,9 +322,11 @@ export async function updateLoyaltyProgram(
   return response.data;
 }
 
-export async function getLoyaltyPrograms(): Promise<LoyaltyProgramsResponse[]> {
+export async function getLoyaltyPrograms(
+  orgId?: number
+): Promise<LoyaltyProgramsResponse[]> {
   const response: AxiosResponse<LoyaltyProgramsResponse[]> = await api.get(
-    MARKETING.LOYALTY + `/programs`
+    MARKETING.LOYALTY + `/programs?organizationId=${orgId || ''}`
   );
 
   return response.data;

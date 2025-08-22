@@ -14,16 +14,19 @@ import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 
 import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
+import { useUser } from '@/hooks/useUserStore';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const navigate = useNavigate();
 
+  const user = useUser();
+
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyProgramsResponse[]>(
       'get-loyalty-programs',
-      getLoyaltyPrograms,
+      () => getLoyaltyPrograms(user.organizationId),
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
