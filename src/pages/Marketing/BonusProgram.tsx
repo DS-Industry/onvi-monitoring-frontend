@@ -1,12 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 const Settings = React.lazy(() => import('./Settings'));
 const Levels = React.lazy(() => import('./Levels'));
 const Events = React.lazy(() => import('./Events'));
 import GenericTabs from '@ui/Tabs/GenericTab';
+import { useSearchParams } from 'react-router-dom';
+
+type TAB = 'settings' | 'levels' | 'events';
 
 const BonusProgram: React.FC = () => {
   const { t } = useTranslation();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tabFromUrl = searchParams.get('tab') as TAB;
+  const [activeTab, setActiveTab] = useState<TAB>(tabFromUrl || 'settings');
+
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key as TAB);
+
+    searchParams.set('tab', key);
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const tabItems = [
     {
@@ -31,7 +52,8 @@ const BonusProgram: React.FC = () => {
       <div className="bg-white p-6 rounded-xl shadow-md">
         <GenericTabs
           tabs={tabItems}
-          defaultActiveKey="settings"
+          activeKey={activeTab}
+          onChange={handleTabChange}
           tabBarGutter={32}
           tabBarStyle={{ marginBottom: 24 }}
         />

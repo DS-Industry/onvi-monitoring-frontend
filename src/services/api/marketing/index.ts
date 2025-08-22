@@ -19,7 +19,7 @@ enum StatusUser {
   DELETED = 'DELETED',
 }
 
-enum LoyaltyProgramStatus {
+export enum LoyaltyProgramStatus {
   ACTIVE = 'ACTIVE',
   PAUSE = 'PAUSE',
 }
@@ -91,11 +91,12 @@ type ClientUpdate = {
 
 type ClientsParams = {
   placementId: number | string;
-  type: UserType | string;
+  contractType: UserType | string;
   tagIds?: number[];
   phone?: string;
   page?: number;
   size?: number;
+  workerCorporateId?: number;
 };
 
 export type ClientsResponse = {
@@ -126,7 +127,7 @@ type TagResponse = {
   };
 };
 
-export type TagsType = TagResponse["props"];
+export type TagsType = TagResponse['props'];
 
 type DeleteTagResponse = {
   status: 'SUCCESS';
@@ -144,7 +145,7 @@ type UpdateLoyaltyRequest = {
   organizationIds?: number[];
 };
 
-type LoyaltyProgramsResponse = {
+export type LoyaltyProgramsResponse = {
   props: {
     id: number;
     name: string;
@@ -158,7 +159,10 @@ type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
-  organizationIds: number[];
+  organizations: {
+    id: number;
+    name: string;
+  }[];
   startDate: Date;
   lifetimeDays?: number;
 };
@@ -319,9 +323,11 @@ export async function updateLoyaltyProgram(
   return response.data;
 }
 
-export async function getLoyaltyPrograms(): Promise<LoyaltyProgramsResponse[]> {
+export async function getLoyaltyPrograms(
+  orgId?: number
+): Promise<LoyaltyProgramsResponse[]> {
   const response: AxiosResponse<LoyaltyProgramsResponse[]> = await api.get(
-    MARKETING.LOYALTY + `/programs`
+    MARKETING.LOYALTY + `/programs?organizationId=${orgId || ''}`
   );
 
   return response.data;

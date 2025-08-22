@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import PieChart from '@icons/PieChart.png';
 import Check from '@/assets/icons/CheckCircle.png';
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { getClientById } from '@/services/api/marketing';
 import { Skeleton } from 'antd';
@@ -14,12 +14,16 @@ const { Title, Text } = Typography;
 
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const editClientId = location.state.ownerId;
+
+  const [searchParams] = useSearchParams();
+
+  const userId = searchParams.get('userId')
+    ? Number(searchParams.get('userId'))
+    : undefined;
 
   const { data: clientData, isValidating: loadingClients } = useSWR(
-    editClientId !== 0 ? [`get-client-by-id`] : null,
-    () => getClientById(editClientId),
+    userId ? [`get-client-by-id`] : null,
+    () => getClientById(userId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
