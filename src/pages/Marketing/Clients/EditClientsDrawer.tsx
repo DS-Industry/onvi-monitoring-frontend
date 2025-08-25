@@ -16,16 +16,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import {
-  Button,
-  DatePicker,
-  Drawer,
-  Form,
-  Input,
-  Radio,
-  Select,
-  Spin,
-} from 'antd';
+import { Button, DatePicker, Drawer, Form, Input, Select, Spin } from 'antd';
 import { Option } from 'antd/es/mentions';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -66,8 +57,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const [formData, setFormData] = useState<ClientRequestBody>(defaultValues);
 
-  const [cardMode, setCardMode] = useState<'select' | 'custom'>('select');
-
   const [searchParams] = useSearchParams();
   const placementIdParam = searchParams.get('city') || undefined;
   const typeParam =
@@ -88,7 +77,10 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const user = useUser();
 
-  const params: GetCardsPayload = { organizationId: user.organizationId };
+  const params: GetCardsPayload = {
+    organizationId: user.organizationId,
+    unnasigned: true,
+  };
 
   const { data: cards } = useSWR(
     ['get-cards', params],
@@ -137,6 +129,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         devNumber: clientDataById.card?.devNumber,
         number: clientDataById.card?.number,
         monthlyLimit: clientDataById.card?.monthlyLimit,
+        cardId: clientDataById.card?.id,
       });
     }
   }, [clientDataById]);
@@ -355,66 +348,29 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
           <div className="space-y-6">
             <div className="space-y-4">
-              <Radio.Group
-                value={cardMode}
-                onChange={e => setCardMode(e.target.value)}
-              >
-                <Radio value="select">{t('marketing.useExistingCard')}</Radio>
-                <Radio value="custom">{t('marketing.enterCustomCard')}</Radio>
-              </Radio.Group>
-
               <div>
-                {cardMode === 'select' && (
-                  <Select
-                    className="w-80"
-                    placeholder={t('marketing.selectCard')}
-                    onChange={value =>
-                      handleInputChange('cardId', Number(value))
-                    }
-                    value={formData.cardId}
-                  >
-                    {cards?.map(card => (
-                      <Option key={String(card.id)} value={String(card.id)}>
-                        {card.number}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-
-                {cardMode === 'custom' && (
-                  <>
-                    <div>
-                      <div className="text-text02 text-sm">
-                        {t('marketing.card')}
-                      </div>
-                      <Input
-                        type="number"
-                        className="w-80"
-                        value={formData.number}
-                        {...register('number')}
-                        onChange={e =>
-                          handleInputChange('number', e.target.value)
-                        }
-                        size="large"
-                      />
-                    </div>
-                    <div>
-                      <div className="text-text02 text-sm">
-                        {t('marketing.un')}
-                      </div>
-                      <Input
-                        type="number"
-                        className="w-80"
-                        value={formData.devNumber}
-                        {...register('devNumber')}
-                        onChange={e =>
-                          handleInputChange('devNumber', e.target.value)
-                        }
-                        size="large"
-                      />
-                    </div>
-                  </>
-                )}
+                <Select
+                  className="w-80"
+                  placeholder={t('marketing.selectCard')}
+                  onChange={value => handleInputChange('cardId', Number(value))}
+                  value={
+                    formData.cardId !== undefined
+                      ? String(formData.cardId)
+                      : undefined
+                  }
+                >
+                  {[
+                    ...(cards || []),
+                    {
+                      id: clientDataById?.card.id,
+                      number: clientDataById?.card.number,
+                    },
+                  ]?.map(card => (
+                    <Option key={String(card.id)} value={String(card.id)}>
+                      {card.number}
+                    </Option>
+                  ))}
+                </Select>
               </div>
             </div>
             {formData.contractType === ContractType.CORPORATE && (

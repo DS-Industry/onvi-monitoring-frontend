@@ -443,6 +443,7 @@ export async function updateBenefit(
 export type GetCardsPayload = {
   organizationId?: number;
   unqNumber?: string;
+  unnasigned?: boolean;
 };
 
 export type GetCardsResponse = {
