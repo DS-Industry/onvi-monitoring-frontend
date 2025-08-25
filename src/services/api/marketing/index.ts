@@ -81,17 +81,6 @@ type ClientResponseBody = {
   };
 };
 
-type ClientUpdate = {
-  clientId: number;
-  name?: string;
-  type?: UserType;
-  inn?: string;
-  comment?: string;
-  placementId?: number;
-  monthlyLimit?: number;
-  tagIds?: number[];
-};
-
 type ClientsParams = {
   placementId: number | string;
   contractType: UserType | string;
@@ -439,6 +428,17 @@ export async function updateBenefit(
   );
   return response.data;
 }
+
+export type ClientUpdate = {
+  clientId: number;
+  name?: string;
+  type?: UserType;
+  inn?: string;
+  comment?: string;
+  placementId?: number;
+  monthlyLimit?: number;
+  tagIds?: number[];
+};
 
 export type GetCardsPayload = {
   organizationId?: number;

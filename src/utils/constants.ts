@@ -69,6 +69,6 @@ export const groups: { name: string; value: string }[] = [
 ];
 
 export enum ContractType {
-  CORPORATE = 'Корпоративный',
-  INDIVIDUAL = 'Физ. Лицо',
+  CORPORATE = 'CORPORATE',
+  INDIVIDUAL = 'INDIVIDUAL',
 }
