@@ -467,3 +467,68 @@ export async function getCards(
   );
   return response.data.map(d => d.props);
 }
+
+export type ClientKeyStatsDto = {
+  clientId: number;
+  organizationId: number;
+};
+
+export type UserKeyStatsResponseDto = {
+  clientId: number;
+  organizationId: number;
+  organizationName: string;
+  clientName: string;
+  totalAmountSpent: number;
+  averageOrderAmount: number;
+  totalOrdersCount: number;
+  cardBalance: number;
+  lastOrderDate?: Date;
+  firstOrderDate?: Date;
+  cardNumber: string;
+  cardDevNumber: string;
+};
+
+export async function getUserKeyStatsByOrganizationId(
+  params: ClientKeyStatsDto
+): Promise<UserKeyStatsResponseDto> {
+  const response: AxiosResponse<UserKeyStatsResponseDto> = await api.get(
+    'user/loyalty/user-key-stats',
+    { params }
+  );
+  return response.data;
+}
+
+export type ClientLoyaltyStatsDto = {
+  clientId: number;
+  organizationId: number;
+};
+
+export type ClientLoyaltyStatsResponseDto = {
+  clientId: number;
+  organizationId: number;
+  organizationName: string;
+  clientName: string;
+  totalPurchaseAmount: number;
+  accumulatedAmount: number;
+  amountToNextTier: number;
+  activeBonuses: number;
+  totalBonusEarned: number;
+  cardNumber: string;
+  cardDevNumber: string;
+  currentTierName?: string;
+  nextTierName?: string;
+  currentTierId?: number;
+  nextTierId?: number;
+};
+
+export async function getClientLoyaltyStats(
+  params: ClientLoyaltyStatsDto
+): Promise<ClientLoyaltyStatsResponseDto> {
+  const response: AxiosResponse<ClientLoyaltyStatsResponseDto> = await api.get(
+    'user/loyalty/client-loyalty-stats',
+    { params }
+  );
+  return response.data;
+}
+
+

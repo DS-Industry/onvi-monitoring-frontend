@@ -1,31 +1,92 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import useSWR from 'swr';
-import { getClientById } from '@/services/api/marketing';
-import { Row, Col, Card, Typography, Button as AntButton } from 'antd';
+import { getClientById, getClientLoyaltyStats } from '@/services/api/marketing';
+import { Row, Col, Card, Typography, Alert } from 'antd';
 import {
   ClockCircleOutlined,
-  FireOutlined,
-  PlusOutlined,
 } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Title, Text } = Typography;
 
 const Loyalty: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const editClientId = location.state.ownerId;
 
-  const { data: clientData } = useSWR(
-    editClientId !== 0 ? [`get-client-by-id`] : null,
-    () => getClientById(editClientId),
+  const user = useUser();
+    
+  const clientId = user.id ?? undefined
+
+  const { data: clientData, error: clientError, isLoading: clientLoading } = useSWR(
+    clientId ? [`get-client-by-id`, clientId] : null,
+    () => getClientById(clientId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
     }
   );
+
+  const { data: loyaltyStats, error: loyaltyError, isLoading: loyaltyLoading } = useSWR(
+    clientId && clientData ? [`get-client-loyalty-stats`, clientId, clientData] : null,
+    () => getClientLoyaltyStats({
+      clientId: clientData?.id || 0,
+      organizationId: user?.organizationId || 0,
+    }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  if (!clientId) {
+    return (
+      <Alert
+        message="No Client ID"
+        description="Please provide a client ID in the URL parameters"
+        type="warning"
+        showIcon
+        style={{ margin: '20px' }}
+      />
+    );
+  }
+
+  if (clientLoading || loyaltyLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <div>Loading client loyalty data...</div>
+      </div>
+    );
+  }
+
+  if (clientError || loyaltyError) {
+    return (
+      <Alert
+        message="Error"
+        description="Failed to load client loyalty data"
+        type="error"
+        showIcon
+        style={{ margin: '20px' }}
+      />
+    );
+  }
+
+  if (!clientData || !loyaltyStats) {
+    return (
+      <Alert
+        message="No Data"
+        description="No client loyalty data available"
+        type="info"
+        showIcon
+        style={{ margin: '20px' }}
+      />
+    );
+  }
+
+  const progressPercentage = loyaltyStats.amountToNextTier > 0 
+    ? Math.min((loyaltyStats.accumulatedAmount / (loyaltyStats.accumulatedAmount + loyaltyStats.amountToNextTier)) * 100, 100)
+    : 100;
 
   return (
     <>
@@ -41,7 +102,7 @@ const Loyalty: React.FC = () => {
                 {t('marketing.card')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
-                {clientData?.card?.devNumber || '-'}
+                {loyaltyStats.cardDevNumber || '-'}
               </div>
             </div>
 
@@ -50,7 +111,7 @@ const Loyalty: React.FC = () => {
                 {t('marketing.un')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
-                {clientData?.card?.number || '-'}
+                {loyaltyStats.cardNumber || '-'}
               </div>
             </div>
 
@@ -59,7 +120,7 @@ const Loyalty: React.FC = () => {
                 {t('equipment.start')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 w-32 text-text01">
-                01.06.2023
+                {clientData.createdAt ? new Date(clientData.createdAt).toLocaleDateString('ru-RU') : 'N/A'}
               </div>
             </div>
           </Card>
@@ -77,7 +138,7 @@ const Loyalty: React.FC = () => {
             <Row justify="space-between" className="my-2">
               <Col className="w-20">
                 <Title level={5} className="text-text01 m-0">
-                  12 500
+                  {loyaltyStats.accumulatedAmount.toLocaleString()}
                 </Title>
                 <Text className="text-sm text-text02">
                   {t('marketing.acc')}
@@ -86,7 +147,7 @@ const Loyalty: React.FC = () => {
               <Col className="w-28">
                 <div className="text-end">
                   <Title level={5} className="text-text01 m-0">
-                    2 500
+                    {loyaltyStats.amountToNextTier.toLocaleString()}
                   </Title>
                   <Text className="text-sm text-text02">
                     {t('marketing.until')}
@@ -99,7 +160,11 @@ const Loyalty: React.FC = () => {
               {Array.from({ length: 20 }).map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2.5 h-5 ${index < 15 ? 'bg-primary02/30' : 'bg-background07'}`}
+                  className={`w-2.5 h-5 ${
+                    index < Math.floor((progressPercentage / 100) * 20) 
+                      ? 'bg-primary02/30' 
+                      : 'bg-background07'
+                  }`}
                 />
               ))}
             </div>
@@ -107,7 +172,7 @@ const Loyalty: React.FC = () => {
             <Row justify="space-between" className="mt-6">
               <Col>
                 <Text className="text-lg font-semibold text-text01">
-                  {t('marketing.newbie')}
+                  {loyaltyStats.currentTierName || t('marketing.newbie')}
                 </Text>
                 <div className="text-sm text-text02">
                   {t('marketing.current')}
@@ -115,7 +180,7 @@ const Loyalty: React.FC = () => {
               </Col>
               <Col className="text-end">
                 <Text className="text-lg font-semibold text-text01">
-                  {t('marketing.amateur')}
+                  {loyaltyStats.nextTierName || t('marketing.amateur')}
                 </Text>
                 <div className="text-sm text-text02">{t('marketing.next')}</div>
               </Col>
@@ -130,90 +195,39 @@ const Loyalty: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} md={24} lg={8}>
-          <div className="rounded-2xl shadow-card h-80">
-            <div className="flex flex-col h-full">
-              <div className="flex-1 bg-white p-4">
-                <Row className="flex justify-between">
-                  <Title level={4} className="text-text01">
-                    {t('marketing.bonus')}
-                  </Title>
-                  <AntButton
-                    icon={<PlusOutlined />}
-                    type="default"
-                    className="ml-auto border-primary02 text-primary02 w-28"
-                  >
-                    {t('marketing.accrue')}
-                  </AntButton>
-                </Row>
+        <Col xs={24} md={12} lg={8}>
+          <Card className="rounded-2xl shadow-card h-80">
+            <Title level={4} className="text-text01 mb-4">
+              {t('marketing.bonus')}
+            </Title>
 
-                <div className="mt-4">
-                  <Text className="text-xs font-semibold text-text01">
-                    {t('marketing.detail')}
-                  </Text>
-                  <Row justify="space-between" className="mt-2">
-                    <Col className="w-20">
-                      <Text className="text-lg font-semibold text-text01">
-                        100
-                      </Text>
-                      <div className="text-sm text-text02">
-                        {t('marketing.active')}
-                      </div>
-                    </Col>
-                    <Col className="w-20">
-                      <Text className="text-lg font-semibold text-text01">
-                        0
-                      </Text>
-                      <div className="text-sm text-text02">
-                        {t('marketing.wait')}
-                      </div>
-                    </Col>
-                    <Col className="w-24">
-                      <div className="flex items-center">
-                        <FireOutlined className="text-warningFill mr-1" />
-                        <Text className="text-lg font-semibold text-warningFill">
-                          100
-                        </Text>
-                      </div>
-                      <div className="text-sm text-text02">
-                        {t('marketing.will')}
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </div>
-
-              <div className="flex-1 bg-background07 p-4 rounded-b-2xl">
-                <Text className="text-xs font-semibold text-text01">
-                  {t('marketing.during')}
-                </Text>
-                <Row justify="space-between" className="mt-2">
-                  <Col>
-                    <Text className="text-lg font-semibold text-text01">
-                      100
-                    </Text>
-                    <div className="text-sm text-text02">
-                      {t('marketing.accr')}
-                    </div>
-                  </Col>
-                  <Col>
-                    <Text className="text-lg font-semibold text-text01">0</Text>
-                    <div className="text-sm text-text02">
-                      {t('marketing.writ')}
-                    </div>
-                  </Col>
-                  <Col>
-                    <Text className="text-lg font-semibold text-text01">
-                      100
-                    </Text>
-                    <div className="text-sm text-text02">
-                      {t('marketing.burn')}
-                    </div>
-                  </Col>
-                </Row>
+            <div className="mb-3">
+              <Text type="secondary" className="text-sm">
+                {t('marketing.active')}
+              </Text>
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+                {loyaltyStats.activeBonuses.toLocaleString()}
               </div>
             </div>
-          </div>
+
+            <div className="mb-3">
+              <Text type="secondary" className="text-sm">
+                {t('marketing.total')}
+              </Text>
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+                {loyaltyStats.totalBonusEarned.toLocaleString()}
+              </div>
+            </div>
+
+            <div>
+              <Text type="secondary" className="text-sm">
+                {t('marketing.purchase')}
+              </Text>
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+                {loyaltyStats.totalPurchaseAmount.toLocaleString()}
+              </div>
+            </div>
+          </Card>
         </Col>
       </Row>
     </>
