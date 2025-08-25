@@ -466,6 +466,7 @@
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
+    "editClient": "Edit Client",
     "type": "Client type",
     "phys": "Phys. face",
     "name": "Client name",
@@ -640,7 +641,9 @@
     "updateBen": "Update Benefit",
     "CASHBACK": "Cashback",
     "DISCOUNT": "Discount",
-    "GIFT_POINTS": "Gift Points"
+    "GIFT_POINTS": "Gift Points",
+    "useExistingCard": "Select a card",
+    "enterCustomCard": "Enter a custom card"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -723,6 +726,7 @@
   },
   "tables": {
     "ACTIVE": "ACTIVE",
+    "BLOCKED": "BLOCKED",
     "VERIFICATE": "VERIFICATE",
     "Weekly": "Weekly",
     "Daily": "Daily",

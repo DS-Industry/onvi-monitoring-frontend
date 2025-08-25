@@ -30,6 +30,7 @@ import {
 
 import {
   ALL_PAGE_SIZES,
+  ContractType,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
@@ -138,8 +139,11 @@ const Clients: React.FC = () => {
     () => [
       {
         title: t('marketing.type'),
-        dataIndex: 'type',
-        key: 'type',
+        dataIndex: 'contractType',
+        key: 'contractType',
+        render: (text: string) => (
+          <>{ContractType[text as keyof typeof ContractType]}</>
+        ),
       },
       {
         title: t('marketing.name'),
@@ -167,11 +171,7 @@ const Clients: React.FC = () => {
         dataIndex: 'status',
         key: 'status',
       },
-      {
-        title: t('marketing.tags'),
-        dataIndex: 'tags',
-        key: 'tags',
-      },
+
       {
         title: t('equipment.comment'),
         dataIndex: 'comment',

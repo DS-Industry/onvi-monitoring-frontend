@@ -1,15 +1,32 @@
 import { useToast } from '@/components/context/useContext';
 import useFormHook from '@/hooks/useFormHook';
+import { useUser } from '@/hooks/useUserStore';
 import { getPlacement } from '@/services/api/device';
 import {
   ClientRequestBody,
   createClient,
+  getCards,
+  GetCardsPayload,
   getClientById,
   updateClient,
-  UserType,
 } from '@/services/api/marketing';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
-import { Button, DatePicker, Drawer, Form, Input, Select, Spin } from 'antd';
+
+import {
+  ContractType,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import {
+  Button,
+  DatePicker,
+  Drawer,
+  Form,
+  Input,
+  Radio,
+  Select,
+  Spin,
+} from 'antd';
+import { Option } from 'antd/es/mentions';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +49,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const { showToast } = useToast();
 
   const defaultValues: ClientRequestBody = {
-    type: '' as UserType,
+    contractType: '' as ContractType,
     name: '',
     birthday: undefined,
     phone: '',
@@ -40,19 +57,21 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     comment: '',
     gender: undefined,
     inn: undefined,
-    tagIds: [],
     placementId: undefined,
     devNumber: undefined,
     number: undefined,
     monthlyLimit: undefined,
+    cardId: undefined,
   };
 
   const [formData, setFormData] = useState<ClientRequestBody>(defaultValues);
-  const [viewLoyalty, setViewLoyalty] = useState(false);
+
+  const [cardMode, setCardMode] = useState<'select' | 'custom'>('select');
 
   const [searchParams] = useSearchParams();
   const placementIdParam = searchParams.get('city') || undefined;
-  const typeParam = (searchParams.get('userType') as UserType) || undefined;
+  const typeParam =
+    (searchParams.get('contractType') as ContractType) || undefined;
   const tagIdsParam = searchParams.get('tagIds') || undefined;
   const phoneParam = searchParams.get('phone') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -66,6 +85,20 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     revalidateOnReconnect: false,
     keepPreviousData: true,
   });
+
+  const user = useUser();
+
+  const params: GetCardsPayload = { organizationId: user.organizationId };
+
+  const { data: cards } = useSWR(
+    ['get-cards', params],
+    (keyTuple: [string, GetCardsPayload]) => getCards(keyTuple[1]),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { trigger: createClientTrigger, isMutating } = useSWRMutation(
     'create-client',
@@ -90,11 +123,10 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   useEffect(() => {
     if (clientDataById) {
       setFormData({
-        type: clientDataById.type,
+        contractType: clientDataById.contractType,
         name: clientDataById.name,
         phone: clientDataById.phone,
         comment: clientDataById.comment,
-        tagIds: clientDataById.tags.map(tag => tag.id),
         placementId: clientDataById.placementId,
         birthday: clientDataById.birthday
           ? dayjs(clientDataById.birthday).toDate()
@@ -106,7 +138,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         number: clientDataById.card?.number,
         monthlyLimit: clientDataById.card?.monthlyLimit,
       });
-      setViewLoyalty(Boolean(clientDataById.card?.number));
     }
   }, [clientDataById]);
 
@@ -124,7 +155,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const resetForm = () => {
     setFormData(defaultValues);
-    setViewLoyalty(false);
     reset();
     onClose();
   };
@@ -155,7 +185,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   return (
     <Drawer
-      title={t('routes.technicalTasks')}
+      title={clientId ? t('marketing.editClient') : t('marketing.new')}
       placement="right"
       size="large"
       onClose={resetForm}
@@ -168,8 +198,15 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         </div>
       ) : (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.fields')}
+          </span>
+          <span className="text-errorFill">*</span>
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.are')}
+          </span>
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-            {clientId ? t('marketing.edit') : t('marketing.new')}
+            {t('warehouse.basic')}
           </div>
           <div>
             <div className="text-text02 text-sm">{t('marketing.type')}</div>
@@ -180,17 +217,15 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               <Select
                 placeholder={t('marketing.phys')}
                 className="!w-96"
-                value={formData.type}
                 options={[
-                  { label: t('marketing.physical'), value: 'PHYSICAL' },
-                  { label: t('marketing.legal'), value: 'LEGAL' },
+                  { label: t('marketing.physical'), value: 'INDIVIDUAL' },
+                  { label: t('marketing.legal'), value: 'CORPORATE' },
                 ]}
-                {...register('type', {
-                  required:
-                    clientId === undefined && t('validation.typeRequired'),
-                })}
-                onChange={value => handleInputChange('type', value)}
-                status={errors.type ? 'error' : ''}
+                value={formData.contractType || undefined}
+                onChange={value => {
+                  setValue('contractType', value, { shouldValidate: true });
+                  handleInputChange('contractType', value);
+                }}
                 size="large"
               />
             </Form.Item>
@@ -305,7 +340,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               size="large"
             />
           </div>
-          {formData.type === 'LEGAL' && (
+          {formData.contractType === ContractType.CORPORATE && (
             <div>
               <div className="text-text02 text-sm">{t('marketing.inn')}</div>
               <Input
@@ -317,62 +352,90 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               />
             </div>
           )}
-          <div className="font-semibold text-2xl text-text01">
-            {t('marketing.loyalty')}
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              className="w-[18px] h-[18px]"
-              checked={viewLoyalty}
-              onChange={() => setViewLoyalty(prev => !prev)}
-            />
-            <div>{t('marketing.gen')}</div>
+
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <Radio.Group
+                value={cardMode}
+                onChange={e => setCardMode(e.target.value)}
+              >
+                <Radio value="select">{t('marketing.useExistingCard')}</Radio>
+                <Radio value="custom">{t('marketing.enterCustomCard')}</Radio>
+              </Radio.Group>
+
+              <div>
+                {cardMode === 'select' && (
+                  <Select
+                    className="w-80"
+                    placeholder={t('marketing.selectCard')}
+                    onChange={value =>
+                      handleInputChange('cardId', Number(value))
+                    }
+                    value={formData.cardId}
+                  >
+                    {cards?.map(card => (
+                      <Option key={String(card.id)} value={String(card.id)}>
+                        {card.number}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+
+                {cardMode === 'custom' && (
+                  <>
+                    <div>
+                      <div className="text-text02 text-sm">
+                        {t('marketing.card')}
+                      </div>
+                      <Input
+                        type="number"
+                        className="w-80"
+                        value={formData.number}
+                        {...register('number')}
+                        onChange={e =>
+                          handleInputChange('number', e.target.value)
+                        }
+                        size="large"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-text02 text-sm">
+                        {t('marketing.un')}
+                      </div>
+                      <Input
+                        type="number"
+                        className="w-80"
+                        value={formData.devNumber}
+                        {...register('devNumber')}
+                        onChange={e =>
+                          handleInputChange('devNumber', e.target.value)
+                        }
+                        size="large"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            {formData.contractType === ContractType.CORPORATE && (
+              <div>
+                <div className="text-text02 text-sm">
+                  {t('marketing.limit')}
+                </div>
+                <Input
+                  type="number"
+                  className="w-80"
+                  value={formData.monthlyLimit}
+                  {...register('monthlyLimit')}
+                  onChange={e =>
+                    handleInputChange('monthlyLimit', e.target.value)
+                  }
+                  size="large"
+                />
+              </div>
+            )}
           </div>
 
-          {viewLoyalty && (
-            <div className="space-y-6">
-              <div>
-                <div className="text-text02 text-sm">{t('marketing.card')}</div>
-                <Input
-                  type="number"
-                  className="w-80"
-                  value={formData.number}
-                  {...register('number')}
-                  onChange={e => handleInputChange('number', e.target.value)}
-                  size="large"
-                />
-              </div>
-              <div>
-                <div className="text-text02 text-sm">{t('marketing.un')}</div>
-                <Input
-                  type="number"
-                  className="w-80"
-                  value={formData.devNumber}
-                  {...register('devNumber')}
-                  onChange={e => handleInputChange('devNumber', e.target.value)}
-                  size="large"
-                />
-              </div>
-              {formData.type === 'LEGAL' && (
-                <div>
-                  <div className="text-text02 text-sm">
-                    {t('marketing.limit')}
-                  </div>
-                  <Input
-                    type="number"
-                    className="w-80"
-                    value={formData.monthlyLimit}
-                    {...register('monthlyLimit')}
-                    onChange={e =>
-                      handleInputChange('monthlyLimit', e.target.value)
-                    }
-                    size="large"
-                  />
-                </div>
-              )}
-            </div>
-          )}
           <div className="flex space-x-4">
             <Button className="btn-outline-primary" onClick={resetForm}>
               {t('organizations.cancel')}

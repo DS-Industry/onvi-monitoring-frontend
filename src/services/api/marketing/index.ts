@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import { ContractType } from '@/utils/constants';
 
 enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
@@ -36,14 +37,15 @@ export type ClientRequestBody = {
   phone: string;
   email?: string;
   gender?: string;
-  type: UserType;
+  type?: UserType;
+  contractType?: ContractType;
   inn?: string;
   comment?: string;
   placementId?: number;
   devNumber?: number;
   number?: number;
   monthlyLimit?: number;
-  tagIds: number[];
+  cardId?: number;
 };
 
 type ClientResponseBody = {
@@ -54,13 +56,14 @@ type ClientResponseBody = {
   email?: string;
   gender?: string;
   status: StatusUser;
-  type: UserType;
+  contractType: ContractType;
   inn?: string;
   comment?: string;
   refreshTokenId?: string;
   placementId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  type: UserType;
   tags: {
     id: number;
     name: string;
@@ -435,4 +438,31 @@ export async function updateBenefit(
     body
   );
   return response.data;
+}
+
+export type GetCardsPayload = {
+  organizationId?: number;
+  unqNumber?: string;
+};
+
+export type GetCardsResponse = {
+  id?: number;
+  balance: number;
+  mobileUserId: number;
+  devNumber: string;
+  number: string;
+  monthlyLimit?: number;
+  loyaltyCardTierId?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}[];
+
+export async function getCards(
+  params: GetCardsPayload
+): Promise<GetCardsResponse> {
+  const response: { data: { props: GetCardsResponse[0] }[] } = await api.get(
+    'user/loyalty/cards',
+    { params }
+  );
+  return response.data.map(d => d.props);
 }

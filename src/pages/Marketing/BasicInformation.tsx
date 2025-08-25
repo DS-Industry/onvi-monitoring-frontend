@@ -1,16 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import PieChart from '@icons/PieChart.png';
-import Check from '@/assets/icons/CheckCircle.png';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { getClientById } from '@/services/api/marketing';
 import { Skeleton } from 'antd';
-import { Form, Typography, Tag, Row, Col, Divider, Space } from 'antd';
-import { CloseOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Form, Typography, Row, Col } from 'antd';
 import dayjs from 'dayjs';
+import { ContractType } from '@/utils/constants';
+// import api from '@/config/axiosConfig';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
@@ -30,6 +29,16 @@ const BasicInformation: React.FC = () => {
       keepPreviousData: true,
     }
   );
+
+  // const { data } = useSWR(
+  //   'get-key-stats',
+  //   () => api.get('user/loyalty/key-stats').then(res => res.data),
+  //   {
+  //     revalidateOnFocus: false,
+  //     revalidateOnReconnect: false,
+  //     keepPreviousData: true,
+  //   }
+  // );
 
   return (
     <div className="max-w-6xl">
@@ -146,7 +155,11 @@ const BasicInformation: React.FC = () => {
 
               <Form.Item label={t('marketing.type')}>
                 <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-xs">
-                  {clientData?.type ? clientData.type : '-'}
+                  {clientData?.contractType
+                    ? ContractType[
+                        clientData.contractType as unknown as keyof typeof ContractType
+                      ]
+                    : '-'}
                 </div>
               </Form.Item>
 
@@ -187,67 +200,6 @@ const BasicInformation: React.FC = () => {
                   {clientData?.comment}
                 </div>
               </Form.Item>
-
-              <Form.Item label={t('marketing.tags')}>
-                <div className="flex flex-wrap gap-2 w-full max-w-md">
-                  {clientData?.tags.map(tag => (
-                    <Tag
-                      key={tag.id}
-                      style={{
-                        backgroundColor: tag.color,
-                        color: '#fff',
-                        padding: '6px 10px',
-                        fontWeight: '600',
-                      }}
-                      closable
-                      closeIcon={<CloseOutlined style={{ color: '#fff' }} />}
-                    >
-                      {tag.name}
-                    </Tag>
-                  ))}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('routes.segments')}>
-                <Space wrap>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.regular')}</Text>
-                  </div>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.checks')}</Text>
-                  </div>
-                </Space>
-              </Form.Item>
-            </Col>
-            <Col xs={24} lg={12}>
-              <div className="flex items-center space-x-2 mb-3">
-                <Title level={4} className="!mb-0 whitespace-nowrap">
-                  {t('marketing.mess')}
-                </Title>
-                <InfoCircleOutlined />
-              </div>
-
-              <Divider className="!my-3" />
-
-              <Space direction="vertical" size="middle" className="w-full">
-                <Space wrap>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} WhatsApp</Text>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} Telegram</Text>
-                  </div>
-                </Space>
-
-                <div className="flex items-center gap-2">
-                  <img src={Check} alt="check" loading="lazy" />
-                  <Text type="secondary">{t('marketing.sub')} Email</Text>
-                </div>
-              </Space>
             </Col>
           </Row>
         </Form>
