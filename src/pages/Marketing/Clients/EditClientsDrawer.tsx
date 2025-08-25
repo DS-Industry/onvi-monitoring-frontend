@@ -1,6 +1,6 @@
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
-import { getPlacement } from '@/services/api/device';
+
 
 import {
   ClientRequestBody,
@@ -42,7 +42,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const { showToast } = useToast();
   const user = useUser();
 
-  const defaultValues: ClientRequestBody = {
+  const defaultValues: ClientRequestBody = useMemo(() => ({
     contractType: ContractType.INDIVIDUAL,
     name: '',
     birthday: undefined,
@@ -56,7 +56,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     number: undefined,
     monthlyLimit: undefined,
     cardId: undefined,
-  };
+  }), []);
 
   const [searchParams] = useSearchParams();
   const placementIdParam = searchParams.get('city') || undefined;
@@ -67,12 +67,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  useEffect(() => {
-    if (!isOpen) {
-      reset(defaultValues);
-    }
-  }, [isOpen])
-
   /** RHF setup */
   const {
     control,
@@ -82,8 +76,14 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     setValue,
   } = useForm<ClientRequestBody>({ defaultValues });
 
+  useEffect(() => {
+    if (!isOpen) {
+      reset(defaultValues);
+    }
+  }, [isOpen])
+
   /** Cities */
-  const { data: cityData } = useSWR('get-city', getPlacement);
+  // const { data: cityData } = useSWR('get-city', getPlacement);
 
   /** Cards */
   const cardParams: GetCardsPayload = useMemo(
@@ -141,7 +141,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         setValue(key as keyof ClientRequestBody, value);
       });
     }
-  }, [clientDataById, setValue, t]);
+  }, [clientDataById, setValue]);
 
   /** Submit */
   const onSubmit = async (values: ClientRequestBody) => {
@@ -179,8 +179,8 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   /** Gender options mapping */
   const genderOptions = useMemo(() => [
-    { value: 'Man', label: t('marketing.man') },
-    { value: 'Woman', label: t('marketing.woman') },
+    { value: 'MALE', label: t('marketing.man') },
+    { value: 'FEMALE', label: t('marketing.woman') },
   ], [t]);
 
   return (
@@ -215,6 +215,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             help={errors.contractType?.message}
             validateStatus={errors.contractType ? 'error' : undefined}
             labelCol={{ span: 24 }}
+            className="w-96"
           >
             <Controller
               name="contractType"
@@ -261,7 +262,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
           {/* Phone */}
           <Form.Item
-            label={t('phone')}
+            label={t('marketing.phone') || 'Phone Number'}
             labelCol={{ span: 24 }}
             help={errors.phone?.message}
             validateStatus={errors.phone ? 'error' : undefined}
@@ -272,7 +273,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               rules={{
                 required: t('validation.phoneRequired') as string,
                 pattern: {
-                  value: /^\+79\d{9}$/,
+                  value: /^\+?79\d{9}$/,
                   message: t('validation.phoneValidFormat'),
                 },
               }}
@@ -287,7 +288,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           </Form.Item>
 
           {/* Birthday */}
-          <Form.Item label={t('birth')} labelCol={{ span: 24 }}>
+          <Form.Item label={t('marketing.birth') || 'Birthday'} labelCol={{ span: 24 }}>
             <Controller
               name="birthday"
               control={control}
@@ -302,7 +303,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           </Form.Item>
 
           {/* Gender */}
-          <Form.Item label={t('marketing.floor')} labelCol={{ span: 24 }}>
+          <Form.Item className="w-96" label={t('marketing.floor')} labelCol={{ span: 24 }}>
             <Controller
               name="gender"
               control={control}
@@ -339,21 +340,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* INN */}
-          <Form.Item label={t('marketing.inn')} labelCol={{ span: 24 }}>
-            <Controller
-              name="inn"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  className="w-96"
-                  placeholder={t('marketing.inn')}
-                  {...field}
-                  size="large"
-                />
-              )}
-            />
-          </Form.Item>
+         
 
           {/* Comment */}
           <Form.Item label={t('marketing.about')} labelCol={{ span: 24 }}>
@@ -372,30 +359,12 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Placement/City */}
-          <Form.Item label={t('city')} labelCol={{ span: 24 }}>
-            <Controller
-              name="placementId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="w-96"
-                  placeholder={t('filters.city.placeholder')}
-                  onChange={val => field.onChange(Number(val))}
-                >
-                  {cityData?.map(placement => (
-                    <Option key={placement.id} value={placement.id}>
-                      {placement.region}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-          </Form.Item>
 
-          {/* Card Select */}
-          <Form.Item label={t('marketing.card')} labelCol={{ span: 24 }}>
+                    {/* Card Select */}
+                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
+            {t('marketing.loyalty')}
+          </div>
+          <Form.Item className="w-96" label={t('marketing.card')} labelCol={{ span: 24 }}>
             <Controller
               name="cardId"
               control={control}

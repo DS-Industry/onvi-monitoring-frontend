@@ -53,7 +53,7 @@ const useClients = (
 ) => {
   const { t } = useTranslation();
 
-  const { data, isLoading } = useSWR(
+  const { data, isLoading, mutate } = useSWR(
     [
       'get-clients',
       currentPage,
@@ -97,7 +97,7 @@ const useClients = (
       status: t(`tables.${client.status}`),
     })) || [];
 
-  return { clients, isLoading };
+  return { clients, isLoading, mutate };
 };
 
 const Clients: React.FC = () => {
@@ -118,7 +118,7 @@ const Clients: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number>();
 
-  const { clients, isLoading } = useClients(
+  const { clients, isLoading, mutate } = useClients(
     currentPage,
     pageSize,
     placementId,
@@ -296,6 +296,7 @@ const Clients: React.FC = () => {
         onClose={() => {
           setDrawerOpen(false);
           setSelectedClientId(undefined);
+          mutate()
         }}
         clientId={selectedClientId}
       />
