@@ -541,4 +541,36 @@ export async function getClientLoyaltyStats(
   return response.data;
 }
 
+export type ImportCardsRequest = {
+  file: File;
+  organizationId: number;
+};
+
+export type ImportCardsResponse = {
+  success: boolean;
+  message: string;
+  importedCount: number;
+  errors?: string[];
+};
+
+export async function importCards(
+  request: ImportCardsRequest
+): Promise<ImportCardsResponse> {
+  console.log('API function called with:', request);
+  console.log('File object:', request.file);
+  console.log('File size:', request.file.size);
+  console.log('File name:', request.file.name);
+  
+  const formData = new FormData();
+  formData.append('file', request.file);
+  formData.append('organizationId', request.organizationId.toString());
+  
+  
+  const response: AxiosResponse<ImportCardsResponse> = await api.post(
+    'user/loyalty/import-cards',
+    formData
+  );
+  return response.data;
+}
+
 
