@@ -2,10 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { getClientById, getClientLoyaltyStats } from '@/services/api/marketing';
-import { Row, Col, Card, Typography, Alert } from 'antd';
-import {
-  ClockCircleOutlined,
-} from '@ant-design/icons';
+import { Row, Col, Card, Typography, Alert, Spin } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useSearchParams } from 'react-router-dom';
 
@@ -15,12 +12,16 @@ const Loyalty: React.FC = () => {
   const { t } = useTranslation();
 
   const user = useUser();
-    
+
   const [searchParams] = useSearchParams();
 
-  const clientId = searchParams.get('userId')
+  const clientId = searchParams.get('userId');
 
-  const { data: clientData, error: clientError, isLoading: clientLoading } = useSWR(
+  const {
+    data: clientData,
+    error: clientError,
+    isLoading: clientLoading,
+  } = useSWR(
     clientId ? [`get-client-by-id`, clientId] : null,
     () => getClientById(Number(clientId!)),
     {
@@ -30,12 +31,19 @@ const Loyalty: React.FC = () => {
     }
   );
 
-  const { data: loyaltyStats, error: loyaltyError, isLoading: loyaltyLoading } = useSWR(
-    clientId && clientData ? [`get-client-loyalty-stats`, clientId, clientData] : null,
-    () => getClientLoyaltyStats({
-      clientId: clientData?.id || 0,
-      organizationId: user?.organizationId || 0,
-    }),
+  const {
+    data: loyaltyStats,
+    error: loyaltyError,
+    isLoading: loyaltyLoading,
+  } = useSWR(
+    clientId && clientData
+      ? [`get-client-loyalty-stats`, clientId, clientData]
+      : null,
+    () =>
+      getClientLoyaltyStats({
+        clientId: clientData?.id || 0,
+        organizationId: user?.organizationId || 0,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -57,8 +65,8 @@ const Loyalty: React.FC = () => {
 
   if (clientLoading || loyaltyLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <div>Loading client loyalty data...</div>
+      <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+        <Spin size="large" />
       </div>
     );
   }
@@ -87,9 +95,15 @@ const Loyalty: React.FC = () => {
     );
   }
 
-  const progressPercentage = loyaltyStats.amountToNextTier > 0 
-    ? Math.min((loyaltyStats.accumulatedAmount / (loyaltyStats.accumulatedAmount + loyaltyStats.amountToNextTier)) * 100, 100)
-    : 100;
+  const progressPercentage =
+    loyaltyStats.amountToNextTier > 0
+      ? Math.min(
+          (loyaltyStats.accumulatedAmount /
+            (loyaltyStats.accumulatedAmount + loyaltyStats.amountToNextTier)) *
+            100,
+          100
+        )
+      : 100;
 
   return (
     <>
@@ -123,7 +137,9 @@ const Loyalty: React.FC = () => {
                 {t('equipment.start')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 w-32 text-text01">
-                {clientData.createdAt ? new Date(clientData.createdAt).toLocaleDateString('ru-RU') : 'N/A'}
+                {clientData.createdAt
+                  ? new Date(clientData.createdAt).toLocaleDateString('ru-RU')
+                  : 'N/A'}
               </div>
             </div>
           </Card>
@@ -164,8 +180,8 @@ const Loyalty: React.FC = () => {
                 <div
                   key={index}
                   className={`w-2.5 h-5 ${
-                    index < Math.floor((progressPercentage / 100) * 20) 
-                      ? 'bg-primary02/30' 
+                    index < Math.floor((progressPercentage / 100) * 20)
+                      ? 'bg-primary02/30'
                       : 'bg-background07'
                   }`}
                 />
@@ -187,13 +203,6 @@ const Loyalty: React.FC = () => {
                 </Text>
                 <div className="text-sm text-text02">{t('marketing.next')}</div>
               </Col>
-            </Row>
-
-            <Row align="middle" className="mt-6 space-x-2">
-              <ClockCircleOutlined className="text-primary02 text-lg" />
-              <Text className="text-primary02 font-semibold">
-                {t('marketing.accrual')}
-              </Text>
             </Row>
           </Card>
         </Col>

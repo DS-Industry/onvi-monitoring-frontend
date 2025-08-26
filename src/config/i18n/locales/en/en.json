@@ -671,7 +671,8 @@
     "DISCOUNT": "Discount",
     "GIFT_POINTS": "Gift Points",
     "useExistingCard": "Select a card",
-    "enterCustomCard": "Enter a custom card"
+    "enterCustomCard": "Enter a custom card",
+    "client": "Client"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

@@ -5,8 +5,9 @@ const BasicInformation = React.lazy(() => import('./BasicInformation'));
 const KeyTab = React.lazy(() => import('./KeyTab'));
 const Loyalty = React.lazy(() => import('./Loyalty'));
 import GenericTabs from '@ui/Tabs/GenericTab';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import useSWR from 'swr';
+import { getClientById } from '@/services/api/marketing';
 
 const ClientsProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +20,20 @@ const ClientsProfile: React.FC = () => {
       tab: key,
     });
   };
+
+  const userId = searchParams.get('userId')
+    ? Number(searchParams.get('userId'))
+    : undefined;
+
+  const { data: clientData } = useSWR(
+    userId ? [`get-client-by-id`] : null,
+    () => getClientById(userId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const tabItems = [
     {
@@ -43,12 +58,11 @@ const ClientsProfile: React.FC = () => {
       <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.clientProfile')}
+            {t('marketing.client')} {clientData?.name}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
-      <div className="max-w-5xl ml-10 bg-white p-4">
+      <div className="max-w-5xl bg-white">
         <GenericTabs
           tabs={tabItems}
           activeKey={activeTab}
