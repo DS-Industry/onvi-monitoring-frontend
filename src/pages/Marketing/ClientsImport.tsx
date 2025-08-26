@@ -121,15 +121,16 @@ const ClientsImport: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5">
+      <div className="px-4 md:px-0 mb-5">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span className="text-lg sm:text-xl md:text-3xl font-normal text-text01">
             {t('marketing.importCards')}
           </span>
-          <QuestionMarkIcon />
+          <QuestionMarkIcon className="w-5 h-5 md:w-6 md:h-6" />
         </div>
       </div>
-      <div>
+      
+      <div className="px-4 md:px-0">
         {notificationVisible && (
           <Notification
             title={t('marketing.importCards')}
@@ -137,71 +138,83 @@ const ClientsImport: React.FC = () => {
             onClose={() => setNotificationVisible(false)}
           />
         )}
-        <div className="font-semibold text-2xl mt-5 text-primary02">
+        
+        <div className="font-semibold text-xl md:text-2xl mt-5 text-primary02">
           {t('marketing.selectFile')}
         </div>
+        
         <div className="flex mt-5">
           <div
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
-            className={`w-80 h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen ? 'bg-white border-2 border-primary02' : 'bg-background05'} rounded-2xl`}
+            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
+              drawerOpen ? 'bg-white border-2 border-primary02' : 'bg-background05'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center text-center ${drawerOpen ? 'text-primary02' : 'text-text01'}`}
+              className={`flex justify-center text-center items-center ${
+                drawerOpen ? 'text-primary02' : 'text-text01'
+              }`}
             >
-              <FileOutlined />
-              <div className="ml-2 font-semibold text-lg">
+              <FileOutlined className="text-xl md:text-2xl" />
+              <div className="ml-2 font-semibold text-base md:text-lg">
                 {t('marketing.downloadTemplate')}
               </div>
             </div>
             <div
-              className={`mt-2 ml-5 text-base ${drawerOpen ? 'text-text01' : 'text-text02'} font-normal`}
+              className={`mt-2 px-4 text-sm md:text-base ${
+                drawerOpen ? 'text-text01' : 'text-text02'
+              } font-normal`}
             >
               {t('marketing.clickToDownload')}
             </div>
           </div>
         </div>
-        <div className="mt-14 w-[720px]">
-          <div className="flex items-center justify-between">
-            <div className=" text-text02 text-base font-normal">
+        
+        <div className="mt-8 md:mt-14 w-full max-w-4xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+            <div className="text-text02 text-sm md:text-base font-normal">
               {t('marketing.uploadFile')}
             </div>
-            <div className="justify-end text-text02 text-base font-normal">
+            <div className="text-text02 text-sm md:text-base font-normal">
               {t('marketing.excelFormat')}
             </div>
           </div>
-          <div className="border rounded-lg h-24 flex justify-center text-center flex-col">
+          
+          <div className="border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4">
             {!selectedFile && (
-              <div className={`flex m-auto`}>
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
                 <label
                   htmlFor="file-upload"
-                  className="flex text-primary02 cursor-pointer space-x-2"
+                  className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary01 transition-colors"
                 >
                   <DownloadOutlined />
-                                  <div>{t('marketing.selectFile')}</div>
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".xlsx, .xls, .csv"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <div className="ml-2 text-text01">{t('marketing.or')}</div>
+                  <div className="text-sm md:text-base">{t('marketing.selectFile')}</div>
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <div className="text-text01 text-sm md:text-base">{t('marketing.or')}</div>
               </div>
             )}
             {selectedFile && (
-              <div>
+              <div className="w-full">
                 <div className="flex items-center justify-between space-x-3 p-2">
-                  <div className="flex">
-                    <div className="text-primary02">{selectedFile.name}</div>
-                    <div className="text-text01">
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0">
+                    <div className="text-primary02 text-sm md:text-base truncate">
+                      {selectedFile.name}
+                    </div>
+                    <div className="text-text01 text-xs md:text-sm">
                       ({(selectedFile.size / 1024).toFixed(2)} kB)
                     </div>
                   </div>
                   <button
-                    className="text-text02 justify-end"
+                    className="text-text02 hover:text-text01 transition-colors flex-shrink-0"
                     onClick={handleFileRemove}
                   >
                     <CloseOutlined />
@@ -211,21 +224,25 @@ const ClientsImport: React.FC = () => {
             )}
           </div>
         </div>
-        <div className="flex space-x-4 mt-10">
+        
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8 md:mt-10">
           <Button
             title={t('actions.cancel')}
             type="outline"
             handleClick={() => {
               navigate(-1);
             }}
+            classname="w-full sm:w-auto"
           />
           <Button
             title={t('marketing.importCards')}
             form={true}
             handleClick={handleSubmit}
             isLoading={isMutating}
+            classname="w-full sm:w-auto"
           />
         </div>
+        
         <Drawer
           placement="right"
           size="large"
@@ -233,11 +250,11 @@ const ClientsImport: React.FC = () => {
           open={drawerOpen}
           className="custom-drawer"
         >
-          <div className="space-y-6">
+          <div className="space-y-6 p-4">
             <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
               {t('marketing.templateRequirements')}
             </div>
-            <div className="font-normal text-base text-text01">
+            <div className="font-normal text-sm md:text-base text-text01">
               {t('marketing.templateDescription')}
             </div>
             <div className="space-y-4">
@@ -250,10 +267,10 @@ const ClientsImport: React.FC = () => {
                 <div>• <strong>tierId</strong> - {t('marketing.tierIdDescription')}</div>
               </div>
             </div>
-            <div className="font-normal text-base text-text01">
+            <div className="font-normal text-sm md:text-base text-text01">
               {t('marketing.useCorrectFormat')}
             </div>
-            <div className="font-normal text-base text-text01">
+            <div className="font-normal text-sm md:text-base text-text01">
               {t('marketing.supportFormats')}
             </div>
             <Button
@@ -261,6 +278,7 @@ const ClientsImport: React.FC = () => {
               type="outline"
               iconDownload={true}
               handleClick={handleDownload}
+              classname="w-full sm:w-auto"
             />
           </div>
         </Drawer>
