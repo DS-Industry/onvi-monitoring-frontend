@@ -255,10 +255,20 @@ export async function updateClient(
   return response.data;
 }
 
+export type ClientsPaginatedResponse = {
+  data: ClientsResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export async function getClients(
   params: ClientsParams
-): Promise<ClientsResponse[]> {
-  const response: AxiosResponse<ClientsResponse[]> = await api.get(
+): Promise<ClientsPaginatedResponse> {
+  const response: AxiosResponse<ClientsPaginatedResponse> = await api.get(
     MARKETING.GET_LOYALTY + `s`,
     { params }
   );

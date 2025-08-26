@@ -92,12 +92,24 @@ const useClients = (
   );
 
   const clients =
-    data?.map(client => ({
+    data?.data?.map(client => ({
       ...client,
       status: t(`tables.${client.status}`),
     })) || [];
 
-  return { clients, isLoading, mutate };
+  return { 
+    clients, 
+    isLoading, 
+    mutate,
+    pagination: data ? {
+      total: data.total,
+      currentPage: data.page,
+      pageSize: data.size,
+      totalPages: data.totalPages,
+      hasNext: data.hasNext,
+      hasPrevious: data.hasPrevious,
+    } : null
+  };
 };
 
 const Clients: React.FC = () => {
@@ -118,7 +130,7 @@ const Clients: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number>();
 
-  const { clients, isLoading, mutate } = useClients(
+  const { clients, isLoading, mutate, pagination } = useClients(
     currentPage,
     pageSize,
     placementId,
@@ -135,14 +147,21 @@ const Clients: React.FC = () => {
     setDrawerOpen(true);
   }, []);
 
+  const handlePaginationChange = useCallback((page: number, size: number) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(page),
+      size: String(size),
+    });
+  }, [searchParams, setSearchParams]);
+
   const columns = useMemo(
     () => [
       {
         title: t('marketing.type'),
         dataIndex: 'contractType',
         key: 'contractType',
-        render: (text: string) => (
-          <>{ContractType[text as keyof typeof ContractType]}</>
+        render: (text: ContractType) => (
+          <>{ContractType[text] === ContractType.CORPORATE ?  t('marketing.legal') :  t('marketing.physical')}</>
         ),
       },
       {
@@ -225,7 +244,7 @@ const Clients: React.FC = () => {
       </div>
 
       <GeneralFilters
-        count={clients.length}
+        count={pagination?.total || 0}
         display={['search', 'city', 'count', 'userType', 'reset']}
         onReset={() => {
           updateSearchParams(searchParams, setSearchParams, {
@@ -269,7 +288,20 @@ const Clients: React.FC = () => {
         </div>
       </GeneralFilters>
 
-      <div className="mt-8 flex flex-col min-h-screen">
+      {pagination && (
+        <div className="mt-4 mb-2 text-sm text-gray-600">
+          Showing {((pagination.currentPage - 1) * pagination.pageSize) + 1} to{' '}
+          {Math.min(pagination.currentPage * pagination.pageSize, pagination.total)} of{' '}
+          {pagination.total} clients
+          {pagination.totalPages > 1 && (
+            <span className="ml-4">
+              (Page {pagination.currentPage} of {pagination.totalPages})
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 flex flex-col min-h-screen">
         <Table
           columns={columns}
           dataSource={clients}
@@ -277,16 +309,14 @@ const Clients: React.FC = () => {
           rowKey="id"
           scroll={{ x: 'max-content' }}
           pagination={{
-            current: currentPage,
-            pageSize,
-            total: clients.length,
+            current: pagination?.currentPage || currentPage,
+            pageSize: pagination?.pageSize || pageSize,
+            total: pagination?.total || 0,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) => `${range[0]}–${range[1]} / ${total}`,
-            onChange: (page, size) =>
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              }),
+            onChange: handlePaginationChange,
+            showSizeChanger: true,
+            showQuickJumper: true,
           }}
         />
       </div>
