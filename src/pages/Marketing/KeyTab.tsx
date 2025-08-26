@@ -29,7 +29,7 @@ const KeyTab: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div className="flex items-center justify-center w-full h-full min-h-[400px]">
         <Spin size="large" />
       </div>
     );

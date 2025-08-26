@@ -1170,6 +1170,7 @@
   },
   "actions": {
     "reset": "Reset",
+    "edit": "Edit",
     "save": "Save",
     "cancel": "Cancel",
     "sendSuccess": "Send successfully",

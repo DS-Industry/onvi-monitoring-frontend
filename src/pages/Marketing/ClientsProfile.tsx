@@ -48,7 +48,7 @@ const ClientsProfile: React.FC = () => {
           <QuestionMarkIcon />
         </div>
       </div>
-      <div className="max-w-5xl ml-10 bg-white p-4 rounded-md shadow-sm">
+      <div className="max-w-5xl ml-10 bg-white p-4">
         <GenericTabs
           tabs={tabItems}
           activeKey={activeTab}

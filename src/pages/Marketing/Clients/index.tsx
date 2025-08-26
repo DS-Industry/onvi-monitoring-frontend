@@ -288,19 +288,7 @@ const Clients: React.FC = () => {
         </div>
       </GeneralFilters>
 
-      {pagination && (
-        <div className="mt-4 mb-2 text-sm text-gray-600">
-          Showing {((pagination.currentPage - 1) * pagination.pageSize) + 1} to{' '}
-          {Math.min(pagination.currentPage * pagination.pageSize, pagination.total)} of{' '}
-          {pagination.total} clients
-          {pagination.totalPages > 1 && (
-            <span className="ml-4">
-              (Page {pagination.currentPage} of {pagination.totalPages})
-            </span>
-          )}
-        </div>
-      )}
-
+   
       <div className="mt-4 flex flex-col min-h-screen">
         <Table
           columns={columns}
@@ -315,8 +303,6 @@ const Clients: React.FC = () => {
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) => `${range[0]}–${range[1]} / ${total}`,
             onChange: handlePaginationChange,
-            showSizeChanger: true,
-            showQuickJumper: true,
           }}
         />
       </div>
