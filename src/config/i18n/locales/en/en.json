@@ -464,6 +464,11 @@
     "noExpanse": "You do not have expanse tracker data in the program",
     "supplierName": "Name"
   },
+  "sale": {
+    "create": "Adding a price",
+    "price": "Price",
+    "nomenclature": "Nomenclature"
+  },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
