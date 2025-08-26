@@ -97,18 +97,20 @@ const useClients = (
       status: t(`tables.${client.status}`),
     })) || [];
 
-  return { 
-    clients, 
-    isLoading, 
+  return {
+    clients,
+    isLoading,
     mutate,
-    pagination: data ? {
-      total: data.total,
-      currentPage: data.page,
-      pageSize: data.size,
-      totalPages: data.totalPages,
-      hasNext: data.hasNext,
-      hasPrevious: data.hasPrevious,
-    } : null
+    pagination: data
+      ? {
+          total: data.total,
+          currentPage: data.page,
+          pageSize: data.size,
+          totalPages: data.totalPages,
+          hasNext: data.hasNext,
+          hasPrevious: data.hasPrevious,
+        }
+      : null,
   };
 };
 
@@ -147,12 +149,15 @@ const Clients: React.FC = () => {
     setDrawerOpen(true);
   }, []);
 
-  const handlePaginationChange = useCallback((page: number, size: number) => {
-    updateSearchParams(searchParams, setSearchParams, {
-      page: String(page),
-      size: String(size),
-    });
-  }, [searchParams, setSearchParams]);
+  const handlePaginationChange = useCallback(
+    (page: number, size: number) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        page: String(page),
+        size: String(size),
+      });
+    },
+    [searchParams, setSearchParams]
+  );
 
   const columns = useMemo(
     () => [
@@ -161,7 +166,11 @@ const Clients: React.FC = () => {
         dataIndex: 'contractType',
         key: 'contractType',
         render: (text: ContractType) => (
-          <>{ContractType[text] === ContractType.CORPORATE ?  t('marketing.legal') :  t('marketing.physical')}</>
+          <>
+            {ContractType[text] === ContractType.CORPORATE
+              ? t('marketing.legal')
+              : t('marketing.physical')}
+          </>
         ),
       },
       {
@@ -228,14 +237,14 @@ const Clients: React.FC = () => {
         <div className="xs:flex xs:space-x-2">
           <Button
             icon={<DownloadOutlined />}
-            className="btn-outline-primary"
+            className="btn-outline-primary mt-2 sm:mt-0"
             onClick={() => navigate('/marketing/clients/import')}
           >
-            <span className="hidden sm:flex">{t('routes.importClients')}</span>
+            <span>{t('marketing.importCards')}</span>
           </Button>
           <Button
             icon={<PlusOutlined />}
-            className="btn-primary"
+            className="btn-primary  mt-2 sm:mt-0"
             onClick={() => setDrawerOpen(true)}
           >
             {t('routes.add')}
@@ -288,7 +297,6 @@ const Clients: React.FC = () => {
         </div>
       </GeneralFilters>
 
-   
       <div className="mt-4 flex flex-col min-h-screen">
         <Table
           columns={columns}
@@ -312,7 +320,7 @@ const Clients: React.FC = () => {
         onClose={() => {
           setDrawerOpen(false);
           setSelectedClientId(undefined);
-          mutate()
+          mutate();
         }}
         clientId={selectedClientId}
       />

@@ -1,7 +1,6 @@
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
 
-
 import {
   ClientRequestBody,
   ClientUpdate,
@@ -42,21 +41,24 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const { showToast } = useToast();
   const user = useUser();
 
-  const defaultValues: ClientRequestBody = useMemo(() => ({
-    contractType: ContractType.INDIVIDUAL,
-    name: '',
-    birthday: undefined,
-    phone: '',
-    email: undefined,
-    comment: '',
-    gender: undefined,
-    inn: undefined,
-    placementId: undefined,
-    devNumber: undefined,
-    number: undefined,
-    monthlyLimit: undefined,
-    cardId: undefined,
-  }), []);
+  const defaultValues: ClientRequestBody = useMemo(
+    () => ({
+      contractType: ContractType.INDIVIDUAL,
+      name: '',
+      birthday: undefined,
+      phone: '',
+      email: undefined,
+      comment: '',
+      gender: undefined,
+      inn: undefined,
+      placementId: undefined,
+      devNumber: undefined,
+      number: undefined,
+      monthlyLimit: undefined,
+      cardId: undefined,
+    }),
+    []
+  );
 
   const [searchParams] = useSearchParams();
   const placementIdParam = searchParams.get('city') || undefined;
@@ -80,7 +82,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     if (!isOpen) {
       reset(defaultValues);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   /** Cities */
   // const { data: cityData } = useSWR('get-city', getPlacement);
@@ -135,7 +137,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         monthlyLimit: clientDataById.card?.monthlyLimit,
         cardId: clientDataById.card?.id,
       };
-      
+
       // Use setValue to properly set each field
       Object.entries(formData).forEach(([key, value]) => {
         setValue(key as keyof ClientRequestBody, value);
@@ -178,10 +180,13 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   }, [cards, clientDataById]);
 
   /** Gender options mapping */
-  const genderOptions = useMemo(() => [
-    { value: 'MALE', label: t('marketing.man') },
-    { value: 'FEMALE', label: t('marketing.woman') },
-  ], [t]);
+  const genderOptions = useMemo(
+    () => [
+      { value: 'MALE', label: t('marketing.man') },
+      { value: 'FEMALE', label: t('marketing.woman') },
+    ],
+    [t]
+  );
 
   return (
     <Drawer
@@ -191,6 +196,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       onClose={onClose}
       open={isOpen}
       className="custom-drawer"
+      zIndex={9999}
     >
       {loadingClient ? (
         <div className="flex justify-center items-center h-full">
@@ -208,7 +214,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>
-          
+
           {/* Contract Type */}
           <Form.Item
             label={t('marketing.type')}
@@ -278,17 +284,16 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 },
               }}
               render={({ field }) => (
-                <Input
-                  className="w-96"
-                  {...field}
-                  size="large"
-                />
+                <Input className="w-96" {...field} size="large" />
               )}
             />
           </Form.Item>
 
           {/* Birthday */}
-          <Form.Item label={t('marketing.birth') || 'Birthday'} labelCol={{ span: 24 }}>
+          <Form.Item
+            label={t('marketing.birth') || 'Birthday'}
+            labelCol={{ span: 24 }}
+          >
             <Controller
               name="birthday"
               control={control}
@@ -303,7 +308,11 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           </Form.Item>
 
           {/* Gender */}
-          <Form.Item className="w-96" label={t('marketing.floor')} labelCol={{ span: 24 }}>
+          <Form.Item
+            className="w-96"
+            label={t('marketing.floor')}
+            labelCol={{ span: 24 }}
+          >
             <Controller
               name="gender"
               control={control}
@@ -340,8 +349,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-         
-
           {/* Comment */}
           <Form.Item label={t('marketing.about')} labelCol={{ span: 24 }}>
             <Controller
@@ -359,12 +366,15 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-
-                    {/* Card Select */}
-                    <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
+          {/* Card Select */}
+          <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('marketing.loyalty')}
           </div>
-          <Form.Item className="w-96" label={t('marketing.card')} labelCol={{ span: 24 }}>
+          <Form.Item
+            className="w-96"
+            label={t('marketing.card')}
+            labelCol={{ span: 24 }}
+          >
             <Controller
               name="cardId"
               control={control}
