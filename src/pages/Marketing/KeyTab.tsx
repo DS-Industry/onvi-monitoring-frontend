@@ -5,6 +5,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { getUserKeyStatsByOrganizationId } from '@/services/api/marketing';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
@@ -12,14 +13,16 @@ const KeyTab: React.FC = () => {
   const { t } = useTranslation();
   const user = useUser();
 
-  console.log("user: ", user);
+  const [searchParams] = useSearchParams();
+
+  const clientId = searchParams.get('userId')
 
   const { data: stats, error, isLoading } = useSWR(
-    user.organizationId && user.id 
-      ? ['user-key-stats', user.organizationId, user.id]
+    user.organizationId && clientId
+      ? ['user-key-stats', user.organizationId, clientId]
       : null,
     () => getUserKeyStatsByOrganizationId({
-      clientId: user.id!,
+      clientId: Number(clientId!),
       organizationId: user.organizationId!,
     })
   );

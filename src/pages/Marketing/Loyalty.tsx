@@ -7,6 +7,7 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
+import { useSearchParams } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
@@ -15,11 +16,13 @@ const Loyalty: React.FC = () => {
 
   const user = useUser();
     
-  const clientId = user.id ?? undefined
+  const [searchParams] = useSearchParams();
+
+  const clientId = searchParams.get('userId')
 
   const { data: clientData, error: clientError, isLoading: clientLoading } = useSWR(
     clientId ? [`get-client-by-id`, clientId] : null,
-    () => getClientById(clientId!),
+    () => getClientById(Number(clientId!)),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
