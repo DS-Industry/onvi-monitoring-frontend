@@ -53,19 +53,21 @@ const Loyalty: React.FC = () => {
 
   if (!clientId) {
     return (
-      <Alert
-        message="No Client ID"
-        description="Please provide a client ID in the URL parameters"
-        type="warning"
-        showIcon
-        style={{ margin: '20px' }}
-      />
+      <div className="px-4 md:px-0">
+        <Alert
+          message="No Client ID"
+          description="Please provide a client ID in the URL parameters"
+          type="warning"
+          showIcon
+          className="my-4 md:my-5"
+        />
+      </div>
     );
   }
 
   if (clientLoading || loyaltyLoading) {
     return (
-      <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+      <div className="flex items-center justify-center w-full h-full min-h-[300px] md:min-h-[400px]">
         <Spin size="large" />
       </div>
     );
@@ -73,25 +75,29 @@ const Loyalty: React.FC = () => {
 
   if (clientError || loyaltyError) {
     return (
-      <Alert
-        message="Error"
-        description="Failed to load client loyalty data"
-        type="error"
-        showIcon
-        style={{ margin: '20px' }}
-      />
+      <div className="px-4 md:px-0">
+        <Alert
+          message="Error"
+          description="Failed to load client loyalty data"
+          type="error"
+          showIcon
+          className="my-4 md:my-5"
+        />
+      </div>
     );
   }
 
   if (!clientData || !loyaltyStats) {
     return (
-      <Alert
-        message="No Data"
-        description="No client loyalty data available"
-        type="info"
-        showIcon
-        style={{ margin: '20px' }}
-      />
+      <div className="px-4 md:px-0">
+        <Alert
+          message="No Data"
+          description="No client loyalty data available"
+          type="info"
+          showIcon
+          className="my-4 md:my-5"
+        />
+      </div>
     );
   }
 
@@ -106,37 +112,37 @@ const Loyalty: React.FC = () => {
       : 100;
 
   return (
-    <>
-      <Row gutter={[24, 24]} className="flex-wrap">
-        <Col xs={24} md={12} lg={8}>
-          <Card className="rounded-2xl shadow-card h-80">
-            <Title level={4} className="text-text01 mb-4">
+    <div className="px-4 md:px-0">
+      <Row gutter={[16, 16]} className="flex-wrap">
+        <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.loyalty')}
             </Title>
 
             <div className="mb-3">
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.card')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
                 {loyaltyStats.cardDevNumber || '-'}
               </div>
             </div>
 
             <div className="mb-3">
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.un')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
                 {loyaltyStats.cardNumber || '-'}
               </div>
             </div>
 
             <div>
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('equipment.start')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 w-32 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 w-24 md:w-32 text-text01 text-xs md:text-sm">
                 {clientData.createdAt
                   ? new Date(clientData.createdAt).toLocaleDateString('ru-RU')
                   : 'N/A'}
@@ -145,41 +151,42 @@ const Loyalty: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} md={12} lg={8}>
-          <Card className="rounded-2xl shadow-card h-80">
-            <Title level={4} className="text-text01 mb-4">
+        <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.purchase')}
             </Title>
 
             <Text className="text-xs font-semibold text-text01">
               {t('marketing.detail')}
             </Text>
+            
             <Row justify="space-between" className="my-2">
-              <Col className="w-20">
-                <Title level={5} className="text-text01 m-0">
+              <Col className="w-16 md:w-20">
+                <Title level={5} className="text-text01 m-0 text-sm md:text-base">
                   {loyaltyStats.accumulatedAmount.toLocaleString()}
                 </Title>
-                <Text className="text-sm text-text02">
+                <Text className="text-xs md:text-sm text-text02">
                   {t('marketing.acc')}
                 </Text>
               </Col>
-              <Col className="w-28">
+              <Col className="w-20 md:w-28">
                 <div className="text-end">
-                  <Title level={5} className="text-text01 m-0">
+                  <Title level={5} className="text-text01 m-0 text-sm md:text-base">
                     {loyaltyStats.amountToNextTier.toLocaleString()}
                   </Title>
-                  <Text className="text-sm text-text02">
+                  <Text className="text-xs md:text-sm text-text02">
                     {t('marketing.until')}
                   </Text>
                 </div>
               </Col>
             </Row>
 
-            <div className="flex space-x-1.5 mt-2">
+            <div className="flex space-x-1 md:space-x-1.5 mt-2">
               {Array.from({ length: 20 }).map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2.5 h-5 ${
+                  className={`w-2 md:w-2.5 h-4 md:h-5 ${
                     index < Math.floor((progressPercentage / 100) * 20)
                       ? 'bg-primary02/30'
                       : 'bg-background07'
@@ -188,61 +195,61 @@ const Loyalty: React.FC = () => {
               ))}
             </div>
 
-            <Row justify="space-between" className="mt-6">
+            <Row justify="space-between" className="mt-4 md:mt-6">
               <Col>
-                <Text className="text-lg font-semibold text-text01">
+                <Text className="text-base md:text-lg font-semibold text-text01">
                   {loyaltyStats.currentTierName || t('marketing.newbie')}
                 </Text>
-                <div className="text-sm text-text02">
+                <div className="text-xs md:text-sm text-text02">
                   {t('marketing.current')}
                 </div>
               </Col>
               <Col className="text-end">
-                <Text className="text-lg font-semibold text-text01">
+                <Text className="text-base md:text-lg font-semibold text-text01">
                   {loyaltyStats.nextTierName || t('marketing.amateur')}
                 </Text>
-                <div className="text-sm text-text02">{t('marketing.next')}</div>
+                <div className="text-xs md:text-sm text-text02">{t('marketing.next')}</div>
               </Col>
             </Row>
           </Card>
         </Col>
 
-        <Col xs={24} md={12} lg={8}>
-          <Card className="rounded-2xl shadow-card h-80">
-            <Title level={4} className="text-text01 mb-4">
+        <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.bonus')}
             </Title>
 
             <div className="mb-3">
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.active')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
                 {loyaltyStats.activeBonuses.toLocaleString()}
               </div>
             </div>
 
             <div className="mb-3">
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.total')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
                 {loyaltyStats.totalBonusEarned.toLocaleString()}
               </div>
             </div>
 
             <div>
-              <Text type="secondary" className="text-sm">
+              <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.purchase')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01">
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
                 {loyaltyStats.totalPurchaseAmount.toLocaleString()}
               </div>
             </div>
           </Card>
         </Col>
       </Row>
-    </>
+    </div>
   );
 };
 

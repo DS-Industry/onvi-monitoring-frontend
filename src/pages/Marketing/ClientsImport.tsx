@@ -199,7 +199,7 @@ const ClientsImport: React.FC = () => {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                <div className="text-text01 text-sm md:text-base">{t('marketing.or')}</div>
+                
               </div>
             )}
             {selectedFile && (
