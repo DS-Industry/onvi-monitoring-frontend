@@ -576,6 +576,7 @@
     "uniqueNumber": "Уникальный номер",
     "uniqueNumberDescription": "Уникальный идентификатор клиента",
     "tierIdDescription": "ID уровня лояльности для клиента",
+    "complete": "завершено",
     "useCorrectFormat": "Используйте правильный формат для успешного импорта.",
     "supportFormats": "Поддерживаемые форматы: .xlsx, .xls, .csv",
     "importSuccess": "Успешно импортировано {{count}} карт клиентов",

@@ -101,15 +101,11 @@ const Loyalty: React.FC = () => {
     );
   }
 
-  const progressPercentage =
-    loyaltyStats.amountToNextTier > 0
-      ? Math.min(
-          (loyaltyStats.accumulatedAmount /
-            (loyaltyStats.accumulatedAmount + loyaltyStats.amountToNextTier)) *
-            100,
-          100
-        )
-      : 100;
+  const progressPercentage = loyaltyStats.amountToNextTier > 0
+    ? Math.min((loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) * 100, 100)
+    : 100;
+
+  const filledBars = Math.max(1, Math.round((progressPercentage / 100) * 20));
 
   return (
     <div className="px-4 md:px-0">
@@ -183,16 +179,24 @@ const Loyalty: React.FC = () => {
             </Row>
 
             <div className="flex space-x-1 md:space-x-1.5 mt-2">
-              {Array.from({ length: 20 }).map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 md:w-2.5 h-4 md:h-5 ${
-                    index < Math.floor((progressPercentage / 100) * 20)
-                      ? 'bg-primary02/30'
-                      : 'bg-background07'
-                  }`}
-                />
-              ))}
+              {Array.from({ length: 20 }).map((_, index) => {
+                const isFilled = index < filledBars;
+                return (
+                  <div
+                    key={index}
+                    className={`w-2 md:w-2.5 h-4 md:h-5 rounded-sm ${
+                      isFilled ? 'bg-primary02/30' : 'bg-background07'
+                    }`}
+                    title={`Bar ${index + 1}: ${isFilled ? 'Filled' : 'Empty'}`}
+                  />
+                );
+              })}
+            </div>
+            
+            <div className="mt-2 text-center">
+              <Text className="text-xs text-text02">
+                {Math.round(progressPercentage)}% {t('marketing.complete')}
+              </Text>
             </div>
 
             <Row justify="space-between" className="mt-4 md:mt-6">
