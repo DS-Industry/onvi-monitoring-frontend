@@ -15,7 +15,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import { Button, DatePicker, Drawer, Form, Input, Select, Spin } from 'antd';
+import { Button, DatePicker, Drawer, Form, Input, message, Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -69,13 +69,11 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  /** RHF setup */
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
-    setValue,
   } = useForm<ClientRequestBody>({ defaultValues });
 
   useEffect(() => {
@@ -84,10 +82,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     }
   }, [isOpen]);
 
-  /** Cities */
-  // const { data: cityData } = useSWR('get-city', getPlacement);
-
-  /** Cards */
   const cardParams: GetCardsPayload = useMemo(
     () => ({
       organizationId: user.organizationId,
@@ -100,7 +94,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     getCards(params)
   );
 
-  /** Mutations */
   const { trigger: createClientTrigger, isMutating: creatingClient } =
     useSWRMutation('create-client', (_, { arg }: { arg: ClientRequestBody }) =>
       createClient(arg)
@@ -111,48 +104,48 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       updateClient(arg)
     );
 
-  /** Fetch client by ID if editing */
   const { data: clientDataById, isValidating: loadingClient } = useSWR(
     clientId ? ['get-client-by-id', clientId] : null,
     () => getClientById(Number(clientId))
   );
 
-  /** Populate form when editing */
   useEffect(() => {
-    if (clientDataById) {
-      const formData = {
-        contractType: clientDataById.contractType,
-        name: clientDataById.name,
-        phone: clientDataById.phone,
-        comment: clientDataById.comment,
-        placementId: clientDataById.placementId,
-        birthday: clientDataById.birthday
-          ? dayjs(clientDataById.birthday).toDate()
-          : undefined,
-        email: clientDataById.email,
-        inn: clientDataById.inn,
-        gender: clientDataById.gender,
-        devNumber: clientDataById.card?.devNumber,
-        number: clientDataById.card?.number,
-        monthlyLimit: clientDataById.card?.monthlyLimit,
-        cardId: clientDataById.card?.id,
-      };
-
-      // Use setValue to properly set each field
-      Object.entries(formData).forEach(([key, value]) => {
-        setValue(key as keyof ClientRequestBody, value);
-      });
+    if (isOpen) {
+      if (!clientId) {
+        reset(defaultValues);
+      } else if (clientDataById) {
+        reset({
+          contractType: clientDataById.contractType,
+          name: clientDataById.name,
+          phone: clientDataById.phone,
+          comment: clientDataById.comment,
+          placementId: clientDataById.placementId,
+          birthday: clientDataById.birthday
+            ? dayjs(clientDataById.birthday).toDate()
+            : undefined,
+          email: clientDataById.email,
+          inn: clientDataById.inn,
+          gender: clientDataById.gender,
+          devNumber: clientDataById.card?.devNumber,
+          number: clientDataById.card?.number,
+          monthlyLimit: clientDataById.card?.monthlyLimit,
+          cardId: clientDataById.card?.id,
+        });
+      }
+    } else {
+      reset(defaultValues);
     }
-  }, [clientDataById, setValue]);
+  }, [isOpen, clientId, clientDataById, reset, defaultValues]);
 
-  /** Submit */
   const onSubmit = async (values: ClientRequestBody) => {
     try {
       const result = clientId
         ? await updateClientTrigger({ clientId, ...values })
         : await createClientTrigger(values);
-
+      
       if (result) {
+        message.success(t('routes.savedSuccessfully'));
+
         mutate([
           'get-clients',
           currentPage,
@@ -172,14 +165,12 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     }
   };
 
-  /** Merge cards */
   const allCards = useMemo(() => {
     if (!clientDataById?.card) return cards || [];
     const exists = (cards || []).some(c => c.id === clientDataById.card?.id);
     return exists ? cards || [] : [...(cards || []), clientDataById.card];
   }, [cards, clientDataById]);
 
-  /** Gender options mapping */
   const genderOptions = useMemo(
     () => [
       { value: 'MALE', label: t('marketing.man') },
@@ -215,7 +206,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             {t('warehouse.basic')}
           </div>
 
-          {/* Contract Type */}
           <Form.Item
             label={t('marketing.type')}
             help={errors.contractType?.message}
@@ -242,7 +232,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Name */}
           <Form.Item
             label={t('marketing.name')}
             labelCol={{ span: 24 }}
@@ -266,7 +255,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Phone */}
           <Form.Item
             label={t('marketing.phone') || 'Phone Number'}
             labelCol={{ span: 24 }}
@@ -289,7 +277,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Birthday */}
           <Form.Item
             label={t('marketing.birth') || 'Birthday'}
             labelCol={{ span: 24 }}
@@ -307,7 +294,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Gender */}
           <Form.Item
             className="w-96"
             label={t('marketing.floor')}
@@ -327,7 +313,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Email */}
           <Form.Item label={t('marketing.enterEmail')} labelCol={{ span: 24 }}>
             <Controller
               name="email"
@@ -349,7 +334,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Comment */}
           <Form.Item label={t('marketing.about')} labelCol={{ span: 24 }}>
             <Controller
               name="comment"
@@ -366,7 +350,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             />
           </Form.Item>
 
-          {/* Card Select */}
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('marketing.loyalty')}
           </div>
