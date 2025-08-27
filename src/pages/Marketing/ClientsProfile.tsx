@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 const BasicInformation = React.lazy(() => import('./BasicInformation'));
 const KeyTab = React.lazy(() => import('./KeyTab'));
 const Loyalty = React.lazy(() => import('./Loyalty'));
@@ -9,11 +9,15 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import useSWR from 'swr';
 import { getClientById } from '@/services/api/marketing';
 
+import { ArrowLeftOutlined } from '@ant-design/icons';
+
 const ClientsProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTab = searchParams.get('tab') || 'basic';
+
+  const navigate = useNavigate();
 
   const handleTabChange = (key: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -55,6 +59,15 @@ const ClientsProfile: React.FC = () => {
 
   return (
     <>
+     <div
+        className="flex text-primary02 mb-5 cursor-pointer"
+        onClick={()=> {
+          navigate('/marketing/clients')
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p>{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">

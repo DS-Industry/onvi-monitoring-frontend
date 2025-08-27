@@ -315,7 +315,7 @@ const Clients: React.FC = () => {
         />
       </div>
 
-      <EditClientsDrawer
+      {drawerOpen && <EditClientsDrawer
         isOpen={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
@@ -323,7 +323,7 @@ const Clients: React.FC = () => {
           mutate();
         }}
         clientId={selectedClientId}
-      />
+      />}
     </>
   );
 };
