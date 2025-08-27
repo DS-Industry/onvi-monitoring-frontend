@@ -73,11 +73,6 @@ const ClientsImport: React.FC = () => {
     const allowedExtensions = ['.xlsx', '.xls', '.csv'];
     const fileExtension = selectedFile.name.toLowerCase().substring(selectedFile.name.lastIndexOf('.'));
     
-    console.log('File MIME type:', selectedFile.type);
-    console.log('File extension:', fileExtension);
-    console.log('Allowed types:', allowedTypes);
-    console.log('Allowed extensions:', allowedExtensions);
-    
     if (!allowedTypes.includes(selectedFile.type) && !allowedExtensions.includes(fileExtension)) {
       message.error(t('validation.invalidFileType'));
       return;
@@ -89,11 +84,6 @@ const ClientsImport: React.FC = () => {
     }
 
     try {
-      console.log('File being sent:', selectedFile);
-      console.log('File size:', selectedFile.size);
-      console.log('File type:', selectedFile.type);
-      console.log('Organization ID:', user.organizationId);
-      
       const result = await importCardsMutation({
         file: selectedFile,
         organizationId: user.organizationId,
@@ -105,7 +95,8 @@ const ClientsImport: React.FC = () => {
         );
         navigate('/marketing/clients');
       } else {
-        message.error(result?.message || t('marketing.importError'));
+        message.success(result?.message || t('marketing.importError'));
+        navigate('/marketing/clients');
       }
     } catch (error) {
       console.error('Import failed:', error);
