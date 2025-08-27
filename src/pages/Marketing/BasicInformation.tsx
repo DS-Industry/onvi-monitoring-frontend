@@ -70,7 +70,7 @@ const BasicInformation: React.FC = () => {
 
       await updateClient(updateData);
       
-      message.success('Client information updated successfully');
+      message.success(t('routes.savedSuccessfully'));
       setIsEditing(false);
       
       mutate([`get-client-by-id`]);
