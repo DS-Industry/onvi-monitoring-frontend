@@ -261,7 +261,7 @@ type STOCK_PARAMS = {
   size?: number;
 };
 
-type STOCK_RESPONSE = {
+export type STOCK_RESPONSE = {
   nomenclatureId: number;
   nomenclatureName: string;
   categoryName: string;
