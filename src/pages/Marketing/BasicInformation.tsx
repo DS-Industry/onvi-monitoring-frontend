@@ -188,6 +188,7 @@ const BasicInformation: React.FC = () => {
               render={({ field }) => (
                 <DatePicker
                   className="w-86"
+                  placeholder={t('finance.sel')}
                   value={field.value ? dayjs(field.value) : undefined}
                   onChange={d => field.onChange(d ? d.toDate() : undefined)}
                 />
