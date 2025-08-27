@@ -672,7 +672,8 @@
     "GIFT_POINTS": "Gift Points",
     "useExistingCard": "Select a card",
     "enterCustomCard": "Enter a custom card",
-    "client": "Client"
+    "client": "Client",
+    "balance": "Balance"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

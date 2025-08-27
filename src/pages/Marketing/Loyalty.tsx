@@ -217,34 +217,26 @@ const Loyalty: React.FC = () => {
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
             <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
-              {t('marketing.bonus')}
+              {t('marketing.balance')}
             </Title>
 
+            <Text className="text-xs font-semibold text-text01">
+              {t('marketing.detail')}
+            </Text>
+
             <div className="mb-3">
+              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.activeBonuses.toLocaleString()}</div>
               <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.active')}
+                {t('marketing.balance')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.activeBonuses.toLocaleString()}
-              </div>
             </div>
 
             <div className="mb-3">
+              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.totalBonusEarned.toLocaleString()} ₽</div>
               <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.total')}
+                {t('marketing.accr')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.totalBonusEarned.toLocaleString()}
-              </div>
-            </div>
-
-            <div>
-              <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.purchase')}
-              </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.totalPurchaseAmount.toLocaleString()}
-              </div>
+              
             </div>
           </Card>
         </Col>
