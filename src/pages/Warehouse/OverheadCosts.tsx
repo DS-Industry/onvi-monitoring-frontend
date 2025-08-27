@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import {
   getAllStockLevels,
+  getAllStockLevelsCount,
   getCategory,
   getWarehouses,
 } from '@/services/api/warehouse';
@@ -14,7 +15,11 @@ import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 
 type StockLevel = {
   nomenclatureId: number;
@@ -140,20 +145,40 @@ const OverheadCosts: React.FC = () => {
       categoryId: categoryId,
       placementId: city,
       page: currentPage,
-      size: pageSize
+      size: pageSize,
     }),
-    [warehouseId, categoryId, city]
+    [warehouseId, categoryId, city, currentPage, pageSize]
   );
 
   const swrKey = useMemo(
     () =>
-      `get-all-stock-levels-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.categoryId}-${orgId}`,
+      `get-all-stock-levels-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.categoryId}-${filterParams.page}-${filterParams.size}-${orgId}`,
     [filterParams, orgId]
   );
 
   const { data: allStockLevels, isLoading: stocksLoading } = useSWR(
     orgId ? swrKey : null,
-    () => getAllStockLevels(Number(orgId)!, filterParams),
+    () => getAllStockLevels(Number(orgId)!, {
+      warehouseId: filterParams.warehouseId,
+      categoryId: filterParams.categoryId,
+      placementId: filterParams.placementId,
+      page: filterParams.page,
+      size: filterParams.size
+    }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: allStockLevelsCount } = useSWR(
+    orgId ? ["filter-params-count", filterParams.categoryId, filterParams.placementId, filterParams.warehouseId] : null,
+    () => getAllStockLevelsCount(Number(orgId)!, {
+      warehouseId: filterParams.warehouseId,
+      categoryId: filterParams.categoryId,
+      placementId: filterParams.placementId
+    }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -234,7 +259,7 @@ const OverheadCosts: React.FC = () => {
             }))}
             optionFilterProp="label"
             filterOption={(input, option) =>
-              (option?.label ?? "")
+              (option?.label ?? '')
                 .toString()
                 .toLowerCase()
                 .includes(input.toLowerCase())
@@ -261,7 +286,7 @@ const OverheadCosts: React.FC = () => {
             }}
             optionFilterProp="label"
             filterOption={(input, option) =>
-              (option?.label ?? "")
+              (option?.label ?? '')
                 .toString()
                 .toLowerCase()
                 .includes(input.toLowerCase())
@@ -288,7 +313,7 @@ const OverheadCosts: React.FC = () => {
             }}
             optionFilterProp="label"
             filterOption={(input, option) =>
-              (option?.label ?? "")
+              (option?.label ?? '')
                 .toString()
                 .toLowerCase()
                 .includes(input.toLowerCase())
@@ -312,8 +337,9 @@ const OverheadCosts: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: transformedData.length,
+            total: allStockLevelsCount?.count || 0,
             pageSizeOptions: ALL_PAGE_SIZES,
+            showSizeChanger: true,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
             onChange: (page, size) => {

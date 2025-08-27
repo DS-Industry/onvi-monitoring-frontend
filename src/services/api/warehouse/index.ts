@@ -254,11 +254,11 @@ type INVENTORY_RESPONSE = {
 };
 
 type STOCK_PARAMS = {
-  categoryId?: number
-  warehouseId?: number
-  placementId?: number
-  page?: number
-  size?: number
+  categoryId?: number;
+  warehouseId?: number;
+  placementId?: number;
+  page?: number;
+  size?: number;
 };
 
 type STOCK_RESPONSE = {
@@ -295,7 +295,7 @@ type GetSupplierParams = {
 type NomenclatureParams = {
   page?: number;
   size?: number;
-}
+};
 
 export async function createNomenclature(
   body: NOMENCLATURE_REQUEST
@@ -382,7 +382,7 @@ export async function getSupplier(
   const response: AxiosResponse<SUPPLIER_RESPONSE[]> = await api.get(
     WAREHOUSE.CREATE_SUPPLIER,
     { params }
-  );  
+  );
   return response.data;
 }
 
@@ -393,7 +393,7 @@ export async function getNomenclature(
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
     WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
     { params }
-  );  
+  );
   return response.data;
 }
 
@@ -473,6 +473,17 @@ export async function getAllStockLevels(
 ): Promise<STOCK_RESPONSE[]> {
   const response: AxiosResponse<STOCK_RESPONSE[]> = await api.get(
     WAREHOUSE.GET_STOCK_LEVEL + `/${orgId}`,
+    { params }
+  );
+  return response.data;
+}
+
+export async function getAllStockLevelsCount(
+  orgId: number,
+  params: STOCK_PARAMS
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    WAREHOUSE.GET_STOCK_LEVEL + `-count/${orgId}`,
     { params }
   );
   return response.data;
