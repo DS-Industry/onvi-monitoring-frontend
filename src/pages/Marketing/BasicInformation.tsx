@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { getClientById, updateClient, UserType } from '@/services/api/marketing';
+import { getClientById, updateClient } from '@/services/api/marketing';
 import { Form, Typography, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
@@ -103,7 +103,7 @@ const BasicInformation: React.FC = () => {
       const updateData = {
         clientId: userId,
         name: values.name,
-        type: values.contractType === ContractType.INDIVIDUAL ? UserType.PHYSICAL : UserType.LEGAL,
+        contractType: values.contractType,
         comment: values.comment,
         email: values.email,
         placementId: values.placementId,
@@ -125,7 +125,7 @@ const BasicInformation: React.FC = () => {
   };
 
   const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
-    const editableFields = ['contractType', 'name', 'phone', 'birthday', 'gender', 'email', 'comment'];
+    const editableFields = ['contractType', 'name', 'birthday', 'gender', 'email', 'comment'];
     
     if (isEditing && editableFields.includes(fieldName)) {
       return (
@@ -245,7 +245,7 @@ const BasicInformation: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl mb-5">
       {loadingClients ? (
          <div className="flex items-center justify-center w-full h-full min-h-[400px]">
           <Spin size="large" />
@@ -253,24 +253,10 @@ const BasicInformation: React.FC = () => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <Row gutter={[32, 24]}>
-            {/* Left Column */}
             <Col xs={24} lg={12}>
               <div className="flex justify-between items-center mb-4">
                 <Title level={4}>{t('warehouse.basic')}</Title>
-                {!isEditing ? (
-                  <Button type="primary" onClick={handleEdit}>
-                    {t('actions.edit')}
-                  </Button>
-                ) : (
-                  <div className="space-x-2">
-                    <Button onClick={handleCancel}>
-                      {t('actions.cancel')}
-                    </Button>
-                    <Button type="primary" htmlType="submit">
-                      {t('actions.save')}
-                    </Button>
-                  </div>
-                )}
+
               </div>
 
               {renderField(
@@ -314,7 +300,23 @@ const BasicInformation: React.FC = () => {
                 clientData?.comment,
                 'comment'
               )}
+
+              {!isEditing ? (
+                  <Button type="primary" onClick={handleEdit}>
+                    {t('actions.edit')}
+                  </Button>
+                ) : (
+                  <div className="space-x-2">
+                    <Button onClick={handleCancel}>
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button type="primary" htmlType="submit">
+                      {t('actions.save')}
+                    </Button>
+                  </div>
+                )}
             </Col>
+            
           </Row>
         </form>
       )}
