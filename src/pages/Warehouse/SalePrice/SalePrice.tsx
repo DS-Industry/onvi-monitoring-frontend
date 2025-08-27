@@ -1,33 +1,31 @@
 import React, {useEffect, useState,} from 'react';
 import { useTranslation } from 'react-i18next';
-import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import GeneralFilters from '@ui/Filter/GeneralFilters.tsx';
 import useSWR, { mutate } from 'swr';
-import {getSalePrice, patchSalePrice, postSalePrice} from "@/services/api/sale";
+import {getSalePrice, patchSalePrice, postSalePrice, SALE_PRICE_RESPONSE} from "@/services/api/sale";
 import {useSearchParams} from "react-router-dom";
-import {Button, Card, Input, Modal, Select, Table} from "antd";
+import {Card, Modal, Table} from "antd";
+import Button from '@/components/ui/Button/Button';
 import {getNomenclatureSale} from "@/services/api/warehouse";
 import {useUser} from "@/hooks/useUserStore.ts";
 import useSWRMutation from 'swr/mutation';
+import {PlusOutlined} from "@ant-design/icons";
+import AntDButton from "antd/es/button";
+import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
+import Input from '@/components/ui/Input/Input';
 
-interface TableRow {
-    id: number;
-    nomenclatureId: number;
-    warehouseId: number;
-    price: number;
-}
 
 const SalePrice: React.FC = () => {
     const [searchParams] = useSearchParams();
     const { t } = useTranslation();
-    const [totalCount] = useState(0);
     const warehouseId = searchParams.get('warehouseId')
         ? Number(searchParams.get('warehouseId'))
         : undefined;
-    const [tableData, setTableData] = useState<TableRow[]>([]);
+    const [tableData, setTableData] = useState<SALE_PRICE_RESPONSE[]>([]);
     const user = useUser();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedNomenclature, setSelectedNomenclature] = useState<number | null>(null);
+    const [selectedNomenclature, setSelectedNomenclature] = useState<number | undefined>(undefined);    const [availableNomenclatures, setAvailableNomenclatures] = useState<{ name: string; value: number }[]>([]);
     const [newPrice, setNewPrice] = useState<number>(0);
 
     const handleChange = (id: number, dataIndex: string, value: string) => {
@@ -40,13 +38,16 @@ const SalePrice: React.FC = () => {
         );
     };
 
-    const { data: salePriceData, isLoading: salePriceLoading } = useSWR(
+    const { isLoading: salePriceLoading } = useSWR(
         warehouseId ? [`get-sale-data`, warehouseId] : null,
         () => getSalePrice(warehouseId!, {}),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
             keepPreviousData: true,
+            onSuccess: (data) => {
+                setTableData(data || []);
+            }
         }
     );
 
@@ -64,9 +65,25 @@ const SalePrice: React.FC = () => {
             label: item.props.name,
             value: item.props.id,
         })) || [];
-    const availableNomenclatures = nomenclatures.filter(nom =>
-        !tableData.some(row => row.nomenclatureId === nom.value)
-    );
+
+    useEffect(() => {
+        const nomenclatures = nomenclatureData?.map(item => ({
+            name: item.props.name,
+            value: item.props.id,
+        })) || [];
+
+        const available = nomenclatures.filter(nom =>
+            !tableData.some(row => row.nomenclatureId === nom.value)
+        );
+
+        setAvailableNomenclatures(available);
+    }, [nomenclatureData, tableData]);
+
+    useEffect(() => {
+        if (isModalOpen && availableNomenclatures.length > 0 && !selectedNomenclature) {
+            setSelectedNomenclature(availableNomenclatures[0].value);
+        }
+    }, [isModalOpen, availableNomenclatures, selectedNomenclature]);
 
     const openModal = () => {
         if (!warehouseId) {
@@ -75,29 +92,11 @@ const SalePrice: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        if (isModalOpen && availableNomenclatures.length > 0 && !selectedNomenclature) {
-            setSelectedNomenclature(availableNomenclatures[0].value);
-        }
-    }, [isModalOpen, availableNomenclatures, selectedNomenclature]);
-
     const handleModalCancel = () => {
         setIsModalOpen(false);
-        setSelectedNomenclature(null);
+        setSelectedNomenclature(undefined);
         setNewPrice(0);
     };
-
-    useEffect(() => {
-        if (salePriceData) {
-            const transformedData = salePriceData.map((item) => ({
-                id: item.props.id,
-                nomenclatureId: item.props.nomenclatureId,
-                warehouseId: item.props.warehouseId,
-                price: item.props.price,
-            }));
-            setTableData(transformedData);
-        }
-    }, [salePriceData]);
 
     const { trigger: patchSalePriceTrigger, isMutating } = useSWRMutation(
         ['patch-sale-prise', warehouseId],
@@ -163,17 +162,10 @@ const SalePrice: React.FC = () => {
         if (result) {
 
             setTableData(prevData => {
-                const newRow: TableRow = {
-                    id: result.props.id,
-                    nomenclatureId: result.props.nomenclatureId,
-                    warehouseId: result.props.warehouseId,
-                    price: result.props.price,
-                };
-
-                return [...prevData, newRow];
+                return [...prevData, result];
             });
 
-            setSelectedNomenclature(null);
+            setSelectedNomenclature(undefined);
             setNewPrice(0);
             setIsModalOpen(false);
         }
@@ -185,14 +177,6 @@ const SalePrice: React.FC = () => {
             dataIndex: 'nomenclatureId',
             key: 'nomenclatureId',
             width: 240,
-            onCell: (record: TableRow) => ({
-                record,
-                inputType: 'select',
-                dataIndex: 'nomenclatureId',
-                title: 'Номенклатура',
-                editing: true,
-                options: nomenclatures,
-            }),
             render: (value: number) => {
                 const found = nomenclatures.find(n => n.value === value);
                 return found ? found.label : t('warehouse.notSel');
@@ -203,18 +187,11 @@ const SalePrice: React.FC = () => {
             dataIndex: 'price',
             key: 'price',
             width: 100,
-            onCell: (record: TableRow) => ({
-                record,
-                inputType: 'number',
-                dataIndex: 'price',
-                title: 'Цена',
-                editing: true,
-            }),
-            render: (value: number, record: TableRow) => (
+            render: (value: number, record: SALE_PRICE_RESPONSE) => (
                 <Input
                     type="number"
                     value={value}
-                    onChange={(e) =>
+                    changeValue={(e) =>
                         handleChange(record.id, 'price', e.target.value)
                     }
                 />
@@ -232,16 +209,18 @@ const SalePrice: React.FC = () => {
                   </span>
                 </div>
             </div>
-            <GeneralFilters count={totalCount} display={['city', 'pos', 'warehouse']}/>
+            <GeneralFilters display={['city', 'pos', 'warehouse']}/>
             <Card>
                 <div className="flex flex-col lg:flex-row lg:justify-between gap-4 p-4">
                     <div className="flex flex-wrap gap-2">
-                        <Button
+                        <AntDButton
+                            type="primary"
+                            icon={<PlusOutlined />}
                             onClick={openModal}
                             disabled={!warehouseId || availableNomenclatures.length === 0}
                         >
-                            {t('routes.add')}
-                        </Button>
+                            {t('finance.addRow')}
+                        </AntDButton>
                     </div>
                 </div>
                 <div className="w-full overflow-x-auto">
@@ -256,13 +235,11 @@ const SalePrice: React.FC = () => {
                 {tableData && tableData.length > 0 && (
                     <div className="flex mt-4 space-x-4">
                         <Button
-                            htmlType="submit"
-                            loading={isMutating}
-                            onClick={handleSubmit}
-                            className="w-[168px] btn-primary"
-                        >
-                            {t('organizations.save')}
-                        </Button>
+                            title={t('organizations.save')}
+                            form={true}
+                            isLoading={isMutating}
+                            handleClick={handleSubmit}
+                        />
                     </div>
                 )}
             </Card>
@@ -270,44 +247,48 @@ const SalePrice: React.FC = () => {
             <Modal
                 open={isModalOpen}
                 onCancel={handleModalCancel}
-                onOk={handleModalSubmit}
-                className="w-96"
                 okButtonProps={{
                     disabled: !selectedNomenclature || newPrice < 0,
                 }}
-                okText={t('organizations.save')}
-                cancelText={t('organizations.cancel')}
+                footer={false}
+                className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
             >
                 <div className="flex flex-row items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold text-text01">
+                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
                         {t('sale.create')}
                     </h2>
                 </div>
 
-                <div className="space-y-4">
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-text01">
-                            {t('sale.nomenclature')}
-                        </label>
-                        <Select
-                            value={selectedNomenclature}
-                            onChange={setSelectedNomenclature}
-                            options={availableNomenclatures}
-                            style={{ width: '100%' }}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-text01">
-                            {t('sale.price')}
-                        </label>
-                        <Input
-                            type="number"
-                            value={newPrice}
-                            onChange={(e) => setNewPrice(Number(e.target.value))}
-                            min={0}
-                        />
-                    </div>
+                <div className="flex flex-col space-y-4 text-text02">
+                    <SearchDropdownInput
+                        title={t('sale.nomenclature')}
+                        classname="w-full"
+                        options={availableNomenclatures}
+                        value={selectedNomenclature || ''}
+                        onChange={setSelectedNomenclature}
+                    />
+                    <Input
+                        title={t('sale.price')}
+                        type="number"
+                        classname="w-full"
+                        showIcon={true}
+                        IconComponent={<div className="text-text02 text-xl">₽</div>}
+                        value={newPrice}
+                        changeValue={e => setNewPrice(Number(e.target.value))}
+                    />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
+                    <Button
+                        title={t('organizations.cancel')}
+                        type="outline"
+                        handleClick={handleModalCancel}
+                    />
+                    <Button
+                        title={t('organizations.save')}
+                        form={true}
+                        isLoading={isMutating}
+                        handleClick={handleModalSubmit}
+                    />
                 </div>
             </Modal>
         </>

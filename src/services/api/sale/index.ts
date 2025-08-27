@@ -23,13 +23,11 @@ type SALE_PRICE_UPDATE_REQUEST = {
     }[];
 };
 
-type SALE_PRICE_RESPONSE = {
-    props: {
-        id: number;
-        nomenclatureId: number;
-        warehouseId: number;
-        price: number;
-    }
+export type SALE_PRICE_RESPONSE = {
+    id: number;
+    nomenclatureId: number;
+    warehouseId: number;
+    price: number;
 };
 
 export async function postSalePrice(
