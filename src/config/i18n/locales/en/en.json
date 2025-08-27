@@ -203,7 +203,8 @@
     "no": "Number of cars",
     "revBy": "Revenue by programs",
     "thisSeg": "This section presents the transactions that are recorded by the bill acceptor.",
-    "youDo": "You don't have any transactions with the bill acceptor yet."
+    "youDo": "You don't have any transactions with the bill acceptor yet.",
+    "currencyType": "Currency Type"
   },
   "profile": {
     "basic": "Basic Details",
