@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { getClientById, updateClient } from '@/services/api/marketing';
-import { Form, Typography, Row, Col, Button, Input, Select, message, Spin } from 'antd';
+import { getClientById, updateClient, UserType } from '@/services/api/marketing';
+import { Form, Typography, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-
-import { UserType } from '@/services/api/marketing';
+import { useForm, Controller } from 'react-hook-form';
+import { ContractType } from '@/utils/constants';
 
 const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
+type ClientFormData = {
+  contractType: ContractType;
+  name: string;
+  birthday?: Date;
+  phone: string;
+  email?: string;
+  gender?: string;
+  inn?: string;
+  comment?: string;
+  placementId?: number;
+};
+
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [isEditing, setIsEditing] = useState(false);
-  const [form] = Form.useForm();
 
   const userId = searchParams.get('userId')
     ? Number(searchParams.get('userId'))
@@ -32,29 +43,58 @@ const BasicInformation: React.FC = () => {
     }
   );
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    form.setFieldsValue({
+  const defaultValues: ClientFormData = useMemo(
+    () => ({
+      contractType: clientData?.contractType || ContractType.INDIVIDUAL,
       name: clientData?.name || '',
-      gender: clientData?.gender || '',
-      birthday: clientData?.birthday ? dayjs(clientData.birthday) : null,
+      birthday: clientData?.birthday ? new Date(clientData.birthday) : undefined,
       phone: clientData?.phone || '',
       email: clientData?.email || '',
+      gender: clientData?.gender || '',
       comment: clientData?.comment || '',
-      type: clientData?.type || UserType.PHYSICAL,
-      inn: clientData?.inn || '',
-    });
+      placementId: clientData?.placementId,
+    }),
+    [clientData]
+  );
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ClientFormData>({ defaultValues });
+
+  const genderOptions = useMemo(() => [
+    { value: 'MALE', label: t('marketing.man') },
+    { value: 'FEMALE', label: t('marketing.woman') },
+  ], [t]);
+
+  useEffect(() => {
+    if (clientData && !isEditing) {
+      reset(defaultValues);
+    }
+  }, [clientData, isEditing, reset]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setValue('contractType', clientData?.contractType || ContractType.INDIVIDUAL);
+    setValue('name', clientData?.name || '');
+    setValue('birthday', clientData?.birthday ? new Date(clientData.birthday) : undefined);
+    setValue('phone', clientData?.phone || '');
+    setValue('email', clientData?.email || '');
+    setValue('gender', clientData?.gender || '');
+    setValue('comment', clientData?.comment || '');
+    setValue('placementId', clientData?.placementId);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.resetFields();
+    reset(defaultValues);
   };
 
-  const handleSave = async () => {
+  const onSubmit = async (values: ClientFormData) => {
     try {
-      const values = await form.validateFields();
-      
       if (!userId) {
         message.error('Client ID not found');
         return;
@@ -63,9 +103,13 @@ const BasicInformation: React.FC = () => {
       const updateData = {
         clientId: userId,
         name: values.name,
-        type: values.type,
-        email: values.email,
+        type: values.contractType === ContractType.INDIVIDUAL ? UserType.PHYSICAL : UserType.LEGAL,
         comment: values.comment,
+        email: values.email,
+        placementId: values.placementId,
+        gender: values.gender,
+        birthday: values.birthday,
+        phone: values.phone,
       };
 
       await updateClient(updateData);
@@ -81,32 +125,119 @@ const BasicInformation: React.FC = () => {
   };
 
   const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
-    const editableFields = ['name', 'type', 'inn', 'comment', 'email'];
+    const editableFields = ['contractType', 'name', 'phone', 'birthday', 'gender', 'email', 'comment'];
     
     if (isEditing && editableFields.includes(fieldName)) {
       return (
         <Form.Item 
           label={label} 
           name={fieldName}
-          rules={fieldName === 'name' ? [{ required: true, message: 'Name is required' }] : []}
+          help={errors[fieldName as keyof ClientFormData]?.message}
+          validateStatus={errors[fieldName as keyof ClientFormData] ? 'error' : undefined}
+          labelCol={{ span: 24 }}
+          className="w-96"
         >
           {fieldName === 'comment' ? (
-            <TextArea rows={4} />
-          ) : fieldName === 'type' ? (
-            <Select>
-              <Option value={UserType.PHYSICAL}>{t('marketing.physical')}</Option>
-              <Option value={UserType.LEGAL}>{t('marketing.legal')}</Option>
-            </Select>
+            <Controller
+              name="comment"
+              control={control}
+              render={({ field }) => (
+                <TextArea 
+                  rows={3} 
+                  className="w-96"
+                  placeholder={t('marketing.about')}
+                  {...field}
+                />
+              )}
+            />
+          ) : fieldName === 'contractType' ? (
+            <Controller
+              name="contractType"
+              control={control}
+              rules={{
+                required: t('validation.contractTypeRequired') as string,
+              }}
+              render={({ field }) => (
+                <Select {...field} className="w-96" size="large">
+                  <Option value={ContractType.INDIVIDUAL}>
+                    {t('marketing.physical')}
+                  </Option>
+                  <Option value={ContractType.CORPORATE}>
+                    {t('marketing.legal')}
+                  </Option>
+                </Select>
+              )}
+            />
+          ) : fieldName === 'gender' ? (
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  className="w-96"
+                  placeholder={t('warehouse.notSel')}
+                  options={genderOptions}
+                />
+              )}
+            />
+          ) : fieldName === 'birthday' ? (
+            <Controller
+              name="birthday"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  className="w-96"
+                  value={field.value ? dayjs(field.value) : undefined}
+                  onChange={d => field.onChange(d ? d.toDate() : undefined)}
+                />
+              )}
+            />
+          ) : fieldName === 'email' ? (
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: t('validation.invalidEmailFormat'),
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  className="w-96"
+                  placeholder={t('marketing.enterEmail')}
+                  {...field}
+                  size="large"
+                />
+              )}
+            />
           ) : (
-            <Input />
+            <Controller
+              name={fieldName as keyof ClientFormData}
+              control={control}
+              rules={fieldName === 'name' ? { required: 'Name is required' } : {}}
+              render={({ field }) => (
+                <Input 
+                  className="w-96"
+                  placeholder={fieldName === 'name' ? t('marketing.enterName') : ''}
+                  value={field.value as string}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  size="large"
+                />
+              )}
+            />
           )}
         </Form.Item>
       );
     }
 
     return (
-      <Form.Item label={label}>
-        <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
+      <Form.Item label={label} labelCol={{ span: 24 }}>
+        <div className="border border-borderFill rounded-md px-3 py-1 w-96 h-10 flex items-center">
           {value || '-'}
         </div>
       </Form.Item>
@@ -120,18 +251,32 @@ const BasicInformation: React.FC = () => {
           <Spin size="large" />
        </div>
       ) : (
-        <Form form={form} layout="vertical" className="mb-5">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Row gutter={[32, 24]}>
             {/* Left Column */}
             <Col xs={24} lg={12}>
               <div className="flex justify-between items-center mb-4">
                 <Title level={4}>{t('warehouse.basic')}</Title>
+                {!isEditing ? (
+                  <Button type="primary" onClick={handleEdit}>
+                    {t('actions.edit')}
+                  </Button>
+                ) : (
+                  <div className="space-x-2">
+                    <Button onClick={handleCancel}>
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button type="primary" htmlType="submit">
+                      {t('actions.save')}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {renderField(
                 t('marketing.type'),
-                clientData?.type === UserType.PHYSICAL ? t('marketing.physical') : t('marketing.legal'),
-                'type'
+                clientData?.contractType === ContractType.INDIVIDUAL ? t('marketing.physical') : t('marketing.legal'),
+                'contractType'
               )}
 
               {renderField(
@@ -142,7 +287,7 @@ const BasicInformation: React.FC = () => {
 
               {renderField(
                 t('marketing.floor'),
-                clientData?.gender,
+                clientData?.gender === 'MALE' ? t('marketing.man') : clientData?.gender === 'FEMALE' ? t('marketing.woman') : '-',
                 'gender'
               )}
 
@@ -171,21 +316,7 @@ const BasicInformation: React.FC = () => {
               )}
             </Col>
           </Row>
-          {!isEditing ? (
-                  <Button type="primary" onClick={handleEdit}>
-                    {t('actions.edit')}
-                  </Button>
-                ) : (
-                  <div className="space-x-2">
-                    <Button onClick={handleCancel}>
-                      {t('actions.cancel')}
-                    </Button>
-                    <Button type="primary" onClick={handleSave}>
-                      {t('actions.save')}
-                    </Button>
-                  </div>
-                )}
-        </Form>
+        </form>
       )}
     </div>
   );
