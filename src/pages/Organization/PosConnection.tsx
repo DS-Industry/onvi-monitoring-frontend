@@ -48,11 +48,15 @@ const PosConnection: React.FC = () => {
     }
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: workerData } = useSWR(
+    [`get-worker`],
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { trigger: connectPos, isMutating } = useSWRMutation(
     ['connect-pos'],

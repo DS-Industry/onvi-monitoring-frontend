@@ -127,16 +127,16 @@ export type PosResponse = {
 };
 
 export type WorkerResponse = {
-    id: number;
-    name: string;
-    surname: string;
-    middlename: string;
-    organizationName: string;
-    position: string;
-    roleName: string;
-    status: string;
-    createAt: Date;
-}
+  id: number;
+  name: string;
+  surname: string;
+  middlename: string;
+  organizationName: string;
+  position: string;
+  roleName: string;
+  status: string;
+  createAt: Date;
+};
 
 type DeviceResponse = {
   props: {
@@ -419,6 +419,11 @@ type TechTasksReportParams = {
   size?: number;
 };
 
+type WorkersParams = {
+  page?: number;
+  size?: number;
+};
+
 export async function getIncident(params: IncidentParam): Promise<Incident[]> {
   const response: AxiosResponse<Incident[]> = await api.get(
     EQUIPMENT.GET_INCIDENT,
@@ -457,9 +462,23 @@ export async function getPoses(params: PosParams): Promise<PosResponse[]> {
   return response.data;
 }
 
-export async function getWorkers(): Promise<WorkerResponse[]> {
+export async function getWorkers(
+  orgId: number,
+  params?: WorkersParams
+): Promise<WorkerResponse[]> {
   const response: AxiosResponse<WorkerResponse[]> = await api.get(
-    EQUIPMENT.GET_WORKER
+    EQUIPMENT.GET_WORKER + `/${orgId}`,
+    { params }
+  );
+
+  return response.data;
+}
+
+export async function getWorkersCount(
+  orgId: number
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    EQUIPMENT.GET_WORKER + `-count/${orgId}`
   );
 
   return response.data;

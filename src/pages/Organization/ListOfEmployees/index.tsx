@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useSWR from 'swr';
-import { getWorkers, WorkerResponse } from '@/services/api/equipment';
+import {
+  getWorkers,
+  getWorkersCount,
+  WorkerResponse,
+} from '@/services/api/equipment';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
@@ -15,6 +19,14 @@ import EmployeeUpdateModal from './EmployeeUpdateModal';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { useSearchParams } from 'react-router-dom';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
 
 const ListOfEmployees: React.FC = () => {
   const { t } = useTranslation();
@@ -22,10 +34,42 @@ const ListOfEmployees: React.FC = () => {
   const [isModalOpenCreation, setIsModalOpenCreation] = useState(false);
   const [workerId, setWorkerId] = useState(0);
   const userPermissions = usePermissions();
+  const user = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+
+  const filterParams = useMemo(
+    () => ({
+      organizationId: user.organizationId,
+      page: currentPage,
+      size: pageSize,
+    }),
+    [user, currentPage, pageSize]
+  );
+
+  const swrKey = useMemo(() => {
+    return ['get-worker', filterParams.organizationId, filterParams.page, filterParams.size];
+  }, [filterParams]);
 
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
-    [`get-worker`],
-    () => getWorkers(),
+    user.organizationId ? swrKey : null,
+    () => {
+      return getWorkers(Number(user.organizationId!)!, {
+        page: currentPage,
+        size: pageSize,
+      });
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: workerCount } = useSWR(
+    user.organizationId ? [`get-workers-count`, user.organizationId] : null,
+    () => getWorkersCount(Number(user.organizationId!)!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -134,7 +178,7 @@ const ListOfEmployees: React.FC = () => {
             className="btn-primary"
             onClick={() => setIsModalOpenCreation(true)}
           >
-            <div className='hidden sm:flex'>{t('routes.add')}</div>
+            <div className="hidden sm:flex">{t('routes.add')}</div>
           </Button>
         )}
       </div>
@@ -153,9 +197,22 @@ const ListOfEmployees: React.FC = () => {
         <Table
           dataSource={workers}
           columns={visibleColumns}
-          pagination={false}
           loading={loadingWorkers}
           scroll={{ x: 'max-content' }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: workerCount?.count,
+            pageSizeOptions: ALL_PAGE_SIZES,
+            showSizeChanger: true,
+            showTotal: (total, range) =>
+              `${range[0]}–${range[1]} из ${total} операций`,
+            onChange: (page, size) =>
+              updateSearchParams(searchParams, setSearchParams, {
+                page: String(page),
+                size: String(size),
+              }),
+          }}
         />
         <EmployeeUpdateModal
           open={isModalOpenUpdate}

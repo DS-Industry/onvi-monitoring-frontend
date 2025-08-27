@@ -17,6 +17,7 @@ import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { useUser } from '@/hooks/useUserStore';
 
 const Organization: React.FC = () => {
   const { t } = useTranslation();
@@ -33,12 +34,17 @@ const Organization: React.FC = () => {
     })
   );
 
-  const { data: workersData } = useSWR([`get-workers`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const user = useUser();
 
+  const { data: workersData } = useSWR(
+    [`get-worker`],
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
   const legalOptions = [
     { name: t('organizations.legalEntity'), value: 'LegalEntity' },
     { name: t('organizations.ip'), value: 'IndividualEntrepreneur' },
@@ -172,7 +178,7 @@ const Organization: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <div className='hidden sm:flex'>{t('routes.add')}</div>
+            <div className="hidden sm:flex">{t('routes.add')}</div>
           </Button>
         )}
       </div>
