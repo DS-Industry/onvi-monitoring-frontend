@@ -1,9 +1,23 @@
 import { create, StateCreator } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 
+type ConditionOperatorMap = {
+  in?: (string | number)[];
+  eq?: string | number;
+  ne?: string | number;
+  gt?: number;
+  lt?: number;
+};
+
+type Conditions = {
+  [field: string]: ConditionOperatorMap;
+};
+
+
 type Permission = {
   subject: string;
   action: string;
+  conditions?: Conditions;
 };
 interface AuthState {
   isAuthenticated: boolean;

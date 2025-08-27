@@ -135,7 +135,7 @@ const BasicInformation: React.FC = () => {
           help={errors[fieldName as keyof ClientFormData]?.message}
           validateStatus={errors[fieldName as keyof ClientFormData] ? 'error' : undefined}
           labelCol={{ span: 24 }}
-          className="w-96"
+          className="w-86"
         >
           {fieldName === 'comment' ? (
             <Controller
@@ -144,7 +144,7 @@ const BasicInformation: React.FC = () => {
               render={({ field }) => (
                 <TextArea 
                   rows={3} 
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('marketing.about')}
                   {...field}
                 />
@@ -158,7 +158,7 @@ const BasicInformation: React.FC = () => {
                 required: t('validation.contractTypeRequired') as string,
               }}
               render={({ field }) => (
-                <Select {...field} className="w-96" size="large">
+                <Select {...field} className="w-86" size="large">
                   <Option value={ContractType.INDIVIDUAL}>
                     {t('marketing.physical')}
                   </Option>
@@ -175,7 +175,7 @@ const BasicInformation: React.FC = () => {
               render={({ field }) => (
                 <Select
                   {...field}
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('warehouse.notSel')}
                   options={genderOptions}
                 />
@@ -187,7 +187,7 @@ const BasicInformation: React.FC = () => {
               control={control}
               render={({ field }) => (
                 <DatePicker
-                  className="w-96"
+                  className="w-86"
                   value={field.value ? dayjs(field.value) : undefined}
                   onChange={d => field.onChange(d ? d.toDate() : undefined)}
                 />
@@ -205,7 +205,7 @@ const BasicInformation: React.FC = () => {
               }}
               render={({ field }) => (
                 <Input
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('marketing.enterEmail')}
                   {...field}
                   size="large"
@@ -219,7 +219,7 @@ const BasicInformation: React.FC = () => {
               rules={fieldName === 'name' ? { required: 'Name is required' } : {}}
               render={({ field }) => (
                 <Input 
-                  className="w-96"
+                  className="w-86"
                   placeholder={fieldName === 'name' ? t('marketing.enterName') : ''}
                   value={field.value as string}
                   onChange={field.onChange}
@@ -237,7 +237,7 @@ const BasicInformation: React.FC = () => {
 
     return (
       <Form.Item label={label} labelCol={{ span: 24 }}>
-        <div className="border border-borderFill rounded-md px-3 py-1 w-96 h-10 flex items-center">
+        <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
           {value || '-'}
         </div>
       </Form.Item>
