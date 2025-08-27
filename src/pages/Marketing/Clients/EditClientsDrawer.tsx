@@ -211,7 +211,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             help={errors.contractType?.message}
             validateStatus={errors.contractType ? 'error' : undefined}
             labelCol={{ span: 24 }}
-            className="w-96"
+            className="w-86"
           >
             <Controller
               name="contractType"
@@ -220,7 +220,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 required: t('validation.contractTypeRequired') as string,
               }}
               render={({ field }) => (
-                <Select {...field} className="w-96" size="large">
+                <Select {...field} className="w-86" size="large">
                   <Option value={ContractType.INDIVIDUAL}>
                     {t('marketing.physical')}
                   </Option>
@@ -247,7 +247,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               render={({ field }) => (
                 <Input
                   placeholder={t('marketing.enterName')}
-                  className="w-96"
+                  className="w-86"
                   {...field}
                   size="large"
                 />
@@ -272,7 +272,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 },
               }}
               render={({ field }) => (
-                <Input className="w-96" {...field} size="large" />
+                <Input className="w-86" {...field} size="large" />
               )}
             />
           </Form.Item>
@@ -286,7 +286,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               control={control}
               render={({ field }) => (
                 <DatePicker
-                  className="w-96"
+                  className="w-86"
                   value={field.value ? dayjs(field.value) : undefined}
                   onChange={d => field.onChange(d ? d.toDate() : undefined)}
                 />
@@ -295,7 +295,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            className="w-96"
+            className="w-86"
             label={t('marketing.floor')}
             labelCol={{ span: 24 }}
           >
@@ -305,7 +305,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               render={({ field }) => (
                 <Select
                   {...field}
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('warehouse.notSel')}
                   options={genderOptions}
                 />
@@ -325,7 +325,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               }}
               render={({ field }) => (
                 <Input
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('marketing.enterEmail')}
                   {...field}
                   size="large"
@@ -340,7 +340,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               control={control}
               render={({ field }) => (
                 <Input.TextArea
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('marketing.about')}
                   {...field}
                   size="large"
@@ -354,7 +354,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             {t('marketing.loyalty')}
           </div>
           <Form.Item
-            className="w-96"
+            className="w-86"
             label={t('marketing.card')}
             labelCol={{ span: 24 }}
           >
@@ -364,7 +364,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
               render={({ field }) => (
                 <Select
                   {...field}
-                  className="w-96"
+                  className="w-86"
                   placeholder={t('marketing.selectCard')}
                   value={field.value ? String(field.value) : undefined}
                   onChange={val => field.onChange(Number(val))}

@@ -10,7 +10,6 @@ import {
   FileOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { Drawer, message } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -101,12 +100,11 @@ const ClientsImport: React.FC = () => {
 
   return (
     <>
-      <div className="px-4 md:px-0 mb-5">
+      <div className="px-4 md:px-0 mb-5 ml-10 md:ml-0">
         <div className="flex items-center space-x-2">
           <span className="text-lg sm:text-xl md:text-3xl font-normal text-text01">
             {t('marketing.importCards')}
           </span>
-          <QuestionMarkIcon className="w-5 h-5 md:w-6 md:h-6" />
         </div>
       </div>
       
@@ -229,6 +227,7 @@ const ClientsImport: React.FC = () => {
           onClose={() => setDrawerOpen(false)}
           open={drawerOpen}
           className="custom-drawer"
+          zIndex={9999}
         >
           <div className="space-y-6 p-4">
             <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">

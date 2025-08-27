@@ -2,26 +2,21 @@ import React, { useMemo, useState, useCallback } from 'react';
 
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-// utils
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { useUser } from '@/hooks/useUserStore';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-// components
 import { Button, Table, Tooltip } from 'antd';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import EditClientsDrawer from './EditClientsDrawer';
 
-// icons
 import {
   DownloadOutlined,
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
-// services
 import {
   ClientsResponse,
   getClients,
@@ -232,7 +227,6 @@ const Clients: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.clients')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <div className="xs:flex xs:space-x-2">
           <Button
