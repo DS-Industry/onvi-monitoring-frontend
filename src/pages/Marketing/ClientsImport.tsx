@@ -89,15 +89,10 @@ const ClientsImport: React.FC = () => {
         organizationId: user.organizationId,
       });
 
-      if (result?.success) {
-        message.success(
-          t('marketing.importSuccess', { count: result.importedCount })
-        );
-        navigate('/marketing/clients');
-      } else {
-        message.success(result?.message || t('marketing.importError'));
-        navigate('/marketing/clients');
-      }
+      message.success(
+        t('marketing.importSuccess', { count: result.importedCount })
+      );
+      navigate('/marketing/clients');
     } catch (error) {
       console.error('Import failed:', error);
       message.error(t('marketing.importError'));
