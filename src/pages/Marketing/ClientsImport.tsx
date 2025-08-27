@@ -24,12 +24,6 @@ const ClientsImport: React.FC = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    if (file) {
-      console.log('File selected:', file);
-      console.log('File name:', file.name);
-      console.log('File size:', file.size);
-      console.log('File type:', file.type);
-    }
     setSelectedFile(file);
   };
 
