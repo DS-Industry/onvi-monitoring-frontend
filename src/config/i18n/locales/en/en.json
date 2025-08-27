@@ -466,12 +466,21 @@
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
+    "editClient": "Edit Client",
     "type": "Client type",
     "phys": "Phys. face",
     "name": "Client name",
     "enterName": "Enter client name",
     "floor": "Gender",
     "enterEmail": "Enter employee email",
+    "inn": "INN",
+    "phone": "Phone Number",
+    "birth": "Birthday",
+    "city": "Region",
+    "bonus": "Bonus Account",
+    "lastOrder": "Last Order",
+    "detail": "Detailed Information",
+    "acc": "Accumulated",
     "disc": "Personal discount amount",
     "about": "About the client",
     "add": "Add tags",
@@ -479,6 +488,7 @@
     "sub": "Subscribed to",
     "loyalty": "Loyalty Card",
     "card": "Card No.",
+    "selectCard": "Select Card",
     "un": "UN cards",
     "comp": "Completion date",
     "cardType": "Card type*",
@@ -552,6 +562,25 @@
     "maxi": "Maximum percentage",
     "use": "Use bonuses with discounts",
     "allow": "Allow bonuses to be written off for payment with any discounts",
+    "importCards": "Import Cards",
+    "importCardsDescription": "Import client cards from Excel file",
+    "selectFile": "Select File",
+    "downloadTemplate": "Download Template",
+    "clickToDownload": "Click to download template",
+    "uploadFile": "Upload File",
+    "excelFormat": "Excel/CSV format (.xlsx, .xls, .csv)",
+    "or": "or",
+    "templateRequirements": "Template Requirements",
+    "templateDescription": "To avoid errors during import, please ensure your Excel file contains the required fields in the correct format.",
+    "requiredFields": "Required Fields",
+    "devNumberDescription": "Device number for the client card",
+    "uniqueNumber": "Unique number",
+    "uniqueNumberDescription": "Unique identifier for the client",
+    "tierIdDescription": "Loyalty tier ID for the client",
+    "useCorrectFormat": "Use the correct format to ensure successful import.",
+    "supportFormats": "Supported formats: .xlsx, .xls, .csv",
+    "importSuccess": "Successfully imported {{count}} client cards",
+    "importError": "Failed to import client cards. Please check your file format and try again.",
     "min": "Minimum residual value",
     "set": "Set the minimum cost if you need the total cost on the receipt to not be zero",
     "burni": "Burning bonuses",
@@ -640,7 +669,10 @@
     "updateBen": "Update Benefit",
     "CASHBACK": "Cashback",
     "DISCOUNT": "Discount",
-    "GIFT_POINTS": "Gift Points"
+    "GIFT_POINTS": "Gift Points",
+    "useExistingCard": "Select a card",
+    "enterCustomCard": "Enter a custom card",
+    "client": "Client"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -723,6 +755,7 @@
   },
   "tables": {
     "ACTIVE": "ACTIVE",
+    "BLOCKED": "BLOCKED",
     "VERIFICATE": "VERIFICATE",
     "Weekly": "Weekly",
     "Daily": "Daily",
@@ -1138,11 +1171,18 @@
   },
   "actions": {
     "reset": "Reset",
+    "edit": "Edit",
     "save": "Save",
+    "cancel": "Cancel",
     "sendSuccess": "Send successfully",
     "returnSuccess": "Return successfully"
   },
   "validation": {
+    "contractTypeRequired": "Contract type is required",
+    "fileRequired": "Please select a file to import",
+    "fileTooLarge": "File size must be less than 10MB",
+    "organizationRequired": "Organization ID is required",
+    "invalidFileType": "Please select a valid Excel/CSV file (.xlsx, .xls, or .csv)",
     "typeRequired": "Type is required",
     "sumRequired": "Sum is required",
     "deviceRequired": "Device is required",
@@ -1220,6 +1260,9 @@
     },
     "warehouse": {
       "placeholder": "Select Warehouse"
+    },
+    "city": {
+      "placeholder": "Select City"
     }
   }
 }

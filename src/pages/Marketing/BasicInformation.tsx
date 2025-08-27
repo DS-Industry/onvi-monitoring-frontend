@@ -1,25 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import PieChart from '@icons/PieChart.png';
-import Check from '@/assets/icons/CheckCircle.png';
-import { useLocation } from 'react-router-dom';
-import useSWR from 'swr';
-import { getClientById } from '@/services/api/marketing';
-import { Skeleton } from 'antd';
-import { Form, Typography, Tag, Row, Col, Divider, Space } from 'antd';
-import { CloseOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
+import useSWR, { mutate } from 'swr';
+import { getClientById, updateClient } from '@/services/api/marketing';
+import { Form, Typography, Row, Col, Button, Input, Select, message, Spin } from 'antd';
 import dayjs from 'dayjs';
 
-const { Title, Text } = Typography;
+import { UserType } from '@/services/api/marketing';
+
+const { Title } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
 
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const editClientId = location.state.ownerId;
+  const [searchParams] = useSearchParams();
+  const [isEditing, setIsEditing] = useState(false);
+  const [form] = Form.useForm();
+
+  const userId = searchParams.get('userId')
+    ? Number(searchParams.get('userId'))
+    : undefined;
 
   const { data: clientData, isValidating: loadingClients } = useSWR(
-    editClientId !== 0 ? [`get-client-by-id`] : null,
-    () => getClientById(editClientId),
+    userId ? [`get-client-by-id`] : null,
+    () => getClientById(userId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -27,225 +32,165 @@ const BasicInformation: React.FC = () => {
     }
   );
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    form.setFieldsValue({
+      name: clientData?.name || '',
+      gender: clientData?.gender || '',
+      birthday: clientData?.birthday ? dayjs(clientData.birthday) : null,
+      phone: clientData?.phone || '',
+      email: clientData?.email || '',
+      comment: clientData?.comment || '',
+      type: clientData?.type || UserType.PHYSICAL,
+      inn: clientData?.inn || '',
+    });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    form.resetFields();
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      
+      if (!userId) {
+        message.error('Client ID not found');
+        return;
+      }
+
+      const updateData = {
+        clientId: userId,
+        name: values.name,
+        type: values.type,
+        inn: values.inn,
+        comment: values.comment,
+      };
+
+      await updateClient(updateData);
+      
+      message.success('Client information updated successfully');
+      setIsEditing(false);
+      
+      mutate([`get-client-by-id`]);
+    } catch (error) {
+      console.error('Update failed:', error);
+      message.error('Failed to update client information');
+    }
+  };
+
+  const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
+    const editableFields = ['name', 'type', 'inn', 'comment'];
+    
+    if (isEditing && editableFields.includes(fieldName)) {
+      return (
+        <Form.Item 
+          label={label} 
+          name={fieldName}
+          rules={fieldName === 'name' ? [{ required: true, message: 'Name is required' }] : []}
+        >
+          {fieldName === 'comment' ? (
+            <TextArea rows={4} />
+          ) : fieldName === 'type' ? (
+            <Select>
+              <Option value={UserType.PHYSICAL}>{t('marketing.physical')}</Option>
+              <Option value={UserType.LEGAL}>{t('marketing.legal')}</Option>
+            </Select>
+          ) : (
+            <Input />
+          )}
+        </Form.Item>
+      );
+    }
+
+    return (
+      <Form.Item label={label}>
+        <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
+          {value || '-'}
+        </div>
+      </Form.Item>
+    );
+  };
+
   return (
     <div className="max-w-6xl">
       {loadingClients ? (
-        <div className="flex flex-col md:flex-row gap-6 mb-5">
-          <div className="flex flex-col space-y-6 w-full">
-            <Skeleton.Input active style={{ width: 150, height: 32 }} />
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 256, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 56, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 144, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 80 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <div className="flex gap-2 flex-wrap">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton.Button
-                    key={i}
-                    active
-                    size="small"
-                    style={{ width: 80, height: 32 }}
-                  />
-                ))}
-              </div>
-            </div>
-            <div>
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <div className="flex gap-4">
-                <Skeleton.Button active style={{ width: 120, height: 48 }} />
-                <Skeleton.Button active style={{ width: 120, height: 48 }} />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col lg:ml-40 w-full space-y-4">
-            <div className="flex items-center gap-2">
-              <Skeleton.Input active style={{ width: 160, height: 32 }} />
-              <Skeleton.Avatar active shape="circle" size={32} />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex gap-10">
-                <div className="flex gap-2 items-center">
-                  <Skeleton.Avatar active shape="circle" size={24} />
-                  <Skeleton.Input active style={{ width: 120 }} />
-                </div>
-                <div className="flex gap-2 items-center">
-                  <Skeleton.Avatar active shape="circle" size={24} />
-                  <Skeleton.Input active style={{ width: 120 }} />
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Skeleton.Avatar active shape="circle" size={24} />
-                <Skeleton.Input active style={{ width: 160 }} />
-              </div>
-            </div>
-          </div>
-        </div>
+         <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+          <Spin size="large" />
+       </div>
       ) : (
-        <Form layout="vertical" className="mb-5">
+        <Form form={form} layout="vertical" className="mb-5">
           <Row gutter={[32, 24]}>
             {/* Left Column */}
             <Col xs={24} lg={12}>
-              <Title level={4}>{t('warehouse.basic')}</Title>
-
-              <Form.Item label={t('marketing.type')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-xs">
-                  {clientData?.type ? clientData.type : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.name')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.name ? clientData.name : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.floor')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-20">
-                  {clientData?.gender ? clientData.gender : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('register.date')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-36">
-                  {clientData?.birthday
-                    ? dayjs(clientData.birthday).format('DD.MM.YYYY')
-                    : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('profile.telephone')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.phone}
-                </div>
-              </Form.Item>
-
-              <Form.Item label="E-mail">
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.email ? clientData.email : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('equipment.comment')}>
-                <div className="border border-borderFill rounded-md px-3 py-2 w-full max-w-md h-20">
-                  {clientData?.comment}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.tags')}>
-                <div className="flex flex-wrap gap-2 w-full max-w-md">
-                  {clientData?.tags.map(tag => (
-                    <Tag
-                      key={tag.id}
-                      style={{
-                        backgroundColor: tag.color,
-                        color: '#fff',
-                        padding: '6px 10px',
-                        fontWeight: '600',
-                      }}
-                      closable
-                      closeIcon={<CloseOutlined style={{ color: '#fff' }} />}
-                    >
-                      {tag.name}
-                    </Tag>
-                  ))}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('routes.segments')}>
-                <Space wrap>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.regular')}</Text>
-                  </div>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.checks')}</Text>
-                  </div>
-                </Space>
-              </Form.Item>
-            </Col>
-            <Col xs={24} lg={12}>
-              <div className="flex items-center space-x-2 mb-3">
-                <Title level={4} className="!mb-0 whitespace-nowrap">
-                  {t('marketing.mess')}
-                </Title>
-                <InfoCircleOutlined />
+              <div className="flex justify-between items-center mb-4">
+                <Title level={4}>{t('warehouse.basic')}</Title>
               </div>
 
-              <Divider className="!my-3" />
+              {renderField(
+                t('marketing.type'),
+                clientData?.type === UserType.PHYSICAL ? t('marketing.physical') : t('marketing.legal'),
+                'type'
+              )}
 
-              <Space direction="vertical" size="middle" className="w-full">
-                <Space wrap>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} WhatsApp</Text>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} Telegram</Text>
-                  </div>
-                </Space>
+              {renderField(
+                t('marketing.name'),
+                clientData?.name,
+                'name'
+              )}
 
-                <div className="flex items-center gap-2">
-                  <img src={Check} alt="check" loading="lazy" />
-                  <Text type="secondary">{t('marketing.sub')} Email</Text>
-                </div>
-              </Space>
+              {renderField(
+                t('marketing.floor'),
+                clientData?.gender,
+                'gender'
+              )}
+
+              {renderField(
+                t('register.date'),
+                clientData?.birthday ? dayjs(clientData.birthday).format('DD.MM.YYYY') : '-',
+                'birthday'
+              )}
+
+              {renderField(
+                t('profile.telephone'),
+                clientData?.phone,
+                'phone'
+              )}
+
+              {renderField(
+                "E-mail",
+                clientData?.email,
+                'email'
+              )}
+
+              {renderField(
+                t('marketing.inn'),
+                clientData?.inn,
+                'inn'
+              )}
+
+              {renderField(
+                t('equipment.comment'),
+                clientData?.comment,
+                'comment'
+              )}
             </Col>
           </Row>
+          {!isEditing ? (
+                  <Button type="primary" onClick={handleEdit}>
+                    {t('actions.edit')}
+                  </Button>
+                ) : (
+                  <div className="space-x-2">
+                    <Button onClick={handleCancel}>
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button type="primary" onClick={handleSave}>
+                      {t('actions.save')}
+                    </Button>
+                  </div>
+                )}
         </Form>
       )}
     </div>

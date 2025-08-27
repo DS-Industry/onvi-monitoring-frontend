@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import { ContractType } from '@/utils/constants';
 
 enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
@@ -36,14 +37,15 @@ export type ClientRequestBody = {
   phone: string;
   email?: string;
   gender?: string;
-  type: UserType;
+  type?: UserType;
+  contractType?: ContractType;
   inn?: string;
   comment?: string;
   placementId?: number;
   devNumber?: number;
   number?: number;
   monthlyLimit?: number;
-  tagIds: number[];
+  cardId?: number;
 };
 
 type ClientResponseBody = {
@@ -54,13 +56,14 @@ type ClientResponseBody = {
   email?: string;
   gender?: string;
   status: StatusUser;
-  type: UserType;
+  contractType: ContractType;
   inn?: string;
   comment?: string;
   refreshTokenId?: string;
   placementId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  type: UserType;
   tags: {
     id: number;
     name: string;
@@ -78,24 +81,18 @@ type ClientResponseBody = {
   };
 };
 
-type ClientUpdate = {
-  clientId: number;
-  name?: string;
-  type?: UserType;
-  inn?: string;
-  comment?: string;
-  placementId?: number;
-  monthlyLimit?: number;
-  tagIds?: number[];
-};
-
 type ClientsParams = {
   placementId: number | string;
-  type: UserType | string;
+  contractType: UserType | string;
   tagIds?: number[];
   phone?: string;
   page?: number;
   size?: number;
+  workerCorporateId?: number;
+  organizationId?: number
+  registrationFrom?: string;
+  registrationTo?: string;
+  search?: string;
 };
 
 export type ClientsResponse = {
@@ -259,10 +256,20 @@ export async function updateClient(
   return response.data;
 }
 
+export type ClientsPaginatedResponse = {
+  data: ClientsResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export async function getClients(
   params: ClientsParams
-): Promise<ClientsResponse[]> {
-  const response: AxiosResponse<ClientsResponse[]> = await api.get(
+): Promise<ClientsPaginatedResponse> {
+  const response: AxiosResponse<ClientsPaginatedResponse> = await api.get(
     MARKETING.GET_LOYALTY + `s`,
     { params }
   );
@@ -432,3 +439,139 @@ export async function updateBenefit(
   );
   return response.data;
 }
+
+export type ClientUpdate = {
+  clientId: number;
+  name?: string;
+  type?: UserType;
+  inn?: string;
+  comment?: string;
+  placementId?: number;
+  monthlyLimit?: number;
+  tagIds?: number[];
+};
+
+export type GetCardsPayload = {
+  organizationId?: number;
+  unqNumber?: string;
+  unnasigned?: boolean;
+};
+
+export type GetCardsResponse = {
+  id?: number;
+  balance: number;
+  mobileUserId: number;
+  devNumber: string;
+  number: string;
+  monthlyLimit?: number;
+  loyaltyCardTierId?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}[];
+
+export async function getCards(
+  params: GetCardsPayload
+): Promise<GetCardsResponse> {
+  const response: { data: { props: GetCardsResponse[0] }[] } = await api.get(
+    'user/loyalty/cards',
+    { params }
+  );
+  return response.data.map(d => d.props);
+}
+
+export type ClientKeyStatsDto = {
+  clientId: number;
+  organizationId: number;
+};
+
+export type UserKeyStatsResponseDto = {
+  clientId: number;
+  organizationId: number;
+  organizationName: string;
+  clientName: string;
+  totalAmountSpent: number;
+  averageOrderAmount: number;
+  totalOrdersCount: number;
+  cardBalance: number;
+  lastOrderDate?: Date;
+  firstOrderDate?: Date;
+  cardNumber: string;
+  cardDevNumber: string;
+};
+
+export async function getUserKeyStatsByOrganizationId(
+  params: ClientKeyStatsDto
+): Promise<UserKeyStatsResponseDto> {
+  const response: AxiosResponse<UserKeyStatsResponseDto> = await api.get(
+    'user/loyalty/user-key-stats',
+    { params }
+  );
+  return response.data;
+}
+
+export type ClientLoyaltyStatsDto = {
+  clientId: number;
+  organizationId: number;
+};
+
+export type ClientLoyaltyStatsResponseDto = {
+  clientId: number;
+  organizationId: number;
+  organizationName: string;
+  clientName: string;
+  totalPurchaseAmount: number;
+  accumulatedAmount: number;
+  amountToNextTier: number;
+  activeBonuses: number;
+  totalBonusEarned: number;
+  cardNumber: string;
+  cardDevNumber: string;
+  currentTierName?: string;
+  nextTierName?: string;
+  currentTierId?: number;
+  nextTierId?: number;
+};
+
+export async function getClientLoyaltyStats(
+  params: ClientLoyaltyStatsDto
+): Promise<ClientLoyaltyStatsResponseDto> {
+  const response: AxiosResponse<ClientLoyaltyStatsResponseDto> = await api.get(
+    'user/loyalty/client-loyalty-stats',
+    { params }
+  );
+  return response.data;
+}
+
+export type ImportCardsRequest = {
+  file: File;
+  organizationId: number;
+};
+
+export type ImportCardsResponse = {
+  success: boolean;
+  message: string;
+  importedCount: number;
+  errors?: string[];
+};
+
+export async function importCards(
+  request: ImportCardsRequest
+): Promise<ImportCardsResponse> {
+  console.log('API function called with:', request);
+  console.log('File object:', request.file);
+  console.log('File size:', request.file.size);
+  console.log('File name:', request.file.name);
+  
+  const formData = new FormData();
+  formData.append('file', request.file);
+  formData.append('organizationId', request.organizationId.toString());
+  
+  
+  const response: AxiosResponse<ImportCardsResponse> = await api.post(
+    'user/loyalty/import-cards',
+    formData
+  );
+  return response.data;
+}
+
+
