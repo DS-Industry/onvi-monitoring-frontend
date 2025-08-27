@@ -79,7 +79,7 @@ const useClients = (
         phone,
         page: currentPage,
         size: pageSize,
-        workerCorporateId: Number(organizationId),
+        organizationId: Number(organizationId),
         registrationFrom,
         registrationTo,
         search,

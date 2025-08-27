@@ -89,6 +89,7 @@ type ClientsParams = {
   page?: number;
   size?: number;
   workerCorporateId?: number;
+  organizationId?: number
   registrationFrom?: string;
   registrationTo?: string;
   search?: string;
