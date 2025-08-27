@@ -577,6 +577,7 @@
     "uniqueNumber": "Unique number",
     "uniqueNumberDescription": "Unique identifier for the client",
     "tierIdDescription": "Loyalty tier ID for the client",
+    "complete": "complete",
     "useCorrectFormat": "Use the correct format to ensure successful import.",
     "supportFormats": "Supported formats: .xlsx, .xls, .csv",
     "importSuccess": "Successfully imported {{count}} client cards",
@@ -672,7 +673,8 @@
     "GIFT_POINTS": "Gift Points",
     "useExistingCard": "Select a card",
     "enterCustomCard": "Enter a custom card",
-    "client": "Client"
+    "client": "Client",
+    "balance": "Balance"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

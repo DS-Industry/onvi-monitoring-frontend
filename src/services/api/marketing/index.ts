@@ -449,6 +449,7 @@ export type ClientUpdate = {
   placementId?: number;
   monthlyLimit?: number;
   tagIds?: number[];
+  email?: string;
 };
 
 export type GetCardsPayload = {

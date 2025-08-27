@@ -64,7 +64,7 @@ const BasicInformation: React.FC = () => {
         clientId: userId,
         name: values.name,
         type: values.type,
-        inn: values.inn,
+        email: values.email,
         comment: values.comment,
       };
 
@@ -81,7 +81,7 @@ const BasicInformation: React.FC = () => {
   };
 
   const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
-    const editableFields = ['name', 'type', 'inn', 'comment'];
+    const editableFields = ['name', 'type', 'inn', 'comment', 'email'];
     
     if (isEditing && editableFields.includes(fieldName)) {
       return (
@@ -162,12 +162,6 @@ const BasicInformation: React.FC = () => {
                 "E-mail",
                 clientData?.email,
                 'email'
-              )}
-
-              {renderField(
-                t('marketing.inn'),
-                clientData?.inn,
-                'inn'
               )}
 
               {renderField(

@@ -101,15 +101,11 @@ const Loyalty: React.FC = () => {
     );
   }
 
-  const progressPercentage =
-    loyaltyStats.amountToNextTier > 0
-      ? Math.min(
-          (loyaltyStats.accumulatedAmount /
-            (loyaltyStats.accumulatedAmount + loyaltyStats.amountToNextTier)) *
-            100,
-          100
-        )
-      : 100;
+  const progressPercentage = loyaltyStats.amountToNextTier > 0
+    ? Math.min((loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) * 100, 100)
+    : 100;
+
+  const filledBars = Math.max(1, Math.round((progressPercentage / 100) * 20));
 
   return (
     <div className="px-4 md:px-0">
@@ -183,16 +179,24 @@ const Loyalty: React.FC = () => {
             </Row>
 
             <div className="flex space-x-1 md:space-x-1.5 mt-2">
-              {Array.from({ length: 20 }).map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 md:w-2.5 h-4 md:h-5 ${
-                    index < Math.floor((progressPercentage / 100) * 20)
-                      ? 'bg-primary02/30'
-                      : 'bg-background07'
-                  }`}
-                />
-              ))}
+              {Array.from({ length: 20 }).map((_, index) => {
+                const isFilled = index < filledBars;
+                return (
+                  <div
+                    key={index}
+                    className={`w-2 md:w-2.5 h-4 md:h-5 rounded-sm ${
+                      isFilled ? 'bg-primary02/30' : 'bg-background07'
+                    }`}
+                    title={`Bar ${index + 1}: ${isFilled ? 'Filled' : 'Empty'}`}
+                  />
+                );
+              })}
+            </div>
+            
+            <div className="mt-2 text-center">
+              <Text className="text-xs text-text02">
+                {Math.round(progressPercentage)}% {t('marketing.complete')}
+              </Text>
             </div>
 
             <Row justify="space-between" className="mt-4 md:mt-6">
@@ -217,34 +221,26 @@ const Loyalty: React.FC = () => {
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
             <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
-              {t('marketing.bonus')}
+              {t('marketing.balance')}
             </Title>
 
+            <Text className="text-xs font-semibold text-text01">
+              {t('marketing.detail')}
+            </Text>
+
             <div className="mb-3">
+              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.activeBonuses.toLocaleString()}</div>
               <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.active')}
+                {t('marketing.balance')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.activeBonuses.toLocaleString()}
-              </div>
             </div>
 
             <div className="mb-3">
+              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.totalBonusEarned.toLocaleString()} ₽</div>
               <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.total')}
+                {t('marketing.accr')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.totalBonusEarned.toLocaleString()}
-              </div>
-            </div>
-
-            <div>
-              <Text type="secondary" className="text-xs md:text-sm">
-                {t('marketing.purchase')}
-              </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.totalPurchaseAmount.toLocaleString()}
-              </div>
+              
             </div>
           </Card>
         </Col>
