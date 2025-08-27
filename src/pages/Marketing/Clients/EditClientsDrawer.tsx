@@ -289,6 +289,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                   className="w-86"
                   value={field.value ? dayjs(field.value) : undefined}
                   onChange={d => field.onChange(d ? d.toDate() : undefined)}
+                  placeholder={t('finance.sel')}
                 />
               )}
             />

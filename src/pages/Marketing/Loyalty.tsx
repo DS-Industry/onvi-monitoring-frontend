@@ -111,7 +111,7 @@ const Loyalty: React.FC = () => {
     <div className="px-4 md:px-0">
       <Row gutter={[16, 16]} className="flex-wrap">
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
-          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+          <Card className="rounded-2xl shadow-card  h-full">
             <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.loyalty')}
             </Title>
@@ -148,7 +148,7 @@ const Loyalty: React.FC = () => {
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
-          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+          <Card className="rounded-2xl shadow-card  h-full">
             <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.purchase')}
             </Title>
@@ -219,7 +219,7 @@ const Loyalty: React.FC = () => {
         </Col>
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
-          <Card className="rounded-2xl shadow-card h-64 sm:h-72 md:h-80">
+          <Card className="rounded-2xl shadow-card h-full">
             <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
               {t('marketing.balance')}
             </Title>

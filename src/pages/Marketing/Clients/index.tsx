@@ -267,6 +267,7 @@ const Clients: React.FC = () => {
           <RangePicker
             showTime
             format="YYYY-MM-DD HH:mm"
+            placeholder={[t('filters.dateTime.startDate'), t('filters.dateTime.endDate')]}
             value={
               registrationFrom && registrationTo
                 ? [dayjs(registrationFrom), dayjs(registrationTo)]
