@@ -1,18 +1,16 @@
-import React, {useEffect, useState,} from 'react';
+import React, { useState,} from 'react';
 import { useTranslation } from 'react-i18next';
 import GeneralFilters from '@ui/Filter/GeneralFilters.tsx';
 import useSWR, { mutate } from 'swr';
-import {getSalePrice, patchSalePrice, postSalePrice, SALE_PRICE_RESPONSE} from "@/services/api/sale";
+import {deleteSalePrices, getSalePrice, patchSalePrice, postSalePrice, SALE_PRICE_RESPONSE} from "@/services/api/sale";
 import {useSearchParams} from "react-router-dom";
-import {Card, Modal, Table} from "antd";
-import Button from '@/components/ui/Button/Button';
-import {getNomenclatureSale} from "@/services/api/warehouse";
-import {useUser} from "@/hooks/useUserStore.ts";
+import {Card, Table} from "antd";
 import useSWRMutation from 'swr/mutation';
 import {PlusOutlined} from "@ant-design/icons";
 import AntDButton from "antd/es/button";
-import SearchDropdownInput from "@ui/Input/SearchDropdownInput.tsx";
 import Input from '@/components/ui/Input/Input';
+import SalePriceModal from "@/pages/Warehouse/SalePrice/SalePriceModal.tsx";
+import Typography from "antd/es/typography";
 
 
 const SalePrice: React.FC = () => {
@@ -22,11 +20,45 @@ const SalePrice: React.FC = () => {
         ? Number(searchParams.get('warehouseId'))
         : undefined;
     const [tableData, setTableData] = useState<SALE_PRICE_RESPONSE[]>([]);
-    const user = useUser();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedNomenclature, setSelectedNomenclature] = useState<number | undefined>(undefined);    const [availableNomenclatures, setAvailableNomenclatures] = useState<{ name: string; value: number }[]>([]);
-    const [newPrice, setNewPrice] = useState<number>(0);
+    const [editingKey, setEditingKey] = useState<number | null>(null);
+    const [deleting, setDeleting] = useState(false);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+    const isEditing = (record: SALE_PRICE_RESPONSE) => record.id === editingKey;
+
+    const edit = (record: SALE_PRICE_RESPONSE) => {
+        setEditingKey(record.id);
+    };
+
+    const cancel = () => {
+        setEditingKey(null);
+        mutate([`get-sale-data`, warehouseId]);
+    };
+
+    const save = async (id: number) => {
+        try {
+            const row = tableData.find(item => item.id === id);
+            if (!row) return;
+
+            const salePriceData = {
+                id: row.id,
+                price: row.price,
+            };
+
+            const result = await patchSalePriceTrigger({
+                valueData: [salePriceData]
+            });
+
+            if (result) {
+                setEditingKey(null);
+                mutate([`get-sale-data`, warehouseId]);
+            }
+        } catch (error) {
+            console.error('Ошибка при сохранении:', error);
+        }
+    };
 
     const handleChange = (id: number, dataIndex: string, value: string) => {
         setTableData(prevData =>
@@ -51,165 +83,145 @@ const SalePrice: React.FC = () => {
         }
     );
 
-    const { data: nomenclatureData } = useSWR(
-        user.organizationId ? [`get-sale`, user.organizationId] : null,
-        () => getNomenclatureSale(user.organizationId!),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            keepPreviousData: true,
-        }
-    );
-    const nomenclatures =
-        nomenclatureData?.map(item => ({
-            label: item.props.name,
-            value: item.props.id,
-        })) || [];
-
-    useEffect(() => {
-        const nomenclatures = nomenclatureData?.map(item => ({
-            name: item.props.name,
-            value: item.props.id,
-        })) || [];
-
-        const available = nomenclatures.filter(nom =>
-            !tableData.some(row => row.nomenclatureId === nom.value)
-        );
-
-        setAvailableNomenclatures(available);
-    }, [nomenclatureData, tableData]);
-
-    useEffect(() => {
-        if (isModalOpen && availableNomenclatures.length > 0 && !selectedNomenclature) {
-            setSelectedNomenclature(availableNomenclatures[0].value);
-        }
-    }, [isModalOpen, availableNomenclatures, selectedNomenclature]);
-
     const openModal = () => {
-        if (!warehouseId) {
-            return;
-        }
+        if (!warehouseId) return;
         setIsModalOpen(true);
     };
 
     const handleModalCancel = () => {
         setIsModalOpen(false);
-        setSelectedNomenclature(undefined);
-        setNewPrice(0);
     };
 
     const { trigger: patchSalePriceTrigger, isMutating } = useSWRMutation(
         ['patch-sale-prise', warehouseId],
-        async (
-            _,
-            {
-                arg,
-            }: {
-                arg: {
-                    valueData: {
-                        id: number;
-                        price: number;
-                    }[];
-                };
-            }
-        ) => {
+        async (_, { arg }: { arg: { valueData: { id: number; price: number }[] } }) => {
             return patchSalePrice(arg);
         }
     );
 
-    const handleSubmit = async () => {
-        const hasNegativeValues =
-            tableData &&
-            tableData.some(data => data.price < 0);
+    const handleModalSubmit = async (nomenclatureId: number, price: number) => {
+        if (!warehouseId) return;
 
-        if (hasNegativeValues) {
-            return;
-        }
-
-        const salePrice: {
-            id: number;
-            price: number;
-        }[] =
-            tableData?.map(data => ({
-                id: data.id,
-                price: data.price,
-            })) || [];
-
-        const result = await patchSalePriceTrigger({
-            valueData: salePrice,
-        });
-
-        if (result) {
-            mutate([`get-sale-data`, warehouseId]);
-        }
-    };
-
-    const handleModalSubmit = async () => {
-        if (!selectedNomenclature || !warehouseId) return;
-
-        const newPriceData: {
-            warehouseId: number;
-            nomenclatureId: number;
-            price: number;
-        } = {
+        const newPriceData = {
             warehouseId: warehouseId,
-            nomenclatureId: selectedNomenclature,
-            price: newPrice,
+            nomenclatureId: nomenclatureId,
+            price: price,
         };
 
         const result = await postSalePrice(newPriceData);
-
         if (result) {
-
-            setTableData(prevData => {
-                return [...prevData, result];
-            });
-
-            setSelectedNomenclature(undefined);
-            setNewPrice(0);
+            setTableData(prevData => [...prevData, result]);
             setIsModalOpen(false);
         }
+    };
+
+    const handleDeleteRow = async () => {
+        try {
+            setDeleting(true);
+            const result = await mutate(
+                [`delete-sale-data`],
+                () =>
+                    deleteSalePrices({ ids: selectedRowKeys.map(key => Number(key)) }),
+                false
+            );
+
+            if (result) {
+                await mutate([`get-sale-data`, warehouseId]);
+                setSelectedRowKeys([]);
+            }
+        } catch (error) {
+            console.error('Error deleting nomenclature:', error);
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (newSelectedRowKeys: React.Key[]) => {
+            setSelectedRowKeys(newSelectedRowKeys);
+        },
+        hideSelectAll: true,
     };
 
     const baseColumns = [
         {
             title: 'Номенклатура',
-            dataIndex: 'nomenclatureId',
-            key: 'nomenclatureId',
-            width: 240,
-            render: (value: number) => {
-                const found = nomenclatures.find(n => n.value === value);
-                return found ? found.label : t('warehouse.notSel');
-            },
+            dataIndex: 'nomenclatureName',
+            key: 'nomenclatureName',
+            width: '50%',
+            editable: false,
         },
         {
             title: 'Цена',
             dataIndex: 'price',
             key: 'price',
-            width: 100,
-            render: (value: number, record: SALE_PRICE_RESPONSE) => (
-                <Input
-                    type="number"
-                    value={value}
-                    changeValue={(e) =>
-                        handleChange(record.id, 'price', e.target.value)
-                    }
-                />
-            ),
+            width: '30%',
+            editable: true,
+            render: (value: number, record: SALE_PRICE_RESPONSE) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <Input
+                        type="number"
+                        value={value}
+                        changeValue={(e) =>
+                            handleChange(record.id, 'price', e.target.value)
+                        }
+                    />
+                ) : (
+                    <span>{value.toLocaleString('ru-RU')} ₽</span>
+                );
+            },
+        },
+        {
+            title: 'Операции',
+            dataIndex: 'operation',
+            key: 'operation',
+            width: '20%',
+            render: (_: unknown, record: SALE_PRICE_RESPONSE) => {
+                const editable = isEditing(record);
+                return (
+                    <div className="flex space-x-2">
+                        {editable ? (
+                            <span className="flex space-x-4">
+                                <AntDButton onClick={cancel}>
+                                    {t('organizations.cancel')}
+                                </AntDButton>
+                                <AntDButton
+                                    onClick={() => save(record.id)}
+                                    loading={isMutating}
+                                    disabled={record.price < 0}
+                                    type="primary"
+                                >
+                                    {t('organizations.save')}
+                                </AntDButton>
+                            </span>
+                        ) : (
+                            <Typography.Link
+                                disabled={editingKey !== null}
+                                onClick={() => edit(record)}
+                            >
+                                {t('routes.edit')}
+                            </Typography.Link>
+                        )}
+                    </div>
+                );
+            },
         },
     ];
 
     return (
         <>
-
             <div className="ml-12 md:ml-0 mb-5">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xl sm:text-3xl font-normal text-text01">
-                    {t('routes.salePrice')}
-                  </span>
+                    <span className="text-xl sm:text-3xl font-normal text-text01">
+                        {t('routes.salePrice')}
+                    </span>
                 </div>
             </div>
+
             <GeneralFilters display={['city', 'pos', 'warehouse']}/>
+
             <Card>
                 <div className="flex flex-col lg:flex-row lg:justify-between gap-4 p-4">
                     <div className="flex flex-wrap gap-2">
@@ -217,12 +229,21 @@ const SalePrice: React.FC = () => {
                             type="primary"
                             icon={<PlusOutlined />}
                             onClick={openModal}
-                            disabled={!warehouseId || availableNomenclatures.length === 0}
+                            disabled={!warehouseId}
                         >
                             {t('finance.addRow')}
                         </AntDButton>
+                        <AntDButton
+                            danger
+                            disabled={!selectedRowKeys.length}
+                            loading={deleting}
+                            onClick={handleDeleteRow}
+                        >
+                            {t('finance.del')} ({selectedRowKeys.length})
+                        </AntDButton>
                     </div>
                 </div>
+
                 <div className="w-full overflow-x-auto">
                     <Table
                         rowKey="id"
@@ -230,67 +251,18 @@ const SalePrice: React.FC = () => {
                         columns={baseColumns}
                         loading={salePriceLoading}
                         scroll={{ x: 'max-content' }}
+                        rowSelection={rowSelection}
                     />
                 </div>
-                {tableData && tableData.length > 0 && (
-                    <div className="flex mt-4 space-x-4">
-                        <Button
-                            title={t('organizations.save')}
-                            form={true}
-                            isLoading={isMutating}
-                            handleClick={handleSubmit}
-                        />
-                    </div>
-                )}
             </Card>
 
-            <Modal
-                open={isModalOpen}
+            <SalePriceModal
+                isOpen={isModalOpen}
                 onCancel={handleModalCancel}
-                okButtonProps={{
-                    disabled: !selectedNomenclature || newPrice < 0,
-                }}
-                footer={false}
-                className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
-            >
-                <div className="flex flex-row items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
-                        {t('sale.create')}
-                    </h2>
-                </div>
-
-                <div className="flex flex-col space-y-4 text-text02">
-                    <SearchDropdownInput
-                        title={t('sale.nomenclature')}
-                        classname="w-full"
-                        options={availableNomenclatures}
-                        value={selectedNomenclature || ''}
-                        onChange={setSelectedNomenclature}
-                    />
-                    <Input
-                        title={t('sale.price')}
-                        type="number"
-                        classname="w-full"
-                        showIcon={true}
-                        IconComponent={<div className="text-text02 text-xl">₽</div>}
-                        value={newPrice}
-                        changeValue={e => setNewPrice(Number(e.target.value))}
-                    />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
-                    <Button
-                        title={t('organizations.cancel')}
-                        type="outline"
-                        handleClick={handleModalCancel}
-                    />
-                    <Button
-                        title={t('organizations.save')}
-                        form={true}
-                        isLoading={isMutating}
-                        handleClick={handleModalSubmit}
-                    />
-                </div>
-            </Modal>
+                onSubmit={handleModalSubmit}
+                isLoading={isMutating}
+                tableData={tableData}
+            />
         </>
     );
 };

@@ -23,9 +23,18 @@ type SALE_PRICE_UPDATE_REQUEST = {
     }[];
 };
 
+type SALE_PRICE_DELETE_REQUEST = {
+    ids: number[];
+};
+
+type SALE_PRICE_DELETE_RESPONSE = {
+    status: string;
+};
+
 export type SALE_PRICE_RESPONSE = {
     id: number;
     nomenclatureId: number;
+    nomenclatureName: string;
     warehouseId: number;
     price: number;
 };
@@ -57,6 +66,16 @@ export async function patchSalePrice(
     const response: AxiosResponse<SALE_PRICE_RESPONSE[]> = await api.patch(
         SALE.SALE_PRICE,
         body
+    );
+    return response.data;
+}
+
+export async function deleteSalePrices(
+    body: SALE_PRICE_DELETE_REQUEST,
+): Promise<SALE_PRICE_DELETE_RESPONSE> {
+    const response: AxiosResponse<SALE_PRICE_DELETE_RESPONSE> = await api.delete(
+        SALE.SALE_PRICE + '/many',
+        { data: body }
     );
     return response.data;
 }
