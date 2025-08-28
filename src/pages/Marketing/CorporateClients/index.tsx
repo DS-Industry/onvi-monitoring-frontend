@@ -56,6 +56,7 @@ const CorporateClients: React.FC = () => {
     data: response,
     error,
     isLoading,
+    mutate,
   } = useSWR<CorporateClientsPaginatedResponse>(
     ['corporate-clients', params],
     () => getCorporateClients(params),
@@ -233,7 +234,7 @@ const CorporateClients: React.FC = () => {
         }}
         client={selectedClient}
         onSuccess={() => {
-          window.location.reload();
+          mutate();
         }}
       />
     </>
