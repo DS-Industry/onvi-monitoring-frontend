@@ -632,4 +632,35 @@ export async function getCorporateClientById(id: number): Promise<CorporateClien
   return response.data;
 }
 
+export type CreateCorporateClientRequest = {
+  name: string;
+  inn: string;
+  address: string;
+};
 
+export type UpdateCorporateClientRequest = {
+  name?: string;
+  inn?: string;
+  address?: string;
+};
+
+export async function createCorporateClient(
+  request: CreateCorporateClientRequest
+): Promise<CorporateClientResponse> {
+  const response: AxiosResponse<CorporateClientResponse> = await api.post(
+    'user/loyalty/corporate-clients',
+    request
+  );
+  return response.data;
+}
+
+export async function updateCorporateClient(
+  id: number,
+  request: UpdateCorporateClientRequest
+): Promise<CorporateClientResponse> {
+  const response: AxiosResponse<CorporateClientResponse> = await api.put(
+    `user/loyalty/corporate-clients/${id}`,
+    request
+  );
+  return response.data;
+}

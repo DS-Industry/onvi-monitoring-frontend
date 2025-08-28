@@ -675,7 +675,9 @@
     "useExistingCard": "Select a card",
     "enterCustomCard": "Enter a custom card",
     "client": "Client",
-    "balance": "Balance"
+    "balance": "Balance",
+    "createCorporation": "Create Corporation",
+    "editCorporation": "Edit Corporation"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

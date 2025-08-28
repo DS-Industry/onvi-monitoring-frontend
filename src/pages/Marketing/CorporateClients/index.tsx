@@ -7,6 +7,7 @@ import useSWR from 'swr';
 
 import { Button, Table, message } from 'antd';
 import CorporateClientFilters from '@/components/ui/Filter/CorporateClientFilters';
+import { PlusOutlined } from '@ant-design/icons';
 
 import {
   CorporateClientResponse,
@@ -184,10 +185,23 @@ const CorporateClients: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center space-x-2">
-        <span className="text-xl sm:text-3xl font-normal text-text01">
-          {t('routes.corporateClients')}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.corporateClients')}
+          </span>
+        </div>
+        <Button
+          type="primary"
+          onClick={() => {
+            setSelectedClient(null);
+            setDrawerOpen(true);
+          }}
+          className="bg-primary02 hover:bg-primary02_Hover text-white"
+          icon={<PlusOutlined />}
+        >
+          {t('routes.create')}
+        </Button>
       </div>
 
       <div className="mt-4">
@@ -215,8 +229,12 @@ const CorporateClients: React.FC = () => {
         open={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
+          setSelectedClient(null);
         }}
         client={selectedClient}
+        onSuccess={() => {
+          window.location.reload();
+        }}
       />
     </>
   );
