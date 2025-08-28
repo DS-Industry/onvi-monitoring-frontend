@@ -59,6 +59,7 @@
     "edit": "Editing",
     "left": "Leftovers",
     "clients": "Clients",
+    "corporateClients": "Corporate Clients",
     "segments": "Segments",
     "loyalty": "Loyalty Program",
     "share": "Share Constructor",
@@ -1177,7 +1178,9 @@
     "save": "Save",
     "cancel": "Cancel",
     "sendSuccess": "Send successfully",
-    "returnSuccess": "Return successfully"
+    "returnSuccess": "Return successfully",
+    "back": "Back",
+    "actions": "Actions"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
@@ -1265,5 +1268,12 @@
     "city": {
       "placeholder": "Select City"
     }
+  },
+  "corporateClients": {
+    "inn": "INN",
+    "address": "Address",
+    "ownerPhone": "Owner Phone Number",
+    "dateRegistered": "Date Registered",
+    "name": "Company Name"
   }
 }

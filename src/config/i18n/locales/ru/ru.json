@@ -59,6 +59,7 @@
     "edit": "Редактирование",
     "left": "Остатки",
     "clients": "Клиенты",
+    "corporateClients": "Корпоративные клиенты",
     "segments": "Сегменты",
     "loyalty": "Программа лояльности",
     "share": "Конструктор акций",
@@ -1177,7 +1178,9 @@
     "save": "Сохранить",
     "cancel": "Отмена",
     "sendSuccess": "Успешно отправлено",
-    "returnSuccess": "Успешно возвращено"
+    "returnSuccess": "Успешно возвращено",
+    "back": "Назад",
+    "actions": "Действия"
   },
   "validation": {
     "contractTypeRequired": "Тип контракта обязателен",
@@ -1265,5 +1268,12 @@
     "city": {
       "placeholder": "Выберите город"
     }
+  },
+  "corporateClients": {
+    "inn": "ИНН",
+    "address": "Адрес",
+    "ownerPhone": "Телефон владельца",
+    "dateRegistered": "Дата регистрации",
+    "name": "Название компании"
   }
 }
