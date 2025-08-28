@@ -25,7 +25,6 @@ import CorporateClientDrawer from './CorporateClientDrawer';
 
 const CorporateClients: React.FC = () => {
   const { t } = useTranslation();
-  // const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
 
@@ -186,7 +185,7 @@ const CorporateClients: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between ms-12">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.corporateClients')}
@@ -198,7 +197,7 @@ const CorporateClients: React.FC = () => {
             setSelectedClient(null);
             setDrawerOpen(true);
           }}
-          className="bg-primary02 hover:bg-primary02_Hover text-white"
+          className="bg-primary02 hover:bg-primary02_Hover text-white max-w-[120px]"
           icon={<PlusOutlined />}
         >
           {t('routes.create')}

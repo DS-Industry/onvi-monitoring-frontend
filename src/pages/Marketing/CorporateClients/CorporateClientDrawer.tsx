@@ -85,7 +85,7 @@ export default function CorporateClientDrawer({
         };
 
         await updateCorporateClient(client.id, updateRequest);
-        message.success('Корпорация успешно обновлена');
+        message.success(t('marketing.corporationUpdated'));
       } else {
         const createRequest: CreateCorporateClientRequest = {
           name: values.name,
@@ -94,7 +94,7 @@ export default function CorporateClientDrawer({
         };
 
         await createCorporateClient(createRequest);
-        message.success('Корпорация успешно создана');
+        message.success(t('marketing.corporationCreated'));
       }
 
       onSuccess?.();
@@ -102,7 +102,7 @@ export default function CorporateClientDrawer({
       form.resetFields();
     } catch (error) {
       console.error('Error saving corporate client:', error);
-      message.error('Произошла ошибка при сохранении');
+      message.error(t('marketing.saveError'));
     } finally {
       setLoading(false);
     }
@@ -124,6 +124,7 @@ export default function CorporateClientDrawer({
       onClose={handleClose}
       width={600}
       destroyOnClose
+      zIndex={9999}
     >
       <Form
         form={form}
@@ -134,17 +135,17 @@ export default function CorporateClientDrawer({
       >
         <Form.Item
           name="name"
-          label="Название корпорации"
+          label={t('marketing.corporationName')}
           rules={[
             {
               required: true,
-              message: 'Пожалуйста, введите название корпорации',
+              message: t('marketing.enterCorporationName'),
             },
-            { min: 2, message: 'Название должно содержать минимум 2 символа' },
+            { min: 2, message: t('marketing.corporationNameMin') },
           ]}
         >
           <AntInput
-            placeholder="Введите название корпорации"
+            placeholder={t('marketing.enterCorporationName')}
             size="large"
             className="w-full"
           />
@@ -152,17 +153,17 @@ export default function CorporateClientDrawer({
 
         <Form.Item
           name="inn"
-          label="ИНН"
+          label={t('marketing.inn')}
           rules={[
-            { required: true, message: 'Пожалуйста, введите ИНН' },
+            { required: true, message: t('marketing.enterInn') },
             {
               pattern: /^\d{15}$/,
-              message: 'ИНН должен содержать 15 цифр',
+              message: t('marketing.innPattern'),
             },
           ]}
         >
           <AntInput
-            placeholder="Введите ИНН (15 цифр)"
+            placeholder={t('marketing.enterInnPlaceholder')}
             size="large"
             className="w-full"
           />
@@ -170,11 +171,11 @@ export default function CorporateClientDrawer({
 
         <Form.Item
           name="address"
-          label="Адрес"
-          rules={[{ required: true, message: 'Пожалуйста, введите адрес' }]}
+          label={t('marketing.address')}
+          rules={[{ required: true, message: t('marketing.enterAddress') }]}
         >
           <AntInput
-            placeholder="Введите полный адрес"
+            placeholder={t('marketing.enterAddressPlaceholder')}
             size="large"
             className="w-full"
           />
@@ -182,13 +183,13 @@ export default function CorporateClientDrawer({
 
         <div className="flex justify-end space-x-4 pt-6">
           <Button
-            title="Отмена"
+            title={t('marketing.cancel')}
             type="outline"
             handleClick={handleClose}
             disabled={loading}
           />
           <Button
-            title={isEditMode ? 'Сохранить' : 'Создать'}
+            title={isEditMode ? t('marketing.save') : t('marketing.create')}
             type="basic"
             form={true}
             isLoading={loading}
