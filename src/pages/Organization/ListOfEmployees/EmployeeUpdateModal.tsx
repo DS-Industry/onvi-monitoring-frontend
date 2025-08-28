@@ -5,6 +5,7 @@ import useSWRMutation from 'swr/mutation';
 import { getRoles, updateRole } from '@/services/api/organization';
 import { Modal, Select } from 'antd';
 import { getWorkers } from '@/services/api/equipment';
+import { useUser } from '@/hooks/useUserStore';
 
 type EmployeeUpdateModalProps = {
   open: boolean;
@@ -21,11 +22,17 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
   const [roleId, setRoleId] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<string>('');
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const user = useUser();
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   useEffect(() => {
     if (workerId !== 0) {

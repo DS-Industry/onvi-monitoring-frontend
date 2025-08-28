@@ -6,14 +6,16 @@ import useSWR from 'swr';
 import { getWorkers } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 const EmployeeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
 
   const { data: workerData, isLoading } = useSWR(
-    [`get-worker`],
-    () => getWorkers(),
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

@@ -33,6 +33,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import { useUser } from '@/hooks/useUserStore';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -85,6 +86,7 @@ const EquipmentFailure: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+  const user = useUser();
 
   const { data: posData } = useSWR(
     [`get-pos`, cityParam],
@@ -96,11 +98,15 @@ const EquipmentFailure: React.FC = () => {
     }
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { data: deviceData } = useSWR(
     formData.posId !== 0 ? [`get-device`, formData.posId] : null,
