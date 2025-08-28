@@ -4,7 +4,6 @@ import api from '@/config/axiosConfig';
 enum EQUIPMENT {
   GET_INCIDENT = 'user/incident',
   GET_POS = 'user/pos/filter',
-  GET_WORKER = 'user/permission/worker',
   GET_POS_DEVICE = 'user/device/filter/pos',
   GET_EQUIPMENT = 'user/equipment/pos',
   GET_INCIDENT_EQUIPMENT = 'user/equipment/incident-info',
@@ -467,7 +466,7 @@ export async function getWorkers(
   params?: WorkersParams
 ): Promise<WorkerResponse[]> {
   const response: AxiosResponse<WorkerResponse[]> = await api.get(
-    EQUIPMENT.GET_WORKER + `/${orgId}`,
+    `user/permission/worker/${orgId}`,
     { params }
   );
 
@@ -478,7 +477,7 @@ export async function getWorkersCount(
   orgId: number
 ): Promise<{ count: number }> {
   const response: AxiosResponse<{ count: number }> = await api.get(
-    EQUIPMENT.GET_WORKER + `-count/${orgId}`
+    `user/permission/worker-count/${orgId}`
   );
 
   return response.data;

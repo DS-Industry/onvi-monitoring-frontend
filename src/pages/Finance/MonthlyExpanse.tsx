@@ -211,7 +211,7 @@ const MonthlyExpanse: React.FC = () => {
   );
 
   const { data: workerData } = useSWR(
-    [`get-worker`],
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,

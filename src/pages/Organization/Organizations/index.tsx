@@ -37,7 +37,7 @@ const Organization: React.FC = () => {
   const user = useUser();
 
   const { data: workersData } = useSWR(
-    [`get-worker`],
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
@@ -45,6 +45,7 @@ const Organization: React.FC = () => {
       keepPreviousData: true,
     }
   );
+
   const legalOptions = [
     { name: t('organizations.legalEntity'), value: 'LegalEntity' },
     { name: t('organizations.ip'), value: 'IndividualEntrepreneur' },

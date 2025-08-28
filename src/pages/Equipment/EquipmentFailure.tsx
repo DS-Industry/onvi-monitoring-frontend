@@ -98,11 +98,15 @@ const EquipmentFailure: React.FC = () => {
     }
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(user.organizationId!), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { data: deviceData } = useSWR(
     formData.posId !== 0 ? [`get-device`, formData.posId] : null,

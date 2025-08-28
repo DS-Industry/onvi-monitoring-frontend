@@ -14,7 +14,7 @@ const EmployeeFilter: React.FC = () => {
   const user = useUser();
 
   const { data: workerData, isLoading } = useSWR(
-    [`get-worker`],
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
