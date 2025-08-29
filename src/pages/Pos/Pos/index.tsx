@@ -14,6 +14,7 @@ import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { useUser } from '@/hooks/useUserStore';
 
 const Pos: React.FC = () => {
   const { t } = useTranslation();
@@ -45,11 +46,17 @@ const Pos: React.FC = () => {
     getOrganization({})
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const user = useUser();
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { data: placementData } = useSWR(
     [`get-placement`],
@@ -180,7 +187,7 @@ const Pos: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <div className='hidden sm:flex'>{t('routes.add')}</div>
+            <div className="hidden sm:flex">{t('routes.add')}</div>
           </Button>
         )}
       </div>

@@ -3,64 +3,78 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import { Link, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
-import { getLoyaltyPrograms } from '@/services/api/marketing';
+import {
+  LoyaltyProgramStatus,
+  getLoyaltyPrograms,
+} from '@/services/api/marketing';
 import { Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
-import dayjs from 'dayjs';
+
+import { LoyaltyProgramsResponse } from '@/services/api/marketing';
+import { ColumnsType } from 'antd/es/table';
+import { useUser } from '@/hooks/useUserStore';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const navigate = useNavigate();
 
+  const user = useUser();
+
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
-    useSWR('get-loyalty-programs', getLoyaltyPrograms, {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    });
+    useSWR<LoyaltyProgramsResponse[]>(
+      'get-loyalty-programs',
+      () => getLoyaltyPrograms(user.organizationId),
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true,
+      }
+    );
   const loyaltyPrograms =
     loyaltyProgramsData?.map(item => ({
       ...item.props,
-      status: t(`tables.${item.props.status}`),
+      status: t(`tables.${item.props.status}`) as LoyaltyProgramStatus,
     })) || [];
 
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
-  const columnsLoyaltyPrograms = [
-    {
-      title: 'Название программы',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => {
-        return (
-          <Link
-            to={{
-              pathname: '/marketing/loyalty/bonus',
-            }}
-            className="text-blue-500 hover:text-blue-700 font-semibold"
-          >
-            {text}
-          </Link>
-        );
+  const columnsLoyaltyPrograms: ColumnsType<LoyaltyProgramsResponse['props']> =
+    [
+      {
+        title: 'Название программы',
+        dataIndex: 'name',
+        key: 'name',
+        render: (text: string, record) => {
+          return (
+            <Link
+              to={{
+                pathname: '/marketing/loyalty/bonus',
+                search: `?loyaltyId=${record.id}`,
+              }}
+              className="text-blue-500 hover:text-blue-700 font-semibold"
+            >
+              {text}
+            </Link>
+          );
+        },
       },
-    },
-    {
-      title: 'Статус',
-      dataIndex: 'status',
-      key: 'status',
-      render: statusRender,
-    },
-    {
-      title: 'Дата запуска',
-      dataIndex: 'startDate',
-      key: 'startDate',
-      render: dateRender,
-    },
-  ];
+      {
+        title: 'Статус',
+        dataIndex: 'status',
+        key: 'status',
+        render: statusRender,
+      },
+      {
+        title: 'Дата запуска',
+        dataIndex: 'startDate',
+        key: 'startDate',
+        render: dateRender,
+      },
+    ];
 
   return (
     <>
@@ -92,11 +106,8 @@ const MarketingLoyalty: React.FC = () => {
         )}
         <div className="mt-8">
           <Table
-            dataSource={loyaltyPrograms.sort(
-              (a, b) =>
-                dayjs(b.startDate).toDate().getTime() -
-                dayjs(a.startDate).toDate().getTime()
-            )}
+            rowKey={record => record.id.toString()}
+            dataSource={loyaltyPrograms}
             columns={columnsLoyaltyPrograms}
             loading={loyaltyProgramsLoading}
             scroll={{ x: 'max-content' }}

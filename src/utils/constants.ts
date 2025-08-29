@@ -54,7 +54,10 @@ export const groups: { name: string; value: string }[] = [
   { value: ManagerPaperGroup.SUPPLIES, name: i18n.t('finance.SUPPLIES') },
   { value: ManagerPaperGroup.P_C, name: i18n.t('finance.P_C') },
   { value: ManagerPaperGroup.WAREHOUSE, name: i18n.t('finance.WAREHOUSE') },
-  { value: ManagerPaperGroup.CONSTRUCTION, name: i18n.t('finance.CONSTRUCTION') },
+  {
+    value: ManagerPaperGroup.CONSTRUCTION,
+    name: i18n.t('finance.CONSTRUCTION'),
+  },
   {
     value: ManagerPaperGroup.MAINTENANCE_REPAIR,
     name: i18n.t('finance.MAINTENANCE_REPAIR'),
@@ -64,3 +67,8 @@ export const groups: { name: string; value: string }[] = [
     name: i18n.t('finance.TRANSPORTATION_COSTS'),
   },
 ];
+
+export enum ContractType {
+  CORPORATE = 'CORPORATE',
+  INDIVIDUAL = 'INDIVIDUAL',
+}

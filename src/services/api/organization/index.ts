@@ -112,7 +112,7 @@ type OrganizationDocResponse = {
   };
 };
 
-export type OrganizationOtherDetailsResponse = OrganizationDocResponse["props"];
+export type OrganizationOtherDetailsResponse = OrganizationDocResponse['props'];
 
 type RolesResponse = {
   id: number;
@@ -165,6 +165,7 @@ type UpdateRoleResponse = {
 
 type AddressParams = {
   placementId?: number;
+  noLoyaltyProgram?: boolean;
 };
 
 export type RoleRequestBody = {

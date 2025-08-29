@@ -16,6 +16,7 @@ const useFormHook = <T extends Record<string, unknown>>(
     reset,
     setValue,
     watch,
+    control,
   } = useForm<T>({
     defaultValues,
   });
@@ -37,6 +38,7 @@ const useFormHook = <T extends Record<string, unknown>>(
     setValue,
     updateField,
     watch,
+    control,
   };
 };
 
