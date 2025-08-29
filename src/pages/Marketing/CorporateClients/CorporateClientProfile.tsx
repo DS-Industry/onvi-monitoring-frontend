@@ -1,25 +1,38 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Spin, Button, message, Form } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import { Spin, Button, message, Form, Input } from 'antd';
+import {
+  ArrowLeftOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
 import useSWR from 'swr';
 
-import { CorporateClientResponse, getCorporateClientById, updateCorporateClient } from '@/services/api/marketing';
-import Input from '@/components/ui/Input/Input';
+import {
+  CorporateClientResponse,
+  getCorporateClientById,
+  updateCorporateClient,
+} from '@/services/api/marketing';
 
 const CorporateClientProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const clientId = searchParams.get('clientId');
 
-  const { data: client, error, isLoading, mutate } = useSWR<CorporateClientResponse>(
+  const {
+    data: client,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<CorporateClientResponse>(
     clientId ? ['corporate-client', clientId] : null,
     () => getCorporateClientById(Number(clientId!)),
     {
@@ -72,16 +85,16 @@ const CorporateClientProfile: React.FC = () => {
     try {
       setIsSaving(true);
       const values = await form.validateFields();
-      
+
       await updateCorporateClient(Number(clientId), {
         name: values.name,
         inn: values.inn,
         address: values.address,
       });
-      
+
       message.success(t('corporateClients.updateSuccess'));
       setIsEditing(false);
-      mutate(); // Refresh the data
+      mutate();
     } catch (error) {
       console.error('Error updating client:', error);
       message.error(t('corporateClients.updateError'));
@@ -92,7 +105,7 @@ const CorporateClientProfile: React.FC = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
+      <div className="mb-6 ml-10 md:ml-0">
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/marketing/corporate-clients')}
@@ -100,7 +113,7 @@ const CorporateClientProfile: React.FC = () => {
         >
           {t('actions.back')}
         </Button>
-        
+
         <h1 className="text-2xl font-bold text-gray-800">
           {t('corporateClients.name')}: {client.name}
         </h1>
@@ -114,7 +127,7 @@ const CorporateClientProfile: React.FC = () => {
           inn: client.inn,
           address: client.address,
         }}
-        className="bg-white p-6 rounded-lg"
+        className="bg-white rounded-lg w-full md:w-3/4 lg:w-1/2"
       >
         <Form.Item
           label={t('corporateClients.name')}
@@ -124,22 +137,17 @@ const CorporateClientProfile: React.FC = () => {
           <Input
             disabled={!isEditing}
             placeholder={t('corporateClients.enterCompanyName')}
-            inputType="primary"
           />
         </Form.Item>
-        
+
         <Form.Item
           label={t('corporateClients.inn')}
           name="inn"
           rules={[{ required: true, message: t('validation.innRequired') }]}
         >
-          <Input
-            disabled={!isEditing}
-            placeholder={t('enterInnPlaceholder')}
-            inputType="primary"
-          />
+          <Input disabled={!isEditing} placeholder={t('enterInnPlaceholder')} />
         </Form.Item>
-        
+
         <Form.Item
           label={t('corporateClients.address')}
           name="address"
@@ -148,49 +156,33 @@ const CorporateClientProfile: React.FC = () => {
           <Input
             disabled={!isEditing}
             placeholder={t('corporateClients.enterCompanyAddress')}
-            inputType="primary"
           />
         </Form.Item>
-        
-        <Form.Item
-          label={t('corporateClients.ownerPhone')}
-        >
+
+        <Form.Item label={t('corporateClients.ownerPhone')}>
+          <Input value={client.ownerPhone} disabled />
+        </Form.Item>
+
+        <Form.Item label={t('corporateClients.dateRegistered')}>
           <Input
-            value={client.ownerPhone}
-            disabled={true}
-            inputType="primary"
+            value={
+              client.dateRegistered
+                ? new Date(client.dateRegistered).toLocaleDateString()
+                : '-'
+            }
+            disabled
           />
         </Form.Item>
-        
-        <Form.Item
-          label={t('corporateClients.dateRegistered')}
-        >
-          <Input
-            value={client.dateRegistered ? new Date(client.dateRegistered).toLocaleDateString() : '-'}
-            disabled={true}
-            inputType="primary"
-          />
-        </Form.Item>
-        
+
         {client.comment && (
-          <Form.Item
-            label={t('equipment.comment')}
-          >
-            <Input
-              value={client.comment}
-              disabled={true}
-              inputType="primary"
-            />
+          <Form.Item label={t('equipment.comment')}>
+            <Input value={client.comment} disabled />
           </Form.Item>
         )}
-        
-        <div className="flex justify-end mt-6 space-x-3">
+
+        <div className="mt-6 space-x-3">
           {!isEditing ? (
-            <Button
-              icon={<EditOutlined />}
-              onClick={handleEdit}
-              type="primary"
-            >
+            <Button icon={<EditOutlined />} onClick={handleEdit} type="primary">
               {t('actions.edit')}
             </Button>
           ) : (
