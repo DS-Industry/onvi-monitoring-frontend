@@ -575,4 +575,92 @@ export async function importCards(
   return response.data;
 }
 
+export type CorporateClientResponse = {
+  id: number;
+  name: string;
+  inn: string;
+  address: string;
+  ownerPhone: string;
+  dateRegistered: string; 
+  status: string; 
+  contractType: ContractType;
+  comment?: string;
+  placementId?: number;
+  createdAt?: string; 
+  updatedAt?: string; 
+};
 
+export type CorporateClientsParams = {
+  placementId?: number | string;
+  search?: string;
+  inn?: string;
+  ownerPhone?: string;
+  name?: string;
+  page?: number;
+  size?: number;
+  registrationFrom?: string;
+  registrationTo?: string;
+  organizationId?: number
+};
+
+export type CorporateClientsPaginatedResponse = {
+  data: CorporateClientResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export async function getCorporateClients(
+  params: CorporateClientsParams
+): Promise<CorporateClientsPaginatedResponse> {
+  const response: AxiosResponse<CorporateClientsPaginatedResponse> = await api.get(
+    'user/loyalty/corporate-clients',
+    { params }
+  );
+
+  return response.data;
+}
+
+export async function getCorporateClientById(id: number): Promise<CorporateClientResponse> {
+  const response: AxiosResponse<CorporateClientResponse> = await api.get(
+    `user/loyalty/corporate-clients/${id}`
+  );
+
+  return response.data;
+}
+
+export type CreateCorporateClientRequest = {
+  name: string;
+  inn: string;
+  address: string;
+};
+
+export type UpdateCorporateClientRequest = {
+  name?: string;
+  inn?: string;
+  address?: string;
+};
+
+export async function createCorporateClient(
+  request: CreateCorporateClientRequest
+): Promise<CorporateClientResponse> {
+  const response: AxiosResponse<CorporateClientResponse> = await api.post(
+    'user/loyalty/corporate-clients',
+    request
+  );
+  return response.data;
+}
+
+export async function updateCorporateClient(
+  id: number,
+  request: UpdateCorporateClientRequest
+): Promise<CorporateClientResponse> {
+  const response: AxiosResponse<CorporateClientResponse> = await api.put(
+    `user/loyalty/corporate-clients/${id}`,
+    request
+  );
+  return response.data;
+}
