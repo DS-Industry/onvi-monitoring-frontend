@@ -185,7 +185,7 @@ const CorporateClients: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between ms-12">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between ms-12 md:ms-0">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.corporateClients')}

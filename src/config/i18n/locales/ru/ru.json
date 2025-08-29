@@ -1225,6 +1225,7 @@
     "organizationTypeRequired": "Тип организации обязателен",
     "vatRequired": "НДС обязателен",
     "innRequired": "ИНН обязателен",
+    "addressRequired": "Адрес обязателен",
     "okpoRequired": "ОКПО обязателен",
     "addressRegistrationRequired": "Адрес регистрации обязателен",
     "ogrnRequired": "ОГРН обязателен",
@@ -1293,6 +1294,10 @@
     "address": "Адрес",
     "ownerPhone": "Телефон владельца",
     "dateRegistered": "Дата регистрации",
-    "name": "Название компании"
+    "name": "Название компании",
+    "enterCompanyName": "Введите название компании",
+    "enterCompanyAddress": "Введите адрес компании",
+    "updateSuccess": "Информация о клиенте успешно обновлена",
+    "updateError": "Не удалось обновить информацию о клиенте"
   }
 }

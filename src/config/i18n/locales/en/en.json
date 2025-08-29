@@ -1225,6 +1225,7 @@
     "organizationTypeRequired": "Organization Type is required",
     "vatRequired": "VAT is required",
     "innRequired": "INN is required",
+    "addressRequired": "Address is required",
     "okpoRequired": "OKPO is required",
     "addressRegistrationRequired": "Registration Address is required",
     "ogrnRequired": "OGRN is required",
@@ -1293,6 +1294,10 @@
     "address": "Address",
     "ownerPhone": "Owner Phone Number",
     "dateRegistered": "Date Registered",
-    "name": "Company Name"
+    "name": "Company Name",
+    "enterCompanyName": "Enter company name",
+    "enterCompanyAddress": "Enter company address",
+    "updateSuccess": "Client information updated successfully",
+    "updateError": "Failed to update client information"
   }
 }

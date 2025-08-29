@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Descriptions, Spin, Button, message } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Spin, Button, message, Form } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 
-import { CorporateClientResponse, getCorporateClientById } from '@/services/api/marketing';
+import { CorporateClientResponse, getCorporateClientById, updateCorporateClient } from '@/services/api/marketing';
+import Input from '@/components/ui/Input/Input';
 
 const CorporateClientProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const clientId = searchParams.get('clientId');
 
-  const { data: client, error, isLoading } = useSWR<CorporateClientResponse>(
+  const { data: client, error, isLoading, mutate } = useSWR<CorporateClientResponse>(
     clientId ? ['corporate-client', clientId] : null,
     () => getCorporateClientById(Number(clientId!)),
     {
@@ -49,6 +54,42 @@ const CorporateClientProfile: React.FC = () => {
     return null;
   }
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    form.setFieldsValue({
+      name: client.name,
+      inn: client.inn,
+      address: client.address,
+    });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    form.resetFields();
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const values = await form.validateFields();
+      
+      await updateCorporateClient(Number(clientId), {
+        name: values.name,
+        inn: values.inn,
+        address: values.address,
+      });
+      
+      message.success(t('corporateClients.updateSuccess'));
+      setIsEditing(false);
+      mutate(); // Refresh the data
+    } catch (error) {
+      console.error('Error updating client:', error);
+      message.error(t('corporateClients.updateError'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -65,50 +106,114 @@ const CorporateClientProfile: React.FC = () => {
         </h1>
       </div>
 
-      <Card className="shadow-sm">
-        <Descriptions
-          title={t('corporateClients.name')}
-          bordered
-          column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{
+          name: client.name,
+          inn: client.inn,
+          address: client.address,
+        }}
+        className="bg-white p-6 rounded-lg"
+      >
+        <Form.Item
+          label={t('corporateClients.name')}
+          name="name"
+          rules={[{ required: true, message: t('validation.nameRequired') }]}
         >
-          <Descriptions.Item label={t('corporateClients.name')}>
-            {client.name}
-          </Descriptions.Item>
-          
-          <Descriptions.Item label={t('corporateClients.inn')}>
-            {client.inn}
-          </Descriptions.Item>
-          
-          <Descriptions.Item label={t('corporateClients.address')}>
-            {client.address}
-          </Descriptions.Item>
-          
-          <Descriptions.Item label={t('corporateClients.ownerPhone')}>
-            {client.ownerPhone}
-          </Descriptions.Item>
-          
-          <Descriptions.Item label={t('corporateClients.dateRegistered')}>
-            {client.dateRegistered ? new Date(client.dateRegistered).toLocaleDateString() : '-'}
-          </Descriptions.Item>
-          
-          <Descriptions.Item label={t('constants.status')}>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              client.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-              client.status === 'BLOCKED' ? 'bg-red-100 text-red-800' :
-              client.status === 'VERIFICATE' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-gray-100 text-gray-800'
-            }`}>
-              {client.status}
-            </span>
-          </Descriptions.Item>
-          
-          {client.comment && (
-            <Descriptions.Item label={t('equipment.comment')} span={2}>
-              {client.comment}
-            </Descriptions.Item>
+          <Input
+            disabled={!isEditing}
+            placeholder={t('corporateClients.enterCompanyName')}
+            inputType="primary"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          label={t('corporateClients.inn')}
+          name="inn"
+          rules={[{ required: true, message: t('validation.innRequired') }]}
+        >
+          <Input
+            disabled={!isEditing}
+            placeholder={t('enterInnPlaceholder')}
+            inputType="primary"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          label={t('corporateClients.address')}
+          name="address"
+          rules={[{ required: true, message: t('validation.addressRequired') }]}
+        >
+          <Input
+            disabled={!isEditing}
+            placeholder={t('corporateClients.enterCompanyAddress')}
+            inputType="primary"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          label={t('corporateClients.ownerPhone')}
+        >
+          <Input
+            value={client.ownerPhone}
+            disabled={true}
+            inputType="primary"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          label={t('corporateClients.dateRegistered')}
+        >
+          <Input
+            value={client.dateRegistered ? new Date(client.dateRegistered).toLocaleDateString() : '-'}
+            disabled={true}
+            inputType="primary"
+          />
+        </Form.Item>
+        
+        {client.comment && (
+          <Form.Item
+            label={t('equipment.comment')}
+          >
+            <Input
+              value={client.comment}
+              disabled={true}
+              inputType="primary"
+            />
+          </Form.Item>
+        )}
+        
+        <div className="flex justify-end mt-6 space-x-3">
+          {!isEditing ? (
+            <Button
+              icon={<EditOutlined />}
+              onClick={handleEdit}
+              type="primary"
+            >
+              {t('actions.edit')}
+            </Button>
+          ) : (
+            <>
+              <Button
+                icon={<CloseOutlined />}
+                onClick={handleCancel}
+                type="default"
+              >
+                {t('actions.cancel')}
+              </Button>
+              <Button
+                icon={<SaveOutlined />}
+                onClick={handleSave}
+                type="primary"
+                loading={isSaving}
+              >
+                {t('actions.save')}
+              </Button>
+            </>
           )}
-        </Descriptions>
-      </Card>
+        </div>
+      </Form>
     </div>
   );
 };
