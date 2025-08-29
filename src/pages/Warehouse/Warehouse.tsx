@@ -18,8 +18,13 @@ import { useSearchParams } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
 
 type Warehouse = {
   name: string;
@@ -61,11 +66,17 @@ const Warehouse: React.FC = () => {
     }
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const user = useUser();
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const { data: warehouseData, isLoading: warehouseLoading } = useSWR(
     swrKey,
@@ -87,7 +98,10 @@ const Warehouse: React.FC = () => {
     posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const workers: { name: string; value: number }[] =
-    workerData?.map(item => ({ name: item.name + " " + item.surname, value: item.id })) || [];
+    workerData?.map(item => ({
+      name: item.name + ' ' + item.surname,
+      value: item.id,
+    })) || [];
 
   const warehouses =
     warehouseData?.map(item => ({
@@ -198,7 +212,7 @@ const Warehouse: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <div className='hidden sm:flex'>{t('routes.add')}</div>
+            <div className="hidden sm:flex">{t('routes.add')}</div>
           </AntDButton>
         )}
       </div>
@@ -261,7 +275,9 @@ const Warehouse: React.FC = () => {
             value={formData.location}
             changeValue={e => handleInputChange('location', e.target.value)}
             error={!!errors.location}
-            {...register('location', { required: t('validation.locationRequired') })}
+            {...register('location', {
+              required: t('validation.locationRequired'),
+            })}
             helperText={errors.location?.message || ''}
           />
           <DropdownInput
@@ -271,7 +287,8 @@ const Warehouse: React.FC = () => {
             classname="w-64"
             {...register('managerId', {
               required: t('validation.categoryIdRequired'),
-              validate: value => value !== 0 || t('validation.categoryIdRequired'),
+              validate: value =>
+                value !== 0 || t('validation.categoryIdRequired'),
             })}
             value={formData.managerId}
             onChange={value => handleInputChange('managerId', value)}
@@ -285,7 +302,8 @@ const Warehouse: React.FC = () => {
             classname="w-64"
             {...register('posId', {
               required: t('validation.categoryIdRequired'),
-              validate: value => value !== 0 || t('validation.categoryIdRequired'),
+              validate: value =>
+                value !== 0 || t('validation.categoryIdRequired'),
             })}
             value={formData.posId}
             onChange={value => handleInputChange('posId', value)}

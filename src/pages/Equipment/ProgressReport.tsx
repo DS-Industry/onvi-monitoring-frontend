@@ -21,6 +21,7 @@ import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import { useUser } from '@/hooks/useUserStore';
 
 const ProgressReport: React.FC = () => {
   const { t } = useTranslation();
@@ -60,11 +61,17 @@ const ProgressReport: React.FC = () => {
     keepPreviousData: true,
   });
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const user = useUser();
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const techTasks =
     data?.techTaskReadAll?.map(item => ({

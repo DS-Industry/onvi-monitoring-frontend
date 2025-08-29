@@ -42,7 +42,11 @@ import { Drawer, Button as AntButton } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  ALL_PAGE_SIZES,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Option } = Select;
@@ -148,15 +152,15 @@ const MonthlyExpanse: React.FC = () => {
   const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const dateStartParam = searchParams.get('dateStart')
-  ? dayjs(searchParams.get('dateStart')).toDate()
-  : dayjs().startOf('month').toDate();
+    ? dayjs(searchParams.get('dateStart')).toDate()
+    : dayjs().startOf('month').toDate();
   const dateEndParam = searchParams.get('dateEnd')
-  ? dayjs(searchParams.get('dateEnd')).toDate()
-  : dayjs().endOf('month').toDate();
+    ? dayjs(searchParams.get('dateEnd')).toDate()
+    : dayjs().endOf('month').toDate();
   const userIdParam = Number(searchParams.get('userId')) || user.id;
   const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
-  
+
   const userPermissions = usePermissions();
   const { showToast } = useToast();
 
@@ -190,15 +194,11 @@ const MonthlyExpanse: React.FC = () => {
     data: managerPeriodData,
     isLoading: periodsLoading,
     mutate: mutateManagerPeriods,
-  } = useSWR(
-    [swrKey, filterParams],
-    () => getAllManagerPeriods(filterParams),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
-  );
+  } = useSWR([swrKey, filterParams], () => getAllManagerPeriods(filterParams), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const managerPeriods = useMemo(
     () => managerPeriodData?.managerReportPeriods || [],
@@ -210,11 +210,15 @@ const MonthlyExpanse: React.FC = () => {
     [managerPeriodData]
   );
 
-  const { data: workerData } = useSWR([`get-worker`], () => getWorkers(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const workers = useMemo(() => {
     return (
@@ -351,10 +355,10 @@ const MonthlyExpanse: React.FC = () => {
         return (
           <div
             className="text-primary02 hover:text-primary02_Hover cursor-pointer font-semibold"
-            onClick={() => {              
+            onClick={() => {
               navigate({
                 pathname: '/finance/report/period/edit',
-                search: `?ownerId=${record.id}&status=${record.status}`
+                search: `?ownerId=${record.id}&status=${record.status}`,
               });
             }}
           >

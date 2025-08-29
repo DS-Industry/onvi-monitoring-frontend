@@ -4,10 +4,14 @@ import useSWR from 'swr';
 import dayjs from 'dayjs';
 
 // services
-import { getDepositDevice } from '@/services/api/pos';
+import {
+  DepositDeviceResponse,
+  getCurrency,
+  getDepositDevice,
+} from '@/services/api/pos';
 
 // tables
-import { Table } from 'antd';
+import { Select, Table } from 'antd';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
@@ -27,24 +31,6 @@ import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
-type FilterDepositDevice = {
-  dateStart: string;
-  dateEnd: string;
-  deviceId?: number;
-  page?: number;
-  size?: number;
-};
-
-interface DepositMonitoring {
-  id: number;
-  sumOper: number;
-  dateOper: Date;
-  dateLoad: Date;
-  counter: number;
-  localId: number;
-  currencyType: string;
-}
-
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
@@ -55,18 +41,20 @@ const DepositDevice: React.FC = () => {
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const currencyId = Number(searchParams.get('currencyId')) || undefined;
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const filterParams: FilterDepositDevice = useMemo(
+  const filterParams = useMemo(
     () => ({
       dateStart,
       dateEnd,
       page: currentPage,
       size: pageSize,
       deviceId,
+      currencyId,
     }),
-    [dateStart, dateEnd, currentPage, pageSize, deviceId]
+    [dateStart, dateEnd, currentPage, pageSize, deviceId, currencyId]
   );
 
   const swrKey = useMemo(() => {
@@ -78,6 +66,7 @@ const DepositDevice: React.FC = () => {
       filterParams.dateEnd,
       filterParams.page,
       filterParams.size,
+      filterParams.currencyId,
     ];
   }, [deviceId, filterParams]);
 
@@ -87,6 +76,7 @@ const DepositDevice: React.FC = () => {
       getDepositDevice(deviceId, {
         dateStart: new Date(filterParams.dateStart),
         dateEnd: new Date(filterParams.dateEnd),
+        currencyId: filterParams.currencyId,
         page: filterParams.page,
         size: filterParams.size,
       }).finally(() => {
@@ -98,10 +88,15 @@ const DepositDevice: React.FC = () => {
     }
   );
 
+  const { data: currencyData } = useSWR('get-currency', () => getCurrency(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
-  const columnsMonitoringDevice: ColumnsType<DepositMonitoring> = [
+  const columnsMonitoringDevice: ColumnsType<DepositDeviceResponse["oper"][0]> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -167,7 +162,27 @@ const DepositDevice: React.FC = () => {
         <QuestionMarkIcon />
       </div>
 
-      <GeneralFilters count={totalCount} display={['device', 'dateTime']} />
+      <GeneralFilters count={totalCount} display={['device', 'dateTime']}>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.currencyType')}
+          </label>
+          <Select
+            allowClear={false}
+            className="w-full sm:w-80"
+            options={currencyData?.map(curr => ({
+              label: curr.name,
+              value: String(curr.id),
+            }))}
+            value={searchParams.get('currencyId')}
+            onChange={value => {
+              updateSearchParams(searchParams, setSearchParams, {
+                currencyId: value,
+              });
+            }}
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector

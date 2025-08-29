@@ -6,12 +6,24 @@ enum POS {
   POST_POS = 'user/pos',
   GET_DEPOSIT = '/user/pos/monitoring',
   GET_PROGRAMS = '/user/pos/program',
+  GET_CURRENCY = 'user/device/currency',
 }
 
 enum CarWashPosType {
   SelfService = 'SelfService',
   Portal = 'Portal',
   SelfServiceAndPortal = 'SelfServiceAndPortal',
+}
+
+export enum CurrencyType {
+  CASH = 'CASH',
+  CASHLESS = 'CASHLESS',
+  VIRTUAL = 'VIRTUAL',
+}
+
+enum CurrencyView {
+  COIN = 'COIN',
+  PAPER = 'PAPER',
 }
 
 type Pos = {
@@ -67,13 +79,13 @@ type PosBody = {
 };
 
 type DepositParam = {
-    dateStart: Date;
-    dateEnd: Date;
-    posId?: number;
-    placementId?: number;
-    page?: number;
-    size?: number;
-}
+  dateStart: Date;
+  dateEnd: Date;
+  posId?: number;
+  placementId?: number;
+  page?: number;
+  size?: number;
+};
 
 type DepositResponse = {
   id: number;
@@ -110,7 +122,7 @@ type DepositPosResponse = {
   totalCount: number;
 };
 
-type DepositDeviceResponse = {
+export type DepositDeviceResponse = {
   oper: {
     id: number;
     sumOper: number;
@@ -196,6 +208,14 @@ type PlanFactResponse = {
   totalCount: number;
 };
 
+type CurrencyResponse = {
+  id: number;
+  code: number;
+  name: number;
+  currencyType: CurrencyType;
+  currencyView?: CurrencyView;
+};
+
 export async function getPos(userId: number): Promise<Pos[]> {
   const url = POS.GET_POSES + `/${userId}`;
   const response: AxiosResponse<Pos[]> = await api.get(url);
@@ -230,7 +250,7 @@ export async function getDepositPos(
 
 export async function getDepositDevice(
   deviceId: number,
-  params: DeviceParams
+  params: DeviceParams & { currencyId?: number }
 ): Promise<DepositDeviceResponse> {
   const response: AxiosResponse<DepositDeviceResponse> = await api.get(
     `/user/device/monitoring/${deviceId}`,
@@ -278,5 +298,11 @@ export async function getPlanFact(
     POS.POST_POS + '/plan-fact',
     { params }
   );
+  return response.data;
+}
+
+export async function getCurrency(): Promise<CurrencyResponse[]> {
+  const url = POS.GET_CURRENCY;
+  const response: AxiosResponse<CurrencyResponse[]> = await api.get(url);
   return response.data;
 }
