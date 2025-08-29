@@ -1,25 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import PieChart from '@icons/PieChart.png';
-import Check from '@/assets/icons/CheckCircle.png';
-import { useLocation } from 'react-router-dom';
-import useSWR from 'swr';
-import { getClientById } from '@/services/api/marketing';
-import { Skeleton } from 'antd';
-import { Form, Typography, Tag, Row, Col, Divider, Space } from 'antd';
-import { CloseOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
+import useSWR, { mutate } from 'swr';
+import { getClientById, updateClient } from '@/services/api/marketing';
+import { Form, Typography, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
 import dayjs from 'dayjs';
+import { useForm, Controller } from 'react-hook-form';
+import { ContractType } from '@/utils/constants';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
+
+type ClientFormData = {
+  contractType: ContractType;
+  name: string;
+  birthday?: Date;
+  phone: string;
+  email?: string;
+  gender?: string;
+  inn?: string;
+  comment?: string;
+  placementId?: number;
+};
 
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const editClientId = location.state.ownerId;
+  const [searchParams] = useSearchParams();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const userId = searchParams.get('userId')
+    ? Number(searchParams.get('userId'))
+    : undefined;
 
   const { data: clientData, isValidating: loadingClients } = useSWR(
-    editClientId !== 0 ? [`get-client-by-id`] : null,
-    () => getClientById(editClientId),
+    userId ? [`get-client-by-id`] : null,
+    () => getClientById(userId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -27,226 +43,283 @@ const BasicInformation: React.FC = () => {
     }
   );
 
-  return (
-    <div className="max-w-6xl">
-      {loadingClients ? (
-        <div className="flex flex-col md:flex-row gap-6 mb-5">
-          <div className="flex flex-col space-y-6 w-full">
-            <Skeleton.Input active style={{ width: 150, height: 32 }} />
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 256, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 56, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 144, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 40 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <Skeleton.Input active style={{ width: 384, height: 80 }} />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <div className="flex gap-2 flex-wrap">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton.Button
-                    key={i}
-                    active
-                    size="small"
-                    style={{ width: 80, height: 32 }}
-                  />
-                ))}
-              </div>
-            </div>
-            <div>
-              <Skeleton.Input
-                active
-                style={{ width: 100, height: 24, marginBottom: 8 }}
-              />
-              <div className="flex gap-4">
-                <Skeleton.Button active style={{ width: 120, height: 48 }} />
-                <Skeleton.Button active style={{ width: 120, height: 48 }} />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col lg:ml-40 w-full space-y-4">
-            <div className="flex items-center gap-2">
-              <Skeleton.Input active style={{ width: 160, height: 32 }} />
-              <Skeleton.Avatar active shape="circle" size={32} />
-            </div>
+  const defaultValues: ClientFormData = useMemo(
+    () => ({
+      contractType: clientData?.contractType || ContractType.INDIVIDUAL,
+      name: clientData?.name || '',
+      birthday: clientData?.birthday ? new Date(clientData.birthday) : undefined,
+      phone: clientData?.phone || '',
+      email: clientData?.email || '',
+      gender: clientData?.gender || '',
+      comment: clientData?.comment || '',
+      placementId: clientData?.placementId,
+    }),
+    [clientData]
+  );
 
-            <div className="space-y-3">
-              <div className="flex gap-10">
-                <div className="flex gap-2 items-center">
-                  <Skeleton.Avatar active shape="circle" size={24} />
-                  <Skeleton.Input active style={{ width: 120 }} />
-                </div>
-                <div className="flex gap-2 items-center">
-                  <Skeleton.Avatar active shape="circle" size={24} />
-                  <Skeleton.Input active style={{ width: 120 }} />
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Skeleton.Avatar active shape="circle" size={24} />
-                <Skeleton.Input active style={{ width: 160 }} />
-              </div>
-            </div>
-          </div>
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ClientFormData>({ defaultValues });
+
+  const genderOptions = useMemo(() => [
+    { value: 'MALE', label: t('marketing.man') },
+    { value: 'FEMALE', label: t('marketing.woman') },
+  ], [t]);
+
+  useEffect(() => {
+    if (clientData && !isEditing) {
+      reset(defaultValues);
+    }
+  }, [clientData, isEditing, reset]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setValue('contractType', clientData?.contractType || ContractType.INDIVIDUAL);
+    setValue('name', clientData?.name || '');
+    setValue('birthday', clientData?.birthday ? new Date(clientData.birthday) : undefined);
+    setValue('phone', clientData?.phone || '');
+    setValue('email', clientData?.email || '');
+    setValue('gender', clientData?.gender || '');
+    setValue('comment', clientData?.comment || '');
+    setValue('placementId', clientData?.placementId);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    reset(defaultValues);
+  };
+
+  const onSubmit = async (values: ClientFormData) => {
+    try {
+      if (!userId) {
+        message.error('Client ID not found');
+        return;
+      }
+
+      const updateData = {
+        clientId: userId,
+        name: values.name,
+        contractType: values.contractType,
+        comment: values.comment,
+        email: values.email,
+        placementId: values.placementId,
+        gender: values.gender,
+        birthday: values.birthday,
+        phone: values.phone,
+      };
+
+      await updateClient(updateData);
+      
+      message.success(t('routes.savedSuccessfully'));
+      setIsEditing(false);
+      
+      mutate([`get-client-by-id`]);
+    } catch (error) {
+      console.error('Update failed:', error);
+      message.error('Failed to update client information');
+    }
+  };
+
+  const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
+    const editableFields = ['contractType', 'name', 'birthday', 'gender', 'email', 'comment'];
+    
+    if (isEditing && editableFields.includes(fieldName)) {
+      return (
+        <Form.Item 
+          label={label} 
+          name={fieldName}
+          help={errors[fieldName as keyof ClientFormData]?.message}
+          validateStatus={errors[fieldName as keyof ClientFormData] ? 'error' : undefined}
+          labelCol={{ span: 24 }}
+          className="w-86"
+        >
+          {fieldName === 'comment' ? (
+            <Controller
+              name="comment"
+              control={control}
+              render={({ field }) => (
+                <TextArea 
+                  rows={3} 
+                  className="w-86"
+                  placeholder={t('marketing.about')}
+                  {...field}
+                />
+              )}
+            />
+          ) : fieldName === 'contractType' ? (
+            <Controller
+              name="contractType"
+              control={control}
+              rules={{
+                required: t('validation.contractTypeRequired') as string,
+              }}
+              render={({ field }) => (
+                <Select {...field} className="w-86" size="large">
+                  <Option value={ContractType.INDIVIDUAL}>
+                    {t('marketing.physical')}
+                  </Option>
+                  <Option value={ContractType.CORPORATE}>
+                    {t('marketing.legal')}
+                  </Option>
+                </Select>
+              )}
+            />
+          ) : fieldName === 'gender' ? (
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  className="w-86"
+                  placeholder={t('warehouse.notSel')}
+                  options={genderOptions}
+                />
+              )}
+            />
+          ) : fieldName === 'birthday' ? (
+            <Controller
+              name="birthday"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  className="w-86"
+                  placeholder={t('finance.sel')}
+                  value={field.value ? dayjs(field.value) : undefined}
+                  onChange={d => field.onChange(d ? d.toDate() : undefined)}
+                />
+              )}
+            />
+          ) : fieldName === 'email' ? (
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: t('validation.invalidEmailFormat'),
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  className="w-86"
+                  placeholder={t('marketing.enterEmail')}
+                  {...field}
+                  size="large"
+                />
+              )}
+            />
+          ) : (
+            <Controller
+              name={fieldName as keyof ClientFormData}
+              control={control}
+              rules={fieldName === 'name' ? { required: 'Name is required' } : {}}
+              render={({ field }) => (
+                <Input 
+                  className="w-86"
+                  placeholder={fieldName === 'name' ? t('marketing.enterName') : ''}
+                  value={field.value as string}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  size="large"
+                />
+              )}
+            />
+          )}
+        </Form.Item>
+      );
+    }
+
+    return (
+      <Form.Item label={label} labelCol={{ span: 24 }}>
+        <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
+          {value || '-'}
         </div>
+      </Form.Item>
+    );
+  };
+
+  return (
+    <div className="max-w-6xl mb-5">
+      {loadingClients ? (
+         <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+          <Spin size="large" />
+       </div>
       ) : (
-        <Form layout="vertical" className="mb-5">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Row gutter={[32, 24]}>
-            {/* Left Column */}
             <Col xs={24} lg={12}>
-              <Title level={4}>{t('warehouse.basic')}</Title>
+              <div className="flex justify-between items-center mb-4">
+                <Title level={4}>{t('warehouse.basic')}</Title>
 
-              <Form.Item label={t('marketing.type')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-xs">
-                  {clientData?.type ? clientData.type : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.name')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.name ? clientData.name : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.floor')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-20">
-                  {clientData?.gender ? clientData.gender : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('register.date')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-36">
-                  {clientData?.birthday
-                    ? dayjs(clientData.birthday).format('DD.MM.YYYY')
-                    : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('profile.telephone')}>
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.phone}
-                </div>
-              </Form.Item>
-
-              <Form.Item label="E-mail">
-                <div className="border border-borderFill rounded-md px-3 py-1 w-full max-w-md">
-                  {clientData?.email ? clientData.email : '-'}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('equipment.comment')}>
-                <div className="border border-borderFill rounded-md px-3 py-2 w-full max-w-md h-20">
-                  {clientData?.comment}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('marketing.tags')}>
-                <div className="flex flex-wrap gap-2 w-full max-w-md">
-                  {clientData?.tags.map(tag => (
-                    <Tag
-                      key={tag.id}
-                      style={{
-                        backgroundColor: tag.color,
-                        color: '#fff',
-                        padding: '6px 10px',
-                        fontWeight: '600',
-                      }}
-                      closable
-                      closeIcon={<CloseOutlined style={{ color: '#fff' }} />}
-                    >
-                      {tag.name}
-                    </Tag>
-                  ))}
-                </div>
-              </Form.Item>
-
-              <Form.Item label={t('routes.segments')}>
-                <Space wrap>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.regular')}</Text>
-                  </div>
-                  <div className="flex items-center gap-2 border px-3 py-2 rounded-md text-primary border-gray-400">
-                    <img src={PieChart} alt="segment" loading="lazy" />
-                    <Text>{t('marketing.checks')}</Text>
-                  </div>
-                </Space>
-              </Form.Item>
-            </Col>
-            <Col xs={24} lg={12}>
-              <div className="flex items-center space-x-2 mb-3">
-                <Title level={4} className="!mb-0 whitespace-nowrap">
-                  {t('marketing.mess')}
-                </Title>
-                <InfoCircleOutlined />
               </div>
 
-              <Divider className="!my-3" />
+              {renderField(
+                t('marketing.type'),
+                clientData?.contractType === ContractType.INDIVIDUAL ? t('marketing.physical') : t('marketing.legal'),
+                'contractType'
+              )}
 
-              <Space direction="vertical" size="middle" className="w-full">
-                <Space wrap>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} WhatsApp</Text>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <img src={Check} alt="check" loading="lazy" />
-                    <Text type="secondary">{t('marketing.sub')} Telegram</Text>
-                  </div>
-                </Space>
+              {renderField(
+                t('marketing.name'),
+                clientData?.name,
+                'name'
+              )}
 
-                <div className="flex items-center gap-2">
-                  <img src={Check} alt="check" loading="lazy" />
-                  <Text type="secondary">{t('marketing.sub')} Email</Text>
-                </div>
-              </Space>
+              {renderField(
+                t('marketing.floor'),
+                clientData?.gender === 'MALE' ? t('marketing.man') : clientData?.gender === 'FEMALE' ? t('marketing.woman') : '-',
+                'gender'
+              )}
+
+              {renderField(
+                t('register.date'),
+                clientData?.birthday ? dayjs(clientData.birthday).format('DD.MM.YYYY') : '-',
+                'birthday'
+              )}
+
+              {renderField(
+                t('profile.telephone'),
+                clientData?.phone,
+                'phone'
+              )}
+
+              {renderField(
+                "E-mail",
+                clientData?.email,
+                'email'
+              )}
+
+              {renderField(
+                t('equipment.comment'),
+                clientData?.comment,
+                'comment'
+              )}
+
+              {!isEditing ? (
+                  <Button type="primary" onClick={handleEdit}>
+                    {t('actions.edit')}
+                  </Button>
+                ) : (
+                  <div className="space-x-2">
+                    <Button onClick={handleCancel}>
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button type="primary" htmlType="submit">
+                      {t('actions.save')}
+                    </Button>
+                  </div>
+                )}
             </Col>
+            
           </Row>
-        </Form>
+        </form>
       )}
     </div>
   );
