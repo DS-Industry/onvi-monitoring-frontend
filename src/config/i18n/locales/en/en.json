@@ -4,6 +4,7 @@
     "administration": "Administration",
     "subscriptions": "Subscriptions",
     "accessRights": "Access Rights",
+    "cacheInvalidation": "Cache Invalidation",
     "legalEntities": "Legal Entitites",
     "station": "Station",
     "objectManagement": "Object Management",
@@ -1220,5 +1221,24 @@
     "warehouse": {
       "placeholder": "Select Warehouse"
     }
+  },
+  "cache": {
+    "title": "Cache Invalidation",
+    "description": "Invalidate specific cache paths to refresh data across the system. This tool is restricted to super administrators only.",
+    "warning": "Super Administrator Access Required",
+    "warningDescription": "This page allows you to invalidate cache for specific API paths. Use with caution as this can impact system performance.",
+    "pathLabel": "Cache Path to Invalidate",
+    "pathPlaceholder": "Enter the API path pattern to invalidate (e.g., /api/users/*, /api/organizations/*)",
+    "pathRequired": "Please enter a cache path to invalidate",
+    "invalidateButton": "Invalidate Cache",
+    "clearButton": "Clear Path",
+    "examplesTitle": "Common Cache Paths",
+    "usageTitle": "Usage Guidelines",
+    "usage1": "Use wildcards (*) to invalidate multiple related endpoints",
+    "usage2": "Specify exact paths for targeted cache invalidation",
+    "usage3": "Common patterns: /api/{module}/* for entire module cache",
+    "usage4": "Use sparingly to avoid unnecessary system load",
+    "invalidationSuccess": "Cache invalidated successfully",
+    "invalidationError": "Failed to invalidate cache"
   }
 }

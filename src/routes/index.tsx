@@ -126,6 +126,9 @@ const Subscriptions = React.lazy(
 );
 const Analysis = React.lazy(() => import('@/pages/Analysis/Analysis'));
 const Warehouse = React.lazy(() => import('@/pages/Warehouse/Warehouse'));
+const CacheInvalidation = React.lazy(
+  () => import('@/pages/Administration/CacheInvalidation')
+);
 
 const routes = [
   {
@@ -261,6 +264,18 @@ const routes = [
           { action: 'create', subject: 'Pos' },
           { action: 'read', subject: 'Pos' },
         ],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'cacheInvalidation',
+        isVisible: true,
+        path: '/administration/cache-invalidation',
+        component: CacheInvalidation,
+        permissions: [{ action: 'manage', subject: 'Organization' }],
         isSidebar: true,
         isHr: false,
         titleName: '',
