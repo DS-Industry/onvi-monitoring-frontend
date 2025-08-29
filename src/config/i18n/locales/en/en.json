@@ -59,6 +59,7 @@
     "edit": "Editing",
     "left": "Leftovers",
     "clients": "Clients",
+    "corporateClients": "Corporate Clients",
     "segments": "Segments",
     "loyalty": "Loyalty Program",
     "share": "Share Constructor",
@@ -561,6 +562,23 @@
     "maxi": "Maximum percentage",
     "use": "Use bonuses with discounts",
     "allow": "Allow bonuses to be written off for payment with any discounts",
+    "createCorporation": "Create Corporation",
+    "editCorporation": "Edit Corporation",
+    "corporationName": "Corporation Name",
+    "enterCorporationName": "Please enter corporation name",
+    "corporationNameMin": "Name must contain at least 2 characters",
+    "enterInn": "Please enter INN",
+    "innPattern": "INN must contain 15 digits",
+    "enterInnPlaceholder": "Enter INN (15 digits)",
+    "address": "Address",
+    "enterAddress": "Please enter address",
+    "enterAddressPlaceholder": "Enter full address",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "corporationUpdated": "Corporation successfully updated",
+    "corporationCreated": "Corporation successfully created",
+    "saveError": "An error occurred while saving",
     "importCards": "Import Cards",
     "importCardsDescription": "Import client cards from Excel file",
     "selectFile": "Select File",
@@ -590,7 +608,7 @@
     "fromThe": "From the date of enrollment",
     "after": "After starting the Program, combustion conditions cannot be changed",
     "burnout": "Burnout time",
-    "create": "Create multiple levels with different privileges.",
+    "createTiers": "Create multiple levels with different privileges.",
     "toMan": "To manually assign levels to clients, go to the client card",
     "advanced": "Advanced",
     "enter": "Enter amount",
@@ -673,7 +691,9 @@
     "useExistingCard": "Select a card",
     "enterCustomCard": "Enter a custom card",
     "client": "Client",
-    "balance": "Balance"
+    "balance": "Balance",
+    "createCorporation": "Create Corporation",
+    "editCorporation": "Edit Corporation"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -1176,7 +1196,9 @@
     "save": "Save",
     "cancel": "Cancel",
     "sendSuccess": "Send successfully",
-    "returnSuccess": "Return successfully"
+    "returnSuccess": "Return successfully",
+    "back": "Back",
+    "actions": "Actions"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
@@ -1202,6 +1224,7 @@
     "organizationTypeRequired": "Organization Type is required",
     "vatRequired": "VAT is required",
     "innRequired": "INN is required",
+    "addressRequired": "Address is required",
     "okpoRequired": "OKPO is required",
     "addressRegistrationRequired": "Registration Address is required",
     "ogrnRequired": "OGRN is required",
@@ -1265,5 +1288,16 @@
     "city": {
       "placeholder": "Select City"
     }
+  },
+  "corporateClients": {
+    "inn": "INN",
+    "address": "Address",
+    "ownerPhone": "Owner Phone Number",
+    "dateRegistered": "Date Registered",
+    "name": "Company Name",
+    "enterCompanyName": "Enter company name",
+    "enterCompanyAddress": "Enter company address",
+    "updateSuccess": "Client information updated successfully",
+    "updateError": "Failed to update client information"
   }
 }
