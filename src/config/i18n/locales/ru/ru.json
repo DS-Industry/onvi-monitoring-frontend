@@ -48,6 +48,9 @@
     "documents": "Документы",
     "suppliers": "Поставщики",
     "salePrice": "Цены для продажи",
+    "saleDocument": "Продажа",
+    "saleDocumentView": "Документ продажи",
+    "saleDocumentCreate": "Создание документа продажи",
     "": "",
     "import": "Импорт номенклатуры",
     "COMMISSIONING": "Передача в эксплуатацию",
@@ -467,7 +470,13 @@
   "sale": {
     "create": "Добавление цены",
     "price": "Цена",
-    "nomenclature": "Номенклатура"
+    "nomenclature": "Номенклатура",
+    "manager": "Ответственный менеджер",
+    "availability": "Наличие",
+    "saleQuantity": "Количество на продажу",
+    "totalAmount": "Итоговая стоимость",
+    "totalSum": "Полная сумма",
+    "date": "Дата продажи"
   },
   "marketing": {
     "noClient": "В данный момент у вас нет клиентов в системе",
