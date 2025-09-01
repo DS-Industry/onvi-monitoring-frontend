@@ -55,7 +55,6 @@ import { Modal, type TableProps } from 'antd';
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import {
   DEFAULT_PAGE,
@@ -894,12 +893,11 @@ const Articles: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.articles')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 
@@ -1176,9 +1174,8 @@ const Articles: React.FC = () => {
       </div>
 
       <div className="mt-5">
-        {/* Add/Delete buttons */}
         <div style={{ marginBottom: 16 }}>
-          <Space>
+          <div className='flex flex-col space-y-4 space-x-0 sm:space-x-2 sm:flex-row sm:space-y-0'>
             <Can
               requiredPermissions={[
                 { action: 'manage', subject: 'ManagerPaper' },
@@ -1223,7 +1220,7 @@ const Articles: React.FC = () => {
                 )
               }
             </Can>
-          </Space>
+          </div>
         </div>
 
         <Form form={form} component={false}>

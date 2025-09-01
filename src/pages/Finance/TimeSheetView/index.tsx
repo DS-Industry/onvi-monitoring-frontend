@@ -101,13 +101,13 @@ const TimesheetView: React.FC = () => {
 
   return (
     <div className="">
-      <span className="text-xl sm:text-3xl font-normal text-text01">
+      <span className="ml-12 md:ml-0 text-xl sm:text-3xl font-normal text-text01">
         {t('shift.shift')}: {dayShiftData?.workerName ?? ''}
       </span>
       <div className="mt-6">
         <hr />
       </div>
-      <div className="flex flex-nowrap space-x-4 border-b my-7 w-full overflow-x-scroll">
+      <div className="flex flex-wrap space-x-4 border-b my-7 w-full overflow-x-scroll">
         {tabs.map(tab => (
           <button
             key={tab.id}
