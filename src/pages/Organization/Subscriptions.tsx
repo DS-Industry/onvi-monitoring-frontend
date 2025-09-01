@@ -4,7 +4,6 @@ import Notification from '@/components/ui/Notification';
 const CurrentTariff = React.lazy(() => import('./CurrentTariff'));
 const ChangeTariff = React.lazy(() => import('./ChangeTariff'));
 import GenericTabs from '@ui/Tabs/GenericTab';
-import QuestionMarkIcon from "@icons/qustion-mark.svg?react";
 
 const Subscriptions: React.FC = () => {
   const { t } = useTranslation();
@@ -26,9 +25,10 @@ const Subscriptions: React.FC = () => {
 
   return (
     <>
-      <div className='ml-12 md:ml-0 flex items-center space-x-2'>
-        <span className="text-xl sm:text-3xl font-normal text-text01">{t("routes.subscriptions")}</span>
-        <QuestionMarkIcon />
+      <div className="ml-12 md:ml-0 flex items-center space-x-2">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.subscriptions')}
+        </span>
       </div>
       <div className="mt-5">
         {isNotificationVisible && (

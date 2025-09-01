@@ -384,9 +384,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   return (
     <div>
-      <div
-        className={`flex items-center ${screens.md ? 'justify-between' : 'justify-center'}`}
-      >
+      <div className="flex items-center">
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
@@ -437,7 +435,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
       <div className="mt-5">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
             <div>
               <div className="text-sm text-text02">
                 {t('warehouse.organization')}
@@ -571,6 +569,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
               }))}
               rowKey="id"
               pagination={false}
+              scroll={{ x: 'max-content' }}
             />
 
             <div>
