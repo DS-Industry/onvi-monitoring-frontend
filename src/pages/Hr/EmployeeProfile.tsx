@@ -369,7 +369,6 @@ const EmployeeProfile: React.FC = () => {
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between">
-        {screens.md ? <></> : <div></div>}
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01  ${screens.md ? '' : 'ml-12'}`}
@@ -439,8 +438,8 @@ const EmployeeProfile: React.FC = () => {
                   ))}
             </div>
           </div>
-          <div className="px-4 w-full overflow-hidden">
-            <div className="flex flex-nowrap space-x-4 border-b mb-6 overflow-x-auto">
+          <div className="px-4 w-full">
+            <div className="flex flex-wrap space-x-4 border-b mb-6 overflow-x-auto">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
