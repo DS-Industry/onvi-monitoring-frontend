@@ -23,7 +23,6 @@ import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import CashCollectionDeviceTypeTable from '@/pages/Finance/CashCollectionDeviceTypeTable';
 import CollectionDeviceTable from '@/pages/Finance/CollectionDeviceTable';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 
 type TableRow = {
   id: number;
@@ -340,12 +339,11 @@ const CollectionCreation: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.collection')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 

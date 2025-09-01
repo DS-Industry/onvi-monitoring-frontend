@@ -21,7 +21,6 @@ import {
   getFormatPeriodType,
   getStatusTagRender,
 } from '@/utils/tableUnits';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { PlusOutlined } from '@ant-design/icons';
 
 type CashCollectionLevel = {
@@ -250,19 +249,18 @@ const Collection: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.collection')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <AntButton
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => navigate('/finance/collection/creation')}
         >
-          {t('routes.create')}
+          <span className='hidden sm:flex'>{t('routes.create')}</span>
         </AntButton>
       </div>
 
@@ -296,6 +294,7 @@ const Collection: React.FC = () => {
               });
             },
           }}
+          scroll={{ x: 'max-content' }}
         />
       </div>
     </div>
