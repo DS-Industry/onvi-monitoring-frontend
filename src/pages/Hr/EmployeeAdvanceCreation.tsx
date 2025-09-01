@@ -581,6 +581,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 }))}
                 rowKey="id"
                 pagination={false}
+                scroll={{ x: 'max-content' }}
               />
 
               <div>
