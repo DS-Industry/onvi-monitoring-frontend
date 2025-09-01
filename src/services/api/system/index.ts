@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
 
 enum SYSTEM {
-  INVALIDATE_CACHE = 'system/cache/invalidate',
+  INVALIDATE_CACHE = 'admin/system/cache/invalidate',
   SYSTEM_STATUS = 'system/status',
 }
 
