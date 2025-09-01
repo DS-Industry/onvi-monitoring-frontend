@@ -435,7 +435,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
       <div className="mt-5">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
             <div>
               <div className="text-sm text-text02">
                 {t('warehouse.organization')}
