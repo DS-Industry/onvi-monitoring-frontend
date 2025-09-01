@@ -666,7 +666,7 @@ const SalaryCalculationCreation: React.FC = () => {
                 dataSource={transformPaymentsData(paymentsData)}
                 rowKey="id"
                 pagination={false}
-                scroll={{ x: '150%' }}
+                scroll={{ x: 'max-content' }}
               />
 
               <div>
