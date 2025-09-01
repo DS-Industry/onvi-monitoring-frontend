@@ -475,16 +475,12 @@ const SalaryCalculationCreation: React.FC = () => {
 
   return (
     <div>
-      <div
-        className={`flex items-center ${screens.md ? 'justify-between' : 'justify-center'}`}
-      >
-        <div className="flex items-center space-x-2">
-          <span
-            className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
-          >
-            {t('routes.sal')}
-          </span>
-        </div>
+      <div className="flex items-center space-x-2">
+        <span
+          className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
+        >
+          {t('routes.sal')}
+        </span>
       </div>
 
       <Modal
@@ -656,7 +652,7 @@ const SalaryCalculationCreation: React.FC = () => {
               dataSource={transformPaymentsData(paymentsData)}
               rowKey="id"
               pagination={false}
-              scroll={{ x: '150%' }}
+              scroll={{ x: 'max-content' }}
             />
 
             <div>

@@ -384,9 +384,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   return (
     <div>
-      <div
-        className={`flex items-center ${screens.md ? 'justify-between' : 'justify-center'}`}
-      >
+      <div className="flex items-center">
         <div className="flex items-center space-x-2">
           <span
             className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
@@ -571,6 +569,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
               }))}
               rowKey="id"
               pagination={false}
+              scroll={{ x: 'max-content' }}
             />
 
             <div>
