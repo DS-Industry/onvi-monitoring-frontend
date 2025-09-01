@@ -13,7 +13,6 @@ import {
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useToast } from '@/components/context/useContext';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { formatNumber, getCurrencyRender, getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import {
   CheckOutlined,
@@ -266,12 +265,11 @@ const MonthlyExpanseEdit: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.reportFor')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 
@@ -348,6 +346,7 @@ const MonthlyExpanseEdit: React.FC = () => {
               }
             }}
             pagination={false}
+            scroll={{ x: 'max-content' }}
           />
         </div>
       </div>

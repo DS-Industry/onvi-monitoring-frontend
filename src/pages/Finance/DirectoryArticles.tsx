@@ -15,7 +15,6 @@ import {
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import { Drawer, Button, Table } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import type { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 
@@ -161,19 +160,18 @@ const DirectoryArticles: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.direct')}
           </span>
-          <QuestionMarkIcon />
         </div>
         <Button
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => setDrawerOpen(true)}
         >
-          {t('routes.add')}
+          <span className='hidden sm:flex'>{t('routes.add')}</span>
         </Button>
       </div>
 
