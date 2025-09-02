@@ -89,7 +89,7 @@ type ClientsParams = {
   page?: number;
   size?: number;
   workerCorporateId?: number;
-  organizationId?: number
+  organizationId?: number;
   registrationFrom?: string;
   registrationTo?: string;
   search?: string;
@@ -562,12 +562,11 @@ export async function importCards(
   console.log('File object:', request.file);
   console.log('File size:', request.file.size);
   console.log('File name:', request.file.name);
-  
+
   const formData = new FormData();
   formData.append('file', request.file);
   formData.append('organizationId', request.organizationId.toString());
-  
-  
+
   const response: AxiosResponse<ImportCardsResponse> = await api.post(
     'user/loyalty/import-cards',
     formData
@@ -581,13 +580,12 @@ export type CorporateClientResponse = {
   inn: string;
   address: string;
   ownerPhone: string;
-  dateRegistered: string; 
-  status: string; 
-  contractType: ContractType;
-  comment?: string;
-  placementId?: number;
-  createdAt?: string; 
-  updatedAt?: string; 
+  ownerName: string;
+  ownerEmail: string;
+  ownerAvatar: string;
+  dateRegistered: string;
+  status: string;
+  organizationId: number;
 };
 
 export type CorporateClientsParams = {
@@ -600,7 +598,7 @@ export type CorporateClientsParams = {
   size?: number;
   registrationFrom?: string;
   registrationTo?: string;
-  organizationId?: number
+  organizationId?: number;
 };
 
 export type CorporateClientsPaginatedResponse = {
@@ -616,15 +614,15 @@ export type CorporateClientsPaginatedResponse = {
 export async function getCorporateClients(
   params: CorporateClientsParams
 ): Promise<CorporateClientsPaginatedResponse> {
-  const response: AxiosResponse<CorporateClientsPaginatedResponse> = await api.get(
-    'user/loyalty/corporate-clients',
-    { params }
-  );
+  const response: AxiosResponse<CorporateClientsPaginatedResponse> =
+    await api.get('user/loyalty/corporate-clients', { params });
 
   return response.data;
 }
 
-export async function getCorporateClientById(id: number): Promise<CorporateClientResponse> {
+export async function getCorporateClientById(
+  id: number
+): Promise<CorporateClientResponse> {
   const response: AxiosResponse<CorporateClientResponse> = await api.get(
     `user/loyalty/corporate-clients/${id}`
   );
