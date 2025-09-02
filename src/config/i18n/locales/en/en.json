@@ -694,7 +694,8 @@
     "createCorporation": "Create Corporation",
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
-    "operations": "Operations"
+    "operations": "Operations",
+    "numOfCards": "Number of cards"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -805,7 +806,8 @@
     "In Progress": "In Progress",
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
-    "RETURNED": "RETURNED"
+    "RETURNED": "RETURNED",
+    "COMPLETED": "COMPLETED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",

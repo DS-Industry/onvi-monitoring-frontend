@@ -1,69 +1,46 @@
 import React from 'react';
 import { Table, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
+import { getCorporateClientCardsById } from '@/services/api/marketing';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Text } = Typography;
 
-interface CardData {
-  key: string;
-  name: string;
-  unqCard: string;
-  cardNumber: string;
-  level: string;
-  discount: string;
-  balance: string;
-}
-
 const Cards: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const clientId = searchParams.get('clientId');
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const dataSource: CardData[] = [
-    {
-      key: '1',
-      name: 'Олег Сидоров',
-      unqCard: '000000000001',
-      cardNumber: '000000000001',
-      level: 'Новичок',
-      discount: 'Скидка 3%',
-      balance: '1 000,00 ₽',
-    },
-    {
-      key: '2',
-      name: 'Мария Петрова',
-      unqCard: '000000000001',
-      cardNumber: '000000000002',
-      level: 'Любитель',
-      discount: 'Скидка 5%',
-      balance: '14 000,00 ₽',
-    },
-    {
-      key: '3',
-      name: 'Юлия Сергеева',
-      unqCard: '000000000001',
-      cardNumber: '000000000003',
-      level: 'Новичок',
-      discount: 'Скидка 3%',
-      balance: '00,00 ₽',
-    },
-    {
-      key: '4',
-      name: 'Анна',
-      unqCard: '000000000001',
-      cardNumber: '000000000004',
-      level: 'Новичок',
-      discount: 'Скидка 3%',
-      balance: '00,00 ₽',
-    },
-    {
-      key: '5',
-      name: 'Алексей Фёдоров',
-      unqCard: '000000000001',
-      cardNumber: '000000000005',
-      level: 'Любитель',
-      discount: 'Скидка 5%',
-      balance: '22 766,00 ₽',
-    },
-  ];
+  const { data: cards, isLoading } = useSWR(
+    clientId ? ['get-client-cards', clientId, currentPage, pageSize] : null,
+    () =>
+      getCorporateClientCardsById(Number(clientId!), {
+        page: currentPage,
+        size: pageSize,
+      })
+  );
+
+  const dataSource =
+    cards?.data.map(card => ({
+      key: card.id.toString(),
+      name: card.ownerName,
+      unqCard: card.cardUnqNumber,
+      cardNumber: card.cardNumber,
+      level: card.cardTier?.name || '-',
+      discount: card.cardTier
+        ? `Скидка ${Math.floor(card.cardTier.limitBenefit)}%`
+        : '-',
+      balance: card.cardBalance.toLocaleString('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 2,
+      }),
+    })) || [];
 
   const columns = [
     {
@@ -88,11 +65,11 @@ const Cards: React.FC = () => {
       title: 'Уровень',
       dataIndex: 'level',
       key: 'level',
-      render: (_: string, record: CardData) => (
+      render: (_: string, record: typeof dataSource[0]) => (
         <div>
           <Text
             style={{
-              color: record.level === 'Любитель' ? '#2563eb' : '#2563eb',
+              color: '#2563eb',
               fontWeight: 500,
             }}
           >
@@ -119,8 +96,22 @@ const Cards: React.FC = () => {
       <Table
         dataSource={dataSource}
         columns={columns}
-        pagination={false}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: cards?.total || 0,
+          showSizeChanger: true,
+          pageSizeOptions: ALL_PAGE_SIZES,
+          showTotal: (total, range) =>
+            `${range[0]}–${range[1]} из ${total} записей`,
+          onChange: (page, size) =>
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            }),
+        }}
         bordered={false}
+        loading={isLoading}
         style={{ background: '#fff' }}
         scroll={{ x: 'max-content' }}
       />

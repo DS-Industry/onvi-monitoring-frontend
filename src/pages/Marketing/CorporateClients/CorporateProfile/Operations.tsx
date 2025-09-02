@@ -1,81 +1,64 @@
 import React from 'react';
 import { Table, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { getCorporateClientOperationsById } from '@/services/api/marketing';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import useSWR from 'swr';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Text } = Typography;
 
-interface OperationData {
-  key: string;
-  id: string;
-  branch: string;
-  cardNo: string;
-  type: string;
-  date: string;
-  time: string;
-  amount: string;
-  branchUrl: string;
-}
-
 const Operations: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const clientId = searchParams.get('clientId');
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const dataSource: OperationData[] = [
-    {
-      key: '1',
-      id: '123213123',
-      branch: 'Мойка_1',
-      branchUrl: '#',
-      cardNo: '000000000001',
-      type: 'Списание',
-      date: '11.07.2024',
-      time: '13:15',
-      amount: '-1 000,00 ₽',
-    },
-    {
-      key: '2',
-      id: '123235',
-      branch: 'Мойка_2',
-      branchUrl: '#',
-      cardNo: '000000000002',
-      type: 'Списание',
-      date: '09.05.2024',
-      time: '12:25',
-      amount: '-140,00 ₽',
-    },
-    {
-      key: '3',
-      id: '12341234',
-      branch: 'Мойка_3',
-      branchUrl: '#',
-      cardNo: '000000000003',
-      type: 'Списание',
-      date: '12.05.2024',
-      time: '10:15',
-      amount: '-100,00 ₽',
-    },
-    {
-      key: '4',
-      id: '23421342134',
-      branch: 'Мойка_2',
-      branchUrl: '#',
-      cardNo: '000000000004',
-      type: 'Пополнение',
-      date: '13.07.2024',
-      time: '11:17',
-      amount: '+100,00 ₽',
-    },
-    {
-      key: '5',
-      id: '241234123',
-      branch: 'Мойка_3',
-      branchUrl: '#',
-      cardNo: '000000000005',
-      type: 'Пополнение',
-      date: '09.05.2024',
-      time: '12:25',
-      amount: '+766,00 ₽',
-    },
-  ];
+  const { data: operations, isLoading } = useSWR(
+    clientId
+      ? ['get-client-operations', clientId, currentPage, pageSize]
+      : null,
+    () =>
+      getCorporateClientOperationsById(Number(clientId!), {
+        page: currentPage,
+        size: pageSize,
+      })
+  );
+
+  const dataSource =
+    operations?.data.map(operation => {
+      const dateObj = new Date(operation.orderData);
+      const date = dateObj.toLocaleDateString('ru-RU');
+      const time = dateObj.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      // Determine amount display with + or -
+      const amountNumber = operation.sumReal;
+      const amountStr =
+        (amountNumber > 0 ? '+' : '') +
+        amountNumber.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
+        ' ₽';
+
+      return {
+        key: operation.id.toString(),
+        id: operation.transactionId,
+        branch: operation.carWashDeviceName || '-',
+        branchUrl: '#', // or add real url if you have one
+        cardNo: operation.cardUnqNumber,
+        type: t(`tables.${operation.orderStatus}`),
+        date,
+        time,
+        amount: amountStr,
+      };
+    }) || [];
 
   const columns = [
     {
@@ -88,14 +71,13 @@ const Operations: React.FC = () => {
       title: 'Автомойка/Филиал',
       dataIndex: 'branch',
       key: 'branch',
-      render: (text: string, record: OperationData) => (
-        <a
-          href={record.branchUrl}
-          className="text-blue-600 font-medium"
+      render: (text: string) => (
+        <div
+          className="text-primary02 font-medium"
           style={{ color: '#2563eb' }}
         >
           {text}
-        </a>
+        </div>
       ),
     },
     {
@@ -111,7 +93,7 @@ const Operations: React.FC = () => {
     {
       title: 'Дата операции',
       key: 'date',
-      render: (_: any, record: OperationData) => (
+      render: (record: typeof dataSource[0]) => (
         <span>
           {record.date} <span className="ml-2">{record.time}</span>
         </span>
@@ -146,9 +128,23 @@ const Operations: React.FC = () => {
       <Table
         dataSource={dataSource}
         columns={columns}
-        pagination={false}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: operations?.total || 0,
+          showSizeChanger: true,
+          pageSizeOptions: ALL_PAGE_SIZES,
+          showTotal: (total, range) =>
+            `${range[0]}–${range[1]} из ${total} записей`,
+          onChange: (page, size) =>
+            updateSearchParams(searchParams, setSearchParams, {
+              page: String(page),
+              size: String(size),
+            }),
+        }}
         bordered={false}
         className="w-full"
+        loading={isLoading}
         scroll={{ x: 'max-content' }}
       />
     </div>
