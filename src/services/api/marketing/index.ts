@@ -669,6 +669,38 @@ type CorporateClientCardsResponse = {
   take: number;
 };
 
+type CorporateCardOperationResponse = {
+  id: number;
+  transactionId: string;
+  cardId: number;
+  cardUnqNumber: string;
+  cardNumber: string;
+  ownerName: string;
+  sumFull: number;
+  sumReal: number;
+  sumBonus: number;
+  sumDiscount: number;
+  sumCashback: number;
+  platform: string;
+  contractType: string;
+  orderData: Date;
+  createData: Date;
+  orderStatus: string;
+  orderHandlerStatus?: string;
+  carWashDeviceId: number;
+  carWashDeviceName?: string;
+}
+
+type CorporateCardsOperationsPaginatedResponse = {
+  data: CorporateCardOperationResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export async function createCorporateClient(
   request: CreateCorporateClientRequest
 ): Promise<CorporateClientResponse> {
@@ -706,6 +738,18 @@ export async function getCorporateClientCardsById(
 ): Promise<CorporateClientCardsResponse> {
   const response: AxiosResponse<CorporateClientCardsResponse> = await api.get(
     `user/loyalty/corporate-clients/${id}/cards`,
+    { params }
+  );
+
+  return response.data;
+}
+
+export async function getCorporateClientOperationsById(
+  id: number,
+  params: CorporateClientCardsParams
+): Promise<CorporateCardsOperationsPaginatedResponse> {
+  const response: AxiosResponse<CorporateCardsOperationsPaginatedResponse> = await api.get(
+    `user/loyalty/corporate-clients/${id}/cards/operations`,
     { params }
   );
 

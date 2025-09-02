@@ -800,7 +800,8 @@
     "In Progress": "In Progress",
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
-    "RETURNED": "RETURNED"
+    "RETURNED": "RETURNED",
+    "COMPLETED": "COMPLETED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
