@@ -53,7 +53,6 @@ const Operations: React.FC = () => {
         branch: operation.carWashDeviceName || '-',
         branchUrl: '#', // or add real url if you have one
         cardNo: operation.cardUnqNumber,
-        type: t(`tables.${operation.orderStatus}`),
         date,
         time,
         amount: amountStr,
@@ -84,11 +83,6 @@ const Operations: React.FC = () => {
       title: '№ Карты',
       dataIndex: 'cardNo',
       key: 'cardNo',
-    },
-    {
-      title: 'Тип операции',
-      dataIndex: 'type',
-      key: 'type',
     },
     {
       title: 'Дата операции',
