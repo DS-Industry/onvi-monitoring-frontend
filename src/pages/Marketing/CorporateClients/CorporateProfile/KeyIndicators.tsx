@@ -44,7 +44,7 @@ const KeyIndicators: React.FC = () => {
     },
     {
       value: `${stats.numberOfCards}`,
-      label: t('marketing.noOfCards'),
+      label: t('marketing.numOfCards'),
     },
   ];
 

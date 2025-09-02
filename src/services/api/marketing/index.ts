@@ -648,8 +648,8 @@ type CorporateClientStatsResponse = {
 };
 
 type CorporateClientCardsParams = {
-  take?: number;
-  skip?: number;
+  page?: number;
+  size?: number;
 };
 
 type CorporateClientCardsResponse = {

@@ -689,7 +689,7 @@
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
     "operations": "Operations",
-    "noOfCards": "Number of cards"
+    "numOfCards": "Number of cards"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

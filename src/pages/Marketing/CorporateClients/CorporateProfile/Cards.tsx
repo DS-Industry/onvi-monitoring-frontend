@@ -20,8 +20,8 @@ const Cards: React.FC = () => {
     clientId ? ['get-client-cards', clientId, currentPage, pageSize] : null,
     () =>
       getCorporateClientCardsById(Number(clientId!), {
-        skip: (currentPage - 1) * pageSize,
-        take: pageSize,
+        page: currentPage,
+        size: pageSize,
       })
   );
 
