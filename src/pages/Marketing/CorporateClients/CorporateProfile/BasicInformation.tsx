@@ -17,8 +17,6 @@ import useSWR from 'swr';
 import { useForm, Controller } from 'react-hook-form';
 import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
 import { UserOutlined } from '@ant-design/icons';
-import type { UploadChangeParam, UploadFile } from 'antd/es/upload/interface';
-
 import {
   CorporateClientResponse,
   getCorporateClientById,
@@ -35,8 +33,6 @@ const BasicInformation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
-  const [uploading, setUploading] = useState(false);
 
   const clientId = searchParams.get('clientId')
     ? Number(searchParams.get('clientId'))
@@ -115,37 +111,6 @@ const BasicInformation: React.FC = () => {
       message.error(t('corporateClients.updateError'));
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  function beforeUpload(file: { type: string; size: number }) {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
-      return Upload.LIST_IGNORE;
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
-      return Upload.LIST_IGNORE;
-    }
-    return true;
-  }
-
-  const handleAvatarChange = (info: UploadChangeParam<UploadFile<any>>) => {
-    if (info.file.status === 'uploading') {
-      setUploading(true);
-      return;
-    }
-    if (info.file.status === 'done' || info.file.status === 'removed') {
-      const reader = new FileReader();
-      if (info.file.originFileObj) {
-        reader.onload = () => {
-          setAvatarUrl(reader.result as string);
-          setUploading(false);
-        };
-        reader.readAsDataURL(info.file.originFileObj as Blob);
-      }
     }
   };
 
@@ -228,23 +193,20 @@ const BasicInformation: React.FC = () => {
               </div>
             </Form.Item>
             <div className="my-5">
-              <Upload
-                showUploadList={false}
-                beforeUpload={beforeUpload}
-                onChange={handleAvatarChange}
-                disabled={uploading}
-              >
-                <Avatar
-                  size={40}
-                  src={avatarUrl}
-                  icon={<UserOutlined />}
-                  style={{ cursor: 'pointer', marginRight: 12 }}
-                />
-                <Typography.Text
-                  style={{ fontWeight: 600, color: '#0b68e1', fontSize: 16 }}
-                >
-                  Михаил Иванов
-                </Typography.Text>
+              <Upload disabled showUploadList={false}>
+                <div className="flex items-center">
+                  <Avatar
+                    size={40}
+                    src={clientData.ownerAvatar || ''}
+                    icon={<UserOutlined />}
+                    style={{ cursor: 'default', marginRight: 12 }}
+                  />
+                  <Typography.Text
+                    style={{ fontWeight: 600, color: '#0b68e1', fontSize: 16 }}
+                  >
+                    {clientData.ownerName}
+                  </Typography.Text>
+                </div>
               </Upload>
             </div>
             <Form.Item
