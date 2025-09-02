@@ -9,8 +9,11 @@ import {
 import dayjs from 'dayjs';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { Form, Input, Modal, Select, DatePicker } from 'antd';
+import { useUser } from '@/hooks/useUserStore';
+import { useSearchParams } from 'react-router-dom';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 type EmployeeCreationModalProps = {
   open: boolean;
@@ -22,6 +25,10 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+  const user = useUser();
+  const [searchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const defaultValues = {
     name: '',
@@ -77,6 +84,12 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
       const result = await addUserRole();
       if (result) {
         showToast(t('organizations.token'), 'success');
+        mutate([
+          'get-worker',
+          user.organizationId,
+          currentPage,
+          pageSize,
+        ]);
         resetForm();
       }
     } catch (error) {
@@ -140,7 +153,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.name}
               onChange={e => handleInputChange('name', e.target.value)}
               status={errors.name ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -151,7 +163,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
             {...register('surname')}
             value={formData.surname}
             onChange={e => handleInputChange('surname', e.target.value)}
-            size="large"
           />
         </div>
         <div>
@@ -161,7 +172,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
             {...register('middlename')}
             value={formData.middlename}
             onChange={e => handleInputChange('middlename', e.target.value)}
-            size="large"
           />
         </div>
         <div>
@@ -185,7 +195,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
                   date ? dayjs(date).format('YYYY-MM-DD') : ''
                 )
               }
-              size="large"
             />
           </Form.Item>
         </div>
@@ -210,7 +219,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.phone}
               onChange={e => handleInputChange('phone', e.target.value)}
               status={errors.phone ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -235,7 +243,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.email}
               onChange={e => handleInputChange('email', e.target.value)}
               status={errors.email ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -263,7 +270,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.organizationId}
               onChange={value => handleInputChange('organizationId', value)}
               status={errors.organizationId ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -289,7 +295,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.roleId}
               onChange={value => handleInputChange('roleId', value)}
               status={errors.roleId ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -311,7 +316,6 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               value={formData.position}
               onChange={value => handleInputChange('position', value)}
               status={errors.position ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>

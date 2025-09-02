@@ -106,11 +106,6 @@ const ListOfEmployees: React.FC = () => {
       key: 'name',
     },
     {
-      title: 'Должность',
-      dataIndex: 'position',
-      key: 'position',
-    },
-    {
       title: 'Роль СRM',
       dataIndex: 'roleName',
       key: 'roleName',
@@ -122,7 +117,7 @@ const ListOfEmployees: React.FC = () => {
       render: statusRender,
     },
     {
-      title: 'Работает с',
+      title: 'Дата регистарции',
       dataIndex: 'createdAt',
       key: 'createdAt',
     },
@@ -130,7 +125,7 @@ const ListOfEmployees: React.FC = () => {
 
   if (allowed) {
     columnsEmployees.push({
-      title: '',
+      title: 'Редактировать',
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
