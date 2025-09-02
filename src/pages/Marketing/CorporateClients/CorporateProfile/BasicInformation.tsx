@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Form,
   Button,
@@ -33,7 +33,6 @@ const { TextArea } = Input;
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
@@ -45,7 +44,6 @@ const BasicInformation: React.FC = () => {
 
   const {
     data: clientData,
-    error,
     isLoading,
     mutate,
   } = useSWR<CorporateClientResponse>(
@@ -81,16 +79,6 @@ const BasicInformation: React.FC = () => {
     }
   }, [clientData, isEditing, reset, defaultValues]);
 
-  if (!clientId) {
-    message.error('Client ID is required');
-    navigate('/marketing/corporate-clients');
-    return null;
-  }
-  if (error) {
-    message.error('Failed to fetch client data');
-    navigate('/marketing/corporate-clients');
-    return null;
-  }
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
