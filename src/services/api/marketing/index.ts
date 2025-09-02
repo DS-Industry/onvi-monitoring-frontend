@@ -642,6 +642,33 @@ export type UpdateCorporateClientRequest = {
   address?: string;
 };
 
+type CorporateClientStatsResponse = {
+  totalBalance: number;
+  numberOfCards: number;
+};
+
+type CorporateClientCardsParams = {
+  take?: number;
+  skip?: number;
+};
+
+type CorporateClientCardsResponse = {
+  data: {
+    id: number;
+    ownerName: string;
+    cardUnqNumber: string;
+    cardNumber: string;
+    cardBalance: number;
+    cardTier?: {
+      name: string;
+      limitBenefit: number;
+    } | null;
+  }[];
+  total: number;
+  skip: number;
+  take: number;
+};
+
 export async function createCorporateClient(
   request: CreateCorporateClientRequest
 ): Promise<CorporateClientResponse> {
@@ -660,5 +687,27 @@ export async function updateCorporateClient(
     `user/loyalty/corporate-clients/${id}`,
     request
   );
+  return response.data;
+}
+
+export async function getCorporateClientStatsById(
+  id: number
+): Promise<CorporateClientStatsResponse> {
+  const response: AxiosResponse<CorporateClientStatsResponse> = await api.get(
+    `user/loyalty/corporate-clients/${id}/stats`
+  );
+
+  return response.data;
+}
+
+export async function getCorporateClientCardsById(
+  id: number,
+  params: CorporateClientCardsParams
+): Promise<CorporateClientCardsResponse> {
+  const response: AxiosResponse<CorporateClientCardsResponse> = await api.get(
+    `user/loyalty/corporate-clients/${id}/cards`,
+    { params }
+  );
+
   return response.data;
 }

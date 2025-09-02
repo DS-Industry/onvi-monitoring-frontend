@@ -1,20 +1,50 @@
-import { Space, Row, Col, Card, Typography } from 'antd';
+import { getCorporateClientStatsById } from '@/services/api/marketing';
+import { Space, Row, Col, Card, Typography, Alert, Spin } from 'antd';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
 
 const { Title, Text } = Typography;
 
 const KeyIndicators: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const clientId = searchParams.get('clientId');
+
+  const { data: stats, isLoading } = useSWR(
+    clientId ? ['user-key-stats', clientId] : null,
+    () => getCorporateClientStatsById(Number(clientId!))
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <Alert
+        message="No Data"
+        description="No user key stats available"
+        type="info"
+        showIcon
+        style={{ margin: '20px' }}
+      />
+    );
+  }
 
   const statsData = [
     {
-      value: `${14000} ₽`,
+      value: `${stats.totalBalance} ₽`,
       label: t('marketing.total'),
     },
     {
-      value: `${100}`,
-      label: t('marketing.number'),
+      value: `${stats.numberOfCards}`,
+      label: t('marketing.noOfCards'),
     },
   ];
 
