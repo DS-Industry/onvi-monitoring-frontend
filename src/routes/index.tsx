@@ -865,6 +865,16 @@ const routes = [
         subMenu: false,
       },
       {
+        name: 'newMarketingCampaign',
+        isVisible: true,
+        path: '/marketing/companies/new/marketing/campaign',
+        component: React.lazy(() => import('@/pages/Marketing/NewMarketingCampaign')),
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
         name: 'importClients',
         isVisible: true,
         path: '/marketing/clients/import',

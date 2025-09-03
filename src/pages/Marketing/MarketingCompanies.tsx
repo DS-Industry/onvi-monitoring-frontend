@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import Notification from '@ui/Notification.tsx';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 
@@ -11,19 +12,20 @@ const MarketingCompanies: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const tagRender = getStatusTagRender(t);
+  const navigate = useNavigate();
 
   const promotions = [
     {
       key: '1',
       name: 'Скидка 30% на все мойки',
-      status: t("tables.ACTIVE"),
+      status: t('tables.ACTIVE'),
       type: '—',
       date: '—',
     },
     {
       key: '2',
       name: 'Промокод для фанатов ЦСКА',
-      status: t("tables.ACTIVE"),
+      status: t('tables.ACTIVE'),
       type: '—',
       date: '—',
     },
@@ -35,11 +37,7 @@ const MarketingCompanies: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       render: (text: string) => (
-        <Text
-          className='text-primary02 text-sm font-semibold'
-        >
-          {text}
-        </Text>
+        <Text className="text-primary02 text-sm font-semibold">{text}</Text>
       ),
     },
     {
@@ -73,7 +71,13 @@ const MarketingCompanies: React.FC = () => {
             {t('routes.marketingCompanies')}
           </span>
         </div>
-        <Button icon={<PlusOutlined />} className="btn-primary">
+        <Button
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          onClick={() =>
+            navigate('/marketing/companies/new/marketing/campaign')
+          }
+        >
           <div className="hidden sm:flex">{t('routes.newPromotion')}</div>
         </Button>
       </div>
