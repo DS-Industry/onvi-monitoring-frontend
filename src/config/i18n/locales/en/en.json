@@ -474,14 +474,9 @@
     "enterName": "Enter client name",
     "floor": "Gender",
     "enterEmail": "Enter employee email",
-    "inn": "INN",
     "phone": "Phone Number",
-    "birth": "Birthday",
     "city": "Region",
-    "bonus": "Bonus Account",
     "lastOrder": "Last Order",
-    "detail": "Detailed Information",
-    "acc": "Accumulated",
     "disc": "Personal discount amount",
     "about": "About the client",
     "add": "Add tags",
@@ -563,8 +558,6 @@
     "maxi": "Maximum percentage",
     "use": "Use bonuses with discounts",
     "allow": "Allow bonuses to be written off for payment with any discounts",
-    "createCorporation": "Create Corporation",
-    "editCorporation": "Edit Corporation",
     "corporationName": "Corporation Name",
     "enterCorporationName": "Please enter corporation name",
     "corporationNameMin": "Name must contain at least 2 characters",
@@ -694,7 +687,10 @@
     "client": "Client",
     "balance": "Balance",
     "createCorporation": "Create Corporation",
-    "editCorporation": "Edit Corporation"
+    "editCorporation": "Edit Corporation",
+    "cards": "Cards",
+    "operations": "Operations",
+    "numOfCards": "Number of cards"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -805,7 +801,8 @@
     "In Progress": "In Progress",
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
-    "RETURNED": "RETURNED"
+    "RETURNED": "RETURNED",
+    "COMPLETED": "COMPLETED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1217,7 +1214,6 @@
     "locationRequired": "Location is required",
     "timeWorkRequired": "Time work is required",
     "monthlyPlanRequired": "Monthly Plan is required",
-    "organizationRequired": "Organization is required",
     "carWashPosTypeRequired": "Car Wash Pos Type is required",
     "stepSumOrderRequired": "Step Sum Order is required",
     "minSumOrderRequired": "Min Sum Order is required",
