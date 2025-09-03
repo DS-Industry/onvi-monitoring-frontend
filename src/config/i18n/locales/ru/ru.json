@@ -67,7 +67,7 @@
     "addClient": "Добавить клиента",
     "importClients": "Импорт клиентов",
     "clientProfile": "Клиент Олег Сидоров",
-    "newPromo": "Новая акция",
+    "newPromotion": "Новая акция",
     "bonus": "Бонусная программа",
     "addSeg": "Добавить сегмент",
     "createSeg": "Создание нового сегмента",
@@ -105,7 +105,8 @@
     "savedSuccessfully": "Успешно сохранено",
     "appointment": "Справочник назначений",
     "createTask": "Создать задчу",
-    "timesheetView": "Просмотр табеля"
+    "timesheetView": "Просмотр табеля",
+    "marketingCompanies": "Маркетинговые компании"
   },
   "dashboard": {
     "news": "Новости",

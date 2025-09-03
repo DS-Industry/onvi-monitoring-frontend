@@ -12,6 +12,7 @@ import Articles from '@/pages/Finance/Articles';
 import MonthlyExpanse from '@/pages/Finance/MonthlyExpanse';
 import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
 import DirectoryArticles from '@/pages/Finance/DirectoryArticles';
+import MarketingCompanies from '@/pages/Marketing/MarketingCompanies';
 const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
@@ -850,6 +851,16 @@ const routes = [
         component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateClientProfile.tsx')),
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'marketingCompanies',
+        isVisible: true,
+        path: '/marketing/companies',
+        component: MarketingCompanies,
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
         subNav: [],
         subMenu: false,
       },

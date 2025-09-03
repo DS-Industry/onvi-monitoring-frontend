@@ -67,7 +67,7 @@
     "addClient": "Add a client",
     "importClients": "Import Clients",
     "clientProfile": "Client Oleg Sidorov",
-    "newPromo": "New Promotion",
+    "newPromotion": "New Promotion",
     "bonus": "Bonus Program",
     "addSeg": "Add Segment",
     "createSeg": "Creating a new segment",
@@ -105,7 +105,8 @@
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task",
-    "timesheetView": "Employee Shift View"
+    "timesheetView": "Employee Shift View",
+    "marketingCompanies": "Marketing Companies"
   },
   "dashboard": {
     "news": "News",
