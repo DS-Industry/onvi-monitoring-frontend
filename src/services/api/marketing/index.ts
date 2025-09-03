@@ -650,6 +650,7 @@ type CorporateClientStatsResponse = {
 type CorporateClientCardsParams = {
   page?: number;
   size?: number;
+  search?: string;
 };
 
 type CorporateClientCardsResponse = {
