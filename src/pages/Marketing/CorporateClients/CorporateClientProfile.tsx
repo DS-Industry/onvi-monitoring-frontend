@@ -7,6 +7,7 @@ import {
   EditOutlined,
   SaveOutlined,
   CloseOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons';
 import useSWR from 'swr';
 
@@ -15,6 +16,7 @@ import {
   getCorporateClientById,
   updateCorporateClient,
 } from '@/services/api/marketing';
+import api from '@/config/axiosConfig';
 
 const CorporateClientProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -26,6 +28,12 @@ const CorporateClientProfile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const clientId = searchParams.get('clientId');
+
+
+  const { data } = useSWR(
+    clientId ? ['corporate-clients', clientId] : null,
+    ([, clientId]) => api(`user/loyalty/corporate-clients/${clientId}/cards/operations`)
+  );
 
   const {
     data: client,
@@ -105,6 +113,7 @@ const CorporateClientProfile: React.FC = () => {
 
   return (
     <div className="p-6">
+      {JSON.stringify(data)}
       <div className="mb-6 ml-10 md:ml-0">
         <Button
           icon={<ArrowLeftOutlined />}
@@ -114,9 +123,18 @@ const CorporateClientProfile: React.FC = () => {
           {t('actions.back')}
         </Button>
 
-        <h1 className="text-2xl font-bold text-gray-800">
-          {t('corporateClients.name')}: {client.name}
-        </h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-800">
+            {t('corporateClients.name')}: {client.name}
+          </h1>
+          <Button
+            type="primary"
+            onClick={() => navigate('/marketing/corporate-clients/campaign-test')}
+            icon={<ExperimentOutlined />}
+          >
+            Test Marketing Campaigns
+          </Button>
+        </div>
       </div>
 
       <Form

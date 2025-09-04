@@ -22,6 +22,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import CorporateClientDrawer from './CorporateClientDrawer';
+import api from '@/config/axiosConfig';
 
 const CorporateClients: React.FC = () => {
   const { t } = useTranslation();

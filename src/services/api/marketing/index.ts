@@ -636,12 +636,14 @@ export type CreateCorporateClientRequest = {
   name: string;
   inn: string;
   address: string;
+  organizationId: number;
 };
 
 export type UpdateCorporateClientRequest = {
   name?: string;
   inn?: string;
   address?: string;
+  organizationId?: number;
 };
 
 export async function createCorporateClient(
@@ -661,6 +663,112 @@ export async function updateCorporateClient(
   const response: AxiosResponse<CorporateClientResponse> = await api.put(
     `user/loyalty/corporate-clients/${id}`,
     request
+  );
+  return response.data;
+}
+
+// Marketing Campaign Types and APIs
+export enum CampaignType {
+  PROMOCODE = 'PROMOCODE',
+  DISCOUNT = 'DISCOUNT',
+}
+
+export enum CampaignStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  ENDED = 'ENDED',
+}
+
+export enum DiscountType {
+  FIXED = 'FIXED',
+  PERCENTAGE = 'PERCENTAGE',
+}
+
+export type MarketingCampaignRequest = {
+  name: string;
+  type: CampaignType;
+  launchDate: string;
+  endDate?: string;
+  description?: string;
+  ltyProgramId: number;
+  posIds: number[];
+  discountType: DiscountType;
+  discountValue: number;
+  promocode?: string;
+  maxUsage?: number;
+};
+
+export type MarketingCampaignResponse = {
+  id: number;
+  name: string;
+  status: CampaignStatus;
+  type: CampaignType;
+  launchDate: string;
+  endDate?: string;
+  description?: string;
+  ltyProgramId: number;
+  ltyProgramName: string;
+  discountType: DiscountType;
+  discountValue: number;
+  promocode?: string;
+  maxUsage?: number;
+  currentUsage: number;
+  posCount: number;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    id: number;
+    name: string;
+  };
+  updatedBy: {
+    id: number;
+    name: string;
+  };
+};
+
+export type UpdateMarketingCampaignRequest = {
+  name?: string;
+  description?: string;
+  endDate?: string;
+  discountType?: DiscountType;
+  discountValue?: number;
+  promocode?: string;
+  maxUsage?: number;
+  posIds?: number[];
+};
+
+export async function createMarketingCampaign(
+  request: MarketingCampaignRequest
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.post(
+    'user/loyalty/marketing-campaigns',
+    request
+  );
+  return response.data;
+}
+
+export async function updateMarketingCampaign(
+  id: number,
+  request: UpdateMarketingCampaignRequest
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.put(
+    `user/loyalty/marketing-campaigns/${id}`,
+    request
+  );
+  return response.data;
+}
+
+export async function getMarketingCampaigns(): Promise<MarketingCampaignResponse[]> {
+  const response: AxiosResponse<MarketingCampaignResponse[]> = await api.get(
+    'user/loyalty/marketing-campaigns'
+  );
+  return response.data;
+}
+
+export async function getMarketingCampaignById(id: number): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.get(
+    `user/loyalty/marketing-campaigns/${id}`
   );
   return response.data;
 }

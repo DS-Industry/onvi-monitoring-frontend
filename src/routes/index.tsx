@@ -72,6 +72,9 @@ const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
   () => import('@/pages/Marketing/CorporateClients')
 );
+const MarketingCampaignTest = React.lazy(
+  () => import('@/pages/Marketing/CorporateClients/MarketingCampaignTest')
+);
 
 const MarketingLoyalty = React.lazy(
   () => import('@/pages/Marketing/MarketingLoyalty')
@@ -848,6 +851,16 @@ const routes = [
         isVisible: true,
         path: '/marketing/corporate-clients/profile',
         component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateClientProfile.tsx')),
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'marketingCampaignTest',
+        isVisible: true,
+        path: '/marketing/corporate-clients/campaign-test',
+        component: MarketingCampaignTest,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
