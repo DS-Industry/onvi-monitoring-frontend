@@ -47,6 +47,7 @@
     "overhead": "Накладные расходы",
     "documents": "Документы",
     "suppliers": "Поставщики",
+    "salePrice": "Цены для продажи",
     "": "",
     "import": "Импорт номенклатуры",
     "COMMISSIONING": "Передача в эксплуатацию",
@@ -464,6 +465,11 @@
     "all": "Все",
     "noExpanse": "У вас нет данных трекера экспансии в программе",
     "supplierName": "Наименование"
+  },
+  "sale": {
+    "create": "Добавление цены",
+    "price": "Цена",
+    "nomenclature": "Номенклатура"
   },
   "marketing": {
     "noClient": "В данный момент у вас нет клиентов в системе",
@@ -1261,7 +1267,8 @@
     "finishDateRequired": "Дата окончания обязательна",
     "downtimeRequired": "Время простоя обязательно",
     "loyaltyProgramRequired": "Программа лояльности обязательна",
-    "launchDateRequired": "Дата запуска обязательна"
+    "launchDateRequired": "Дата запуска обязательна",
+    "billingMonthRequired": "Расчетный месяц обязателен"
   },
   "table": {
     "noData": "Ничего не найдено"

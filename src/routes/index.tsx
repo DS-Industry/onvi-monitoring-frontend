@@ -68,6 +68,7 @@ const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
   () => import('@/pages/Warehouse/DocumentsCreation/index')
 );
+const SalePrice = React.lazy(() => import('@/pages/Warehouse/SalePrice/SalePrice.tsx'));
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
@@ -1276,6 +1277,15 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
+      },
+      {
+        name: 'salePrice',
+        path: '/warehouse/salePrice',
+        isVisible: true,
+        subMenu: false,
+        component: SalePrice,
+        isSidebar: true,
+        permissions: [],
       },
     ],
     permissions: [
