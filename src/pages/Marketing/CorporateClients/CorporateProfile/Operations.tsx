@@ -10,6 +10,7 @@ import {
 } from '@/utils/constants';
 import useSWR from 'swr';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import Search from 'antd/es/input/Search';
 
 const { Text } = Typography;
 
@@ -19,15 +20,17 @@ const Operations: React.FC = () => {
   const clientId = searchParams.get('clientId');
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const search = searchParams.get('search') || '';
 
   const { data: operations, isLoading } = useSWR(
     clientId
-      ? ['get-client-operations', clientId, currentPage, pageSize]
+      ? ['get-client-operations', clientId, currentPage, pageSize, search]
       : null,
     () =>
       getCorporateClientOperationsById(Number(clientId!), {
         page: currentPage,
         size: pageSize,
+        search: search
       })
   );
 
@@ -43,7 +46,7 @@ const Operations: React.FC = () => {
       // Determine amount display with + or -
       const amountNumber = operation.sumReal;
       const amountStr =
-        (amountNumber > 0 ? '+' : '') +
+        (amountNumber < 0 ? '-' : '') +
         amountNumber.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
         ' ₽';
 
@@ -87,7 +90,7 @@ const Operations: React.FC = () => {
     {
       title: 'Дата операции',
       key: 'date',
-      render: (record: typeof dataSource[0]) => (
+      render: (record: (typeof dataSource)[0]) => (
         <span>
           {record.date} <span className="ml-2">{record.time}</span>
         </span>
@@ -100,13 +103,7 @@ const Operations: React.FC = () => {
       align: 'right' as const,
       render: (text: string) => (
         <Text
-          className={
-            text.includes('+')
-              ? 'text-successFill font-medium'
-              : text.includes('-')
-                ? 'text-errorFill font-medium'
-                : ''
-          }
+          className={text.includes('-') ? 'text-errorFill font-medium' : ''}
         >
           {text}
         </Text>
@@ -118,6 +115,21 @@ const Operations: React.FC = () => {
     <div className="space-y-6">
       <div className="font-semibold text-text01 text-2xl">
         {t('marketing.operations')}
+      </div>
+      <div className="w-full sm:w-80">
+        <label className="block mb-1 text-sm font-medium text-gray-700">
+          {t('analysis.search')}
+        </label>
+        <Search
+          placeholder={t('filters.search.placeholder')}
+          allowClear
+          onSearch={(val: string) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              search: val,
+              page: DEFAULT_PAGE,
+            });
+          }}
+        />
       </div>
       <Table
         dataSource={dataSource}
