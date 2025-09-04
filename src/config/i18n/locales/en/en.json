@@ -68,7 +68,7 @@
     "addClient": "Add a client",
     "importClients": "Import Clients",
     "clientProfile": "Client Oleg Sidorov",
-    "newPromo": "New Promotion",
+    "newPromotion": "New Promotion",
     "bonus": "Bonus Program",
     "addSeg": "Add Segment",
     "createSeg": "Creating a new segment",
@@ -106,7 +106,9 @@
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task",
-    "timesheetView": "Employee Shift View"
+    "timesheetView": "Employee Shift View",
+    "marketingCompanies": "Marketing Companies",
+    "newMarketingCampaign": "New Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
@@ -695,7 +697,18 @@
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
     "operations": "Operations",
-    "numOfCards": "Number of cards"
+    "numOfCards": "Number of cards",
+    "selectBranch": "Select a branch",
+    "selectLoyaltyProgram": "Select a loyalty program",
+    "createPromotionalCode": "Create a promotional code",
+    "enterNamePromo": "Enter the name of the promo code",
+    "launchControl": "Launch Control",
+    "launchControlDesc": "Here you can start the Program, pause it, or schedule a delayed start",
+    "launchNow": "Launch now",
+    "launchNowDesc": "Check your settings and start the Program now or use delayed start",
+    "delayedStart": "Delayed start",
+    "date": "Date",
+    "schedule": "Schedule"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
