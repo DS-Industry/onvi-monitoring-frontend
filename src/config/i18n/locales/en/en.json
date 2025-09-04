@@ -814,7 +814,9 @@
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
     "RETURNED": "RETURNED",
-    "COMPLETED": "COMPLETED"
+    "COMPLETED": "COMPLETED",
+    "PROMOCODE": "PROMOCODE",
+    "DISCOUNT": "DISCOUNT"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1257,7 +1259,9 @@
     "appearanceDateRequired": "Appearance Date is required",
     "startDateRequired": "Start date is required",
     "finishDateRequired": "Finish date is required",
-    "downtimeRequired": "Downtime is required"
+    "downtimeRequired": "Downtime is required",
+    "loyaltyProgramRequired": "Loyalty program is required",
+    "launchDateRequired": "Launch date is required"
   },
   "table": {
     "noData": "No Data"

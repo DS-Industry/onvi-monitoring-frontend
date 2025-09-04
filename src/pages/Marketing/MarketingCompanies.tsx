@@ -1,12 +1,14 @@
-import { Button, Table, Typography } from 'antd';
+import { Button, Table } from 'antd';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import Notification from '@ui/Notification.tsx';
 import { getStatusTagRender } from '@/utils/tableUnits';
-import { useNavigate } from 'react-router-dom';
-
-const { Text } = Typography;
+import { Link, useNavigate } from 'react-router-dom';
+import useSWR from 'swr';
+import { getMarketingCampaign, MarketingCampaignResponse } from '@/services/api/marketing';
+import dayjs from 'dayjs';
+import { ColumnsType } from 'antd/es/table';
 
 const MarketingCompanies: React.FC = () => {
   const { t } = useTranslation();
@@ -14,52 +16,54 @@ const MarketingCompanies: React.FC = () => {
   const tagRender = getStatusTagRender(t);
   const navigate = useNavigate();
 
-  const promotions = [
+  const { data: promotions, isLoading } = useSWR(
+    ['marketing-campaigns'],
+    () => getMarketingCampaign(),
     {
-      key: '1',
-      name: 'Скидка 30% на все мойки',
-      status: t('tables.ACTIVE'),
-      type: '—',
-      date: '—',
-    },
-    {
-      key: '2',
-      name: 'Промокод для фанатов ЦСКА',
-      status: t('tables.ACTIVE'),
-      type: '—',
-      date: '—',
-    },
-  ];
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
+    }
+  );
 
-  const columns = [
+  const columns: ColumnsType<MarketingCampaignResponse> = [
     {
       title: 'Название акции',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => (
-        <Text className="text-primary02 text-sm font-semibold">{text}</Text>
-      ),
+      render: (text, record) => {
+        return (
+          <Link
+            to={{
+              pathname: '/marketing/companies/new/marketing/campaign',
+              search: `?marketingCampaignId=${record.id}`,
+            }}
+            className="text-primary02 hover:text-primary02_Hover font-semibold"
+          >
+            {text}
+          </Link>
+        );
+      },
     },
     {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
       render: tagRender,
-      align: 'center' as const,
     },
     {
       title: 'Тип Акции',
       dataIndex: 'type',
       key: 'type',
-      align: 'center' as const,
-      render: () => <span>—</span>, // Example placeholder
+      render: (text: string) => <span>{t(`tables.${text}`) || '—'}</span>,
     },
     {
       title: 'Дата запуска',
-      dataIndex: 'date',
-      key: 'date',
-      align: 'center' as const,
-      render: () => <span>—</span>, // Example placeholder
+      dataIndex: 'launchDate',
+      key: 'launchDate',
+      render: (text: string) => (
+        <span>{dayjs(text).format('DD.MM.YYYY') || '—'}</span>
+      ),
     },
   ];
 
@@ -98,6 +102,7 @@ const MarketingCompanies: React.FC = () => {
           pagination={false}
           bordered={false}
           scroll={{ x: 'max-content' }}
+          loading={isLoading}
         />
       </div>
     </div>

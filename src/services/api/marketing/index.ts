@@ -31,6 +31,16 @@ enum BenefitType {
   GIFT_POINTS = 'GIFT_POINTS',
 }
 
+export enum MarketingCampaignType {
+  PROMOCODE = 'PROMOCODE',
+  DISCOUNT = 'DISCOUNT',
+}
+
+export enum MarketingDiscountType {
+  FIXED = 'FIXED',
+  PERCENTAGE = 'PERCENTAGE',
+}
+
 export type ClientRequestBody = {
   name: string;
   birthday?: Date;
@@ -689,7 +699,7 @@ type CorporateCardOperationResponse = {
   orderHandlerStatus?: string;
   carWashDeviceId: number;
   carWashDeviceName?: string;
-}
+};
 
 type CorporateCardsOperationsPaginatedResponse = {
   data: CorporateCardOperationResponse[];
@@ -699,7 +709,63 @@ type CorporateCardsOperationsPaginatedResponse = {
   totalPages: number;
   hasNext: boolean;
   hasPrevious: boolean;
-}
+};
+
+export type MarketingCampaignResponse = {
+  id: number;
+  name: string;
+  status: string;
+  type: string;
+  launchDate: string;
+  endDate?: string;
+  description?: string;
+  ltyProgramId?: number;
+  ltyProgramName?: string;
+  discountType: string;
+  discountValue: number;
+  promocode?: string;
+  maxUsage?: number;
+  currentUsage: number;
+  posCount: number;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    id: number;
+    name: string;
+  };
+  updatedBy: {
+    id: number;
+    name: string;
+  };
+};
+
+export type MarketingCampaignRequest = {
+  name: string;
+  type: MarketingCampaignType;
+  launchDate: Date;
+  endDate?: Date;
+  description?: string;
+  ltyProgramId?: number;
+  posIds: number[];
+  discountType: MarketingDiscountType;
+  discountValue: number;
+  promocode?: string;
+  maxUsage?: number;
+};
+
+type UpdateMarketingCampaignRequest = {
+  name?: string;
+  type?: MarketingCampaignType;
+  launchDate?: Date;
+  endDate?: Date;
+  description?: string;
+  ltyProgramId?: number;
+  posIds?: number[];
+  discountType?: MarketingDiscountType;
+  discountValue?: number;
+  promocode?: string;
+  maxUsage?: number;
+};
 
 export async function createCorporateClient(
   request: CreateCorporateClientRequest
@@ -748,10 +814,51 @@ export async function getCorporateClientOperationsById(
   id: number,
   params: CorporateClientCardsParams
 ): Promise<CorporateCardsOperationsPaginatedResponse> {
-  const response: AxiosResponse<CorporateCardsOperationsPaginatedResponse> = await api.get(
-    `user/loyalty/corporate-clients/${id}/cards/operations`,
-    { params }
+  const response: AxiosResponse<CorporateCardsOperationsPaginatedResponse> =
+    await api.get(`user/loyalty/corporate-clients/${id}/cards/operations`, {
+      params,
+    });
+
+  return response.data;
+}
+
+export async function getMarketingCampaign(): Promise<
+  MarketingCampaignResponse[]
+> {
+  const response: AxiosResponse<MarketingCampaignResponse[]> = await api.get(
+    `user/loyalty/marketing-campaigns`
   );
 
+  return response.data;
+}
+
+export async function createMarketingCampaign(
+  request: MarketingCampaignRequest
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.post(
+    'user/loyalty/marketing-campaigns',
+    request
+  );
+  return response.data;
+}
+
+export async function getMarketingCampaignById(
+  id: number
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.get(
+    `user/loyalty/marketing-campaigns/${id}`
+  );
+
+  return response.data;
+}
+
+export async function updateMarketingCampaign(
+  id: number,
+  request: UpdateMarketingCampaignRequest
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.put(
+    `user/loyalty/marketing-campaigns/${id}`,
+    request
+  );
   return response.data;
 }

@@ -814,7 +814,9 @@
     "Done": "Выполнено",
     "displayedColumns": "Отображаемые столбцы",
     "RETURNED": "ВЕРНУЛСЯ",
-    "COMPLETED": "ЗАВЕРШЕННЫЙ"
+    "COMPLETED": "ЗАВЕРШЕННЫЙ",
+    "PROMOCODE": "ПРОМО-КОД",
+    "DISCOUNT": "СКИДКА"
   },
   "finance": {
     "details": "Здесь отображаются детализация по каждой инкассации",
@@ -1257,7 +1259,9 @@
     "appearanceDateRequired": "Дата явки обязательна",
     "startDateRequired": "Дата начала обязательна",
     "finishDateRequired": "Дата окончания обязательна",
-    "downtimeRequired": "Время простоя обязательно"
+    "downtimeRequired": "Время простоя обязательно",
+    "loyaltyProgramRequired": "Программа лояльности обязательна",
+    "launchDateRequired": "Дата запуска обязательна"
   },
   "table": {
     "noData": "Ничего не найдено"
