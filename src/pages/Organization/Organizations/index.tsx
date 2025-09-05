@@ -56,7 +56,8 @@ const Organization: React.FC = () => {
       ?.map(item => ({
         ...item,
         ownerName:
-          workersData?.find(work => work.id === item.ownerId)?.name || '-',
+          `${workersData?.find(work => work.id === item.ownerId)?.name || '-'} ${workersData?.find(work => work.id === item.ownerId)?.surname || ''}` ||
+          '-',
         organizationStatus: t(`tables.${item.organizationStatus}`),
         organizationType:
           legalOptions.find(leg => leg.value === item.organizationType)?.name ||
@@ -129,7 +130,7 @@ const Organization: React.FC = () => {
       render: dateRender,
     },
     {
-      title: 'Хозяин',
+      title: 'Владелец',
       dataIndex: 'ownerName',
       key: 'ownerName',
     },
