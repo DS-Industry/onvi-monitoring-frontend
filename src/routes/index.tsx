@@ -847,7 +847,7 @@ const routes = [
         name: 'corporateClientProfile',
         isVisible: true,
         path: '/marketing/corporate-clients/profile',
-        component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateClientProfile.tsx')),
+        component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateProfile')),
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
