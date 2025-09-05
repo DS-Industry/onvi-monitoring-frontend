@@ -48,8 +48,7 @@ const BonusProgram: React.FC = () => {
   ];
 
   return (
-    <div className="w-full px-4 sm:px-8 md:px-16 py-4">
-      <div className="bg-white p-6 rounded-xl shadow-md">
+    <div className="w-full px-4 sm:px-8">
         <GenericTabs
           tabs={tabItems}
           activeKey={activeTab}
@@ -57,7 +56,6 @@ const BonusProgram: React.FC = () => {
           tabBarGutter={32}
           tabBarStyle={{ marginBottom: 24 }}
         />
-      </div>
     </div>
   );
 };
