@@ -37,7 +37,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
     birthday: dayjs().toDate(),
     phone: '',
     email: '',
-    organizationId: '',
+    organizationId: user.organizationId || '',
     roleId: '',
     position: '',
   };
@@ -66,7 +66,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
 
   type FieldType = keyof typeof defaultValues;
 
-  const handleInputChange = (field: FieldType, value: string) => {
+  const handleInputChange = (field: FieldType, value: string | number) => {
     const numericFields = ['organizationId', 'categoryId', 'supplierId'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
@@ -84,12 +84,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
       const result = await addUserRole();
       if (result) {
         showToast(t('organizations.token'), 'success');
-        mutate([
-          'get-worker',
-          user.organizationId,
-          currentPage,
-          pageSize,
-        ]);
+        mutate(['get-worker', user.organizationId, currentPage, pageSize]);
         resetForm();
       }
     } catch (error) {
@@ -146,7 +141,8 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
             validateStatus={errors.name ? 'error' : undefined}
           >
             <Input
-              className="w-80 sm:w-96"
+              placeholder={t('profile.namePlaceholder')}
+              className="w-80 sm:max-w-96"
               {...register('name', {
                 required: t('validation.nameRequired'),
               })}
@@ -159,7 +155,8 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
         <div>
           <div className="text-text02 text-sm">{t('profile.surname')}</div>
           <Input
-            className="w-80 sm:w-96"
+            placeholder={t('profile.surnamePlaceholder')}
+            className="w-80 sm:max-w-96"
             {...register('surname')}
             value={formData.surname}
             onChange={e => handleInputChange('surname', e.target.value)}
@@ -168,6 +165,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
         <div>
           <div className="text-text02 text-sm">{t('profile.middlename')}</div>
           <Input
+            placeholder={t('profile.middlenamePlaceholder')}
             className="w-80 sm:w-96"
             {...register('middlename')}
             value={formData.middlename}
@@ -208,6 +206,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
             validateStatus={errors.phone ? 'error' : undefined}
           >
             <Input
+              placeholder={t('profile.telephonePlaceholder')}
               className="w-80 sm:w-96"
               {...register('phone', {
                 required: t('validation.phoneRequired'),
@@ -232,6 +231,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
             validateStatus={errors.email ? 'error' : undefined}
           >
             <Input
+              placeholder={t('profile.emailPlaceholder')}
               className="w-80 sm:w-96"
               {...register('email', {
                 required: t('validation.emailRequired'),
@@ -263,7 +263,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
                 value: item.id,
                 label: item.name,
               }))}
-              className="w-80 sm:w-96"
+              className="w-80 sm:max-w-96"
               {...register('organizationId', {
                 required: t('validation.organizationRequired'),
               })}
@@ -288,7 +288,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
                 value: item.id,
                 label: item.name,
               }))}
-              className="w-80 sm:w-96"
+              className="w-80 sm:max-w-96"
               {...register('roleId', {
                 required: t('validation.roleRequired'),
               })}
@@ -309,7 +309,7 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
           >
             <Select
               options={[{ label: 'Оператор', value: 'Operator' }]}
-              className="w-80 sm:w-96"
+              className="w-80 sm:max-w-96"
               {...register('position', {
                 required: t('validation.positionRequired'),
               })}

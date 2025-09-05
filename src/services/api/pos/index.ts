@@ -68,8 +68,8 @@ type PosBody = {
   address: {
     city: string;
     location: string;
-    lat?: number | null;
-    lon?: number | null;
+    lat?: string | null;
+    lon?: string | null;
   };
   organizationId: number | null;
   carWashPosType: string;

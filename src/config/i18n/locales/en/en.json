@@ -168,7 +168,7 @@
     "bankDetails": "Bank Details",
     "new": "New Legal Entity",
     "update": "Update Legal Entity",
-    "token": "The token is sent to your respective Email Id.",
+    "token": "An invitation has been sent to the specified email address.",
     "user": "The user token is expired."
   },
   "pos": {
