@@ -708,7 +708,8 @@
     "launchNowDesc": "Check your settings and start the Program now or use delayed start",
     "delayedStart": "Delayed start",
     "date": "Date",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "errorCampaign": "There was an error saving the campaign."
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -820,7 +821,9 @@
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
     "RETURNED": "RETURNED",
-    "COMPLETED": "COMPLETED"
+    "COMPLETED": "COMPLETED",
+    "PROMOCODE": "PROMOCODE",
+    "DISCOUNT": "DISCOUNT"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1264,7 +1267,11 @@
     "startDateRequired": "Start date is required",
     "finishDateRequired": "Finish date is required",
     "downtimeRequired": "Downtime is required",
-    "billingMonthRequired": "Billing Month is required"
+    "loyaltyProgramRequired": "Loyalty program is required",
+    "launchDateRequired": "Launch date is required",
+    "billingMonthRequired": "Billing Month is required",
+    "discountValueRequired": "Discount value is required",
+    "discountValuePositive": "Discount value must be a positive"
   },
   "table": {
     "noData": "No Data"
