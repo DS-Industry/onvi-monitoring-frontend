@@ -708,7 +708,8 @@
     "launchNowDesc": "Check your settings and start the Program now or use delayed start",
     "delayedStart": "Delayed start",
     "date": "Date",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "errorCampaign": "There was an error saving the campaign."
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -1268,7 +1269,9 @@
     "downtimeRequired": "Downtime is required",
     "loyaltyProgramRequired": "Loyalty program is required",
     "launchDateRequired": "Launch date is required",
-    "billingMonthRequired": "Billing Month is required"
+    "billingMonthRequired": "Billing Month is required",
+    "discountValueRequired": "Discount value is required",
+    "discountValuePositive": "Discount value must be a positive"
   },
   "table": {
     "noData": "No Data"
