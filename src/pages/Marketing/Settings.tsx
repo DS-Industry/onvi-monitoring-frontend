@@ -20,6 +20,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { getPoses } from '@/services/api/equipment';
 
 import { Checkbox, Collapse, Space } from 'antd';
+import { usePermissions } from '@/hooks/useAuthStore';
 const { Panel } = Collapse;
 
 const MAX_VISIBLE = 5;
@@ -49,6 +50,15 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const loyaltyId = Number(searchParams.get('loyaltyId')) || undefined;
 
+  const permissions = usePermissions();
+
+  const hasPermission = user?.organizationId ? permissions.some(permission =>
+    (permission.action === "manage" || permission.action === "update") &&
+    permission.subject === "Pos" &&
+    Array.isArray(permission.conditions?.organizationId?.in) &&
+    permission.conditions.organizationId.in.includes(user.organizationId!)
+  ) : false;
+
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
     loyaltyId ? [`get-loyalty-program-by-id`] : null,
     () => getLoyaltyProgramById(loyaltyId ? loyaltyId : 0),
@@ -77,7 +87,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       {
         arg,
       }: {
-        arg: { name: string; organizationIds: number[]; lifetimeDays?: number };
+        arg: { name: string; organizationIds: number[]; lifetimeDays?: number, ownerOrganizationId: number };
       }
     ) => {
       return createLoyaltyProgram(arg);
@@ -115,6 +125,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       const result = await createLoyalty({
         name: formData.name,
         organizationIds: [user.organizationId],
+        ownerOrganizationId: user.organizationId,
         lifetimeDays: formData.lifetimeDays,
       });
       if (result) {
@@ -248,7 +259,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         )}
       </div>
 
-      <div className="flex space-x-4">
+      {hasPermission && <div className="flex space-x-4">
         {loyaltyId === undefined ? (
           <Button
             title={t('common.create')}
@@ -264,7 +275,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
             form={false}
           />
         )}
-      </div>
+      </div>}
     </form>
   );
 };
