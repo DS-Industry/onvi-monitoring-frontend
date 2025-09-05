@@ -222,6 +222,35 @@ export async function getPos(userId: number): Promise<Pos[]> {
   return response.data;
 }
 
+export async function createCarWash(
+  body: PosBody,
+  file?: File | null
+): Promise<Pos> {
+  const formData = new FormData();
+
+  for (const key in body) {
+    const value = body[key as keyof PosBody];
+    if (value !== undefined && value !== null) {
+      formData.append(key, value.toString());
+    }
+  }
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response: AxiosResponse<Pos> = await api.post(
+    POS.POST_POS,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+  return response.data;
+}
+
 export async function postPosData(body: PosBody): Promise<Pos> {
   const response: AxiosResponse<Pos> = await api.post(POS.POST_POS, body);
   return response.data;

@@ -209,7 +209,8 @@
     "rev": "Revenue report",
     "no": "Number of cars",
     "revBy": "Revenue by programs",
-    "currencyType": "Currency Type"
+    "currencyType": "Currency Type",
+    "country": "Country"
   },
   "profile": {
     "basic": "Basic Details",
