@@ -141,16 +141,19 @@ const Organization: React.FC = () => {
       title: '',
       dataIndex: 'actions',
       key: 'actions',
-      render: (_: unknown, record: { id: number }) => (
+      render: (_: unknown, record: OrganizationType) => (
         <Tooltip title="Редактировать">
-          <Button
-            type="text"
-            icon={
-              <EditOutlined className="text-blue-500 hover:text-blue-700" />
-            }
-            onClick={() => handleUpdate(record.id)}
-            style={{ height: '24px' }}
-          />
+          {record.organizationStatus ===
+            t(`tables.ACTIVE`) && (
+            <Button
+              type="text"
+              icon={
+                <EditOutlined className="text-blue-500 hover:text-blue-700" />
+              }
+              onClick={() => handleUpdate(record.id)}
+              style={{ height: '24px' }}
+            />
+          )}
         </Tooltip>
       ),
     });
