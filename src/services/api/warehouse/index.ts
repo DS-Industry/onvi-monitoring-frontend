@@ -246,6 +246,13 @@ type GET_DOCUMENT_RESPONSE = {
   }[];
 };
 
+export type GET_STOCK_LEVEL_SALE_RESPONSE = {
+  nomenclatureId: number;
+  nomenclatureName: string;
+  quantity: number;
+  price: number;
+};
+
 export type DocumentsTableRow = GET_DOCUMENT_RESPONSE['details'][number];
 
 type INVENTORY_RESPONSE = {
@@ -505,6 +512,15 @@ export async function createWarehouse(
   const response: AxiosResponse<WAREHOUSE_RESPONSE> = await api.post(
     WAREHOUSE.CREATE_WAREHOUSE,
     body
+  );
+  return response.data;
+}
+
+export async function getAllStockLevelSales(
+    warehouseId: number,
+): Promise<GET_STOCK_LEVEL_SALE_RESPONSE[]> {
+  const response: AxiosResponse<GET_STOCK_LEVEL_SALE_RESPONSE[]> = await api.get(
+      WAREHOUSE.GET_STOCK_LEVEL + `/sale/${warehouseId}`,
   );
   return response.data;
 }

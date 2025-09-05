@@ -48,6 +48,9 @@
     "documents": "Documents",
     "suppliers": "Suppliers",
     "salePrice": "Prices for sale",
+    "saleDocument": "Sale",
+    "saleDocumentView": "Document for sale",
+    "saleDocumentCreate": "Creating a sales document",
     "": "",
     "import": "Import Nomenclature",
     "COMMISSIONING": "Commissioning",
@@ -469,7 +472,13 @@
   "sale": {
     "create": "Adding a price",
     "price": "Price",
-    "nomenclature": "Nomenclature"
+    "nomenclature": "Nomenclature",
+    "manager": "Responsible manager",
+    "availability": "Availability",
+    "saleQuantity": "Quantity for sale",
+    "totalAmount": "Total cost",
+    "totalSum": "Total sum",
+    "date": "Date of sale"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
