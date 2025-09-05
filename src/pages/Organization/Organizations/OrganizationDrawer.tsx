@@ -150,6 +150,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         : await createOrganization();
       if (result) {
         mutate([`get-org`, city]);
+        showToast(t('success.recordCreated'), 'success');
         resetForm();
       } else {
         showToast(t('errors.other.passwordChangeError'), 'error');
@@ -183,10 +184,22 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             ? t('organizations.update')
             : t('organizations.new')}
         </span>
+        <div className="mb-5 flex">
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.fields')}
+          </span>
+          <span className="text-errorFill">*</span>
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.are')}
+          </span>
+        </div>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <div className="text-text02 text-sm">
-              {t('organizations.typeLegal')}
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.typeLegal')}
+              </div>
+              <span className="text-errorFill">*</span>
             </div>
             <Form.Item
               help={errors.organizationType?.message}
@@ -203,13 +216,15 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.organizationType}
                 onChange={value => handleInputChange('organizationType', value)}
                 status={errors.organizationType ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">
-              {t('organizations.vatRate')}
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.vatRate')}
+              </div>
+              <span className="text-errorFill">*</span>
             </div>
             <Form.Item
               help={errors.rateVat?.message}
@@ -225,7 +240,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.rateVat}
                 onChange={value => handleInputChange('rateVat', value)}
                 status={errors.rateVat ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
@@ -235,7 +249,12 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <div className="text-text02 text-sm">{t('organizations.tin')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.tin')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.inn?.message}
               validateStatus={errors.inn ? 'error' : undefined}
@@ -248,13 +267,15 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.inn}
                 onChange={e => handleInputChange('inn', e.target.value)}
                 status={errors.inn ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">
-              {t('organizations.fullName')}
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.fullName')}
+              </div>
+              <span className="text-errorFill">*</span>
             </div>
             <Form.Item
               help={errors.fullName?.message}
@@ -268,12 +289,16 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.fullName}
                 onChange={e => handleInputChange('fullName', e.target.value)}
                 status={errors.fullName ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('organizations.okpo')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.okpo')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.okpo?.message}
               validateStatus={errors.okpo ? 'error' : undefined}
@@ -286,7 +311,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.okpo}
                 onChange={e => handleInputChange('okpo', e.target.value)}
                 status={errors.okpo ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
@@ -302,8 +326,11 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           </div>
         </div>
         <div>
-          <div className="text-text02 text-sm">
-            {t('organizations.address')}
+          <div className="flex">
+            <div className="text-text02 text-sm">
+              {t('organizations.address')}
+            </div>
+            <span className="text-errorFill">*</span>
           </div>
           <Form.Item
             help={errors.addressRegistration?.message}
@@ -326,7 +353,10 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           </Form.Item>
         </div>
         <div>
-          <div className="text-text02 text-sm">{t('organizations.ogrn')}</div>
+          <div className="flex">
+            <div className="text-text02 text-sm">{t('organizations.ogrn')}</div>
+            <span className="text-errorFill">*</span>
+          </div>
           <Form.Item
             help={errors.ogrn?.message}
             validateStatus={errors.ogrn ? 'error' : undefined}
@@ -348,7 +378,12 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <div className="text-text02 text-sm">{t('organizations.bik')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.bik')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.bik?.message}
               validateStatus={errors.bik ? 'error' : undefined}
@@ -361,14 +396,16 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.bik}
                 onChange={e => handleInputChange('bik', e.target.value)}
                 status={errors.bik ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
 
           <div>
-            <div className="text-text02 text-sm">
-              {t('organizations.corres')}
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.corres')}
+              </div>
+              <span className="text-errorFill">*</span>
             </div>
             <Form.Item
               help={errors.correspondentAccount?.message}
@@ -386,13 +423,17 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                   handleInputChange('correspondentAccount', e.target.value)
                 }
                 status={errors.correspondentAccount ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
 
           <div>
-            <div className="text-text02 text-sm">{t('organizations.bank')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.bank')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.bank?.message}
               validateStatus={errors.bank ? 'error' : undefined}
@@ -405,14 +446,16 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 value={formData.bank}
                 onChange={e => handleInputChange('bank', e.target.value)}
                 status={errors.bank ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
 
           <div>
-            <div className="text-text02 text-sm">
-              {t('organizations.current')}
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('organizations.current')}
+              </div>
+              <span className="text-errorFill">*</span>
             </div>
             <Form.Item
               help={errors.settlementAccount?.message}
@@ -430,13 +473,15 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                   handleInputChange('settlementAccount', e.target.value)
                 }
                 status={errors.settlementAccount ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
         </div>
         <div>
-          <div className="text-text02 text-sm">{t('organizations.add')}</div>
+          <div className="flex">
+            <div className="text-text02 text-sm">{t('organizations.add')}</div>
+            <span className="text-errorFill">*</span>
+          </div>
           <Form.Item
             help={errors.addressBank?.message}
             validateStatus={errors.addressBank ? 'error' : undefined}
