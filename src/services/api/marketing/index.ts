@@ -753,7 +753,7 @@ export type MarketingCampaignRequest = {
   maxUsage?: number;
 };
 
-type UpdateMarketingCampaignRequest = {
+export type UpdateMarketingCampaignRequest = {
   name?: string;
   type?: MarketingCampaignType;
   launchDate?: Date;
