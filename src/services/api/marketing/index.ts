@@ -132,6 +132,7 @@ type DeleteTagResponse = {
 type LoyaltyProgramsRequest = {
   name: string;
   organizationIds: number[];
+  ownerOrganizationId: number;
   lifetimeDays?: number;
 };
 
@@ -148,6 +149,7 @@ export type LoyaltyProgramsResponse = {
     status: LoyaltyProgramStatus;
     startDate: Date;
     lifetimeDays?: number;
+    ownerOrganizationId: number | null
   };
 };
 
