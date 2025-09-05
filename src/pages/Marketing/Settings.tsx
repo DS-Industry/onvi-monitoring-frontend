@@ -53,7 +53,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const permissions = usePermissions();
 
   const hasPermission = user?.organizationId ? permissions.some(permission =>
-    permission.action === "manage" &&
+    (permission.action === "manage" || permission.action === "update") &&
     permission.subject === "Pos" &&
     Array.isArray(permission.conditions?.organizationId?.in) &&
     permission.conditions.organizationId.in.includes(user.organizationId!)

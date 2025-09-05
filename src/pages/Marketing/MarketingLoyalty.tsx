@@ -27,7 +27,7 @@ const MarketingLoyalty: React.FC = () => {
   const permissions = usePermissions();
 
   const hasPermission = user?.organizationId ? permissions.some(permission =>
-    permission.action === "manage" &&
+    (permission.action === "create" || permission.action === "manage") &&
     permission.subject === "Pos" &&
     Array.isArray(permission.conditions?.organizationId?.in) &&
     permission.conditions.organizationId.in.includes(user.organizationId!)
