@@ -133,6 +133,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     setEndHour(null);
     reset();
     onClose();
+    setSelectedFile(null);
   };
 
   const onSubmit = async () => {
@@ -140,6 +141,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
       const result = await createPos();
       if (result) {
         mutate([`get-pos`, city]);
+        showToast(t('success.recordCreated'), 'success');
         resetForm();
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
