@@ -38,8 +38,8 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     posMetaData: '',
     city: '',
     location: '',
-    lat: null,
-    lon: null,
+    lat: '',
+    lon: '',
     organizationId: Number(user.organizationId),
     carWashPosType: null,
     minSumOrder: null,
@@ -65,8 +65,8 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
           address: {
             city: formData.city,
             location: formData.location,
-            lat: formData.lat,
-            lon: formData.lon,
+            lat: String(formData.lat),
+            lon: String(formData.lon),
           },
           organizationId: formData.organizationId,
           carWashPosType: formData.carWashPosType || '',
@@ -87,8 +87,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
       'stepSumOrder',
       'minSumOrder',
       'maxSumOrder',
-      'lat',
-      'lon',
     ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
