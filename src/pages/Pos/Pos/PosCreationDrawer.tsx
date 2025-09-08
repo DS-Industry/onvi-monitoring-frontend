@@ -140,7 +140,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     try {
       const result = await createPos();
       if (result) {
-        mutate([`get-pos`, city]);
+        mutate([`get-pos`, city, user.organizationId]);
         showToast(t('success.recordCreated'), 'success');
         resetForm();
       } else {

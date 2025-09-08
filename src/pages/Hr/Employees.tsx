@@ -32,7 +32,6 @@ import {
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
 } from '@/utils/constants';
-import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -275,9 +274,6 @@ const Employees: React.FC = () => {
 
   const totalCount = workersData?.length || 0;
 
-  const currencyRender = getCurrencyRender();
-  const percentRender = getPercentRender();
-
   const columnsEmployee: ColumnsType<TWorker['props']> = [
     {
       title: 'ФИО Сотрудника',
@@ -311,27 +307,7 @@ const Employees: React.FC = () => {
       dataIndex: 'position',
       key: 'position',
       render: value => value || '-',
-    },
-    {
-      title: 'Месячный оклад',
-      dataIndex: 'monthlySalary',
-      key: 'monthlySalary',
-      sorter: (a, b) => Number(a.monthlySalary) - Number(b.monthlySalary),
-      render: currencyRender,
-    },
-    {
-      title: 'Дневной оклад',
-      dataIndex: 'dailySalary',
-      key: 'dailySalary',
-      sorter: (a, b) => Number(a.dailySalary) - Number(b.dailySalary),
-      render: currencyRender,
-    },
-    {
-      title: 'Проценты',
-      dataIndex: 'percentageSalary',
-      key: 'percentageSalary',
-      render: percentRender,
-    },
+    }
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =

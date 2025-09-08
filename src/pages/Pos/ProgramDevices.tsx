@@ -131,7 +131,7 @@ const ProgramDevices: React.FC = () => {
             pathname: '/station/programs/devices',
             search: `?posId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
           }}
-          className="text-blue-500 hover:text-blue-700 font-semibold"
+          className="text-primary02 hover:text-primary02_Hover font-semibold"
         >
           {text}
         </Link>

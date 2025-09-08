@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Notification from '@ui/Notification.tsx';
 import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
 import { getOrganization } from '@/services/api/organization';
@@ -18,7 +17,6 @@ import { useUser } from '@/hooks/useUserStore';
 
 const Pos: React.FC = () => {
   const { t } = useTranslation();
-  const [notificationVisible, setNotificationVisible] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
@@ -31,11 +29,11 @@ const Pos: React.FC = () => {
   ]);
 
   const { data, isLoading: posLoading } = useSWR(
-    user.organizationId ?[`get-pos`, city, user.organizationId] : null,
+    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
     () =>
       getPoses({
         placementId: city,
-        organizationId: user.organizationId
+        organizationId: user.organizationId,
       }),
     {
       revalidateOnFocus: false,
@@ -192,33 +190,15 @@ const Pos: React.FC = () => {
         )}
       </div>
       <GeneralFilters count={poses.length} display={['city', 'count']} />
-      {poses.length > 0 ? (
-        <>
-          <div className="mt-8">
-            <Table
-              dataSource={poses}
-              columns={columnsPos}
-              pagination={false}
-              scroll={{ x: 'max-content' }}
-              loading={posLoading}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          {notificationVisible && organizationData?.length === 0 && (
-            <div className="mt-2">
-              <Notification
-                title={t('pos.companyName')}
-                message={t('pos.createObject')}
-                link={t('pos.goto')}
-                linkUrl="/administration/legalRights"
-                onClose={() => setNotificationVisible(false)}
-              />
-            </div>
-          )}
-        </>
-      )}
+      <div className="mt-8">
+        <Table
+          dataSource={poses}
+          columns={columnsPos}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          loading={posLoading}
+        />
+      </div>
       <PosCreationDrawer
         organizations={organizationData || []}
         isOpen={drawerOpen}

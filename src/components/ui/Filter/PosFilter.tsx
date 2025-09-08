@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
@@ -22,15 +22,6 @@ const PosFilter: React.FC = () => {
     revalidateOnReconnect: false,
     keepPreviousData: true,
   });
-
-  useEffect(() => {
-    if (searchParams.has('posId')) {
-      updateSearchParams(searchParams, setSearchParams, {
-        posId: '',
-        page: DEFAULT_PAGE,
-      });
-    }
-  }, [placementId]);
 
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {
