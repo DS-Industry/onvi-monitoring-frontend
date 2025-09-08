@@ -8,8 +8,6 @@ import { useTranslation } from 'react-i18next';
 // UI components
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import TableSkeleton from '@/components/ui/Table/TableSkeleton';
-import CardSkeleton from '@/components/ui/Card/CardSkeleton';
 
 // Constants and utils
 import {
@@ -78,7 +76,7 @@ const Programs: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
-  const posId = searchParams.get('posId') || '*';
+  const posId = Number(searchParams.get('posId'));
 
   const [totalCount, setTotalCount] = useState(0);
 
@@ -125,7 +123,7 @@ const Programs: React.FC = () => {
             pathname: '/station/programs/device',
             search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
           }}
-          className="text-blue-500 hover:text-blue-700 font-semibold"
+          className="text-primary02 hover:text-primary02_Hover font-semibold"
         >
           {text}
         </Link>
@@ -249,16 +247,9 @@ const Programs: React.FC = () => {
       />
 
       <div className="mt-8 space-y-6">
-        {programsLoading && (
-          <div>
-            <CardSkeleton cardHeight="320px" />
-            <TableSkeleton columnCount={deviceColumns.length} />
-          </div>
-        )}
-
         {!programsLoading && portalPrograms.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-[340px] p-4 shadow-card rounded-2xl">
+            <div>
               <Bar
                 data={{
                   labels: barData.map(item => item.programName),
@@ -324,7 +315,7 @@ const Programs: React.FC = () => {
           </div>
         )}
 
-        <div className="shadow-card p-4 rounded-2xl space-y-6">
+        <div>
           <ColumnSelector
             checkedList={checkedList}
             options={options}
