@@ -15,6 +15,7 @@ import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
+import { usePermissions } from '@/hooks/useAuthStore';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
@@ -22,6 +23,15 @@ const MarketingLoyalty: React.FC = () => {
   const navigate = useNavigate();
 
   const user = useUser();
+
+  const permissions = usePermissions();
+
+  const hasPermission = user?.organizationId ? permissions.some(permission =>
+    (permission.action === "create" || permission.action === "manage") &&
+    permission.subject === "Pos" &&
+    Array.isArray(permission.conditions?.organizationId?.in) &&
+    permission.conditions.organizationId.in.includes(user.organizationId!)
+  ) : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyProgramsResponse[]>(
@@ -50,15 +60,23 @@ const MarketingLoyalty: React.FC = () => {
         key: 'name',
         render: (text: string, record) => {
           return (
-            <Link
-              to={{
-                pathname: '/marketing/loyalty/bonus',
-                search: `?loyaltyId=${record.id}`,
-              }}
-              className="text-blue-500 hover:text-blue-700 font-semibold"
-            >
-              {text}
-            </Link>
+            <>
+              {record.ownerOrganizationId === user.organizationId ? (
+                <Link
+                  to={{
+                    pathname: '/marketing/loyalty/bonus',
+                    search: `?loyaltyId=${record.id}`,
+                  }}
+                  className="text-blue-500 hover:text-blue-700 font-semibold"
+                >
+                  {text}
+                </Link>
+              ) : (
+                <span className="text-gray-500 font-semibold cursor-not-allowed">
+                  {text}
+                </span>
+              )}
+            </>
           );
         },
       },
@@ -85,7 +103,7 @@ const MarketingLoyalty: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        <Button
+        {hasPermission && !loyaltyProgramsData?.length && <Button
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => {
@@ -93,7 +111,7 @@ const MarketingLoyalty: React.FC = () => {
           }}
         >
           {t('routes.add')}
-        </Button>
+        </Button>}
       </div>
       <div className="mt-2">
         {notificationVisible && (

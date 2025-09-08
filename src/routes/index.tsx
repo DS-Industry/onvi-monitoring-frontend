@@ -12,6 +12,7 @@ import Articles from '@/pages/Finance/Articles';
 import MonthlyExpanse from '@/pages/Finance/MonthlyExpanse';
 import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
 import DirectoryArticles from '@/pages/Finance/DirectoryArticles';
+import MarketingCompanies from '@/pages/Marketing/MarketingCompanies';
 const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
@@ -67,6 +68,10 @@ const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
   () => import('@/pages/Warehouse/DocumentsCreation/index')
 );
+const SalePrice = React.lazy(() => import('@/pages/Warehouse/SalePrice/SalePrice.tsx'));
+const SaleDocument = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocument.tsx'));
+const SaleDocumentView = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentView.tsx'));
+const SaleDocumentCreate = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx'));
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
@@ -766,6 +771,33 @@ const routes = [
         subNav: [],
         subMenu: false,
       },
+      {
+        name: 'saleDocument',
+        path: '/finance/saleDocument',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocument,
+        isSidebar: true,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentView',
+        path: '/finance/saleDocument/view',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentView,
+        isSidebar: false,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentCreate',
+        path: '/finance/saleDocument/create',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentCreate,
+        isSidebar: false,
+        permissions: [],
+      },
     ],
   },
   {
@@ -848,6 +880,26 @@ const routes = [
         isVisible: true,
         path: '/marketing/corporate-clients/profile',
         component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateProfile')),
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'marketingCompanies',
+        isVisible: true,
+        path: '/marketing/companies',
+        component: MarketingCompanies,
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'newMarketingCampaign',
+        isVisible: true,
+        path: '/marketing/companies/new/marketing/campaign',
+        component: React.lazy(() => import('@/pages/Marketing/NewMarketingCampaign')),
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
@@ -1255,6 +1307,15 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
+      },
+      {
+        name: 'salePrice',
+        path: '/warehouse/salePrice',
+        isVisible: true,
+        subMenu: false,
+        component: SalePrice,
+        isSidebar: true,
+        permissions: [],
       },
     ],
     permissions: [

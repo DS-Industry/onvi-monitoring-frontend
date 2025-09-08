@@ -122,11 +122,11 @@ const BasicInformation: React.FC = () => {
     if (isEditing) {
       return (
         <Form.Item
-          label={label}
+          label={<span className="text-text02">{label}</span>}
           name={fieldName}
           help={errors[fieldName]?.message}
           validateStatus={errors[fieldName] ? 'error' : undefined}
-          labelCol={{ span: 24 }}
+          layout="vertical"
           className="w-86"
         >
           <Controller
@@ -162,7 +162,10 @@ const BasicInformation: React.FC = () => {
     }
 
     return (
-      <Form.Item label={label} labelCol={{ span: 24 }}>
+      <Form.Item
+        label={<span className="text-text02">{label}</span>}
+        layout="vertical"
+      >
         <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
           {value || '-'}
         </div>
@@ -183,10 +186,16 @@ const BasicInformation: React.FC = () => {
             {renderField(t('corporateClients.name'), clientData?.name, 'name')}
             {renderField(t('corporateClients.inn'), clientData?.inn, 'inn')}
             <Form.Item
-              label={t('corporateClients.dateRegistered')}
-              labelCol={{ span: 24 }}
+              label={
+                <span className="text-text02">
+                  {t('corporateClients.dateRegistered')}
+                </span>
+              }
+              layout="vertical"
             >
-              <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
+              <div
+                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+              >
                 {clientData.dateRegistered
                   ? new Date(clientData.dateRegistered).toLocaleDateString()
                   : '-'}
@@ -210,18 +219,34 @@ const BasicInformation: React.FC = () => {
               </Upload>
             </div>
             <Form.Item
-              label={t('corporateClients.ownerPhone')}
-              labelCol={{ span: 24 }}
+              label={
+                <span className="text-text02">
+                  {t('corporateClients.ownerPhone')}
+                </span>
+              }
+              layout="vertical"
             >
-              <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
+              <div
+                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+              >
                 {clientData.ownerPhone || '-'}
               </div>
             </Form.Item>
-            <Form.Item label={t('constants.status')} labelCol={{ span: 24 }}>
+            <Form.Item
+              label={
+                <span className="text-text02">{t('constants.status')}</span>
+              }
+              layout="vertical"
+            >
               <div>{statusRender(t(`tables.${clientData.status}`)) || '-'}</div>
             </Form.Item>
-            <Form.Item label="E-mail" labelCol={{ span: 24 }}>
-              <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
+            <Form.Item
+              label={<span className="text-text02">E-mail</span>}
+              layout="vertical"
+            >
+              <div
+                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+              >
                 {clientData.ownerEmail || '-'}
               </div>
             </Form.Item>
@@ -233,29 +258,26 @@ const BasicInformation: React.FC = () => {
             <div className="mt-6 space-x-3">
               {!isEditing ? (
                 <Button
-                  icon={<EditOutlined style={{ fontSize: 16 }} />}
+                  icon={<EditOutlined />}
                   onClick={handleEdit}
                   type="primary"
-                  className="px-8 py-5 font-semibold"
                 >
                   {t('actions.edit')}
                 </Button>
               ) : (
                 <>
                   <Button
-                    icon={<CloseOutlined style={{ fontSize: 16 }} />}
+                    icon={<CloseOutlined />}
                     onClick={handleCancel}
                     type="default"
-                    className="px-8 py-5 font-semibold"
                   >
                     {t('actions.cancel')}
                   </Button>
                   <Button
-                    icon={<SaveOutlined style={{ fontSize: 16 }} />}
+                    icon={<SaveOutlined />}
                     type="primary"
                     htmlType="submit"
                     loading={isSaving}
-                    className="px-8 py-5 font-semibold"
                   >
                     {t('actions.save')}
                   </Button>

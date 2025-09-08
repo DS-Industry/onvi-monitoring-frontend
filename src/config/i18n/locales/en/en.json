@@ -47,6 +47,10 @@
     "overhead": "Overhead Costs",
     "documents": "Documents",
     "suppliers": "Suppliers",
+    "salePrice": "Prices for sale",
+    "saleDocument": "Sale",
+    "saleDocumentView": "Document for sale",
+    "saleDocumentCreate": "Creating a sales document",
     "": "",
     "import": "Import Nomenclature",
     "COMMISSIONING": "Commissioning",
@@ -67,7 +71,7 @@
     "addClient": "Add a client",
     "importClients": "Import Clients",
     "clientProfile": "Client Oleg Sidorov",
-    "newPromo": "New Promotion",
+    "newPromotion": "New Promotion",
     "bonus": "Bonus Program",
     "addSeg": "Add Segment",
     "createSeg": "Creating a new segment",
@@ -105,7 +109,9 @@
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task",
-    "timesheetView": "Employee Shift View"
+    "timesheetView": "Employee Shift View",
+    "marketingCompanies": "Marketing Companies",
+    "newMarketingCampaign": "New Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
@@ -464,6 +470,17 @@
     "noExpanse": "You do not have expanse tracker data in the program",
     "supplierName": "Name"
   },
+  "sale": {
+    "create": "Adding a price",
+    "price": "Price",
+    "nomenclature": "Nomenclature",
+    "manager": "Responsible manager",
+    "availability": "Availability",
+    "saleQuantity": "Quantity for sale",
+    "totalAmount": "Total cost",
+    "totalSum": "Total sum",
+    "date": "Date of sale"
+  },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
@@ -690,7 +707,19 @@
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
     "operations": "Operations",
-    "numOfCards": "Number of cards"
+    "numOfCards": "Number of cards",
+    "selectBranch": "Select a branch",
+    "selectLoyaltyProgram": "Select a loyalty program",
+    "createPromotionalCode": "Create a promotional code",
+    "enterNamePromo": "Enter the name of the promo code",
+    "launchControl": "Launch Control",
+    "launchControlDesc": "Here you can start the Program, pause it, or schedule a delayed start",
+    "launchNow": "Launch now",
+    "launchNowDesc": "Check your settings and start the Program now or use delayed start",
+    "delayedStart": "Delayed start",
+    "date": "Date",
+    "schedule": "Schedule",
+    "errorCampaign": "There was an error saving the campaign."
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -802,7 +831,9 @@
     "Done": "Done",
     "displayedColumns": "Displayed Columns",
     "RETURNED": "RETURNED",
-    "COMPLETED": "COMPLETED"
+    "COMPLETED": "COMPLETED",
+    "PROMOCODE": "PROMOCODE",
+    "DISCOUNT": "DISCOUNT"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1245,7 +1276,12 @@
     "appearanceDateRequired": "Appearance Date is required",
     "startDateRequired": "Start date is required",
     "finishDateRequired": "Finish date is required",
-    "downtimeRequired": "Downtime is required"
+    "downtimeRequired": "Downtime is required",
+    "loyaltyProgramRequired": "Loyalty program is required",
+    "launchDateRequired": "Launch date is required",
+    "billingMonthRequired": "Billing Month is required",
+    "discountValueRequired": "Discount value is required",
+    "discountValuePositive": "Discount value must be a positive"
   },
   "table": {
     "noData": "No Data"
