@@ -4,8 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { getCorporateClientCardsById } from '@/services/api/marketing';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import Search from 'antd/es/input/Search';
 
 const { Text } = Typography;
 
@@ -15,13 +20,17 @@ const Cards: React.FC = () => {
   const clientId = searchParams.get('clientId');
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const search = searchParams.get('search') || '';
 
   const { data: cards, isLoading } = useSWR(
-    clientId ? ['get-client-cards', clientId, currentPage, pageSize] : null,
+    clientId
+      ? ['get-client-cards', clientId, currentPage, pageSize, search]
+      : null,
     () =>
       getCorporateClientCardsById(Number(clientId!), {
         page: currentPage,
         size: pageSize,
+        search: search,
       })
   );
 
@@ -65,7 +74,7 @@ const Cards: React.FC = () => {
       title: 'Уровень',
       dataIndex: 'level',
       key: 'level',
-      render: (_: string, record: typeof dataSource[0]) => (
+      render: (_: string, record: (typeof dataSource)[0]) => (
         <div>
           <Text
             style={{
@@ -92,6 +101,21 @@ const Cards: React.FC = () => {
     <div className="space-y-6">
       <div className="font-semibold text-text01 text-2xl">
         {t('marketing.cards')}
+      </div>
+      <div className="w-full sm:w-80">
+        <label className="block mb-1 text-sm font-medium text-gray-700">
+          {t('analysis.search')}
+        </label>
+        <Search
+          placeholder={t('filters.search.placeholder')}
+          allowClear
+          onSearch={(val: string) => {
+            updateSearchParams(searchParams, setSearchParams, {
+              search: val,
+              page: DEFAULT_PAGE,
+            });
+          }}
+        />
       </div>
       <Table
         dataSource={dataSource}
