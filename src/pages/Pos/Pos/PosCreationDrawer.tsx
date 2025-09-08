@@ -3,13 +3,14 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { postPosData } from '@/services/api/pos';
+import { createCarWash } from '@/services/api/pos';
 import { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
 import { useSearchParams } from 'react-router-dom';
 import { Drawer, Form, Input, Select, Button } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
+import ProfilePhoto from '@/assets/ProfilePhoto.svg';
 
 type PosCreationDrawerProps = {
   organizations: Organization[];
@@ -24,8 +25,11 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
 }) => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const city = searchParams.get('city') || '*';
+  const user = useUser();
 
   const defaultValues = {
     name: '',
@@ -34,10 +38,10 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     posMetaData: '',
     city: '',
     location: '',
-    lat: null,
-    lon: null,
-    organizationId: null,
-    carWashPosType: '',
+    lat: '',
+    lon: '',
+    organizationId: Number(user.organizationId),
+    carWashPosType: null,
     minSumOrder: null,
     maxSumOrder: null,
     stepSumOrder: null,
@@ -53,35 +57,36 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const { trigger: createPos, isMutating } = useSWRMutation(
     [`create-pos`],
     async () =>
-      postPosData({
-        name: formData.name,
-        monthlyPlan: formData.monthlyPlan,
-        timeWork: formData.timeWork,
-        address: {
-          city: formData.city,
-          location: formData.location,
-          lat: formData.lat,
-          lon: formData.lon,
+      createCarWash(
+        {
+          name: formData.name,
+          monthlyPlan: formData.monthlyPlan,
+          timeWork: formData.timeWork,
+          address: {
+            city: formData.city,
+            location: formData.location,
+            lat: String(formData.lat),
+            lon: String(formData.lon),
+          },
+          organizationId: formData.organizationId,
+          carWashPosType: formData.carWashPosType || '',
+          minSumOrder: formData.minSumOrder,
+          maxSumOrder: formData.maxSumOrder,
+          stepSumOrder: formData.stepSumOrder,
         },
-        organizationId: formData.organizationId,
-        carWashPosType: formData.carWashPosType,
-        minSumOrder: formData.minSumOrder,
-        maxSumOrder: formData.maxSumOrder,
-        stepSumOrder: formData.stepSumOrder,
-      })
+        selectedFile
+      )
   );
 
   const handleInputChange = (
     field: keyof typeof defaultValues,
-    value: string | null
+    value: string | number | null
   ) => {
     const numericFields = [
       'monthlyPlan',
       'stepSumOrder',
       'minSumOrder',
       'maxSumOrder',
-      'lat',
-      'lon',
     ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
@@ -108,12 +113,27 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
 
   const { showToast } = useToast();
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    setSelectedFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const resetForm = () => {
     setFormData(defaultValues);
     setStartHour(null);
     setEndHour(null);
     reset();
     onClose();
+    setSelectedFile(null);
   };
 
   const onSubmit = async () => {
@@ -121,6 +141,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
       const result = await createPos();
       if (result) {
         mutate([`get-pos`, city]);
+        showToast(t('success.recordCreated'), 'success');
         resetForm();
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
@@ -150,9 +171,21 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
         <span className="font-semibold text-xl md:text-3xl mb-5">
           {t('pos.creating')}
         </span>
+        <div className="mb-5 flex">
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.fields')}
+          </span>
+          <span className="text-errorFill">*</span>
+          <span className="font-semibold text-sm text-text01">
+            {t('routine.are')}
+          </span>
+        </div>
         <div className="grid grid-cols-1 gap-2">
           <div>
-            <div className="text-text02 text-sm">{t('pos.name')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.name')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.name?.message}
               validateStatus={errors.name ? 'error' : undefined}
@@ -166,12 +199,14 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 value={formData.name}
                 onChange={e => handleInputChange('name', e.target.value)}
                 status={errors.name ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.city')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.city')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.city?.message}
               validateStatus={errors.city ? 'error' : undefined}
@@ -185,18 +220,20 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 value={formData.city}
                 onChange={e => handleInputChange('city', e.target.value)}
                 status={errors.city ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.location')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.country')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.location?.message}
               validateStatus={errors.location ? 'error' : undefined}
             >
               <Input
-                placeholder={t('pos.location')}
+                placeholder={t('pos.country')}
                 className="w-80 sm:w-96"
                 {...register('location', {
                   required: t('validation.locationRequired'),
@@ -204,40 +241,43 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 value={formData.location}
                 onChange={e => handleInputChange('location', e.target.value)}
                 status={errors.location ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
-          <div>
+          <div className="mb-5">
             <div className="text-text02 text-sm">{t('pos.lat')}</div>
             <Input
+              placeholder="00"
               type="number"
               className="w-48"
               {...register('lat')}
               value={formData.lat !== null ? formData.lat : ''}
               onChange={e => handleInputChange('lat', e.target.value)}
-              size="large"
             />
           </div>
-          <div>
+          <div className="mb-5">
             <div className="text-text02 text-sm">{t('pos.lon')}</div>
             <Input
+              placeholder="00"
               type="number"
               className="w-48"
               {...register('lon')}
               value={formData.lon !== null ? formData.lon : ''}
               onChange={e => handleInputChange('lon', e.target.value)}
-              size="large"
             />
           </div>
           <div>
-            <label className="text-sm text-text02">{t('pos.opening')}</label>
+            <div className="flex">
+              <label className="text-sm text-text02">{t('pos.opening')}</label>
+              <span className="text-errorFill">*</span>
+            </div>
             <div className="flex space-x-2">
               <Form.Item
                 help={errors.timeWork?.message}
                 validateStatus={errors.timeWork ? 'error' : undefined}
               >
                 <Input
+                  placeholder="00"
                   type="number"
                   className="w-40"
                   {...register('timeWork', {
@@ -248,7 +288,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                     handleTimeWorkChange('startHour', Number(e.target.value))
                   }
                   status={errors.timeWork ? 'error' : ''}
-                  size="large"
                 />
               </Form.Item>
               <div className="text-text02 flex justify-center mt-2"> : </div>
@@ -257,6 +296,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 validateStatus={errors.timeWork ? 'error' : undefined}
               >
                 <Input
+                  placeholder="00"
                   type="number"
                   className="w-40"
                   {...register('timeWork', {
@@ -267,7 +307,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                     handleTimeWorkChange('endHour', Number(e.target.value))
                   }
                   status={errors.timeWork ? 'error' : ''}
-                  size="large"
                 />
               </Form.Item>
             </div>
@@ -277,12 +316,17 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
             </div>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.monthly')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.monthly')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.monthlyPlan?.message}
               validateStatus={errors.monthlyPlan ? 'error' : undefined}
             >
               <Input
+                placeholder="0"
+                type="number"
                 className="w-48"
                 {...register('monthlyPlan', {
                   required: t('validation.monthlyPlanRequired'),
@@ -292,12 +336,15 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 }
                 onChange={e => handleInputChange('monthlyPlan', e.target.value)}
                 status={errors.monthlyPlan ? 'error' : ''}
-                size="large"
+                suffix="₽"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.company')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.company')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.organizationId?.message}
               validateStatus={errors.organizationId ? 'error' : undefined}
@@ -308,19 +355,21 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                   value: item.id,
                   label: item.name,
                 }))}
-                className="w-80 sm:w-96"
+                className="w-80 sm:max-w-96"
                 {...register('organizationId', {
                   required: t('validation.organizationRequired'),
                 })}
                 value={formData.organizationId}
                 onChange={value => handleInputChange('organizationId', value)}
                 status={errors.organizationId ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.type')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.type')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.carWashPosType?.message}
               validateStatus={errors.carWashPosType ? 'error' : undefined}
@@ -335,24 +384,27 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                     value: 'SelfServiceAndPortal',
                   },
                 ]}
-                className="w-80 sm:w-96"
+                className="w-80 sm:max-w-96"
                 {...register('carWashPosType', {
                   required: t('validation.carWashPosTypeRequired'),
                 })}
                 value={formData.carWashPosType}
                 onChange={value => handleInputChange('carWashPosType', value)}
                 status={errors.carWashPosType ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.min')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.min')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.stepSumOrder?.message}
               validateStatus={errors.stepSumOrder ? 'error' : undefined}
             >
               <Input
+                placeholder="00"
                 type="number"
                 className="w-48"
                 {...register('stepSumOrder', {
@@ -365,17 +417,20 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                   handleInputChange('stepSumOrder', e.target.value)
                 }
                 status={errors.stepSumOrder ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.minAmount')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.minAmount')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.minSumOrder?.message}
               validateStatus={errors.minSumOrder ? 'error' : undefined}
             >
               <Input
+                placeholder="00"
                 type="number"
                 className="w-48"
                 {...register('minSumOrder', {
@@ -386,17 +441,20 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 }
                 onChange={e => handleInputChange('minSumOrder', e.target.value)}
                 status={errors.minSumOrder ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div className="text-text02 text-sm">{t('pos.maxAmount')}</div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('pos.maxAmount')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
             <Form.Item
               help={errors.maxSumOrder?.message}
               validateStatus={errors.maxSumOrder ? 'error' : undefined}
             >
               <Input
+                placeholder="00"
                 type="number"
                 className="w-48"
                 {...register('maxSumOrder', {
@@ -407,16 +465,34 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 }
                 onChange={e => handleInputChange('maxSumOrder', e.target.value)}
                 status={errors.maxSumOrder ? 'error' : ''}
-                size="large"
               />
             </Form.Item>
           </div>
           <div>
-            <div>{t('pos.photos')}</div>
-            <div>{t('pos.maxNumber')}</div>
-            <Button icon={<PlusOutlined />} className="btn-outline-primary">
-              {t('pos.download')}
-            </Button>
+            <div className="text-sm text-text02">{t('profile.photo')}</div>
+
+            <div
+              className="flex space-x-2 items-center cursor-pointer"
+              onClick={() => document.getElementById('photo-upload')?.click()}
+            >
+              <img
+                src={imagePreview || ProfilePhoto}
+                alt="Profile"
+                className="w-16 h-16 object-cover rounded-full border border-gray-300"
+                loading="lazy"
+              />
+              <div className="text-primary02 font-semibold">
+                {t('hr.upload')}
+              </div>
+            </div>
+
+            <input
+              type="file"
+              id="photo-upload"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
           </div>
         </div>
         <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">

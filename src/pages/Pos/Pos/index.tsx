@@ -23,6 +23,7 @@ const Pos: React.FC = () => {
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const userPermissions = usePermissions();
+  const user = useUser();
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Organization' },
@@ -30,10 +31,11 @@ const Pos: React.FC = () => {
   ]);
 
   const { data, isLoading: posLoading } = useSWR(
-    [`get-pos`, city],
+    user.organizationId ?[`get-pos`, city, user.organizationId] : null,
     () =>
       getPoses({
         placementId: city,
+        organizationId: user.organizationId
       }),
     {
       revalidateOnFocus: false,
@@ -45,8 +47,6 @@ const Pos: React.FC = () => {
   const { data: organizationData } = useSWR([`get-org`], () =>
     getOrganization({})
   );
-
-  const user = useUser();
 
   const { data: workerData } = useSWR(
     user.organizationId ? [`get-worker`, user.organizationId] : null,
