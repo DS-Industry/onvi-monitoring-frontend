@@ -34,6 +34,7 @@ import {
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ const Employees: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const city = Number(searchParams.get('city')) || undefined;
+  const user = useUser();
 
   const { showToast } = useToast();
 
@@ -106,7 +108,7 @@ const Employees: React.FC = () => {
   const placementId = Number(searchParams.get('placementId')) || undefined;
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const organizationId =
-    Number(searchParams.get('organizationId')) || undefined;
+    Number(searchParams.get('organizationId')) || user.organizationId;
   const name = searchParams.get('name') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -178,14 +180,14 @@ const Employees: React.FC = () => {
     name: '',
     hrPositionId: -1,
     placementId: -1,
-    organizationId: -1,
+    organizationId: user.organizationId || -1,
     startWorkDate: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
-    monthlySalary: -1,
-    dailySalary: -1,
-    percentageSalary: -1,
+    monthlySalary: 0,
+    dailySalary: 0,
+    percentageSalary: 0,
     gender: undefined,
     citizenship: undefined,
     passportSeries: undefined,
@@ -266,6 +268,7 @@ const Employees: React.FC = () => {
       if (result) {
         refetchWorkers();
         resetForm();
+        showToast(t('success.recordCreated'), 'success');
       } else {
         throw new Error('Invalid response from API');
       }
@@ -310,7 +313,7 @@ const Employees: React.FC = () => {
       dataIndex: 'position',
       key: 'position',
       render: value => value || '-',
-    }
+    },
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
@@ -416,7 +419,7 @@ const Employees: React.FC = () => {
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register('name', { required: 'Name is required' })}
+            {...register('name', { required: t('validation.nameRequired') })}
             helperText={errors.name?.message || ''}
           />
           <DropdownInput
@@ -425,8 +428,9 @@ const Employees: React.FC = () => {
             options={positions}
             classname="w-80"
             {...register('hrPositionId', {
-              required: 'hrPositionId is required',
-              validate: value => value !== -1 || 'Pos ID is required',
+              required: t('validation.positionRequired'),
+              validate: value =>
+                value !== -1 || t('validation.positionRequired'),
             })}
             value={formData.hrPositionId}
             onChange={value => handleInputChange('hrPositionId', value)}
@@ -441,8 +445,8 @@ const Employees: React.FC = () => {
             options={cities}
             classname="w-80"
             {...register('placementId', {
-              required: 'Placement Id is required',
-              validate: value => value !== -1 || 'Organization ID is required',
+              required: t('validation.cityRequired'),
+              validate: value => value !== -1 || t('validation.cityRequired'),
             })}
             value={formData.placementId}
             onChange={value => handleInputChange('placementId', value)}
@@ -459,8 +463,9 @@ const Employees: React.FC = () => {
             options={organizations}
             classname="w-80"
             {...register('organizationId', {
-              required: 'Organization Id is required',
-              validate: value => value !== -1 || 'Organization ID is required',
+              required: t('validation.organizationRequired'),
+              validate: value =>
+                value !== -1 || t('validation.organizationRequired'),
             })}
             value={formData.organizationId}
             onChange={value => handleInputChange('organizationId', value)}
@@ -493,8 +498,7 @@ const Employees: React.FC = () => {
             {...register('phone', {
               pattern: {
                 value: /^\+79\d{9}$/,
-                message:
-                  'Phone number must start with +79 and be 11 digits long',
+                message: t('validation.phoneValidFormat'),
               },
             })}
             error={!!errors.phone}
@@ -507,7 +511,14 @@ const Employees: React.FC = () => {
             classname="w-80"
             value={formData.email}
             changeValue={e => handleInputChange('email', e.target.value)}
-            {...register('email')}
+            {...register('email', {
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: t('validation.invalidEmailFormat'),
+              },
+            })}
+            error={!!errors.email}
+            helperText={errors.email?.message || ''}
           />
           <MultilineInput
             title={t('warehouse.desc')}
@@ -554,13 +565,13 @@ const Employees: React.FC = () => {
             classname="w-80"
             showIcon={true}
             IconComponent={<div className="text-text02 text-xl">₽</div>}
-            value={formData.monthlySalary === -1 ? '' : formData.monthlySalary}
+            value={formData.monthlySalary}
             changeValue={e =>
               handleInputChange('monthlySalary', e.target.value)
             }
             error={!!errors.monthlySalary}
             {...register('monthlySalary', {
-              required: 'monthlySalary is required',
+              required: t('validation.monthlySalaryRequired'),
             })}
             helperText={errors.monthlySalary?.message || ''}
           />
@@ -568,11 +579,13 @@ const Employees: React.FC = () => {
             title={`${t('hr.daily')}*`}
             type={'number'}
             classname="w-80"
-            value={formData.dailySalary === -1 ? '' : formData.dailySalary}
+            showIcon={true}
+            IconComponent={<div className="text-text02 text-xl">₽</div>}
+            value={formData.dailySalary}
             changeValue={e => handleInputChange('dailySalary', e.target.value)}
             error={!!errors.dailySalary}
             {...register('dailySalary', {
-              required: 'dailySalary is required',
+              required: t('validation.dailySalaryRequired'),
             })}
             helperText={errors.dailySalary?.message || ''}
           />
@@ -580,15 +593,15 @@ const Employees: React.FC = () => {
             title={`${t('marketing.per')}*`}
             type={'number'}
             classname="w-80"
-            value={
-              formData.percentageSalary === -1 ? '' : formData.percentageSalary
-            }
+            value={formData.percentageSalary}
+            showIcon={true}
+            IconComponent={<div className="text-text02 text-xl">%</div>}
             changeValue={e =>
               handleInputChange('percentageSalary', e.target.value)
             }
             error={!!errors.percentageSalary}
             {...register('percentageSalary', {
-              required: 'percentageSalary is required',
+              required: t('validation.percentageSalaryRequired'),
             })}
             helperText={errors.percentageSalary?.message || ''}
           />
@@ -696,11 +709,6 @@ const Employees: React.FC = () => {
           </div>
         </form>
       </Drawer>
-      <style>{`
-      .custom-ant-table .ant-table-thead th.ant-table-column-has-sorters {
-        z-index: 0 !important;
-      }
-    `}</style>
     </div>
   );
 };
