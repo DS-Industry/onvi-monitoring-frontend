@@ -231,7 +231,11 @@ export async function createCarWash(
   for (const key in body) {
     const value = body[key as keyof PosBody];
     if (value !== undefined && value !== null) {
-      formData.append(key, value.toString());
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, value.toString());
+      }
     }
   }
 
@@ -239,15 +243,11 @@ export async function createCarWash(
     formData.append('file', file);
   }
 
-  const response: AxiosResponse<Pos> = await api.post(
-    POS.POST_POS,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }
-  );
+  const response: AxiosResponse<Pos> = await api.post(POS.POST_POS, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 }
 
