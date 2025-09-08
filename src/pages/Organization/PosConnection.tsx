@@ -6,7 +6,6 @@ import {
   getPosPermission,
   getPosPermissionUser,
 } from '@/services/api/organization';
-import Button from '@/components/ui/Button/Button';
 import { useTranslation } from 'react-i18next';
 import useSWRMutation from 'swr/mutation';
 import { getWorkers } from '@/services/api/equipment';
@@ -14,6 +13,7 @@ import { useToast } from '@/components/context/useContext';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { Button } from 'antd';
 interface Item {
   id: number;
   name: string;
@@ -140,7 +140,7 @@ const PosConnection: React.FC = () => {
         <QuestionMarkIcon />
       </div>
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 items-center">
+        <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 sm:items-center">
           <SearchDropdownInput
             title={t('equipment.user')}
             options={workers}
@@ -149,12 +149,9 @@ const PosConnection: React.FC = () => {
             onChange={value => setWorkerId(value)}
             allowClear={true}
           />
-          <Button
-            title={t('organizations.save')}
-            isLoading={isMutating}
-            handleClick={handleConnection}
-            classname="h-10 mt-2 sm:mt-5 w-full sm:w-auto"
-          />
+          <Button loading={isMutating} onClick={handleConnection} type='primary' className='mt-5 h-10'>
+            {t('organizations.save')}
+          </Button>
         </div>
 
         <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
