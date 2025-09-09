@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { Table, Drawer, Button as AntButton, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -138,11 +138,7 @@ const Employees: React.FC = () => {
     [filterParams]
   );
 
-  const {
-    data: workersData,
-    isLoading: workersLoading,
-    mutate: refetchWorkers,
-  } = useSWR(
+  const { data: workersData, isLoading: workersLoading } = useSWR(
     swrKey,
     () =>
       getWorkers({
@@ -266,9 +262,9 @@ const Employees: React.FC = () => {
     try {
       const result = await createEmp();
       if (result) {
-        refetchWorkers();
-        resetForm();
+        mutate(swrKey);
         showToast(t('success.recordCreated'), 'success');
+        resetForm();
       } else {
         throw new Error('Invalid response from API');
       }
