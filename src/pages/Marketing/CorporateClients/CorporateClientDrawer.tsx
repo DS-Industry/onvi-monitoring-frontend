@@ -9,6 +9,7 @@ import {
 } from '@/services/api/marketing';
 import Button from '@/components/ui/Button/Button';
 import { useTranslation } from 'react-i18next';
+import { useUser } from '@/hooks/useUserStore';
 
 interface CorporateClientDrawerProps {
   open: boolean;
@@ -33,6 +34,8 @@ export default function CorporateClientDrawer({
     inn: '',
     address: '',
   });
+
+  const user = useUser()
 
   const isEditMode = !!client;
 
@@ -82,6 +85,7 @@ export default function CorporateClientDrawer({
           name: values.name,
           inn: values.inn,
           address: values.address,
+          organizationId: Number(user.organizationId),
         };
 
         await updateCorporateClient(client.id, updateRequest);
@@ -91,11 +95,13 @@ export default function CorporateClientDrawer({
           name: values.name,
           inn: values.inn,
           address: values.address,
+          organizationId: Number(user.organizationId),
         };
 
         await createCorporateClient(createRequest);
         message.success(t('marketing.corporationCreated'));
       }
+
 
       onSuccess?.();
       onClose();
