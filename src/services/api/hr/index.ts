@@ -225,9 +225,12 @@ export async function updateWorker(
 
   for (const key in body) {
     const value = body[key as keyof UpdateWorkerRequest];
-    if (value !== undefined) {
-      // Convert value to a string if it's a number
-      formData.append(key, value.toString());
+    if (value !== undefined && value !== null) {
+      if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else {
+        formData.append(key, value.toString());
+      }
     }
   }
 

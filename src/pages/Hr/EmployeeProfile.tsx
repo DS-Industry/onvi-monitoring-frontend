@@ -9,7 +9,7 @@ import MultilineInput from '@/components/ui/Input/MultilineInput';
 import CalendarComponent from '@/components/ui/Calendar/CalendarComponent';
 import { useToast } from '@/components/context/useContext';
 import type { DatePickerProps } from 'antd';
-import { DatePicker, Skeleton, Button, Grid } from 'antd';
+import { DatePicker, Skeleton, Button, Grid, Select } from 'antd';
 import useSWR, { mutate } from 'swr';
 import {
   getPositions,
@@ -86,9 +86,8 @@ const EmployeeProfile: React.FC = () => {
     }
   );
 
-  const positions: { name: string; value: number; label: string }[] =
+  const positions: { value: number; label: string }[] =
     positionData?.map(item => ({
-      name: item.props.name,
       value: item.props.id,
       label: item.props.name,
     })) || [];
@@ -96,7 +95,7 @@ const EmployeeProfile: React.FC = () => {
   const getInitials = (fullName: string) => {
     const words = fullName.trim().split(' ');
 
-    if (words.length < 2) return '';
+    if (words.length < 2) return words.at(0)?.at(0)?.toUpperCase() ?? '';
 
     return words
       .slice(0, 2)
@@ -120,22 +119,22 @@ const EmployeeProfile: React.FC = () => {
 
   const employee = employeeData?.props;
 
-  const {
-    data: workersData,
-    isLoading: loadingWorkers,
-    isValidating: validatingWorkers,
-  } = useSWR([`get-workers`, employee], () => getWorkers({}), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: workersData, isLoading: loadingWorkers } = useSWR(
+    [`get-workers`],
+    () => getWorkers({}),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const employeeDetails =
     workersData
       ?.map(worker => ({
         fullName: worker.props.name,
         job: positions.find(pos => pos.value === worker.props.hrPositionId)
-          ?.name,
+          ?.label,
         workerId: worker.props.id,
         avatar: worker.props.avatar,
       }))
@@ -147,7 +146,6 @@ const EmployeeProfile: React.FC = () => {
     { id: 'info', name: t('hr.info') },
     { id: 'addi', name: t('hr.addi') },
     { id: 'salary', name: t('hr.salary') },
-    // { id: 'sch', name: t("finance.sch") }
   ];
 
   const defaultValues: UpdateWorkerRequest = {
@@ -172,9 +170,10 @@ const EmployeeProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    if (employee?.avatar)
+    if (employee?.avatar) {
       setImagePreview(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
-    else setImagePreview(null);
+      console.log(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
+    } else setImagePreview(null);
   }, [employee?.avatar]);
 
   const scheduleValues = {
@@ -241,54 +240,43 @@ const EmployeeProfile: React.FC = () => {
 
   const { register, handleSubmit, setValue } = useFormHook(formData);
 
-  const { trigger: updateEmp } = useSWRMutation(['update-employee'], async () =>
-    updateWorker(
-      {
-        workerId: formData.workerId,
-        hrPositionId: formData.hrPositionId,
-        placementId: formData.placementId,
-        startWorkDate: formData.startWorkDate,
-        phone: formData.phone,
-        email: formData.email,
-        description: formData.description,
-        monthlySalary: formData.monthlySalary,
-        dailySalary: formData.dailySalary,
-        percentageSalary: formData.percentageSalary,
-        gender: formData.gender,
-        citizenship: formData.citizenship,
-        passportSeries: formData.passportSeries,
-        passportNumber: formData.passportNumber,
-        passportExtradition: formData.passportExtradition,
-        passportDateIssue: formData.passportDateIssue,
-        inn: formData.inn,
-        snils: formData.snils,
-      },
-      selectedFile
-    )
+  const { trigger: updateEmp, isMutating: updatingEmployee } = useSWRMutation(
+    ['update-employee'],
+    async () =>
+      updateWorker(
+        {
+          workerId: formData.workerId,
+          hrPositionId: formData.hrPositionId,
+          placementId: formData.placementId,
+          startWorkDate: formData.startWorkDate,
+          phone: formData.phone,
+          email: formData.email,
+          description: formData.description,
+          monthlySalary: formData.monthlySalary,
+          dailySalary: formData.dailySalary,
+          percentageSalary: formData.percentageSalary,
+          gender: formData.gender,
+          citizenship: formData.citizenship,
+          passportSeries: formData.passportSeries,
+          passportNumber: formData.passportNumber,
+          passportExtradition: formData.passportExtradition,
+          passportDateIssue: formData.passportDateIssue,
+          inn: formData.inn,
+          snils: formData.snils,
+        },
+        selectedFile
+      )
   );
 
-  type FieldType =
-    | 'workerId'
-    | 'description'
-    | 'hrPositionId'
-    | 'placementId'
-    | 'startWorkDate'
-    | 'phone'
-    | 'email'
-    | 'monthlySalary'
-    | 'dailySalary'
-    | 'percentageSalary'
-    | 'gender'
-    | 'citizenship'
-    | 'passportSeries'
-    | 'passportNumber'
-    | 'passportExtradition'
-    | 'passportDateIssue'
-    | 'inn'
-    | 'snils';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ['monthlySalary', 'dailySalary', 'percentageSalary'];
+    const numericFields = [
+      'monthlySalary',
+      'dailySalary',
+      'percentageSalary',
+      'hrPositionId',
+    ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
@@ -313,11 +301,11 @@ const EmployeeProfile: React.FC = () => {
       const result = await updateEmp();
       if (result) {
         mutate([`get-employee-by-id`, workerId]);
+        showToast(t('success.recordUpdated'), 'success');
       } else {
-        throw new Error('Invalid response from API');
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
     } catch (error) {
-      console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
@@ -380,6 +368,7 @@ const EmployeeProfile: React.FC = () => {
           icon={<SaveOutlined />}
           className="btn-primary"
           onClick={() => handleSubmit(onSubmit)()}
+          loading={updatingEmployee}
         >
           {screens.md && t('routes.save')}
         </Button>
@@ -405,7 +394,7 @@ const EmployeeProfile: React.FC = () => {
               />
             ) : null}
             <div className="w-full w-25 md:w-60 max-h-[500px] overflow-y-auto">
-              {loadingWorkers || validatingWorkers
+              {loadingWorkers
                 ? DoubleSkeleton()
                 : employeeDetails.map(emp => (
                     <div
@@ -467,18 +456,18 @@ const EmployeeProfile: React.FC = () => {
                           {t('tables.ACTIVE')}
                         </div>
                       </div>
-                      <DropdownInput
-                        title={`${t('roles.job')}`}
-                        label={t('hr.selectPos')}
-                        options={positions}
-                        classname="w-64"
-                        {...register('hrPositionId')}
-                        value={formData.hrPositionId}
-                        onChange={value =>
-                          handleInputChange('hrPositionId', value)
-                        }
-                        inputType="secondary"
-                      />
+                      <div>
+                        <div className="text-sm text-text02">{`${t('roles.job')}`}</div>
+                        <Select
+                          options={positions}
+                          placeholder={t('hr.selectPos')}
+                          className="w-64"
+                          value={Number(formData.hrPositionId)}
+                          onChange={value =>
+                            handleInputChange('hrPositionId', String(value))
+                          }
+                        />
+                      </div>
                       <div>
                         <div className="text-sm text-text02">
                           {t('hr.date')}
