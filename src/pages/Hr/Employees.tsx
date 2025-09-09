@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -22,8 +22,8 @@ import {
   createWorker,
   getPositions,
   getWorkers,
+  getWorkersCount,
   TWorker,
-  WorkerParams,
 } from '@/services/api/hr';
 import { getPlacement } from '@/services/api/device';
 import { getOrganization } from '@/services/api/organization';
@@ -113,46 +113,52 @@ const Employees: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const filterParams = useMemo<WorkerParams>(
-    () => ({
-      placementId: placementId,
-      hrPositionId: hrPositionId,
-      organizationId: organizationId,
-      name: name,
-      page: currentPage,
-      size: pageSize,
-    }),
-    [placementId, hrPositionId, organizationId, name, currentPage, pageSize]
-  );
-
-  const swrKey = useMemo(
-    () => [
-      'get-workers',
-      filterParams.placementId,
-      filterParams.hrPositionId,
-      filterParams.organizationId,
-      filterParams.name,
-      filterParams.page,
-      filterParams.size,
-    ],
-    [filterParams]
-  );
-
   const { data: workersData, isLoading: workersLoading } = useSWR(
-    swrKey,
+    [
+      'get-workers',
+      placementId,
+      hrPositionId,
+      organizationId,
+      name,
+      currentPage,
+      pageSize,
+    ],
     () =>
       getWorkers({
-        placementId: filterParams.placementId,
-        hrPositionId: filterParams.hrPositionId,
-        organizationId: filterParams.organizationId,
-        name: filterParams.name || undefined,
-        page: filterParams.page,
-        size: filterParams.size,
+        placementId: placementId,
+        hrPositionId: hrPositionId,
+        organizationId: organizationId,
+        name: name || undefined,
+        page: currentPage,
+        size: pageSize,
       }),
     {
-      onSuccess(data) {
-        console.log(data);
-      },
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: workersCount } = useSWR(
+    [
+      'get-workers-count',
+      placementId,
+      hrPositionId,
+      organizationId,
+      name,
+      currentPage,
+      pageSize,
+    ],
+    () =>
+      getWorkersCount({
+        placementId: placementId,
+        hrPositionId: hrPositionId,
+        organizationId: organizationId,
+        name: name || undefined,
+        page: currentPage,
+        size: pageSize,
+      }),
+    {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
@@ -261,7 +267,24 @@ const Employees: React.FC = () => {
     try {
       const result = await createEmp();
       if (result) {
-        mutate(swrKey);
+        mutate([
+          'get-workers',
+          placementId,
+          hrPositionId,
+          organizationId,
+          name,
+          currentPage,
+          pageSize,
+        ]);
+        mutate([
+          'get-workers-count',
+          placementId,
+          hrPositionId,
+          organizationId,
+          name,
+          currentPage,
+          pageSize,
+        ]);
         showToast(t('success.recordCreated'), 'success');
         resetForm();
       } else {
@@ -272,8 +295,6 @@ const Employees: React.FC = () => {
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
-
-  const totalCount = workersData?.length || 0;
 
   const columnsEmployee: ColumnsType<TWorker['props']> = [
     {
@@ -343,9 +364,9 @@ const Employees: React.FC = () => {
         )}
 
         <EmployeesFilter
-          count={totalCount}
+          count={workersCount?.count || 0}
           positions={[allObj, ...positions]}
-          organizations={[allObj, ...organizations]}
+          organizations={organizations}
         />
 
         <ColumnSelector
@@ -364,7 +385,7 @@ const Employees: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: totalCount,
+            total: workersCount?.count || 0,
             showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>

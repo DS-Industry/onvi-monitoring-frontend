@@ -7,6 +7,7 @@ import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
 import useSWR from 'swr';
 import { getPlacement } from '@/services/api/device';
+import { useUser } from '@/hooks/useUserStore';
 
 const Text = Typography.Text;
 
@@ -32,6 +33,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   const [name, setName] = useState<string>('');
   const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
   const allCategoriesText = t('warehouse.all');
+  const user = useUser();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
     revalidateOnFocus: false,
@@ -140,7 +142,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                     <Text>{t('warehouse.organization')}</Text>
                     <Select
                       className="w-full"
-                      value={getParam(searchParams, 'organizationId', '*')}
+                      value={getParam(searchParams, 'organizationId', String(user.organizationId))}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           organizationId: val,

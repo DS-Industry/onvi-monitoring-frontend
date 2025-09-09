@@ -288,6 +288,15 @@ export async function getWorkers(params: WorkerParams): Promise<TWorker[]> {
   return response.data;
 }
 
+export async function getWorkersCount(params: WorkerParams): Promise<{ count: number; }> {
+  const response: AxiosResponse<{ count: number; }> = await api.get(
+    HR.GET_WORKERS + 's-count',
+    { params }
+  );
+
+  return response.data;
+}
+
 export async function getWorkerById(id: number): Promise<TWorker> {
   const response: AxiosResponse<TWorker> = await api.get(
     HR.GET_WORKERS + `/${id}`
