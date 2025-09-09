@@ -646,12 +646,14 @@ export type CreateCorporateClientRequest = {
   name: string;
   inn: string;
   address: string;
+  organizationId: number;
 };
 
 export type UpdateCorporateClientRequest = {
   name?: string;
   inn?: string;
   address?: string;
+  organizationId: number;
 };
 
 type CorporateClientStatsResponse = {
