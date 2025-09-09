@@ -72,3 +72,12 @@ export enum ContractType {
   CORPORATE = 'CORPORATE',
   INDIVIDUAL = 'INDIVIDUAL',
 }
+
+
+export enum MarketingCampaignStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
