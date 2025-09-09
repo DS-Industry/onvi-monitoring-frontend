@@ -8,6 +8,33 @@ enum HR {
   PAYMENT = 'user/hr/payment',
 }
 
+export enum StatusHrWorker {
+  WORKS = 'WORKS',
+  DISMISSED = 'DISMISSED',
+}
+
+type CreateWorkerRequest = {
+  name: string;
+  hrPositionId: string;
+  placementId: string;
+  organizationId: number;
+  startWorkDate?: Date;
+  phone?: string;
+  email?: string;
+  description?: string;
+  monthlySalary: string;
+  dailySalary: string;
+  percentageSalary: string;
+  gender?: string;
+  citizenship?: string;
+  passportSeries?: string;
+  passportNumber?: string;
+  passportExtradition?: string;
+  passportDateIssue?: Date;
+  inn?: string;
+  snils?: string;
+};
+
 export type TWorker = {
   props: {
     id: number;
@@ -23,6 +50,7 @@ export type TWorker = {
     monthlySalary: number;
     dailySalary: number;
     percentageSalary: number;
+    status: StatusHrWorker;
     gender?: string;
     citizenship?: string;
     passportSeries?: string;
@@ -34,8 +62,9 @@ export type TWorker = {
   };
 };
 
-type UpdateWorkerRequest = {
+export type UpdateWorkerRequest = {
   workerId: string;
+  name?: string;
   hrPositionId?: string;
   placementId?: string;
   startWorkDate?: Date;
@@ -45,6 +74,7 @@ type UpdateWorkerRequest = {
   monthlySalary?: string;
   dailySalary?: string;
   percentageSalary?: string;
+  status?: StatusHrWorker;
   gender?: string;
   citizenship?: string;
   passportSeries?: string;
@@ -188,15 +218,14 @@ export type addWorkerRequest = {
 };
 
 export async function createWorker(
-  body: TWorker['props'],
+  body: CreateWorkerRequest,
   file?: File | null
 ): Promise<TWorker> {
   const formData = new FormData();
 
   for (const key in body) {
-    const value = body[key as keyof TWorker['props']];
+    const value = body[key as keyof CreateWorkerRequest];
     if (value !== undefined) {
-      // Convert value to a string if it's a number
       formData.append(key, value.toString());
     }
   }
@@ -225,9 +254,12 @@ export async function updateWorker(
 
   for (const key in body) {
     const value = body[key as keyof UpdateWorkerRequest];
-    if (value !== undefined) {
-      // Convert value to a string if it's a number
-      formData.append(key, value.toString());
+    if (value !== undefined && value !== null) {
+      if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else {
+        formData.append(key, value.toString());
+      }
     }
   }
 
@@ -250,6 +282,15 @@ export async function updateWorker(
 export async function getWorkers(params: WorkerParams): Promise<TWorker[]> {
   const response: AxiosResponse<TWorker[]> = await api.get(
     HR.GET_WORKERS + 's',
+    { params }
+  );
+
+  return response.data;
+}
+
+export async function getWorkersCount(params: WorkerParams): Promise<{ count: number; }> {
+  const response: AxiosResponse<{ count: number; }> = await api.get(
+    HR.GET_WORKERS + 's-count',
     { params }
   );
 

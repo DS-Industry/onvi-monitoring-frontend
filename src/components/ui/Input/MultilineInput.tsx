@@ -55,27 +55,6 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
       )}
 
       <div className="relative mt-1">
-        {/* {label && (
-          <span
-            className={`absolute left-3 transition-all duration-200 ease-in-out pointer-events-none z-10 bg-background02 px-1
-              ${
-                inputType === "primary"
-                  ? isLabelFloating
-                    ? "text-[10px] -top-2 text-text02"
-                    : "top-2 text-sm text-text02"
-                  : inputType === "secondary" || inputType === "tertiary"
-                  ? isLabelFloating
-                    ? "invisible"
-                    : "top-2 text-sm text-text02"
-                  : ""
-              }
-              ${error ? "text-errorFill" : ""}
-            `}
-          >
-            {label}
-          </span>
-        )} */}
-
         <Input.TextArea
           value={value}
           onChange={changeValue}
