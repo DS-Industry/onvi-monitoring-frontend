@@ -204,18 +204,17 @@ const Employees: React.FC = () => {
     async () =>
       createWorker(
         {
-          id: 9,
           name: formData.name,
-          hrPositionId: formData.hrPositionId,
-          placementId: formData.placementId,
+          hrPositionId: String(formData.hrPositionId),
+          placementId: String(formData.placementId),
           organizationId: formData.organizationId,
           startWorkDate: formData.startWorkDate,
           phone: formData.phone,
           email: formData.email,
           description: formData.description,
-          monthlySalary: formData.monthlySalary,
-          dailySalary: formData.dailySalary,
-          percentageSalary: formData.percentageSalary,
+          monthlySalary: String(formData.monthlySalary),
+          dailySalary: String(formData.dailySalary),
+          percentageSalary: String(formData.percentageSalary),
           gender: formData.gender,
           citizenship: formData.citizenship,
           passportSeries: formData.passportSeries,
@@ -366,6 +365,7 @@ const Employees: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalCount,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} из ${total} сотрудников`,

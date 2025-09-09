@@ -15,7 +15,9 @@ import {
   getPositions,
   getWorkerById,
   getWorkers,
+  StatusHrWorker,
   updateWorker,
+  UpdateWorkerRequest,
 } from '@/services/api/hr';
 import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
@@ -36,27 +38,6 @@ const DoubleSkeleton = () => (
     ))}
   </>
 );
-
-type UpdateWorkerRequest = {
-  workerId: string;
-  hrPositionId?: string;
-  placementId?: string;
-  startWorkDate?: Date;
-  phone?: string;
-  email?: string;
-  description?: string;
-  monthlySalary?: string;
-  dailySalary?: string;
-  percentageSalary?: string;
-  gender?: string;
-  citizenship?: string;
-  passportSeries?: string;
-  passportNumber?: string;
-  passportExtradition?: string;
-  passportDateIssue?: Date;
-  inn?: string;
-  snils?: string;
-};
 
 const EmployeeProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -120,7 +101,7 @@ const EmployeeProfile: React.FC = () => {
   const employee = employeeData?.props;
 
   const { data: workersData, isLoading: loadingWorkers } = useSWR(
-    [`get-workers`],
+    [`get-workers`, employee?.avatar],
     () => getWorkers({}),
     {
       revalidateOnFocus: false,
@@ -150,6 +131,7 @@ const EmployeeProfile: React.FC = () => {
 
   const defaultValues: UpdateWorkerRequest = {
     workerId: '0',
+    name: undefined,
     hrPositionId: undefined,
     placementId: undefined,
     startWorkDate: undefined,
@@ -159,6 +141,7 @@ const EmployeeProfile: React.FC = () => {
     monthlySalary: undefined,
     dailySalary: undefined,
     percentageSalary: undefined,
+    status: undefined,
     gender: undefined,
     citizenship: undefined,
     passportSeries: undefined,
@@ -202,6 +185,7 @@ const EmployeeProfile: React.FC = () => {
       setFormData({
         ...employee,
         workerId: String(employee.id),
+        name: employee.name ? String(employee.name) : undefined,
         hrPositionId: employee.hrPositionId
           ? String(employee.hrPositionId)
           : undefined,
@@ -217,6 +201,7 @@ const EmployeeProfile: React.FC = () => {
         percentageSalary: employee.percentageSalary
           ? String(employee.percentageSalary)
           : undefined,
+        status: employee.status ? employee.status : undefined,
         inn: employee.inn ?? undefined,
         snils: employee.snils ?? undefined,
         phone: employee.phone ?? undefined,
@@ -245,6 +230,7 @@ const EmployeeProfile: React.FC = () => {
       updateWorker(
         {
           workerId: formData.workerId,
+          name: formData.name,
           hrPositionId: formData.hrPositionId,
           placementId: formData.placementId,
           startWorkDate: formData.startWorkDate,
@@ -254,6 +240,7 @@ const EmployeeProfile: React.FC = () => {
           monthlySalary: formData.monthlySalary,
           dailySalary: formData.dailySalary,
           percentageSalary: formData.percentageSalary,
+          status: formData.status,
           gender: formData.gender,
           citizenship: formData.citizenship,
           passportSeries: formData.passportSeries,
@@ -446,17 +433,22 @@ const EmployeeProfile: React.FC = () => {
                 <div className="mt-4">
                   {activeTab === 'info' && (
                     <div className="space-y-4">
+                      <Input
+                        type=""
+                        title={t('roles.name')}
+                        label={t('profile.namePlaceholder')}
+                        classname="w-64"
+                        value={formData.name}
+                        changeValue={e =>
+                          handleInputChange('name', e.target.value)
+                        }
+                        {...register('name')}
+                        inputType="secondary"
+                      />
                       <div>
                         <div className="text-sm text-text02">
                           {t('finance.status')}
                         </div>
-                        <div className="rounded-2xl py-[2px] px-2 flex items-center gap-2 w-36 text-[#00A355] bg-[#D1FFEA]">
-                          <span className="w-2 h-2 bg-[#00A355] rounded-full"></span>
-                          {t('tables.ACTIVE')}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-text02">{`${t('roles.job')}`}</div>
                         <Select
                           options={positions}
                           placeholder={t('hr.selectPos')}
@@ -465,6 +457,25 @@ const EmployeeProfile: React.FC = () => {
                           onChange={value =>
                             handleInputChange('hrPositionId', String(value))
                           }
+                        />
+                      </div>
+                      <div>
+                        <div className="text-sm text-text02">{`${t('roles.job')}`}</div>
+                        <Select
+                          options={[
+                            {
+                              label: t('tables.WORKS'),
+                              value: StatusHrWorker.WORKS,
+                            },
+                            {
+                              label: t('tables.DISMISSED'),
+                              value: StatusHrWorker.DISMISSED,
+                            },
+                          ]}
+                          placeholder={t('warehouse.notSel')}
+                          className="w-64"
+                          value={formData.status}
+                          onChange={value => handleInputChange('status', value)}
                         />
                       </div>
                       <div>

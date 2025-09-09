@@ -818,7 +818,9 @@
     "RETURNED": "RETURNED",
     "COMPLETED": "COMPLETED",
     "PROMOCODE": "PROMOCODE",
-    "DISCOUNT": "DISCOUNT"
+    "DISCOUNT": "DISCOUNT",
+    "WORKS": "WORKS",
+    "DISMISSED": "DISMISSED"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
