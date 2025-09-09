@@ -1281,7 +1281,10 @@
     "launchDateRequired": "Дата запуска обязательна",
     "billingMonthRequired": "Расчетный месяц обязателен",
     "discountValueRequired": "Значение скидки обязательно",
-    "discountValuePositive": "Значение скидки должно быть положительным"
+    "discountValuePositive": "Значение скидки должно быть положительным",
+    "monthlySalaryRequired": "Месячная зарплата обязательна",
+    "dailySalaryRequired": "Ежедневная зарплата обязательна",
+    "percentageSalaryRequired": "Процентная зарплата обязательна"
   },
   "table": {
     "noData": "Ничего не найдено"
