@@ -172,7 +172,6 @@ const EmployeeProfile: React.FC = () => {
   useEffect(() => {
     if (employee?.avatar) {
       setImagePreview(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
-      console.log(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
     } else setImagePreview(null);
   }, [employee?.avatar]);
 

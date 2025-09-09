@@ -102,7 +102,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
           onChange={onChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`${classname}`}
+          className={classname}
           status={error ? 'error' : ''}
           optionLabelProp="label"
           tagRender={isMultiSelect ? tagRender : undefined}
