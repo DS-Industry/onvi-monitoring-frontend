@@ -77,7 +77,6 @@ const DateInput: React.FC<InputProps> = ({
               backgroundColor: 'transparent',
               width: '100%',
               paddingLeft: 10,
-              height: 40,
             }}
             status={error ? 'error' : ''}
           />

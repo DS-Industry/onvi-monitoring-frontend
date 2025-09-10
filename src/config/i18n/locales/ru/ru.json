@@ -818,7 +818,9 @@
     "RETURNED": "ВЕРНУЛСЯ",
     "COMPLETED": "ЗАВЕРШЕННЫЙ",
     "PROMOCODE": "ПРОМО-КОД",
-    "DISCOUNT": "СКИДКА"
+    "DISCOUNT": "СКИДКА",
+    "WORKS": "Действующий",
+    "DISMISSED": "Уволен"
   },
   "finance": {
     "details": "Здесь отображаются детализация по каждой инкассации",
@@ -1265,7 +1267,10 @@
     "loyaltyProgramRequired": "Программа лояльности обязательна",
     "launchDateRequired": "Дата запуска обязательна",
     "discountValueRequired": "Значение скидки обязательно",
-    "discountValuePositive": "Значение скидки должно быть положительным"
+    "discountValuePositive": "Значение скидки должно быть положительным",
+    "monthlySalaryRequired": "Месячная зарплата обязательна",
+    "dailySalaryRequired": "Ежедневная зарплата обязательна",
+    "percentageSalaryRequired": "Процентная зарплата обязательна"
   },
   "table": {
     "noData": "Ничего не найдено"

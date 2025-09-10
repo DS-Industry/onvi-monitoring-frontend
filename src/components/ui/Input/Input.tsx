@@ -32,7 +32,6 @@ const Input: React.FC<InputProps> = ({
   label,
   helperText,
   disabled = false,
-  inputType = 'forth',
   showIcon = false,
   IconComponent,
   classname,
@@ -93,41 +92,7 @@ const Input: React.FC<InputProps> = ({
     }
   };
 
-  // Custom styles to match the original design
-  const getInputSizeStyles = () => {
-    switch (inputType) {
-      case 'primary':
-        return 'py-2';
-      case 'secondary':
-        return 'py-2';
-      case 'tertiary':
-        return 'py-2';
-      default: // forth
-        return 'py-2';
-    }
-  };
-
-  const getBorderColor = () => {
-    if (error) return 'border-errorFill';
-    if (isFocused) return 'border-primary02';
-    return 'border';
-  };
-
   const containerClassName = `relative ${classname || ''}`;
-
-  const inputWrapperClass = `
-    relative
-    w-full 
-    px-3 
-    ${getInputSizeStyles()} 
-    rounded-md 
-    text-black 
-    border 
-    outline-none 
-    ${getBorderColor()}
-    ${disabled ? 'hover:outline-none' : 'hover:border-primary02'}
-    transition-colors duration-200
-  `;
 
   const PasswordIcon = () => (
     <div
@@ -187,32 +152,7 @@ const Input: React.FC<InputProps> = ({
       )}
 
       <div className="relative">
-        {/* {label && (
-                    <label
-                        className={`absolute left-3 pointer-events-none transition-all duration-200 ease-in-out z-10
-              ${isLabelFloating && inputType === "primary"
-                                ? "text-text02 text-xs font-normal -top-0 pt-1"
-                                : inputType === "primary" && !isLabelFloating
-                                    ? "text-text02 top-2"
-                                    : inputType === "secondary" && isLabelFloating
-                                        ? "text-base invisible"
-                                        : inputType === "secondary" && !isLabelFloating
-                                            ? "text-text02 visible top-1"
-                                            : inputType === "tertiary" && isLabelFloating
-                                                ? "text-base invisible"
-                                                : inputType === "tertiary" && !isLabelFloating
-                                                    ? "text-text02 visible top-0"
-                                                    : isLabelFloating
-                                                        ? "text-base invisible"
-                                                        : "text-text02 visible top-2"
-                            }
-              ${disabled && isLabelFloating ? "invisible" : ""}
-              ${error ? "text-errorFill" : ""}`}
-                    >
-                        {label}
-                    </label>
-                )} */}
-        <div className={inputWrapperClass}>
+        <div>
           <AntInput
             id={inputId}
             value={value}
@@ -233,14 +173,6 @@ const Input: React.FC<InputProps> = ({
               }
             }}
             {...inputConfig}
-            style={{
-              padding: 0,
-              border: 'none',
-              boxShadow: 'none',
-              backgroundColor: 'transparent',
-              width: '100%',
-              // paddingTop: inputType === "primary" && isLabelFloating ? "0.5rem" : 0
-            }}
           />
           {type === 'password' && <PasswordIcon />}
           {showIcon && type !== 'date' && type !== 'password' && <CustomIcon />}
