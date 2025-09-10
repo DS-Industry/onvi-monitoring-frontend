@@ -57,6 +57,7 @@ const Settings: React.FC = () => {
         discountValue: 0,
         promocode: '',
         launchDate: undefined,
+        endDate: undefined,
         status: MarketingCampaignStatus.DRAFT,
       },
     });
@@ -111,6 +112,9 @@ const Settings: React.FC = () => {
         promocode: marketCampaignByIdData.promocode ?? '',
         launchDate: marketCampaignByIdData.launchDate
           ? dayjs(marketCampaignByIdData.launchDate).toDate()
+          : undefined,
+        endDate: marketCampaignByIdData.endDate
+          ? dayjs(marketCampaignByIdData.endDate).toDate()
           : undefined,
         status: MarketingCampaignStatus.DRAFT
       });
