@@ -732,6 +732,7 @@ export type MarketingCampaignResponse = {
   maxUsage?: number;
   currentUsage: number;
   posCount: number;
+  posIds: number[];
   createdAt: string;
   updatedAt: string;
   createdBy: {

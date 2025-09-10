@@ -15,6 +15,7 @@ import {
   Button,
   Form,
   message,
+  Spin,
 } from 'antd';
 import Percentage from '@icons/Percentage.svg?react';
 import DiamondIcon from '@icons/DiamondIcon.svg?react';
@@ -41,7 +42,6 @@ import { MarketingCampaignStatus } from '@/utils/constants';
 const Settings: React.FC = () => {
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBranches, setSelectedBranches] = useState<number[]>([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const marketingCampaignId = searchParams.get('marketingCampaignId');
@@ -87,7 +87,7 @@ const Settings: React.FC = () => {
     }
   );
 
-  const { data: marketCampaignByIdData } = useSWR(
+  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign } = useSWR(
     marketingCampaignId
       ? [`get-market-campaign-by-id`, marketingCampaignId]
       : null,
@@ -104,7 +104,7 @@ const Settings: React.FC = () => {
       reset({
         name: marketCampaignByIdData.name,
         ltyProgramId: marketCampaignByIdData.ltyProgramId,
-        posIds: [],
+        posIds: marketCampaignByIdData.posIds,
         type: marketCampaignByIdData.type as MarketingCampaignType,
         discountType:
           marketCampaignByIdData.discountType as MarketingDiscountType,
@@ -141,21 +141,23 @@ const Settings: React.FC = () => {
       async ([, id], { arg }) => updateMarketingCampaign(id, arg)
     );
 
+  const posIds = Array.isArray(watch('posIds')) ? watch('posIds') : [];
+
   const handleSelectBranch = (value: number | undefined) => {
-    if (typeof value === 'number' && !selectedBranches.includes(value)) {
-      setSelectedBranches([...selectedBranches, value]);
+    if (typeof value === 'number' && !posIds.includes(value)) {
+      setValue('posIds', [...posIds, value]);
     }
   };
 
   const handleDeselectBranch = (removed: number) => {
-    setSelectedBranches(selectedBranches.filter(val => val !== removed));
+    setValue('posIds', posIds.filter(val => val !== removed));
   };
 
   const onSubmit = async (data: MarketingCampaignRequest) => {
     try {
       const req = {
         ...data,
-        posIds: selectedBranches,
+        posIds: data.posIds,
         ltyProgramId: data.ltyProgramId,
         type: data.type,
         discountType: data.discountType,
@@ -186,6 +188,15 @@ const Settings: React.FC = () => {
       message.error(t("marketing.errorCampaign"));
     }
   };
+
+  if (loadingMarketingCampaign) {
+    return (
+      <div className="h-[600px] w-full flex justify-center items-center">
+        <Spin />
+      </div>
+    );
+  }
+
 
   return (
     <Card
@@ -288,7 +299,7 @@ const Settings: React.FC = () => {
                       onSelect={handleSelectBranch}
                       options={posData
                         ?.filter(
-                          option => !selectedBranches.includes(option.id)
+                          option => !posIds.includes(option.id)
                         )
                         .map(item => ({
                           label: item.name,
@@ -302,7 +313,7 @@ const Settings: React.FC = () => {
                 )}
               />
               <div style={{ marginTop: 10 }}>
-                {selectedBranches.map(branch => (
+                {posIds.map(branch => (
                   <Tag
                     key={branch}
                     closable
