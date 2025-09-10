@@ -22,6 +22,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import CorporateClientDrawer from './CorporateClientDrawer';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
 const CorporateClients: React.FC = () => {
   const { t } = useTranslation();
@@ -71,7 +72,12 @@ const CorporateClients: React.FC = () => {
     message.error('Failed to fetch corporate clients');
   }
 
-  const corporateClients = response?.data || [];
+  const corporateClients =
+    response?.data.map(item => ({
+      ...item,
+      status: t(`tables.${item.status}`),
+    })) || [];
+    
   const pagination = response
     ? {
         total: response.total,
@@ -99,6 +105,8 @@ const CorporateClients: React.FC = () => {
     },
     [searchParams, setSearchParams]
   );
+
+  const statusRender = getStatusTagRender(t);
 
   const columns = useMemo(
     () => [
@@ -147,21 +155,7 @@ const CorporateClients: React.FC = () => {
         title: t('constants.status'),
         dataIndex: 'status',
         key: 'status',
-        render: (status: string) => (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              status === 'ACTIVE'
-                ? 'bg-green-100 text-green-800'
-                : status === 'BLOCKED'
-                  ? 'bg-red-100 text-red-800'
-                  : status === 'VERIFICATE'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-gray-100 text-gray-800'
-            }`}
-          >
-            {status}
-          </span>
-        ),
+        render: statusRender,
       },
       {
         title: t('actions.actions'),

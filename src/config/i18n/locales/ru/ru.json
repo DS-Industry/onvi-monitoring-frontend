@@ -1286,7 +1286,8 @@
     "discountValuePositive": "Значение скидки должно быть положительным",
     "monthlySalaryRequired": "Месячная зарплата обязательна",
     "dailySalaryRequired": "Ежедневная зарплата обязательна",
-    "percentageSalaryRequired": "Процентная зарплата обязательна"
+    "percentageSalaryRequired": "Процентная зарплата обязательна",
+    "genderRequired": "Пол обязателен"
   },
   "table": {
     "noData": "Ничего не найдено"

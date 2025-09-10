@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Drawer, Form, message, Input as AntInput } from 'antd';
+import { Drawer, Form, message, Input, Button } from 'antd';
 import {
   CorporateClientResponse,
   CreateCorporateClientRequest,
@@ -7,7 +7,6 @@ import {
   createCorporateClient,
   updateCorporateClient,
 } from '@/services/api/marketing';
-import Button from '@/components/ui/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -35,7 +34,7 @@ export default function CorporateClientDrawer({
     address: '',
   });
 
-  const user = useUser()
+  const user = useUser();
 
   const isEditMode = !!client;
 
@@ -102,7 +101,6 @@ export default function CorporateClientDrawer({
         message.success(t('marketing.corporationCreated'));
       }
 
-
       onSuccess?.();
       onClose();
       form.resetFields();
@@ -129,7 +127,6 @@ export default function CorporateClientDrawer({
       open={open}
       onClose={handleClose}
       width={600}
-      destroyOnClose
       zIndex={9999}
     >
       <Form
@@ -139,68 +136,72 @@ export default function CorporateClientDrawer({
         initialValues={initialValues}
         className="space-y-6"
       >
-        <Form.Item
-          name="name"
-          label={t('marketing.corporationName')}
-          rules={[
-            {
-              required: true,
-              message: t('marketing.enterCorporationName'),
-            },
-            { min: 2, message: t('marketing.corporationNameMin') },
-          ]}
-        >
-          <AntInput
-            placeholder={t('marketing.enterCorporationName')}
-            size="large"
-            className="w-full"
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="inn"
-          label={t('marketing.inn')}
-          rules={[
-            { required: true, message: t('marketing.enterInn') },
-            {
-              pattern: /^\d{15}$/,
-              message: t('marketing.innPattern'),
-            },
-          ]}
-        >
-          <AntInput
-            placeholder={t('marketing.enterInnPlaceholder')}
-            size="large"
-            className="w-full"
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="address"
-          label={t('marketing.address')}
-          rules={[{ required: true, message: t('marketing.enterAddress') }]}
-        >
-          <AntInput
-            placeholder={t('marketing.enterAddressPlaceholder')}
-            size="large"
-            className="w-full"
-          />
-        </Form.Item>
-
-        <div className="flex justify-end space-x-4 pt-6">
-          <Button
-            title={t('marketing.cancel')}
-            type="outline"
-            handleClick={handleClose}
-            disabled={loading}
-          />
-          <Button
-            title={isEditMode ? t('marketing.save') : t('marketing.create')}
-            type="basic"
-            form={true}
-            isLoading={loading}
-            disabled={loading}
-          />
+        <div>
+          <div className="flex">
+            <div className="text-text02 text-sm">
+              {t('marketing.corporationName')}
+            </div>
+            <span className="text-errorFill">*</span>
+          </div>
+          <Form.Item
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: t('marketing.enterCorporationName'),
+              },
+              { min: 2, message: t('marketing.corporationNameMin') },
+            ]}
+          >
+            <Input
+              placeholder={t('marketing.enterCorporationName')}
+              className="w-80"
+            />
+          </Form.Item>
+        </div>
+        <div>
+          <div className="flex">
+            <div className="text-text02 text-sm">{t('marketing.inn')}</div>
+            <span className="text-errorFill">*</span>
+          </div>
+          <Form.Item
+            name="inn"
+            rules={[
+              { required: true, message: t('marketing.enterInn') },
+              {
+                pattern: /^\d{15}$/,
+                message: t('marketing.innPattern'),
+              },
+            ]}
+          >
+            <Input
+              placeholder={t('marketing.enterInnPlaceholder')}
+              className="w-80"
+            />
+          </Form.Item>
+        </div>
+        <div>
+          <div className="flex">
+            <div className="text-text02 text-sm">{t('marketing.address')}</div>
+            <span className="text-errorFill">*</span>
+          </div>
+          <Form.Item
+            name="address"
+            rules={[{ required: true, message: t('marketing.enterAddress') }]}
+          >
+            <Input
+              placeholder={t('marketing.enterAddressPlaceholder')}
+              className="w-80"
+            />
+          </Form.Item>
+        </div>
+        <div className="flex space-x-4 pt-6">
+          <Button className="btn-outline-primary" onClick={handleClose}>
+            {t('marketing.cancel')}
+          </Button>
+          <Button loading={loading} className="btn-primary" htmlType="submit">
+            {isEditMode ? t('marketing.save') : t('marketing.create')}
+          </Button>
         </div>
       </Form>
     </Drawer>

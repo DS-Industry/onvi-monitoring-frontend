@@ -15,7 +15,16 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import { Button, DatePicker, Drawer, Form, Input, message, Select, Spin } from 'antd';
+import {
+  Button,
+  DatePicker,
+  Drawer,
+  Form,
+  Input,
+  message,
+  Select,
+  Spin,
+} from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -142,7 +151,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       const result = clientId
         ? await updateClientTrigger({ clientId, ...values })
         : await createClientTrigger(values);
-      
+
       if (result) {
         message.success(t('routes.savedSuccessfully'));
 
@@ -205,188 +214,216 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>
-
-          <Form.Item
-            label={t('marketing.type')}
-            help={errors.contractType?.message}
-            validateStatus={errors.contractType ? 'error' : undefined}
-            labelCol={{ span: 24 }}
-            className="w-86"
-          >
-            <Controller
-              name="contractType"
-              control={control}
-              rules={{
-                required: t('validation.contractTypeRequired') as string,
-              }}
-              render={({ field }) => (
-                <Select {...field} className="w-86" size="large">
-                  <Option value={ContractType.INDIVIDUAL}>
-                    {t('marketing.physical')}
-                  </Option>
-                  <Option value={ContractType.CORPORATE}>
-                    {t('marketing.legal')}
-                  </Option>
-                </Select>
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={t('marketing.name')}
-            labelCol={{ span: 24 }}
-            help={errors.name?.message}
-            validateStatus={errors.name ? 'error' : undefined}
-          >
-            <Controller
-              name="name"
-              control={control}
-              rules={{
-                required: t('validation.nameRequired') as string,
-              }}
-              render={({ field }) => (
-                <Input
-                  placeholder={t('marketing.enterName')}
-                  className="w-86"
-                  {...field}
-                  size="large"
-                />
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={t('marketing.phone') || 'Phone Number'}
-            labelCol={{ span: 24 }}
-            help={errors.phone?.message}
-            validateStatus={errors.phone ? 'error' : undefined}
-          >
-            <Controller
-              name="phone"
-              control={control}
-              rules={{
-                required: t('validation.phoneRequired') as string,
-                pattern: {
-                  value: /^\+?79\d{9}$/,
-                  message: t('validation.phoneValidFormat'),
-                },
-              }}
-              render={({ field }) => (
-                <Input className="w-86" {...field} size="large" />
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={t('marketing.birth') || 'Birthday'}
-            labelCol={{ span: 24 }}
-          >
-            <Controller
-              name="birthday"
-              control={control}
-              render={({ field }) => (
-                <DatePicker
-                  className="w-86"
-                  value={field.value ? dayjs(field.value) : undefined}
-                  onChange={d => field.onChange(d ? d.toDate() : undefined)}
-                  placeholder={t('finance.sel')}
-                />
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="w-86"
-            label={t('marketing.floor')}
-            labelCol={{ span: 24 }}
-          >
-            <Controller
-              name="gender"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="w-86"
-                  placeholder={t('warehouse.notSel')}
-                  options={genderOptions}
-                />
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item label={t('marketing.enterEmail')} labelCol={{ span: 24 }}>
-            <Controller
-              name="email"
-              control={control}
-              rules={{
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: t('validation.invalidEmailFormat'),
-                },
-              }}
-              render={({ field }) => (
-                <Input
-                  className="w-86"
-                  placeholder={t('marketing.enterEmail')}
-                  {...field}
-                  size="large"
-                />
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item label={t('marketing.about')} labelCol={{ span: 24 }}>
-            <Controller
-              name="comment"
-              control={control}
-              render={({ field }) => (
-                <Input.TextArea
-                  className="w-86"
-                  placeholder={t('marketing.about')}
-                  {...field}
-                  size="large"
-                  rows={3}
-                />
-              )}
-            />
-          </Form.Item>
-
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('marketing.type')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.contractType?.message}
+              validateStatus={errors.contractType ? 'error' : undefined}
+              labelCol={{ span: 24 }}
+              className="w-full sm:w-96"
+            >
+              <Controller
+                name="contractType"
+                control={control}
+                rules={{
+                  required: t('validation.contractTypeRequired') as string,
+                }}
+                render={({ field }) => (
+                  <Select {...field} className="w-full sm:w-96">
+                    <Option value={ContractType.INDIVIDUAL}>
+                      {t('marketing.physical')}
+                    </Option>
+                    <Option value={ContractType.CORPORATE}>
+                      {t('marketing.legal')}
+                    </Option>
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('marketing.name')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              labelCol={{ span: 24 }}
+              help={errors.name?.message}
+              validateStatus={errors.name ? 'error' : undefined}
+            >
+              <Controller
+                name="name"
+                control={control}
+                rules={{
+                  required: t('validation.nameRequired') as string,
+                }}
+                render={({ field }) => (
+                  <Input
+                    placeholder={t('marketing.enterName')}
+                    className="w-full sm:w-96"
+                    {...field}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('marketing.phone')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              labelCol={{ span: 24 }}
+              help={errors.phone?.message}
+              validateStatus={errors.phone ? 'error' : undefined}
+            >
+              <Controller
+                name="phone"
+                control={control}
+                rules={{
+                  required: t('validation.phoneRequired'),
+                  pattern: {
+                    value: /^\+?79\d{9}$/,
+                    message: t('validation.phoneValidFormat'),
+                  },
+                }}
+                render={({ field }) => (
+                  <Input className="w-full sm:w-96" {...field} />
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('marketing.birth')}</div>
+            <Form.Item>
+              <Controller
+                name="birthday"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    value={field.value ? dayjs(field.value) : undefined}
+                    onChange={d => field.onChange(d ? d.toDate() : undefined)}
+                    placeholder={t('finance.sel')}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('marketing.floor')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              className="w-full sm:w-96"
+              help={errors.gender?.message}
+              validateStatus={errors.gender ? 'error' : undefined}
+            >
+              <Controller
+                name="gender"
+                control={control}
+                rules={{
+                  required: t('validation.genderRequired'),
+                }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className="w-full sm:w-96"
+                    placeholder={t('warehouse.notSel')}
+                    options={genderOptions}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{'E-mail'}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.email?.message}
+              validateStatus={errors.email ? 'error' : undefined}
+            >
+              <Controller
+                name="email"
+                control={control}
+                rules={{
+                  required: t('validation.emailRequired'),
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Invalid email format',
+                  },
+                }}
+                render={({ field }) => (
+                  <Input
+                    className="w-full sm:w-96"
+                    placeholder={t('marketing.enterEmail')}
+                    {...field}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('marketing.about')}</div>
+            <Form.Item>
+              <Controller
+                name="comment"
+                control={control}
+                render={({ field }) => (
+                  <Input.TextArea
+                    className="w-full sm:w-96"
+                    placeholder={t('marketing.about')}
+                    {...field}
+                    rows={3}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('marketing.loyalty')}
           </div>
-          <Form.Item
-            className="w-86"
-            label={t('marketing.card')}
-            labelCol={{ span: 24 }}
-          >
-            <Controller
-              name="cardId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="w-86"
-                  placeholder={t('marketing.selectCard')}
-                  value={field.value ? String(field.value) : undefined}
-                  onChange={val => field.onChange(Number(val))}
-                >
-                  {allCards.map(card => (
-                    <Option key={String(card.id)} value={String(card.id)}>
-                      {card.number}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-          </Form.Item>
-
-          <Button
-            htmlType="submit"
-            className="btn-primary"
-            loading={clientId ? updatingClient : creatingClient}
-          >
-            {t('organizations.save')}
-          </Button>
+          <div>
+            <div className="text-text02 text-sm">{t('marketing.card')}</div>
+            <Form.Item className="w-full sm:w-96">
+              <Controller
+                name="cardId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className="w-full sm:w-96"
+                    placeholder={t('marketing.selectCard')}
+                    value={field.value ? String(field.value) : undefined}
+                    onChange={val => field.onChange(Number(val))}
+                  >
+                    {allCards.map(card => (
+                      <Option key={String(card.id)} value={String(card.id)}>
+                        {card.number}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </div>
+          <div className="flex space-x-2">
+            <Button className="btn-outline-primary" onClick={onClose}>
+              {t('organizations.cancel')}
+            </Button>
+            <Button
+              htmlType="submit"
+              className="btn-primary"
+              loading={clientId ? updatingClient : creatingClient}
+            >
+              {t('organizations.save')}
+            </Button>
+          </div>
         </form>
       )}
     </Drawer>
