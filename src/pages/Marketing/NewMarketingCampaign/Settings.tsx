@@ -36,6 +36,7 @@ import { useForm, Controller } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import LaunchModal from './LaunchModal';
+import { MarketingCampaignStatus } from '@/utils/constants';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -56,6 +57,8 @@ const Settings: React.FC = () => {
         discountValue: 0,
         promocode: '',
         launchDate: undefined,
+        endDate: undefined,
+        status: MarketingCampaignStatus.DRAFT,
       },
     });
 
@@ -110,6 +113,10 @@ const Settings: React.FC = () => {
         launchDate: marketCampaignByIdData.launchDate
           ? dayjs(marketCampaignByIdData.launchDate).toDate()
           : undefined,
+        endDate: marketCampaignByIdData.endDate
+          ? dayjs(marketCampaignByIdData.endDate).toDate()
+          : undefined,
+        status: MarketingCampaignStatus.DRAFT
       });
     }
   }, [marketCampaignByIdData, reset]);
@@ -473,6 +480,7 @@ const Settings: React.FC = () => {
           loading={isMutating || isMutatingUpdate}
           onLaunchNow={() => {
             setValue('launchDate', dayjs().toDate());
+            setValue('status', MarketingCampaignStatus.ACTIVE);
             handleSubmit(onSubmit)();
           }}
           onLaunch={() => {

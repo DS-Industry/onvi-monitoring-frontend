@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
-import { ContractType } from '@/utils/constants';
+import { ContractType, MarketingCampaignStatus } from '@/utils/constants';
 
 enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
@@ -646,12 +646,14 @@ export type CreateCorporateClientRequest = {
   name: string;
   inn: string;
   address: string;
+  organizationId: number;
 };
 
 export type UpdateCorporateClientRequest = {
   name?: string;
   inn?: string;
   address?: string;
+  organizationId: number;
 };
 
 type CorporateClientStatsResponse = {
@@ -754,6 +756,7 @@ export type MarketingCampaignRequest = {
   discountValue: number;
   promocode?: string;
   maxUsage?: number;
+  status: MarketingCampaignStatus,
 };
 
 export type UpdateMarketingCampaignRequest = {

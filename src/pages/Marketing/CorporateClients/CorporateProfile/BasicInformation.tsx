@@ -24,6 +24,7 @@ import {
   UpdateCorporateClientRequest,
 } from '@/services/api/marketing';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -69,6 +70,8 @@ const BasicInformation: React.FC = () => {
     formState: { errors },
   } = useForm<UpdateCorporateClientRequest>({ defaultValues });
 
+  const user = useUser()
+
   useEffect(() => {
     if (clientData && !isEditing) {
       reset(defaultValues);
@@ -103,6 +106,7 @@ const BasicInformation: React.FC = () => {
         name: values.name,
         inn: values.inn,
         address: values.address,
+        organizationId: Number(user.organizationId),
       });
       message.success(t('corporateClients.updateSuccess'));
       setIsEditing(false);

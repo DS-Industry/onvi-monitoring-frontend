@@ -92,6 +92,34 @@ const LaunchModal: React.FC<LaunchModalProps> = ({
                     )}
                   />
                 </div>
+                <div>
+                  <div className="text-sm text-text02">{t('filters.dateTime.endDate')}</div>
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Form.Item
+                        validateStatus={fieldState.error ? 'error' : ''}
+                        help={fieldState.error?.message}
+                        className="!mb-0 min-h-[72px]"
+                      >
+                        <DatePicker
+                          {...field}
+                          format="DD.MM.YYYY"
+                          className="h-10 w-40"
+                          placeholder={t('filters.dateTime.endDate')}
+                          value={field.value ? dayjs(field.value) : undefined}
+                          onChange={date =>
+                            field.onChange(date ? date.toDate() : undefined)
+                          }
+                          disabledDate={current =>
+                            current && current < dayjs().startOf('day')
+                          }
+                        />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
                 <Button
                   type="primary"
                   loading={loading}
