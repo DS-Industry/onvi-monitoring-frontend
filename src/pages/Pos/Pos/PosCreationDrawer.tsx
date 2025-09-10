@@ -28,7 +28,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
 
   const defaultValues = {
