@@ -32,7 +32,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
 }) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const city = searchParams.get('city') || '*';
+  const city = Number(searchParams.get('city')) || undefined;
 
   const initialValues: OrganizationBody = {
     fullName: '',
