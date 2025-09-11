@@ -30,6 +30,13 @@ export enum TypeTechTask {
   REGULAR = 'REGULAR',
 }
 
+export enum StatusWorkers {
+  BLOCKED = 'BLOCKED',
+  ACTIVE = 'ACTIVE',
+  DELETED = 'DELETED',
+  VERIFICATE = 'VERIFICATE'
+}
+
 type IncidentParam = {
   dateStart: string;
   dateEnd: string;
@@ -135,6 +142,19 @@ export type WorkerResponse = {
   roleName: string;
   status: string;
   createAt: Date;
+};
+
+export type WorkerBlockResponse = {
+  id: number;
+  name: string;
+  surname: string;
+  middlename: string;
+  email: string;
+  position: string;
+  userRoleId: number;
+  status: StatusWorkers;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 type DeviceResponse = {
@@ -422,6 +442,9 @@ type TechTasksReportParams = {
 type WorkersParams = {
   page?: number;
   size?: number;
+  roleId?: number;
+  status?: StatusWorkers;
+  name?: string;
 };
 
 export async function getIncident(params: IncidentParam): Promise<Incident[]> {
@@ -666,5 +689,12 @@ export async function getTechTaskReport(
     { params }
   );
 
+  return response.data;
+}
+
+export async function blockWorker(userId: number): Promise<WorkerBlockResponse> {
+  const response: AxiosResponse<WorkerBlockResponse> = await api.patch(
+    `user/permission/worker/${userId}/block`
+  );
   return response.data;
 }

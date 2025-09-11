@@ -36,8 +36,8 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
 
   const initialValues: OrganizationBody = {
     fullName: '',
-    organizationType: '',
-    rateVat: '',
+    organizationType: null,
+    rateVat: null,
     inn: '',
     okpo: '',
     kpp: undefined,
@@ -206,6 +206,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.organizationType ? 'error' : undefined}
             >
               <Select
+                placeholder={t('organizations.typeLegalPlaceholder')}
                 options={legalOptions}
                 className="!w-80 !sm:w-96"
                 {...register('organizationType', {
@@ -251,7 +252,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           <div>
             <div className="flex">
               <div className="text-text02 text-sm">
-                {t('organizations.tin')}
+                {t('organizations.inn')}
               </div>
               <span className="text-errorFill">*</span>
             </div>
@@ -260,13 +261,25 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.inn ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.innPlaceholder')}
+                type="text"
+                inputMode="numeric"
                 className="w-80 sm:w-96"
                 {...register('inn', {
                   required: orgToEdit === null && t('validation.innRequired'),
+                  maxLength: {
+                    value: 12,
+                    message: t('validation.innLength'),
+                  },
+                  pattern: {
+                    value: /^\d+$/,
+                    message: t('validation.onlyDigits'),
+                  },
                 })}
                 value={formData.inn}
                 onChange={e => handleInputChange('inn', e.target.value)}
                 status={errors.inn ? 'error' : ''}
+                maxLength={12}
               />
             </Form.Item>
           </div>
@@ -282,6 +295,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.fullName ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.fullNamePlaceholder')}
                 className="w-80 sm:w-96"
                 {...register('fullName', {
                   required: orgToEdit === null && t('validation.nameRequired'),
@@ -304,6 +318,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.okpo ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.okpoPlaceholder')}
                 className="w-80 sm:w-96"
                 {...register('okpo', {
                   required: orgToEdit === null && t('validation.okpoRequired'),
@@ -317,11 +332,11 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
           <div>
             <div className="text-text02 text-sm">{t('organizations.kpp')}</div>
             <Input
+              placeholder={t('organizations.kppPlaceholder')}
               className="w-80 sm:w-96"
               {...register('kpp')}
               value={formData.kpp}
               onChange={e => handleInputChange('kpp', e.target.value)}
-              size="large"
             />
           </div>
         </div>
@@ -337,6 +352,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             validateStatus={errors.addressRegistration ? 'error' : undefined}
           >
             <Input.TextArea
+              placeholder={t('organizations.addressPlaceholder')}
               className="w-80 sm:w-96"
               {...register('addressRegistration', {
                 required:
@@ -348,7 +364,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
                 handleInputChange('addressRegistration', e.target.value)
               }
               status={errors.addressRegistration ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -362,6 +377,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             validateStatus={errors.ogrn ? 'error' : undefined}
           >
             <Input
+              placeholder={t('organizations.ogrnPlaceholder')}
               className="w-80 sm:w-96"
               {...register('ogrn', {
                 required: orgToEdit === null && t('validation.ogrnRequired'),
@@ -369,7 +385,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               value={formData.ogrn}
               onChange={e => handleInputChange('ogrn', e.target.value)}
               status={errors.ogrn ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
@@ -389,6 +404,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.bik ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.bikPlaceholder')}
                 className="w-80 sm:w-96"
                 {...register('bik', {
                   required: orgToEdit === null && t('validation.bikRequired'),
@@ -412,6 +428,8 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.correspondentAccount ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.corresPlaceholder')}
+                type="number"
                 className="w-80 sm:w-96"
                 {...register('correspondentAccount', {
                   required:
@@ -439,6 +457,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.bank ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.bankPlaceholder')}
                 className="w-80 sm:w-96"
                 {...register('bank', {
                   required: orgToEdit === null && t('validation.bankRequired'),
@@ -462,6 +481,8 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.settlementAccount ? 'error' : undefined}
             >
               <Input
+                placeholder={t('organizations.currentPlaceholder')}
+                type="number"
                 className="w-80 sm:w-96"
                 {...register('settlementAccount', {
                   required:
@@ -487,6 +508,7 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             validateStatus={errors.addressBank ? 'error' : undefined}
           >
             <Input.TextArea
+              placeholder={t('organizations.addPlaceholder')}
               className="w-80 sm:w-96"
               {...register('addressBank', {
                 required:
@@ -495,7 +517,6 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               value={formData.addressBank}
               onChange={e => handleInputChange('addressBank', e.target.value)}
               status={errors.addressBank ? 'error' : ''}
-              size="large"
             />
           </Form.Item>
         </div>
