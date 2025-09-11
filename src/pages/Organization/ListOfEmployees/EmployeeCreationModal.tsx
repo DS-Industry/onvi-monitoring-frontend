@@ -27,6 +27,9 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
   const { t } = useTranslation();
   const user = useUser();
   const [searchParams] = useSearchParams();
+  const roleId = Number(searchParams.get('roleId')) || undefined;
+  const status = searchParams.get('status') || undefined;
+  const name = searchParams.get('search') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -84,7 +87,15 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
       const result = await addUserRole();
       if (result) {
         showToast(t('organizations.token'), 'success');
-        mutate(['get-worker', user.organizationId, currentPage, pageSize]);
+        mutate([
+          'get-worker',
+          user.organizationId,
+          currentPage,
+          pageSize,
+          roleId,
+          status,
+          name,
+        ]);
         resetForm();
       }
     } catch (error) {

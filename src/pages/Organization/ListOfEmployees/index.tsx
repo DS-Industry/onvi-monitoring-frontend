@@ -1,17 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useSWR from 'swr';
 import {
   getWorkers,
   getWorkersCount,
+  StatusWorkers,
   WorkerResponse,
 } from '@/services/api/equipment';
 import { usePermissions } from '@/hooks/useAuthStore';
-import { Button, Table, Tooltip } from 'antd';
+import { Button, Select, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import AntDButton from 'antd/es/button';
 import { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import EmployeeCreationModal from './EmployeeCreationModal';
@@ -27,6 +27,8 @@ import {
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useUser } from '@/hooks/useUserStore';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { getRoles } from '@/services/api/organization';
 
 const ListOfEmployees: React.FC = () => {
   const { t } = useTranslation();
@@ -36,28 +38,31 @@ const ListOfEmployees: React.FC = () => {
   const userPermissions = usePermissions();
   const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
+  const roleId = Number(searchParams.get('roleId')) || undefined;
+  const status = searchParams.get('status') || undefined;
+  const name = searchParams.get('search') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const filterParams = useMemo(
-    () => ({
-      organizationId: user.organizationId,
-      page: currentPage,
-      size: pageSize,
-    }),
-    [user, currentPage, pageSize]
-  );
-
-  const swrKey = useMemo(() => {
-    return ['get-worker', filterParams.organizationId, filterParams.page, filterParams.size];
-  }, [filterParams]);
-
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
-    user.organizationId ? swrKey : null,
+    user.organizationId
+      ? [
+          'get-worker',
+          user.organizationId,
+          currentPage,
+          pageSize,
+          roleId,
+          status,
+          name,
+        ]
+      : null,
     () => {
       return getWorkers(Number(user.organizationId!)!, {
         page: currentPage,
         size: pageSize,
+        roleId: roleId,
+        status: status as StatusWorkers,
+        name: name,
       });
     },
     {
@@ -76,6 +81,12 @@ const ListOfEmployees: React.FC = () => {
       keepPreviousData: true,
     }
   );
+
+  const { data: rolesData } = useSWR([`get-role`], () => getRoles(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   const workers =
     workerData?.map(item => ({
@@ -130,7 +141,7 @@ const ListOfEmployees: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (
         <Tooltip title="Редактировать">
-          <AntDButton
+          <Button
             type="text"
             icon={
               <EditOutlined className="text-blue-500 hover:text-blue-700" />
@@ -184,6 +195,53 @@ const ListOfEmployees: React.FC = () => {
           message2={t('roles.then')}
           showEmp={true}
         />
+        <GeneralFilters
+          count={workerCount?.count || 0}
+          display={['count', 'search']}
+        >
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              {t('warehouse.category')}
+            </label>
+            <Select
+              showSearch
+              allowClear={true}
+              className="w-full sm:w-80"
+              options={rolesData?.map(item => ({
+                label: item.name,
+                value: String(item.id),
+              }))}
+              value={searchParams.get('roleId') || undefined}
+              onChange={value => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  roleId: value,
+                });
+              }}
+            />
+          </div>
+           <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              {t('constants.status')}
+            </label>
+            <Select
+              showSearch
+              allowClear={true}
+              className="w-full sm:w-80"
+              options={[
+                { label: t("tables.ACTIVE"), value: StatusWorkers.ACTIVE },
+                { label: t("tables.BLOCKED"), value: StatusWorkers.BLOCKED },
+                { label: t("tables.VERIFICATE"), value: StatusWorkers.VERIFICATE },
+                { label: t("tables.DELETED"), value: StatusWorkers.DELETED },
+              ]}
+              value={searchParams.get('status') || undefined}
+              onChange={value => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  status: value,
+                });
+              }}
+            />
+          </div>
+        </GeneralFilters>
         <ColumnSelector
           checkedList={checkedList}
           options={columnOptions}

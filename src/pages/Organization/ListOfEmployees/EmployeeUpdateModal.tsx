@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { getRoles, updateRole } from '@/services/api/organization';
-import { Modal, Select } from 'antd';
-import { getWorkers } from '@/services/api/equipment';
+import { Button, Modal, Select } from 'antd';
+import { blockWorker, getWorkers } from '@/services/api/equipment';
 import { useUser } from '@/hooks/useUserStore';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { useSearchParams } from 'react-router-dom';
+import { useToast } from '@/components/context/useContext';
 
 type EmployeeUpdateModalProps = {
   open: boolean;
@@ -19,8 +22,15 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
   workerId,
 }) => {
   const { t } = useTranslation();
-  const [roleId, setRoleId] = useState(0);
+  const [roleNo, setRoleNo] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const roleId = Number(searchParams.get('roleId')) || undefined;
+  const status = searchParams.get('status') || undefined;
+  const name = searchParams.get('search') || undefined;
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const { showToast } = useToast();
 
   const user = useUser();
 
@@ -34,6 +44,11 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     }
   );
 
+  const { trigger: block, isMutating: blocking } = useSWRMutation(
+    ['block-worker', workerId],
+    async () => blockWorker(workerId)
+  );
+
   useEffect(() => {
     if (workerId !== 0) {
       const worker = workerData?.find(work => work.id === workerId)?.name || '';
@@ -41,7 +56,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
         workerData?.find(role => role.id === workerId)?.roleName || '';
       const roleNo = rolesData?.find(role => role.name === workerRole)?.id || 0;
       setSelectedWorker(worker);
-      setRoleId(roleNo);
+      setRoleNo(roleNo);
     }
   }, [workerId]);
 
@@ -50,7 +65,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     async () =>
       updateRole({
         userId: workerId,
-        roleId: roleId,
+        roleId: roleNo,
       })
   );
 
@@ -58,8 +73,34 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     const result = await update();
 
     if (result) {
-      mutate([`get-worker`]);
+      mutate([
+        'get-worker',
+        user.organizationId,
+        currentPage,
+        pageSize,
+        roleId,
+        status,
+        name,
+      ]);
       onClose();
+    }
+  };
+
+  const handleBlockWorker = async () => {
+    try {
+      await block();
+      mutate([
+        'get-worker',
+        user.organizationId,
+        currentPage,
+        pageSize,
+        roleId,
+        status,
+        name,
+      ]);
+      onClose();
+    } catch (error) {
+      showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
     }
   };
 
@@ -76,12 +117,30 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
           open={open}
           closable={true}
           onCancel={onClose}
-          onOk={handleUpdateRole}
           okButtonProps={{
             loading: isMutating,
           }}
-          okText={t('organizations.save')}
-          cancelText={t('organizations.cancel')}
+          footer={[
+            <Button key="cancel" onClick={onClose}>
+              {t('organizations.cancel')}
+            </Button>,
+            <Button
+              key="extra"
+              danger
+              loading={blocking}
+              onClick={handleBlockWorker}
+            >
+              {t('roles.block')}
+            </Button>,
+            <Button
+              key="ok"
+              type="primary"
+              loading={isMutating}
+              onClick={handleUpdateRole}
+            >
+              {t('organizations.save')}
+            </Button>,
+          ]}
           className="sm:w-[552px] max-h-[90vh] overflow-auto"
         >
           <h2 className="text-2xl font-semibold text-text01 mb-4">
@@ -89,12 +148,12 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
           </h2>
           <p className="text-primary02 text-sm">{selectedWorker}</p>
           <Select
-            value={roleId}
+            value={roleNo}
             options={rolesData?.map(item => ({
               label: item.name,
               value: item.id,
             }))}
-            onChange={value => setRoleId(value)}
+            onChange={value => setRoleNo(value)}
             className="w-[300px] sm:w-[456px]"
           />
         </Modal>

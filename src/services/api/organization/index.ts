@@ -29,8 +29,8 @@ export type Organization = {
 
 export type OrganizationBody = {
   fullName: string;
-  organizationType: string;
-  rateVat: string;
+  organizationType: string | null;
+  rateVat: string | null;
   inn: string;
   okpo: string;
   kpp?: string;
@@ -63,7 +63,7 @@ type OrganizationPostResponse = {
 type OrganizationUpdateBody = {
   organizationId: number;
   fullName?: string;
-  rateVat?: string;
+  rateVat?: string | null;
   inn?: string;
   okpo?: string;
   kpp?: string;

@@ -8,7 +8,7 @@ import { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
 import { useSearchParams } from 'react-router-dom';
-import { Drawer, Form, Input, Select, Button } from 'antd';
+import { Drawer, Form, Input, Select, Button, Checkbox } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import ProfilePhoto from '@/assets/ProfilePhoto.svg';
 
@@ -30,11 +30,14 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
+  const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
 
   const defaultValues = {
     name: '',
     monthlyPlan: null,
     timeWork: '',
+    startHour: '',
+    startMinute: '',
     posMetaData: '',
     city: '',
     location: '',
@@ -48,8 +51,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   };
 
   const [formData, setFormData] = useState(defaultValues);
-  const [startHour, setStartHour] = useState<number | null>(null);
-  const [endHour, setEndHour] = useState<number | null>(null);
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -93,22 +94,24 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     setValue(field, value);
   };
 
-  const handleTimeWorkChange = (field: string, value: number) => {
-    if (field === 'startHour') {
-      setStartHour(value);
-      setFormData(prev => ({
+  const handleTimeWorkChange = (
+    field: 'startHour' | 'startMinute',
+    value: string
+  ) => {
+    setFormData(prev => {
+      const newStartHour = field === 'startHour' ? value : prev.startHour || '00';
+      const newStartMinute = field === 'startMinute' ? value : prev.startMinute || '00';
+      const newTimeWork = timeWorkCheck ? '24/7' : `${newStartHour}:${newStartMinute}`;
+
+      setValue(field, value, { shouldValidate: true, shouldDirty: true });
+      setValue('timeWork', newTimeWork, { shouldValidate: true, shouldDirty: true });
+
+      return {
         ...prev,
-        timeWork: `${value}${endHour ?? ''}`,
-      }));
-      setValue('timeWork', `${value}:${endHour ?? ''}`);
-    } else {
-      setEndHour(value);
-      setFormData(prev => ({
-        ...prev,
-        timeWork: `${startHour ?? ''}${value}`,
-      }));
-      setValue('timeWork', `${startHour ?? ''}:${value}`);
-    }
+        [field]: value,
+        timeWork: newTimeWork,
+      };
+    });
   };
 
   const { showToast } = useToast();
@@ -129,8 +132,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
 
   const resetForm = () => {
     setFormData(defaultValues);
-    setStartHour(null);
-    setEndHour(null);
     reset();
     onClose();
     setSelectedFile(null);
@@ -266,6 +267,27 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
               onChange={e => handleInputChange('lon', e.target.value)}
             />
           </div>
+          <div className="flex mt-2">
+            <Checkbox
+              checked={timeWorkCheck}
+              onChange={e => {
+                const checked = e.target.checked;
+                setTimeWorkCheck(checked);
+                const newValue = checked
+                  ? '24/7'
+                  : `${formData.startHour || '00'}:${formData.startMinute || '00'}`;
+                setValue('timeWork', newValue, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                setFormData(prev => ({
+                  ...prev,
+                  timeWork: newValue,
+                }));
+              }}
+            />
+            <div className="text-text02 ml-2">{t('pos.clock')}</div>
+          </div>
           <div>
             <div className="flex">
               <label className="text-sm text-text02">{t('pos.opening')}</label>
@@ -273,46 +295,78 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
             </div>
             <div className="flex space-x-2">
               <Form.Item
-                help={errors.timeWork?.message}
-                validateStatus={errors.timeWork ? 'error' : undefined}
+                help={errors.startHour?.message}
+                validateStatus={errors.startHour ? 'error' : undefined}
               >
                 <Input
-                  placeholder="00"
-                  type="number"
+                  placeholder="00:00"
+                  type="text"
                   className="w-40"
-                  {...register('timeWork', {
-                    required: t('validation.timeWorkRequired'),
+                  min={0}
+                  max={23}
+                  {...register('startHour', {
+                    required: !timeWorkCheck
+                      ? t('validation.timeWorkRequired')
+                      : false,
+                    min: !timeWorkCheck
+                      ? { value: 0, message: t('validation.hourRange') }
+                      : undefined,
+                    max: !timeWorkCheck
+                      ? { value: 23, message: t('validation.hourRange') }
+                      : undefined,
+                    pattern: !timeWorkCheck
+                      ? {
+                        value: /^[0-9]+$/,
+                        message: t('validation.onlyDigits'),
+                      }
+                      : undefined,
                   })}
-                  value={startHour !== null ? startHour : ''}
+                  value={formData.startHour}
                   onChange={e =>
-                    handleTimeWorkChange('startHour', Number(e.target.value))
+                    handleTimeWorkChange('startHour', e.target.value)
                   }
-                  status={errors.timeWork ? 'error' : ''}
+                  status={errors.startHour ? 'error' : ''}
+                  disabled={timeWorkCheck}
                 />
               </Form.Item>
-              <div className="text-text02 flex justify-center mt-2"> : </div>
+
+              <span className="text-text02 mt-2">:</span>
+
               <Form.Item
-                help={errors.timeWork?.message}
-                validateStatus={errors.timeWork ? 'error' : undefined}
+                help={errors.startMinute?.message}
+                validateStatus={errors.startMinute ? 'error' : undefined}
               >
                 <Input
-                  placeholder="00"
-                  type="number"
+                  placeholder="23:59"
+                  type="text"
                   className="w-40"
-                  {...register('timeWork', {
-                    required: t('validation.timeWorkRequired'),
+                  min={0}
+                  max={59}
+                  {...register('startMinute', {
+                    required: !timeWorkCheck
+                      ? t('validation.timeWorkRequired')
+                      : false,
+                    min: !timeWorkCheck
+                      ? { value: 0, message: t('validation.minuteRange') }
+                      : undefined,
+                    max: !timeWorkCheck
+                      ? { value: 59, message: t('validation.minuteRange') }
+                      : undefined,
+                    pattern: !timeWorkCheck
+                      ? {
+                        value: /^[0-9]+$/,
+                        message: t('validation.onlyDigits'),
+                      }
+                      : undefined,
                   })}
-                  value={endHour !== null ? endHour : ''}
+                  value={formData.startMinute}
                   onChange={e =>
-                    handleTimeWorkChange('endHour', Number(e.target.value))
+                    handleTimeWorkChange('startMinute', e.target.value)
                   }
-                  status={errors.timeWork ? 'error' : ''}
+                  status={errors.startMinute ? 'error' : ''}
+                  disabled={timeWorkCheck}
                 />
               </Form.Item>
-            </div>
-            <div className="flex mt-2">
-              <input type="checkbox" />
-              <div className="text-text02 ml-2">{t('pos.clock')}</div>
             </div>
           </div>
           <div>
