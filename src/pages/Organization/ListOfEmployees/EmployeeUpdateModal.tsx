@@ -22,7 +22,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
   workerId,
 }) => {
   const { t } = useTranslation();
-  const [rolesId, setRoleId] = useState(0);
+  const [roleNo, setRoleNo] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<string>('');
   const [searchParams] = useSearchParams();
   const roleId = Number(searchParams.get('roleId')) || undefined;
@@ -56,7 +56,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
         workerData?.find(role => role.id === workerId)?.roleName || '';
       const roleNo = rolesData?.find(role => role.name === workerRole)?.id || 0;
       setSelectedWorker(worker);
-      setRoleId(roleNo);
+      setRoleNo(roleNo);
     }
   }, [workerId]);
 
@@ -65,7 +65,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     async () =>
       updateRole({
         userId: workerId,
-        roleId: rolesId,
+        roleId: roleNo,
       })
   );
 
@@ -148,12 +148,12 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
           </h2>
           <p className="text-primary02 text-sm">{selectedWorker}</p>
           <Select
-            value={rolesId}
+            value={roleNo}
             options={rolesData?.map(item => ({
               label: item.name,
               value: item.id,
             }))}
-            onChange={value => setRoleId(value)}
+            onChange={value => setRoleNo(value)}
             className="w-[300px] sm:w-[456px]"
           />
         </Modal>
