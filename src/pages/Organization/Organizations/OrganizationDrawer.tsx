@@ -260,13 +260,24 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
               validateStatus={errors.inn ? 'error' : undefined}
             >
               <Input
+                type="text"
+                inputMode="numeric"
                 className="w-80 sm:w-96"
                 {...register('inn', {
                   required: orgToEdit === null && t('validation.innRequired'),
+                  maxLength: {
+                    value: 12,
+                    message: t('validation.innLength'), 
+                  },
+                  pattern: {
+                    value: /^\d+$/,
+                    message: t('validation.onlyDigits'), 
+                  },
                 })}
                 value={formData.inn}
                 onChange={e => handleInputChange('inn', e.target.value)}
                 status={errors.inn ? 'error' : ''}
+                maxLength={12}
               />
             </Form.Item>
           </div>

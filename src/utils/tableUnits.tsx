@@ -89,6 +89,7 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.PAUSE'),
       t('analysis.DONE'),
       t('finance.EXPENDITURE'),
+      t('tables.BLOCKED')
     ];
 
     const orangeStatuses = [
