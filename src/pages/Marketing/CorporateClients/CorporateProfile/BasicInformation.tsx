@@ -70,7 +70,7 @@ const BasicInformation: React.FC = () => {
     formState: { errors },
   } = useForm<UpdateCorporateClientRequest>({ defaultValues });
 
-  const user = useUser()
+  const user = useUser();
 
   useEffect(() => {
     if (clientData && !isEditing) {
@@ -125,55 +125,59 @@ const BasicInformation: React.FC = () => {
   ) => {
     if (isEditing) {
       return (
-        <Form.Item
-          label={<span className="text-text02">{label}</span>}
-          name={fieldName}
-          help={errors[fieldName]?.message}
-          validateStatus={errors[fieldName] ? 'error' : undefined}
-          layout="vertical"
-          className="w-86"
-        >
-          <Controller
+        <div>
+          <div className="text-text02 text-sm">{label}</div>
+          <Form.Item
             name={fieldName}
-            control={control}
-            rules={{ required: t(`validation.${fieldName}Required`) as string }}
-            render={({ field }) =>
-              fieldName === 'address' ? (
-                <TextArea
-                  {...field}
-                  rows={2}
-                  className="w-86"
-                  placeholder={t('corporateClients.enterCompanyAddress')}
-                />
-              ) : (
-                <Input
-                  {...field}
-                  className="w-86"
-                  placeholder={
-                    fieldName === 'name'
-                      ? t('corporateClients.enterCompanyName')
-                      : fieldName === 'inn'
-                        ? t('enterInnPlaceholder')
-                        : ''
-                  }
-                  size="large"
-                />
-              )
-            }
-          />
-        </Form.Item>
+            help={errors[fieldName]?.message}
+            validateStatus={errors[fieldName] ? 'error' : undefined}
+            layout="vertical"
+            className="w-86"
+          >
+            <Controller
+              name={fieldName}
+              control={control}
+              rules={{
+                required: t(`validation.${fieldName}Required`) as string,
+              }}
+              render={({ field }) =>
+                fieldName === 'address' ? (
+                  <TextArea
+                    {...field}
+                    rows={2}
+                    className="w-86"
+                    placeholder={t('corporateClients.enterCompanyAddress')}
+                  />
+                ) : (
+                  <Input
+                    {...field}
+                    className="w-86"
+                    placeholder={
+                      fieldName === 'name'
+                        ? t('corporateClients.enterCompanyName')
+                        : fieldName === 'inn'
+                          ? t('enterInnPlaceholder')
+                          : ''
+                    }
+                    size='large'
+                  />
+                )
+              }
+            />
+          </Form.Item>
+        </div>
       );
     }
 
     return (
-      <Form.Item
-        label={<span className="text-text02">{label}</span>}
-        layout="vertical"
-      >
-        <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
-          {value || '-'}
-        </div>
-      </Form.Item>
+      <div>
+        <div className="text-text02 text-sm">{label}</div>
+        <Form.Item layout="vertical">
+          <div className="border border-borderFill rounded-md px-3 h-10 flex items-center">
+            {value || '-'}
+          </div>
+        </Form.Item>
+      </div>
     );
   };
 
@@ -189,22 +193,20 @@ const BasicInformation: React.FC = () => {
             </div>
             {renderField(t('corporateClients.name'), clientData?.name, 'name')}
             {renderField(t('corporateClients.inn'), clientData?.inn, 'inn')}
-            <Form.Item
-              label={
-                <span className="text-text02">
-                  {t('corporateClients.dateRegistered')}
-                </span>
-              }
-              layout="vertical"
-            >
-              <div
-                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
-              >
-                {clientData.dateRegistered
-                  ? new Date(clientData.dateRegistered).toLocaleDateString()
-                  : '-'}
+            <div>
+              <div className="text-text02 text-sm">
+                {t('corporateClients.dateRegistered')}
               </div>
-            </Form.Item>
+              <Form.Item layout="vertical">
+                <div
+                  className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+                >
+                  {clientData.dateRegistered
+                    ? new Date(clientData.dateRegistered).toLocaleDateString()
+                    : '-'}
+                </div>
+              </Form.Item>
+            </div>
             <div className="my-5">
               <Upload disabled showUploadList={false}>
                 <div className="flex items-center">
@@ -222,38 +224,36 @@ const BasicInformation: React.FC = () => {
                 </div>
               </Upload>
             </div>
-            <Form.Item
-              label={
-                <span className="text-text02">
-                  {t('corporateClients.ownerPhone')}
-                </span>
-              }
-              layout="vertical"
-            >
-              <div
-                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
-              >
-                {clientData.ownerPhone || '-'}
+            <div>
+              <div className="text-text02 text-sm">
+                {t('corporateClients.ownerPhone')}
               </div>
-            </Form.Item>
-            <Form.Item
-              label={
-                <span className="text-text02">{t('constants.status')}</span>
-              }
-              layout="vertical"
-            >
-              <div>{statusRender(t(`tables.${clientData.status}`)) || '-'}</div>
-            </Form.Item>
-            <Form.Item
-              label={<span className="text-text02">E-mail</span>}
-              layout="vertical"
-            >
-              <div
-                className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
-              >
-                {clientData.ownerEmail || '-'}
-              </div>
-            </Form.Item>
+              <Form.Item layout="vertical">
+                <div
+                  className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+                >
+                  {clientData.ownerPhone || '-'}
+                </div>
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('constants.status')}</div>
+              <Form.Item layout="vertical">
+                <div>
+                  {statusRender(t(`tables.${clientData.status}`)) || '-'}
+                </div>
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{'E-mail'}</div>
+              <Form.Item layout="vertical">
+                <div
+                  className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
+                >
+                  {clientData.ownerEmail || '-'}
+                </div>
+              </Form.Item>
+            </div>
             {renderField(
               t('corporateClients.address'),
               clientData?.address,
