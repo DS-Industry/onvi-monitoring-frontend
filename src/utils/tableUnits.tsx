@@ -89,7 +89,8 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.PAUSE'),
       t('analysis.DONE'),
       t('finance.EXPENDITURE'),
-      t('tables.BLOCKED')
+      t('tables.BLOCKED'),
+      t('tables.DRAFT')
     ];
 
     const orangeStatuses = [
@@ -97,6 +98,7 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.SAVED'),
       t('tables.VERIFICATE'),
       t('tables.RETURNED'),
+      t('tables.COMPLETED')
     ];
 
     if (greenStatuses.includes(status)) {

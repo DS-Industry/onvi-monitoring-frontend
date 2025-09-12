@@ -102,8 +102,8 @@ const ListOfEmployees = React.lazy(
 const ListOfRoles = React.lazy(
   () => import('@/pages/Organization/ListOfRoles')
 );
-const PosConnection = React.lazy(
-  () => import('@/pages/Organization/PosConnection')
+const PosTabs = React.lazy(
+  () => import('@/pages/Organization/PosTabs')
 );
 const PlanAct = React.lazy(() => import('@/pages/Pos/PlanAct'));
 const InviteUser = React.lazy(() => import('@/pages/Onboarding/InviteUser'));
@@ -225,8 +225,8 @@ const routes = [
           {
             name: 'pos',
             isVisible: true,
-            path: '/administration/accessRights/pos/connection',
-            component: PosConnection,
+            path: '/administration/accessRights/pos/tabs',
+            component: PosTabs,
             permissions: [
               { action: 'manage', subject: 'Organization' },
               { action: 'update', subject: 'Organization' },
@@ -915,16 +915,6 @@ const routes = [
         subMenu: false,
       },
       {
-        name: 'share',
-        isVisible: true,
-        path: '/marketing/share/constructor',
-        component: Default,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
         name: 'loyalty',
         isVisible: true,
         path: '/marketing/loyalty',
@@ -953,17 +943,7 @@ const routes = [
         isSidebar: false,
         subNav: [],
         subMenu: false,
-      },
-      {
-        name: 'marketRes',
-        isVisible: true,
-        path: '/marketing/market/research',
-        component: Default,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
+      }
     ],
     component: Marketing,
     isSidebar: true,

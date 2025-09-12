@@ -55,24 +55,29 @@ const ClientsImport: React.FC = () => {
       return;
     }
 
-    const maxSize = 10 * 1024 * 1024; 
+    const maxSize = 10 * 1024 * 1024;
     if (selectedFile.size > maxSize) {
       message.error(t('validation.fileTooLarge'));
       return;
     }
 
     const allowedTypes = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-excel',
-      'text/csv', 
+      'text/csv',
       'application/csv',
-      'text/plain', 
+      'text/plain',
     ];
-    
+
     const allowedExtensions = ['.xlsx', '.xls', '.csv'];
-    const fileExtension = selectedFile.name.toLowerCase().substring(selectedFile.name.lastIndexOf('.'));
-    
-    if (!allowedTypes.includes(selectedFile.type) && !allowedExtensions.includes(fileExtension)) {
+    const fileExtension = selectedFile.name
+      .toLowerCase()
+      .substring(selectedFile.name.lastIndexOf('.'));
+
+    if (
+      !allowedTypes.includes(selectedFile.type) &&
+      !allowedExtensions.includes(fileExtension)
+    ) {
       message.error(t('validation.invalidFileType'));
       return;
     }
@@ -107,7 +112,7 @@ const ClientsImport: React.FC = () => {
           </span>
         </div>
       </div>
-      
+
       <div className="px-4 md:px-0">
         {notificationVisible && (
           <Notification
@@ -116,18 +121,20 @@ const ClientsImport: React.FC = () => {
             onClose={() => setNotificationVisible(false)}
           />
         )}
-        
+
         <div className="font-semibold text-xl md:text-2xl mt-5 text-primary02">
           {t('marketing.selectFile')}
         </div>
-        
+
         <div className="flex mt-5">
           <div
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
             className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
-              drawerOpen ? 'bg-white border-2 border-primary02' : 'bg-background05'
+              drawerOpen
+                ? 'bg-white border-2 border-primary02'
+                : 'bg-background05'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
@@ -149,7 +156,7 @@ const ClientsImport: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 md:mt-14 w-full max-w-4xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
             <div className="text-text02 text-sm md:text-base font-normal">
@@ -159,16 +166,16 @@ const ClientsImport: React.FC = () => {
               {t('marketing.excelFormat')}
             </div>
           </div>
-          
+
           <div className="border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4">
             {!selectedFile && (
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
                 <label
                   htmlFor="file-upload"
-                  className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary01 transition-colors"
+                  className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary02_Hover transition-colors"
                 >
                   <DownloadOutlined />
-                  <div className="text-sm md:text-base">{t('marketing.selectFile')}</div>
+                  <div>{t('marketing.selectFile')}</div>
                 </label>
                 <input
                   id="file-upload"
@@ -177,7 +184,7 @@ const ClientsImport: React.FC = () => {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                
+                <div className="text-text01">{t('warehouse.or')}</div>
               </div>
             )}
             {selectedFile && (
@@ -202,7 +209,7 @@ const ClientsImport: React.FC = () => {
             )}
           </div>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8 md:mt-10">
           <Button
             title={t('actions.cancel')}
@@ -220,7 +227,7 @@ const ClientsImport: React.FC = () => {
             classname="w-full sm:w-auto"
           />
         </div>
-        
+
         <Drawer
           placement="right"
           size="large"
@@ -241,9 +248,17 @@ const ClientsImport: React.FC = () => {
                 {t('marketing.requiredFields')}:
               </div>
               <div className="space-y-2 text-sm text-text02">
-                <div>• <strong>devNumber</strong> - {t('marketing.devNumberDescription')}</div>
-                <div>• <strong>uniqueNumber</strong> - {t('marketing.uniqueNumberDescription')}</div>
-                <div>• <strong>tierId</strong> - {t('marketing.tierIdDescription')}</div>
+                <div>
+                  • <strong>devNumber</strong> -{' '}
+                  {t('marketing.devNumberDescription')}
+                </div>
+                <div>
+                  • <strong>uniqueNumber</strong> -{' '}
+                  {t('marketing.uniqueNumberDescription')}
+                </div>
+                <div>
+                  • <strong>tierId</strong> - {t('marketing.tierIdDescription')}
+                </div>
               </div>
             </div>
             <div className="font-normal text-sm md:text-base text-text01">
