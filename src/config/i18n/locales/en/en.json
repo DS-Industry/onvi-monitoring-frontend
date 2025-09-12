@@ -850,7 +850,8 @@
     "PROMOCODE": "PROMOCODE",
     "DISCOUNT": "DISCOUNT",
     "WORKS": "WORKS",
-    "DISMISSED": "DISMISSED"
+    "DISMISSED": "DISMISSED",
+    "DRAFT": "DRAFT"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
@@ -1316,7 +1317,9 @@
   },
   "constants": {
     "all": "All",
-    "status": "Status"
+    "status": "Status",
+    "pos": "Pos",
+    "rewardPrograms": "Reward Programs"
   },
   "filters": {
     "reset": "Reset",
