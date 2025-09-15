@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
-import { Input } from 'antd';
+import { Button, Card, Input } from 'antd';
 
 import { Skeleton } from 'antd';
 import useSWR, { mutate } from 'swr';
 import useFormHook from '@/hooks/useFormHook';
-import Button from '@/components/ui/Button/Button';
 import useSWRMutation from 'swr/mutation';
 import {
   createLoyaltyProgram,
@@ -52,12 +51,15 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
 
   const permissions = usePermissions();
 
-  const hasPermission = user?.organizationId ? permissions.some(permission =>
-    (permission.action === "manage" || permission.action === "update") &&
-    permission.subject === "Pos" &&
-    Array.isArray(permission.conditions?.organizationId?.in) &&
-    permission.conditions.organizationId.in.includes(user.organizationId!)
-  ) : false;
+  const hasPermission = user?.organizationId
+    ? permissions.some(
+        permission =>
+          (permission.action === 'manage' || permission.action === 'update') &&
+          permission.subject === 'Pos' &&
+          Array.isArray(permission.conditions?.organizationId?.in) &&
+          permission.conditions.organizationId.in.includes(user.organizationId!)
+      )
+    : false;
 
   const { data: loyaltyData, isValidating: loadingPrograms } = useSWR(
     loyaltyId ? [`get-loyalty-program-by-id`] : null,
@@ -87,7 +89,12 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       {
         arg,
       }: {
-        arg: { name: string; organizationIds: number[]; lifetimeDays?: number, ownerOrganizationId: number };
+        arg: {
+          name: string;
+          organizationIds: number[];
+          lifetimeDays?: number;
+          ownerOrganizationId: number;
+        };
       }
     ) => {
       return createLoyaltyProgram(arg);
@@ -169,63 +176,85 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   };
 
   return (
-    <form className="space-y-3">
-      <div>
-        <div className="flex items-center space-x-4">
-          <BonusImage />
+    <Card
+      className="rounded-2xl shadow-card w-full max-w-[1400px]"
+      styles={{
+        body: {
+          padding: '20px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+        },
+      }}
+    >
+      <form className="space-y-3">
+        <div>
+          <div className="flex items-center space-x-4">
+            <BonusImage />
 
-          <div>
-            <div className="text-lg font-semibold text-text01">
-              {t('marketing.basic')}
+            <div>
+              <div className="text-lg font-semibold text-text01">
+                {t('marketing.basic')}
+              </div>
+              <div className="text-text02">{t('marketing.setup')}</div>
             </div>
-            <div className="text-text02">{t('marketing.setup')}</div>
           </div>
         </div>
-      </div>
-      <div className="mt-5">
-        {loadingPrograms ? (
-          <div className="space-y-6">
-            <Skeleton active paragraph={{ rows: 3 }} />
-            <Skeleton.Input active size="large" style={{ width: 320 }} />
-            <div className="flex flex-col sm:flex-row gap-4 mt-5">
+        <div className="mt-5">
+          {loadingPrograms ? (
+            <div className="space-y-6">
+              <Skeleton active paragraph={{ rows: 3 }} />
               <Skeleton.Input active size="large" style={{ width: 320 }} />
-              <Skeleton.Input active size="large" style={{ width: 320 }} />
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="text-2xl font-semibold text-text01">
-              {t('marketing.branch')}
-            </div>
-            <div className="text-text02">
-              <div>{t('marketing.setUpBranch')}</div>
-              <div>{t('marketing.branchCan')}</div>
-            </div>
-
-            <div className="">
-              <div className="w-80">
-                <label className="block text-sm font-medium mb-1">
-                  {t('equipment.name')}
-                </label>
-                <Input
-                  value={formData.name}
-                  onChange={e => {
-                    setFormData(prev => ({ ...prev, name: e.target.value }));
-                    setValue('name', e.target.value, { shouldValidate: true });
-                  }}
-                  status={errors.name ? 'error' : ''}
-                  placeholder={t('equipment.name')}
-                />
-                {errors.name && (
-                  <div className="text-red-500 text-xs mt-1">
-                    {errors.name.message}
-                  </div>
-                )}
+              <div className="flex flex-col sm:flex-row gap-4 mt-5">
+                <Skeleton.Input active size="large" style={{ width: 320 }} />
+                <Skeleton.Input active size="large" style={{ width: 320 }} />
               </div>
-              <div className="mt-6">
-                <div className="mt-6">
+            </div>
+          ) : (
+            <div>
+              <div className="text-2xl font-semibold text-text01">
+                {t('marketing.branch')}
+              </div>
+              <div className="text-text02">
+                <div>{t('marketing.setUpBranch')}</div>
+                <div>{t('marketing.branchCan')}</div>
+              </div>
+
+              <div className="">
+                <div className="w-80">
+                  <label className="block text-sm font-medium mb-1">
+                    {t('equipment.name')}
+                  </label>
+                  <Input
+                    value={formData.name}
+                    onChange={e => {
+                      setFormData(prev => ({ ...prev, name: e.target.value }));
+                      setValue('name', e.target.value, {
+                        shouldValidate: true,
+                      });
+                    }}
+                    status={errors.name ? 'error' : ''}
+                    placeholder={t('equipment.name')}
+                  />
+                  {errors.name && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.name.message}
+                    </div>
+                  )}
+                </div>
+                <div>
                   {posData && posData.length > 0 && (
-                    <div>
+                    <Card
+                      className="rounded-2xl shadow-card w-fit mt-5"
+                      styles={{
+                        body: {
+                          padding: '20px 24px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '20px',
+                        },
+                      }}
+                    >
                       <Space direction="vertical" className="w-full">
                         {posData.slice(0, MAX_VISIBLE).map(pos => (
                           <Checkbox key={pos.id} value={pos.id} checked>
@@ -250,33 +279,37 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                           </Collapse>
                         )}
                       </Space>
-                    </div>
+                    </Card>
                   )}
                 </div>
               </div>
             </div>
+          )}
+        </div>
+
+        {hasPermission && (
+          <div className="flex space-x-4">
+            {loyaltyId === undefined ? (
+              <Button
+                loading={isMutating}
+                onClick={() => handleSubmit(onSubmit)()}
+                type="primary"
+              >
+                {t('common.create')}
+              </Button>
+            ) : (
+              <Button
+                loading={isMutating}
+                onClick={handleUpdate}
+                type="primary"
+              >
+                {t('organizations.save')}
+              </Button>
+            )}
           </div>
         )}
-      </div>
-
-      {hasPermission && <div className="flex space-x-4">
-        {loyaltyId === undefined ? (
-          <Button
-            title={t('common.create')}
-            isLoading={isMutating}
-            handleClick={() => handleSubmit(onSubmit)()}
-            form={false}
-          />
-        ) : (
-          <Button
-            title={t('organizations.save')}
-            isLoading={isMutating}
-            handleClick={handleUpdate}
-            form={false}
-          />
-        )}
-      </div>}
-    </form>
+      </form>
+    </Card>
   );
 };
 

@@ -390,12 +390,17 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
                 targetKeys={updateData.benefitIds.map(String)}
                 onChange={handleTransfer}
                 render={item => item.title}
-                showSearch
                 listStyle={{
                   width: 'calc(50% - 8px)',
                   height: 300,
                 }}
                 style={{ width: '100%' }}
+                locale={{
+                  itemUnit: t('transfer.item'),
+                  itemsUnit: t('transfer.items'),
+                  notFoundContent: t('transfer.notFound'),
+                }}
+                showSelectAll={false}
               />
             </div>
 

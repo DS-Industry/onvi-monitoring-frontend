@@ -159,7 +159,7 @@ export type LoyaltyProgramsResponse = {
     status: LoyaltyProgramStatus;
     startDate: Date;
     lifetimeDays?: number;
-    ownerOrganizationId: number | null
+    ownerOrganizationId: number | null;
   };
 };
 
@@ -757,7 +757,7 @@ export type MarketingCampaignRequest = {
   discountValue: number;
   promocode?: string;
   maxUsage?: number;
-  status: MarketingCampaignStatus,
+  status: MarketingCampaignStatus;
 };
 
 export type UpdateMarketingCampaignRequest = {
@@ -865,6 +865,40 @@ export async function updateMarketingCampaign(
 ): Promise<MarketingCampaignResponse> {
   const response: AxiosResponse<MarketingCampaignResponse> = await api.put(
     `user/loyalty/marketing-campaigns/${id}`,
+    request
+  );
+  return response.data;
+}
+
+type LoyaltyProgramPermissionsResponse = {
+  id: number;
+  name: string;
+};
+
+export async function getLoyaltyProgramPermissionById(
+  userId: number
+): Promise<LoyaltyProgramPermissionsResponse[]> {
+  const response: AxiosResponse<LoyaltyProgramPermissionsResponse[]> =
+    await api.get(`user/permission/loyalty-program/${userId}`);
+
+  return response.data;
+}
+
+export async function getLoyaltyProgramPermissionByOrgId(params: {
+  organizationId?: string;
+}): Promise<LoyaltyProgramPermissionsResponse[]> {
+  const response: AxiosResponse<LoyaltyProgramPermissionsResponse[]> =
+    await api.get(`user/permission/loyalty-program`, { params });
+
+  return response.data;
+}
+
+export async function loyaltyProgramsConnection(
+  userId: number,
+  request: { loyaltyProgramIds: number[] }
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
+    `user/permission/loyalty-program-user/${userId}`,
     request
   );
   return response.data;

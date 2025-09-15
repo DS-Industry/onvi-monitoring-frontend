@@ -1,49 +1,153 @@
 import React, { useEffect, useState } from 'react';
-import { Transfer } from 'antd';
-
-const rewardPrograms = [
-  { id: 1, name: 'Gold Membership' },
-  { id: 2, name: 'Silver Membership' },
-  { id: 3, name: 'Platinum Rewards' },
-  { id: 4, name: 'Loyalty Plus' },
-  { id: 5, name: 'VIP Exclusive' },
-];
+import { Button, Spin, Transfer } from 'antd';
+import { useUser } from '@/hooks/useUserStore';
+import { useToast } from '@/components/context/useContext';
+import useSWR, { mutate } from 'swr';
+import { getLoyaltyProgramPermissionById, getLoyaltyProgramPermissionByOrgId, loyaltyProgramsConnection } from '@/services/api/marketing';
+import { getWorkers } from '@/services/api/equipment';
+import { useTranslation } from 'react-i18next';
+import useSWRMutation from 'swr/mutation';
+import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 
 const RewardProgramsConnection: React.FC = () => {
+  const { t } = useTranslation();
+  const user = useUser();
+  const { showToast } = useToast();
+
+  const [workerId, setWorkerId] = useState<number>(user.id);
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const dataSource = rewardPrograms.map(item => ({
+  const { data: rewardsPermissionData = [] } = useSWR(
+    user.organizationId ?['get-loyalty-permission', user.organizationId] : null,
+    () =>
+      getLoyaltyProgramPermissionByOrgId({ organizationId: String(user.organizationId) }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: rewardsPermissionUserData = [], isLoading } = useSWR(
+    ['get-loyalty-permission-user', workerId],
+    () => getLoyaltyProgramPermissionById(workerId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: workerData = [] } = useSWR(
+    user.organizationId ? ['get-worker', user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const workers =
+    workerData.map(w => ({
+      name: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
+      value: w.id,
+    })) || [];
+
+  const transferData = rewardsPermissionData.map(item => ({
     key: item.id.toString(),
     title: item.name,
   }));
 
   useEffect(() => {
-    setTargetKeys([]); 
-  }, []);
+    if (rewardsPermissionUserData) {
+      setTargetKeys(rewardsPermissionUserData.map(item => item.id.toString()));
+    }
+  }, [rewardsPermissionUserData]);
 
-  const handleChange = (nextTargetKeys: React.Key[]) => {
+  const handleTransferChange = (nextTargetKeys: React.Key[]) => {
     setTargetKeys(nextTargetKeys.map(String));
   };
 
-  const handleSelectChange = (sourceSelectedKeys: React.Key[], targetSelectedKeys: React.Key[]) => {
+  const handleSelectChange = (
+    sourceSelectedKeys: React.Key[],
+    targetSelectedKeys: React.Key[]
+  ) => {
     setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys].map(String));
   };
 
+  const { trigger: connectLoyalty, isMutating } = useSWRMutation(
+    ['connect-loyalty'],
+    async () =>
+      loyaltyProgramsConnection(workerId, { loyaltyProgramIds: targetKeys.map(Number) })
+  );
+
+  const handleConnection = async () => {
+    try {
+      const result = await connectLoyalty();
+      if (result) {
+        mutate(['get-loyalty-permission-user', workerId]);
+        mutate(['get-loyalty-permission']);
+        showToast(t('analysis.the'), 'success');
+      }
+    } catch {
+      showToast(t('errors.other.theOperationUnsuccessful'), 'error');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-[600px] w-full flex justify-center items-center">
+        <Spin />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Reward Programs Connection</h2>
+   <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 sm:items-center">
+        <SearchDropdownInput
+          title={t('equipment.user')}
+          options={workers}
+          classname="w-full sm:w-72"
+          value={workerId}
+          onChange={setWorkerId}
+          allowClear
+        />
+        <Button
+          loading={isMutating}
+          onClick={handleConnection}
+          type="primary"
+          className="mt-5 h-10"
+        >
+          {t('organizations.save')}
+        </Button>
+      </div>
       <Transfer
-        dataSource={dataSource}
+        dataSource={transferData}
+        titles={[t('analysis.branch'), t('analysis.added')]}
         targetKeys={targetKeys}
         selectedKeys={selectedKeys}
-        onChange={handleChange}
+        onChange={handleTransferChange}
         onSelectChange={handleSelectChange}
         render={item => item.title}
-        titles={['Available Programs', 'Selected Programs']}
         listStyle={{ width: 350, height: 400 }}
         showSearch
+        rowKey={item => item.key}
         style={{ margin: '24px 0' }}
+        locale={{
+          itemUnit: t('transfer.item'), 
+          itemsUnit: t('transfer.items'), 
+          notFoundContent: t('transfer.notFound'), 
+          searchPlaceholder: t('transfer.search'), 
+          remove: t('transfer.remove'), 
+          selectAll: t('transfer.selectAll'), 
+          selectCurrent: t('transfer.selectCurrent'), 
+          selectInvert: t('transfer.selectInvert'), 
+          removeAll: t('transfer.removeAll'), 
+          removeCurrent: t('transfer.removeCurrent'), 
+        }}
       />
     </div>
   );
