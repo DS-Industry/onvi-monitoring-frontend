@@ -1,43 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '@/hooks/useUserStore';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
+import useSWRMutation from 'swr/mutation';
 import {
   connectPosPermission,
   getPosPermission,
   getPosPermissionUser,
 } from '@/services/api/organization';
-import { useTranslation } from 'react-i18next';
-import useSWRMutation from 'swr/mutation';
 import { getWorkers } from '@/services/api/equipment';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/context/useContext';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
-import {
-  ArrowRightOutlined,
-  ArrowLeftOutlined,
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-} from '@ant-design/icons';
-import { Button } from 'antd';
-import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
-import ItemList from '@/components/ui/ItemList/ItemList';
-
-interface Item {
-  id: number;
-  name: string;
-}
+import { Transfer, Button, Spin } from 'antd';
 
 const PosConnection: React.FC = () => {
   const { t } = useTranslation();
-  const [selected, setSelected] = useState<number[]>([]);
-  const [availableItems, setAvailableItems] = useState<Item[]>([]);
-  const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const user = useUser();
-  const [workerId, setWorkerId] = useState(user.id);
   const { showToast } = useToast();
-  const screens = useBreakpoint();
 
-  const { data: posPermissionData } = useSWR(
-    [`get-pos-permission`],
+  const [workerId, setWorkerId] = useState<number>(user.id);
+  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
+  const { data: posPermissionData = [] } = useSWR(
+    ['get-pos-permission'],
     getPosPermission,
     {
       revalidateOnFocus: false,
@@ -46,8 +32,8 @@ const PosConnection: React.FC = () => {
     }
   );
 
-  const { data: posPermissionUserData } = useSWR(
-    [`get-pos-permission-user`, workerId],
+  const { data: posPermissionUserData = [], isLoading } = useSWR(
+    ['get-pos-permission-user', workerId],
     () => getPosPermissionUser(workerId),
     {
       revalidateOnFocus: false,
@@ -56,8 +42,8 @@ const PosConnection: React.FC = () => {
     }
   );
 
-  const { data: workerData } = useSWR(
-    user.organizationId ? [`get-worker`, user.organizationId] : null,
+  const { data: workerData = [] } = useSWR(
+    user.organizationId ? ['get-worker', user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
@@ -66,66 +52,60 @@ const PosConnection: React.FC = () => {
     }
   );
 
-  const { trigger: connectPos, isMutating } = useSWRMutation(
-    ['connect-pos'],
-    async () => connectPosPermission({ posIds: selected }, workerId)
-  );
-
-  const workers: { name: string; value: number }[] =
-    workerData?.map(item => ({
-      name: `${item.name} ${item.middlename} ${item.surname}`,
-      value: item.id,
+  const workers =
+    workerData.map(w => ({
+      name: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
+      value: w.id,
     })) || [];
 
+  const transferData = posPermissionData.map(item => ({
+    key: item.id.toString(),
+    title: item.name,
+  }));
+
   useEffect(() => {
-    if (posPermissionUserData) setSelectedItems(posPermissionUserData);
+    if (posPermissionUserData) {
+      setTargetKeys(posPermissionUserData.map(item => item.id.toString()));
+    }
   }, [posPermissionUserData]);
 
-  useEffect(() => {
-    if (posPermissionData && posPermissionUserData) {
-      const filteredAvailableItems = posPermissionData.filter(
-        (item: Item) =>
-          !posPermissionUserData.some((s: Item) => s.id === item.id)
-      );
-      setAvailableItems(filteredAvailableItems);
-      setSelectedItems(posPermissionUserData);
-    }
-  }, [posPermissionData, posPermissionUserData]);
-
-  useEffect(() => {
-    setSelected(selectedItems.map(item => item.id));
-  }, [selectedItems]);
-
-  const handleTransferToSelected = () => {
-    const movingItems = availableItems.filter(item =>
-      selected.includes(item.id)
-    );
-    setAvailableItems(prev => prev.filter(item => !selected.includes(item.id)));
-    setSelectedItems(prev => [...prev, ...movingItems]);
+  const handleTransferChange = (nextTargetKeys: React.Key[]) => {
+    setTargetKeys(nextTargetKeys.map(String));
   };
 
-  const handleTransferToAvailable = () => {
-    const movingItems = selectedItems.filter(item =>
-      selected.includes(item.id)
-    );
-    setSelectedItems(prev => prev.filter(item => !selected.includes(item.id)));
-    setAvailableItems(prev => [...prev, ...movingItems]);
+  const handleSelectChange = (
+    sourceSelectedKeys: React.Key[],
+    targetSelectedKeys: React.Key[]
+  ) => {
+    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys].map(String));
   };
 
-  const toggleSelection = (id: number) => {
-    setSelected(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
+  const { trigger: connectPos, isMutating } = useSWRMutation(
+    ['connect-pos'],
+    async () =>
+      connectPosPermission({ posIds: targetKeys.map(Number) }, workerId)
+  );
 
   const handleConnection = async () => {
     try {
       const result = await connectPos();
-      if (result) showToast(t('analysis.the'), 'success');
+      if (result) {
+        mutate(['get-pos-permission-user', workerId]);
+        mutate(['get-pos-permission']);
+        showToast(t('analysis.the'), 'success');
+      }
     } catch {
       showToast(t('errors.other.theOperationUnsuccessful'), 'error');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-[600px] w-full flex justify-center items-center">
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -147,41 +127,31 @@ const PosConnection: React.FC = () => {
           {t('organizations.save')}
         </Button>
       </div>
-
-      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-        <ItemList
-          title={t('analysis.branch')}
-          items={availableItems}
-          selected={selected}
-          toggleSelection={toggleSelection}
-        />
-
-        <div className="flex flex-row md:flex-col justify-center items-center space-x-2 md:space-x-0 md:space-y-2">
-          <button
-            className="border bg-white text-black cursor-pointer p-2"
-            onClick={handleTransferToSelected}
-            disabled={selected.length === 0}
-            title="→"
-          >
-            {screens.md ? <ArrowRightOutlined /> : <ArrowDownOutlined />}
-          </button>
-          <button
-            className="border bg-white text-black cursor-pointer p-2"
-            onClick={handleTransferToAvailable}
-            disabled={selected.length === 0}
-            title="←"
-          >
-            {screens.md ? <ArrowLeftOutlined /> : <ArrowUpOutlined />}
-          </button>
-        </div>
-
-        <ItemList
-          title={t('analysis.added')}
-          items={selectedItems}
-          selected={selected}
-          toggleSelection={toggleSelection}
-        />
-      </div>
+      <Transfer
+        dataSource={transferData}
+        titles={[t('analysis.branch'), t('analysis.added')]}
+        targetKeys={targetKeys}
+        selectedKeys={selectedKeys}
+        onChange={handleTransferChange}
+        onSelectChange={handleSelectChange}
+        render={item => item.title}
+        listStyle={{ width: 350, height: 400 }}
+        showSearch
+        rowKey={item => item.key}
+        style={{ margin: '24px 0' }}
+        locale={{
+          itemUnit: t('transfer.item'), 
+          itemsUnit: t('transfer.items'), 
+          notFoundContent: t('transfer.notFound'), 
+          searchPlaceholder: t('transfer.search'), 
+          remove: t('transfer.remove'), 
+          selectAll: t('transfer.selectAll'), 
+          selectCurrent: t('transfer.selectCurrent'), 
+          selectInvert: t('transfer.selectInvert'), 
+          removeAll: t('transfer.removeAll'), 
+          removeCurrent: t('transfer.removeCurrent'), 
+        }}
+      />
     </div>
   );
 };
