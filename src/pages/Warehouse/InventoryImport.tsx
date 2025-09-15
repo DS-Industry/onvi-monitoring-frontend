@@ -89,7 +89,7 @@ const InventoryImport: React.FC = () => {
             <div
               className={`flex items-center space-x-2 ${drawerOpen ? 'text-primary02' : 'text-text01'}`}
             >
-              <FileOutlined />
+              <FileOutlined className="text-xl md:text-2xl" />
               <div className="font-semibold text-lg">{t('warehouse.use')}</div>
             </div>
             <div
@@ -104,7 +104,7 @@ const InventoryImport: React.FC = () => {
             <div>{t('warehouse.fileDown')}</div>
             <div>{t('warehouse.xls')}</div>
           </div>
-          <div className="border rounded-lg h-24 flex justify-center items-center text-center mt-4">
+          <div className="border rounded-lg h-24 flex justify-center items-center text-center">
             {!selectedFile ? (
               <div className="flex flex-wrap justify-center items-center gap-2">
                 <label

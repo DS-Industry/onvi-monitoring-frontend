@@ -6,7 +6,10 @@ import Notification from '@ui/Notification.tsx';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import { Link, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
-import { getMarketingCampaign, MarketingCampaignResponse } from '@/services/api/marketing';
+import {
+  getMarketingCampaign,
+  MarketingCampaignResponse,
+} from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 
@@ -16,7 +19,7 @@ const MarketingCompanies: React.FC = () => {
   const tagRender = getStatusTagRender(t);
   const navigate = useNavigate();
 
-  const { data: promotions, isLoading } = useSWR(
+  const { data: promotionsData, isLoading } = useSWR(
     ['marketing-campaigns'],
     () => getMarketingCampaign(),
     {
@@ -25,6 +28,12 @@ const MarketingCompanies: React.FC = () => {
       dedupingInterval: 5000,
     }
   );
+
+  const promotions =
+    promotionsData?.map(item => ({
+      ...item,
+      status: t(`tables.${item.status}`),
+    })) || [];
 
   const columns: ColumnsType<MarketingCampaignResponse> = [
     {

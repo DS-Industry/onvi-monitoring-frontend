@@ -831,11 +831,12 @@
     "Done": "Выполнено",
     "displayedColumns": "Отображаемые столбцы",
     "RETURNED": "ВЕРНУЛСЯ",
-    "COMPLETED": "ЗАВЕРШЕННЫЙ",
+    "COMPLETED": "Завершенный",
     "PROMOCODE": "ПРОМО-КОД",
     "DISCOUNT": "СКИДКА",
     "WORKS": "Действующий",
-    "DISMISSED": "Уволен"
+    "DISMISSED": "Уволен",
+    "DRAFT": "Черновик"
   },
   "finance": {
     "details": "Здесь отображаются детализация по каждой инкассации",
@@ -1300,7 +1301,9 @@
   },
   "constants": {
     "all": "Все",
-    "status": "Cтатус"
+    "status": "Cтатус",
+    "pos": "Объекты",
+    "rewardPrograms": "Программы лояльности"
   },
   "filters": {
     "reset": "Сбросить",
