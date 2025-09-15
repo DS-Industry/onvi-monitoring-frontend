@@ -14,8 +14,7 @@ import {
 } from '@/services/api/marketing';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import Button from '@/components/ui/Button/Button';
-import { Descriptions, Tag, Skeleton, Modal } from 'antd';
+import { Descriptions, Tag, Skeleton, Modal, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 
@@ -289,14 +288,16 @@ const Events: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-3 mt-5">
             <Button
-              title={'Сбросить'}
-              handleClick={() => {
+              onClick={() => {
                 resetForm();
                 setIsModalOpen(false);
               }}
-              type="outline"
-            />
-            <Button title={'Сохранить'} form={true} isLoading={isMutating} />
+            >
+              {t('analysis.reset')}
+            </Button>
+            <Button htmlType="submit" loading={isMutating} type="primary">
+              {t('routes.save')}
+            </Button>
           </div>
         </form>
       </Modal>
@@ -356,18 +357,16 @@ const Events: React.FC = () => {
               />
             </div>
             <div className="flex flex-wrap gap-3 mt-5">
+              <Button onClick={() => setIsModalOpenUpdate(false)}>
+                {t('analysis.reset')}
+              </Button>
               <Button
-                title={'Сбросить'}
-                handleClick={() => {
-                  setIsModalOpenUpdate(false);
-                }}
-                type="outline"
-              />
-              <Button
-                title={'Сохранить'}
-                form={true}
-                isLoading={updatingBenefit}
-              />
+                htmlType="submit"
+                loading={updatingBenefit}
+                type="primary"
+              >
+                {t('routes.save')}
+              </Button>
             </div>
           </form>
         )}

@@ -2,7 +2,6 @@ import React from 'react';
 import Settings from './Settings';
 
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { useNavigate } from 'react-router-dom';
 
 const RewardsCreation: React.FC = () => {
@@ -17,16 +16,13 @@ const RewardsCreation: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.bonus')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
-      <div>
-        <Settings
-          nextStep={id =>
-            navigate(`/marketing/loyalty/bonus?loyaltyId=${id}&tab=levels`)
-          }
-        />
-      </div>
+      <Settings
+        nextStep={id =>
+          navigate(`/marketing/loyalty/bonus?loyaltyId=${id}&tab=levels`)
+        }
+      />
     </>
   );
 };
