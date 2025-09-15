@@ -1343,5 +1343,17 @@
     "enterCompanyAddress": "Enter company address",
     "updateSuccess": "Client information updated successfully",
     "updateError": "Failed to update client information"
+  },
+  "transfer": {
+    "item": "item",
+    "items": "items",
+    "notFound": "Not Found",
+    "search": "Search here",
+    "remove": "Remove",
+    "selectAll": "Select all data",
+    "selectCurrent": "Select current page",
+    "selectInvert": "Invert current page",
+    "removeAll": "Remove all",
+    "removeCurrent": "Remove current page"
   }
 }
