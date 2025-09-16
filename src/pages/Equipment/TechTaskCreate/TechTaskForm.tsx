@@ -15,7 +15,7 @@ import {
   TechTaskManagerInfo,
   updateTechTask,
 } from '@/services/api/equipment';
-import { Drawer, Tabs } from 'antd';
+import { Divider, Drawer, Select, Tabs, Button as AntDButton } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
@@ -26,6 +26,8 @@ import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
+
+const { Option } = Select;
 
 interface Item {
   id: number;
@@ -112,6 +114,16 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const [customValue, setCustomValue] = useState<number | undefined>(
+    Number(formData.period) || undefined
+  );
+
+  const handleSelectChange = (value: number) => {
+    if (value !== -1) {
+      handleInputChange('period', String(value));
+      setCustomValue(value);
+    }
+  };
 
   const options = tagsData
     ? tagsData.map(tag => ({
@@ -341,7 +353,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           changeValue={e => handleInputChange('name', e.target.value)}
           error={!!errors.name}
           {...register('name', {
-            required: techTaskToEdit === null && t("validation.nameRequired"),
+            required: techTaskToEdit === null && t('validation.nameRequired'),
           })}
           helperText={errors.name?.message || ''}
         />
@@ -355,9 +367,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           }
           classname="w-96"
           {...register('posId', {
-            required: techTaskToEdit === null && t("validation.posRequired"),
+            required: techTaskToEdit === null && t('validation.posRequired'),
             validate: value =>
-              value !== 0 || techTaskToEdit !== null || t("validation.posRequired"),
+              value !== 0 ||
+              techTaskToEdit !== null ||
+              t('validation.posRequired'),
           })}
           value={formData.posId}
           onChange={value => {
@@ -376,7 +390,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
             { name: t('tables.REGULAR'), value: 'REGULAR' },
           ]}
           {...register('type', {
-            required: techTaskToEdit === null && t("validation.typeRequired"),
+            required: techTaskToEdit === null && t('validation.typeRequired'),
           })}
           value={formData.type}
           onChange={value => handleInputChange('type', value)}
@@ -384,15 +398,65 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           helperText={errors.type?.message}
           isDisabled={techTaskToEdit !== null}
         />
-        <Input
-          title={`${t('routine.frequency')} *`}
-          type={'number'}
-          label={t('warehouse.notSel')}
-          classname="w-64"
-          {...register('period')}
-          value={formData.period}
-          changeValue={e => handleInputChange('period', e.target.value)}
-        />
+        <div className="w-64">
+          <label className="block text-md text-text02">
+            {t('routine.frequency')}
+          </label>
+          <Select<number>
+            value={Number(formData.period) || undefined}
+            placeholder={t('warehouse.notSel')}
+            className="w-full"
+            onChange={handleSelectChange}
+            popupRender={menu => (
+              <>
+                {menu}
+                <Divider style={{ margin: '8px 0' }} />
+                <div className="px-3 py-2">
+                  <span className="block text-sm text-text02">
+                    {t('routine.custom')}
+                  </span>
+                  <div className="flex space-x-2">
+                    <Input
+                      type="number"
+                      label={t('routine.enterPeriod')}
+                      value={customValue}
+                      changeValue={e => {
+                        let val = Number(e.target.value);
+                        if (val < 1 || Number.isNaN(val)) {
+                          val = 1;
+                        }
+                        setCustomValue(val);
+                        handleInputChange('period', String(val));
+                      }}
+                    />
+                    <AntDButton
+                      type="primary"
+                      onClick={() => {
+                        if (customValue && customValue > 0) {
+                          handleInputChange('period', String(customValue));
+                          setCustomValue(customValue);
+                        }
+                      }}
+                    >
+                      {t('routes.save')}
+                    </AntDButton>
+                  </div>
+                </div>
+              </>
+            )}
+          >
+            <Option value={1}>{t('routine.daily')}</Option>
+            <Option value={7}>{t('routine.weekly')}</Option>
+            <Option value={30}>{t('routine.monthly')}</Option>
+            {customValue &&
+              customValue > 0 &&
+              ![1, 7, 30].includes(customValue) && (
+                <Option key="custom" value={customValue}>
+                  {t('routine.custom')}
+                </Option>
+              )}
+          </Select>
+        </div>
         <DateInput
           title={`${t('equipment.start')} *`}
           classname="w-40"
@@ -405,7 +469,8 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           }
           error={!!errors.startDate}
           {...register('startDate', {
-            required: techTaskToEdit === null && t("validation.startDateRequired"),
+            required:
+              techTaskToEdit === null && t('validation.startDateRequired'),
           })}
           helperText={errors.startDate?.message || ''}
           disabled={techTaskToEdit !== null}
