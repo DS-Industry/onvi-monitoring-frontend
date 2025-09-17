@@ -117,6 +117,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const [customValue, setCustomValue] = useState<number | undefined>(
     Number(formData.period) || undefined
   );
+  const [openCustomList, setOpenCustomList] = useState(false);
 
   const handleSelectChange = (value: number) => {
     if (value !== -1) {
@@ -407,6 +408,8 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
             placeholder={t('warehouse.notSel')}
             className="w-full"
             onChange={handleSelectChange}
+            open={openCustomList}
+            onOpenChange={setOpenCustomList}
             popupRender={menu => (
               <>
                 {menu}
@@ -422,8 +425,8 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                       value={customValue}
                       changeValue={e => {
                         let val = Number(e.target.value);
-                        if (val < 1 || Number.isNaN(val)) {
-                          val = 1;
+                        if (val < 0 || Number.isNaN(val)) {
+                          val = 0;
                         }
                         setCustomValue(val);
                         handleInputChange('period', String(val));
@@ -435,6 +438,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                         if (customValue && customValue > 0) {
                           handleInputChange('period', String(customValue));
                           setCustomValue(customValue);
+                          setOpenCustomList(false);
                         }
                       }}
                     >
