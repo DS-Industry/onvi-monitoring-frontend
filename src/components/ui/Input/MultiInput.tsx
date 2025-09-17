@@ -62,7 +62,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
             onBlur={() => setIsInputFocused(false)}
             onChange={e => setSearchValue?.(e.target.value)}
             placeholder={t('marketing.tags')}
-            size="middle"
           />
           <Button
             type="primary"
@@ -121,7 +120,6 @@ const MultiInput: React.FC<MultiInputProps> = ({
         mode="multiple"
         showSearch
         className="w-80"
-        size="large"
         disabled={disabled}
         value={selectedOptions.map(opt => opt.id)}
         loading={loadingOptions}
