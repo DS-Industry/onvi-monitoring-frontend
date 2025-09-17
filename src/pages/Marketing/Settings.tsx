@@ -245,10 +245,10 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                 <div>
                   {posData && posData.length > 0 && (
                     <Card
-                      className="rounded-2xl shadow-card w-fit mt-5"
+                      className="rounded-2xl border-text03 w-fit mt-5"
                       styles={{
                         body: {
-                          padding: '20px 24px',
+                          padding: '10px 24px',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: '20px',

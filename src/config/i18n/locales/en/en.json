@@ -387,7 +387,9 @@
     "responsiblePerson": "Responsible Person",
     "taskName": "Имя задачи",
     "attachImage": "Attach Image",
-    "return": "Return to work"
+    "return": "Return to work",
+    "custom": "Custom",
+    "enterPeriod": "Enter Period"
   },
   "warehouse": {
     "nomenclature": "You don't have nomenclature in the program",
