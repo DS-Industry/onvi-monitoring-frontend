@@ -1,4 +1,3 @@
-import Button from '@/components/ui/Button/Button';
 import DateInput from '@/components/ui/Input/DateInput';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Input from '@/components/ui/Input/Input';
@@ -15,7 +14,7 @@ import {
   TechTaskManagerInfo,
   updateTechTask,
 } from '@/services/api/equipment';
-import { Divider, Drawer, Select, Tabs, Button as AntDButton } from 'antd';
+import { Divider, Drawer, Select, Tabs, Button } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
@@ -45,6 +44,8 @@ type TechTaskFormProps = {
 export type TechTaskFormRef = {
   handleUpdate: (id: number) => void;
 };
+
+const PERIOD_DAYS = [1, 7, 30];
 
 const TechTaskForm: React.FC<TechTaskFormProps> = ({
   techTaskToEdit,
@@ -432,7 +433,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                         handleInputChange('period', String(val));
                       }}
                     />
-                    <AntDButton
+                    <Button
                       type="primary"
                       onClick={() => {
                         if (customValue && customValue > 0) {
@@ -443,7 +444,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                       }}
                     >
                       {t('routes.save')}
-                    </AntDButton>
+                    </Button>
                   </div>
                 </div>
               </>
@@ -454,7 +455,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
             <Option value={30}>{t('routine.monthly')}</Option>
             {customValue &&
               customValue > 0 &&
-              ![1, 7, 30].includes(customValue) && (
+              !PERIOD_DAYS.includes(customValue) && (
                 <Option key="custom" value={customValue}>
                   {t('routine.custom')}
                 </Option>
@@ -597,19 +598,21 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         </Tabs>
         <div className="flex justify-start space-x-4">
           <Button
-            title={t('organizations.cancel')}
-            type="outline"
-            handleClick={() => {
+            onClick={() => {
               resetForm();
               setAvailableItems(techTask);
               setSelectedItems([]);
             }}
-          />
+          >
+            {t('organizations.cancel')}
+          </Button>
           <Button
-            title={t('routes.create')}
-            form={true}
-            isLoading={techTaskToEdit !== null ? updatingTechTask : isMutating}
-          />
+            htmlType='submit'
+            loading={techTaskToEdit !== null ? updatingTechTask : isMutating}
+            type='primary'
+          >
+            {t('routes.create')}
+          </Button>
         </div>
       </form>
     </Drawer>
