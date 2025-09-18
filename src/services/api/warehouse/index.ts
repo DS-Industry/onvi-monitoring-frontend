@@ -386,6 +386,12 @@ export async function getSupplier(
   return response.data;
 }
 
+export async function getSupplierCount(): Promise<{ count: number; }> {
+  const response: AxiosResponse<{ count: number; }> = await api.get(
+    WAREHOUSE.CREATE_SUPPLIER + '-count');
+  return response.data;
+}
+
 export async function getNomenclature(
   orgId: number,
   params?: NomenclatureParams
