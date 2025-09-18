@@ -98,7 +98,8 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.SAVED'),
       t('tables.VERIFICATE'),
       t('tables.RETURNED'),
-      t('tables.COMPLETED')
+      t('tables.COMPLETED'),
+      t('tables.PENDING')
     ];
 
     if (greenStatuses.includes(status)) {
