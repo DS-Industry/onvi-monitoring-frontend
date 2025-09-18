@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { createCarWash } from '@/services/api/pos';
+import { createCarWash, deleteCarWash, updateCarWash } from '@/services/api/pos';
 import { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
@@ -15,12 +15,14 @@ import ProfilePhoto from '@/assets/ProfilePhoto.svg';
 type PosCreationDrawerProps = {
   organizations: Organization[];
   isOpen: boolean;
+  id: number | null;
   onClose: () => void;
 };
 
 const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   organizations,
   isOpen,
+  id,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -31,10 +33,10 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
   const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
+  const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
 
   const defaultValues = {
     name: '',
-    monthlyPlan: null,
     timeWork: '',
     startHour: '',
     startMinute: '',
@@ -61,7 +63,30 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
       createCarWash(
         {
           name: formData.name,
-          monthlyPlan: formData.monthlyPlan,
+          timeWork: formData.timeWork,
+          address: {
+            city: formData.city,
+            location: formData.location,
+            lat: String(formData.lat),
+            lon: String(formData.lon),
+          },
+          organizationId: formData.organizationId,
+          carWashPosType: formData.carWashPosType || '',
+          minSumOrder: formData.minSumOrder,
+          maxSumOrder: formData.maxSumOrder,
+          stepSumOrder: formData.stepSumOrder,
+        },
+        selectedFile
+      )
+  );
+
+  const { trigger: updatePos, isMutating: isUpdatingPos } = useSWRMutation(
+    [`update-pos`, id],
+    async () =>
+      updateCarWash(
+        Number(id),
+        {
+          name: formData.name,
           timeWork: formData.timeWork,
           address: {
             city: formData.city,
@@ -84,7 +109,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     value: string | number | null
   ) => {
     const numericFields = [
-      'monthlyPlan',
       'stepSumOrder',
       'minSumOrder',
       'maxSumOrder',
@@ -139,7 +163,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
 
   const onSubmit = async () => {
     try {
-      const result = await createPos();
+      const result = id ? await updatePos() : await createPos();
       if (result) {
         mutate([`get-pos`, city, user.organizationId]);
         showToast(t('success.recordCreated'), 'success');
@@ -150,6 +174,26 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeletingCarWash(true);
+    try {
+      const result = await mutate(
+        [`delete-car-wash`, id],
+        () => deleteCarWash(Number(id)),
+        false
+      );
+
+      if (result) {
+        onClose();
+        mutate([`get-pos`, city, user.organizationId]);
+      }
+    } catch (error) {
+      showToast(t('errors.other.errorDeletingNomenclature'), 'error');
+    } finally {
+      setIsDeletingCarWash(false);
     }
   };
 
@@ -195,7 +239,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 placeholder={t('pos.example')}
                 className="w-80 sm:w-96"
                 {...register('name', {
-                  required: t('validation.nameRequired'),
+                  required: id === null && t('validation.nameRequired'),
                 })}
                 value={formData.name}
                 onChange={e => handleInputChange('name', e.target.value)}
@@ -216,7 +260,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 placeholder={t('pos.address')}
                 className="w-80 sm:w-96"
                 {...register('city', {
-                  required: t('validation.cityRequired'),
+                  required: id === null && t('validation.cityRequired'),
                 })}
                 value={formData.city}
                 onChange={e => handleInputChange('city', e.target.value)}
@@ -237,7 +281,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 placeholder={t('pos.country')}
                 className="w-80 sm:w-96"
                 {...register('location', {
-                  required: t('validation.locationRequired'),
+                  required: id === null && t('validation.locationRequired'),
                 })}
                 value={formData.location}
                 onChange={e => handleInputChange('location', e.target.value)}
@@ -371,31 +415,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
           </div>
           <div>
             <div className="flex">
-              <div className="text-text02 text-sm">{t('pos.monthly')}</div>
-              <span className="text-errorFill">*</span>
-            </div>
-            <Form.Item
-              help={errors.monthlyPlan?.message}
-              validateStatus={errors.monthlyPlan ? 'error' : undefined}
-            >
-              <Input
-                placeholder="0"
-                type="number"
-                className="w-48"
-                {...register('monthlyPlan', {
-                  required: t('validation.monthlyPlanRequired'),
-                })}
-                value={
-                  formData.monthlyPlan !== null ? formData.monthlyPlan : ''
-                }
-                onChange={e => handleInputChange('monthlyPlan', e.target.value)}
-                status={errors.monthlyPlan ? 'error' : ''}
-                suffix="₽"
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <div className="flex">
               <div className="text-text02 text-sm">{t('pos.company')}</div>
               <span className="text-errorFill">*</span>
             </div>
@@ -411,7 +430,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 }))}
                 className="w-80 sm:max-w-96"
                 {...register('organizationId', {
-                  required: t('validation.organizationRequired'),
+                  required: id === null && t('validation.organizationRequired'),
                 })}
                 value={formData.organizationId}
                 onChange={value => handleInputChange('organizationId', value)}
@@ -440,7 +459,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 ]}
                 className="w-80 sm:max-w-96"
                 {...register('carWashPosType', {
-                  required: t('validation.carWashPosTypeRequired'),
+                  required: id === null && t('validation.carWashPosTypeRequired'),
                 })}
                 value={formData.carWashPosType}
                 onChange={value => handleInputChange('carWashPosType', value)}
@@ -462,7 +481,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 type="number"
                 className="w-48"
                 {...register('stepSumOrder', {
-                  required: t('validation.stepSumOrderRequired'),
+                  required: id === null && t('validation.stepSumOrderRequired'),
                 })}
                 value={
                   formData.stepSumOrder !== null ? formData.stepSumOrder : ''
@@ -488,7 +507,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 type="number"
                 className="w-48"
                 {...register('minSumOrder', {
-                  required: t('validation.minSumOrderRequired'),
+                  required: id === null && t('validation.minSumOrderRequired'),
                 })}
                 value={
                   formData.minSumOrder !== null ? formData.minSumOrder : ''
@@ -512,7 +531,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
                 type="number"
                 className="w-48"
                 {...register('maxSumOrder', {
-                  required: t('validation.maxSumOrderRequired'),
+                  required: id === null && t('validation.maxSumOrderRequired'),
                 })}
                 value={
                   formData.maxSumOrder !== null ? formData.maxSumOrder : ''
@@ -549,14 +568,21 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
             />
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-          <Button onClick={() => resetForm()} className="btn-outline-primary">
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          <Button onClick={() => resetForm()}>
             {t('organizations.cancel')}
           </Button>
           <Button
+            onClick={handleDelete}
+            className="bg-errorFill hover:bg-red-300 text-white"
+            loading={isDeletingCarWash}
+          >
+            {t('marketing.delete')}
+          </Button>
+          <Button
             htmlType="submit"
-            loading={isMutating}
-            className="btn-primary"
+            loading={id ? isUpdatingPos : isMutating}
+            type='primary'
           >
             {t('organizations.save')}
           </Button>

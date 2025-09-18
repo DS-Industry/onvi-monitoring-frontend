@@ -62,7 +62,6 @@ type Pos = {
 
 type PosBody = {
   name: string;
-  monthlyPlan: number | null;
   timeWork: string | null;
   posMetaData?: string;
   address: {
@@ -76,6 +75,23 @@ type PosBody = {
   minSumOrder: number | null;
   maxSumOrder: number | null;
   stepSumOrder: number | null;
+};
+
+type UpdatePosBody = {
+  name?: string;
+  timeWork?: string | null;
+  posMetaData?: string;
+  address?: {
+    city: string;
+    location: string;
+    lat?: string | null;
+    lon?: string | null;
+  };
+  organizationId?: number | null;
+  carWashPosType?: string;
+  minSumOrder?: number | null;
+  maxSumOrder?: number | null;
+  stepSumOrder?: number | null;
 };
 
 type DepositParam = {
@@ -248,6 +264,41 @@ export async function createCarWash(
       'Content-Type': 'multipart/form-data',
     },
   });
+  return response.data;
+}
+
+export async function updateCarWash(
+  id: number,
+  body: UpdatePosBody,
+  file?: File | null
+): Promise<Pos> {
+  const formData = new FormData();
+
+  for (const key in body) {
+    const value = body[key as keyof UpdatePosBody];
+    if (value !== undefined && value !== null) {
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, value.toString());
+      }
+    }
+  }
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response: AxiosResponse<Pos> = await api.patch(`user/pos/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
+
+export async function deleteCarWash(id: number): Promise<{status: string; }> {
+  const response: AxiosResponse<{status: string; }> = await api.patch(`user/pos/${id}/delete`);
   return response.data;
 }
 

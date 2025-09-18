@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { getOrganization } from '@/services/api/organization';
 import { getPoses, getWorkers, PosResponse } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
-import { Button, Table } from 'antd';
+import { Button, Table, Tooltip } from 'antd';
 import PosCreationDrawer from './PosCreationDrawer';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { useUser } from '@/hooks/useUserStore';
@@ -21,6 +21,7 @@ const Pos: React.FC = () => {
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const userPermissions = usePermissions();
+  const [posId, setPosId] = useState<number | null>(null);
   const user = useUser();
 
   const allowed = hasPermission(userPermissions, [
@@ -89,6 +90,11 @@ const Pos: React.FC = () => {
         .sort((a, b) => a.id - b.id),
     [data, placementData, t]
   );
+
+  const handleUpdate = async (id: number) => {
+      setDrawerOpen(true);
+      setPosId(id);
+    };
 
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);
@@ -167,6 +173,26 @@ const Pos: React.FC = () => {
     },
   ];
 
+  if (allowed) {
+    columnsPos.push({
+      title: '',
+      dataIndex: 'actions',
+      key: 'actions',
+      render: (_: unknown, record: PosResponse) => (
+        <Tooltip title="Редактировать">
+          <Button
+            type="text"
+            icon={
+              <EditOutlined className="text-blue-500 hover:text-blue-700" />
+            }
+            onClick={() => handleUpdate(record.id)}
+            style={{ height: '24px' }}
+          />
+        </Tooltip>
+      ),
+    });
+  }
+
   const onClose = () => {
     setDrawerOpen(false);
   };
@@ -202,6 +228,7 @@ const Pos: React.FC = () => {
       <PosCreationDrawer
         organizations={organizationData || []}
         isOpen={drawerOpen}
+        id={posId}
         onClose={onClose}
       />
     </>
