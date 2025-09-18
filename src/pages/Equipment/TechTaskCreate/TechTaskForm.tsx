@@ -115,15 +115,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-  const [customValue, setCustomValue] = useState<number | undefined>(
-    Number(formData.period) || undefined
-  );
   const [openCustomList, setOpenCustomList] = useState(false);
 
   const handleSelectChange = (value: number) => {
     if (value !== -1) {
       handleInputChange('period', String(value));
-      setCustomValue(value);
     }
   };
 
@@ -423,22 +419,20 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                     <Input
                       type="number"
                       label={t('routine.enterPeriod')}
-                      value={customValue}
+                      value={formData.period}
                       changeValue={e => {
                         let val = Number(e.target.value);
                         if (val < 0 || Number.isNaN(val)) {
                           val = 0;
                         }
-                        setCustomValue(val);
                         handleInputChange('period', String(val));
                       }}
                     />
                     <Button
                       type="primary"
                       onClick={() => {
-                        if (customValue && customValue > 0) {
-                          handleInputChange('period', String(customValue));
-                          setCustomValue(customValue);
+                        if (formData.period && formData.period >= 0) {
+                          handleInputChange('period', String(formData.period));
                           setOpenCustomList(false);
                         }
                       }}
@@ -453,10 +447,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
             <Option value={1}>{t('routine.daily')}</Option>
             <Option value={7}>{t('routine.weekly')}</Option>
             <Option value={30}>{t('routine.monthly')}</Option>
-            {customValue &&
-              customValue > 0 &&
-              !PERIOD_DAYS.includes(customValue) && (
-                <Option key="custom" value={customValue}>
+            {formData.period &&
+              formData.period >= 0 &&
+              !PERIOD_DAYS.includes(formData.period) && (
+                <Option key="custom" value={formData.period}>
                   {t('routine.custom')}
                 </Option>
               )}

@@ -12,7 +12,6 @@ import {
   getPositions,
   getWorkers,
   PaymentsResponse,
-  PrepaymentFilter,
 } from '@/services/api/hr';
 import {
   DEFAULT_PAGE,
@@ -58,38 +57,15 @@ const SalaryCalculation: React.FC = () => {
     ? new Date(endPaymentDateParam)
     : undefined;
 
-  const filterParams = useMemo<PrepaymentFilter>(
-    () => ({
-      startPaymentDate: startPaymentDate,
-      endPaymentDate: endPaymentDate,
-      hrWorkerId: workerId,
-      page: currentPage,
-      size: pageSize,
-    }),
-    [startPaymentDate, endPaymentDate, workerId, currentPage, pageSize]
-  );
-
-  const swrKey = useMemo(
-    () => [
-      'get-payments',
-      filterParams.startPaymentDate,
-      filterParams.endPaymentDate,
-      filterParams.hrWorkerId,
-      filterParams.page,
-      filterParams.size,
-    ],
-    [filterParams]
-  );
-
   const { data: paymentsData, isLoading } = useSWR(
-    swrKey,
+    ['get-payments', startPaymentDate, endPaymentDate, workerId, currentPage, pageSize],
     () =>
       getPayments({
-        startPaymentDate: filterParams.startPaymentDate,
-        endPaymentDate: filterParams.endPaymentDate,
-        hrWorkerId: filterParams.hrWorkerId,
-        page: filterParams.page,
-        size: filterParams.size,
+        startPaymentDate: startPaymentDate,
+        endPaymentDate: endPaymentDate,
+        hrWorkerId: workerId,
+        page: currentPage,
+        size: pageSize,
       }).finally(() => setIsInitialLoading(false)),
     {
       revalidateOnFocus: false,
@@ -257,13 +233,11 @@ const SalaryCalculation: React.FC = () => {
 
       <div className="mt-5">
         <EmployeeSalaryFilter count={totalCount} workers={workers} />
-
         <ColumnSelector
           checkedList={checkedList}
           options={options}
           onChange={setCheckedList}
         />
-
         <Table
           rowKey={record =>
             `${record.name}-${record.billingMonth}-${record.paymentDate}`
@@ -275,7 +249,7 @@ const SalaryCalculation: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: totalCount,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}–${range[1]} из ${total} сотрудников`,

@@ -838,7 +838,8 @@
     "DISCOUNT": "DISCOUNT",
     "WORKS": "WORKS",
     "DISMISSED": "DISMISSED",
-    "DRAFT": "DRAFT"
+    "DRAFT": "DRAFT",
+    "PENDING": "PENDING"
   },
   "finance": {
     "details": "Details are displayed here for each collection",

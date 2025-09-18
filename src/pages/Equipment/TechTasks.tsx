@@ -70,7 +70,7 @@ const TechTasks: React.FC = () => {
         ...item,
         type: t(`tables.${item.type}`),
         posName: poses?.find(pos => pos.id === item.posId)?.name,
-        status: t(`tables.${item.status}`),
+        status: item.status === StatusTechTask.ACTIVE ? t('tables.PENDING') : t(`tables.${item.status}`),
       })) || [],
     [data, poses, t]
   );
@@ -130,9 +130,9 @@ const TechTasks: React.FC = () => {
       render: value => getTagRender(value),
     },
     {
-      title: 'Дата начала работ',
-      dataIndex: 'startDate',
-      key: 'startDate',
+      title: 'Крайний срок',
+      dataIndex: 'endSpecifiedDate',
+      key: 'endSpecifiedDate',
       render: dateRender,
     },
   ];

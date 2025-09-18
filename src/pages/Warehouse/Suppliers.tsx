@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
-import { createSupplier, getSupplier } from '@/services/api/warehouse';
+import { createSupplier, getSupplier, getSupplierCount } from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
 import { Drawer, Table, Button, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
@@ -49,20 +49,23 @@ const Suppliers: React.FC = () => {
     });
   }
 
-  const filterParams = useMemo(
-    () => ({
+  const { data: supplierData, isLoading: loadingSupplier } = useSWR(
+    ['get-suppliers', supplierName, currentPage, pageSize],
+    () => getSupplier({
       name: supplierName,
       page: currentPage,
       size: pageSize,
     }),
-    [supplierName, currentPage, pageSize]
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
   );
 
-  const swrKey = `get-supplier-${filterParams.name}-${filterParams.page}-${filterParams.size}`;
-
-  const { data: supplierData, isLoading: loadingSupplier } = useSWR(
-    swrKey,
-    () => getSupplier(filterParams),
+  const { data: supplierCount } = useSWR(
+    ['get-suppliers-count'],
+    () => getSupplierCount(),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -108,7 +111,7 @@ const Suppliers: React.FC = () => {
     try {
       const result = await createSup();
       if (result) {
-        mutate([`get-supplier`]);
+        mutate(['get-suppliers', supplierName, currentPage, pageSize]);
         resetForm();
       } else {
         throw new Error('Invalid response from API');
@@ -191,7 +194,8 @@ const Suppliers: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: supplier.length,
+            total: supplierCount?.count || 0,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,

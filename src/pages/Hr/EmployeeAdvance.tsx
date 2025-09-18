@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
@@ -11,7 +11,6 @@ import {
   getPositions,
   getPrepayments,
   getWorkers,
-  PrepaymentFilter,
   PrepaymentResponse,
 } from '@/services/api/hr';
 import {
@@ -69,38 +68,15 @@ const EmployeeAdvance: React.FC = () => {
     ? new Date(endPaymentDateParam)
     : undefined;
 
-  const filterParams = useMemo<PrepaymentFilter>(
-    () => ({
-      startPaymentDate: startPaymentDate,
-      endPaymentDate: endPaymentDate,
-      hrWorkerId: workerId,
-      page: currentPage,
-      size: pageSize,
-    }),
-    [startPaymentDate, endPaymentDate, workerId, currentPage, pageSize]
-  );
-
-  const swrKey = useMemo(
-    () => [
-      'get-payments',
-      filterParams.startPaymentDate,
-      filterParams.endPaymentDate,
-      filterParams.hrWorkerId,
-      filterParams.page,
-      filterParams.size,
-    ],
-    [filterParams]
-  );
-
   const { data: paymentsData, isLoading: paymentsLoading } = useSWR(
-    swrKey,
+    ['get-payments', startPaymentDate, endPaymentDate, workerId, currentPage, pageSize],
     () =>
       getPrepayments({
-        startPaymentDate: filterParams.startPaymentDate,
-        endPaymentDate: filterParams.endPaymentDate,
-        hrWorkerId: filterParams.hrWorkerId,
-        page: filterParams.page,
-        size: filterParams.size,
+        startPaymentDate: startPaymentDate,
+        endPaymentDate: endPaymentDate,
+        hrWorkerId: workerId,
+        page: currentPage,
+        size: pageSize,
       }),
     {
       revalidateOnFocus: false,
@@ -237,6 +213,7 @@ const EmployeeAdvance: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalCount,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}–${range[1]} из ${total} сотрудников`,
