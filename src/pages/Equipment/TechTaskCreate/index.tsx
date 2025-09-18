@@ -42,6 +42,7 @@ const TechTaskCreate: React.FC = () => {
       techTasks.find(tech => tech.id === id) || ({} as TechTaskManagerInfo)
     );
   };
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);

@@ -447,7 +447,7 @@ const EmployeeProfile: React.FC = () => {
                       />
                       <div>
                         <div className="text-sm text-text02">
-                          {t('finance.status')}
+                          {t('roles.job')}
                         </div>
                         <Select
                           options={positions}
@@ -460,7 +460,7 @@ const EmployeeProfile: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <div className="text-sm text-text02">{`${t('roles.job')}`}</div>
+                        <div className="text-sm text-text02">{`${t('finance.status')}`}</div>
                         <Select
                           options={[
                             {

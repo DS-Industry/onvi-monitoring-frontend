@@ -49,6 +49,21 @@ const App: React.FC = () => {
   );
 
   useEffect(() => {
+    function handleChunkError(e: ErrorEvent) {
+      if (/Loading chunk [\d]+ failed/.test(e.message)) {
+        window.location.reload();
+      }
+    }
+
+    window.addEventListener("error", handleChunkError);
+
+    return () => {
+      window.removeEventListener("error", handleChunkError);
+    };
+  }, []);
+
+
+  useEffect(() => {
     const getTokenAndUpdate = async () => {
       if (!isAuthenticated) return; // Skip if not authenticated
 
