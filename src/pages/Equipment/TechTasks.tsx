@@ -70,7 +70,7 @@ const TechTasks: React.FC = () => {
         ...item,
         type: t(`tables.${item.type}`),
         posName: poses?.find(pos => pos.id === item.posId)?.name,
-        status: item.status === 'ACTIVE' ? t('tables.PENDING') : t(`tables.${item.status}`),
+        status: item.status === StatusTechTask.ACTIVE ? t('tables.PENDING') : t(`tables.${item.status}`),
       })) || [],
     [data, poses, t]
   );

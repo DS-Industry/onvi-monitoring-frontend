@@ -388,7 +388,7 @@ export async function getSupplier(
 
 export async function getSupplierCount(): Promise<{ count: number; }> {
   const response: AxiosResponse<{ count: number; }> = await api.get(
-    WAREHOUSE.CREATE_SUPPLIER + '-count');
+    'user/warehouse/supplier-count');
   return response.data;
 }
 
