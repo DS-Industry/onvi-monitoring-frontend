@@ -77,6 +77,23 @@ type PosBody = {
   stepSumOrder: number | null;
 };
 
+export type PosRequestBody = {
+  name: string;
+  timeWork: string;
+  startHour: string;
+  startMinute: string;
+  posMetaData: string;
+  city: string;
+  location: string;
+  lat: string;
+  lon: string;
+  organizationId: number;
+  carWashPosType: string | null;
+  minSumOrder: number | null;
+  maxSumOrder: number | null;
+  stepSumOrder: number | null;
+}
+
 type UpdatePosBody = {
   name?: string;
   timeWork?: string | null;
@@ -336,8 +353,8 @@ export async function updateCarWash(
   return response.data;
 }
 
-export async function deleteCarWash(id: number): Promise<{status: string; }> {
-  const response: AxiosResponse<{status: string; }> = await api.patch(`user/pos/${id}/delete`);
+export async function deleteCarWash(id: number): Promise<{ status: string; }> {
+  const response: AxiosResponse<{ status: string; }> = await api.patch(`user/pos/${id}/delete`);
   return response.data;
 }
 

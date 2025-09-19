@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { createCarWash, deleteCarWash, getPosById, updateCarWash } from '@/services/api/pos';
+import { createCarWash, deleteCarWash, getPosById, PosRequestBody, updateCarWash } from '@/services/api/pos';
 import useSWR, { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
@@ -35,22 +35,7 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
   const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
 
-  const defaultValues: {
-    name: string;
-    timeWork: string;
-    startHour: string;
-    startMinute: string;
-    posMetaData: string;
-    city: string;
-    location: string;
-    lat: string;
-    lon: string;
-    organizationId: number;
-    carWashPosType: string | null;
-    minSumOrder: number | null;
-    maxSumOrder: number | null;
-    stepSumOrder: number | null;
-  } = {
+  const defaultValues: PosRequestBody = {
     name: '',
     timeWork: '',
     startHour: '',
