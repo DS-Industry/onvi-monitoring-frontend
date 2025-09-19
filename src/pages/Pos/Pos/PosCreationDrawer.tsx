@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { createCarWash, deleteCarWash, updateCarWash } from '@/services/api/pos';
-import { mutate } from 'swr';
+import { createCarWash, deleteCarWash, getPosById, updateCarWash } from '@/services/api/pos';
+import useSWR, { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
 import { useSearchParams } from 'react-router-dom';
@@ -35,7 +35,22 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
   const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
 
-  const defaultValues = {
+  const defaultValues: {
+    name: string;
+    timeWork: string;
+    startHour: string;
+    startMinute: string;
+    posMetaData: string;
+    city: string;
+    location: string;
+    lat: string;
+    lon: string;
+    organizationId: number;
+    carWashPosType: string | null;
+    minSumOrder: number | null;
+    maxSumOrder: number | null;
+    stepSumOrder: number | null;
+  } = {
     name: '',
     timeWork: '',
     startHour: '',
@@ -56,6 +71,35 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
+
+  const {
+    data: posData
+  } = useSWR(id ?[`get-pos-by-id`, id] : null, () =>
+    getPosById(id!)
+  );
+
+  useEffect(() => {
+    if(posData) {
+      setFormData({
+        name: posData.props.name,
+        timeWork: posData.props.timeWork,
+        posMetaData: posData.props.posMetaData,
+        city: posData.props.address.props.city,
+        location: posData.props.address.props.location,
+        lat: posData.props.address.props.lat,
+        lon: posData.props.address.props.lon,
+        organizationId: posData.props.organizationId,
+        carWashPosType: posData.props.carWashPosType,
+        minSumOrder: posData.props.minSumOrder,
+        maxSumOrder: posData.props.maxSumOrder,
+        stepSumOrder: posData.props.stepSumOrder,
+        startHour: posData.props.timeWork === '24/7' ? '' : posData.props.timeWork?.split(':')[0] || '',
+        startMinute: posData.props.timeWork === '24/7' ? '' : posData.props.timeWork?.split(':')[1] || '',
+      })
+    }
+  }, [posData])
+
+  console.log('posData', posData);
 
   const { trigger: createPos, isMutating } = useSWRMutation(
     [`create-pos`],

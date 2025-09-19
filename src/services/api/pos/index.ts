@@ -94,6 +94,46 @@ type UpdatePosBody = {
   stepSumOrder?: number | null;
 };
 
+interface AddressProps {
+  id: number;
+  city: string;
+  location: string;
+  lat: string;
+  lon: string;
+}
+
+interface Address {
+  props: AddressProps;
+}
+
+interface CarWashProps {
+  id: number;
+  name: string;
+  slug: string;
+  timeWork: string;
+  organizationId: number;
+  placementId: number | null;
+  posMetaData: string;
+  timezone: number;
+  addressId: number;
+  address: Address;
+  image: string;
+  rating: number | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  createdById: number;
+  updatedById: number;
+  carWashPosType: string;
+  minSumOrder: number;
+  maxSumOrder: number;
+  stepSumOrder: number;
+}
+
+interface UpdateCarWashResponse {
+  props: CarWashProps;
+}
+
 type DepositParam = {
   dateStart: Date;
   dateEnd: Date;
@@ -232,9 +272,8 @@ type CurrencyResponse = {
   currencyView?: CurrencyView;
 };
 
-export async function getPos(userId: number): Promise<Pos[]> {
-  const url = POS.GET_POSES + `/${userId}`;
-  const response: AxiosResponse<Pos[]> = await api.get(url);
+export async function getPosById(id: number): Promise<UpdateCarWashResponse> {
+  const response: AxiosResponse<UpdateCarWashResponse> = await api.get(`user/pos/${id}`);
   return response.data;
 }
 
