@@ -8,18 +8,43 @@ import useUserStore from '@/config/store/userSlice';
 const News = React.lazy(() => import('./News'));
 import GenericTabs from '@ui/Tabs/GenericTab';
 import { Select } from 'antd';
+import { useSearchParams } from 'react-router-dom';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import Indicators from './Indicators';
+import RatingOfCarWashes from './RatingOfCarWases';
+
+type TAB = 'news' | 'indicators' | 'rating';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tabFromUrl = searchParams.get('tab') as TAB || 'news';
+
+  const handleTabChange = (key: string) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      tab: key,
+    });
+  };
 
   const { user, setUser } = useUserStore();
 
   const tabItems = [
     {
-      key: '0',
+      key: 'news',
       label: t('dashboard.news'),
       content: <News />,
     },
+    {
+      key: 'indicators',
+      label: t('dashboard.indicators'),
+      content: <Indicators />,
+    },
+    {
+      key: 'rating',
+      label: t('dashboard.rating'),
+      content: <RatingOfCarWashes />,
+    }
   ];
 
   return (
@@ -54,7 +79,14 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <div className="py-5">
-        <GenericTabs tabs={tabItems} />
+        <GenericTabs
+          tabs={tabItems}
+          activeKey={tabFromUrl}
+          onChange={handleTabChange}
+          tabBarGutter={24}
+          tabBarStyle={{ marginBottom: 24 }}
+          type="line"
+        />
       </div>
     </div>
   );
