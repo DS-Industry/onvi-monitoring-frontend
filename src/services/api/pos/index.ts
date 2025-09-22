@@ -62,7 +62,6 @@ type Pos = {
 
 type PosBody = {
   name: string;
-  monthlyPlan: number | null;
   timeWork: string | null;
   posMetaData?: string;
   address: {
@@ -77,6 +76,80 @@ type PosBody = {
   maxSumOrder: number | null;
   stepSumOrder: number | null;
 };
+
+export type PosRequestBody = {
+  name: string;
+  timeWork: string;
+  startHour: string;
+  startMinute: string;
+  posMetaData: string;
+  city: string;
+  location: string;
+  lat: string;
+  lon: string;
+  organizationId: number;
+  carWashPosType: string | null;
+  minSumOrder: number | null;
+  maxSumOrder: number | null;
+  stepSumOrder: number | null;
+}
+
+type UpdatePosBody = {
+  name?: string;
+  timeWork?: string | null;
+  posMetaData?: string;
+  address?: {
+    city: string;
+    location: string;
+    lat?: string | null;
+    lon?: string | null;
+  };
+  organizationId?: number | null;
+  carWashPosType?: string;
+  minSumOrder?: number | null;
+  maxSumOrder?: number | null;
+  stepSumOrder?: number | null;
+};
+
+interface AddressProps {
+  id: number;
+  city: string;
+  location: string;
+  lat: string;
+  lon: string;
+}
+
+interface Address {
+  props: AddressProps;
+}
+
+interface CarWashProps {
+  id: number;
+  name: string;
+  slug: string;
+  timeWork: string;
+  organizationId: number;
+  placementId: number | null;
+  posMetaData: string;
+  timezone: number;
+  addressId: number;
+  address: Address;
+  image: string;
+  rating: number | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  createdById: number;
+  updatedById: number;
+  carWashPosType: string;
+  minSumOrder: number;
+  maxSumOrder: number;
+  stepSumOrder: number;
+}
+
+interface UpdateCarWashResponse {
+  props: CarWashProps;
+}
 
 type DepositParam = {
   dateStart: Date;
@@ -216,9 +289,8 @@ type CurrencyResponse = {
   currencyView?: CurrencyView;
 };
 
-export async function getPos(userId: number): Promise<Pos[]> {
-  const url = POS.GET_POSES + `/${userId}`;
-  const response: AxiosResponse<Pos[]> = await api.get(url);
+export async function getPosById(id: number): Promise<UpdateCarWashResponse> {
+  const response: AxiosResponse<UpdateCarWashResponse> = await api.get(`user/pos/${id}`);
   return response.data;
 }
 
@@ -248,6 +320,41 @@ export async function createCarWash(
       'Content-Type': 'multipart/form-data',
     },
   });
+  return response.data;
+}
+
+export async function updateCarWash(
+  id: number,
+  body: UpdatePosBody,
+  file?: File | null
+): Promise<Pos> {
+  const formData = new FormData();
+
+  for (const key in body) {
+    const value = body[key as keyof UpdatePosBody];
+    if (value !== undefined && value !== null) {
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, value.toString());
+      }
+    }
+  }
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response: AxiosResponse<Pos> = await api.patch(`user/pos/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
+
+export async function deleteCarWash(id: number): Promise<{ status: string; }> {
+  const response: AxiosResponse<{ status: string; }> = await api.patch(`user/pos/${id}/delete`);
   return response.data;
 }
 
