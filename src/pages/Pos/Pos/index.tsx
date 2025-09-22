@@ -5,7 +5,7 @@ import { getOrganization } from '@/services/api/organization';
 import { getPoses, getWorkers, PosResponse } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 import { Button, Table, Tooltip } from 'antd';
-import PosCreationDrawer from './PosCreationDrawer';
+import PosEditDrawer from './PosEditDrawer';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
@@ -225,7 +225,7 @@ const Pos: React.FC = () => {
           loading={posLoading}
         />
       </div>
-      <PosCreationDrawer
+      <PosEditDrawer
         organizations={organizationData || []}
         isOpen={drawerOpen}
         id={posId}

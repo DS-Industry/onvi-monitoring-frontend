@@ -12,14 +12,14 @@ import { Drawer, Form, Input, Select, Button, Checkbox } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import ProfilePhoto from '@/assets/ProfilePhoto.svg';
 
-type PosCreationDrawerProps = {
+type PosEditDrawerProps = {
   organizations: Organization[];
   isOpen: boolean;
   id: number | null;
   onClose: () => void;
 };
 
-const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
+const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   organizations,
   isOpen,
   id,
@@ -83,8 +83,6 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
       })
     }
   }, [posData])
-
-  console.log('posData', posData);
 
   const { trigger: createPos, isMutating } = useSWRMutation(
     [`create-pos`],
@@ -621,4 +619,4 @@ const PosCreationDrawer: React.FC<PosCreationDrawerProps> = ({
   );
 };
 
-export default PosCreationDrawer;
+export default PosEditDrawer;
