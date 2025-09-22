@@ -16,7 +16,6 @@ import {
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import {
-  getDateRender,
   getStatusTagRender,
   getTagRender,
 } from '@/utils/tableUnits';
@@ -24,6 +23,14 @@ import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import 'dayjs/locale/ru';
+
+dayjs.extend(isBetween);
+dayjs.extend(isSameOrBefore);
+dayjs.locale('ru');
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
@@ -76,7 +83,19 @@ const TechTasks: React.FC = () => {
   );
 
   const renderStatus = getStatusTagRender(t);
-  const dateRender = getDateRender();
+  const dateRender = (dateString: string) => {
+    if (!dateString) return '-';
+
+    const date = dayjs(dateString);
+    const today = dayjs().startOf('day');
+    const in7Days = today.add(7, 'day');
+
+    if (date.isBetween(today, in7Days, null, '[]')) {
+      return date.format('dddd');
+    }
+
+    return date.format('D MMMM YYYY');
+  };
 
   const statuses = [
     { label: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
