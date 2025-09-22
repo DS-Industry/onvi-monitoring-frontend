@@ -123,6 +123,9 @@ const Notifications = React.lazy(
 const RewardsCreation = React.lazy(
   () => import('@/pages/Marketing/RewardsCreation')
 );
+const LoyaltyRequests = React.lazy(
+  () => import('@/pages/Marketing/LoyaltyRequests')
+);
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
 );
@@ -941,6 +944,16 @@ const routes = [
         component: BonusProgram,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
         isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'loyaltyRequests',
+        isVisible: true,
+        path: '/marketing/loyalty-requests',
+        component: LoyaltyRequests,
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
         subNav: [],
         subMenu: false,
       }

@@ -6,6 +6,9 @@ enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
   GET_TAG = 'user/loyalty/tag',
   LOYALTY = 'user/loyalty',
+  LOYALTY_REQUESTS = 'user/loyalty/requests',
+  APPROVE_REQUEST = 'user/loyalty/requests/approve',
+  REJECT_REQUEST = 'user/loyalty/requests/reject',
 }
 
 export enum UserType {
@@ -167,6 +170,8 @@ type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
+  isHub: boolean;
+  isHubRequested: boolean;
   organizations: {
     id: number;
     name: string;
@@ -356,6 +361,18 @@ export async function getLoyaltyProgramById(
 ): Promise<LoyaltyProgramsByIdResponse> {
   const response: AxiosResponse<LoyaltyProgramsByIdResponse> = await api.get(
     MARKETING.LOYALTY + `/program/${id}`
+  );
+
+  return response.data;
+}
+
+export async function requestHubStatus(
+  id: number,
+  comment?: string
+): Promise<{ success: boolean }> {
+  const response: AxiosResponse<{ success: boolean }> = await api.post(
+    MARKETING.LOYALTY + `/programs/${id}/request-hub`,
+    { comment }
   );
 
   return response.data;
@@ -900,6 +917,92 @@ export async function loyaltyProgramsConnection(
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
     `user/permission/loyalty-program-user/${userId}`,
     request
+  );
+  return response.data;
+}
+
+// Loyalty Requests Types and Functions
+export enum LoyaltyRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum LoyaltyRequestType {
+  BONUS_POINTS = 'BONUS_POINTS',
+  DISCOUNT = 'DISCOUNT',
+}
+
+export enum LTYProgramRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export type LoyaltyRequest = {
+  id: number;
+  ltyProgramId: number;
+  ltyProgramName: string;
+  organizationId: number;
+  organizationName: string;
+  status: LTYProgramRequestStatus;
+  requestedAt: Date;
+  reviewedAt?: Date;
+  approvedAt?: Date;
+  reviewedBy?: number;
+  reviewerName?: string;
+  requestComment?: string;
+  responseComment?: string;
+  rejectionReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LoyaltyRequestsParams = {
+  page?: number;
+  size?: number;
+  status?: LoyaltyRequestStatus | 'ALL';
+  requestType?: LoyaltyRequestType | 'ALL';
+  search?: string;
+  organizationId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type LoyaltyRequestsResponse = {
+  data: LoyaltyRequest[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export async function getLoyaltyRequests(
+  params: LoyaltyRequestsParams
+): Promise<LoyaltyRequestsResponse> {
+  const response: AxiosResponse<LoyaltyRequestsResponse> = await api.get(
+    MARKETING.LOYALTY_REQUESTS,
+    { params }
+  );
+  return response.data;
+}
+
+export async function approveLoyaltyRequest(
+  requestId: number
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
+    `${MARKETING.APPROVE_REQUEST}/${requestId}`
+  );
+  return response.data;
+}
+
+export async function rejectLoyaltyRequest(
+  requestId: number
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
+    `${MARKETING.REJECT_REQUEST}/${requestId}`
   );
   return response.data;
 }
