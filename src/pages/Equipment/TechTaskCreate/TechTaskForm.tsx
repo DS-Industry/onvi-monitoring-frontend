@@ -332,7 +332,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       open={isOpen}
       className="custom-drawer"
     >
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5 flex">
           <span className="font-semibold text-sm text-text01">
             {t('routine.fields')}

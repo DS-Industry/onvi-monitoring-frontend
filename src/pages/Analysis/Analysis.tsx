@@ -75,9 +75,9 @@ const Analysis: React.FC = () => {
 
       <GeneralFilters count={reportsData.length} display={['search']}>
         <div>
-          <div className="text-sm text-text02">{t('warehouse.category')}</div>
+          <div className="text-sm text-text02 mb-1">{t('warehouse.category')}</div>
           <Select
-            className="w-full sm:w-80 h-10"
+            className="w-full sm:w-80"
             value={category}
             onChange={value => {
               setCategory(value);

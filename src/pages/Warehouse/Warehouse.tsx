@@ -8,8 +8,7 @@ import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import Input from '@/components/ui/Input/Input';
-import Button from '@/components/ui/Button/Button';
-import { Drawer, Table, Button as AntDButton } from 'antd';
+import { Drawer, Table, Button } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { ColumnsType } from 'antd/es/table';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -207,13 +206,13 @@ const Warehouse: React.FC = () => {
           </span>
         </div>
         {allowed && (
-          <AntDButton
+          <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
             <div className="hidden sm:flex">{t('routes.add')}</div>
-          </AntDButton>
+          </Button>
         )}
       </div>
       <GeneralFilters count={warehouses.length} display={['pos', 'city']} />
@@ -252,7 +251,7 @@ const Warehouse: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -310,20 +309,17 @@ const Warehouse: React.FC = () => {
             error={!!errors.posId}
             helperText={errors.posId?.message}
           />
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => resetForm()}>
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
-                resetForm();
-              }}
-            />
-            <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={isMutating}
-              handleClick={() => {}}
-            />
+              htmlType="submit"
+              loading={isMutating}
+              type='primary'
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>

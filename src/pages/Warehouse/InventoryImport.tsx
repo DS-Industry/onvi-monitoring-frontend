@@ -1,7 +1,6 @@
 import Notification from '@/components/ui/Notification';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Button from '@/components/ui/Button/Button';
 import useSWRMutation from 'swr/mutation';
 import { createNomenclatureFile } from '@/services/api/warehouse';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ import {
   FileOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import { Drawer } from 'antd';
+import { Button, Drawer } from 'antd';
 
 const InventoryImport: React.FC = () => {
   const { t } = useTranslation();
@@ -140,19 +139,19 @@ const InventoryImport: React.FC = () => {
             )}
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 mt-8">
-          <Button
-            title={t('warehouse.reset')}
-            type="outline"
-            handleClick={() => {}}
-          />
-          <Button
-            title={t('pos.download')}
-            form
-            handleClick={handleSubmit}
-            isLoading={isMutating}
-          />
-        </div>
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => navigate(-1)}>
+              {t('warehouse.reset')}
+            </Button>
+            <Button
+              htmlType="submit"
+              loading={isMutating}
+              onClick={handleSubmit}
+              type='primary'
+            >
+              {t('pos.download')}
+            </Button>
+          </div>
         <Drawer
           title={t('warehouse.fileReq')}
           placement="right"
@@ -173,15 +172,17 @@ const InventoryImport: React.FC = () => {
             </div>
             <div className="flex space-x-2">
               <Button
-                title={t('organizations.cancel')}
-                handleClick={() => setDrawerOpen(false)}
-              />
+                onClick={() => setDrawerOpen(false)}
+              >
+                {t('organizations.cancel')}
+              </Button>
               <Button
-                title={t('warehouse.down')}
-                type="outline"
-                iconDownload={true}
-                handleClick={handleDownload}
-              />
+                icon={<DownloadOutlined />}
+                onClick={handleDownload}
+                type='primary'
+              >
+                {t('warehouse.down')}
+              </Button>
             </div>
           </div>
         </Drawer>

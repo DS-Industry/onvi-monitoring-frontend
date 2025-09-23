@@ -213,7 +213,6 @@ const Timesheet: React.FC = () => {
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleCreateEvent}
-          className="bg-blue-500 hover:bg-blue-600 h-[35px]"
         >
           {t('shift.createShift')}
         </Button>

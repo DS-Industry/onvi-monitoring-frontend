@@ -1,6 +1,4 @@
 import React, {
-  ClassAttributes,
-  ThHTMLAttributes,
   useEffect,
   useMemo,
   useState,
@@ -1254,27 +1252,6 @@ const Articles: React.FC = () => {
                 loading={loadingGraphData}
                 rowSelection={rowSelection}
                 components={{
-                  header: {
-                    cell: (
-                      props: JSX.IntrinsicAttributes &
-                        ClassAttributes<HTMLTableHeaderCellElement> &
-                        ThHTMLAttributes<HTMLTableHeaderCellElement>
-                    ) => (
-                      <th
-                        {...props}
-                        style={{
-                          backgroundColor: '#E4F0FF',
-                          fontWeight: 'semi-bold',
-                          paddingLeft: '9px',
-                          paddingTop: '20px',
-                          paddingBottom: '20px',
-                          textAlign: 'left',
-                          borderRadius: '0px',
-                        }}
-                        className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
-                      />
-                    ),
-                  },
                   body: {
                     cell: EditableCell,
                   },

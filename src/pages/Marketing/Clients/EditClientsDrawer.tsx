@@ -413,12 +413,12 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             </Form.Item>
           </div>
           <div className="flex space-x-2">
-            <Button className="btn-outline-primary" onClick={onClose}>
+            <Button onClick={onClose}>
               {t('organizations.cancel')}
             </Button>
             <Button
               htmlType="submit"
-              className="btn-primary"
+              type='primary'
               loading={clientId ? updatingClient : creatingClient}
             >
               {t('organizations.save')}

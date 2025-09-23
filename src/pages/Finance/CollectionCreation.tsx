@@ -1,4 +1,3 @@
-import Button from '@/components/ui/Button/Button';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import useFormHook from '@/hooks/useFormHook';
 import { getPoses } from '@/services/api/equipment';
@@ -16,7 +15,7 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import DateTimeInput from '@/components/ui/Input/DateTimeInput';
 import dayjs from 'dayjs';
-import { Descriptions, Divider } from 'antd';
+import { Button, Descriptions, Divider } from 'antd';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
@@ -389,10 +388,12 @@ const CollectionCreation: React.FC = () => {
           {!hideButton && (
             <div className="flex justify-between">
               <Button
-                title={t('finance.form')}
-                isLoading={collectionLoading}
-                form={true}
-              />
+                htmlType="submit"
+                loading={isMutating}
+                type='primary'
+              >
+                {t('finance.form')}
+              </Button>
             </div>
           )}
         </form>
@@ -400,12 +401,11 @@ const CollectionCreation: React.FC = () => {
       <div className="flex justify-end">
         {collectionData && Object.keys(collectionData).length > 0 && (
           <Button
-            title={t('finance.add')}
-            type="outline"
-            iconUp={showData}
-            iconDown={!showData}
-            handleClick={() => setShowData(!showData)}
-          />
+            icon={showData ? <UpOutlined /> : <DownOutlined />}
+            onClick={() => setShowData(!showData)}
+          >
+            {t('finance.add')}
+          </Button>
         )}
       </div>
       {showData && collectionData && Object.keys(collectionData).length > 0 && (
@@ -423,24 +423,19 @@ const CollectionCreation: React.FC = () => {
             <Descriptions.Item label={t('finance.no')}>
               {collectionData.id}
             </Descriptions.Item>
-            <Descriptions.Item label={t('marketing.total')}>{`${
-              collectionData.sumFact || '00'
-            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.total')}>{`${collectionData.sumFact || '00'
+              } ₽`}</Descriptions.Item>
             <Descriptions.Item label={t('finance.cars')}>
               {collectionData.countCar || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t('finance.cash')}>{`${
-              collectionData.virtualSum || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.amt')}>{`${
-              collectionData.sumCard || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.short')}>{`${
-              collectionData.shortage || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('marketing.avg')}>{`${
-              collectionData.averageCheck || '00'
-            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.cash')}>{`${collectionData.virtualSum || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.amt')}>{`${collectionData.sumCard || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.short')}>{`${collectionData.shortage || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.avg')}>{`${collectionData.averageCheck || '00'
+              } ₽`}</Descriptions.Item>
           </Descriptions>
 
           <Divider />
@@ -506,11 +501,9 @@ const CollectionCreation: React.FC = () => {
       </div>
       {collectionData && Object.keys(collectionData).length > 0 && (
         <div className="flex space-x-3">
-          <Button
-            type="outline"
-            title={t('organizations.cancel')}
-            handleClick={() => navigate('/finance/collection')}
-          />
+          <Button onClick={() => navigate(-1)}>
+            {t('organizations.cancel')}
+          </Button>
           <Can
             requiredPermissions={[
               { action: 'manage', subject: 'CashCollection' },
@@ -522,12 +515,13 @@ const CollectionCreation: React.FC = () => {
               allowed &&
               status !== t('tables.SENT') && (
                 <Button
-                  type="outline"
-                  title={t('finance.recal')}
-                  isLoading={isMutating}
-                  form={true}
-                  handleClick={handleRecalculation}
-                />
+                  htmlType="submit"
+                  loading={isMutating}
+                  type='primary'
+                  onClick={handleRecalculation}
+                >
+                  {t('finance.recal')}
+                </Button>
               )
             }
           </Can>
@@ -542,11 +536,13 @@ const CollectionCreation: React.FC = () => {
               allowed &&
               status !== t('tables.SENT') && (
                 <Button
-                  title={t('finance.recalSend')}
-                  isLoading={sendingColl}
-                  form={true}
-                  handleClick={handleSend}
-                />
+                  htmlType="submit"
+                  loading={sendingColl}
+                  type='primary'
+                  onClick={handleSend}
+                >
+                  {t('finance.recalSend')}
+                </Button>
               )
             }
           </Can>
@@ -561,10 +557,12 @@ const CollectionCreation: React.FC = () => {
               allowed &&
               status === t('tables.SENT') && (
                 <Button
-                  title={t('finance.refund')}
-                  isLoading={returningColl}
-                  handleClick={handleReturn}
-                />
+                  loading={returningColl}
+                  type='primary'
+                  onClick={handleReturn}
+                >
+                  {t('finance.refund')}
+                </Button>
               )
             }
           </Can>

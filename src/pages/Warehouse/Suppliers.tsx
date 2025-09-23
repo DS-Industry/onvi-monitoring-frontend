@@ -216,7 +216,7 @@ const Suppliers: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -247,7 +247,6 @@ const Suppliers: React.FC = () => {
           />
           <div className="flex space-x-4">
             <Button
-              className="btn-outline-primary"
               onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
@@ -256,7 +255,7 @@ const Suppliers: React.FC = () => {
               {t('organizations.cancel')}
             </Button>
             <Button
-              className="btn-primary"
+              type='primary'
               htmlType={'submit'}
               loading={isMutating}
             >

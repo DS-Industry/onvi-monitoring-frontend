@@ -174,16 +174,15 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
   ];
 
   return (
-    <Drawer open={isOpen} width={620} closable={false} onClose={resetForm}>
+    <Drawer open={isOpen} width={620} onClose={resetForm}
+      title={orgToEdit !== null
+        ? t('organizations.update')
+        : t('organizations.new')}
+    >
       <form
         className="space-y-6 w-full max-w-2xl mx-auto p-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <span className="font-semibold text-xl md:text-3xl mb-5 text-text01">
-          {orgToEdit !== null
-            ? t('organizations.update')
-            : t('organizations.new')}
-        </span>
         <div className="mb-5 flex">
           <span className="font-semibold text-sm text-text01">
             {t('routine.fields')}
@@ -520,14 +519,14 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
             />
           </Form.Item>
         </div>
-        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-          <Button onClick={() => resetForm()} className="btn-outline-primary">
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          <Button onClick={() => resetForm()}>
             {t('organizations.cancel')}
           </Button>
           <Button
             htmlType="submit"
             loading={orgToEdit === null ? isMutating : updatingOrganization}
-            className="btn-primary"
+            type='primary'
           >
             {t('organizations.save')}
           </Button>
