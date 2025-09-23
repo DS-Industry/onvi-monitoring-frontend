@@ -47,6 +47,10 @@
     "overhead": "Overhead Costs",
     "documents": "Documents",
     "suppliers": "Suppliers",
+    "salePrice": "Prices for sale",
+    "saleDocument": "Sale",
+    "saleDocumentView": "Document for sale",
+    "saleDocumentCreate": "Creating a sales document",
     "": "",
     "import": "Import Nomenclature",
     "COMMISSIONING": "Commissioning",
@@ -484,6 +488,17 @@
     "all": "All",
     "noExpanse": "You do not have expanse tracker data in the program",
     "supplierName": "Name"
+  },
+  "sale": {
+    "create": "Adding a price",
+    "price": "Price",
+    "nomenclature": "Nomenclature",
+    "manager": "Responsible manager",
+    "availability": "Availability",
+    "saleQuantity": "Quantity for sale",
+    "totalAmount": "Total cost",
+    "totalSum": "Total sum",
+    "date": "Date of sale"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
@@ -1299,6 +1314,7 @@
     "downtimeRequired": "Downtime is required",
     "loyaltyProgramRequired": "Loyalty program is required",
     "launchDateRequired": "Launch date is required",
+    "billingMonthRequired": "Billing Month is required",
     "discountValueRequired": "Discount value is required",
     "discountValuePositive": "Discount value must be a positive",
     "monthlySalaryRequired": "Monthly salary is required",

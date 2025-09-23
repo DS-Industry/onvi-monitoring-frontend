@@ -6,14 +6,17 @@ import { Select, Spin } from 'antd';
 import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import {useUser} from "@/hooks/useUserStore.ts";
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = Number(searchParams.get("city")) || undefined;
+  const user = useUser();
 
-  const { data: posData, isLoading } = useSWR([`get-pos`, placementId], () => getPoses({
-    placementId: placementId
+  const { data: posData, isLoading } = useSWR([`get-pos`, placementId, user.organizationId], () => getPoses({
+    placementId: placementId,
+    organizationId: user.organizationId!
   }), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

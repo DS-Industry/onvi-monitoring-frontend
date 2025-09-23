@@ -68,6 +68,10 @@ const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
   () => import('@/pages/Warehouse/DocumentsCreation/index')
 );
+const SalePrice = React.lazy(() => import('@/pages/Warehouse/SalePrice/SalePrice.tsx'));
+const SaleDocument = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocument.tsx'));
+const SaleDocumentView = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentView.tsx'));
+const SaleDocumentCreate = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx'));
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
@@ -773,6 +777,33 @@ const routes = [
         subNav: [],
         subMenu: false,
       },
+      {
+        name: 'saleDocument',
+        path: '/finance/saleDocument',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocument,
+        isSidebar: true,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentView',
+        path: '/finance/saleDocument/view',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentView,
+        isSidebar: false,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentCreate',
+        path: '/finance/saleDocument/create',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentCreate,
+        isSidebar: false,
+        permissions: [],
+      },
     ],
   },
   {
@@ -1282,6 +1313,15 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
+      },
+      {
+        name: 'salePrice',
+        path: '/warehouse/salePrice',
+        isVisible: true,
+        subMenu: false,
+        component: SalePrice,
+        isSidebar: true,
+        permissions: [],
       },
     ],
     permissions: [

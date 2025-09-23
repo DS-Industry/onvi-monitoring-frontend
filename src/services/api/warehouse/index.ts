@@ -4,6 +4,7 @@ import api from '@/config/axiosConfig';
 enum WAREHOUSE {
   CREATE_NOMENCLATURE = 'user/warehouse/nomenclature',
   CREATE_NOMENCLATURE_FILE = 'user/warehouse/nomenclature-file',
+  GET_NOMENCLATURE_SALE = 'user/warehouse/nomenclature-sale',
   CREATE_CATEGORY = 'user/warehouse/category',
   CREATE_SUPPLIER = 'user/warehouse/supplier',
   GET_WAREHOUSE_POS = 'user/warehouse/pos',
@@ -245,6 +246,13 @@ type GET_DOCUMENT_RESPONSE = {
   }[];
 };
 
+export type GET_STOCK_LEVEL_SALE_RESPONSE = {
+  nomenclatureId: number;
+  nomenclatureName: string;
+  quantity: number;
+  price: number;
+};
+
 export type DocumentsTableRow = GET_DOCUMENT_RESPONSE['details'][number];
 
 type INVENTORY_RESPONSE = {
@@ -403,6 +411,15 @@ export async function getNomenclature(
   return response.data;
 }
 
+export async function getNomenclatureSale(
+    orgId: number,
+): Promise<NOMENCLATURE_RESPONSE[]> {
+  const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
+      WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`,
+  );
+  return response.data;
+}
+
 export async function getWarehouses(
   params: WarehouseParams
 ): Promise<WAREHOUSE_RESPONSE[]> {
@@ -501,6 +518,15 @@ export async function createWarehouse(
   const response: AxiosResponse<WAREHOUSE_RESPONSE> = await api.post(
     WAREHOUSE.CREATE_WAREHOUSE,
     body
+  );
+  return response.data;
+}
+
+export async function getAllStockLevelSales(
+    warehouseId: number,
+): Promise<GET_STOCK_LEVEL_SALE_RESPONSE[]> {
+  const response: AxiosResponse<GET_STOCK_LEVEL_SALE_RESPONSE[]> = await api.get(
+      WAREHOUSE.GET_STOCK_LEVEL + `/sale/${warehouseId}`,
   );
   return response.data;
 }
