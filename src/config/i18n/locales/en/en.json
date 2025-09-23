@@ -854,7 +854,8 @@
     "WORKS": "WORKS",
     "DISMISSED": "DISMISSED",
     "DRAFT": "DRAFT",
-    "PENDING": "PENDING"
+    "PENDING": "PENDING",
+    "unknownWorker": "Unknown worker"
   },
   "finance": {
     "details": "Details are displayed here for each collection",
