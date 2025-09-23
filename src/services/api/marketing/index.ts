@@ -959,11 +959,10 @@ export type LoyaltyRequest = {
   updatedAt: Date;
 };
 
-export type LoyaltyRequestsParams = {
+export type LoyaltyHubRequestsParams = {
   page?: number;
   size?: number;
-  status?: LoyaltyRequestStatus | 'ALL';
-  requestType?: LoyaltyRequestType | 'ALL';
+  status?: LoyaltyRequestStatus;
   search?: string;
   organizationId?: number;
   dateFrom?: string;
@@ -981,7 +980,7 @@ export type LoyaltyRequestsResponse = {
 };
 
 export async function getLoyaltyHubRequests(
-  params: LoyaltyRequestsParams
+  params: LoyaltyHubRequestsParams
 ): Promise<LoyaltyRequestsResponse> {
   const response: AxiosResponse<LoyaltyRequestsResponse> = await api.get(
     MARKETING.LOYALTY_HUB_REQUESTS,

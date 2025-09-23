@@ -16,7 +16,6 @@ import {
   rejectLoyaltyHubRequest,
   LoyaltyRequest,
   LoyaltyRequestStatus,
-  LoyaltyRequestType,
   LTYProgramRequestStatus,
 } from '@/services/api/marketing';
 import {
@@ -27,8 +26,7 @@ import {
 const useLoyaltyHubRequests = (
   currentPage: number,
   pageSize: number,
-  status?: LoyaltyRequestStatus | 'ALL',
-  requestType?: LoyaltyRequestType | 'ALL',
+  status?: LoyaltyRequestStatus,
   search?: string,
   organizationId?: number,
   dateFrom?: string,
@@ -41,7 +39,6 @@ const useLoyaltyHubRequests = (
       currentPage,
       pageSize,
       status,
-      requestType,
       search,
       organizationId,
       dateFrom,
@@ -51,8 +48,7 @@ const useLoyaltyHubRequests = (
       getLoyaltyHubRequests({
         page: currentPage,
         size: pageSize,
-        status: status === 'ALL' ? undefined : status,
-        requestType: requestType === 'ALL' ? undefined : requestType,
+        status: status,
         search,
         dateFrom,
         dateTo,
@@ -91,8 +87,7 @@ const LoyaltyHubRequests: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const status = (searchParams.get('status') as LoyaltyRequestStatus | 'ALL') || 'ALL';
-  const requestType = (searchParams.get('requestType') as LoyaltyRequestType | 'ALL') || 'ALL';
+  const status = (searchParams.get('status') as LoyaltyRequestStatus) || undefined;
   const search = searchParams.get('search') || undefined;
   const dateFrom = searchParams.get('dateStart') || undefined;
   const dateTo = searchParams.get('dateEnd') || undefined;
@@ -101,7 +96,6 @@ const LoyaltyHubRequests: React.FC = () => {
     currentPage,
     pageSize,
     status,
-    requestType,
     search,
     user.organizationId,
     dateFrom,
