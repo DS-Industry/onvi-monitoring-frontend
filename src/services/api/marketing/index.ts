@@ -10,6 +10,7 @@ enum MARKETING {
   APPROVE_REQUEST = 'user/loyalty/requests/approve',
   REJECT_REQUEST = 'user/loyalty/requests/reject',
   PARTICIPANT_REQUEST = 'user/loyalty/participant-request',
+  PUBLIC_PROGRAMS = 'user/loyalty/public-programs',
 }
 
 export enum UserType {
@@ -1030,6 +1031,40 @@ export async function createParticipantRequest(
   const response: AxiosResponse<ParticipantRequestResponse> = await api.post(
     MARKETING.PARTICIPANT_REQUEST,
     request
+  );
+  return response.data;
+}
+
+export type PublicProgramsParams = {
+  status?: LoyaltyProgramStatus;
+  page?: number;
+  size?: number;
+};
+
+export type PublicProgramResponse = {
+  id: number;
+  name: string;
+  status: LoyaltyProgramStatus;
+  startDate: Date;
+  lifetimeDays?: number;
+  ownerOrganizationId: number | null;
+  ownerOrganizationName?: string;
+  description?: string;
+};
+
+export type PublicProgramsPaginatedResponse = {
+  programs: PublicProgramResponse[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export async function getPublicLoyaltyPrograms(
+  params: PublicProgramsParams = {}
+): Promise<PublicProgramsPaginatedResponse> {
+  const response: AxiosResponse<PublicProgramsPaginatedResponse> = await api.get(
+    MARKETING.PUBLIC_PROGRAMS,
+    { params }
   );
   return response.data;
 }

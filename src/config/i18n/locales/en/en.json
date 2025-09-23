@@ -781,6 +781,7 @@
     "submitFailed": "Submit failed",
     "sendFailed": "Send failed",
     "updateFailed": "Update failed",
+    "fetchFailed": "Failed to fetch data",
     "other": {
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
@@ -1413,6 +1414,7 @@
     "selectProgram": "Select a loyalty program",
     "commentPlaceholder": "Enter your reason for joining this program (optional)",
     "requestSubmitted": "Request submitted successfully",
-    "noAvailablePrograms": "No available programs to join"
+    "noAvailablePrograms": "No available programs to join",
+    "noProgramsFound": "No programs found"
   }
 }

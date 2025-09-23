@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, Button, /*Select,*/ Input, message } from 'antd';
+import { Modal, Button, Select, Input, message, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { createParticipantRequest, LoyaltyProgramParticipantRequestDto } from '@/services/api/marketing';
+import useSWR from 'swr';
+import { 
+  createParticipantRequest, 
+  LoyaltyProgramParticipantRequestDto,
+  getPublicLoyaltyPrograms,
+  LoyaltyProgramStatus
+} from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 
 interface ParticipantRequestModalProps {
@@ -18,6 +24,27 @@ const ParticipantRequestModal: React.FC<ParticipantRequestModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>();
   const [comment, setComment] = useState('');
+  const [searchValue, setSearchValue] = useState('');
+
+  const { data: programsResponse, error, isLoading: programsLoading } = useSWR(
+    open ? 'public-loyalty-programs' : null, 
+    () => getPublicLoyaltyPrograms({
+      status: LoyaltyProgramStatus.ACTIVE,
+    }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000, 
+    }
+  );
+
+  const publicPrograms = programsResponse?.programs ?? [];
+
+  if (error) {
+    console.error('Error fetching public programs:', error);
+    message.error(t('errors.fetchFailed'));
+  }
+
 
   const handleSubmit = async () => {
     if (!selectedProgramId || !user?.organizationId) {
@@ -47,18 +74,28 @@ const ParticipantRequestModal: React.FC<ParticipantRequestModalProps> = ({
   const handleClose = () => {
     setSelectedProgramId(undefined);
     setComment('');
+    setSearchValue('');
     onClose();
   };
 
-  // Filter out programs where the user is already the owner
-//   const availablePrograms = loyaltyPrograms.filter(
-//     program => program.props.ownerOrganizationId !== user?.organizationId
-//   );
+  const availablePrograms = publicPrograms?.filter(
+    program => {
+      const isNotOwner = program.ownerOrganizationId !== user?.organizationId;
+      const matchesSearch = !searchValue || 
+        program.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        program.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        program.ownerOrganizationName?.toLowerCase().includes(searchValue.toLowerCase());
+      
+      return isNotOwner && matchesSearch;
+    }
+  ) ?? []
 
-//   const programOptions = availablePrograms.map(program => ({
-//     label: program.props.name,
-//     value: program.props.id,
-//   }));
+  const programOptions = availablePrograms.map(program => ({
+    label: program.name,
+    value: program.id,
+    description: program.description,
+    ownerName: program.ownerOrganizationName,
+  }));
 
   return (
     <Modal
@@ -81,22 +118,36 @@ const ParticipantRequestModal: React.FC<ParticipantRequestModalProps> = ({
       ]}
       width={600}
     >
-      <div className="space-y-4">
+      <div className="space-y-4 mb-10">
         <div>
           <label className="block text-sm font-medium mb-2 text-text01">
             {t('loyaltyProgramsTable.programName')} *
           </label>
-          {/* <Select
+          <Select
             placeholder={t('loyaltyProgramsTable.selectProgram')}
             value={selectedProgramId}
             onChange={setSelectedProgramId}
             options={programOptions}
             className="w-full"
             showSearch
-            filterOption={(input, option) =>
-              (option?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-          /> */}
+            loading={programsLoading}
+            onSearch={setSearchValue}
+            filterOption={false}
+            optionRender={(option) => (
+              <div className="py-2">
+                <div className="font-medium text-text01">{option.label}</div>
+                {option.data.description && (
+                  <div className="text-sm text-text02 mt-1">{option.data.description}</div>
+                )}
+                {option.data.ownerName && (
+                  <div className="text-xs text-text03 mt-1">
+                    {t('loyaltyProgramsTable.owner')}: {option.data.ownerName}
+                  </div>
+                )}
+              </div>
+            )}
+            notFoundContent={programsLoading ? <Spin size="small" /> : t('loyaltyProgramsTable.noProgramsFound')}
+          />
         </div>
 
         <div>
@@ -113,11 +164,11 @@ const ParticipantRequestModal: React.FC<ParticipantRequestModalProps> = ({
           />
         </div>
 
-        {/* {availablePrograms.length === 0 && (
+        {availablePrograms.length === 0 && !programsLoading && (
           <div className="text-center py-4 text-text02">
             {t('loyaltyProgramsTable.noAvailablePrograms')}
           </div>
-        )} */}
+        )}
       </div>
     </Modal>
   );
