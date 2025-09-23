@@ -1430,6 +1430,7 @@
     "commentPlaceholder": "Введите причину присоединения к программе (необязательно)",
     "requestSubmitted": "Заявка успешно отправлена",
     "noAvailablePrograms": "Нет доступных программ для присоединения",
-    "noProgramsFound": "Программы не найдены"
+    "noProgramsFound": "Программы не найдены",
+    "regularProgram": "Обычная программа"
   }
 }

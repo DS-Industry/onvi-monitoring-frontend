@@ -166,6 +166,10 @@ export type LoyaltyProgramsResponse = {
     startDate: Date;
     lifetimeDays?: number;
     ownerOrganizationId: number | null;
+    isHub: boolean;
+    isHubRejected: boolean;
+    isHubRequested: boolean;
+    isPublic: boolean;
   };
 };
 

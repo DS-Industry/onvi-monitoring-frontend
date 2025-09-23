@@ -1430,6 +1430,7 @@
     "commentPlaceholder": "Enter your reason for joining this program (optional)",
     "requestSubmitted": "Request submitted successfully",
     "noAvailablePrograms": "No available programs to join",
-    "noProgramsFound": "No programs found"
+    "noProgramsFound": "No programs found",
+    "regularProgram": "Regular program"
   }
 }

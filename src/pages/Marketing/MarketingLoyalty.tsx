@@ -89,6 +89,12 @@ const MarketingLoyalty: React.FC = () => {
         render: (_, record) => <span>{record.ownerOrganizationId === user.organizationId ? <>{t('loyaltyProgramsTable.owner')}</> : <>{t('loyaltyProgramsTable.participant')}</>}</span>,
       },
       {
+        title: t('marketing.ty'),
+        dataIndex: 'isHub',
+        key: 'isHub',
+        render: (_, record) => <span>{record.isHub ? <>{t('marketing.hub')}</> : <>{t('loyaltyProgramsTable.regularProgram')}</>}</span>,
+      },
+      {
         title: t('loyaltyProgramsTable.status'),
         dataIndex: 'status',
         key: 'status',
