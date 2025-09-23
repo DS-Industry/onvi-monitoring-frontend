@@ -9,6 +9,7 @@ enum MARKETING {
   LOYALTY_HUB_REQUESTS = 'user/loyalty/hub-requests',
   APPROVE_REQUEST = 'user/loyalty/requests/approve',
   REJECT_REQUEST = 'user/loyalty/requests/reject',
+  PARTICIPANT_REQUEST = 'user/loyalty/participant-request',
 }
 
 export enum UserType {
@@ -1007,6 +1008,28 @@ export async function rejectLoyaltyHubRequest(
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
     `user/loyalty/programs/${requestId}/reject-hub`,
     { comment }
+  );
+  return response.data;
+}
+
+// Participant Request Types and Functions
+export type LoyaltyProgramParticipantRequestDto = {
+  ltyProgramId: number;
+  organizationId: number;
+  requestComment?: string;
+};
+
+export type ParticipantRequestResponse = {
+  success: boolean;
+  message: string;
+};
+
+export async function createParticipantRequest(
+  request: LoyaltyProgramParticipantRequestDto
+): Promise<ParticipantRequestResponse> {
+  const response: AxiosResponse<ParticipantRequestResponse> = await api.post(
+    MARKETING.PARTICIPANT_REQUEST,
+    request
   );
   return response.data;
 }

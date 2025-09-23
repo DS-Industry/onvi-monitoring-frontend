@@ -1408,6 +1408,11 @@
     "status": "Status",
     "launchDate": "Launch Date",
     "owner": "Owner",
-    "participant": "Participant"
+    "participant": "Participant",
+    "join": "Join Program",
+    "selectProgram": "Select a loyalty program",
+    "commentPlaceholder": "Enter your reason for joining this program (optional)",
+    "requestSubmitted": "Request submitted successfully",
+    "noAvailablePrograms": "No available programs to join"
   }
 }

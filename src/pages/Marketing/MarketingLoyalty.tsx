@@ -16,10 +16,12 @@ import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
 import { usePermissions } from '@/hooks/useAuthStore';
+import ParticipantRequestModal from './ParticipantRequestModal';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
+  const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const user = useUser();
@@ -109,15 +111,24 @@ const MarketingLoyalty: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        {hasPermission && !loyaltyProgramsData?.length && <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => {
-            navigate('/marketing/loyalty/rewards');
-          }}
-        >
-          {t('routes.add')}
-        </Button>}
+        <div className="flex items-center space-x-2">
+          {hasPermission && !loyaltyProgramsData?.length && <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => {
+              navigate('/marketing/loyalty/rewards');
+            }}
+          >
+            {t('routes.add')}
+          </Button>}
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setIsParticipantModalOpen(true)}
+          >
+            {t('loyaltyProgramsTable.join')}
+          </Button>
+        </div>
       </div>
       <div className="mt-2">
         {notificationVisible && (
@@ -138,6 +149,11 @@ const MarketingLoyalty: React.FC = () => {
           />
         </div>
       </div>
+      
+      <ParticipantRequestModal
+        open={isParticipantModalOpen}
+        onClose={() => setIsParticipantModalOpen(false)}
+      />
     </>
   );
 };
