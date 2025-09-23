@@ -62,7 +62,7 @@
     "corporateClients": "Corporate Clients",
     "segments": "Segments",
     "loyalty": "Loyalty Program",
-    "loyaltyRequests": "Loyalty Requests",
+    "hubRequests": "Hub applications",
     "share": "Share Constructor",
     "marketRes": "Marketing Research",
     "addClient": "Add a client",
@@ -637,6 +637,7 @@
     "ac": "Accrue bonuses",
     "hub": "Hub",
     "hubRequested": "Hub requested",
+    "hubRejected": "Hub rejected",
     "requestHub": "Request Hub",
     "hubRequestDescription": "Request to upgrade your loyalty program to Hub status. This will enable additional features and capabilities.",
     "comment": "Comment",
@@ -1242,7 +1243,8 @@
     "sendSuccess": "Send successfully",
     "returnSuccess": "Return successfully",
     "back": "Back",
-    "actions": "Actions"
+    "actions": "Actions",
+    "submit": "Submit"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
@@ -1321,6 +1323,7 @@
     "allStatuses": "All Statuses",
     "allTypes": "All Types",
     "requests": "requests",
+    "requestId": "Request ID",
     "comment": "Comment",
     "actions": "Actions",
     "pending": "Pending",
@@ -1384,8 +1387,19 @@
     "loyaltyProgram": "Loyalty Program",
     "bonusPoints": "Bonus Points",
     "discount": "Discount",
+    "points": "points"
+  },
+  "loyaltyHubRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
     "points": "points",
-    "requestApproved": "Request approved",
-    "requestRejected": "Request rejected"
+    "requestApproved": "Hub request approved",
+    "requestRejected": "Hub request rejected",
+    "approveRequest": "Approve Hub Request",
+    "rejectRequest": "Reject Hub Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
   }
 }

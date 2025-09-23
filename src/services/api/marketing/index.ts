@@ -6,7 +6,7 @@ enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
   GET_TAG = 'user/loyalty/tag',
   LOYALTY = 'user/loyalty',
-  LOYALTY_REQUESTS = 'user/loyalty/requests',
+  LOYALTY_HUB_REQUESTS = 'user/loyalty/hub-requests',
   APPROVE_REQUEST = 'user/loyalty/requests/approve',
   REJECT_REQUEST = 'user/loyalty/requests/reject',
 }
@@ -172,6 +172,7 @@ type LoyaltyProgramsByIdResponse = {
   status: LoyaltyProgramStatus;
   isHub: boolean;
   isHubRequested: boolean;
+  isHubRejected: boolean;
   organizations: {
     id: number;
     name: string;
@@ -350,7 +351,7 @@ export async function getLoyaltyPrograms(
   orgId?: number
 ): Promise<LoyaltyProgramsResponse[]> {
   const response: AxiosResponse<LoyaltyProgramsResponse[]> = await api.get(
-    MARKETING.LOYALTY + `/programs?organizationId=${orgId || ''}`
+    MARKETING.LOYALTY + `/participant-programs?organizationId=${orgId || ''}`
   );
 
   return response.data;
@@ -971,7 +972,7 @@ export type LoyaltyRequestsParams = {
 
 export type LoyaltyRequestsResponse = {
   data: LoyaltyRequest[];
-  total: number;
+  totalCount: number;
   page: number;
   size: number;
   totalPages: number;
@@ -979,30 +980,34 @@ export type LoyaltyRequestsResponse = {
   hasPrevious: boolean;
 };
 
-export async function getLoyaltyRequests(
+export async function getLoyaltyHubRequests(
   params: LoyaltyRequestsParams
 ): Promise<LoyaltyRequestsResponse> {
   const response: AxiosResponse<LoyaltyRequestsResponse> = await api.get(
-    MARKETING.LOYALTY_REQUESTS,
+    MARKETING.LOYALTY_HUB_REQUESTS,
     { params }
   );
   return response.data;
 }
 
-export async function approveLoyaltyRequest(
-  requestId: number
+export async function approveLoyaltyHubRequest(
+  requestId: number,
+  comment?: string
 ): Promise<{ status: 'SUCCESS' }> {
-  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
-    `${MARKETING.APPROVE_REQUEST}/${requestId}`
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/approve-hub`,
+    { comment }
   );
   return response.data;
 }
 
-export async function rejectLoyaltyRequest(
-  requestId: number
+export async function rejectLoyaltyHubRequest(
+  requestId: number,
+  comment?: string
 ): Promise<{ status: 'SUCCESS' }> {
-  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
-    `${MARKETING.REJECT_REQUEST}/${requestId}`
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/reject-hub`,
+    { comment }
   );
   return response.data;
 }

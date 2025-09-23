@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Table, Tag, Space } from 'antd';
+import { Button, Table, Tag, Space, Modal, Input } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -11,9 +11,9 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import LoyaltyRequestStatusFilter from '@/components/ui/Filter/LoyaltyRequestStatusFilter';
 import {
-  getLoyaltyRequests,
-  approveLoyaltyRequest,
-  rejectLoyaltyRequest,
+  getLoyaltyHubRequests,
+  approveLoyaltyHubRequest,
+  rejectLoyaltyHubRequest,
   LoyaltyRequest,
   LoyaltyRequestStatus,
   LoyaltyRequestType,
@@ -24,7 +24,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 
-const useLoyaltyRequests = (
+const useLoyaltyHubRequests = (
   currentPage: number,
   pageSize: number,
   status?: LoyaltyRequestStatus | 'ALL',
@@ -37,7 +37,7 @@ const useLoyaltyRequests = (
 
   const { data, isLoading, mutate } = useSWR(
     [
-      'get-loyalty-requests',
+      'get-loyalty-hub-requests',
       currentPage,
       pageSize,
       status,
@@ -48,13 +48,12 @@ const useLoyaltyRequests = (
       dateTo,
     ],
     () =>
-      getLoyaltyRequests({
+      getLoyaltyHubRequests({
         page: currentPage,
         size: pageSize,
         status: status === 'ALL' ? undefined : status,
         requestType: requestType === 'ALL' ? undefined : requestType,
         search,
-        organizationId,
         dateFrom,
         dateTo,
       }),
@@ -73,7 +72,7 @@ const useLoyaltyRequests = (
     mutate,
     pagination: data
       ? {
-          total: data.total,
+          total: data.totalCount,
           currentPage: data.page,
           pageSize: data.size,
           totalPages: data.totalPages,
@@ -84,7 +83,7 @@ const useLoyaltyRequests = (
   };
 };
 
-const LoyaltyRequests: React.FC = () => {
+const LoyaltyHubRequests: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const user = useUser();
@@ -98,7 +97,7 @@ const LoyaltyRequests: React.FC = () => {
   const dateFrom = searchParams.get('dateStart') || undefined;
   const dateTo = searchParams.get('dateEnd') || undefined;
 
-  const { requests, isLoading, mutate, pagination } = useLoyaltyRequests(
+  const { requests, isLoading, mutate, pagination } = useLoyaltyHubRequests(
     currentPage,
     pageSize,
     status,
@@ -110,38 +109,102 @@ const LoyaltyRequests: React.FC = () => {
   );
 
   const { trigger: approveRequest, isMutating: isApproving } = useSWRMutation(
-    'approve-loyalty-request',
-    async (_, { arg }: { arg: number }) => {
-      return approveLoyaltyRequest(arg);
+    'approve-loyalty-hub-request',
+    async (_, { arg }: { arg: { id: number; comment?: string } }) => {
+      return approveLoyaltyHubRequest(arg.id, arg.comment);
     }
   );
 
   const { trigger: rejectRequest, isMutating: isRejecting } = useSWRMutation(
-    'reject-loyalty-request',
-    async (_, { arg }: { arg: number }) => {
-      return rejectLoyaltyRequest(arg);
+    'reject-loyalty-hub-request',
+    async (_, { arg }: { arg: { id: number; comment?: string } }) => {
+      return rejectLoyaltyHubRequest(arg.id, arg.comment);
     }
   );
 
-  const handleApprove = useCallback(async (id: number) => {
-    try {
-      await approveRequest(id);
-      mutate(); 
-      showToast(t('loyaltyRequests.requestApproved'), 'success');
-    } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-    }
-  }, [approveRequest, mutate, showToast, t]);
+  const handleApproveClick = useCallback((request: LoyaltyRequest) => {
+    let comment = '';
+    
+    Modal.confirm({
+      title: t('loyaltyHubRequests.approveRequest'),
+      content: (
+        <div className="space-y-4">
+          <div className="text-sm text-gray-600 space-y-2">
+            <p><strong>{t('general.organizationName')}:</strong> {request.organizationName}</p>
+            <p><strong>{t('loyaltyHubRequests.loyaltyProgram')}:</strong> {request.ltyProgramName}</p>
+            <p><strong>{t('constants.requestId')}:</strong> #{request.id}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('constants.comment')} ({t('loyaltyHubRequests.commentOptional')})
+            </label>
+            <Input.TextArea
+              rows={3}
+              placeholder={t('loyaltyHubRequests.approvalComment')}
+              onChange={(e) => { comment = e.target.value; }}
+            />
+          </div>
+        </div>
+      ),
+      okText: t('constants.approve'),
+      cancelText: t('constants.cancel'),
+      okButtonProps: { 
+        style: { backgroundColor: '#52c41a', borderColor: '#52c41a' },
+        loading: isApproving 
+      },
+      onOk: async () => {
+        try {
+          await approveRequest({ id: request.ltyProgramId, comment: comment.trim() || undefined });
+          mutate();
+          showToast(t('loyaltyHubRequests.requestApproved'), 'success');
+        } catch (error) {
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        }
+      },
+    });
+  }, [approveRequest, mutate, showToast, t, isApproving]);
 
-  const handleReject = useCallback(async (id: number) => {
-    try {
-      await rejectRequest(id);
-      mutate(); 
-      showToast(t('loyaltyRequests.requestRejected'), 'success');
-    } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-    }
-  }, [rejectRequest, mutate, showToast, t]);
+  const handleRejectClick = useCallback((request: LoyaltyRequest) => {
+    let comment = '';
+    
+    Modal.confirm({
+      title: t('loyaltyHubRequests.rejectRequest'),
+      content: (
+        <div className="space-y-4">
+          <div className="text-sm text-gray-600 space-y-2">
+            <p><strong>{t('general.organizationName')}:</strong> {request.organizationName}</p>
+            <p><strong>{t('loyaltyHubRequests.loyaltyProgram')}:</strong> {request.ltyProgramName}</p>
+            <p><strong>{t('constants.requestId')}:</strong> #{request.id}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('constants.comment')} ({t('loyaltyHubRequests.commentOptional')})
+            </label>
+            <Input.TextArea
+              rows={3}
+              placeholder={t('loyaltyHubRequests.rejectionComment')}
+              onChange={(e) => { comment = e.target.value; }}
+            />
+          </div>
+        </div>
+      ),
+      okText: t('constants.reject'),
+      cancelText: t('constants.cancel'),
+      okButtonProps: { 
+        danger: true,
+        loading: isRejecting 
+      },
+      onOk: async () => {
+        try {
+          await rejectRequest({ id: request.ltyProgramId, comment: comment.trim() || undefined });
+          mutate();
+          showToast(t('loyaltyHubRequests.requestRejected'), 'success');
+        } catch (error) {
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        }
+      },
+    });
+  }, [rejectRequest, mutate, showToast, t, isRejecting]);
 
   const handlePaginationChange = useCallback(
     (page: number, size: number) => {
@@ -181,7 +244,7 @@ const LoyaltyRequests: React.FC = () => {
 
   const columns = [
     {
-      title: t('loyaltyRequests.loyaltyProgram'),
+      title: t('loyaltyHubRequests.loyaltyProgram'),
       dataIndex: 'ltyProgramName',
       key: 'ltyProgramName',
       render: (text: string, record: LoyaltyRequest) => (
@@ -234,7 +297,7 @@ const LoyaltyRequests: React.FC = () => {
                 type="primary"
                 size="small"
                 icon={<CheckOutlined />}
-                onClick={() => handleApprove(record.id)}
+                onClick={() => handleApproveClick(record)}
                 loading={isApproving}
                 style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
               >
@@ -244,7 +307,7 @@ const LoyaltyRequests: React.FC = () => {
                 danger
                 size="small"
                 icon={<CloseOutlined />}
-                onClick={() => handleReject(record.id)}
+                onClick={() => handleRejectClick(record)}
                 loading={isRejecting}
               >
                 {t('constants.reject')}
@@ -259,8 +322,8 @@ const LoyaltyRequests: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          {t('routes.loyaltyRequests')}
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2 ms-10 md:ms-0">
+          {t('routes.hubRequests')}
         </h1>
       </div>
 
@@ -298,4 +361,4 @@ const LoyaltyRequests: React.FC = () => {
   );
 };
 
-export default LoyaltyRequests;
+export default LoyaltyHubRequests;

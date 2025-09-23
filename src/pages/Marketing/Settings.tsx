@@ -189,19 +189,16 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     try {
       if (!loyaltyId) return;
       
-      const result = await requestHub({
+      await requestHub({
         id: loyaltyId,
         comment: hubRequestComment || undefined,
-      });
+      })
       
-      if (result?.success) {
-        showToast(t('marketing.hubRequestSubmitted'), 'success');
-        setIsHubRequestModalOpen(false);
-        setHubRequestComment('');
-        mutate([`get-loyalty-program-by-id`]);
-      } else {
-        throw new Error('Invalid response from API');
-      }
+      showToast(t('marketing.hubRequestSubmitted'), 'success');
+      setIsHubRequestModalOpen(false);
+      setHubRequestComment('');
+      mutate([`get-loyalty-program-by-id`]);
+      
     } catch (error) {
       console.error('Error during hub request: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
@@ -236,7 +233,9 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
             <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
               {t('marketing.hub')}
             </span>
-          ) : loyaltyData?.isHubRequested ? <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
+          ) : loyaltyData?.isHubRejected ? <span className="bg-red-500 text-white px-2 py-0.5 rounded text-sm">
+          {t('marketing.hubRejected')}
+        </span> : loyaltyData?.isHubRequested ? <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
           {t('marketing.hubRequested')}
         </span> : (
             <Button

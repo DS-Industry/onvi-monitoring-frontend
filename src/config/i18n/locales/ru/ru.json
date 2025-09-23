@@ -62,7 +62,7 @@
     "corporateClients": "Корпоративные клиенты",
     "segments": "Сегменты",
     "loyalty": "Программа лояльности",
-    "loyaltyRequests": "Заявки лояльности",
+    "hubRequests": "Заявки на получение статуса хаба",
     "share": "Конструктор акций",
     "marketRes": "Маркетинговые исследования",
     "addClient": "Добавить клиента",
@@ -637,6 +637,7 @@
     "ac": "Начислять бонусы",
     "hub": "Хаб",
     "hubRequested": "Хаб запрошен",
+    "hubRejected": "Хаб отклонен",
     "requestHub": "Запросить Хаб",
     "hubRequestDescription": "Запрос на повышение статуса вашей программы лояльности до Хаба. Это включит дополнительные функции и возможности.",
     "comment": "Комментарий",
@@ -1242,7 +1243,8 @@
     "sendSuccess": "Успешно отправлено",
     "returnSuccess": "Успешно возвращено",
     "back": "Назад",
-    "actions": "Действия"
+    "actions": "Действия",
+    "submit": "Отправить"
   },
   "validation": {
     "contractTypeRequired": "Тип контракта обязателен",
@@ -1321,6 +1323,7 @@
     "allStatuses": "Все статусы",
     "allTypes": "Все типы",
     "requests": "заявок",
+    "requestId": "ID заявки",
     "comment": "Комментарий",
     "actions": "Действия",
     "pending": "Ожидает",
@@ -1384,8 +1387,19 @@
     "loyaltyProgram": "Программа лояльности",
     "bonusPoints": "Бонусные баллы",
     "discount": "Скидки",
+    "points": "баллов"
+  },
+  "loyaltyHubRequests": {
+    "loyaltyProgram": "Программа лояльности",
+    "bonusPoints": "Бонусные баллы",
+    "discount": "Скидки",
     "points": "баллов",
-    "requestApproved": "Заявка одобрена",
-    "requestRejected": "Заявка отклонена"
+    "requestApproved": "Заявка хаба одобрена",
+    "requestRejected": "Заявка хаба отклонена",
+    "approveRequest": "Одобрить заявку хаба",
+    "rejectRequest": "Отклонить заявку хаба",
+    "approvalComment": "Комментарий к одобрению (необязательно)",
+    "rejectionComment": "Комментарий к отклонению (необязательно)",
+    "commentOptional": "Комментарий необязателен"
   }
 }
