@@ -14,7 +14,7 @@ import hasPermission from '@/permissions/hasPermission';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
-import EmployeeCreationModal from './EmployeeCreationModal';
+import EmployeeCreationDrawer from './EmployeeCreationDrawer';
 import EmployeeUpdateModal from './EmployeeUpdateModal';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -272,7 +272,7 @@ const ListOfEmployees: React.FC = () => {
           onClose={onCloseUpdate}
           workerId={workerId}
         />
-        <EmployeeCreationModal
+        <EmployeeCreationDrawer
           open={isModalOpenCreation}
           onClose={onCloseCreation}
         />

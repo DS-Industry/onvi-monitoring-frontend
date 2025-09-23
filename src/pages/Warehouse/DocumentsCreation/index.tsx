@@ -1,4 +1,3 @@
-import Button from '@ui/Button/Button';
 import Input from '@ui/Input/Input';
 import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
 import { useUser } from '@/hooks/useUserStore';
@@ -20,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { DatePicker, Select, Skeleton } from 'antd';
+import { Button, DatePicker, Select, Skeleton } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
@@ -487,23 +486,28 @@ const DocumentsCreation: React.FC = () => {
                 allowed && (
                   <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
                     <Button
-                      type="outline"
                       title={t('organizations.cancel')}
-                      handleClick={() => navigate('/warehouse/documents')}
-                    />
+                      onClick={() => navigate('/warehouse/documents')}
+                    >
+                      {t('organizations.cancel')}
+                    </Button>
                     <Button
-                      type="outline"
                       title={t('warehouse.saveDraft')}
-                      form={true}
-                      isLoading={isMutating}
-                      handleClick={() => handleSubmitAction('save')}
-                    />
+                      htmlType={'submit'}
+                      loading={isMutating}
+                      onClick={() => handleSubmitAction('save')}
+                      type='primary'
+                    >
+                      {t('warehouse.saveDraft')}
+                    </Button>
                     <Button
-                      title={t('warehouse.saveAccept')}
-                      form={true}
-                      isLoading={sendingDoc}
-                      handleClick={() => handleSubmitAction('send')}
-                    />
+                      htmlType='submit'
+                      loading={sendingDoc}
+                      onClick={() => handleSubmitAction('send')}
+                      type='primary'
+                    >
+                      {t('warehouse.saveAccept')}
+                    </Button>
                   </div>
                 )
               }

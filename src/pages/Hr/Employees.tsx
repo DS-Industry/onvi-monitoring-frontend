@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Table, Drawer, Button as AntButton, Grid } from 'antd';
+import { Table, Drawer, Button, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useToast } from '@/components/context/useContext';
 import ProfilePhoto from '@/assets/ProfilePhoto.svg';
-import Button from '@/components/ui/Button/Button';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import DateInput from '@/components/ui/Input/DateInput';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
@@ -345,13 +344,13 @@ const Employees: React.FC = () => {
             {t('routes.employees')}
           </span>
         </div>
-        <AntButton
+        <Button
           icon={<PlusOutlined />}
           className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => setDrawerOpen(true)}
         >
           {screens.md && t('routes.addE')}
-        </AntButton>
+        </Button>
       </div>
       <div className="mt-5">
         {notificationVisible && (
@@ -407,7 +406,8 @@ const Employees: React.FC = () => {
         open={drawerOpen}
         zIndex={9999}
       >
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}>
           {notificationVisibleForm && (
             <Notification
               title={t('hr.att')}
@@ -709,24 +709,21 @@ const Employees: React.FC = () => {
             changeValue={e => handleInputChange('snils', e.target.value)}
             {...register('snils')}
           />
-          <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => resetForm()}>
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
-                setDrawerOpen(false);
-                resetForm();
-              }}
-            />
-            <Button
-              title={t('routes.addE')}
-              form={true}
-              isLoading={isMutating}
-            />
+              htmlType="submit"
+              loading={isMutating}
+              type='primary'
+            >
+              {t('routes.addE')}
+            </Button>
           </div>
         </form>
       </Drawer>
-    </div>
+    </div >
   );
 };
 
