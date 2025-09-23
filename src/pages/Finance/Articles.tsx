@@ -1173,7 +1173,6 @@ const Articles: React.FC = () => {
                 title={t('organizations.save')}
                 form={true}
                 isLoading={isMutating}
-                handleClick={() => { }}
               />
             </div>
           </div>
