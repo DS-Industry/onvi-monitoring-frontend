@@ -9,11 +9,11 @@ const LoyaltyRequestStatusFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentStatus = searchParams.get('status') || 'ALL';
+  const currentStatus = searchParams.get('status') || undefined;
 
   const handleStatusChange = (value: string) => {
     updateSearchParams(searchParams, setSearchParams, {
-      status: value,
+      status: value === "ALL" ? undefined : value,
       page: '1', 
     });
   };
@@ -24,11 +24,11 @@ const LoyaltyRequestStatusFilter: React.FC = () => {
         {t('constants.status')}
       </label>
       <Select
-        value={currentStatus}
+        value={currentStatus ?? "ALL"}
         onChange={handleStatusChange}
         className="w-full min-w-[150px]"
         options={[
-          { value: 'ALL', label: t('constants.allStatuses') },
+          { value: "ALL", label: t('constants.allStatuses') },
           { value: LoyaltyRequestStatus.PENDING, label: t('constants.pending') },
           { value: LoyaltyRequestStatus.APPROVED, label: t('constants.approved') },
           { value: LoyaltyRequestStatus.REJECTED, label: t('constants.rejected') },

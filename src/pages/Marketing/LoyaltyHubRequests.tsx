@@ -214,8 +214,7 @@ const LoyaltyHubRequests: React.FC = () => {
     updateSearchParams(searchParams, setSearchParams, {
       page: String(DEFAULT_PAGE),
       size: String(DEFAULT_PAGE_SIZE),
-      status: 'ALL',
-      requestType: 'ALL',
+      status: undefined,
       search: '',
       dateStart: '',
       dateEnd: '',
