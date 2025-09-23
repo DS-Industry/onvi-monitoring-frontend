@@ -224,14 +224,17 @@ const Collection: React.FC = () => {
     const dynamicColumns: { title: string; dataIndex: string; key: string }[] =
       [];
 
+    const workerMap = new Map<number, { id: number; name: string; surname: string }>();
+    workerData?.forEach(work => workerMap.set(work.id, work));
+
     const transformedData = collectionsData.map(item => {
+      const creator = workerMap.get(item.createdById);
       const transformed: CashCollectionLevel & { parsedPeriod: Date } = {
         ...item,
         posName: poses.find(pos => pos.value === item.posId)?.name || '',
         status: t(`tables.${item.status}`),
         parsedPeriod: dayjs(item.period.split('-')[0]).toDate(),
-        createdByName: workerData?.find(work => work.id === item.createdById) ?
-          `${workerData?.find(work => work.id === item.createdById)?.name} ${workerData?.find(work => work.id === item.createdById)?.surname}` : "-",
+        createdByName: creator ? `${creator.name} ${creator.surname}` : "-"
       };
 
       item.cashCollectionDeviceType.forEach((deviceType, index) => {

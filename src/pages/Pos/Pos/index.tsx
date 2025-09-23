@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
 import { getOrganization } from '@/services/api/organization';
@@ -67,29 +67,31 @@ const Pos: React.FC = () => {
     }
   );
 
-  const poses = React.useMemo(
-    () =>
-      (data ?? [])
-        .map(item => ({
-          ...item,
-          organizationName:
-            organizationData?.find(org => org.id === item.organizationId)
-              ?.name ?? '-',
-          status: t(`tables.${item.posStatus}`),
-          createdByName: workerData?.find(work => work.id === item.createdById) ?
-            workerData?.find(work => work.id === item.createdById)?.name : '-',
-          updatedByName: workerData?.find(work => work.id === item.updatedById) ?
-            workerData?.find(work => work.id === item.updatedById)?.name : '-',
-          city: placementData?.find(place => place.id === item.placementId) ?
-            placementData?.find(place => place.id === item.placementId)
-              ?.region : '-',
-          country: placementData?.find(place => place.id === item.placementId) ?
-            placementData?.find(place => place.id === item.placementId)
-              ?.country : '-',
-        }))
-        .sort((a, b) => a.id - b.id),
-    [data, placementData, t]
-  );
+  const poses = useMemo(() => {
+    const orgMap = organizationData
+      ? new Map(organizationData.map(org => [org.id, org.name]))
+      : new Map();
+
+    const workerMap = workerData
+      ? new Map(workerData.map(work => [work.id, work.name]))
+      : new Map();
+
+    const placeMap = placementData
+      ? new Map(placementData.map(place => [place.id, place]))
+      : new Map();
+
+    return (data ?? [])
+      .map(item => ({
+        ...item,
+        organizationName: orgMap.get(item.organizationId) ?? '-',
+        status: t(`tables.${item.posStatus}`),
+        createdByName: workerMap.get(item.createdById) ?? '-',
+        updatedByName: workerMap.get(item.updatedById) ?? '-',
+        city: placeMap.get(item.placementId)?.region ?? '-',
+        country: placeMap.get(item.placementId)?.country ?? '-',
+      }))
+      .sort((a, b) => a.id - b.id);
+  }, [data, organizationData, workerData, placementData, t]);
 
   const handleUpdate = async (id: number) => {
     setDrawerOpen(true);

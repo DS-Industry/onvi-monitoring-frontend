@@ -508,9 +508,13 @@ const Articles: React.FC = () => {
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   useEffect(() => {
-    if (allManagersData) {
-      const temporaryData: DataType[] = allManagersData.managerPapers.map(
-        man => ({
+    if (allManagersData && workerData) {
+      const workerMap = new Map<number, { id: number; name: string; surname: string }>();
+      workerData.forEach(work => workerMap.set(work.id, work));
+
+      const temporaryData: DataType[] = allManagersData.managerPapers.map(man => {
+        const creator = workerMap.get(man.props.createdById);
+        return {
           key: `${man.props.id}`,
           id: man.props.id,
           group: man.props.group,
@@ -519,13 +523,13 @@ const Articles: React.FC = () => {
           eventDate: dayjs(man.props.eventDate),
           sum: man.props.sum,
           comment: man.props.comment || '',
-          createdByName: workerData?.find(work => work.id === man.props.createdById) ?
-            `${workerData?.find(work => work.id === man.props.createdById)?.name} ${workerData?.find(work => work.id === man.props.createdById)?.surname}` : "-",
-        })
-      );
+          createdByName: creator ? `${creator.name} ${creator.surname}` : "-"
+        };
+      });
+
       setData(temporaryData);
     }
-  }, [allManagersData]);
+  }, [allManagersData, workerData]);
 
   const save = async (key: React.Key) => {
     try {
@@ -657,16 +661,16 @@ const Articles: React.FC = () => {
         <div>
           <Tag
             color={
-              paperTypes.find(pap => pap.value === value)?.type ===
+              paperTypes.find(paper => paper.value === value)?.type ===
                 'EXPENDITURE'
                 ? 'red'
-                : paperTypes.find(pap => pap.value === value)?.type ===
+                : paperTypes.find(paper => paper.value === value)?.type ===
                   'RECEIPT'
                   ? 'green'
                   : ''
             }
           >
-            {paperTypes.find(pap => pap.value === value)?.name}
+            {paperTypes.find(paper => paper.value === value)?.name}
           </Tag>
         </div>
       ),
@@ -1027,7 +1031,7 @@ const Articles: React.FC = () => {
                   {t('finance.article')}
                 </div>
                 <div className="w-full border h-10 flex items-center justify-center">
-                  {paperTypes.find(pap => pap.value === formData.paperTypeId)
+                  {paperTypes.find(paper => paper.value === formData.paperTypeId)
                     ?.name || ''}
                 </div>
               </div>
@@ -1046,21 +1050,21 @@ const Articles: React.FC = () => {
                 </div>
                 <Tag
                   color={
-                    paperTypes.find(pap => pap.value === formData.paperTypeId)
+                    paperTypes.find(paper => paper.value === formData.paperTypeId)
                       ?.type === 'EXPENDITURE'
                       ? 'green'
                       : paperTypes.find(
-                        pap => pap.value === formData.paperTypeId
+                        paper => paper.value === formData.paperTypeId
                       )?.type === 'RECEIPT'
                         ? 'red'
                         : ''
                   }
                   className="h-10 w-40 flex items-center justify-center"
                 >
-                  {paperTypes.find(pap => pap.value === formData.paperTypeId)
+                  {paperTypes.find(paper => paper.value === formData.paperTypeId)
                     ?.type
                     ? t(
-                      `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
+                      `finance.${paperTypes.find(paper => paper.value === formData.paperTypeId)?.type}`
                     )
                     : ''}
                 </Tag>

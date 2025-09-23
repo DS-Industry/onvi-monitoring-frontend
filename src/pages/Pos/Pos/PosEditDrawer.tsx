@@ -34,7 +34,6 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const user = useUser();
   const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
   const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const defaultValues: PosRequestBody = {
     name: '',
@@ -170,7 +169,6 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
 
   const handleFileChange = (info: UploadChangeParam<UploadFile>) => {
     const { fileList: newFileList } = info;
-    setFileList(newFileList);
 
     const file = (newFileList[0]?.originFileObj as File) || null;
     setSelectedFile(file);
@@ -575,13 +573,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             <Upload
               listType="picture-card"
               showUploadList={true}
-              beforeUpload={() => false} // prevent auto upload
+              beforeUpload={() => false} 
               onChange={handleFileChange}
-              fileList={fileList}
               maxCount={1}
               className="w-full upload-full-width"
             >
-              {fileList.length >= 1 ? null : (
+              {selectedFile ? null : (
                 <div className="text-text02 w-full">
                   <PlusOutlined />
                   <div className="mt-2">{t('hr.upload')}</div>

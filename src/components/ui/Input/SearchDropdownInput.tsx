@@ -11,7 +11,7 @@ type Option = {
 type SearchableDropdownProps = {
   options: Option[];
   placeholder?: string;
-  value: string | number | undefined;
+  value?: string | number;
   onChange: (value: any) => void;
   isDisabled?: boolean;
   error?: boolean;
