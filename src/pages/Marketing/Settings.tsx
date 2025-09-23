@@ -188,17 +188,16 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const handleHubRequest = async () => {
     try {
       if (!loyaltyId) return;
-      
+
       await requestHub({
         id: loyaltyId,
         comment: hubRequestComment || undefined,
-      })
-      
+      });
+
       showToast(t('marketing.hubRequestSubmitted'), 'success');
       setIsHubRequestModalOpen(false);
       setHubRequestComment('');
       mutate([`get-loyalty-program-by-id`]);
-      
     } catch (error) {
       console.error('Error during hub request: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
@@ -233,11 +232,17 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
             <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
               {t('marketing.hub')}
             </span>
-          ) : loyaltyData?.isHubRejected ? <span className="bg-red-500 text-white px-2 py-0.5 rounded text-sm">
-          {t('marketing.hubRejected')}
-        </span> : loyaltyData?.isHubRequested ? <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
-          {t('marketing.hubRequested')}
-        </span> : (
+          ) : loyaltyData?.isHubRejected ? (
+            <span className="bg-red-500 text-white px-2 py-0.5 rounded text-sm">
+              {t('marketing.hubRejected')}
+            </span>
+          ) : loyaltyData?.isHubRequested ? (
+            <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
+              {t('marketing.hubRequested')}
+            </span>
+          ) : loadingPrograms ? (
+            <></>
+          ) : (
             <Button
               type="primary"
               size="small"
@@ -252,10 +257,10 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
           {loadingPrograms ? (
             <div className="space-y-6">
               <Skeleton active paragraph={{ rows: 3 }} />
-              <Skeleton.Input active size="large" style={{ width: 320 }} />
+              <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
               <div className="flex flex-col sm:flex-row gap-4 mt-5">
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
+                <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
+                <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
               </div>
             </div>
           ) : (
@@ -269,7 +274,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
               </div>
 
               <div className="">
-                <div className="w-80">
+                <div className="max-w-80">
                   <label className="block text-sm font-medium mb-1">
                     {t('equipment.name')}
                   </label>
@@ -371,16 +376,14 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         cancelText={t('actions.cancel')}
       >
         <div className="space-y-4">
-          <p className="text-text02">
-            {t('marketing.hubRequestDescription')}
-          </p>
+          <p className="text-text02">{t('marketing.hubRequestDescription')}</p>
           <div>
             <label className="block text-sm font-medium mb-1">
-              {t('marketing.comment')} 
+              {t('marketing.comment')}
             </label>
             <Input.TextArea
               value={hubRequestComment}
-              onChange={(e) => setHubRequestComment(e.target.value)}
+              onChange={e => setHubRequestComment(e.target.value)}
               placeholder={t('marketing.hubRequestCommentPlaceholder')}
               rows={4}
               maxLength={500}
