@@ -76,25 +76,25 @@ const Pos: React.FC = () => {
             organizationData?.find(org => org.id === item.organizationId)
               ?.name ?? '-',
           status: t(`tables.${item.posStatus}`),
-          createdByName:
-            workerData?.find(work => work.id === item.createdById)?.name ?? '-',
-          updatedByName:
-            workerData?.find(work => work.id === item.updatedById)?.name ?? '-',
-          city:
+          createdByName: workerData?.find(work => work.id === item.createdById) ?
+            workerData?.find(work => work.id === item.createdById)?.name : '-',
+          updatedByName: workerData?.find(work => work.id === item.updatedById) ?
+            workerData?.find(work => work.id === item.updatedById)?.name : '-',
+          city: placementData?.find(place => place.id === item.placementId) ?
             placementData?.find(place => place.id === item.placementId)
-              ?.region ?? '',
-          country:
+              ?.region : '-',
+          country: placementData?.find(place => place.id === item.placementId) ?
             placementData?.find(place => place.id === item.placementId)
-              ?.country ?? '',
+              ?.country : '-',
         }))
         .sort((a, b) => a.id - b.id),
     [data, placementData, t]
   );
 
   const handleUpdate = async (id: number) => {
-      setDrawerOpen(true);
-      setPosId(id);
-    };
+    setDrawerOpen(true);
+    setPosId(id);
+  };
 
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);

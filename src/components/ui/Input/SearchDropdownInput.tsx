@@ -11,7 +11,7 @@ type Option = {
 type SearchableDropdownProps = {
   options: Option[];
   placeholder?: string;
-  value: string | number;
+  value: string | number | undefined;
   onChange: (value: any) => void;
   isDisabled?: boolean;
   error?: boolean;
@@ -35,7 +35,6 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
   title = '',
   allowClear = false,
   loading = false,
-  noHeight = false,
 }) => {
   const formattedOptions = loading
     ? [] // Show no options when loading
@@ -68,7 +67,7 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
             'No options'
           )
         }
-        className={`w-full ${noHeight ? '' : 'h-10'}`}
+        className={`w-full sm:w-80`}
         optionFilterProp="label"
         filterOption={(input, option) => {
           if (!option || !option.label) return false;

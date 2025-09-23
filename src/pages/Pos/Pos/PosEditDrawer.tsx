@@ -8,9 +8,10 @@ import useSWR, { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
 import { useSearchParams } from 'react-router-dom';
-import { Drawer, Form, Input, Select, Button, Checkbox } from 'antd';
+import { Drawer, Form, Input, Select, Button, Checkbox, Upload } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
-import ProfilePhoto from '@/assets/ProfilePhoto.svg';
+import { PlusOutlined } from '@ant-design/icons';
+import { UploadChangeParam, UploadFile } from 'antd/es/upload';
 
 type PosEditDrawerProps = {
   organizations: Organization[];
@@ -28,12 +29,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
   const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
   const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const defaultValues: PosRequestBody = {
     name: '',
@@ -59,12 +60,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
 
   const {
     data: posData
-  } = useSWR(id ?[`get-pos-by-id`, id] : null, () =>
+  } = useSWR(id ? [`get-pos-by-id`, id] : null, () =>
     getPosById(id!)
   );
 
   useEffect(() => {
-    if(posData) {
+    if (posData) {
       setFormData({
         name: posData.props.name,
         timeWork: posData.props.timeWork,
@@ -167,17 +168,18 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
 
   const { showToast } = useToast();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
+  const handleFileChange = (info: UploadChangeParam<UploadFile>) => {
+    const { fileList: newFileList } = info;
+    setFileList(newFileList);
+
+    const file = (newFileList[0]?.originFileObj as File) || null;
     setSelectedFile(file);
+
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
       reader.readAsDataURL(file);
     } else {
-      setImagePreview(null);
+      setSelectedFile(null);
     }
   };
 
@@ -569,30 +571,23 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             </Form.Item>
           </div>
           <div>
-            <div className="text-sm text-text02">{t('profile.photo')}</div>
-
-            <div
-              className="flex space-x-2 items-center cursor-pointer"
-              onClick={() => document.getElementById('photo-upload')?.click()}
-            >
-              <img
-                src={imagePreview || ProfilePhoto}
-                alt="Profile"
-                className="w-16 h-16 object-cover rounded-full border border-gray-300"
-                loading="lazy"
-              />
-              <div className="text-primary02 font-semibold">
-                {t('hr.upload')}
-              </div>
-            </div>
-
-            <input
-              type="file"
-              id="photo-upload"
-              accept="image/*"
-              style={{ display: 'none' }}
+            <div className="text-text02 text-sm">{t('hr.upload')}</div>
+            <Upload
+              listType="picture-card"
+              showUploadList={true}
+              beforeUpload={() => false} // prevent auto upload
               onChange={handleFileChange}
-            />
+              fileList={fileList}
+              maxCount={1}
+              className="w-full upload-full-width"
+            >
+              {fileList.length >= 1 ? null : (
+                <div className="text-text02 w-full">
+                  <PlusOutlined />
+                  <div className="mt-2">{t('hr.upload')}</div>
+                </div>
+              )}
+            </Upload>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 mt-6">

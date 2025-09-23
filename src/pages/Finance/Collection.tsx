@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getPoses } from '@/services/api/equipment';
+import { getPoses, getWorkers } from '@/services/api/equipment';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getCollections } from '@/services/api/finance';
 import dayjs from 'dayjs';
@@ -22,6 +22,7 @@ import {
   getStatusTagRender,
 } from '@/utils/tableUnits';
 import { PlusOutlined } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
 
 type CashCollectionLevel = {
   id: number;
@@ -64,6 +65,7 @@ const Collection: React.FC = () => {
     searchParams.get('dateEnd') ?? dayjs(`${formattedDate} 23:59`).toDate();
 
   const cityParam = Number(searchParams.get('city')) || undefined;
+  const user = useUser();
 
   const formatPeriodType = getFormatPeriodType();
   const renderCurrency = getCurrencyRender();
@@ -117,6 +119,17 @@ const Collection: React.FC = () => {
       keepPreviousData: true,
     }
   );
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
 
   const poses: { name: string; value: number | string }[] = useMemo(() => {
     const mappedPoses =
@@ -195,6 +208,11 @@ const Collection: React.FC = () => {
         key: 'shortage',
         render: renderCurrency,
       },
+      {
+        title: 'Создал',
+        dataIndex: 'createdByName',
+        key: 'createdByName',
+      }
     ],
     []
   );
@@ -212,6 +230,8 @@ const Collection: React.FC = () => {
         posName: poses.find(pos => pos.value === item.posId)?.name || '',
         status: t(`tables.${item.status}`),
         parsedPeriod: dayjs(item.period.split('-')[0]).toDate(),
+        createdByName: workerData?.find(work => work.id === item.createdById) ?
+          `${workerData?.find(work => work.id === item.createdById)?.name} ${workerData?.find(work => work.id === item.createdById)?.surname}` : "-",
       };
 
       item.cashCollectionDeviceType.forEach((deviceType, index) => {

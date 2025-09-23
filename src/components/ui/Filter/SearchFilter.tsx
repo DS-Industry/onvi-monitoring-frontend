@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Select, Collapse } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import Button from '@ui/Button/Button.tsx';
 
 type Optional = {
@@ -15,12 +15,14 @@ type SearchFilterProps = {
   poses?: Optional[];
   loading?: boolean;
   defaultOpen?: boolean;
+  posIdPresent?: boolean;
 };
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   poses,
   loading = false,
   defaultOpen = true,
+  posIdPresent
 }) => {
   const { t } = useTranslation();
   const [activeFilterKey, setActiveFilterKey] = useState<string[]>(
@@ -28,9 +30,6 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterToggle, setFilterToggle] = useState(false);
-
-  const getParam = (key: string, fallback = '') =>
-    searchParams.get(key) || fallback;
 
   const formattedOptions = (poses || []).map(pos => ({
     label: pos.name,
@@ -43,14 +42,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
     });
   };
 
-  // Get current posId and ensure it matches the option values format
-  const currentPosId = getParam('posId');
-  const displayValue =
-    currentPosId && currentPosId !== '*' ? currentPosId : undefined;
+  const currentPosId = getParam(searchParams, 'posId');
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
-      posId: '*',
+      posId: undefined,
     });
 
     setFilterToggle(!filterToggle);
@@ -82,9 +78,9 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                   <Select
                     showSearch
                     className="w-full sm:w-96"
-                    status={displayValue ? '' : 'error'}
                     placeholder="Выберите объект"
-                    value={displayValue}
+                    value={currentPosId}
+                    status={posIdPresent && !currentPosId ? 'error' : ''}
                     onChange={handlePosChange}
                     options={formattedOptions}
                     loading={loading}
@@ -101,7 +97,6 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                     notFoundContent={
                       loading ? 'Поиск' : 'Филиал с таким назаванием не найден'
                     }
-                    size="large"
                     style={{
                       borderRadius: '6px',
                     }}
@@ -109,7 +104,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                 </div>
               </div>
 
-              {displayValue ? (
+              {currentPosId ? (
                 <div className="flex flex-wrap items-center gap-4 mt-4">
                   <Button
                     title={t('filters.reset')}

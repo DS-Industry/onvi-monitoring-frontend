@@ -15,7 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 import useSWR, { mutate } from 'swr';
-import { getPoses } from '@/services/api/equipment';
+import { getPoses, getWorkers } from '@/services/api/equipment';
 import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
@@ -363,6 +363,7 @@ const Articles: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
 
   const groupParam = searchParams.get('group') as ManagerPaperGroup || undefined;
   const posIdParam = Number(searchParams.get('posId')) || undefined;
@@ -430,6 +431,16 @@ const Articles: React.FC = () => {
   const { data: allManagersGraphData, isLoading: loadingGraphData } = useSWR(
     swrKeyManagerPaperGraph,
     () => getAllManagerPaperGraph(filterParams),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -508,6 +519,8 @@ const Articles: React.FC = () => {
           eventDate: dayjs(man.props.eventDate),
           sum: man.props.sum,
           comment: man.props.comment || '',
+          createdByName: workerData?.find(work => work.id === man.props.createdById) ?
+            `${workerData?.find(work => work.id === man.props.createdById)?.name} ${workerData?.find(work => work.id === man.props.createdById)?.surname}` : "-",
         })
       );
       setData(temporaryData);
@@ -645,10 +658,10 @@ const Articles: React.FC = () => {
           <Tag
             color={
               paperTypes.find(pap => pap.value === value)?.type ===
-              'EXPENDITURE'
+                'EXPENDITURE'
                 ? 'red'
                 : paperTypes.find(pap => pap.value === value)?.type ===
-                    'RECEIPT'
+                  'RECEIPT'
                   ? 'green'
                   : ''
             }
@@ -675,13 +688,19 @@ const Articles: React.FC = () => {
     {
       title: 'Примечание',
       dataIndex: 'comment',
-      width: '35%',
+      width: '15%',
       editable: true,
+    },
+    {
+      title: 'Создал',
+      dataIndex: 'createdByName',
+      width: '20%',
+      editable: false
     },
     {
       title: 'Операции',
       dataIndex: 'operation',
-      width: '15%',
+      width: '25%',
       render: (_: unknown, record: DataType) => {
         const editable = isEditing(record);
         return (
@@ -744,8 +763,6 @@ const Articles: React.FC = () => {
       }),
     };
   });
-
-  const user = useUser();
 
   const defaultValues: ManagerPaperBody = {
     group: ManagerPaperGroup.WAGES,
@@ -941,9 +958,8 @@ const Articles: React.FC = () => {
               <div
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                  formData.paperTypeId === opt.value ? 'text-primary02' : ''
-                }`}
+                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.paperTypeId === opt.value ? 'text-primary02' : ''
+                  }`}
               >
                 {opt.name}
               </div>
@@ -1034,8 +1050,8 @@ const Articles: React.FC = () => {
                       ?.type === 'EXPENDITURE'
                       ? 'green'
                       : paperTypes.find(
-                            pap => pap.value === formData.paperTypeId
-                          )?.type === 'RECEIPT'
+                        pap => pap.value === formData.paperTypeId
+                      )?.type === 'RECEIPT'
                         ? 'red'
                         : ''
                   }
@@ -1044,8 +1060,8 @@ const Articles: React.FC = () => {
                   {paperTypes.find(pap => pap.value === formData.paperTypeId)
                     ?.type
                     ? t(
-                        `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
-                      )
+                      `finance.${paperTypes.find(pap => pap.value === formData.paperTypeId)?.type}`
+                    )
                     : ''}
                 </Tag>
               </div>
@@ -1157,7 +1173,7 @@ const Articles: React.FC = () => {
                 title={t('organizations.save')}
                 form={true}
                 isLoading={isMutating}
-                handleClick={() => {}}
+                handleClick={() => { }}
               />
             </div>
           </div>

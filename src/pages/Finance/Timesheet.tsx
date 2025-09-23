@@ -6,28 +6,18 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getShifts, TypeWorkDay } from '@/services/api/finance';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants.ts';
-
 import { getWorkers } from '@/services/api/hr';
 
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import ShiftCreateModal from '@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx';
-import SearchFilter from '@ui/Filter/SearchFilter.tsx';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-import { Button } from 'antd';
+import { Button, message, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
 
-interface FilterShifts {
-  dateStart: Date;
-  dateEnd: Date;
-  posId: number;
-  placementId?: number;
-  page?: number;
-  size?: number;
-}
 dayjs.locale('ru');
 
 const Timesheet: React.FC = () => {
@@ -66,25 +56,11 @@ const Timesheet: React.FC = () => {
   const defaultStartDate = dayjs().startOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-01 00:00"
   const defaultEndDate = dayjs().endOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-31 23:59"
 
-  const posId = Number(searchParams.get('posId') || '*');
+  const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart') || defaultStartDate;
   const dateEnd = searchParams.get('dateEnd') || defaultEndDate;
   const placementId = Number(searchParams.get('city')) || undefined;
-  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-
-  // Create stable initial filter
-  const filterParams: FilterShifts = useMemo(
-    () => ({
-      dateStart: dayjs(dateStart).startOf('day').toDate(),
-      dateEnd: dayjs(dateEnd).endOf('day').toDate(),
-      currentPage,
-      pageSize,
-      posId,
-      placementId,
-    }),
-    [dateStart, dateEnd, posId, placementId, currentPage, pageSize]
-  );
+  const user = useUser();
 
   const shouldFetch = Boolean(dateStart && dateEnd && posId);
 
@@ -95,7 +71,7 @@ const Timesheet: React.FC = () => {
         .then((data) => data?.sort((a, b) => a.id - b.id) || [])
         .then((data) => {
           const options = data.map((item) => ({
-            name: item.name,
+            label: item.name,
             value: item.id,
           }));
 
@@ -108,29 +84,18 @@ const Timesheet: React.FC = () => {
     }
   );
 
-  // Create stable SWR key
-  const swrKey = useMemo(
-    () =>
-      `get-shifts-${filterParams.posId}-${
-        filterParams.placementId
-      }-${filterParams.dateStart.toISOString()}-${filterParams.dateEnd.toISOString()}-${
-        filterParams.page
-      }-${filterParams.size}`,
-    [filterParams]
-  );
-
   //Get All shifts
   const {
     data: shiftsData,
     mutate: refetchShifts,
     isLoading: isLoadingShifts,
   } = useSWR(
-    shouldFetch ? swrKey : null,
+    shouldFetch ? ['get-shifts', dateStart, dateEnd, posId] : null,
     () =>
       getShifts({
-        posId: filterParams.posId,
-        dateStart: filterParams.dateStart,
-        dateEnd: filterParams.dateEnd,
+        posId: posId || 0,
+        dateStart: new Date(dateStart),
+        dateEnd: new Date(dateEnd),
       }),
     {
       revalidateOnFocus: true,
@@ -140,10 +105,10 @@ const Timesheet: React.FC = () => {
   );
 
   const { data: employees } = useSWR(
-    [`get-workers`],
+    user.organizationId ? [`get-workers`, user.organizationId] : null,
     () =>
       getWorkers({
-        organizationId: 1,
+        organizationId: user.organizationId,
       }),
     {
       revalidateOnFocus: false,
@@ -155,6 +120,10 @@ const Timesheet: React.FC = () => {
   const [openSlot, setOpenSlot] = useState(false);
 
   const handleSelectSlot = useCallback(() => {
+    if (!posId) {
+      message.error(t('validation.posRequired'));
+      return;
+    }
     setOpenSlot(true);
   }, []);
 
@@ -163,6 +132,10 @@ const Timesheet: React.FC = () => {
   };
 
   const handleCreateEvent = () => {
+    if (!posId) {
+      message.error(t('validation.posRequired'));
+      return;
+    }
     setOpenSlot(true);
   };
 
@@ -179,10 +152,9 @@ const Timesheet: React.FC = () => {
 
       return {
         id: shift.props.id,
-        title: `${
-          employees.find(emp => emp.props.id === shift.props.workerId)?.props
-            ?.name || 'Неизвестный работник'
-        }`,
+        title: `${employees.find(emp => emp.props.id === shift.props.workerId)?.props
+          ?.name || 'Неизвестный работник'
+          }`,
         start: startDate,
         end: endDate,
         resource: {
@@ -216,9 +188,29 @@ const Timesheet: React.FC = () => {
           </span>
         </div>
       </div>
-
-      <SearchFilter poses={poses} loading={isPosLoading} defaultOpen />
-
+      <div className='mb-5'>
+        <div className={`flex flex-col`}>
+          <label className="text-sm text-text02">{t('analysis.posId')}</label>
+          <Select
+            className="w-full sm:w-80"
+            placeholder="Выберите объект"
+            options={poses || []}
+            value={posId}
+            onChange={value => {
+              updateSearchParams(searchParams, setSearchParams, {
+                posId: value
+              });
+            }}
+            loading={isPosLoading}
+            allowClear={true}
+            onClear={() => {
+              updateSearchParams(searchParams, setSearchParams, {
+                posId: undefined
+              });
+            }}
+          />
+        </div>
+      </div>
       <div className="mb-4">
         <Button
           type="primary"
@@ -236,13 +228,12 @@ const Timesheet: React.FC = () => {
           onClose={handleClose}
           onSubmit={refetchShifts}
           employeeData={{
-            organizationId: 1,
+            organizationId: user.organizationId,
           }}
         />
         <div
-          className={`${
-            isLoadingShifts ? 'pointer-events-none opacity-30' : ''
-          }`}
+          className={`${isLoadingShifts ? 'pointer-events-none opacity-30' : ''
+            }`}
         >
           <Calendar
             localizer={localize}
