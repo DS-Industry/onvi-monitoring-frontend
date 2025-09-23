@@ -67,6 +67,7 @@
     "segments": "Segments",
     "loyalty": "Loyalty Program",
     "hubRequests": "Hub applications",
+    "participantRequests": "Participation requests",
     "share": "Share Constructor",
     "marketRes": "Marketing Research",
     "addClient": "Add a client",
@@ -796,6 +797,7 @@
     "submitFailed": "Submit failed",
     "sendFailed": "Send failed",
     "updateFailed": "Update failed",
+    "fetchFailed": "Failed to fetch data",
     "other": {
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
@@ -1347,7 +1349,8 @@
     "approved": "Approved",
     "rejected": "Rejected",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "cancel": "Cancel"
   },
   "filters": {
     "reset": "Reset",
@@ -1419,12 +1422,32 @@
     "rejectionComment": "Rejection comment (optional)",
     "commentOptional": "Comment is optional"
   },
+  "loyaltyParticipantRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points",
+    "requestApproved": "Participant request approved",
+    "requestRejected": "Participant request rejected",
+    "approveRequest": "Approve Participant Request",
+    "rejectRequest": "Reject Participant Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
+  },
   "loyaltyProgramsTable": {
     "programName": "Program Name",
     "participationStatus": "Participation Status",
     "status": "Status",
     "launchDate": "Launch Date",
     "owner": "Owner",
-    "participant": "Participant"
+    "participant": "Participant",
+    "join": "Join Program",
+    "selectProgram": "Select a loyalty program",
+    "commentPlaceholder": "Enter your reason for joining this program (optional)",
+    "requestSubmitted": "Request submitted successfully",
+    "noAvailablePrograms": "No available programs to join",
+    "noProgramsFound": "No programs found",
+    "regularProgram": "Regular program"
   }
 }
