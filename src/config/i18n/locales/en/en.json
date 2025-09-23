@@ -66,6 +66,7 @@
     "corporateClients": "Corporate Clients",
     "segments": "Segments",
     "loyalty": "Loyalty Program",
+    "hubRequests": "Hub applications",
     "share": "Share Constructor",
     "marketRes": "Marketing Research",
     "addClient": "Add a client",
@@ -649,6 +650,14 @@
     "award": "Award bonuses for services, motivate them to come back to you",
     "enterDisc": "Enter discount amount",
     "ac": "Accrue bonuses",
+    "hub": "Hub",
+    "hubRequested": "Hub requested",
+    "hubRejected": "Hub rejected",
+    "requestHub": "Request Hub",
+    "hubRequestDescription": "Request to upgrade your loyalty program to Hub status. This will enable additional features and capabilities.",
+    "comment": "Comment",
+    "hubRequestCommentPlaceholder": "Enter your reason for requesting Hub status (optional)",
+    "hubRequestSubmitted": "Hub request submitted successfully",
     "per": "Percent",
     "fix": "Fixed",
     "enterBon": "Enter bonus amount",
@@ -1250,7 +1259,8 @@
     "sendSuccess": "Send successfully",
     "returnSuccess": "Return successfully",
     "back": "Back",
-    "actions": "Actions"
+    "actions": "Actions",
+    "submit": "Submit"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
@@ -1317,13 +1327,27 @@
     "noData": "No Data"
   },
   "general": {
-    "hours": "hrs."
+    "hours": "hrs.",
+    "amount": "Amount/Size",
+    "createdAt": "Created At",
+    "organizationName": "Organization Name"
   },
   "constants": {
     "all": "All",
     "status": "Status",
     "pos": "Pos",
-    "rewardPrograms": "Reward Programs"
+    "rewardPrograms": "Reward Programs",
+    "allStatuses": "All Statuses",
+    "allTypes": "All Types",
+    "requests": "requests",
+    "requestId": "Request ID",
+    "comment": "Comment",
+    "actions": "Actions",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject"
   },
   "filters": {
     "reset": "Reset",
@@ -1375,5 +1399,32 @@
     "selectInvert": "Invert current page",
     "removeAll": "Remove all",
     "removeCurrent": "Remove current page"
+  },
+  "loyaltyRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points"
+  },
+  "loyaltyHubRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points",
+    "requestApproved": "Hub request approved",
+    "requestRejected": "Hub request rejected",
+    "approveRequest": "Approve Hub Request",
+    "rejectRequest": "Reject Hub Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
+  },
+  "loyaltyProgramsTable": {
+    "programName": "Program Name",
+    "participationStatus": "Participation Status",
+    "status": "Status",
+    "launchDate": "Launch Date",
+    "owner": "Owner",
+    "participant": "Participant"
   }
 }

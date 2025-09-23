@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, Input } from 'antd';
+import { Button, Card, Input, Modal } from 'antd';
 
 import { Skeleton } from 'antd';
 import useSWR, { mutate } from 'swr';
@@ -11,6 +11,7 @@ import {
   createLoyaltyProgram,
   getLoyaltyProgramById,
   updateLoyaltyProgram,
+  requestHubStatus,
 } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/context/useContext';
@@ -79,6 +80,8 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+  const [isHubRequestModalOpen, setIsHubRequestModalOpen] = useState(false);
+  const [hubRequestComment, setHubRequestComment] = useState('');
 
   const { handleSubmit, errors, reset, setValue } = useFormHook(formData);
 
@@ -119,6 +122,13 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
   const { trigger: updateLoyalty } = useSWRMutation(
     ['update-loyalty-program'],
     async () => updateLoyaltyProgram(payload)
+  );
+
+  const { trigger: requestHub, isMutating: isRequestingHub } = useSWRMutation(
+    ['request-hub-status'],
+    async (_, { arg }: { arg: { id: number; comment?: string } }) => {
+      return requestHubStatus(arg.id, arg.comment);
+    }
   );
 
   const resetForm = () => {
@@ -175,6 +185,25 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     }
   };
 
+  const handleHubRequest = async () => {
+    try {
+      if (!loyaltyId) return;
+
+      await requestHub({
+        id: loyaltyId,
+        comment: hubRequestComment || undefined,
+      });
+
+      showToast(t('marketing.hubRequestSubmitted'), 'success');
+      setIsHubRequestModalOpen(false);
+      setHubRequestComment('');
+      mutate([`get-loyalty-program-by-id`]);
+    } catch (error) {
+      console.error('Error during hub request: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
+
   return (
     <Card
       className="rounded-2xl shadow-card w-full max-w-[1400px]"
@@ -188,7 +217,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       }}
     >
       <form className="space-y-3">
-        <div>
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <BonusImage />
 
@@ -199,15 +228,39 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
               <div className="text-text02">{t('marketing.setup')}</div>
             </div>
           </div>
+          {loyaltyData && loyaltyData.isHub ? (
+            <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
+              {t('marketing.hub')}
+            </span>
+          ) : loyaltyData?.isHubRejected ? (
+            <span className="bg-red-500 text-white px-2 py-0.5 rounded text-sm">
+              {t('marketing.hubRejected')}
+            </span>
+          ) : loyaltyData?.isHubRequested ? (
+            <span className="bg-green-500 text-white px-2 py-0.5 rounded text-sm">
+              {t('marketing.hubRequested')}
+            </span>
+          ) : loadingPrograms ? (
+            <></>
+          ) : (
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => setIsHubRequestModalOpen(true)}
+              disabled={!loyaltyId}
+            >
+              {t('marketing.requestHub')}
+            </Button>
+          )}
         </div>
         <div className="mt-5">
           {loadingPrograms ? (
             <div className="space-y-6">
               <Skeleton active paragraph={{ rows: 3 }} />
-              <Skeleton.Input active size="large" style={{ width: 320 }} />
+              <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
               <div className="flex flex-col sm:flex-row gap-4 mt-5">
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
-                <Skeleton.Input active size="large" style={{ width: 320 }} />
+                <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
+                <Skeleton.Input active size="large" style={{ maxWidth: 320 }} />
               </div>
             </div>
           ) : (
@@ -221,7 +274,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
               </div>
 
               <div className="">
-                <div className="w-80">
+                <div className="max-w-80">
                   <label className="block text-sm font-medium mb-1">
                     {t('equipment.name')}
                   </label>
@@ -309,6 +362,35 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
           </div>
         )}
       </form>
+
+      <Modal
+        title={t('marketing.requestHub')}
+        open={isHubRequestModalOpen}
+        onOk={handleHubRequest}
+        onCancel={() => {
+          setIsHubRequestModalOpen(false);
+          setHubRequestComment('');
+        }}
+        confirmLoading={isRequestingHub}
+        okText={t('actions.submit')}
+        cancelText={t('actions.cancel')}
+      >
+        <div className="space-y-4">
+          <p className="text-text02">{t('marketing.hubRequestDescription')}</p>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t('marketing.comment')}
+            </label>
+            <Input.TextArea
+              value={hubRequestComment}
+              onChange={e => setHubRequestComment(e.target.value)}
+              placeholder={t('marketing.hubRequestCommentPlaceholder')}
+              rows={4}
+              maxLength={500}
+            />
+          </div>
+        </div>
+      </Modal>
     </Card>
   );
 };
