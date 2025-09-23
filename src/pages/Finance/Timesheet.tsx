@@ -93,7 +93,7 @@ const Timesheet: React.FC = () => {
     shouldFetch ? ['get-shifts', dateStart, dateEnd, posId] : null,
     () =>
       getShifts({
-        posId: posId || 0,
+        posId: posId!,
         dateStart: new Date(dateStart),
         dateEnd: new Date(dateEnd),
       }),
@@ -120,23 +120,26 @@ const Timesheet: React.FC = () => {
   const [openSlot, setOpenSlot] = useState(false);
 
   const handleSelectSlot = useCallback(() => {
-    if (!posId) {
+    if (posId) {
+      setOpenSlot(true);
+    }
+    else {
       message.error(t('validation.posRequired'));
       return;
     }
-    setOpenSlot(true);
-  }, []);
+  }, [posId]);
 
   const handleClose = () => {
     setOpenSlot(false);
   };
 
   const handleCreateEvent = () => {
-    if (!posId) {
-      message.error(t('validation.posRequired'));
-      return;
+    if (posId) {
+      setOpenSlot(true);
     }
-    setOpenSlot(true);
+    else {
+      message.error(t('validation.posRequired'));
+    }
   };
 
   // Transform shifts data to calendar events
@@ -194,7 +197,7 @@ const Timesheet: React.FC = () => {
           <Select
             className="w-full sm:w-80"
             placeholder="Выберите объект"
-            options={poses || []}
+            options={poses}
             value={posId}
             onChange={value => {
               updateSearchParams(searchParams, setSearchParams, {
@@ -202,12 +205,6 @@ const Timesheet: React.FC = () => {
               });
             }}
             loading={isPosLoading}
-            allowClear={true}
-            onClear={() => {
-              updateSearchParams(searchParams, setSearchParams, {
-                posId: undefined
-              });
-            }}
           />
         </div>
       </div>
@@ -271,6 +268,7 @@ const Timesheet: React.FC = () => {
                   .endOf('week')
                   .format('YYYY-MM-DD HH:mm');
                 updateSearchParams(searchParams, setSearchParams, {
+                  posId: posId,
                   dateStart: start,
                   dateEnd: end,
                 });
