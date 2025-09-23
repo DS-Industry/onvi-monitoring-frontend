@@ -1401,5 +1401,13 @@
     "approvalComment": "Комментарий к одобрению (необязательно)",
     "rejectionComment": "Комментарий к отклонению (необязательно)",
     "commentOptional": "Комментарий необязателен"
+  },
+  "loyaltyProgramsTable": {
+    "programName": "Название программы",
+    "participationStatus": "Статус Участия",
+    "status": "Статус",
+    "launchDate": "Дата запуска",
+    "owner": "Владелец",
+    "participant": "Участник"
   }
 }

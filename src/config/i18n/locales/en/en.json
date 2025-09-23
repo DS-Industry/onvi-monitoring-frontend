@@ -1401,5 +1401,13 @@
     "approvalComment": "Approval comment (optional)",
     "rejectionComment": "Rejection comment (optional)",
     "commentOptional": "Comment is optional"
+  },
+  "loyaltyProgramsTable": {
+    "programName": "Program Name",
+    "participationStatus": "Participation Status",
+    "status": "Status",
+    "launchDate": "Launch Date",
+    "owner": "Owner",
+    "participant": "Participant"
   }
 }

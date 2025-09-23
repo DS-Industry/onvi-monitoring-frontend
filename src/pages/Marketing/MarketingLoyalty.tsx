@@ -55,7 +55,7 @@ const MarketingLoyalty: React.FC = () => {
   const columnsLoyaltyPrograms: ColumnsType<LoyaltyProgramsResponse['props']> =
     [
       {
-        title: 'Название программы',
+        title: t('loyaltyProgramsTable.programName'),
         dataIndex: 'name',
         key: 'name',
         render: (text: string, record) => {
@@ -81,13 +81,19 @@ const MarketingLoyalty: React.FC = () => {
         },
       },
       {
-        title: 'Статус',
+        title: t('loyaltyProgramsTable.participationStatus'),
+        dataIndex: 'type',
+        key: 'type',
+        render: (_, record) => <span>{record.ownerOrganizationId === user.organizationId ? <>{t('loyaltyProgramsTable.owner')}</> : <>{t('loyaltyProgramsTable.participant')}</>}</span>,
+      },
+      {
+        title: t('loyaltyProgramsTable.status'),
         dataIndex: 'status',
         key: 'status',
         render: statusRender,
       },
       {
-        title: 'Дата запуска',
+        title: t('loyaltyProgramsTable.launchDate'),
         dataIndex: 'startDate',
         key: 'startDate',
         render: dateRender,
