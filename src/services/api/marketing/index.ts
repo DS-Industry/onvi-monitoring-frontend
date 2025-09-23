@@ -10,6 +10,7 @@ enum MARKETING {
   APPROVE_REQUEST = 'user/loyalty/requests/approve',
   REJECT_REQUEST = 'user/loyalty/requests/reject',
   PARTICIPANT_REQUEST = 'user/loyalty/participant-request',
+  PARTICIPANT_REQUESTS = 'user/loyalty/participant-requests',
   PUBLIC_PROGRAMS = 'user/loyalty/public-programs',
 }
 
@@ -1065,6 +1066,69 @@ export async function getPublicLoyaltyPrograms(
   const response: AxiosResponse<PublicProgramsPaginatedResponse> = await api.get(
     MARKETING.PUBLIC_PROGRAMS,
     { params }
+  );
+  return response.data;
+}
+
+export type LoyaltyParticipantRequest = {
+  id: number;
+  ltyProgramId: number;
+  ltyProgramName: string;
+  organizationId: number;
+  organizationName: string;
+  status: LTYProgramRequestStatus;
+  requestComment?: string;
+  responseComment?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LoyaltyParticipantRequestsParams = {
+  page?: number;
+  size?: number;
+  status?: LTYProgramRequestStatus;
+  search?: string;
+  organizationId?: number;
+  ltyProgramId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type LoyaltyParticipantRequestsResponse = {
+  data: LoyaltyParticipantRequest[];
+  totalCount: number;
+  page: number;
+  size: number;
+};
+
+export async function getLoyaltyParticipantRequests(
+  params: LoyaltyParticipantRequestsParams
+): Promise<LoyaltyParticipantRequestsResponse> {
+  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> = await api.get(
+    MARKETING.PARTICIPANT_REQUESTS,
+    { params }
+  );
+  return response.data;
+}
+
+export async function approveLoyaltyParticipantRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/approve-participant`,
+    { comment }
+  );
+  return response.data;
+}
+
+export async function rejectLoyaltyParticipantRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/reject-participant`,
+    { comment }
   );
   return response.data;
 }

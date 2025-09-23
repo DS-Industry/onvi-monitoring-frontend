@@ -63,6 +63,7 @@
     "segments": "Сегменты",
     "loyalty": "Программа лояльности",
     "hubRequests": "Заявки на получение статуса хаба",
+    "participantRequests": "Заявки на участие в программах",
     "share": "Конструктор акций",
     "marketRes": "Маркетинговые исследования",
     "addClient": "Добавить клиента",
@@ -1399,6 +1400,19 @@
     "requestRejected": "Заявка хаба отклонена",
     "approveRequest": "Одобрить заявку хаба",
     "rejectRequest": "Отклонить заявку хаба",
+    "approvalComment": "Комментарий к одобрению (необязательно)",
+    "rejectionComment": "Комментарий к отклонению (необязательно)",
+    "commentOptional": "Комментарий необязателен"
+  },
+  "loyaltyParticipantRequests": {
+    "loyaltyProgram": "Программа лояльности",
+    "bonusPoints": "Бонусные баллы",
+    "discount": "Скидки",
+    "points": "баллов",
+    "requestApproved": "Заявка на участие одобрена",
+    "requestRejected": "Заявка на участие отклонена",
+    "approveRequest": "Одобрить заявку на участие",
+    "rejectRequest": "Отклонить заявку на участие",
     "approvalComment": "Комментарий к одобрению (необязательно)",
     "rejectionComment": "Комментарий к отклонению (необязательно)",
     "commentOptional": "Комментарий необязателен"

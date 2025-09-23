@@ -63,6 +63,7 @@
     "segments": "Segments",
     "loyalty": "Loyalty Program",
     "hubRequests": "Hub applications",
+    "participantRequests": "Participation requests",
     "share": "Share Constructor",
     "marketRes": "Marketing Research",
     "addClient": "Add a client",
@@ -1399,6 +1400,19 @@
     "requestRejected": "Hub request rejected",
     "approveRequest": "Approve Hub Request",
     "rejectRequest": "Reject Hub Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
+  },
+  "loyaltyParticipantRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points",
+    "requestApproved": "Participant request approved",
+    "requestRejected": "Participant request rejected",
+    "approveRequest": "Approve Participant Request",
+    "rejectRequest": "Reject Participant Request",
     "approvalComment": "Approval comment (optional)",
     "rejectionComment": "Rejection comment (optional)",
     "commentOptional": "Comment is optional"
