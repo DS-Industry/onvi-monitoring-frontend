@@ -226,7 +226,7 @@
   "profile": {
     "basic": "Basic Details",
     "changePass": "Change Password",
-    "name": "Name *",
+    "name": "Name",
     "middlename": "Middle Name",
     "surname": "Surname",
     "telephone": "Telephone",
@@ -1295,7 +1295,10 @@
     "genderRequired": "Gender is required",
     "onlyDigits": "Only digits are allowed",
     "minuteRange": "Minutes must be between 0 and 59",
-    "hourRange": "Hours must be between 0 and 23"
+    "hourRange": "Hours must be between 0 and 23",
+    "passwordRequired": "Password is required",
+    "passwordNotMatch": "Password and confirmation password do not match",
+    "enterCorrectPassword": "Please enter a valid password"
   },
   "table": {
     "noData": "No Data"
