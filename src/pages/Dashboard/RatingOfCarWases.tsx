@@ -18,11 +18,6 @@ import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
 import BarChart from '@ui/BarChart';
 
-type Rating = {
-  posName: string;
-  sum: number;
-};
-
 const RatingOfCarWashes = () => {
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -53,7 +48,7 @@ const RatingOfCarWashes = () => {
     isValidating: validatingRating,
   } = useSWR(['get-rating-org', dateRange], () => getRating(dateRange));
 
-  const ratingData: Rating[] = data?.map((item: Rating) => item) || [];
+  const ratingData = data?.map((item) => item) || [];
 
   const handleDurationClick = (duration: 'today' | 'week' | 'month') => {
     const now = new Date();
@@ -121,7 +116,7 @@ const RatingOfCarWashes = () => {
           {screens.xs ? (
             <Space direction="vertical" style={{ width: '100%' }}>
               <DatePicker
-                placeholder="Start date"
+                placeholder={t("filters.dateTime.startDate")}
                 value={dayjs(dateRange.dateStart)}
                 onChange={date => {
                   if (date) {
@@ -135,7 +130,7 @@ const RatingOfCarWashes = () => {
                 style={{ width: '100%' }}
               />
               <DatePicker
-                placeholder="End date"
+                placeholder={t("filters.dateTime.endDate")}
                 value={dayjs(dateRange.dateEnd)}
                 onChange={date => {
                   if (date) {
@@ -150,7 +145,6 @@ const RatingOfCarWashes = () => {
               />
             </Space>
           ) : (
-            // Desktop view: RangePicker
             <RangePicker
               onChange={handleDateRangeChange}
               value={[dayjs(dateRange.dateStart), dayjs(dateRange.dateEnd)]}
@@ -183,7 +177,7 @@ const RatingOfCarWashes = () => {
             <Space direction="vertical" align="center">
               <BarChartOutlined style={{ fontSize: '48px', opacity: 0.5 }} />
               <Typography.Text type="secondary">
-                No data available
+                {t('table.noData')}
               </Typography.Text>
             </Space>
           </div>

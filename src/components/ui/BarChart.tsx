@@ -29,7 +29,6 @@ interface BarChartProps {
 }
 
 const BarChart = ({ data: orgRatingData }: BarChartProps) => {
-  // Преобразуем массив объектов в данные для графика
   const { t } = useTranslation();
   const labels = orgRatingData.map((item: { posName: string }) => item.posName);
   const datasetData = orgRatingData.map((item: { sum: number }) => item.sum);
@@ -82,8 +81,18 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
     },
   };
 
+  const barWidth = 60;
+  const minWidth = 320;
+  const chartWidth = Math.max(orgRatingData.length * barWidth, minWidth);
+
   return (
-    <div className="w-80 md:w-full h-96">
+    <div
+      className="h-96"
+      style={{
+        width: `${chartWidth}px`,
+        overflowX: chartWidth > minWidth ? "auto" : "visible",
+      }}
+    >
       <Bar data={data} options={options} />
     </div>
   );

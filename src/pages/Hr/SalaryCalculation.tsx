@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Table, Button as AntButton, Grid } from 'antd';
+import { Table, Button, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -25,6 +25,8 @@ import {
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type TOption = {
   id: number;
@@ -41,6 +43,7 @@ const SalaryCalculation: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+  const userPermissions = usePermissions();
 
   const screens = Grid.useBreakpoint();
 
@@ -212,6 +215,11 @@ const SalaryCalculation: React.FC = () => {
       'salary-calc-columns'
     );
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'create', subject: 'Hr' }
+  ]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -222,13 +230,13 @@ const SalaryCalculation: React.FC = () => {
             {t('routes.salary')}
           </span>
         </div>
-        <AntButton
+        {allowed && <Button
           icon={<PlusOutlined />}
           className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => navigate('/hr/salary/creation')}
         >
           {screens.md && t('routes.calc')}
-        </AntButton>
+        </Button>}
       </div>
 
       <div className="mt-5">
