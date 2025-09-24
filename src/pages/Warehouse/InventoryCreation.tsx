@@ -489,7 +489,7 @@ const InventoryCreation: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -655,7 +655,6 @@ const InventoryCreation: React.FC = () => {
               onClick={() => {
                 resetForm();
               }}
-              className="btn-outline-primary"
             >
               {t('organizations.cancel')}
             </Button>
@@ -680,7 +679,7 @@ const InventoryCreation: React.FC = () => {
             </Can>
             <Button
               htmlType={'submit'}
-              className="btn-primary"
+              type='primary'
               loading={isEditMode ? updatingInventory : isMutating}
             >
               {t('organizations.save')}

@@ -26,7 +26,7 @@ const SearchInputFilter: React.FC<SearchInputFilterProps> = ({
 
   return (
     <div className="w-full sm:w-80">
-      <label className="block mb-1 text-sm font-medium text-gray-700">
+      <label className="block mb-1 text-sm font-medium text-text02">
         {t('analysis.search')}
       </label>
       <Search

@@ -800,20 +800,19 @@ const EquipmentFailure: React.FC = () => {
             })}
             helperText={errors.comment?.message || ''}
           />
-          <div className="flex justify-end space-x-4">
+          <div className="flex space-x-4">
             <Button
               onClick={() => {
                 setDrawerOpen(false);
                 resetForm();
               }}
-              className="btn-outline-primary"
             >
               {t('organizations.cancel')}
             </Button>
             <Button
               htmlType={'submit'}
               loading={isEditMode ? updatingIncident : isMutating}
-              className="btn-primary"
+              type='primary'
             >
               {t('organizations.save')}
             </Button>

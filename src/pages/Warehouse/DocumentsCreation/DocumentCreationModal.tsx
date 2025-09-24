@@ -181,7 +181,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
       className={`rounded-2xl ${classname || ''}`}
       width="90%"
       style={{ maxWidth: '1000px', maxHeight: '90vh' }}
-      bodyStyle={{ padding: 24, maxHeight: '70vh', overflowY: 'auto' }}
+      styles={{ body: { padding: 24, maxHeight: '70vh', overflowY: 'auto' } }}
       closable={false}
     >
       <div className="flex flex-row items-center justify-between mb-4">

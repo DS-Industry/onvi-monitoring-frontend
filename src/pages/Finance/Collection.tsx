@@ -11,7 +11,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Button as AntButton } from 'antd';
+import { Table, Button } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -278,13 +278,13 @@ const Collection: React.FC = () => {
             {t('routes.collection')}
           </span>
         </div>
-        <AntButton
+        <Button
           icon={<PlusOutlined />}
           className="btn-primary"
           onClick={() => navigate('/finance/collection/creation')}
         >
           <span className='hidden sm:flex'>{t('routes.create')}</span>
-        </AntButton>
+        </Button>
       </div>
 
       <div className="mt-8">
