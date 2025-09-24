@@ -28,7 +28,7 @@ const PasswordTab: React.FC = () => {
   const setUser = useSetUser();
   const { showToast } = useToast();
 
-  type FieldType = 'password' | 'newPassword' | 'confirmPassword';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -54,11 +54,12 @@ const PasswordTab: React.FC = () => {
         showToast(t('routes.savedSuccessfully'), 'success');
         navigate('/');
       } else {
-        throw new Error('Invalid password. Please try again.');
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
     } catch (error) {
       setPasswordError(true);
-      setErrorPasswordMessage('Enter the correct password.');
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      setErrorPasswordMessage(t('validation.enterCorrectPassword') || '');
     }
   };
 

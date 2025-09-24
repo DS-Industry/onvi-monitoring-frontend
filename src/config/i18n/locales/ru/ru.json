@@ -1297,7 +1297,8 @@
     "minuteRange": "Минуты должны быть в диапазоне от 0 до 59",
     "hourRange": "Часы должны быть в диапазоне от 0 до 23",
     "passwordRequired": "Пароль обязателен",
-    "passwordNotMatch": "Пароли не совпадают"
+    "passwordNotMatch": "Пароли не совпадают",
+    "enterCorrectPassword": "Введите правильный пароль"
   },
   "table": {
     "noData": "Ничего не найдено"

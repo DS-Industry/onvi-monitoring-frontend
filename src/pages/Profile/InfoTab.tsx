@@ -82,14 +82,14 @@ const InfoTab: React.FC = () => {
 
   const onSubmit = async () => {
     try {
-      const updateUserData = updateUser();
+      const updateUserData = await updateUser();
 
-      if ((await updateUserData).props.avatar) {
+      if (updateUserData.props.avatar) {
         const avatarUrl =
           `${import.meta.env.VITE_S3_CLOUD}/avatar/user/` +
-          `${(await updateUserData).props.avatar}` || null;
+          `${updateUserData.props.avatar}` || null;
         setImagePreview(avatarUrl);
-        localStorage.setItem('avatarUrl', avatarUrl || ''); // Store the avatar URL in localStorage for persistence
+        localStorage.setItem('avatarUrl', avatarUrl || ''); 
       }
 
       const [updatedData] = await Promise.all([updateUserData]);
