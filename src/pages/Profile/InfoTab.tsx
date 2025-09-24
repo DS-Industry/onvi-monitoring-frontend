@@ -1,21 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Button from '@ui/Button/Button';
 import useFormHook from '@/hooks/useFormHook';
-import { useClearUserData, useUser } from '@/hooks/useUserStore';
-import { updateUserProfile, logoutPlatformUser } from '@/services/api/platform';
+import { useUser } from '@/hooks/useUserStore';
+import { updateUserProfile } from '@/services/api/platform';
 import useSWRMutation from 'swr/mutation';
 import { useSetUser } from '@/hooks/useUserStore';
 import { useTranslation } from 'react-i18next';
-import {
-  useLogout,
-  useClearPermissions,
-  useSetPermissions,
-} from '@/hooks/useAuthStore';
 import LanguageSelector from '@/components/LanguageSelector';
-import useAuthStore from '@/config/store/authSlice';
 import Avatar from '@/components/ui/Avatar';
-import Input from '@/components/ui/Input/Input';
 import { useToast } from '@/components/context/useContext';
+import { Button, Form, Input } from 'antd';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -23,10 +16,6 @@ const InfoTab: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const user = useUser();
   const setUser = useSetUser();
-  const setClearUser = useClearUserData();
-  const logout = useLogout();
-  const setClearPermissions = useClearPermissions();
-  const setPermissions = useSetPermissions();
   const { showToast } = useToast();
 
   const userName = { name: user.name, middlename: user.middlename };
@@ -98,7 +87,7 @@ const InfoTab: React.FC = () => {
       if ((await updateUserData).props.avatar) {
         const avatarUrl =
           `${import.meta.env.VITE_S3_CLOUD}/avatar/user/` +
-            `${(await updateUserData).props.avatar}` || null;
+          `${(await updateUserData).props.avatar}` || null;
         setImagePreview(avatarUrl);
         localStorage.setItem('avatarUrl', avatarUrl || ''); // Store the avatar URL in localStorage for persistence
       }
@@ -116,117 +105,118 @@ const InfoTab: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logoutPlatformUser();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-
-    localStorage.clear();
-    sessionStorage.clear();
-
-    setClearUser();
-    logout();
-    setClearPermissions();
-    setPermissions([]);
-
-    useAuthStore.getState().reset();
-
-    window.location.href = '';
-  };
-
   return (
     <div className="max-w-6xl mr-auto">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col md:flex-row justify-between items-start gap-6"
       >
-        <div className="flex flex-col space-y-6 w-full">
-          <Input
-            title={t('profile.name')}
-            label={t('profile.namePlaceholder')}
-            value={formData.name}
-            changeValue={e => {
-              handleInputChange('name', e.target.value);
-            }}
-            {...register('name', { required: 'Имя is required' })}
-            classname="w-80"
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
-          <Input
-            title={t('profile.middlename')}
-            label={t('profile.middlenamePlaceholder')}
-            value={formData.middlename}
-            changeValue={e => {
-              handleInputChange('middlename', e.target.value);
-            }}
-            {...register('middlename')}
-            classname="w-80"
-          />
-          <Input
-            title={t('profile.surname')}
-            label={t('profile.surnamePlaceholder')}
-            value={formData.surname}
-            changeValue={e => {
-              handleInputChange('surname', e.target.value);
-            }}
-            {...register('surname')}
-            classname="w-80"
-          />
-          <Input
-            type="text"
-            title={t('profile.telephone')}
-            label={t('profile.telephonePlaceholder')}
-            classname="mb-5"
-            value={formData.phone}
-            changeValue={e => handleInputChange('phone', e.target.value)}
-            error={!!errors.phone}
-            {...register('phone', {
-              required: 'phone is required',
-              pattern: {
-                value: /^\+79\d{9}$/,
-                message:
-                  'Phone number must start with +79 and be 11 digits long',
-              },
-            })}
-            helperText={errors.phone?.message || ''}
-          />
-          <Input
-            type="text"
-            title={'E-mail *'}
-            classname="mb-5"
-            value={formData.email}
-            changeValue={e => handleInputChange('email', e.target.value)}
-            error={!!errors.email}
-            {...register('email', {
-              required: 'email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Invalid email format',
-              },
-            })}
-            helperText={errors.email?.message || ''}
-            disabled={true}
-          />
+        <div className="flex flex-col w-full">
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('profile.name')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.name?.message}
+              validateStatus={errors.name ? 'error' : undefined}
+            >
+              <Input
+                placeholder={t('profile.namePlaceholder')}
+                className="w-80 sm:w-96"
+                {...register('name', {
+                  required: t('validation.nameRequired'),
+                })}
+                value={formData.name}
+                onChange={e => handleInputChange('name', e.target.value)}
+                status={errors.name ? 'error' : ''}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('profile.middlename')}</div>
+            <Form.Item>
+              <Input
+                placeholder={t('profile.middlenamePlaceholder')}
+                className="w-80 sm:w-96"
+                {...register('middlename')}
+                value={formData.middlename}
+                onChange={e => handleInputChange('middlename', e.target.value)}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('profile.surname')}</div>
+            <Form.Item>
+              <Input
+                placeholder={t('profile.surnamePlaceholder')}
+                className="w-80 sm:w-96"
+                {...register('surname')}
+                value={formData.surname}
+                onChange={e => handleInputChange('surname', e.target.value)}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('profile.telephone')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.phone?.message}
+              validateStatus={errors.phone ? 'error' : undefined}
+            >
+              <Input
+                placeholder={t('profile.telephonePlaceholder')}
+                className="w-80 sm:w-96"
+                {...register('phone', {
+                  required: t('validation.phoneRequired'),
+                  pattern: {
+                    value: /^\+79\d{9}$/,
+                    message: t('validation.phoneValidFormat'),
+                  },
+                })}
+                value={formData.phone}
+                onChange={e => handleInputChange('phone', e.target.value)}
+                status={errors.phone ? 'error' : ''}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">Email</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.email?.message}
+              validateStatus={errors.email ? 'error' : undefined}
+            >
+              <Input
+                placeholder={t('profile.emailPlaceholder')}
+                className="w-80 sm:w-96"
+                {...register('email', {
+                  required: t('validation.emailRequired'),
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Invalid email format',
+                  },
+                })}
+                value={formData.email}
+                onChange={e => handleInputChange('email', e.target.value)}
+                status={errors.email ? 'error' : ''}
+                disabled={true}
+              />
+            </Form.Item>
+          </div>
           <div className="flex">
             <input type="checkbox" />
             <div className="ml-2 text-text02 text-base">
               {t('profile.agree')}
             </div>
           </div>
-          <div>
+          <div className='my-6'>
             <div className="text-text02">{t('routes.lan')}</div>
             <LanguageSelector />
-          </div>
-          <div className="flex">
-            <Button
-              form={false}
-              title={t('profile.logout')}
-              classname="mt-2"
-              handleClick={handleLogout}
-            />
           </div>
         </div>
         <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
@@ -260,13 +250,15 @@ const InfoTab: React.FC = () => {
               onChange={handleFileChange}
             />
           </div>
-          <div className="flex">
+          <div className="flex mt-5">
             <Button
-              form={true}
-              title={t('profile.save')}
-              classname="mt-10"
-              isLoading={isMutating}
-            />
+              htmlType='submit'
+              className="mb-10"
+              loading={isMutating}
+              type='primary'
+            >
+              {t('profile.save')}
+            </Button>
           </div>
         </div>
       </form>
