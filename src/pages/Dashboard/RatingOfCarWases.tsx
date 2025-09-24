@@ -43,12 +43,10 @@ const RatingOfCarWashes = () => {
   >(null);
 
   const {
-    data,
+    data: ratingData = [],
     isLoading: loadingRating,
     isValidating: validatingRating,
   } = useSWR(['get-rating-org', dateRange], () => getRating(dateRange));
-
-  const ratingData = data?.map((item) => item) || [];
 
   const handleDurationClick = (duration: 'today' | 'week' | 'month') => {
     const now = new Date();
