@@ -19,6 +19,7 @@ import useFormHook from '@/hooks/useFormHook';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import {
   createWorker,
+  CreateWorkerRequest,
   getPositions,
   getWorkers,
   getWorkersCount,
@@ -36,6 +37,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import hasPermission from '@/permissions/hasPermission';
 import { usePermissions } from '@/hooks/useAuthStore';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -67,7 +69,7 @@ const Employees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -78,7 +80,7 @@ const Employees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -140,7 +142,7 @@ const Employees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -167,7 +169,7 @@ const Employees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -183,19 +185,18 @@ const Employees: React.FC = () => {
         ?.name,
     })) || [];
 
-  const defaultValues = {
-    id: 0,
+  const defaultValues: CreateWorkerRequest = {
     name: '',
-    hrPositionId: -1,
-    placementId: -1,
+    hrPositionId: '',
+    placementId: '',
     organizationId: user.organizationId || -1,
     startWorkDate: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
-    monthlySalary: 0,
-    dailySalary: 0,
-    percentageSalary: 0,
+    monthlySalary: '',
+    dailySalary: '',
+    percentageSalary: '',
     gender: undefined,
     citizenship: undefined,
     passportSeries: undefined,
@@ -247,6 +248,16 @@ const Employees: React.FC = () => {
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -343,7 +354,7 @@ const Employees: React.FC = () => {
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Hr' },
-    { action: 'update', subject: 'Hr' }
+    { action: 'update', subject: 'Hr' },
   ]);
 
   return (
@@ -356,13 +367,15 @@ const Employees: React.FC = () => {
             {t('routes.employees')}
           </span>
         </div>
-        {allowed && <Button
-          icon={<PlusOutlined />}
-          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
-          onClick={() => setDrawerOpen(true)}
-        >
-          {screens.md && t('routes.addE')}
-        </Button>}
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
+            onClick={() => setDrawerOpen(true)}
+          >
+            {screens.md && t('routes.addE')}
+          </Button>
+        )}
       </div>
       <div className="mt-5">
         {notificationVisible && (
@@ -418,8 +431,10 @@ const Employees: React.FC = () => {
         open={drawerOpen}
         zIndex={9999}
       >
-        <form className="w-full max-w-2xl mx-auto p-4 space-y-6"
-          onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           {notificationVisibleForm && (
             <Notification
               title={t('hr.att')}
@@ -459,7 +474,7 @@ const Employees: React.FC = () => {
             {...register('hrPositionId', {
               required: t('validation.positionRequired'),
               validate: value =>
-                value !== -1 || t('validation.positionRequired'),
+                value !== '' || t('validation.positionRequired'),
             })}
             value={formData.hrPositionId}
             onChange={value => handleInputChange('hrPositionId', value)}
@@ -475,7 +490,7 @@ const Employees: React.FC = () => {
             classname="w-80"
             {...register('placementId', {
               required: t('validation.cityRequired'),
-              validate: value => value !== -1 || t('validation.cityRequired'),
+              validate: value => value !== '' || t('validation.cityRequired'),
             })}
             value={formData.placementId}
             onChange={value => handleInputChange('placementId', value)}
@@ -522,8 +537,8 @@ const Employees: React.FC = () => {
             title={t('profile.telephone')}
             label={t('warehouse.enterPhone')}
             classname="w-80"
-            value={formData.phone}
-            changeValue={e => handleInputChange('phone', e.target.value)}
+            value={formatRussianPhone(String(formData.phone))}
+            changeValue={handlePhoneChange}
             {...register('phone', {
               pattern: {
                 value: /^\+79\d{9}$/,
@@ -589,7 +604,7 @@ const Employees: React.FC = () => {
             {t('hr.salary')}
           </div>
           <Input
-            title={`${t('hr.month')}*`}
+            title={`${t('hr.month')}`}
             type={'number'}
             classname="w-80"
             showIcon={true}
@@ -598,14 +613,9 @@ const Employees: React.FC = () => {
             changeValue={e =>
               handleInputChange('monthlySalary', e.target.value)
             }
-            error={!!errors.monthlySalary}
-            {...register('monthlySalary', {
-              required: t('validation.monthlySalaryRequired'),
-            })}
-            helperText={errors.monthlySalary?.message || ''}
           />
           <Input
-            title={`${t('hr.daily')}*`}
+            title={`${t('hr.daily')}`}
             type={'number'}
             classname="w-80"
             showIcon={true}
@@ -613,13 +623,9 @@ const Employees: React.FC = () => {
             value={formData.dailySalary}
             changeValue={e => handleInputChange('dailySalary', e.target.value)}
             error={!!errors.dailySalary}
-            {...register('dailySalary', {
-              required: t('validation.dailySalaryRequired'),
-            })}
-            helperText={errors.dailySalary?.message || ''}
           />
           <Input
-            title={`${t('marketing.per')}*`}
+            title={`${t('marketing.per')}`}
             type={'number'}
             classname="w-80"
             value={formData.percentageSalary}
@@ -628,11 +634,6 @@ const Employees: React.FC = () => {
             changeValue={e =>
               handleInputChange('percentageSalary', e.target.value)
             }
-            error={!!errors.percentageSalary}
-            {...register('percentageSalary', {
-              required: t('validation.percentageSalaryRequired'),
-            })}
-            helperText={errors.percentageSalary?.message || ''}
           />
           <div className="text-text01 font-semibold text-2xl">
             {t('hr.add')}
@@ -725,17 +726,13 @@ const Employees: React.FC = () => {
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              htmlType="submit"
-              loading={isMutating}
-              type='primary'
-            >
+            <Button htmlType="submit" loading={isMutating} type="primary">
               {t('routes.addE')}
             </Button>
           </div>
         </form>
       </Drawer>
-    </div >
+    </div>
   );
 };
 

@@ -91,7 +91,7 @@ export function getStatusTagRender(t: TFunction) {
       t('finance.EXPENDITURE'),
       t('tables.BLOCKED'),
       t('tables.DRAFT'),
-      t('tables.DELETED')
+      t('tables.DELETED'),
     ];
 
     const orangeStatuses = [
@@ -100,7 +100,7 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.VERIFICATE'),
       t('tables.RETURNED'),
       t('tables.COMPLETED'),
-      t('tables.PENDING')
+      t('tables.PENDING'),
     ];
 
     if (greenStatuses.includes(status)) {
@@ -155,4 +155,22 @@ export const getRandomColor = () => {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
+};
+
+export const formatRussianPhone = (input: string) => {
+  let digits = input.replace(/\D/g, '');
+
+  if (digits.startsWith('8')) {
+    digits = '7' + digits.slice(1);
+  }
+  if (!digits.startsWith('7')) digits = '7' + digits;
+  digits = digits.slice(0, 11);
+
+  const masked = `+7${digits.length > 1 ? ' (' : ''}${digits.slice(
+    1,
+    4
+  )}${digits.length > 4 ? ') ' : ''}${digits.slice(4, 7)}${
+    digits.length > 7 ? '-' : ''
+  }${digits.slice(7, 9)}${digits.length > 9 ? '-' : ''}${digits.slice(9, 11)}`;
+  return masked.trim();
 };

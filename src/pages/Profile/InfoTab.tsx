@@ -9,6 +9,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import Avatar from '@/components/ui/Avatar';
 import { useToast } from '@/components/context/useContext';
 import { Button, Form, Input } from 'antd';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 const InfoTab: React.FC = () => {
   const { t } = useTranslation();
@@ -80,6 +81,16 @@ const InfoTab: React.FC = () => {
     setValue(field, value);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
+  };
+
   const onSubmit = async () => {
     try {
       const updateUserData = await updateUser();
@@ -87,9 +98,9 @@ const InfoTab: React.FC = () => {
       if (updateUserData.props.avatar) {
         const avatarUrl =
           `${import.meta.env.VITE_S3_CLOUD}/avatar/user/` +
-          `${updateUserData.props.avatar}` || null;
+            `${updateUserData.props.avatar}` || null;
         setImagePreview(avatarUrl);
-        localStorage.setItem('avatarUrl', avatarUrl || ''); 
+        localStorage.setItem('avatarUrl', avatarUrl || '');
       }
 
       const [updatedData] = await Promise.all([updateUserData]);
@@ -159,7 +170,9 @@ const InfoTab: React.FC = () => {
           </div>
           <div>
             <div className="flex">
-              <div className="text-text02 text-sm">{t('profile.telephone')}</div>
+              <div className="text-text02 text-sm">
+                {t('profile.telephone')}
+              </div>
               <span className="text-errorFill">*</span>
             </div>
             <Form.Item
@@ -172,12 +185,12 @@ const InfoTab: React.FC = () => {
                 {...register('phone', {
                   required: t('validation.phoneRequired'),
                   pattern: {
-                    value: /^\+79\d{9}$/,
+                    value: /^\+7\d{10}$/,
                     message: t('validation.phoneValidFormat'),
                   },
                 })}
-                value={formData.phone}
-                onChange={e => handleInputChange('phone', e.target.value)}
+                value={formatRussianPhone(formData.phone)}
+                onChange={handlePhoneChange}
                 status={errors.phone ? 'error' : ''}
               />
             </Form.Item>
@@ -214,7 +227,7 @@ const InfoTab: React.FC = () => {
               {t('profile.agree')}
             </div>
           </div>
-          <div className='my-6'>
+          <div className="my-6">
             <div className="text-text02">{t('routes.lan')}</div>
             <LanguageSelector />
           </div>
@@ -252,10 +265,10 @@ const InfoTab: React.FC = () => {
           </div>
           <div className="flex mt-5">
             <Button
-              htmlType='submit'
+              htmlType="submit"
               className="mb-10"
               loading={isMutating}
-              type='primary'
+              type="primary"
             >
               {t('profile.save')}
             </Button>
