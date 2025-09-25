@@ -5,7 +5,6 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { useUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -27,7 +26,6 @@ const useLoyaltyParticipantRequests = (
   pageSize: number,
   status?: LTYProgramRequestStatus,
   search?: string,
-  organizationId?: number,
   ltyProgramId?: number,
   dateFrom?: string,
   dateTo?: string
@@ -39,7 +37,6 @@ const useLoyaltyParticipantRequests = (
       pageSize,
       status,
       search,
-      organizationId,
       ltyProgramId,
       dateFrom,
       dateTo,
@@ -50,7 +47,6 @@ const useLoyaltyParticipantRequests = (
         size: pageSize,
         status: status,
         search,
-        organizationId,
         ltyProgramId,
         dateFrom,
         dateTo,
@@ -81,7 +77,6 @@ const useLoyaltyParticipantRequests = (
 const LoyaltyParticipantRequests: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -97,7 +92,6 @@ const LoyaltyParticipantRequests: React.FC = () => {
     pageSize,
     status,
     search,
-    user.organizationId,
     ltyProgramId,
     dateFrom,
     dateTo

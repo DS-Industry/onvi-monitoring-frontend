@@ -170,6 +170,7 @@ export type LoyaltyProgramsResponse = {
     isHubRejected: boolean;
     isHubRequested: boolean;
     isPublic: boolean;
+    participantId: number;
   };
 };
 
@@ -783,6 +784,7 @@ export type MarketingCampaignRequest = {
   promocode?: string;
   maxUsage?: number;
   status: MarketingCampaignStatus;
+  ltyProgramParticipantId: number;
 };
 
 export type UpdateMarketingCampaignRequest = {
@@ -797,6 +799,7 @@ export type UpdateMarketingCampaignRequest = {
   discountValue?: number;
   promocode?: string;
   maxUsage?: number;
+  ltyProgramParticipantId: number;
 };
 
 export async function createCorporateClient(
@@ -854,11 +857,11 @@ export async function getCorporateClientOperationsById(
   return response.data;
 }
 
-export async function getMarketingCampaign(): Promise<
+export async function getMarketingCampaign(orgId: number): Promise<
   MarketingCampaignResponse[]
 > {
   const response: AxiosResponse<MarketingCampaignResponse[]> = await api.get(
-    `user/loyalty/marketing-campaigns`
+    `user/loyalty/marketing-campaigns?organizationId=${orgId}`
   );
 
   return response.data;

@@ -12,6 +12,7 @@ import {
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
+import { useUser } from '@/hooks/useUserStore';
 
 const MarketingCompanies: React.FC = () => {
   const { t } = useTranslation();
@@ -19,9 +20,11 @@ const MarketingCompanies: React.FC = () => {
   const tagRender = getStatusTagRender(t);
   const navigate = useNavigate();
 
+  const user = useUser();
+
   const { data: promotionsData, isLoading } = useSWR(
-    ['marketing-campaigns'],
-    () => getMarketingCampaign(),
+    user.organizationId ? ['marketing-campaigns', user.organizationId] : null,
+    () => getMarketingCampaign(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
