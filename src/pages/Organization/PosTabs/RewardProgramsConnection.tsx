@@ -26,6 +26,7 @@ const RewardProgramsConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -36,6 +37,7 @@ const RewardProgramsConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -46,6 +48,7 @@ const RewardProgramsConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

@@ -41,6 +41,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -108,6 +109,7 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   return (

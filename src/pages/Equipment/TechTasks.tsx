@@ -62,6 +62,7 @@ const TechTasks: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -69,6 +70,7 @@ const TechTasks: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const techTasks = useMemo(

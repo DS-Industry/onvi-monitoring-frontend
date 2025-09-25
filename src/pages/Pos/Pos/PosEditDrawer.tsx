@@ -60,7 +60,10 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const {
     data: posData
   } = useSWR(id ? [`get-pos-by-id`, id] : null, () =>
-    getPosById(id!)
+    getPosById(id!),
+    {
+      shouldRetryOnError: false
+    }
   );
 
   useEffect(() => {

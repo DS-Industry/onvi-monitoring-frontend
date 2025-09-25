@@ -62,6 +62,7 @@ const Warehouse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -74,6 +75,7 @@ const Warehouse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -90,6 +92,7 @@ const Warehouse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

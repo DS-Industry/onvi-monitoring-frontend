@@ -40,11 +40,14 @@ const Pos: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
   const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({})
+    getOrganization({}), {
+      shouldRetryOnError: false
+    }
   );
 
   const { data: workerData } = useSWR(
@@ -54,6 +57,7 @@ const Pos: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -64,6 +68,7 @@ const Pos: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

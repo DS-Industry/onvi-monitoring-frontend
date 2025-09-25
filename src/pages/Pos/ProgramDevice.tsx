@@ -94,6 +94,7 @@ const ProgramDevice: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      shouldRetryOnError: false
     }
   );
 

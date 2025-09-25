@@ -73,7 +73,7 @@ const ProfileForm: React.FC = () => {
           className="btn-primary"
           onClick={handleLogout}
         >
-          <div className="hidden sm:flex">{t('profile.logout')}</div>
+          <div>{t('profile.logout')}</div>
         </Button>
       </div>
       <div className="max-w-5xl bg-white">

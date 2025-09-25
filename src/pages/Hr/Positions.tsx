@@ -58,6 +58,7 @@ const Positions: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -72,6 +73,7 @@ const Positions: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false,
   });
 
   const defaultValues: Positions = {
@@ -219,7 +221,7 @@ const Positions: React.FC = () => {
           </Typography.Link>
         );
       },
-    })
+    });
   }
 
   return (
@@ -232,13 +234,15 @@ const Positions: React.FC = () => {
             {t('routes.positions')}
           </span>
         </div>
-        {allowed && <Button
-          icon={<PlusOutlined />}
-          className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
-          onClick={() => setDrawerOpen(true)}
-        >
-          {screens.md && t('routes.new')}
-        </Button>}
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
+            onClick={() => setDrawerOpen(true)}
+          >
+            {screens.md && t('routes.new')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">
@@ -261,8 +265,10 @@ const Positions: React.FC = () => {
         className="custom-drawer"
         zIndex={9999}
       >
-        <form className="w-full max-w-2xl mx-auto p-4 space-y-6"
-          onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div className="flex">
             <span className="font-semibold text-sm text-text01">
               {t('routine.fields')}
@@ -309,11 +315,7 @@ const Positions: React.FC = () => {
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              htmlType="submit"
-              loading={isMutating}
-              type='primary'
-            >
+            <Button htmlType="submit" loading={isMutating} type="primary">
               {t('hr.pos')}
             </Button>
           </div>

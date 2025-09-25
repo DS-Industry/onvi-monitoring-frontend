@@ -31,7 +31,10 @@ const Cards: React.FC = () => {
         page: currentPage,
         size: pageSize,
         search: search,
-      })
+      }),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const dataSource =

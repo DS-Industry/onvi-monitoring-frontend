@@ -32,12 +32,17 @@ const Analysis: React.FC = () => {
     mutate: mutateGetAllReport,
     isLoading: loadingReports,
     isValidating: validatingReports,
-  } = useSWR(['get-all-report', category, currentPage, pageSize], () =>
-    getAllReports({
-      category: category,
-      page: currentPage,
-      size: pageSize,
-    })
+  } = useSWR(
+    ['get-all-report', category, currentPage, pageSize],
+    () =>
+      getAllReports({
+        category: category,
+        page: currentPage,
+        size: pageSize,
+      }),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   useEffect(() => {
@@ -75,7 +80,9 @@ const Analysis: React.FC = () => {
 
       <GeneralFilters count={reportsData.length} display={['search']}>
         <div>
-          <div className="text-sm text-text02 mb-1">{t('warehouse.category')}</div>
+          <div className="text-sm text-text02 mb-1">
+            {t('warehouse.category')}
+          </div>
           <Select
             className="w-full sm:w-80"
             value={category}

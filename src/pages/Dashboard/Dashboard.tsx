@@ -12,14 +12,17 @@ import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Indicators from './Indicators';
 import RatingOfCarWashes from './RatingOfCarWases';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type TAB = 'news' | 'indicators' | 'rating';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const userPermissions = usePermissions();
 
-  const tabFromUrl = searchParams.get('tab') as TAB || 'news';
+  const tabFromUrl = (searchParams.get('tab') as TAB) || 'news';
 
   const handleTabChange = (key: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -28,6 +31,10 @@ const Dashboard: React.FC = () => {
   };
 
   const { user, setUser } = useUserStore();
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Pos' },
+    { action: 'read', subject: 'Pos' },
+  ]);
 
   const tabItems = [
     {
@@ -35,17 +42,22 @@ const Dashboard: React.FC = () => {
       label: t('dashboard.news'),
       content: <News />,
     },
-    {
-      key: 'indicators',
-      label: t('dashboard.indicators'),
-      content: <Indicators />,
-    },
-    {
-      key: 'rating',
-      label: t('dashboard.rating'),
-      content: <RatingOfCarWashes />,
-    }
   ];
+
+  if (allowed) {
+    tabItems.push(
+      {
+        key: 'indicators',
+        label: t('dashboard.indicators'),
+        content: <Indicators />,
+      },
+      {
+        key: 'rating',
+        label: t('dashboard.rating'),
+        content: <RatingOfCarWashes />,
+      }
+    );
+  }
 
   return (
     <div>

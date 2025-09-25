@@ -48,6 +48,7 @@ const DocumentView: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const { data: nomenclatureData } = useSWR(
@@ -57,6 +58,7 @@ const DocumentView: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -77,6 +79,7 @@ const DocumentView: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

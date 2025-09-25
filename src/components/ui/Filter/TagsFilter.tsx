@@ -13,6 +13,7 @@ const TagsFilter: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const options = tagsData ? tagsData.map(tag => tag.props) : [];

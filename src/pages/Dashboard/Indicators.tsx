@@ -58,10 +58,14 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState<number | undefined>();
   const [searchParams] = useSearchParams();
-  const startDate = dayjs(searchParams.get('dateStart') || dayjs().format('YYYY-MM-DD'))
+  const startDate = dayjs(
+    searchParams.get('dateStart') || dayjs().format('YYYY-MM-DD')
+  )
     .startOf('day')
     .toDate();
-  const endDate = dayjs(searchParams.get('dateEnd') || dayjs().format('YYYY-MM-DD'))
+  const endDate = dayjs(
+    searchParams.get('dateEnd') || dayjs().format('YYYY-MM-DD')
+  )
     .endOf('day')
     .toDate();
   const [dateRange, setDateRange] = useState({
@@ -89,20 +93,29 @@ const Indicators: React.FC = () => {
     { label: t('dashboard.month'), value: 'month' },
   ];
 
-  const { data, isLoading: cardsDataLoading } = useSWR(['get-statistic'], () =>
-    getStatistic()
+  const { data, isLoading: cardsDataLoading } = useSWR(
+    ['get-statistic'],
+    () => getStatistic(),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const {
     data: filter,
     isLoading: filterLoading,
     isValidating: filterValidating,
-  } = useSWR(['get-pos-deposits', dateRange, selectedValue], () =>
-    getDepositPos({
-      ...dateRange,
-      posId: selectedValue,
-      placementId: city,
-    })
+  } = useSWR(
+    ['get-pos-deposits', dateRange, selectedValue],
+    () =>
+      getDepositPos({
+        ...dateRange,
+        posId: selectedValue,
+        placementId: city,
+      }),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const {
@@ -572,7 +585,6 @@ const Indicators: React.FC = () => {
                   />
                 </Space>
               ) : (
-                // Desktop view: RangePicker
                 <RangePicker
                   onChange={handleDateRangeChange}
                   value={[dayjs(dateRange.dateStart), dayjs(dateRange.dateEnd)]}
