@@ -28,6 +28,7 @@ const Loyalty: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -48,6 +49,7 @@ const Loyalty: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -101,9 +103,14 @@ const Loyalty: React.FC = () => {
     );
   }
 
-  const progressPercentage = loyaltyStats.amountToNextTier > 0
-    ? Math.min((loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) * 100, 100)
-    : 100;
+  const progressPercentage =
+    loyaltyStats.amountToNextTier > 0
+      ? Math.min(
+          (loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) *
+            100,
+          100
+        )
+      : 100;
 
   const filledBars = Math.max(1, Math.round((progressPercentage / 100) * 20));
 
@@ -112,7 +119,10 @@ const Loyalty: React.FC = () => {
       <Row gutter={[16, 16]} className="flex-wrap">
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card  h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-base md:text-lg"
+            >
               {t('marketing.loyalty')}
             </Title>
 
@@ -149,17 +159,23 @@ const Loyalty: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card  h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-base md:text-lg"
+            >
               {t('marketing.purchase')}
             </Title>
 
             <Text className="text-xs font-semibold text-text01">
               {t('marketing.detail')}
             </Text>
-            
+
             <Row justify="space-between" className="my-2">
               <Col className="w-16 md:w-20">
-                <Title level={5} className="text-text01 m-0 text-sm md:text-base">
+                <Title
+                  level={5}
+                  className="text-text01 m-0 text-sm md:text-base"
+                >
                   {loyaltyStats.accumulatedAmount.toLocaleString()}
                 </Title>
                 <Text className="text-xs md:text-sm text-text02">
@@ -168,7 +184,10 @@ const Loyalty: React.FC = () => {
               </Col>
               <Col className="w-20 md:w-28">
                 <div className="text-end">
-                  <Title level={5} className="text-text01 m-0 text-sm md:text-base">
+                  <Title
+                    level={5}
+                    className="text-text01 m-0 text-sm md:text-base"
+                  >
                     {loyaltyStats.amountToNextTier.toLocaleString()}
                   </Title>
                   <Text className="text-xs md:text-sm text-text02">
@@ -192,7 +211,7 @@ const Loyalty: React.FC = () => {
                 );
               })}
             </div>
-            
+
             <div className="mt-2 text-center">
               <Text className="text-xs text-text02">
                 {Math.round(progressPercentage)}% {t('marketing.complete')}
@@ -212,7 +231,9 @@ const Loyalty: React.FC = () => {
                 <Text className="text-base md:text-lg font-semibold text-text01">
                   {loyaltyStats.nextTierName || t('marketing.amateur')}
                 </Text>
-                <div className="text-xs md:text-sm text-text02">{t('marketing.next')}</div>
+                <div className="text-xs md:text-sm text-text02">
+                  {t('marketing.next')}
+                </div>
               </Col>
             </Row>
           </Card>
@@ -220,7 +241,10 @@ const Loyalty: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-base md:text-lg"
+            >
               {t('marketing.balance')}
             </Title>
 
@@ -229,18 +253,21 @@ const Loyalty: React.FC = () => {
             </Text>
 
             <div className="mb-3">
-              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.activeBonuses.toLocaleString()}</div>
+              <div className=" text-text01 text-xs md:text-sm mt-3">
+                {loyaltyStats.activeBonuses.toLocaleString()}
+              </div>
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.balance')}
               </Text>
             </div>
 
             <div className="mb-3">
-              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.totalBonusEarned.toLocaleString()} ₽</div>
+              <div className=" text-text01 text-xs md:text-sm mt-3">
+                {loyaltyStats.totalBonusEarned.toLocaleString()} ₽
+              </div>
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.accr')}
               </Text>
-              
             </div>
           </Card>
         </Col>

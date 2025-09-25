@@ -46,6 +46,7 @@ const TimesheetView: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
       onError: () => {
         message.error(t('errors.somethingWentWrong'));
       },

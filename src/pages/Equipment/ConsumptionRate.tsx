@@ -32,6 +32,7 @@ const ConsumptionRate: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -42,6 +43,7 @@ const ConsumptionRate: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -65,7 +67,9 @@ const ConsumptionRate: React.FC = () => {
     }
   );
 
-  const { data: cityData } = useSWR('get-city', getPlacement);
+  const { data: cityData } = useSWR('get-city', getPlacement, {
+    shouldRetryOnError: false,
+  });
 
   const cities = [
     ...(cityData?.map(item => ({
@@ -209,7 +213,7 @@ const ConsumptionRate: React.FC = () => {
             showSearch
             allowClear={false}
             className="w-full"
-            placeholder={t("chemical.select")}
+            placeholder={t('chemical.select')}
             value={getParam(searchParams, 'city', '') || null}
             onChange={(value: string | undefined) => {
               updateSearchParams(searchParams, setSearchParams, {
@@ -234,7 +238,7 @@ const ConsumptionRate: React.FC = () => {
           <Select
             showSearch
             allowClear={false}
-            placeholder={t("chemical.select")}
+            placeholder={t('chemical.select')}
             value={getParam(searchParams, 'posId') || null}
             onChange={(value: string | undefined) => {
               updateSearchParams(searchParams, setSearchParams, {

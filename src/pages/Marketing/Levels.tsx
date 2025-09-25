@@ -86,6 +86,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
       onSuccess: () => {
         setIsInitialLoading(false);
       },
@@ -101,6 +102,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -108,6 +110,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const benefits =

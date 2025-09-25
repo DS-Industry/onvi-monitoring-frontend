@@ -140,6 +140,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

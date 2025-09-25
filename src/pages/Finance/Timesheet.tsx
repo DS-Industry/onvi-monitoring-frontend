@@ -81,10 +81,10 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
-  //Get All shifts
   const {
     data: shiftsData,
     mutate: refetchShifts,
@@ -101,6 +101,7 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -114,6 +115,7 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

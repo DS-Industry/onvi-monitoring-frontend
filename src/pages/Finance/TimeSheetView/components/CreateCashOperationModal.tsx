@@ -34,6 +34,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

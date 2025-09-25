@@ -157,6 +157,7 @@ const DocumentTypesTable: React.FC<Props> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -167,6 +168,7 @@ const DocumentTypesTable: React.FC<Props> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

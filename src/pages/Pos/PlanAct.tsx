@@ -91,13 +91,14 @@ const PlanAct: React.FC = () => {
       }).finally(() => setIsInitialLoading(false)),
     {
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
   const { data: posList } = useSWR(
     ['get-poses', placementId],
     () => getPoses({ placementId }),
-    { keepPreviousData: true }
+    { keepPreviousData: true, shouldRetryOnError: false }
   );
 
   const totalCount = planFactData?.totalCount || 0;

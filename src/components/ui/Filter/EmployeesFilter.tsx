@@ -39,6 +39,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const cities: { name: string; value: number | string }[] =

@@ -15,16 +15,24 @@ const KeyTab: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  const clientId = searchParams.get('userId')
+  const clientId = searchParams.get('userId');
 
-  const { data: stats, error, isLoading } = useSWR(
+  const {
+    data: stats,
+    error,
+    isLoading,
+  } = useSWR(
     user.organizationId && clientId
       ? ['user-key-stats', user.organizationId, clientId]
       : null,
-    () => getUserKeyStatsByOrganizationId({
-      clientId: Number(clientId!),
-      organizationId: user.organizationId!,
-    })
+    () =>
+      getUserKeyStatsByOrganizationId({
+        clientId: Number(clientId!),
+        organizationId: user.organizationId!,
+      }),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   if (isLoading) {
@@ -60,28 +68,30 @@ const KeyTab: React.FC = () => {
   }
 
   const statsData = [
-    { 
-      value: `${stats.totalAmountSpent.toLocaleString()} ₽`, 
+    {
+      value: `${stats.totalAmountSpent.toLocaleString()} ₽`,
       label: t('marketing.total'),
     },
-    { 
-      value: `${stats.averageOrderAmount.toLocaleString()} ₽`, 
+    {
+      value: `${stats.averageOrderAmount.toLocaleString()} ₽`,
       label: t('marketing.avg'),
     },
-    { 
-      value: stats.totalOrdersCount.toString(), 
+    {
+      value: stats.totalOrdersCount.toString(),
       label: t('marketing.number'),
     },
-    { 
-      value: `${stats.cardBalance.toLocaleString()} ₽`, 
+    {
+      value: `${stats.cardBalance.toLocaleString()} ₽`,
       label: t('marketing.bonus'),
     },
-    { 
-      value: stats.cardNumber, 
+    {
+      value: stats.cardNumber,
       label: t('marketing.card'),
     },
-    { 
-      value: stats.lastOrderDate ? dayjs(stats.lastOrderDate).format('DD.MM.YYYY') : 'N/A', 
+    {
+      value: stats.lastOrderDate
+        ? dayjs(stats.lastOrderDate).format('DD.MM.YYYY')
+        : 'N/A',
       label: t('marketing.lastOrder'),
     },
   ];

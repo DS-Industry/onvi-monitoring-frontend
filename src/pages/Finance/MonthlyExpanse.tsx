@@ -194,6 +194,7 @@ const MonthlyExpanse: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const managerPeriods = useMemo(
@@ -213,6 +214,7 @@ const MonthlyExpanse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

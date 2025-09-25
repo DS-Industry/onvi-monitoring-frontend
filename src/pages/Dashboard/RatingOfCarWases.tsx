@@ -46,7 +46,9 @@ const RatingOfCarWashes = () => {
     data: ratingData = [],
     isLoading: loadingRating,
     isValidating: validatingRating,
-  } = useSWR(['get-rating-org', dateRange], () => getRating(dateRange));
+  } = useSWR(['get-rating-org', dateRange], () => getRating(dateRange), {
+    shouldRetryOnError: false,
+  });
 
   const handleDurationClick = (duration: 'today' | 'week' | 'month') => {
     const now = new Date();
@@ -114,7 +116,7 @@ const RatingOfCarWashes = () => {
           {screens.xs ? (
             <Space direction="vertical" style={{ width: '100%' }}>
               <DatePicker
-                placeholder={t("filters.dateTime.startDate")}
+                placeholder={t('filters.dateTime.startDate')}
                 value={dayjs(dateRange.dateStart)}
                 onChange={date => {
                   if (date) {
@@ -128,7 +130,7 @@ const RatingOfCarWashes = () => {
                 style={{ width: '100%' }}
               />
               <DatePicker
-                placeholder={t("filters.dateTime.endDate")}
+                placeholder={t('filters.dateTime.endDate')}
                 value={dayjs(dateRange.dateEnd)}
                 onChange={date => {
                   if (date) {

@@ -44,6 +44,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -58,6 +59,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
