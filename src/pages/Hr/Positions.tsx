@@ -27,6 +27,8 @@ import { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 
 import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type Positions = {
   id: number;
@@ -43,6 +45,7 @@ const Positions: React.FC = () => {
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
+  const userPermissions = usePermissions();
 
   const screens = Grid.useBreakpoint();
 
@@ -144,6 +147,11 @@ const Positions: React.FC = () => {
     }
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'update', subject: 'Hr' },
+  ]);
+
   const columns: ColumnsType<Positions> = [
     {
       title: t('Должность'),
@@ -170,7 +178,10 @@ const Positions: React.FC = () => {
         return text || '-';
       },
     },
-    {
+  ];
+
+  if (allowed) {
+    columns.push({
       title: '',
       key: 'actions',
       width: '15%',
@@ -208,8 +219,8 @@ const Positions: React.FC = () => {
           </Typography.Link>
         );
       },
-    },
-  ];
+    })
+  }
 
   return (
     <div>
@@ -221,13 +232,13 @@ const Positions: React.FC = () => {
             {t('routes.positions')}
           </span>
         </div>
-        <Button
+        {allowed && <Button
           icon={<PlusOutlined />}
           className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => setDrawerOpen(true)}
         >
           {screens.md && t('routes.new')}
-        </Button>
+        </Button>}
       </div>
 
       <div className="mt-5">

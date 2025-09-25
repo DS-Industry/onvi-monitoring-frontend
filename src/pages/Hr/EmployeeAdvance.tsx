@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Table, Button as AntButton, Grid } from 'antd';
+import { Table, Button, Grid } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -26,6 +26,8 @@ import {
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type TablePayment = PrepaymentResponse & {
   hrPosition?: string;
@@ -35,6 +37,7 @@ const EmployeeAdvance: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const userPermissions = usePermissions();
 
   const screens = Grid.useBreakpoint();
 
@@ -173,6 +176,11 @@ const EmployeeAdvance: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector<TablePayment>(columnsEmployee, 'employee-columns');
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'create', subject: 'Hr' }
+  ]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -183,13 +191,13 @@ const EmployeeAdvance: React.FC = () => {
             {t('routes.empAdv')}
           </span>
         </div>
-        <AntButton
+        {allowed && <Button
           icon={<PlusOutlined />}
           className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => navigate('/hr/employee/advance/creation')}
         >
           {screens.md && t('routes.create')}
-        </AntButton>
+        </Button>}
       </div>
 
       <div className="mt-5">
