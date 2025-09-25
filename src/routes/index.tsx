@@ -933,11 +933,11 @@ const routes = [
       },
       {
         name: 'segments',
-        isVisible: true,
+        isVisible: false,
         path: '/marketing/segments',
         component: Default,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
+        isSidebar: false,
         subNav: [],
         subMenu: false,
       },
