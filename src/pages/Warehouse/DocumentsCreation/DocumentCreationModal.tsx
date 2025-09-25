@@ -100,6 +100,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -112,6 +113,7 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

@@ -76,6 +76,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const {
@@ -86,6 +87,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const { data: techTaskItems } = useSWR(
@@ -95,6 +97,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

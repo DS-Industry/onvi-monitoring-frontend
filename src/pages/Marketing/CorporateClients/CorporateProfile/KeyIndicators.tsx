@@ -14,7 +14,10 @@ const KeyIndicators: React.FC = () => {
 
   const { data: stats, isLoading } = useSWR(
     clientId ? ['user-key-stats', clientId] : null,
-    () => getCorporateClientStatsById(Number(clientId!))
+    () => getCorporateClientStatsById(Number(clientId!)),
+    {
+      shouldRetryOnError: false
+    }
   );
 
   if (isLoading) {

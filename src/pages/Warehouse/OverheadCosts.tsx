@@ -65,6 +65,7 @@ const OverheadCosts: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const { data: warehouseData } = useSWR(
@@ -78,6 +79,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -88,6 +90,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
       onSuccess: data => {
         if (data && data.length > 0) {
           updateSearchParams(searchParams, setSearchParams, {
@@ -158,6 +161,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -180,6 +184,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

@@ -26,6 +26,7 @@ const MarketingCompanies: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 5000,
+      shouldRetryOnError: false
     }
   );
 

@@ -61,7 +61,14 @@ const SalaryCalculation: React.FC = () => {
     : undefined;
 
   const { data: paymentsData, isLoading } = useSWR(
-    ['get-payments', startPaymentDate, endPaymentDate, workerId, currentPage, pageSize],
+    [
+      'get-payments',
+      startPaymentDate,
+      endPaymentDate,
+      workerId,
+      currentPage,
+      pageSize,
+    ],
     () =>
       getPayments({
         startPaymentDate: startPaymentDate,
@@ -74,6 +81,7 @@ const SalaryCalculation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -84,7 +92,7 @@ const SalaryCalculation: React.FC = () => {
   const { data: positionData } = useSWR(
     ['get-positions'],
     () => getPositions(),
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
   const workers = useMemo(() => {
@@ -217,7 +225,7 @@ const SalaryCalculation: React.FC = () => {
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Hr' },
-    { action: 'create', subject: 'Hr' }
+    { action: 'create', subject: 'Hr' },
   ]);
 
   return (
@@ -230,13 +238,15 @@ const SalaryCalculation: React.FC = () => {
             {t('routes.salary')}
           </span>
         </div>
-        {allowed && <Button
-          icon={<PlusOutlined />}
-          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
-          onClick={() => navigate('/hr/salary/creation')}
-        >
-          {screens.md && t('routes.calc')}
-        </Button>}
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
+            onClick={() => navigate('/hr/salary/creation')}
+          >
+            {screens.md && t('routes.calc')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">

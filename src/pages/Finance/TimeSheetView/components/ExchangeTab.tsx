@@ -50,6 +50,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

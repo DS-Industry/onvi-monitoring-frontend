@@ -31,7 +31,10 @@ const Organization: React.FC = () => {
   } = useSWR([`get-org`, city], () =>
     getOrganization({
       placementId: city,
-    })
+    }),
+    {
+      shouldRetryOnError: false
+    }
   );
 
   const user = useUser();
@@ -43,6 +46,7 @@ const Organization: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

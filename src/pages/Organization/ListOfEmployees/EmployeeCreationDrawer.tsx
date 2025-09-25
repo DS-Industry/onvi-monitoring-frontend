@@ -108,10 +108,14 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({})
+    getOrganization({}),
+  {
+    shouldRetryOnError: false
+  }
   );
 
   return (

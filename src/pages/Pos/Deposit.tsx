@@ -98,6 +98,7 @@ const Deposit: React.FC = () => {
       revalidateOnReconnect: true,
       keepPreviousData: true,
       revalidateOnFocus: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -112,6 +113,7 @@ const Deposit: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
