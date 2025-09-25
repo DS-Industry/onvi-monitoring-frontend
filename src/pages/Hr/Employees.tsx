@@ -34,6 +34,8 @@ import {
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
+import hasPermission from '@/permissions/hasPermission';
+import { usePermissions } from '@/hooks/useAuthStore';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -46,6 +48,7 @@ const Employees: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const { showToast } = useToast();
 
@@ -334,6 +337,11 @@ const Employees: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector<TWorker['props']>(columnsEmployee, 'employee-columns');
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'update', subject: 'Hr' }
+  ]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -344,13 +352,13 @@ const Employees: React.FC = () => {
             {t('routes.employees')}
           </span>
         </div>
-        <Button
+        {allowed && <Button
           icon={<PlusOutlined />}
           className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
           onClick={() => setDrawerOpen(true)}
         >
           {screens.md && t('routes.addE')}
-        </Button>
+        </Button>}
       </div>
       <div className="mt-5">
         {notificationVisible && (
