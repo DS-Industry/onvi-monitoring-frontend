@@ -118,161 +118,164 @@ const InfoTab: React.FC = () => {
 
   return (
     <div className="max-w-6xl mr-auto">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col md:flex-row justify-between items-start gap-6"
-      >
-        <div className="flex flex-col w-full">
-          <div>
-            <div className="flex">
-              <div className="text-text02 text-sm">{t('profile.name')}</div>
-              <span className="text-errorFill">*</span>
-            </div>
-            <Form.Item
-              help={errors.name?.message}
-              validateStatus={errors.name ? 'error' : undefined}
-            >
-              <Input
-                placeholder={t('profile.namePlaceholder')}
-                className="w-80 sm:w-96"
-                {...register('name', {
-                  required: t('validation.nameRequired'),
-                })}
-                value={formData.name}
-                onChange={e => handleInputChange('name', e.target.value)}
-                status={errors.name ? 'error' : ''}
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <div className="text-text02 text-sm">{t('profile.middlename')}</div>
-            <Form.Item>
-              <Input
-                placeholder={t('profile.middlenamePlaceholder')}
-                className="w-80 sm:w-96"
-                {...register('middlename')}
-                value={formData.middlename}
-                onChange={e => handleInputChange('middlename', e.target.value)}
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <div className="text-text02 text-sm">{t('profile.surname')}</div>
-            <Form.Item>
-              <Input
-                placeholder={t('profile.surnamePlaceholder')}
-                className="w-80 sm:w-96"
-                {...register('surname')}
-                value={formData.surname}
-                onChange={e => handleInputChange('surname', e.target.value)}
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <div className="flex">
-              <div className="text-text02 text-sm">
-                {t('profile.telephone')}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+          <div className="flex flex-col w-full">
+            <div>
+              <div className="flex">
+                <div className="text-text02 text-sm">{t('profile.name')}</div>
+                <span className="text-errorFill">*</span>
               </div>
-              <span className="text-errorFill">*</span>
+              <Form.Item
+                help={errors.name?.message}
+                validateStatus={errors.name ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('profile.namePlaceholder')}
+                  className="w-80 sm:w-96"
+                  {...register('name', {
+                    required: t('validation.nameRequired'),
+                  })}
+                  value={formData.name}
+                  onChange={e => handleInputChange('name', e.target.value)}
+                  status={errors.name ? 'error' : ''}
+                />
+              </Form.Item>
             </div>
-            <Form.Item
-              help={errors.phone?.message}
-              validateStatus={errors.phone ? 'error' : undefined}
-            >
-              <Input
-                placeholder={t('profile.telephonePlaceholder')}
-                className="w-80 sm:w-96"
-                {...register('phone', {
-                  required: t('validation.phoneRequired'),
-                  pattern: {
-                    value: /^\+7\d{10}$/,
-                    message: t('validation.phoneValidFormat'),
-                  },
-                })}
-                value={formatRussianPhone(formData.phone)}
-                onChange={handlePhoneChange}
-                status={errors.phone ? 'error' : ''}
-              />
-            </Form.Item>
-          </div>
-          <div>
+            <div>
+              <div className="text-text02 text-sm">
+                {t('profile.middlename')}
+              </div>
+              <Form.Item>
+                <Input
+                  placeholder={t('profile.middlenamePlaceholder')}
+                  className="w-80 sm:w-96"
+                  {...register('middlename')}
+                  value={formData.middlename}
+                  onChange={e =>
+                    handleInputChange('middlename', e.target.value)
+                  }
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="text-text02 text-sm">{t('profile.surname')}</div>
+              <Form.Item>
+                <Input
+                  placeholder={t('profile.surnamePlaceholder')}
+                  className="w-80 sm:w-96"
+                  {...register('surname')}
+                  value={formData.surname}
+                  onChange={e => handleInputChange('surname', e.target.value)}
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="flex">
+                <div className="text-text02 text-sm">
+                  {t('profile.telephone')}
+                </div>
+                <span className="text-errorFill">*</span>
+              </div>
+              <Form.Item
+                help={errors.phone?.message}
+                validateStatus={errors.phone ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('profile.telephonePlaceholder')}
+                  className="w-80 sm:w-96"
+                  {...register('phone', {
+                    required: t('validation.phoneRequired'),
+                    pattern: {
+                      value: /^\+7\d{10}$/,
+                      message: t('validation.phoneValidFormat'),
+                    },
+                  })}
+                  value={formatRussianPhone(formData.phone)}
+                  onChange={handlePhoneChange}
+                  status={errors.phone ? 'error' : ''}
+                />
+              </Form.Item>
+            </div>
+            <div>
+              <div className="flex">
+                <div className="text-text02 text-sm">Email</div>
+                <span className="text-errorFill">*</span>
+              </div>
+              <Form.Item
+                help={errors.email?.message}
+                validateStatus={errors.email ? 'error' : undefined}
+              >
+                <Input
+                  placeholder={t('profile.emailPlaceholder')}
+                  className="w-80 sm:w-96"
+                  {...register('email', {
+                    required: t('validation.emailRequired'),
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Invalid email format',
+                    },
+                  })}
+                  value={formData.email}
+                  onChange={e => handleInputChange('email', e.target.value)}
+                  status={errors.email ? 'error' : ''}
+                  disabled={true}
+                />
+              </Form.Item>
+            </div>
             <div className="flex">
-              <div className="text-text02 text-sm">Email</div>
-              <span className="text-errorFill">*</span>
+              <input type="checkbox" />
+              <div className="ml-2 text-text02 text-base">
+                {t('profile.agree')}
+              </div>
             </div>
-            <Form.Item
-              help={errors.email?.message}
-              validateStatus={errors.email ? 'error' : undefined}
-            >
-              <Input
-                placeholder={t('profile.emailPlaceholder')}
-                className="w-80 sm:w-96"
-                {...register('email', {
-                  required: t('validation.emailRequired'),
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Invalid email format',
-                  },
-                })}
-                value={formData.email}
-                onChange={e => handleInputChange('email', e.target.value)}
-                status={errors.email ? 'error' : ''}
-                disabled={true}
+            <div className="my-6">
+              <div className="text-text02">{t('routes.lan')}</div>
+              <LanguageSelector />
+            </div>
+          </div>
+          <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
+            <div>{t('profile.photo')}</div>
+
+            {imagePreview ? (
+              <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
+                <img
+                  src={imagePreview}
+                  alt="Profile"
+                  className="rounded-full w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <Avatar type="profile" userName={userName} />
+            )}
+
+            <div className="mt-2">
+              <label
+                htmlFor="file-upload"
+                className="w-36 flex justify-center items-center text-primary02 cursor-pointer"
+              >
+                {t('profile.changePh')}
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
               />
-            </Form.Item>
-          </div>
-          <div className="flex">
-            <input type="checkbox" />
-            <div className="ml-2 text-text02 text-base">
-              {t('profile.agree')}
             </div>
-          </div>
-          <div className="my-6">
-            <div className="text-text02">{t('routes.lan')}</div>
-            <LanguageSelector />
           </div>
         </div>
-        <div className="flex flex-col items-center md:ml-auto lg:ml-40 w-full md:w-1/3">
-          <div>{t('profile.photo')}</div>
-
-          {imagePreview ? (
-            <div className="relative w-36 h-36 rounded-full bg-[#bffa00] flex items-center justify-center">
-              <img
-                src={imagePreview}
-                alt="Profile"
-                className="rounded-full w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          ) : (
-            <Avatar type="profile" userName={userName} />
-          )}
-
-          <div className="mt-2">
-            <label
-              htmlFor="file-upload"
-              className="w-36 flex justify-center items-center text-primary02 cursor-pointer"
-            >
-              {t('profile.changePh')}
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-          <div className="flex mt-5">
-            <Button
-              htmlType="submit"
-              className="mb-10"
-              loading={isMutating}
-              type="primary"
-            >
-              {t('profile.save')}
-            </Button>
-          </div>
+        <div className="flex mt-5">
+          <Button
+            htmlType="submit"
+            className="mb-10"
+            loading={isMutating}
+            type="primary"
+          >
+            {t('profile.save')}
+          </Button>
         </div>
       </form>
     </div>

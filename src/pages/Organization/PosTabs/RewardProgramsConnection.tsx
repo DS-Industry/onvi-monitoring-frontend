@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Spin, Transfer } from 'antd';
+import { Button, Select, Spin, Transfer } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
 import useSWR, { mutate } from 'swr';
@@ -7,7 +7,6 @@ import { getLoyaltyProgramPermissionById, getLoyaltyProgramPermissionByOrgId, lo
 import { getWorkers } from '@/services/api/equipment';
 import { useTranslation } from 'react-i18next';
 import useSWRMutation from 'swr/mutation';
-import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
 
 const RewardProgramsConnection: React.FC = () => {
   const { t } = useTranslation();
@@ -54,7 +53,7 @@ const RewardProgramsConnection: React.FC = () => {
 
   const workers =
     workerData.map(w => ({
-      name: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
+      label: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
       value: w.id,
     })) || [];
 
@@ -110,19 +109,21 @@ const RewardProgramsConnection: React.FC = () => {
   return (
    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 sm:items-center">
-        <SearchDropdownInput
-          title={t('equipment.user')}
-          options={workers}
-          classname="w-full sm:w-72"
-          value={workerId}
-          onChange={setWorkerId}
-          allowClear
-        />
+        <div>
+          <div className="text-text02 text-sm">{t('equipment.user')}</div>
+          <Select
+            options={workers}
+            className="w-full sm:w-72"
+            value={workerId}
+            onChange={setWorkerId}
+            showSearch={true}
+          />
+        </div>
         <Button
           loading={isMutating}
           onClick={handleConnection}
           type="primary"
-          className="mt-5 h-10"
+          className="mt-5"
         >
           {t('organizations.save')}
         </Button>

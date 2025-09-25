@@ -107,7 +107,7 @@ const InventoryCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -115,7 +115,7 @@ const InventoryCreation: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const { data: supplierData } = useSWR(
@@ -125,7 +125,7 @@ const InventoryCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -229,19 +229,7 @@ const InventoryCreation: React.FC = () => {
       })
     );
 
-  type FieldType =
-    | 'organizationId'
-    | 'categoryId'
-    | 'supplierId'
-    | 'weight'
-    | 'height'
-    | 'length'
-    | 'width'
-    | 'name'
-    | 'sku'
-    | 'measurement'
-    | 'description'
-    | 'purpose';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = [
@@ -407,17 +395,17 @@ const InventoryCreation: React.FC = () => {
             {t('routes.nomenclature')}
           </span>
         </div>
-        <div className="flex space-x-2">
-          <Button
-            icon={<DownloadOutlined />}
-            className="btn-outline-primary"
-            onClick={() => {
-              navigate('/warehouse/inventory/import');
-            }}
-          >
-            <span className="hidden sm:flex">{t('routes.import')}</span>
-          </Button>
-          {allowed && (
+        {allowed && (
+          <div className="flex space-x-2">
+            <Button
+              icon={<DownloadOutlined />}
+              className="btn-outline-primary"
+              onClick={() => {
+                navigate('/warehouse/inventory/import');
+              }}
+            >
+              <span className="hidden sm:flex">{t('routes.import')}</span>
+            </Button>
             <Button
               icon={<PlusOutlined />}
               className="btn-primary"
@@ -425,8 +413,8 @@ const InventoryCreation: React.FC = () => {
             >
               <span className="hidden sm:flex">{t('routes.add')}</span>
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <GeneralFilters count={inventoriesDisplay.length} display={['none']}>
         <div>
@@ -492,7 +480,10 @@ const InventoryCreation: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -682,7 +673,7 @@ const InventoryCreation: React.FC = () => {
             </Can>
             <Button
               htmlType={'submit'}
-              type='primary'
+              type="primary"
               loading={isEditMode ? updatingInventory : isMutating}
             >
               {t('organizations.save')}

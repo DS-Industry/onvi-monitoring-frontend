@@ -581,8 +581,8 @@ const Articles: React.FC = () => {
         const result = await updateManager(apiPayload);
 
         if (result) {
-          mutate([`get-manager-data`, filterParams]);
-          mutate([`get-manager-graph-data`, filterParams]);
+          mutate(swrKeyManagerData);
+          mutate(swrKeyManagerPaperGraph);
           newData.splice(index, 1, updatedItem);
           setData(newData);
           setEditingKey('');
@@ -617,8 +617,8 @@ const Articles: React.FC = () => {
       );
 
       if (result) {
-        mutate([`get-manager-data`, filterParams]);
-        mutate([`get-manager-graph-data`, filterParams]);
+        mutate(swrKeyManagerData);
+        mutate(swrKeyManagerPaperGraph);
         setSelectedRowKeys([]);
         if (selectedRowKeys.includes(editingKey)) {
           setEditingKey('');
@@ -798,7 +798,7 @@ const Articles: React.FC = () => {
 
   const allWorkers: { name: string; value: number }[] = [
     ...(allWorkersData?.map(work => ({
-      name: work.props.name,
+      name: `${work.props.name} ${work.props.surname}`,
       value: work.props.id,
     })) || []),
   ];
@@ -873,8 +873,8 @@ const Articles: React.FC = () => {
     try {
       const result = await createManager();
       if (result) {
-        mutate([`get-manager-data`, filterParams]);
-        mutate([`get-manager-graph-data`, filterParams]);
+        mutate(swrKeyManagerData);
+        mutate(swrKeyManagerPaperGraph);
         resetForm();
       } else {
         throw new Error('Invalid response from API');
@@ -948,6 +948,7 @@ const Articles: React.FC = () => {
         onCancel={() => setIsStateOpen(false)}
         footer={false}
         className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
+        maskClosable={false}  
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -992,6 +993,7 @@ const Articles: React.FC = () => {
         }}
         footer={false}
         className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
+        maskClosable={false}
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -1058,11 +1060,11 @@ const Articles: React.FC = () => {
                   color={
                     paperTypes.find(paper => paper.value === formData.paperTypeId)
                       ?.type === 'EXPENDITURE'
-                      ? 'green'
+                      ? 'red'
                       : paperTypes.find(
                         paper => paper.value === formData.paperTypeId
                       )?.type === 'RECEIPT'
-                        ? 'red'
+                        ? 'green'
                         : ''
                   }
                   className="h-10 w-40 flex items-center justify-center"
