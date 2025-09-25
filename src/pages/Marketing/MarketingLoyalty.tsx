@@ -29,7 +29,7 @@ const MarketingLoyalty: React.FC = () => {
   const permissions = usePermissions();
 
   const hasPermission = user?.organizationId ? permissions.some(permission =>
-    (permission.action === "create" || permission.action === "manage") &&
+    (permission.action === "create" || permission.action === "manage" || permission.action === "read") &&
     permission.subject === "Pos" &&
     Array.isArray(permission.conditions?.organizationId?.in) &&
     permission.conditions.organizationId.in.includes(user.organizationId!)
@@ -118,7 +118,7 @@ const MarketingLoyalty: React.FC = () => {
           <QuestionMarkIcon />
         </div>
         <div className="flex items-center space-x-2">
-          {hasPermission && !loyaltyProgramsData?.length && <Button
+          {hasPermission &&  <Button
             icon={<PlusOutlined />}
             className="btn-primary"
             onClick={() => {

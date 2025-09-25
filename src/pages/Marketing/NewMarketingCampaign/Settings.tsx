@@ -59,6 +59,7 @@ const Settings: React.FC = () => {
         launchDate: undefined,
         endDate: undefined,
         status: MarketingCampaignStatus.DRAFT,
+        ltyProgramParticipantId: undefined,
       },
     });
 
@@ -87,7 +88,7 @@ const Settings: React.FC = () => {
     }
   );
 
-  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign } = useSWR(
+  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign, isValidating } = useSWR(
     marketingCampaignId
       ? [`get-market-campaign-by-id`, marketingCampaignId]
       : null,
@@ -95,7 +96,6 @@ const Settings: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      keepPreviousData: true,
     }
   );
 
@@ -107,7 +107,9 @@ const Settings: React.FC = () => {
         posIds: marketCampaignByIdData.posIds,
         type: marketCampaignByIdData.type as MarketingCampaignType,
         discountType:
-          marketCampaignByIdData.discountType as MarketingDiscountType,
+          marketCampaignByIdData.discountType && marketCampaignByIdData.discountType === MarketingDiscountType.PERCENTAGE
+            ? MarketingDiscountType.PERCENTAGE
+            : MarketingDiscountType.FIXED,
         discountValue: marketCampaignByIdData.discountValue,
         promocode: marketCampaignByIdData.promocode ?? '',
         launchDate: marketCampaignByIdData.launchDate
@@ -118,8 +120,15 @@ const Settings: React.FC = () => {
           : undefined,
         status: MarketingCampaignStatus.DRAFT
       });
+      
+      if (marketCampaignByIdData.ltyProgramId) {
+        const selectedProgram = loyaltyProgramsData?.find(item => item.props.id === marketCampaignByIdData.ltyProgramId);
+        if (selectedProgram) {
+          setValue('ltyProgramParticipantId', selectedProgram.props.participantId);
+        }
+      }
     }
-  }, [marketCampaignByIdData, reset]);
+  }, [marketCampaignByIdData, reset, loyaltyProgramsData, setValue]);
 
   const { trigger, isMutating } = useSWRMutation<
     MarketingCampaignResponse,
@@ -159,8 +168,9 @@ const Settings: React.FC = () => {
         ...data,
         posIds: data.posIds,
         ltyProgramId: data.ltyProgramId,
+
         type: data.type,
-        discountType: data.discountType,
+        discountType: data.discountType || MarketingDiscountType.PERCENTAGE,
         discountValue:
           data.type === MarketingCampaignType.DISCOUNT
             ? Number(data.discountValue)
@@ -172,6 +182,7 @@ const Settings: React.FC = () => {
             ? data.promocode
             : undefined,
         launchDate: data.launchDate,
+        ltyProgramParticipantId: data.ltyProgramParticipantId,
       };
 
       let result;
@@ -189,7 +200,7 @@ const Settings: React.FC = () => {
     }
   };
 
-  if (loadingMarketingCampaign) {
+  if (loadingMarketingCampaign || isValidating) {
     return (
       <div className="h-[600px] w-full flex justify-center items-center">
         <Spin />
@@ -273,6 +284,15 @@ const Settings: React.FC = () => {
                       }))}
                       allowClear
                       className="w-full sm:max-w-80"
+                      onChange={(value) => {
+                        field.onChange(value);
+                        const selectedProgram = loyaltyProgramsData?.find(item => item.props.id === value);
+                        if (selectedProgram) {
+                          setValue('ltyProgramParticipantId', selectedProgram.props.participantId);
+                        } else {
+                          setValue('ltyProgramParticipantId', undefined as any);
+                        }
+                      }}
                     />
                   </Form.Item>
                 )}

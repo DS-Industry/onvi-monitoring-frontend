@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 const Settings = React.lazy(() => import('./Settings'));
 const Levels = React.lazy(() => import('./Levels'));
-const Events = React.lazy(() => import('./Events'));
+// const Events = React.lazy(() => import('./Events'));
 import GenericTabs from '@ui/Tabs/GenericTab';
 import { useSearchParams } from 'react-router-dom';
 
@@ -40,11 +40,11 @@ const BonusProgram: React.FC = () => {
       label: t('marketing.levels'),
       content: <Levels />,
     },
-    {
-      key: 'events',
-      label: t('marketing.events'),
-      content: <Events />,
-    },
+    // {
+    //   key: 'events',
+    //   label: t('marketing.events'),
+    //   content: <Events />,
+    // },
   ];
 
   return (
