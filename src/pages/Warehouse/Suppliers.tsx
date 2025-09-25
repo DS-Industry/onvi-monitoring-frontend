@@ -4,7 +4,11 @@ import Input from '@/components/ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
-import { createSupplier, getSupplier, getSupplierCount } from '@/services/api/warehouse';
+import {
+  createSupplier,
+  getSupplier,
+  getSupplierCount,
+} from '@/services/api/warehouse';
 import useSWR, { mutate } from 'swr';
 import { Drawer, Table, Button, Input as AntInput } from 'antd';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
@@ -14,9 +18,14 @@ import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { useSearchParams } from 'react-router-dom';
-import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 type Supplier = {
   id: number;
@@ -47,20 +56,21 @@ const Suppliers: React.FC = () => {
       page: DEFAULT_PAGE,
       pageSize: DEFAULT_PAGE_SIZE,
     });
-  }
+  };
 
   const { data: supplierData, isLoading: loadingSupplier } = useSWR(
     ['get-suppliers', supplierName, currentPage, pageSize],
-    () => getSupplier({
-      name: supplierName,
-      page: currentPage,
-      size: pageSize,
-    }),
+    () =>
+      getSupplier({
+        name: supplierName,
+        page: currentPage,
+        size: pageSize,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -71,7 +81,7 @@ const Suppliers: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -101,6 +111,16 @@ const Suppliers: React.FC = () => {
   const handleInputChange = (field: FieldType, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, contact: cleanValue }));
+    setValue('contact', cleanValue);
   };
 
   const resetForm = () => {
@@ -164,7 +184,7 @@ const Suppliers: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <div className='hidden sm:flex'>{t('routes.add')}</div>
+            <div className="hidden sm:flex">{t('routes.add')}</div>
           </Button>
         )}
       </div>
@@ -174,7 +194,7 @@ const Suppliers: React.FC = () => {
         onReset={resetFilter}
       >
         <div className="flex flex-col text-sm text-text02">
-          <div className='mb-1'>{t('warehouse.supplierName')}</div>
+          <div className="mb-1">{t('warehouse.supplierName')}</div>
           <AntInput
             className="w-full sm:w-80"
             placeholder={t('warehouse.enterSup')}
@@ -218,7 +238,10 @@ const Suppliers: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -241,10 +264,16 @@ const Suppliers: React.FC = () => {
             title={`${t('profile.telephone')}*`}
             label={t('warehouse.enterPhone')}
             classname="w-80"
-            value={formData.contact}
-            changeValue={e => handleInputChange('contact', e.target.value)}
+            value={formatRussianPhone(formData.contact)}
+            changeValue={handlePhoneChange}
             error={!!errors.contact}
-            {...register('contact', { required: t('validation.phoneRequired') })}
+            {...register('contact', {
+              required: t('validation.phoneRequired'),
+              pattern: {
+                value: /^\+7\d{10}$/,
+                message: t('validation.phoneValidFormat'),
+              },
+            })}
             helperText={errors.contact?.message || ''}
           />
           <div className="flex space-x-4">
@@ -256,11 +285,7 @@ const Suppliers: React.FC = () => {
             >
               {t('organizations.cancel')}
             </Button>
-            <Button
-              type='primary'
-              htmlType={'submit'}
-              loading={isMutating}
-            >
+            <Button type="primary" htmlType={'submit'} loading={isMutating}>
               {t('organizations.save')}
             </Button>
           </div>

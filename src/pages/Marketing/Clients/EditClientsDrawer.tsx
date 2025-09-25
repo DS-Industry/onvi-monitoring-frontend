@@ -293,7 +293,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 rules={{
                   required: t('validation.phoneRequired'),
                   pattern: {
-                    value: /^\+?79\d{9}$/,
+                    value: /^\+?7\d{10}$/,
                     message: t('validation.phoneValidFormat'),
                   },
                 }}

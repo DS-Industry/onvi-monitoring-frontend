@@ -14,6 +14,7 @@ import { Form, Input, Select, DatePicker, Drawer, Button } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 type EmployeeCreationDrawerProps = {
   open: boolean;
@@ -76,6 +77,16 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
     setValue(field, value);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
+  };
+
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
@@ -108,14 +119,15 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({}),
-  {
-    shouldRetryOnError: false
-  }
+  const { data: organizationData } = useSWR(
+    [`get-org`],
+    () => getOrganization({}),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   return (
@@ -215,12 +227,12 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
               {...register('phone', {
                 required: t('validation.phoneRequired'),
                 pattern: {
-                  value: /^\+79\d{9}$/,
+                  value: /^\+7\d{10}$/,
                   message: t('validation.phoneValidFormat'),
                 },
               })}
-              value={formData.phone}
-              onChange={e => handleInputChange('phone', e.target.value)}
+              value={formatRussianPhone(formData.phone)}
+              onChange={handlePhoneChange}
               status={errors.phone ? 'error' : ''}
             />
           </Form.Item>
@@ -326,11 +338,7 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              htmlType="submit"
-              loading={loadingRole}
-              type='primary'
-            >
+            <Button htmlType="submit" loading={loadingRole} type="primary">
               {t('organizations.save')}
             </Button>
           </div>
