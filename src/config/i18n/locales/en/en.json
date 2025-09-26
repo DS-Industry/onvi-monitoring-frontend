@@ -1303,6 +1303,20 @@
   "table": {
     "noData": "No Data"
   },
+  "deposit": {
+    "columns": {
+      "id": "ID",
+      "name": "Name",
+      "city": "City",
+      "lastOperation": "Last Operation",
+      "cash": "Cash",
+      "cashless": "Cashless",
+      "cashbackCard": "Card Cashback",
+      "discountSum": "Discount Amount",
+      "operationsCount": "Operations Count",
+      "yandexSum": "Yandex Amount"
+    }
+  },
   "general": {
     "hours": "hrs."
   },

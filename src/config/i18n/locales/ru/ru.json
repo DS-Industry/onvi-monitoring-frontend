@@ -1303,6 +1303,20 @@
   "table": {
     "noData": "Ничего не найдено"
   },
+  "deposit": {
+    "columns": {
+      "id": "ID",
+      "name": "Наименование",
+      "city": "Город",
+      "lastOperation": "Последняя операция",
+      "cash": "Наличные",
+      "cashless": "Безналичные",
+      "cashbackCard": "Cashback по картам",
+      "discountSum": "Сумма скидки",
+      "operationsCount": "Кол-во операций",
+      "yandexSum": "Яндекс Сумма"
+    }
+  },
   "general": {
     "hours": "час."
   },
