@@ -2,6 +2,7 @@ import Input from '@ui/Input/Input';
 import DocumentCreationModal from '@/pages/Warehouse/DocumentsCreation/DocumentCreationModal';
 import { useUser } from '@/hooks/useUserStore';
 import {
+  deleteDocument,
   DocumentBody,
   DocumentsTableRow,
   getDocument,
@@ -17,13 +18,14 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { Button, DatePicker, Select, Skeleton } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import DocumentTypesTable from '@/pages/Warehouse/DocumentsTables/DocumentTypesTable';
+import { useToast } from '@/hooks/useToast';
 
 interface TableRow {
   id: number;
@@ -41,6 +43,7 @@ interface TableRow {
 const DocumentsCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const documentType = searchParams.get('document');
+  const documentId = Number(searchParams.get('documentId'));
   const { t } = useTranslation();
   const [warehouseId, setWarehouseId] = useState<number | string | null>(
     searchParams.get('warehouseId') || '*'
@@ -54,21 +57,19 @@ const DocumentsCreation: React.FC = () => {
   const navigate = useNavigate();
   const user = useUser();
   const userPermissions = usePermissions();
+  const { showToast } = useToast();
+  const [isDeletingDocument, setIsDeletingDocument] = useState(false);
 
   const {
     data: document,
     isLoading: loadingDocument,
     isValidating: validatingDocument,
-  } = useSWR(
-    [`get-document-view`],
-    () => getDocument(Number(searchParams.get('documentId'))),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false
-    }
-  );
+  } = useSWR([`get-document-view`], () => getDocument(documentId), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+    shouldRetryOnError: false,
+  });
 
   function isInventoryMetaData(
     metaData: InventoryMetaData | MovingMetaData | undefined
@@ -232,7 +233,7 @@ const DocumentsCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -247,7 +248,7 @@ const DocumentsCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -360,6 +361,25 @@ const DocumentsCreation: React.FC = () => {
 
     if (result) {
       navigate('/warehouse/documents');
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeletingDocument(true);
+    try {
+      const result = await mutate(
+        [`delete-collection`, documentId],
+        () => deleteDocument(Number(documentId)),
+        false
+      );
+
+      if (result) {
+        navigate('/warehouse/documents');
+      }
+    } catch (error) {
+      showToast(t('success.recordDeleted'), 'error');
+    } finally {
+      setIsDeletingDocument(false);
     }
   };
 
@@ -495,19 +515,26 @@ const DocumentsCreation: React.FC = () => {
                       {t('organizations.cancel')}
                     </Button>
                     <Button
+                      onClick={handleDelete}
+                      loading={isDeletingDocument}
+                      className="bg-errorFill text-text04 hover:bg-red-300"
+                    >
+                      {t('marketing.delete')}
+                    </Button>
+                    <Button
                       title={t('warehouse.saveDraft')}
                       htmlType={'submit'}
                       loading={isMutating}
                       onClick={() => handleSubmitAction('save')}
-                      type='primary'
+                      type="primary"
                     >
                       {t('warehouse.saveDraft')}
                     </Button>
                     <Button
-                      htmlType='submit'
+                      htmlType="submit"
                       loading={sendingDoc}
                       onClick={() => handleSubmitAction('send')}
-                      type='primary'
+                      type="primary"
                     >
                       {t('warehouse.saveAccept')}
                     </Button>

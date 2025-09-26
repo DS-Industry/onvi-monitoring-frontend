@@ -622,6 +622,15 @@ export async function getCollectionById(
   return response.data;
 }
 
+export async function deleteCollectionById(
+  id: number
+): Promise<{ status: string}> {
+  const response: AxiosResponse<{ status: string}> = await api.delete(
+    FINANCE.POST_CASH_COLLECTION + `/${id}`
+  );
+  return response.data;
+}
+
 export async function getCollections(
   params: CashCollectionParams
 ): Promise<CashCollectionsResponse> {
