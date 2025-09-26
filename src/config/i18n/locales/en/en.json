@@ -1305,6 +1305,7 @@
     "columns": {
       "id": "ID",
       "address": "Address",
+      "city": "City",
       "name": "Name",
       "status": "Status",
       "type": "Type",
@@ -1316,9 +1317,6 @@
   },
   "deposit": {
     "columns": {
-      "id": "ID",
-      "name": "Name",
-      "city": "City",
       "lastOperation": "Last Operation",
       "cash": "Cash",
       "cashless": "Cashless",

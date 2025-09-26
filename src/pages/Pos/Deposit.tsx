@@ -124,13 +124,13 @@ const Deposit: React.FC = () => {
 
   const columns: ColumnsType<DepositMonitoring> = [
     {
-      title: t('deposit.columns.id'),
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: t('deposit.columns.name'),
+      title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
@@ -146,7 +146,7 @@ const Deposit: React.FC = () => {
       ),
     },
     {
-      title: t('deposit.columns.city'),
+      title: t('table.columns.city'),
       dataIndex: 'city',
       key: 'city',
       filters: cities,
