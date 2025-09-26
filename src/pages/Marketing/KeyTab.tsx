@@ -100,7 +100,7 @@ const KeyTab: React.FC = () => {
     <Space direction="vertical" size={24} style={{ width: '100%' }}>
       <Row gutter={[24, 24]}>
         {statsData.map((item, idx) => (
-          <Col key={idx} xs={24} sm={12} md={8}>
+          <Col key={idx} xs={24} sm={12}>
             <Card
               variant={'borderless'}
               style={{ backgroundColor: '#f5f5f5', borderRadius: 8 }}

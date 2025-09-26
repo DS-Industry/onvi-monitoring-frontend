@@ -39,7 +39,7 @@ type FilterType =
   | 'none';
 
 type GeneralFiltersProps = {
-  count: number;
+  count?: number;
   display?: FilterType[];
   children?: React.ReactNode;
   onReset?: () => void;
@@ -140,7 +140,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
                 {shouldShow('reset') && <ResetButton onReset={onReset} />}
-                {shouldShow('count') && <FilterCount count={count} />}
+                {shouldShow('count') && count !== undefined && <FilterCount count={count} />}
               </div>
             </div>
           ),

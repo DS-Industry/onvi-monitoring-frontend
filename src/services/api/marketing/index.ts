@@ -6,6 +6,12 @@ enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
   GET_TAG = 'user/loyalty/tag',
   LOYALTY = 'user/loyalty',
+  LOYALTY_HUB_REQUESTS = 'user/loyalty/hub-requests',
+  APPROVE_REQUEST = 'user/loyalty/requests/approve',
+  REJECT_REQUEST = 'user/loyalty/requests/reject',
+  PARTICIPANT_REQUEST = 'user/loyalty/participant-request',
+  PARTICIPANT_REQUESTS = 'user/loyalty/participant-requests',
+  PUBLIC_PROGRAMS = 'user/loyalty/public-programs',
 }
 
 export enum UserType {
@@ -160,6 +166,11 @@ export type LoyaltyProgramsResponse = {
     startDate: Date;
     lifetimeDays?: number;
     ownerOrganizationId: number | null;
+    isHub: boolean;
+    isHubRejected: boolean;
+    isHubRequested: boolean;
+    isPublic: boolean;
+    participantId: number;
   };
 };
 
@@ -167,6 +178,9 @@ type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
+  isHub: boolean;
+  isHubRequested: boolean;
+  isHubRejected: boolean;
   organizations: {
     id: number;
     name: string;
@@ -345,7 +359,7 @@ export async function getLoyaltyPrograms(
   orgId?: number
 ): Promise<LoyaltyProgramsResponse[]> {
   const response: AxiosResponse<LoyaltyProgramsResponse[]> = await api.get(
-    MARKETING.LOYALTY + `/programs?organizationId=${orgId || ''}`
+    MARKETING.LOYALTY + `/participant-programs?organizationId=${orgId || ''}`
   );
 
   return response.data;
@@ -356,6 +370,18 @@ export async function getLoyaltyProgramById(
 ): Promise<LoyaltyProgramsByIdResponse> {
   const response: AxiosResponse<LoyaltyProgramsByIdResponse> = await api.get(
     MARKETING.LOYALTY + `/program/${id}`
+  );
+
+  return response.data;
+}
+
+export async function requestHubStatus(
+  id: number,
+  comment?: string
+): Promise<{ success: boolean }> {
+  const response: AxiosResponse<{ success: boolean }> = await api.post(
+    MARKETING.LOYALTY + `/programs/${id}/request-hub`,
+    { comment }
   );
 
   return response.data;
@@ -745,6 +771,24 @@ export type MarketingCampaignResponse = {
   };
 };
 
+export type MarketingCampaignsFilterDto = {
+  page?: number;
+  size?: number;
+  organizationId: number;
+  status?: MarketingCampaignStatus;
+  search?: string;
+};
+
+export type MarketingCampaignsPaginatedResponseDto = {
+  data: MarketingCampaignResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export type MarketingCampaignRequest = {
   name: string;
   type: MarketingCampaignType;
@@ -758,6 +802,7 @@ export type MarketingCampaignRequest = {
   promocode?: string;
   maxUsage?: number;
   status: MarketingCampaignStatus;
+  ltyProgramParticipantId: number;
 };
 
 export type UpdateMarketingCampaignRequest = {
@@ -772,6 +817,7 @@ export type UpdateMarketingCampaignRequest = {
   discountValue?: number;
   promocode?: string;
   maxUsage?: number;
+  ltyProgramParticipantId: number;
 };
 
 export async function createCorporateClient(
@@ -829,11 +875,12 @@ export async function getCorporateClientOperationsById(
   return response.data;
 }
 
-export async function getMarketingCampaign(): Promise<
-  MarketingCampaignResponse[]
-> {
-  const response: AxiosResponse<MarketingCampaignResponse[]> = await api.get(
-    `user/loyalty/marketing-campaigns`
+export async function getMarketingCampaign(
+  filters: MarketingCampaignsFilterDto
+): Promise<MarketingCampaignsPaginatedResponseDto> {
+  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> = await api.get(
+    'user/loyalty/marketing-campaigns',
+    { params: filters }
   );
 
   return response.data;
@@ -900,6 +947,214 @@ export async function loyaltyProgramsConnection(
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
     `user/permission/loyalty-program-user/${userId}`,
     request
+  );
+  return response.data;
+}
+
+// Loyalty Requests Types and Functions
+export enum LoyaltyRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum LoyaltyRequestType {
+  BONUS_POINTS = 'BONUS_POINTS',
+  DISCOUNT = 'DISCOUNT',
+}
+
+export enum LTYProgramRequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export type LoyaltyRequest = {
+  id: number;
+  ltyProgramId: number;
+  ltyProgramName: string;
+  organizationId: number;
+  organizationName: string;
+  status: LTYProgramRequestStatus;
+  requestedAt: Date;
+  reviewedAt?: Date;
+  approvedAt?: Date;
+  reviewedBy?: number;
+  reviewerName?: string;
+  requestComment?: string;
+  responseComment?: string;
+  rejectionReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LoyaltyHubRequestsParams = {
+  page?: number;
+  size?: number;
+  status?: LoyaltyRequestStatus;
+  search?: string;
+  organizationId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type LoyaltyRequestsResponse = {
+  data: LoyaltyRequest[];
+  totalCount: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export async function getLoyaltyHubRequests(
+  params: LoyaltyHubRequestsParams
+): Promise<LoyaltyRequestsResponse> {
+  const response: AxiosResponse<LoyaltyRequestsResponse> = await api.get(
+    MARKETING.LOYALTY_HUB_REQUESTS,
+    { params }
+  );
+  return response.data;
+}
+
+export async function approveLoyaltyHubRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/approve-hub`,
+    { comment }
+  );
+  return response.data;
+}
+
+export async function rejectLoyaltyHubRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/reject-hub`,
+    { comment }
+  );
+  return response.data;
+}
+
+// Participant Request Types and Functions
+export type LoyaltyProgramParticipantRequestDto = {
+  ltyProgramId: number;
+  organizationId: number;
+  requestComment?: string;
+};
+
+export type ParticipantRequestResponse = {
+  success: boolean;
+  message: string;
+};
+
+export async function createParticipantRequest(
+  request: LoyaltyProgramParticipantRequestDto
+): Promise<ParticipantRequestResponse> {
+  const response: AxiosResponse<ParticipantRequestResponse> = await api.post(
+    MARKETING.PARTICIPANT_REQUEST,
+    request
+  );
+  return response.data;
+}
+
+export type PublicProgramsParams = {
+  status?: LoyaltyProgramStatus;
+  page?: number;
+  size?: number;
+};
+
+export type PublicProgramResponse = {
+  id: number;
+  name: string;
+  status: LoyaltyProgramStatus;
+  startDate: Date;
+  lifetimeDays?: number;
+  ownerOrganizationId: number | null;
+  ownerOrganizationName?: string;
+  description?: string;
+};
+
+export type PublicProgramsPaginatedResponse = {
+  programs: PublicProgramResponse[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export async function getPublicLoyaltyPrograms(
+  params: PublicProgramsParams = {}
+): Promise<PublicProgramsPaginatedResponse> {
+  const response: AxiosResponse<PublicProgramsPaginatedResponse> = await api.get(
+    MARKETING.PUBLIC_PROGRAMS,
+    { params }
+  );
+  return response.data;
+}
+
+export type LoyaltyParticipantRequest = {
+  id: number;
+  ltyProgramId: number;
+  ltyProgramName: string;
+  organizationId: number;
+  organizationName: string;
+  status: LTYProgramRequestStatus;
+  requestComment?: string;
+  responseComment?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LoyaltyParticipantRequestsParams = {
+  page?: number;
+  size?: number;
+  status?: LTYProgramRequestStatus;
+  search?: string;
+  organizationId?: number;
+  ltyProgramId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type LoyaltyParticipantRequestsResponse = {
+  data: LoyaltyParticipantRequest[];
+  totalCount: number;
+  page: number;
+  size: number;
+};
+
+export async function getLoyaltyParticipantRequests(
+  params: LoyaltyParticipantRequestsParams
+): Promise<LoyaltyParticipantRequestsResponse> {
+  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> = await api.get(
+    MARKETING.PARTICIPANT_REQUESTS,
+    { params }
+  );
+  return response.data;
+}
+
+export async function approveLoyaltyParticipantRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/approve-participant`,
+    { comment }
+  );
+  return response.data;
+}
+
+export async function rejectLoyaltyParticipantRequest(
+  requestId: number,
+  comment?: string
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
+    `user/loyalty/programs/${requestId}/reject-participant`,
+    { comment }
   );
   return response.data;
 }

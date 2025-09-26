@@ -16,10 +16,12 @@ import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
 import { usePermissions } from '@/hooks/useAuthStore';
+import ParticipantRequestModal from './ParticipantRequestModal';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
+  const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const user = useUser();
@@ -27,7 +29,7 @@ const MarketingLoyalty: React.FC = () => {
   const permissions = usePermissions();
 
   const hasPermission = user?.organizationId ? permissions.some(permission =>
-    (permission.action === "create" || permission.action === "manage") &&
+    (permission.action === "create" || permission.action === "manage" || permission.action === "read") &&
     permission.subject === "Pos" &&
     Array.isArray(permission.conditions?.organizationId?.in) &&
     permission.conditions.organizationId.in.includes(user.organizationId!)
@@ -55,7 +57,7 @@ const MarketingLoyalty: React.FC = () => {
   const columnsLoyaltyPrograms: ColumnsType<LoyaltyProgramsResponse['props']> =
     [
       {
-        title: 'Название программы',
+        title: t('loyaltyProgramsTable.programName'),
         dataIndex: 'name',
         key: 'name',
         render: (text: string, record) => {
@@ -81,13 +83,25 @@ const MarketingLoyalty: React.FC = () => {
         },
       },
       {
-        title: 'Статус',
+        title: t('loyaltyProgramsTable.participationStatus'),
+        dataIndex: 'type',
+        key: 'type',
+        render: (_, record) => <span>{record.ownerOrganizationId === user.organizationId ? <>{t('loyaltyProgramsTable.owner')}</> : <>{t('loyaltyProgramsTable.participant')}</>}</span>,
+      },
+      {
+        title: t('marketing.ty'),
+        dataIndex: 'isHub',
+        key: 'isHub',
+        render: (_, record) => <span>{record.isHub ? <>{t('marketing.hub')}</> : <>{t('loyaltyProgramsTable.regularProgram')}</>}</span>,
+      },
+      {
+        title: t('loyaltyProgramsTable.status'),
         dataIndex: 'status',
         key: 'status',
         render: statusRender,
       },
       {
-        title: 'Дата запуска',
+        title: t('loyaltyProgramsTable.launchDate'),
         dataIndex: 'startDate',
         key: 'startDate',
         render: dateRender,
@@ -103,15 +117,24 @@ const MarketingLoyalty: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        {hasPermission && !loyaltyProgramsData?.length && <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => {
-            navigate('/marketing/loyalty/rewards');
-          }}
-        >
-          {t('routes.add')}
-        </Button>}
+        {!loyaltyProgramsLoading && user && permissions && <div className="flex items-center space-x-2">
+          {hasPermission &&  <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => {
+              navigate('/marketing/loyalty/rewards');
+            }}
+          >
+            {t('routes.add')}
+          </Button>}
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setIsParticipantModalOpen(true)}
+          >
+            {t('loyaltyProgramsTable.join')}
+          </Button>
+        </div>}
       </div>
       <div className="mt-2">
         {notificationVisible && (
@@ -129,9 +152,15 @@ const MarketingLoyalty: React.FC = () => {
             columns={columnsLoyaltyPrograms}
             loading={loyaltyProgramsLoading}
             scroll={{ x: 'max-content' }}
+            locale={{ emptyText: t('table.noData') }}
           />
         </div>
       </div>
+      
+      <ParticipantRequestModal
+        open={isParticipantModalOpen}
+        onClose={() => setIsParticipantModalOpen(false)}
+      />
     </>
   );
 };

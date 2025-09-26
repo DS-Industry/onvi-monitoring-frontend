@@ -48,14 +48,14 @@ const BonusProgram: React.FC = () => {
   ];
 
   return (
-    <div className="w-full px-4 sm:px-8">
-        <GenericTabs
-          tabs={tabItems}
-          activeKey={activeTab}
-          onChange={handleTabChange}
-          tabBarGutter={32}
-          tabBarStyle={{ marginBottom: 24 }}
-        />
+    <div className="w-full px-4 sm:px-8 mt-12 md:mt-0">
+      <GenericTabs
+        tabs={tabItems}
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        tabBarGutter={32}
+        tabBarStyle={{ marginBottom: 24 }}
+      />
     </div>
   );
 };

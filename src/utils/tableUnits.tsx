@@ -83,6 +83,7 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const redStatuses = [
+      t('tables.INACTIVE'),
       t('tables.OVERDUE'),
       t('tables.Done'),
       t('tables.FINISHED'),

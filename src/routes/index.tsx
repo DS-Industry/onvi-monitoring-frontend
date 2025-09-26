@@ -68,6 +68,10 @@ const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
   () => import('@/pages/Warehouse/DocumentsCreation/index')
 );
+const SalePrice = React.lazy(() => import('@/pages/Warehouse/SalePrice/SalePrice.tsx'));
+const SaleDocument = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocument.tsx'));
+const SaleDocumentView = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentView.tsx'));
+const SaleDocumentCreate = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx'));
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
@@ -122,6 +126,12 @@ const Notifications = React.lazy(
 );
 const RewardsCreation = React.lazy(
   () => import('@/pages/Marketing/RewardsCreation')
+);
+const LoyaltyHubRequests = React.lazy(
+  () => import('@/pages/Marketing/LoyaltyHubRequests')
+);
+const LoyaltyParticipantRequests = React.lazy(
+  () => import('@/pages/Marketing/LoyaltyParticipantRequests')
 );
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
@@ -767,6 +777,33 @@ const routes = [
         subNav: [],
         subMenu: false,
       },
+      {
+        name: 'saleDocument',
+        path: '/finance/saleDocument',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocument,
+        isSidebar: true,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentView',
+        path: '/finance/saleDocument/view',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentView,
+        isSidebar: false,
+        permissions: [],
+      },
+      {
+        name: 'saleDocumentCreate',
+        path: '/finance/saleDocument/create',
+        isVisible: true,
+        subMenu: false,
+        component: SaleDocumentCreate,
+        isSidebar: false,
+        permissions: [],
+      },
     ],
   },
   {
@@ -829,7 +866,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/clients',
         component: Clients,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -839,7 +876,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/corporate-clients',
         component: CorporateClients,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -849,7 +886,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/corporate-clients/profile',
         component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateProfile')),
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
         subMenu: false,
@@ -859,7 +896,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/companies',
         component: MarketingCompanies,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -869,7 +906,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/companies/new/marketing/campaign',
         component: React.lazy(() => import('@/pages/Marketing/NewMarketingCampaign')),
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
         subMenu: false,
@@ -879,7 +916,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/clients/import',
         component: ClientsImport,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
         subMenu: false,
@@ -889,18 +926,18 @@ const routes = [
         isVisible: true,
         path: '/marketing/clients/profile',
         component: ClientsProfile,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
         subMenu: false,
       },
       {
         name: 'segments',
-        isVisible: true,
+        isVisible: false,
         path: '/marketing/segments',
         component: Default,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
+        isSidebar: false,
         subNav: [],
         subMenu: false,
       },
@@ -919,7 +956,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/loyalty',
         component: MarketingLoyalty,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -929,7 +966,7 @@ const routes = [
         isVisible: true,
         path: '/marketing/loyalty/rewards',
         component: RewardsCreation,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
         subMenu: false,
@@ -939,15 +976,35 @@ const routes = [
         isVisible: true,
         path: '/marketing/loyalty/bonus',
         component: BonusProgram,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'hubRequests',
+        isVisible: true,
+        path: '/marketing/hub-requests',
+        component: LoyaltyHubRequests,
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'participantRequests',
+        isVisible: true,
+        path: '/marketing/participant-requests',
+        component: LoyaltyParticipantRequests,
+        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
         subNav: [],
         subMenu: false,
       }
     ],
     component: Marketing,
     isSidebar: true,
-    permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+    permissions: [{ action: 'update', subject: 'LTYProgram' }],
   },
   {
     name: 'equipment',
@@ -1253,6 +1310,15 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
+      },
+      {
+        name: 'salePrice',
+        path: '/warehouse/salePrice',
+        isVisible: true,
+        subMenu: false,
+        component: SalePrice,
+        isSidebar: true,
+        permissions: [],
       },
     ],
     permissions: [

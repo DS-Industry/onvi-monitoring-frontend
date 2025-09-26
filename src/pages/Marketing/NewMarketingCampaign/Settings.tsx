@@ -59,6 +59,7 @@ const Settings: React.FC = () => {
         launchDate: undefined,
         endDate: undefined,
         status: MarketingCampaignStatus.DRAFT,
+        ltyProgramParticipantId: undefined,
       },
     });
 
@@ -88,7 +89,7 @@ const Settings: React.FC = () => {
     }
   );
 
-  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign } = useSWR(
+  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign, isValidating } = useSWR(
     marketingCampaignId
       ? [`get-market-campaign-by-id`, marketingCampaignId]
       : null,
@@ -109,7 +110,9 @@ const Settings: React.FC = () => {
         posIds: marketCampaignByIdData.posIds,
         type: marketCampaignByIdData.type as MarketingCampaignType,
         discountType:
-          marketCampaignByIdData.discountType as MarketingDiscountType,
+          marketCampaignByIdData.discountType && marketCampaignByIdData.discountType === MarketingDiscountType.PERCENTAGE
+            ? MarketingDiscountType.PERCENTAGE
+            : MarketingDiscountType.FIXED,
         discountValue: marketCampaignByIdData.discountValue,
         promocode: marketCampaignByIdData.promocode ?? '',
         launchDate: marketCampaignByIdData.launchDate
@@ -120,8 +123,15 @@ const Settings: React.FC = () => {
           : undefined,
         status: MarketingCampaignStatus.DRAFT
       });
+      
+      if (marketCampaignByIdData.ltyProgramId) {
+        const selectedProgram = loyaltyProgramsData?.find(item => item.props.id === marketCampaignByIdData.ltyProgramId);
+        if (selectedProgram) {
+          setValue('ltyProgramParticipantId', selectedProgram.props.participantId);
+        }
+      }
     }
-  }, [marketCampaignByIdData, reset]);
+  }, [marketCampaignByIdData, reset, loyaltyProgramsData, setValue]);
 
   const { trigger, isMutating } = useSWRMutation<
     MarketingCampaignResponse,
@@ -161,8 +171,9 @@ const Settings: React.FC = () => {
         ...data,
         posIds: data.posIds,
         ltyProgramId: data.ltyProgramId,
+
         type: data.type,
-        discountType: data.discountType,
+        discountType: data.discountType || MarketingDiscountType.PERCENTAGE,
         discountValue:
           data.type === MarketingCampaignType.DISCOUNT
             ? Number(data.discountValue)
@@ -174,6 +185,7 @@ const Settings: React.FC = () => {
             ? data.promocode
             : undefined,
         launchDate: data.launchDate,
+        ltyProgramParticipantId: data.ltyProgramParticipantId,
       };
 
       let result;
@@ -191,7 +203,7 @@ const Settings: React.FC = () => {
     }
   };
 
-  if (loadingMarketingCampaign) {
+  if (loadingMarketingCampaign || isValidating) {
     return (
       <div className="h-[600px] w-full flex justify-center items-center">
         <Spin />
@@ -224,7 +236,7 @@ const Settings: React.FC = () => {
             <div className="text-text02">{t('marketing.setup')}</div>
           </Col>
         </Row>
-        <div className="ml-14">
+        <div className="ml-0 sm:ml-14">
           <div className="text-text01 font-semibold text-2xl">
             {t('marketing.branch')}
           </div>
@@ -245,13 +257,13 @@ const Settings: React.FC = () => {
                   <Input
                     {...field}
                     placeholder={t('roles.name')}
-                    className="w-80"
+                    className="w-full sm:w-80"
                   />
                 </Form.Item>
               )}
             />
           </div>
-          <Row style={{ marginTop: 30 }}>
+          <Row gutter={[16, 16]} style={{ marginTop: 30 }}>
             <Col xs={24} sm={9}>
               <div className="text-text02 text-sm">
                 {t('marketing.loyalty')}
@@ -275,6 +287,15 @@ const Settings: React.FC = () => {
                       }))}
                       allowClear
                       className="w-full sm:max-w-80"
+                      onChange={(value) => {
+                        field.onChange(value);
+                        const selectedProgram = loyaltyProgramsData?.find(item => item.props.id === value);
+                        if (selectedProgram) {
+                          setValue('ltyProgramParticipantId', selectedProgram.props.participantId);
+                        } else {
+                          setValue('ltyProgramParticipantId', undefined as any);
+                        }
+                      }}
                     />
                   </Form.Item>
                 )}
@@ -333,16 +354,16 @@ const Settings: React.FC = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex flex-col sm:flex-row gap-8 mt-10">
-            <Col xs={24} sm={9}>
+          <Row gutter={[16, 16]} className="mt-10">
+            <Col xs={24} sm={12}>
               <Card
                 styles={{ body: { padding: 0 } }}
-                className={`flex-1 rounded-3xl ${watch('type') === MarketingCampaignType.DISCOUNT ? 'bg-white border-2 border-primary02' : 'bg-[#F6F8FB]'} flex flex-col items-center justify-center cursor-pointer transition-shadow hover:shadow-md h-28 w-80`}
+                className={`flex-1 rounded-3xl ${watch('type') === MarketingCampaignType.DISCOUNT ? 'bg-white border-2 border-primary02' : 'bg-[#F6F8FB]'} flex flex-col items-center justify-center cursor-pointer transition-shadow hover:shadow-md min-h-28 w-full`}
                 onClick={() => {
                   setValue('type', MarketingCampaignType.DISCOUNT);
                 }}
               >
-                <div className="py-10 flex flex-col items-center justify-center">
+                <div className="py-6 sm:py-10 flex flex-col items-center justify-center">
                   <div
                     className={`flex items-center space-x-2 ${watch('type') === MarketingCampaignType.DISCOUNT ? 'text-primary02' : 'text-text01'}`}
                   >
@@ -352,7 +373,7 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className={`mt-2  ${watch('type') === MarketingCampaignType.DISCOUNT ? 'text-text01' : 'text-text02'} font-normal`}
+                    className={`mt-2 text-center px-4 ${watch('type') === MarketingCampaignType.DISCOUNT ? 'text-text01' : 'text-text02'} font-normal`}
                   >
                     {t('marketing.give')}
                   </div>
@@ -360,14 +381,14 @@ const Settings: React.FC = () => {
               </Card>
             </Col>
             <Col xs={24} sm={12}>
-              <Card
+              <Card 
                 styles={{ body: { padding: 0 } }}
-                className={`flex-1 rounded-3xl ${watch('type') === MarketingCampaignType.PROMOCODE ? 'bg-white border-2 border-primary02' : 'bg-[#F6F8FB]'} flex flex-col items-center justify-center cursor-pointer transition-shadow hover:shadow-md h-28 w-80`}
+                className={`flex-1 rounded-3xl ${watch('type') === MarketingCampaignType.PROMOCODE ? 'bg-white border-2 border-primary02' : 'bg-[#F6F8FB]'} flex flex-col items-center justify-center cursor-pointer transition-shadow hover:shadow-md min-h-28 w-full`}
                 onClick={() => {
                   setValue('type', MarketingCampaignType.PROMOCODE);
                 }}
               >
-                <div className="py-10 flex flex-col items-center justify-center">
+                <div className="py-6 sm:py-10 flex flex-col items-center justify-center">
                   <div
                     className={`flex items-center space-x-2 ${watch('type') === MarketingCampaignType.PROMOCODE ? 'text-primary02' : 'text-text01'}`}
                   >
@@ -377,7 +398,7 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className={`mt-2  ${watch('type') === MarketingCampaignType.PROMOCODE ? 'text-text01' : 'text-text02'} font-normal`}
+                    className={`mt-2 text-center px-4 ${watch('type') === MarketingCampaignType.PROMOCODE ? 'text-text01' : 'text-text02'} font-normal`}
                   >
                     {t('marketing.createPromotionalCode')}
                   </div>
@@ -401,7 +422,7 @@ const Settings: React.FC = () => {
                     {...field}
                     placeholder={t('marketing.enterDisc')}
                     type="number"
-                    className="w-80"
+                    className="w-full sm:w-80"
                     suffix={<div>%</div>}
                   />
                   </Form.Item>
@@ -422,7 +443,7 @@ const Settings: React.FC = () => {
                   <Input
                     {...field}
                     placeholder={t('marketing.enterNamePromo')}
-                    className="w-80"
+                    className="w-full sm:w-80"
                   />
                 )}
               />
@@ -460,7 +481,7 @@ const Settings: React.FC = () => {
                         : t('marketing.enterBon')
                     }
                     type="number"
-                    className="w-80"
+                    className="w-full sm:w-80"
                     suffix={
                       watch('discountType') ===
                       MarketingDiscountType.PERCENTAGE ? (
@@ -474,19 +495,19 @@ const Settings: React.FC = () => {
               />
             </div>
           )}
+          <Row gutter={[16, 16]} justify="start" className="mt-5">
+            <Col>
+              <Button type="primary" onClick={() => setModalOpen(true)}>
+                {t('organizations.save')}
+              </Button>
+            </Col>
+            <Col>
+              <Button type="default" onClick={() => navigate(-1)}>
+                {t('marketing.close')}
+              </Button>
+            </Col>
+          </Row>
         </div>
-        <Row gutter={[16, 16]} justify="start" className="pl-0 sm:pl-14 mt-5">
-          <Col>
-            <Button type="primary" onClick={() => setModalOpen(true)}>
-              {t('organizations.save')}
-            </Button>
-          </Col>
-          <Col>
-            <Button type="default" onClick={() => navigate(-1)}>
-              {t('marketing.close')}
-            </Button>
-          </Col>
-        </Row>
         <LaunchModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
