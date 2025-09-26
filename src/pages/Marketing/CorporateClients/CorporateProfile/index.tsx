@@ -7,12 +7,33 @@ import Operations from './Operations';
 import GenericTabs from '@/components/ui/Tabs/GenericTab';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import useSWR from 'swr';
+import { CorporateClientResponse, getCorporateClientById } from '@/services/api/marketing';
+import { Skeleton } from 'antd';
 
 const CorporateProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTab = searchParams.get('tab') || 'basic';
+
+  const clientId = searchParams.get('clientId')
+  ? Number(searchParams.get('clientId'))
+  : undefined;
+
+  const {
+    data: clientData,
+    isLoading,
+    isValidating
+  } = useSWR<CorporateClientResponse>(
+    clientId ? ['corporate-client', clientId] : null,
+    () => getCorporateClientById(clientId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 10000,
+    }
+  );
 
   const handleTabChange = (key: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -47,9 +68,9 @@ const CorporateProfile: React.FC = () => {
     <div>
       <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('corporateClients.name')}
-          </span>
+          {isLoading || isValidating ? <Skeleton.Input active size="small" style={{ width: 200, height: 28 }} /> : <span className="text-xl sm:text-3xl font-normal text-text01">
+            {clientData?.name || ""}
+          </span>}
         </div>
       </div>
 
