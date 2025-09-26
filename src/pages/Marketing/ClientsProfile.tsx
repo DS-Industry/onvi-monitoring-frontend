@@ -92,7 +92,7 @@ const ClientsProfile: React.FC = () => {
           }}
         >
           <ArrowLeftOutlined />
-          <p>{t('login.back')}</p>
+          <p className="ms-2">{t('login.back')}</p>
         </div>
         <div className="ml-12 md:ml-0 mb-5">
           <div className="flex items-center space-x-2">

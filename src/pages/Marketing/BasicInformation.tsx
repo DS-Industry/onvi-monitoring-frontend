@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { getClientById, updateClient } from '@/services/api/marketing';
-import { Form, Typography, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
+import { Form, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
 import { ContractType } from '@/utils/constants';
 
-const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -135,7 +134,7 @@ const BasicInformation: React.FC = () => {
           help={errors[fieldName as keyof ClientFormData]?.message}
           validateStatus={errors[fieldName as keyof ClientFormData] ? 'error' : undefined}
           labelCol={{ span: 24 }}
-          className="w-86"
+          className="w-full"
         >
           {fieldName === 'comment' ? (
             <Controller
@@ -144,7 +143,8 @@ const BasicInformation: React.FC = () => {
               render={({ field }) => (
                 <TextArea 
                   rows={3} 
-                  className="w-86"
+                  className="w-full"
+                  style={{ minHeight: '40px' }}
                   placeholder={t('marketing.about')}
                   {...field}
                 />
@@ -158,7 +158,12 @@ const BasicInformation: React.FC = () => {
                 required: t('validation.contractTypeRequired') as string,
               }}
               render={({ field }) => (
-                <Select {...field} className="w-86" size="large">
+                <Select 
+                  {...field} 
+                  className="w-full"
+                  style={{ height: '40px' }}
+                  placeholder={t('warehouse.notSel')}
+                >
                   <Option value={ContractType.INDIVIDUAL}>
                     {t('marketing.physical')}
                   </Option>
@@ -175,7 +180,8 @@ const BasicInformation: React.FC = () => {
               render={({ field }) => (
                 <Select
                   {...field}
-                  className="w-86"
+                  className="w-full"
+                  style={{ height: '40px' }}
                   placeholder={t('warehouse.notSel')}
                   options={genderOptions}
                 />
@@ -187,7 +193,8 @@ const BasicInformation: React.FC = () => {
               control={control}
               render={({ field }) => (
                 <DatePicker
-                  className="w-86"
+                  className="w-full"
+                  style={{ height: '40px' }}
                   placeholder={t('finance.sel')}
                   value={field.value ? dayjs(field.value) : undefined}
                   onChange={d => field.onChange(d ? d.toDate() : undefined)}
@@ -206,10 +213,10 @@ const BasicInformation: React.FC = () => {
               }}
               render={({ field }) => (
                 <Input
-                  className="w-86"
+                  className="w-full"
+                  style={{ height: '40px' }}
                   placeholder={t('marketing.enterEmail')}
                   {...field}
-                  size="large"
                 />
               )}
             />
@@ -220,14 +227,14 @@ const BasicInformation: React.FC = () => {
               rules={fieldName === 'name' ? { required: 'Name is required' } : {}}
               render={({ field }) => (
                 <Input 
-                  className="w-86"
+                  className="w-full"
+                  style={{ height: '40px' }}
                   placeholder={fieldName === 'name' ? t('marketing.enterName') : ''}
                   value={field.value as string}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   name={field.name}
                   ref={field.ref}
-                  size="large"
                 />
               )}
             />
@@ -238,7 +245,7 @@ const BasicInformation: React.FC = () => {
 
     return (
       <Form.Item label={label} labelCol={{ span: 24 }}>
-        <div className="border border-borderFill rounded-md px-3 py-1 w-86 h-10 flex items-center">
+        <div className="border border-borderFill rounded-md px-3 py-1 w-full h-10 flex items-center">
           {value || '-'}
         </div>
       </Form.Item>
@@ -255,11 +262,6 @@ const BasicInformation: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Row gutter={[32, 24]}>
             <Col xs={24} lg={12}>
-              <div className="flex justify-between items-center mb-4">
-                <Title level={4}>{t('warehouse.basic')}</Title>
-
-              </div>
-
               {renderField(
                 t('marketing.type'),
                 clientData?.contractType === ContractType.INDIVIDUAL ? t('marketing.physical') : t('marketing.legal'),

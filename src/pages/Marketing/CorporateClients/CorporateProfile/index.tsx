@@ -52,6 +52,7 @@ const CorporateProfile: React.FC = () => {
           </span>
         </div>
       </div>
+
       <div className="max-w-5xl bg-white">
         <GenericTabs
           tabs={tabItems}

@@ -112,7 +112,10 @@ const Loyalty: React.FC = () => {
       <Row gutter={[16, 16]} className="flex-wrap">
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card  h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-sm md:text-base"
+            >
               {t('marketing.loyalty')}
             </Title>
 
@@ -149,7 +152,10 @@ const Loyalty: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card  h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-sm md:text-base"
+            >
               {t('marketing.purchase')}
             </Title>
 
@@ -159,32 +165,38 @@ const Loyalty: React.FC = () => {
             
             <Row justify="space-between" className="my-2">
               <Col className="w-16 md:w-20">
-                <Title level={5} className="text-text01 m-0 text-sm md:text-base">
+                <Title
+                  level={5}
+                  className="text-text01 m-0 text-xs md:text-sm"
+                >
                   {loyaltyStats.accumulatedAmount.toLocaleString()}
                 </Title>
-                <Text className="text-xs md:text-sm text-text02">
+                <Text className="text-xs">
                   {t('marketing.acc')}
                 </Text>
               </Col>
               <Col className="w-20 md:w-28">
                 <div className="text-end">
-                  <Title level={5} className="text-text01 m-0 text-sm md:text-base">
+                  <Title
+                    level={5}
+                    className="text-text01 m-0 text-xs md:text-sm"
+                  >
                     {loyaltyStats.amountToNextTier.toLocaleString()}
                   </Title>
-                  <Text className="text-xs md:text-sm text-text02">
+                  <Text className="text-xs">
                     {t('marketing.until')}
                   </Text>
                 </div>
               </Col>
             </Row>
 
-            <div className="flex space-x-1 md:space-x-1.5 mt-2">
+            <div className="flex justify-between mt-2 w-full">
               {Array.from({ length: 20 }).map((_, index) => {
                 const isFilled = index < filledBars;
                 return (
                   <div
                     key={index}
-                    className={`w-2 md:w-2.5 h-4 md:h-5 rounded-sm ${
+                    className={`flex-1 h-4 md:h-5 rounded-sm mr-0.5 last:mr-0 ${
                       isFilled ? 'bg-primary02/30' : 'bg-background07'
                     }`}
                     title={`Bar ${index + 1}: ${isFilled ? 'Filled' : 'Empty'}`}
@@ -201,18 +213,28 @@ const Loyalty: React.FC = () => {
 
             <Row justify="space-between" className="mt-4 md:mt-6">
               <Col>
-                <Text className="text-base md:text-lg font-semibold text-text01">
+                <div>
+                <Text className="text-xs font-semibold">
                   {loyaltyStats.currentTierName || t('marketing.newbie')}
                 </Text>
-                <div className="text-xs md:text-sm text-text02">
+                </div>
+                <div>
+                <Text className="text-xs">
                   {t('marketing.current')}
+                </Text>
                 </div>
               </Col>
               <Col className="text-end">
-                <Text className="text-base md:text-lg font-semibold text-text01">
-                  {loyaltyStats.nextTierName || t('marketing.amateur')}
-                </Text>
-                <div className="text-xs md:text-sm text-text02">{t('marketing.next')}</div>
+                <div>
+                  <Text className="text-[12px] font-semibold">
+                    {loyaltyStats.nextTierName || t('marketing.amateur')}
+                  </Text>
+                </div>
+                <div> 
+                  <Text className="text-xs">
+                    {t('marketing.next')}
+                  </Text>
+                </div>
               </Col>
             </Row>
           </Card>
@@ -220,7 +242,10 @@ const Loyalty: React.FC = () => {
 
         <Col xs={24} sm={24} md={12} lg={8} xl={8}>
           <Card className="rounded-2xl shadow-card h-full">
-            <Title level={4} className="text-text01 mb-3 md:mb-4 text-base md:text-lg">
+            <Title
+              level={4}
+              className="text-text01 mb-3 md:mb-4 text-sm md:text-base"
+            >
               {t('marketing.balance')}
             </Title>
 
