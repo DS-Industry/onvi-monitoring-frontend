@@ -500,6 +500,15 @@ export async function getDocument(
   return response.data;
 }
 
+export async function deleteDocument(
+  documentId: number
+): Promise<{ status: string }> {
+  const response: AxiosResponse<{ status: string }> = await api.delete(
+    WAREHOUSE.CREATE_DOCUMENT + `/${documentId}`
+  );
+  return response.data;
+}
+
 export async function getAllStockLevels(
   orgId: number,
   params: STOCK_PARAMS

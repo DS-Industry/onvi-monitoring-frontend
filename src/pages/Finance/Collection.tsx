@@ -107,7 +107,7 @@ const Collection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -118,7 +118,7 @@ const Collection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -129,10 +129,9 @@ const Collection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
-
 
   const poses: { name: string; value: number | string }[] = useMemo(() => {
     const mappedPoses =
@@ -215,7 +214,7 @@ const Collection: React.FC = () => {
         title: 'Создал',
         dataIndex: 'createdByName',
         key: 'createdByName',
-      }
+      },
     ],
     []
   );
@@ -227,7 +226,10 @@ const Collection: React.FC = () => {
     const dynamicColumns: { title: string; dataIndex: string; key: string }[] =
       [];
 
-    const workerMap = new Map<number, { id: number; name: string; surname: string }>();
+    const workerMap = new Map<
+      number,
+      { id: number; name: string; surname: string }
+    >();
     workerData?.forEach(work => workerMap.set(work.id, work));
 
     const transformedData = collectionsData.map(item => {
@@ -237,7 +239,7 @@ const Collection: React.FC = () => {
         posName: poses.find(pos => pos.value === item.posId)?.name || '',
         status: t(`tables.${item.status}`),
         parsedPeriod: dayjs(item.period.split('-')[0]).toDate(),
-        createdByName: creator ? `${creator.name} ${creator.surname}` : "-"
+        createdByName: creator ? `${creator.name} ${creator.surname}` : '-',
       };
 
       item.cashCollectionDeviceType.forEach((deviceType, index) => {
@@ -286,7 +288,7 @@ const Collection: React.FC = () => {
           className="btn-primary"
           onClick={() => navigate('/finance/collection/creation')}
         >
-          <span className='hidden sm:flex'>{t('routes.create')}</span>
+          <span className="hidden sm:flex">{t('routes.create')}</span>
         </Button>
       </div>
 
@@ -310,6 +312,7 @@ const Collection: React.FC = () => {
             current: currentPage,
             pageSize: pageSize,
             total: totalCollectionsCount,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
