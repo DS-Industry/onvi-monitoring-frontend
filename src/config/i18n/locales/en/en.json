@@ -481,7 +481,8 @@
     "manager": "Manager",
     "all": "All",
     "noExpanse": "You do not have expanse tracker data in the program",
-    "supplierName": "Name"
+    "supplierName": "Name",
+    "centimeters": "in centimeters"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
@@ -879,7 +880,7 @@
     "sch": "Schedule",
     "thr": "through",
     "sta": "Starting from",
-    "sel": "Select Date",
+    "sel": "Select Date (YY-MM-DD)",
     "open": "Opening hours:",
     "ex": "Exhibit on",
     "a": "a week in advance",

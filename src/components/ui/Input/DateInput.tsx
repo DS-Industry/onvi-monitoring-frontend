@@ -2,6 +2,8 @@ import React, { useEffect, useState, useId } from 'react';
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import DatePicker from 'antd/es/date-picker';
+import ruRU from 'antd/es/date-picker/locale/ru_RU';
+import enUS from 'antd/es/date-picker/locale/en_US';
 
 type InputProps = {
   value?: Dayjs | null;
@@ -29,7 +31,7 @@ const DateInput: React.FC<InputProps> = ({
   title,
   id,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
   const autoId = useId();
@@ -42,6 +44,11 @@ const DateInput: React.FC<InputProps> = ({
   const isLabelFloating = isFocused || hasValue;
 
   const containerClassName = `relative ${classname || ''}`;
+
+  const getAntdLocale = (lang: string) => {
+    if (lang.startsWith('ru')) return ruRU;
+    return enUS;
+  };
 
   return (
     <div className={containerClassName}>
@@ -63,6 +70,7 @@ const DateInput: React.FC<InputProps> = ({
           <DatePicker
             id={inputId}
             value={value}
+            locale={getAntdLocale(i18n.language)}
             onChange={(date, dateString) => {
               changeValue?.(date, dateString.toString());
               setHasValue(!!date);
