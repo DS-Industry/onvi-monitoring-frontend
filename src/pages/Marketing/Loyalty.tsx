@@ -28,6 +28,7 @@ const Loyalty: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -48,6 +49,7 @@ const Loyalty: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -101,9 +103,14 @@ const Loyalty: React.FC = () => {
     );
   }
 
-  const progressPercentage = loyaltyStats.amountToNextTier > 0
-    ? Math.min((loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) * 100, 100)
-    : 100;
+  const progressPercentage =
+    loyaltyStats.amountToNextTier > 0
+      ? Math.min(
+          (loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) *
+            100,
+          100
+        )
+      : 100;
 
   const filledBars = Math.max(1, Math.round((progressPercentage / 100) * 20));
 
@@ -162,7 +169,7 @@ const Loyalty: React.FC = () => {
             <Text className="text-xs font-semibold text-text01">
               {t('marketing.detail')}
             </Text>
-            
+
             <Row justify="space-between" className="my-2">
               <Col className="w-16 md:w-20">
                 <Title
@@ -204,7 +211,7 @@ const Loyalty: React.FC = () => {
                 );
               })}
             </div>
-            
+
             <div className="mt-2 text-center">
               <Text className="text-xs text-text02">
                 {Math.round(progressPercentage)}% {t('marketing.complete')}
@@ -254,18 +261,21 @@ const Loyalty: React.FC = () => {
             </Text>
 
             <div className="mb-3">
-              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.activeBonuses.toLocaleString()}</div>
+              <div className=" text-text01 text-xs md:text-sm mt-3">
+                {loyaltyStats.activeBonuses.toLocaleString()}
+              </div>
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.balance')}
               </Text>
             </div>
 
             <div className="mb-3">
-              <div className=" text-text01 text-xs md:text-sm mt-3">{loyaltyStats.totalBonusEarned.toLocaleString()} ₽</div>
+              <div className=" text-text01 text-xs md:text-sm mt-3">
+                {loyaltyStats.totalBonusEarned.toLocaleString()} ₽
+              </div>
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.accr')}
               </Text>
-              
             </div>
           </Card>
         </Col>

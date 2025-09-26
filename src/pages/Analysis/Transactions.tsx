@@ -22,7 +22,9 @@ const Transactions: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const { data: filter } = useSWR(['get-all-report'], () => getAllReports({}));
+  const { data: filter } = useSWR(['get-all-report'], () => getAllReports({}), {
+    shouldRetryOnError: false,
+  });
 
   const allReports = useMemo(() => {
     return (
@@ -35,16 +37,12 @@ const Transactions: React.FC = () => {
 
   const filterParams = {
     page: currentPage,
-    size: pageSize
-  }
+    size: pageSize,
+  };
 
   const swrKey = useMemo(() => {
-      return [
-        'get-transactions',
-        filterParams.page,
-        filterParams.size,
-      ];
-    }, [filterParams]);
+    return ['get-transactions', filterParams.page, filterParams.size];
+  }, [filterParams]);
 
   const { data: transactionData, isLoading: loadingTransactions } = useSWR(
     swrKey,
@@ -57,6 +55,7 @@ const Transactions: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -139,7 +138,7 @@ const Transactions: React.FC = () => {
             icon={
               <UndoOutlined style={{ color: 'orange', fontSize: '24px' }} />
             }
-            className='h-12 !w-12 flex items-center justify-center'
+            className="h-12 !w-12 flex items-center justify-center"
             onClick={() => mutate(swrKey)}
           />
           <Table

@@ -232,7 +232,7 @@
   "profile": {
     "basic": "Basic Details",
     "changePass": "Change Password",
-    "name": "Name *",
+    "name": "Name",
     "middlename": "Middle Name",
     "surname": "Surname",
     "telephone": "Telephone",
@@ -1298,7 +1298,7 @@
     "bankAddressRequired": "Bank Address is required",
     "birthdayRequired": "Birthday is required",
     "phoneRequired": "Phone is required",
-    "phoneValidFormat": "Phone number must start with +79 and be 11 digits long",
+    "phoneValidFormat": "Phone number must start with +7 and be 11 digits long",
     "emailRequired": "Email is required",
     "invalidEmailFormat": "Invalid Email Format",
     "roleRequired": "Role is required",
@@ -1323,7 +1323,10 @@
     "genderRequired": "Gender is required",
     "onlyDigits": "Only digits are allowed",
     "minuteRange": "Minutes must be between 0 and 59",
-    "hourRange": "Hours must be between 0 and 23"
+    "hourRange": "Hours must be between 0 and 23",
+    "passwordRequired": "Password is required",
+    "passwordNotMatch": "Password and confirmation password do not match",
+    "enterCorrectPassword": "Please enter a valid password"
   },
   "table": {
     "noData": "No Data"

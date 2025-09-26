@@ -99,8 +99,12 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     [user.organizationId]
   );
 
-  const { data: cards } = useSWR(['get-cards', cardParams], ([, params]) =>
-    getCards(params)
+  const { data: cards } = useSWR(
+    ['get-cards', cardParams],
+    ([, params]) => getCards(params),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const { trigger: createClientTrigger, isMutating: creatingClient } =
@@ -115,7 +119,10 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
 
   const { data: clientDataById, isValidating: loadingClient } = useSWR(
     clientId ? ['get-client-by-id', clientId] : null,
-    () => getClientById(Number(clientId))
+    () => getClientById(Number(clientId)),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   useEffect(() => {
@@ -286,7 +293,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 rules={{
                   required: t('validation.phoneRequired'),
                   pattern: {
-                    value: /^\+?79\d{9}$/,
+                    value: /^\+?7\d{10}$/,
                     message: t('validation.phoneValidFormat'),
                   },
                 }}
@@ -413,12 +420,10 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
             </Form.Item>
           </div>
           <div className="flex space-x-2">
-            <Button className="btn-outline-primary" onClick={onClose}>
-              {t('organizations.cancel')}
-            </Button>
+            <Button onClick={onClose}>{t('organizations.cancel')}</Button>
             <Button
               htmlType="submit"
-              className="btn-primary"
+              type="primary"
               loading={clientId ? updatingClient : creatingClient}
             >
               {t('organizations.save')}

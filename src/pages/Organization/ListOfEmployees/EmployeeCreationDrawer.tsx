@@ -10,17 +10,18 @@ import dayjs from 'dayjs';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import useSWR, { mutate } from 'swr';
-import { Form, Input, Modal, Select, DatePicker } from 'antd';
+import { Form, Input, Select, DatePicker, Drawer, Button } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
-type EmployeeCreationModalProps = {
+type EmployeeCreationDrawerProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
+const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
   open,
   onClose,
 }) => {
@@ -76,6 +77,16 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
     setValue(field, value);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
+  };
+
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
@@ -108,31 +119,25 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false,
   });
 
-  const { data: organizationData } = useSWR([`get-org`], () =>
-    getOrganization({})
+  const { data: organizationData } = useSWR(
+    [`get-org`],
+    () => getOrganization({}),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   return (
-    <Modal
+    <Drawer
+      title={t('roles.create')}
       open={open}
-      closable={true}
-      onCancel={resetForm}
-      onOk={handleSubmit(onSubmit)}
-      okButtonProps={{
-        loading: loadingRole,
-      }}
-      okText={t('organizations.save')}
-      cancelText={t('organizations.cancel')}
-      className="sm:w-[552px] max-h-[90vh] overflow-auto"
+      onClose={resetForm}
+      width={620}
     >
-      <div className="flex flex-row items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-text01">
-          {t('roles.create')}
-        </h2>
-      </div>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5 flex">
           <span className="font-semibold text-sm text-text01">
             {t('routine.fields')}
@@ -222,12 +227,12 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               {...register('phone', {
                 required: t('validation.phoneRequired'),
                 pattern: {
-                  value: /^\+79\d{9}$/,
+                  value: /^\+7\d{10}$/,
                   message: t('validation.phoneValidFormat'),
                 },
               })}
-              value={formData.phone}
-              onChange={e => handleInputChange('phone', e.target.value)}
+              value={formatRussianPhone(formData.phone)}
+              onChange={handlePhoneChange}
               status={errors.phone ? 'error' : ''}
             />
           </Form.Item>
@@ -329,10 +334,18 @@ const EmployeeCreationModal: React.FC<EmployeeCreationModalProps> = ({
               status={errors.position ? 'error' : ''}
             />
           </Form.Item>
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => resetForm()}>
+              {t('organizations.cancel')}
+            </Button>
+            <Button htmlType="submit" loading={loadingRole} type="primary">
+              {t('organizations.save')}
+            </Button>
+          </div>
         </div>
       </form>
-    </Modal>
+    </Drawer>
   );
 };
 
-export default EmployeeCreationModal;
+export default EmployeeCreationDrawer;

@@ -64,6 +64,7 @@ const TechTaskCreate: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -71,6 +72,7 @@ const TechTaskCreate: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const techTasks =

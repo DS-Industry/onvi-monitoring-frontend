@@ -80,6 +80,7 @@ const DepositDevices: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -130,6 +131,7 @@ const DepositDevices: React.FC = () => {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

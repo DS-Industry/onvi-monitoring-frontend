@@ -69,6 +69,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -111,6 +112,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

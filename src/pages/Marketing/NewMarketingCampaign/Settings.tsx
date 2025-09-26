@@ -85,6 +85,7 @@ const Settings: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -96,6 +97,8 @@ const Settings: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

@@ -25,6 +25,7 @@ import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { SaveOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
@@ -64,6 +65,7 @@ const EmployeeProfile: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -95,6 +97,7 @@ const EmployeeProfile: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -107,6 +110,7 @@ const EmployeeProfile: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -280,6 +284,16 @@ const EmployeeProfile: React.FC = () => {
     } else {
       setImagePreview(null);
     }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
   };
 
   const onSubmit = async () => {
@@ -504,10 +518,8 @@ const EmployeeProfile: React.FC = () => {
                         title={t('profile.telephone')}
                         label={t('warehouse.enterPhone')}
                         classname="w-64"
-                        value={formData.phone}
-                        changeValue={e =>
-                          handleInputChange('phone', e.target.value)
-                        }
+                        value={formatRussianPhone(formData.phone || '')}
+                        changeValue={handlePhoneChange}
                         {...register('phone')}
                         inputType="secondary"
                       />

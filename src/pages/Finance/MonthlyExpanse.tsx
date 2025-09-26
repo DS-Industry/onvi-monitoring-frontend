@@ -1,4 +1,3 @@
-import Button from '@/components/ui/Button/Button';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Input from '@/components/ui/Input/Input';
 import useFormHook from '@/hooks/useFormHook';
@@ -7,8 +6,6 @@ import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, {
-  ClassAttributes,
-  ThHTMLAttributes,
   useMemo,
   useState,
 } from 'react';
@@ -38,7 +35,7 @@ import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
-import { Drawer, Button as AntButton } from 'antd';
+import { Drawer, Button as AntButton, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import {
@@ -197,6 +194,7 @@ const MonthlyExpanse: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const managerPeriods = useMemo(
@@ -216,6 +214,7 @@ const MonthlyExpanse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 
@@ -600,27 +599,6 @@ const MonthlyExpanse: React.FC = () => {
           <Form form={form} component={false}>
             <Table
               components={{
-                header: {
-                  cell: (
-                    props: JSX.IntrinsicAttributes &
-                      ClassAttributes<HTMLTableHeaderCellElement> &
-                      ThHTMLAttributes<HTMLTableHeaderCellElement>
-                  ) => (
-                    <th
-                      {...props}
-                      style={{
-                        backgroundColor: '#E4F0FF',
-                        fontWeight: 'semi-bold',
-                        paddingLeft: '9px',
-                        paddingTop: '20px',
-                        paddingBottom: '20px',
-                        textAlign: 'left',
-                        borderRadius: '0px',
-                      }}
-                      className="border-b border-[1px] border-background02 bg-background06 px-2.5 text-sm font-semibold text-text01 tracking-wider"
-                    />
-                  ),
-                },
                 body: {
                   cell: EditableCell,
                 },
@@ -650,12 +628,11 @@ const MonthlyExpanse: React.FC = () => {
       </div>
 
       <Drawer
-        title={t('pos.creating')}
         placement="right"
         size="large"
         onClose={resetForm}
         open={drawerOpen}
-        className="custom-drawer"
+        title={t('pos.creating')}
       >
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -731,21 +708,17 @@ const MonthlyExpanse: React.FC = () => {
             error={!!errors.userId}
             helperText={errors.userId?.message || ''}
           />
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => resetForm()}>
+              {t('organizations.cancel')}
+            </Button>
             <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
-                setDrawerOpen(false);
-                resetForm();
-              }}
-            />
-            <Button
-              title={t('organizations.save')}
-              form={true}
-              isLoading={periodsLoading}
-              handleClick={() => {}}
-            />
+              htmlType="submit"
+              loading={periodsLoading}
+              type='primary'
+            >
+              {t('organizations.save')}
+            </Button>
           </div>
         </form>
       </Drawer>

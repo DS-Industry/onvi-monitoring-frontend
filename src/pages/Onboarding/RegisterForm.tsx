@@ -4,27 +4,17 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { registerPlatformUser } from '@/services/api/platform';
+import { RegisterBody, registerPlatformUser } from '@/services/api/platform';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import { useToast } from '@/components/context/useContext';
+import { formatRussianPhone } from '@/utils/tableUnits';
 
 type Props = {
   count: number;
   setCount: (key: number) => void;
   registerObj: { email: string };
   setRegisterObj: (obj: { email: string }) => void;
-};
-
-type RegisterBody = {
-  name: string;
-  surname: string;
-  middlename?: string;
-  birthday: Date;
-  phone: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
 };
 
 const RegisterForm: React.FC<Props> = ({
@@ -36,7 +26,7 @@ const RegisterForm: React.FC<Props> = ({
   const [isToggled, setIsToggled] = useState(false);
   const { showToast } = useToast();
 
-  const defaultValues: RegisterBody = {
+  const defaultValues: RegisterBody & { confirmPassword: string; } = {
     name: '',
     surname: '',
     middlename: '',
@@ -67,19 +57,21 @@ const RegisterForm: React.FC<Props> = ({
       })
   );
 
-  type FieldType =
-    | 'name'
-    | 'surname'
-    | 'middlename'
-    | 'email'
-    | 'password'
-    | 'confirmPassword'
-    | 'birthday'
-    | 'phone';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string | Date) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
+    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+
+    setFormData(prev => ({ ...prev, phone: cleanValue }));
+    setValue('phone', cleanValue);
   };
 
   const handleToggle = () => {
@@ -193,15 +185,14 @@ const RegisterForm: React.FC<Props> = ({
           <Input
             type="text"
             title={`${t('register.phone')} *`}
-            value={formData.phone}
-            changeValue={e => handleInputChange('phone', e.target.value)}
+            value={formatRussianPhone(formData.phone)}
+            changeValue={handlePhoneChange}
             error={!!errors.phone}
             {...register('phone', {
-              required: 'Phone is required',
+              required: t('validation.phoneRequired'),
               pattern: {
-                value: /^\+79\d{9}$/,
-                message:
-                  'Phone number must start with +79 and be 11 digits long',
+                value: /^\+7\d{10}$/,
+                message: t('validation.phoneValidFormat'),
               },
             })}
             helperText={errors.phone?.message || ''}

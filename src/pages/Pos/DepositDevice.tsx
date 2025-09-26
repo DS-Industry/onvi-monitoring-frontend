@@ -85,12 +85,14 @@ const DepositDevice: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      shouldRetryOnError: false
     }
   );
 
   const { data: currencyData } = useSWR('get-currency', () => getCurrency(), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
+    shouldRetryOnError: false
   });
 
   const currencyRender = getCurrencyRender();

@@ -186,12 +186,11 @@ const CorporateClients: React.FC = () => {
           </span>
         </div>
         <Button
-          type="primary"
           onClick={() => {
             setSelectedClient(null);
             setDrawerOpen(true);
           }}
-          className="bg-primary02 hover:bg-primary02_Hover text-white max-w-[120px]"
+          className="btn-primary"
           icon={<PlusOutlined />}
         >
           {t('routes.create')}

@@ -13,7 +13,7 @@ export enum StatusHrWorker {
   DISMISSED = 'DISMISSED',
 }
 
-type CreateWorkerRequest = {
+export type CreateWorkerRequest = {
   name: string;
   hrPositionId: string;
   placementId: string;

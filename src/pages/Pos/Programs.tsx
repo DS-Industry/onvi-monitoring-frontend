@@ -104,6 +104,7 @@ const Programs: React.FC = () => {
     {
       revalidateOnFocus: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
 

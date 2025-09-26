@@ -19,12 +19,12 @@ enum USER {
   USER_UPDATE_PASSWORD = 'user/password',
 }
 
-type LOGINBODY = {
+type LoginBody = {
   email: string;
   password: string;
 };
 
-type LOGINRESPONSE = {
+type LoginResponse = {
   admin: {
     props: {
       id: number;
@@ -62,7 +62,7 @@ type LOGINRESPONSE = {
   };
 };
 
-type REGISTERBODY = {
+export type RegisterBody = {
   name: string;
   surname: string;
   middlename?: string;
@@ -72,19 +72,19 @@ type REGISTERBODY = {
   password: string;
 };
 
-type REGISTERRESPONSE = {
+type RegisterResponse = {
   statusMail: {
     message: string;
     to: string;
   };
 };
 
-type REGISTERACTIVATION = {
+type RegisterActivation = {
   email: string;
   confirmString: string;
 };
 
-type REGISTERACTIVATIONRESPONSE = {
+type RegisterActivationResponse = {
   admin: {
     props: {
       id: number;
@@ -121,17 +121,17 @@ type REGISTERACTIVATIONRESPONSE = {
   };
 };
 
-type FORGOTPASSWORDBODY = {
+type ForgotPasswordBody = {
   email: string;
 };
 
-type RESETBODY = {
+type ResetBody = {
   email: string;
   confirmString: string;
   newPassword: string;
 };
 
-type RESETRESPONSE = {
+type ResetResponse = {
   status: 'password change';
   correctUser: {
     props: {
@@ -159,7 +159,7 @@ type RESETRESPONSE = {
   };
 };
 
-type UPDATEUSERBODY = {
+type UpdateUserBody = {
   name?: string;
   surname?: string;
   middlename?: string;
@@ -169,7 +169,7 @@ type UPDATEUSERBODY = {
   fcmToken?: string;
 };
 
-type UPDATEUSERRESPONSE = {
+type UpdateUserResponse = {
   props: {
     id: number;
     userRoleId: number;
@@ -195,7 +195,7 @@ type UPDATEUSERRESPONSE = {
   };
 };
 
-type USERPASSWORDBODY = {
+type UpdatePasswordBody = {
   oldPassword: string;
   newPassword: string;
 };
@@ -260,9 +260,9 @@ type OrganizationCreateResponse = {
 };
 
 export async function loginPlatformUser(
-  body: LOGINBODY
-): Promise<LOGINRESPONSE> {
-  const response: AxiosResponse<LOGINRESPONSE> = await api.post(
+  body: LoginBody
+): Promise<LoginResponse> {
+  const response: AxiosResponse<LoginResponse> = await api.post(
     LOGIN.CREATE_LOGIN,
     body
   );
@@ -270,9 +270,9 @@ export async function loginPlatformUser(
 }
 
 export async function registerPlatformUser(
-  body: REGISTERBODY
-): Promise<REGISTERRESPONSE> {
-  const response: AxiosResponse<REGISTERRESPONSE> = await api.post(
+  body: RegisterBody
+): Promise<RegisterResponse> {
+  const response: AxiosResponse<RegisterResponse> = await api.post(
     LOGIN.CREATE_REGISTER,
     body
   );
@@ -280,9 +280,9 @@ export async function registerPlatformUser(
 }
 
 export async function registerActivationUser(
-  body: REGISTERACTIVATION
-): Promise<REGISTERACTIVATIONRESPONSE> {
-  const response: AxiosResponse<REGISTERACTIVATIONRESPONSE> = await api.post(
+  body: RegisterActivation
+): Promise<RegisterActivationResponse> {
+  const response: AxiosResponse<RegisterActivationResponse> = await api.post(
     LOGIN.REGISTER_ACTIVATION,
     body
   );
@@ -290,9 +290,9 @@ export async function registerActivationUser(
 }
 
 export async function forgotPasswordUser(
-  body: FORGOTPASSWORDBODY
-): Promise<REGISTERRESPONSE> {
-  const response: AxiosResponse<REGISTERRESPONSE> = await api.post(
+  body: ForgotPasswordBody
+): Promise<RegisterResponse> {
+  const response: AxiosResponse<RegisterResponse> = await api.post(
     LOGIN.PASSWORD_CONFIRM,
     body
   );
@@ -300,7 +300,7 @@ export async function forgotPasswordUser(
 }
 
 export async function passwordValidUser(
-  body: REGISTERACTIVATION
+  body: RegisterActivation
 ): Promise<unknown> {
   const response: AxiosResponse<unknown> = await api.post(
     LOGIN.PASSWORD_VALID,
@@ -310,9 +310,9 @@ export async function passwordValidUser(
 }
 
 export async function passwordResetUser(
-  body: RESETBODY
-): Promise<RESETRESPONSE> {
-  const response: AxiosResponse<RESETRESPONSE> = await api.post(
+  body: ResetBody
+): Promise<ResetResponse> {
+  const response: AxiosResponse<ResetResponse> = await api.post(
     LOGIN.PASSWORD_RESET,
     body
   );
@@ -325,13 +325,13 @@ export async function passwordResetUser(
 // }
 
 export async function updateUserProfile(
-  body: UPDATEUSERBODY,
+  body: UpdateUserBody,
   file?: File | null
-): Promise<UPDATEUSERRESPONSE> {
+): Promise<UpdateUserResponse> {
   const formData = new FormData();
 
   for (const key in body) {
-    const value = body[key as keyof UPDATEUSERBODY];
+    const value = body[key as keyof UpdateUserBody];
     if (value !== undefined) {
       // Convert value to a string if it's a number
       formData.append(key, value.toString());
@@ -342,7 +342,7 @@ export async function updateUserProfile(
     formData.append('file', file);
   }
 
-  const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(
+  const response: AxiosResponse<UpdateUserResponse> = await api.patch(
     USER.USER_UPDATE,
     formData,
     {
@@ -355,9 +355,9 @@ export async function updateUserProfile(
 }
 
 export async function updateUserPassword(
-  body: USERPASSWORDBODY
-): Promise<UPDATEUSERRESPONSE> {
-  const response: AxiosResponse<UPDATEUSERRESPONSE> = await api.patch(
+  body: UpdatePasswordBody
+): Promise<UpdateUserResponse> {
+  const response: AxiosResponse<UpdateUserResponse> = await api.patch(
     USER.USER_UPDATE_PASSWORD,
     body
   );

@@ -34,6 +34,7 @@ const DirectoryArticles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false
     }
   );
   const { showToast } = useToast();

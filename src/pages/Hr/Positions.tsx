@@ -4,7 +4,6 @@ import Input from '@/components/ui/Input/Input';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
-import Button from '@/components/ui/Button/Button';
 import useSWR, { mutate } from 'swr';
 import {
   createPosition,
@@ -20,7 +19,7 @@ import {
   Popconfirm,
   Typography,
   Input as AntInput,
-  Button as AntButton,
+  Button,
   Grid,
 } from 'antd';
 import { EditOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
@@ -28,6 +27,8 @@ import { ColumnsType } from 'antd/es/table';
 import { useSearchParams } from 'react-router-dom';
 
 import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type Positions = {
   id: number;
@@ -44,6 +45,7 @@ const Positions: React.FC = () => {
   const [searchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
+  const userPermissions = usePermissions();
 
   const screens = Grid.useBreakpoint();
 
@@ -56,6 +58,7 @@ const Positions: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -70,6 +73,7 @@ const Positions: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false,
   });
 
   const defaultValues: Positions = {
@@ -145,6 +149,11 @@ const Positions: React.FC = () => {
     }
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'update', subject: 'Hr' },
+  ]);
+
   const columns: ColumnsType<Positions> = [
     {
       title: t('Должность'),
@@ -171,7 +180,10 @@ const Positions: React.FC = () => {
         return text || '-';
       },
     },
-    {
+  ];
+
+  if (allowed) {
+    columns.push({
       title: '',
       key: 'actions',
       width: '15%',
@@ -179,7 +191,7 @@ const Positions: React.FC = () => {
         if (editingKey === record.id) {
           return (
             <span>
-              <AntButton
+              <Button
                 type="text"
                 icon={<CheckOutlined />}
                 onClick={() => saveEditing(record.id)}
@@ -191,7 +203,7 @@ const Positions: React.FC = () => {
                 okText={t('equipment.yes')}
                 cancelText={t('equipment.no')}
               >
-                <AntButton
+                <Button
                   type="text"
                   icon={<CloseOutlined />}
                   style={{ marginRight: 8, color: 'red' }}
@@ -209,8 +221,8 @@ const Positions: React.FC = () => {
           </Typography.Link>
         );
       },
-    },
-  ];
+    });
+  }
 
   return (
     <div>
@@ -222,13 +234,15 @@ const Positions: React.FC = () => {
             {t('routes.positions')}
           </span>
         </div>
-        <AntButton
-          icon={<PlusOutlined />}
-          className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
-          onClick={() => setDrawerOpen(true)}
-        >
-          {screens.md && t('routes.new')}
-        </AntButton>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className={`btn-primary  ${screens.md ? '' : 'ant-btn-icon-only'}`}
+            onClick={() => setDrawerOpen(true)}
+          >
+            {screens.md && t('routes.new')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">
@@ -251,7 +265,10 @@ const Positions: React.FC = () => {
         className="custom-drawer"
         zIndex={9999}
       >
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div className="flex">
             <span className="font-semibold text-sm text-text01">
               {t('routine.fields')}
@@ -294,16 +311,13 @@ const Positions: React.FC = () => {
             changeValue={e => handleInputChange('description', e.target.value)}
             {...register('description')}
           />
-          <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-            <Button
-              title={t('organizations.cancel')}
-              type="outline"
-              handleClick={() => {
-                setDrawerOpen(false);
-                resetForm();
-              }}
-            />
-            <Button title={t('hr.pos')} form={true} isLoading={isMutating} />
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button onClick={() => resetForm()}>
+              {t('organizations.cancel')}
+            </Button>
+            <Button htmlType="submit" loading={isMutating} type="primary">
+              {t('hr.pos')}
+            </Button>
           </div>
         </form>
       </Drawer>

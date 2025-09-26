@@ -21,6 +21,7 @@ const PosFilter: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const handleChange = (val: string) => {

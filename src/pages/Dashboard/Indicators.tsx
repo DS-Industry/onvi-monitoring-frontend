@@ -28,7 +28,6 @@ import type { RangePickerProps } from 'antd/es/date-picker';
 import dayjs from 'dayjs';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
-import { getParam } from '@/utils/searchParamsUtils';
 
 interface PosMonitoring {
   id: number;
@@ -59,8 +58,16 @@ const Indicators: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [selectedValue, setSelectedValue] = useState<number | undefined>();
   const [searchParams] = useSearchParams();
-  const startDate = dayjs(getParam(searchParams, 'dateStart') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();
-  const endDate = dayjs(getParam(searchParams, 'dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm')).toDate();
+  const startDate = dayjs(
+    searchParams.get('dateStart') || dayjs().format('YYYY-MM-DD')
+  )
+    .startOf('day')
+    .toDate();
+  const endDate = dayjs(
+    searchParams.get('dateEnd') || dayjs().format('YYYY-MM-DD')
+  )
+    .endOf('day')
+    .toDate();
   const [dateRange, setDateRange] = useState({
     dateStart: startDate,
     dateEnd: endDate,
@@ -86,20 +93,29 @@ const Indicators: React.FC = () => {
     { label: t('dashboard.month'), value: 'month' },
   ];
 
-  const { data, isLoading: cardsDataLoading } = useSWR(['get-statistic'], () =>
-    getStatistic()
+  const { data, isLoading: cardsDataLoading } = useSWR(
+    ['get-statistic'],
+    () => getStatistic(),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const {
     data: filter,
     isLoading: filterLoading,
     isValidating: filterValidating,
-  } = useSWR(['get-pos-deposits', dateRange, selectedValue], () =>
-    getDepositPos({
-      ...dateRange,
-      posId: selectedValue,
-      placementId: city,
-    })
+  } = useSWR(
+    ['get-pos-deposits', dateRange, selectedValue],
+    () =>
+      getDepositPos({
+        ...dateRange,
+        posId: selectedValue,
+        placementId: city,
+      }),
+    {
+      shouldRetryOnError: false,
+    }
   );
 
   const {
@@ -156,7 +172,7 @@ const Indicators: React.FC = () => {
   const cards = [
     {
       title: 'visitors',
-      number: statisticData ? statisticData.cars : 0,
+      number: statisticData ? formatNumber(statisticData.cars) : 0,
       unit: '',
       icon: TotalVisitorsIcon,
       isPositive: true,
@@ -569,7 +585,6 @@ const Indicators: React.FC = () => {
                   />
                 </Space>
               ) : (
-                // Desktop view: RangePicker
                 <RangePicker
                   onChange={handleDateRangeChange}
                   value={[dayjs(dateRange.dateStart), dayjs(dateRange.dateEnd)]}
@@ -580,12 +595,12 @@ const Indicators: React.FC = () => {
             </Col>
           </Row>
           <div className="overflow-x-auto px-5">
-              <Table
-                dataSource={posMonitoring}
-                columns={columnsMonitoringPos}
-                loading={filterLoading || filterValidating}
-                scroll={{ x: 'max-content' }}
-              />
+            <Table
+              dataSource={posMonitoring}
+              columns={columnsMonitoringPos}
+              loading={filterLoading || filterValidating}
+              scroll={{ x: 'max-content' }}
+            />
           </div>
         </div>
       </div>

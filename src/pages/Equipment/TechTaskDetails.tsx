@@ -17,6 +17,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    shouldRetryOnError: false
   });
 
   const { data: contactData } = useSWR(
@@ -26,6 +27,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      shouldRetryOnError: false
     }
   );
 

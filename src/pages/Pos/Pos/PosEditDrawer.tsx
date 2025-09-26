@@ -60,7 +60,10 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const {
     data: posData
   } = useSWR(id ? [`get-pos-by-id`, id] : null, () =>
-    getPosById(id!)
+    getPosById(id!),
+    {
+      shouldRetryOnError: false
+    }
   );
 
   useEffect(() => {
@@ -225,7 +228,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   };
 
   return (
-    <Drawer open={isOpen} width={620} closable={false} onClose={resetForm}>
+    <Drawer open={isOpen} width={620} title={t('pos.creating')} onClose={resetForm}>
       {notificationVisible && organizations.length === 0 && (
         <Notification
           title={t('organizations.legalEntity')}
@@ -237,12 +240,9 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
       )}
 
       <form
-        className="space-y-6 w-full max-w-2xl mx-auto p-4"
+        className="w-full max-w-2xl mx-auto p-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <span className="font-semibold text-xl md:text-3xl mb-5">
-          {t('pos.creating')}
-        </span>
         <div className="mb-5 flex">
           <span className="font-semibold text-sm text-text01">
             {t('routine.fields')}
@@ -573,7 +573,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             <Upload
               listType="picture-card"
               showUploadList={true}
-              beforeUpload={() => false} 
+              beforeUpload={() => false}
               onChange={handleFileChange}
               maxCount={1}
               className="w-full upload-full-width"
