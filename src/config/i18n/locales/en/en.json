@@ -733,7 +733,18 @@
     "createCorporation": "Create Corporation",
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
+    "clientName": "Client Name",
+    "uniqueCardNumber": "Unique Card Number",
+    "cardNumber": "Card Number",
+    "level": "Level",
+    "discount": "Discount",
+    "balance": "Balance",
     "operations": "Operations",
+    "operationId": "ID",
+    "carWashBranch": "Car Wash/Branch",
+    "operationDate": "Operation Date",
+    "amount": "Amount",
+    "records": "records",
     "numOfCards": "Number of cards",
     "selectBranch": "Select a branch",
     "selectLoyaltyProgram": "Select a loyalty program",
@@ -746,7 +757,12 @@
     "delayedStart": "Delayed start",
     "date": "Date",
     "schedule": "Schedule",
-    "errorCampaign": "There was an error saving the campaign."
+    "errorCampaign": "There was an error saving the campaign.",
+    "campaignName": "Campaign Name",
+    "campaignType": "Campaign Type",
+    "launchDate": "Launch Date",
+    "loyaltyCreated": "Loyalty Program created successfully",
+    "loyaltyUpdated": "Loyalty Program updated successfully"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -757,6 +773,7 @@
     "1006": "An error occurred while retrieving contact information. Please try again.",
     "1007": "An error occurred while updating the user role. Please try again.",
     "1008": "Authorization failed. Please check your credentials and try again.",
+    "1103": "Loyalty program not found",
     "2001": "An error occurred while creating the device. Please try again.",
     "2002": "An error occurred while creating the device type. Please try again.",
     "2003": "An error occurred while updating the device type. Please try again.",
@@ -830,6 +847,7 @@
   },
   "tables": {
     "ACTIVE": "ACTIVE",
+    "INACTIVE": "INACTIVE",
     "BLOCKED": "BLOCKED",
     "VERIFICATE": "VERIFICATE",
     "Weekly": "Weekly",
@@ -866,6 +884,8 @@
     "DISMISSED": "DISMISSED",
     "DRAFT": "DRAFT",
     "PENDING": "PENDING",
+    "PAUSED": "PAUSED",
+    "CANCELLED": "CANCELLED",
     "unknownWorker": "Unknown worker"
   },
   "finance": {

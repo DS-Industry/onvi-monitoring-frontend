@@ -771,6 +771,24 @@ export type MarketingCampaignResponse = {
   };
 };
 
+export type MarketingCampaignsFilterDto = {
+  page?: number;
+  size?: number;
+  organizationId: number;
+  status?: MarketingCampaignStatus;
+  search?: string;
+};
+
+export type MarketingCampaignsPaginatedResponseDto = {
+  data: MarketingCampaignResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export type MarketingCampaignRequest = {
   name: string;
   type: MarketingCampaignType;
@@ -857,11 +875,12 @@ export async function getCorporateClientOperationsById(
   return response.data;
 }
 
-export async function getMarketingCampaign(orgId: number): Promise<
-  MarketingCampaignResponse[]
-> {
-  const response: AxiosResponse<MarketingCampaignResponse[]> = await api.get(
-    `user/loyalty/marketing-campaigns?organizationId=${orgId}`
+export async function getMarketingCampaign(
+  filters: MarketingCampaignsFilterDto
+): Promise<MarketingCampaignsPaginatedResponseDto> {
+  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> = await api.get(
+    'user/loyalty/marketing-campaigns',
+    { params: filters }
   );
 
   return response.data;

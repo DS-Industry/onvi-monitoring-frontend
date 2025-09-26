@@ -45,7 +45,7 @@ const Cards: React.FC = () => {
       cardNumber: card.cardNumber,
       level: card.cardTier?.name || '-',
       discount: card.cardTier
-        ? `Скидка ${Math.floor(card.cardTier.limitBenefit)}%`
+        ? `${t('marketing.discount')} ${Math.floor(card.cardTier.limitBenefit)}%`
         : '-',
       balance: card.cardBalance.toLocaleString('ru-RU', {
         style: 'currency',
@@ -56,7 +56,7 @@ const Cards: React.FC = () => {
 
   const columns = [
     {
-      title: 'Имя клиента',
+      title: t('marketing.clientName'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string) => (
@@ -64,17 +64,17 @@ const Cards: React.FC = () => {
       ),
     },
     {
-      title: '№ УН Карты',
+      title: t('marketing.uniqueCardNumber'),
       dataIndex: 'unqCard',
       key: 'unqCard',
     },
     {
-      title: '№ Карты',
+      title: t('marketing.cardNumber'),
       dataIndex: 'cardNumber',
       key: 'cardNumber',
     },
     {
-      title: 'Уровень',
+      title: t('marketing.level'),
       dataIndex: 'level',
       key: 'level',
       render: (_: string, record: (typeof dataSource)[0]) => (
@@ -93,7 +93,7 @@ const Cards: React.FC = () => {
       ),
     },
     {
-      title: 'Баланс',
+      title: t('marketing.balance'),
       dataIndex: 'balance',
       key: 'balance',
       align: 'right' as const,

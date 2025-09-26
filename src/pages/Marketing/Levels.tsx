@@ -438,7 +438,7 @@ const Levels: React.FC<Props> = ({ prevStep }) => {
               <ExpandedCard
                 key={tier.id}
                 firstText={tier.name}
-                secondText={tier.description || ''}
+                secondText={(tier.description || '') + `  (id: ${tier.id}) `}
                 Component={Profile}
                 handleClick={() => {
                   setIsModalOpenUpdate(true);

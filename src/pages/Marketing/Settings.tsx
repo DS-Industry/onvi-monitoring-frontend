@@ -148,6 +148,9 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
         lifetimeDays: formData.lifetimeDays,
       });
       if (result) {
+
+        showToast(t('marketing.loyaltyCreated'), 'success');
+
         updateSearchParams(searchParams, setSearchParams, {
           loyaltyId: result.props.id,
         });
@@ -177,7 +180,9 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
     try {
       const result = await updateLoyalty();
       if (result) {
-        mutate([`get-loyalty-program-by-id`]);
+        await mutate([`get-loyalty-program-by-id`]);
+
+        showToast(t('marketing.loyaltyUpdated'), 'success');
       } else {
         throw new Error('Invalid response from API');
       }
@@ -325,7 +330,7 @@ const Settings: React.FC<Props> = ({ nextStep }) => {
                             >
                               <Space direction="vertical" className="w-full">
                                 {posData.slice(MAX_VISIBLE).map(pos => (
-                                  <Checkbox key={pos.id} value={pos.id}>
+                                  <Checkbox key={pos.id} value={pos.id} checked>
                                     {pos.name} — {pos.address}
                                   </Checkbox>
                                 ))}

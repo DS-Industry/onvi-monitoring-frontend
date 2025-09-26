@@ -117,7 +117,7 @@ const MarketingLoyalty: React.FC = () => {
           </span>
           <QuestionMarkIcon />
         </div>
-        <div className="flex items-center space-x-2">
+        {!loyaltyProgramsLoading && user && permissions && <div className="flex items-center space-x-2">
           {hasPermission &&  <Button
             icon={<PlusOutlined />}
             className="btn-primary"
@@ -134,7 +134,7 @@ const MarketingLoyalty: React.FC = () => {
           >
             {t('loyaltyProgramsTable.join')}
           </Button>
-        </div>
+        </div>}
       </div>
       <div className="mt-2">
         {notificationVisible && (
@@ -152,6 +152,7 @@ const MarketingLoyalty: React.FC = () => {
             columns={columnsLoyaltyPrograms}
             loading={loyaltyProgramsLoading}
             scroll={{ x: 'max-content' }}
+            locale={{ emptyText: t('table.noData') }}
           />
         </div>
       </div>
