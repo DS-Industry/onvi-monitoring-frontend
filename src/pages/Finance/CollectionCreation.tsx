@@ -22,6 +22,7 @@ import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import CashCollectionDeviceTypeTable from '@/pages/Finance/CashCollectionDeviceTypeTable';
 import CollectionDeviceTable from '@/pages/Finance/CollectionDeviceTable';
+import { formatNumber } from '@/utils/tableUnits';
 
 type TableRow = {
   id: number;
@@ -425,18 +426,18 @@ const CollectionCreation: React.FC = () => {
             <Descriptions.Item label={t('finance.no')}>
               {collectionData.id}
             </Descriptions.Item>
-            <Descriptions.Item label={t('marketing.total')}>{`${collectionData.sumFact || '00'
+            <Descriptions.Item label={t('marketing.total')}>{`${formatNumber(collectionData.sumFact) || '00'
               } ₽`}</Descriptions.Item>
             <Descriptions.Item label={t('finance.cars')}>
-              {collectionData.countCar || 0}
+              {formatNumber(collectionData.countCar) || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t('finance.cash')}>{`${collectionData.virtualSum || '00'
+            <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
               } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.amt')}>{`${collectionData.sumCard || '00'
+            <Descriptions.Item label={t('finance.amt')}>{`${formatNumber(collectionData.sumCard) || '00'
               } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.short')}>{`${collectionData.shortage || '00'
+            <Descriptions.Item label={t('finance.short')}>{`${formatNumber(collectionData.shortage) || '00'
               } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('marketing.avg')}>{`${collectionData.averageCheck || '00'
+            <Descriptions.Item label={t('marketing.avg')}>{`${formatNumber(collectionData.averageCheck) || '00'
               } ₽`}</Descriptions.Item>
           </Descriptions>
 

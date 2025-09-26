@@ -88,9 +88,8 @@ const BarChart = ({ data: orgRatingData }: BarChartProps) => {
 
   return (
     <div
-      className="h-96"
+      className="h-96 w-full"
       style={{
-        width: `${chartWidth}px`,
         overflowX: chartWidth > MIN_WIDTH ? "auto" : "visible",
       }}
     >

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import { useToast } from '@/components/context/useContext';
 import useSWR, { mutate } from 'swr';
@@ -24,7 +23,7 @@ import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { Drawer, Table, Tooltip } from 'antd';
+import { Drawer, Form, Select, Table, Tooltip } from 'antd';
 import { getDateRender } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -66,7 +65,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -96,7 +95,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -107,7 +106,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -118,7 +117,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -129,7 +128,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -143,7 +142,7 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -154,17 +153,9 @@ const EquipmentFailure: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
-
-  const poses: { name: string; value: number | string }[] = (
-    posData?.map(item => ({ name: item.name, value: item.id })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
-
-  const workers: { name: string; value: number }[] = (
-    workerData?.map(item => ({ name: `${item.name} ${item.surname}`, value: item.id })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const programs: { name: string; value: number }[] =
     formData.posId === 0
@@ -180,52 +171,22 @@ const EquipmentFailure: React.FC = () => {
     data
       ?.map((item: Incident) => ({
         ...item,
-        posName: poses.find(pos => pos.value === item.posId)?.name || '-',
+        posName: posData?.find(pos => pos.id === item.posId)?.name || '-',
         workerName:
-          workers.find(work => work.value === item.workerId)?.name || '-',
+          workerData?.find(work => work.id === item.workerId)?.name || '-',
         programName:
           programs.find(prog => prog.value === item.programId)?.name || '-',
       }))
       .sort((a, b) => a.id - b.id) || [];
 
-  const devices: { name: string; value: string }[] =
-    formData.posId === 0
-      ? []
-      : (
-          deviceData?.map(item => ({
-            name: item.props.name,
-            value: item.props.name,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
-
-  const equipmentKnots: { name: string; value: number }[] =
-    formData.posId === 0
-      ? []
-      : (
-          equipmentKnotData?.map(item => ({
-            name: item.props.name,
-            value: item.props.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
-
-  const problemNames: { name: string; value: number }[] =
-    formData.posId === 0
-      ? []
-      : (
-          incidentEquipmentKnotData?.map(item => ({
-            name: item.problemName,
-            value: item.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
-
-  const reasons: { name: string; value: number }[] =
+  const reasons: { label: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
           incidentEquipmentKnotData
             ?.flatMap(item =>
               item.reason.map(reas => ({
-                name: reas.infoName,
+                label: reas.infoName,
                 value: reas.id,
               }))
             )
@@ -233,16 +194,16 @@ const EquipmentFailure: React.FC = () => {
               (reason, index, self) =>
                 index === self.findIndex(r => r.value === reason.value)
             ) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        ).sort((a, b) => a.label.localeCompare(b.label));
 
-  const solutions: { name: string; value: number }[] =
+  const solutions: { label: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
           incidentEquipmentKnotData
             ?.flatMap(item =>
               item.solution.map(sol => ({
-                name: sol.infoName,
+                label: sol.infoName,
                 value: sol.id,
               }))
             )
@@ -250,7 +211,7 @@ const EquipmentFailure: React.FC = () => {
               (reason, index, self) =>
                 index === self.findIndex(r => r.value === reason.value)
             ) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        ).sort((a, b) => a.label.localeCompare(b.label));
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -314,67 +275,57 @@ const EquipmentFailure: React.FC = () => {
   };
 
   const handleUpdate = (id: number) => {
-    setEditIncidentId(id);
-    setIsEditMode(true);
-    setDrawerOpen(true);
-    const incidentToEdit = incidents.find(org => org.id === id);
+  setEditIncidentId(id);
+  setIsEditMode(true);
+  setDrawerOpen(true);
 
-    if (incidentToEdit) {
-      const formatDateTime = (dateString: Date) => {
-        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
-      };
+  const incidentToEdit = incidents.find(org => org.id === id);
 
-      setFormData({
-        posId: incidentToEdit.posId,
-        workerId: incidentToEdit.workerId,
-        appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
-        startDate: formatDateTime(incidentToEdit.startDate),
-        finishDate: formatDateTime(incidentToEdit.finishDate),
-        objectName: incidentToEdit.objectName,
-        equipmentKnotId: equipmentKnots.find(
-          equipmentKnot => equipmentKnot.name === incidentToEdit.equipmentKnot
+  if (incidentToEdit) {
+    const knotNameToId: { [key: string]: number } = equipmentKnotData
+      ? equipmentKnotData.reduce(
+          (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
+          {},
         )
-          ? Number(
-              equipmentKnots.find(
-                equipmentKnot =>
-                  equipmentKnot.name === incidentToEdit.equipmentKnot
-              )?.value
-            )
-          : 0,
-        incidentNameId: problemNames.find(
-          incidentName => incidentName.name === incidentToEdit.equipmentKnot
+      : {};
+
+    const problemNameToId: { [key: string]: number } = incidentEquipmentKnotData
+      ? incidentEquipmentKnotData.reduce(
+          (acc, item) => ({ ...acc, [item.problemName]: item.id }),
+          {},
         )
-          ? Number(
-              problemNames.find(
-                incidentName =>
-                  incidentName.name === incidentToEdit.incidentName
-              )?.value
-            )
-          : 0,
-        incidentReasonId: reasons.find(
-          reason => reason.name === incidentToEdit.equipmentKnot
-        )
-          ? Number(
-              reasons.find(
-                reason => reason.name === incidentToEdit.incidentReason
-              )?.value
-            )
-          : 0,
-        incidentSolutionId: solutions.find(
-          solution => solution.name === incidentToEdit.equipmentKnot
-        )
-          ? Number(
-              solutions.find(
-                solution => solution.name === incidentToEdit.incidentSolution
-              )?.value
-            )
-          : 0,
-        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
-        comment: incidentToEdit.comment,
-        carWashDeviceProgramsTypeId: incidentToEdit.programId,
-      });
-    }
-  };
+      : {};
+
+    const reasonLabelToValue: { [key: string]: number } = reasons
+      ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
+      : {};
+
+    const solutionLabelToValue: { [key: string]: number } = solutions
+      ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
+      : {};
+
+    const formatDateTime = (dateString: Date) => {
+      return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
+    };
+
+    setFormData({
+      posId: incidentToEdit.posId,
+      workerId: incidentToEdit.workerId,
+      appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
+      startDate: formatDateTime(incidentToEdit.startDate),
+      finishDate: formatDateTime(incidentToEdit.finishDate),
+      objectName: incidentToEdit.objectName,
+      equipmentKnotId: knotNameToId[incidentToEdit.equipmentKnot] || undefined,
+      incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
+      incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
+      incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
+      downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
+      comment: incidentToEdit.comment,
+      carWashDeviceProgramsTypeId: incidentToEdit.programId,
+    });
+  }
+};
+
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -536,7 +487,7 @@ const EquipmentFailure: React.FC = () => {
             className="btn-primary"
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <div className='hidden sm:flex'>{t('routes.fix')}</div>
+            <div className="hidden sm:flex">{t('routes.fix')}</div>
           </Button>
         )}
       </div>
@@ -568,48 +519,77 @@ const EquipmentFailure: React.FC = () => {
         className="custom-drawer"
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <DropdownInput
-            title={t('equipment.carWash')}
-            label={
-              poses.length === 0 ? t('warehouse.noVal') : t('warehouse.notSel')
-            }
-            options={poses}
-            classname="w-72"
-            {...register('posId', {
-              required: !isEditMode && t("validation.posRequired"),
-              validate: value =>
-                value !== 0 || isEditMode || t("validation.posRequired"),
-            })}
-            value={formData.posId}
-            onChange={value => {
-              handleInputChange('posId', value);
-              updateSearchParams(searchParams, setSearchParams, {
-                posId: value,
-              });
-            }}
-            error={!!errors.posId}
-            helperText={errors.posId?.message}
-            isDisabled={isEditMode}
-          />
-          <DropdownInput
-            title={t('equipment.employee')}
-            label={
-              workers.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={workers}
-            classname="w-72"
-            {...register('workerId', {
-              required: !isEditMode && t("validation.workerRequired"),
-              validate: value =>
-                value !== 0 || isEditMode || t("validation.workerRequired"),
-            })}
-            value={formData.workerId}
-            onChange={value => handleInputChange('workerId', value)}
-            error={!!errors.workerId}
-            helperText={errors.workerId?.message}
-          />
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('equipment.carWash')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.posId?.message}
+              validateStatus={errors.posId ? 'error' : undefined}
+            >
+              <Select
+                placeholder={t('pos.companyName')}
+                options={posData?.map(item => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                className="!w-72"
+                {...register('posId', {
+                  required: !isEditMode && t('validation.posRequired'),
+                  validate: value =>
+                    value !== 0 || isEditMode || t('validation.posRequired'),
+                })}
+                value={formData.posId === 0 ? undefined : formData.posId}
+                onChange={value => {
+                  handleInputChange('posId', String(value));
+                  updateSearchParams(searchParams, setSearchParams, {
+                    posId: value,
+                  });
+                }}
+                status={errors.posId ? 'error' : ''}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">
+                {t('equipment.employee')}
+              </div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.workerId?.message}
+              validateStatus={errors.workerId ? 'error' : undefined}
+            >
+              <Select
+                placeholder={
+                  workerData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={workerData?.map(item => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                className="!w-72"
+                {...register('workerId', {
+                  required: !isEditMode && t('validation.workerRequired'),
+                  validate: value =>
+                    value !== 0 || isEditMode || t('validation.workerRequired'),
+                })}
+                value={formData.workerId === 0 ? undefined : formData.workerId}
+                onChange={value => {
+                  handleInputChange('workerId', String(value));
+                }}
+                status={errors.workerId ? 'error' : ''}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
           <DateTimeInput
             title={t('equipment.call')}
             classname="w-64"
@@ -626,7 +606,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.appearanceDate}
             {...register('appearanceDate', {
-              required: !isEditMode && t("validation.appearanceDateRequired")
+              required: !isEditMode && t('validation.appearanceDateRequired'),
             })}
             helperText={errors.appearanceDate?.message || ''}
           />
@@ -642,7 +622,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.startDate}
             {...register('startDate', {
-              required: !isEditMode && t("validation.startDateRequired"),
+              required: !isEditMode && t('validation.startDateRequired'),
             })}
             helperText={errors.startDate?.message || ''}
           />
@@ -658,7 +638,7 @@ const EquipmentFailure: React.FC = () => {
             }
             error={!!errors.finishDate}
             {...register('finishDate', {
-              required: !isEditMode && t("validation.finishDateRequired"),
+              required: !isEditMode && t('validation.finishDateRequired'),
             })}
             helperText={errors.finishDate?.message || ''}
           />
@@ -673,76 +653,130 @@ const EquipmentFailure: React.FC = () => {
             />
             <div className="text-text02 ml-2">{t('equipment.whole')}</div>
           </div>
-          <DropdownInput
-            title={t('equipment.device')}
-            label={
-              devices.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={devices}
-            classname="w-72"
-            {...register('objectName', {
-              required: !isEditMode && t("validation.deviceRequired"),
-            })}
-            value={formData.objectName}
-            onChange={value => handleInputChange('objectName', value)}
-            error={!!errors.objectName}
-            helperText={errors.objectName?.message}
-            isDisabled={deviceCheck}
-          />
-          <DropdownInput
-            title={t('equipment.knot')}
-            label={
-              equipmentKnots.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={equipmentKnots}
-            classname="w-72"
-            {...register('equipmentKnotId')}
-            value={formData.equipmentKnotId}
-            onChange={value => handleInputChange('equipmentKnotId', value)}
-          />
-          <DropdownInput
-            title={t('equipment.name')}
-            label={
-              problemNames.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={problemNames}
-            classname="w-72"
-            {...register('incidentNameId')}
-            value={formData.incidentNameId}
-            onChange={value => handleInputChange('incidentNameId', value)}
-          />
-          <DropdownInput
-            title={t('equipment.cause')}
-            label={
-              reasons.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={reasons}
-            classname="w-72"
-            {...register('incidentReasonId')}
-            value={formData.incidentReasonId}
-            onChange={value => handleInputChange('incidentReasonId', value)}
-          />
-          <DropdownInput
-            title={t('equipment.measures')}
-            label={
-              solutions.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={solutions}
-            classname="w-72"
-            {...register('incidentSolutionId')}
-            value={formData.incidentSolutionId}
-            onChange={value => handleInputChange('incidentSolutionId', value)}
-          />
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('equipment.device')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Form.Item
+              help={errors.objectName?.message}
+              validateStatus={errors.objectName ? 'error' : undefined}
+            >
+              <Select
+                placeholder={
+                  deviceData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={deviceData?.map(item => ({
+                  value: item.props.name,
+                  label: item.props.name,
+                }))}
+                className="!w-72"
+                {...register('objectName', {
+                  required: !isEditMode && t('validation.deviceRequired'),
+                })}
+                value={formData.objectName}
+                onChange={value => {
+                  handleInputChange('objectName', value);
+                }}
+                status={errors.objectName ? 'error' : ''}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('equipment.knot')}</div>
+            <Form.Item>
+              <Select
+                placeholder={
+                  equipmentKnotData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={equipmentKnotData?.map(item => ({
+                  value: item.props.id,
+                  label: item.props.name,
+                }))}
+                className="!w-72"
+                {...register('equipmentKnotId')}
+                value={formData.equipmentKnotId}
+                onChange={value => {
+                  handleInputChange('equipmentKnotId', String(value));
+                }}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('equipment.name')}</div>
+            <Form.Item>
+              <Select
+                placeholder={
+                  incidentEquipmentKnotData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={incidentEquipmentKnotData?.map(item => ({
+                  value: item.id,
+                  label: item.problemName,
+                }))}
+                className="!w-72"
+                {...register('incidentNameId')}
+                value={formData.incidentNameId}
+                onChange={value => {
+                  handleInputChange('incidentNameId', String(value));
+                }}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('equipment.cause')}</div>
+            <Form.Item>
+              <Select
+                placeholder={
+                  incidentEquipmentKnotData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={incidentEquipmentKnotData?.map(item => ({
+                  value: item.id,
+                  label: item.reason,
+                }))}
+                className="!w-72"
+                {...register('incidentReasonId')}
+                value={formData.incidentReasonId}
+                onChange={value => {
+                  handleInputChange('incidentReasonId', String(value));
+                }}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
+          <div>
+            <div className="text-text02 text-sm">{t('equipment.measures')}</div>
+            <Form.Item>
+              <Select
+                placeholder={
+                  incidentEquipmentKnotData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={incidentEquipmentKnotData?.map(item => ({
+                  value: item.id,
+                  label: item.solution,
+                }))}
+                className="!w-72"
+                {...register('incidentSolutionId')}
+                value={formData.incidentSolutionId}
+                onChange={value => {
+                  handleInputChange('incidentSolutionId', String(value));
+                }}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
           <div className="space-y-2">
             <div className="text-text02 text-sm font-semibold">
               {t('equipment.simple')}
@@ -755,7 +789,7 @@ const EquipmentFailure: React.FC = () => {
                   checked={formData.downtime === 1}
                   className="mr-2"
                   {...register('downtime', {
-                    required: !isEditMode && t("validation.downtimeRequired"),
+                    required: !isEditMode && t('validation.downtimeRequired'),
                   })}
                   onChange={e => handleInputChange('downtime', e.target.value)}
                 />
@@ -767,7 +801,7 @@ const EquipmentFailure: React.FC = () => {
                   value={0}
                   checked={formData.downtime === 0}
                   {...register('downtime', {
-                    required: !isEditMode && t("validation.downtimeRequired"),
+                    required: !isEditMode && t('validation.downtimeRequired'),
                   })}
                   onChange={e => handleInputChange('downtime', e.target.value)}
                   className="mr-2"
@@ -777,25 +811,36 @@ const EquipmentFailure: React.FC = () => {
             </div>
             {errors.downtime && (
               <div className={`text-[11px] font-normal text-errorFill`}>
-                {t("validation.downtimeRequired")}
+                {t('validation.downtimeRequired')}
               </div>
             )}
           </div>
-          <DropdownInput
-            title={t('equipment.program')}
-            label={
-              programs.length === 0
-                ? t('warehouse.noVal')
-                : t('warehouse.notSel')
-            }
-            options={programs}
-            classname="w-72"
-            {...register('carWashDeviceProgramsTypeId')}
-            value={formData.carWashDeviceProgramsTypeId}
-            onChange={value =>
-              handleInputChange('carWashDeviceProgramsTypeId', value)
-            }
-          />
+          <div>
+            <div className="text-text02 text-sm">{t('equipment.program')}</div>
+            <Form.Item>
+              <Select
+                placeholder={
+                  allProgramsData?.length === 0
+                    ? t('warehouse.noVal')
+                    : t('warehouse.notSel')
+                }
+                options={allProgramsData?.map(item => ({
+                  value: item.props.id,
+                  label: item.props.name,
+                }))}
+                className="!w-72"
+                {...register('carWashDeviceProgramsTypeId')}
+                value={formData.carWashDeviceProgramsTypeId}
+                onChange={value => {
+                  handleInputChange(
+                    'carWashDeviceProgramsTypeId',
+                    String(value)
+                  );
+                }}
+                showSearch={true}
+              />
+            </Form.Item>
+          </div>
           <MultilineInput
             title={t('equipment.comment')}
             classname="w-96"
@@ -803,7 +848,7 @@ const EquipmentFailure: React.FC = () => {
             changeValue={e => handleInputChange('comment', e.target.value)}
             error={!!errors.comment}
             {...register('comment', {
-              required: !isEditMode && t("validation.commentRequired"),
+              required: !isEditMode && t('validation.commentRequired'),
             })}
             helperText={errors.comment?.message || ''}
           />
@@ -819,7 +864,7 @@ const EquipmentFailure: React.FC = () => {
             <Button
               htmlType={'submit'}
               loading={isEditMode ? updatingIncident : isMutating}
-              type='primary'
+              type="primary"
             >
               {t('organizations.save')}
             </Button>
