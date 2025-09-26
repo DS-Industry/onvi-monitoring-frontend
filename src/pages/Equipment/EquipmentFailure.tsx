@@ -157,17 +157,6 @@ const EquipmentFailure: React.FC = () => {
     }
   );
 
-  const poses: { name: string; value: number | string }[] = (
-    posData?.map(item => ({ name: item.name, value: item.id })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
-
-  const workers: { name: string; value: number }[] = (
-    workerData?.map(item => ({
-      name: `${item.name} ${item.surname}`,
-      value: item.id,
-    })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
-
   const programs: { name: string; value: number }[] =
     formData.posId === 0
       ? []
@@ -182,9 +171,9 @@ const EquipmentFailure: React.FC = () => {
     data
       ?.map((item: Incident) => ({
         ...item,
-        posName: poses.find(pos => pos.value === item.posId)?.name || '-',
+        posName: posData?.find(pos => pos.id === item.posId)?.name || '-',
         workerName:
-          workers.find(work => work.value === item.workerId)?.name || '-',
+          workerData?.find(work => work.id === item.workerId)?.name || '-',
         programName:
           programs.find(prog => prog.value === item.programId)?.name || '-',
       }))
@@ -269,7 +258,7 @@ const EquipmentFailure: React.FC = () => {
 
   type FieldType = keyof typeof defaultValues;
 
-  const handleInputChange = (field: FieldType, value: string | number) => {
+  const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = [
       'downtime',
       'posId',
@@ -286,69 +275,57 @@ const EquipmentFailure: React.FC = () => {
   };
 
   const handleUpdate = (id: number) => {
-    setEditIncidentId(id);
-    setIsEditMode(true);
-    setDrawerOpen(true);
-    const incidentToEdit = incidents.find(org => org.id === id);
+  setEditIncidentId(id);
+  setIsEditMode(true);
+  setDrawerOpen(true);
 
-    if (incidentToEdit) {
-      const formatDateTime = (dateString: Date) => {
-        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
-      };
+  const incidentToEdit = incidents.find(org => org.id === id);
 
-      setFormData({
-        posId: incidentToEdit.posId,
-        workerId: incidentToEdit.workerId,
-        appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
-        startDate: formatDateTime(incidentToEdit.startDate),
-        finishDate: formatDateTime(incidentToEdit.finishDate),
-        objectName: incidentToEdit.objectName,
-        equipmentKnotId: equipmentKnotData?.find(
-          equipmentKnot =>
-            equipmentKnot.props.name === incidentToEdit.equipmentKnot
+  if (incidentToEdit) {
+    const knotNameToId: { [key: string]: number } = equipmentKnotData
+      ? equipmentKnotData.reduce(
+          (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
+          {},
         )
-          ? Number(
-              equipmentKnotData.find(
-                equipmentKnot =>
-                  equipmentKnot.props.name === incidentToEdit.equipmentKnot
-              )?.props.id
-            )
-          : 0,
-        incidentNameId: incidentEquipmentKnotData?.find(
-          incidentName =>
-            incidentName.problemName === incidentToEdit.equipmentKnot
+      : {};
+
+    const problemNameToId: { [key: string]: number } = incidentEquipmentKnotData
+      ? incidentEquipmentKnotData.reduce(
+          (acc, item) => ({ ...acc, [item.problemName]: item.id }),
+          {},
         )
-          ? Number(
-              incidentEquipmentKnotData.find(
-                incidentName =>
-                  incidentName.problemName === incidentToEdit.incidentName
-              )?.id
-            )
-          : 0,
-        incidentReasonId: reasons?.find(
-          reason => reason.label === incidentToEdit.incidentReason
-        )
-          ? Number(
-              reasons.find(
-                reason => reason.label === incidentToEdit.incidentReason
-              )?.value
-            )
-          : 0,
-        incidentSolutionId: solutions.find(
-          solution => solution.label === incidentToEdit.incidentSolution
-        )
-          ? Number(
-              solutions.find(
-                solution => solution.label === incidentToEdit.incidentSolution
-              )?.value
-            )
-          : 0,
-        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
-        comment: incidentToEdit.comment,
-        carWashDeviceProgramsTypeId: incidentToEdit.programId,
-      });
-    }
-  };
+      : {};
+
+    const reasonLabelToValue: { [key: string]: number } = reasons
+      ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
+      : {};
+
+    const solutionLabelToValue: { [key: string]: number } = solutions
+      ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
+      : {};
+
+    const formatDateTime = (dateString: Date) => {
+      return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
+    };
+
+    setFormData({
+      posId: incidentToEdit.posId,
+      workerId: incidentToEdit.workerId,
+      appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
+      startDate: formatDateTime(incidentToEdit.startDate),
+      finishDate: formatDateTime(incidentToEdit.finishDate),
+      objectName: incidentToEdit.objectName,
+      equipmentKnotId: knotNameToId[incidentToEdit.equipmentKnot] || undefined,
+      incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
+      incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
+      incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
+      downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
+      comment: incidentToEdit.comment,
+      carWashDeviceProgramsTypeId: incidentToEdit.programId,
+    });
+  }
+};
+
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -565,9 +542,9 @@ const EquipmentFailure: React.FC = () => {
                   validate: value =>
                     value !== 0 || isEditMode || t('validation.posRequired'),
                 })}
-                value={formData.posId}
+                value={formData.posId === 0 ? undefined : formData.posId}
                 onChange={value => {
-                  handleInputChange('posId', value);
+                  handleInputChange('posId', String(value));
                   updateSearchParams(searchParams, setSearchParams, {
                     posId: value,
                   });
@@ -604,9 +581,9 @@ const EquipmentFailure: React.FC = () => {
                   validate: value =>
                     value !== 0 || isEditMode || t('validation.workerRequired'),
                 })}
-                value={formData.workerId}
+                value={formData.workerId === 0 ? undefined : formData.workerId}
                 onChange={value => {
-                  handleInputChange('workerId', value);
+                  handleInputChange('workerId', String(value));
                 }}
                 status={errors.workerId ? 'error' : ''}
                 showSearch={true}
@@ -692,7 +669,7 @@ const EquipmentFailure: React.FC = () => {
                     : t('warehouse.notSel')
                 }
                 options={deviceData?.map(item => ({
-                  value: item.props.id,
+                  value: item.props.name,
                   label: item.props.name,
                 }))}
                 className="!w-72"
@@ -725,7 +702,7 @@ const EquipmentFailure: React.FC = () => {
                 {...register('equipmentKnotId')}
                 value={formData.equipmentKnotId}
                 onChange={value => {
-                  handleInputChange('equipmentKnotId', value);
+                  handleInputChange('equipmentKnotId', String(value));
                 }}
                 showSearch={true}
               />
@@ -748,7 +725,7 @@ const EquipmentFailure: React.FC = () => {
                 {...register('incidentNameId')}
                 value={formData.incidentNameId}
                 onChange={value => {
-                  handleInputChange('incidentNameId', value);
+                  handleInputChange('incidentNameId', String(value));
                 }}
                 showSearch={true}
               />
@@ -771,7 +748,7 @@ const EquipmentFailure: React.FC = () => {
                 {...register('incidentReasonId')}
                 value={formData.incidentReasonId}
                 onChange={value => {
-                  handleInputChange('incidentReasonId', value);
+                  handleInputChange('incidentReasonId', String(value));
                 }}
                 showSearch={true}
               />
@@ -794,7 +771,7 @@ const EquipmentFailure: React.FC = () => {
                 {...register('incidentSolutionId')}
                 value={formData.incidentSolutionId}
                 onChange={value => {
-                  handleInputChange('incidentSolutionId', value);
+                  handleInputChange('incidentSolutionId', String(value));
                 }}
                 showSearch={true}
               />
@@ -855,7 +832,10 @@ const EquipmentFailure: React.FC = () => {
                 {...register('carWashDeviceProgramsTypeId')}
                 value={formData.carWashDeviceProgramsTypeId}
                 onChange={value => {
-                  handleInputChange('carWashDeviceProgramsTypeId', value);
+                  handleInputChange(
+                    'carWashDeviceProgramsTypeId',
+                    String(value)
+                  );
                 }}
                 showSearch={true}
               />
