@@ -386,9 +386,10 @@ export async function getSupplier(
   return response.data;
 }
 
-export async function getSupplierCount(): Promise<{ count: number; }> {
-  const response: AxiosResponse<{ count: number; }> = await api.get(
-    'user/warehouse/supplier-count');
+export async function getSupplierCount(): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    'user/warehouse/supplier-count'
+  );
   return response.data;
 }
 
@@ -397,8 +398,17 @@ export async function getNomenclature(
   params?: NomenclatureParams
 ): Promise<NOMENCLATURE_RESPONSE[]> {
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
+    `user/warehouse/nomenclature/${orgId}`,
     { params }
+  );
+  return response.data;
+}
+
+export async function getNomenclatureCount(
+  orgId: number
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    `user/warehouse/nomenclature-count/${orgId}`
   );
   return response.data;
 }
