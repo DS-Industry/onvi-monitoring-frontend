@@ -760,7 +760,9 @@
     "errorCampaign": "There was an error saving the campaign.",
     "campaignName": "Campaign Name",
     "campaignType": "Campaign Type",
-    "launchDate": "Launch Date"
+    "launchDate": "Launch Date",
+    "loyaltyCreated": "Loyalty Program created successfully",
+    "loyaltyUpdated": "Loyalty Program updated successfully"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
