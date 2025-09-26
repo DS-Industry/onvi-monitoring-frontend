@@ -10,6 +10,7 @@ const InfoTab = React.lazy(() => import('./InfoTab'));
 const PasswordTab = React.lazy(() => import('./PasswordTab'));
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+import { LogoutOutlined } from '@ant-design/icons';
 
 const ProfileForm: React.FC = () => {
   const { t } = useTranslation();
@@ -71,9 +72,10 @@ const ProfileForm: React.FC = () => {
         </div>
         <Button
           className="btn-primary"
+          icon={<LogoutOutlined />}
           onClick={handleLogout}
         >
-          <div>{t('profile.logout')}</div>
+          <div className="hidden sm:flex">{t('profile.logout')}</div>
         </Button>
       </div>
       <div className="max-w-5xl bg-white">
