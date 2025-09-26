@@ -195,6 +195,7 @@ const MarketingCompanies: React.FC = () => {
           bordered={false}
           scroll={{ x: 'max-content' }}
           loading={isLoading}
+          locale={{ emptyText: t('table.noData') }}
         />
       </div>
     </div>

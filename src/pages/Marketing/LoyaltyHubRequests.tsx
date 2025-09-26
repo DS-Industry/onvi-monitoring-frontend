@@ -349,6 +349,7 @@ const LoyaltyHubRequests: React.FC = () => {
             : false
         }
         scroll={{ x: 800 }}
+        locale={{ emptyText: t('table.noData') }}
       />
     </>
   );

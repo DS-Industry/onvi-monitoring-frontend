@@ -152,6 +152,7 @@ const MarketingLoyalty: React.FC = () => {
             columns={columnsLoyaltyPrograms}
             loading={loyaltyProgramsLoading}
             scroll={{ x: 'max-content' }}
+            locale={{ emptyText: t('table.noData') }}
           />
         </div>
       </div>

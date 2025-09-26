@@ -208,6 +208,7 @@ const CorporateClients: React.FC = () => {
           loading={isLoading}
           rowKey="id"
           scroll={{ x: 'max-content' }}
+          locale={{ emptyText: t('table.noData') }}
           pagination={{
             current: pagination?.currentPage || currentPage,
             pageSize: pagination?.pageSize || pageSize,
