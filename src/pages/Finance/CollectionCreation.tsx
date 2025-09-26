@@ -2,6 +2,7 @@ import DropdownInput from '@/components/ui/Input/DropdownInput';
 import useFormHook from '@/hooks/useFormHook';
 import { getPoses } from '@/services/api/equipment';
 import {
+  deleteCollectionById,
   getCollectionById,
   postCollection,
   recalculateCollection,
@@ -11,7 +12,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import DateTimeInput from '@/components/ui/Input/DateTimeInput';
 import dayjs from 'dayjs';
@@ -88,6 +89,7 @@ const CollectionCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
+  const [isDeletingCollection, setIsDeletingCollection] = useState(false);
 
   const id = searchParams.get('id');
   const status = searchParams.get('status');
@@ -100,7 +102,7 @@ const CollectionCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -111,7 +113,7 @@ const CollectionCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -335,7 +337,26 @@ const CollectionCreation: React.FC = () => {
     const result = await returnColl();
 
     if (result) {
-      navigate('/finance/collection');
+      navigate(-1);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeletingCollection(true);
+    try {
+      const result = await mutate(
+        [`delete-collection`, id],
+        () => deleteCollectionById(Number(id)),
+        false
+      );
+
+      if (result) {
+        navigate(-1);
+      }
+    } catch (error) {
+      showToast(t('success.recordDeleted'), 'error');
+    } finally {
+      setIsDeletingCollection(false);
     }
   };
 
@@ -393,7 +414,7 @@ const CollectionCreation: React.FC = () => {
               <Button
                 htmlType="submit"
                 loading={collectionLoading}
-                type='primary'
+                type="primary"
               >
                 {t('finance.form')}
               </Button>
@@ -426,19 +447,26 @@ const CollectionCreation: React.FC = () => {
             <Descriptions.Item label={t('finance.no')}>
               {collectionData.id}
             </Descriptions.Item>
-            <Descriptions.Item label={t('marketing.total')}>{`${formatNumber(collectionData.sumFact) || '00'
-              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.total')}>{`${
+              formatNumber(collectionData.sumFact) || '00'
+            } ₽`}</Descriptions.Item>
             <Descriptions.Item label={t('finance.cars')}>
               {formatNumber(collectionData.countCar) || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
-              } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.amt')}>{`${formatNumber(collectionData.sumCard) || '00'
-              } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.short')}>{`${formatNumber(collectionData.shortage) || '00'
-              } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('marketing.avg')}>{`${formatNumber(collectionData.averageCheck) || '00'
-              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.cash')}>{`${
+              formatNumber(collectionData.virtualSum) || '00'
+            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.amt')}>{`${
+              formatNumber(collectionData.sumCard) || '00'
+            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.short')}>{`${
+              formatNumber(collectionData.shortage) || '00'
+            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.avg')}>{`${
+              collectionData.averageCheck
+                ? formatNumber(collectionData.averageCheck)
+                : '0'
+            } ₽`}</Descriptions.Item>
           </Descriptions>
 
           <Divider />
@@ -517,35 +545,31 @@ const CollectionCreation: React.FC = () => {
             {allowed =>
               allowed &&
               status !== t('tables.SENT') && (
-                <Button
-                  htmlType="submit"
-                  loading={isMutating}
-                  type='primary'
-                  onClick={handleRecalculation}
-                >
-                  {t('finance.recal')}
-                </Button>
-              )
-            }
-          </Can>
-          <Can
-            requiredPermissions={[
-              { action: 'manage', subject: 'CashCollection' },
-              { action: 'create', subject: 'CashCollection' },
-            ]}
-            userPermissions={userPermissions}
-          >
-            {allowed =>
-              allowed &&
-              status !== t('tables.SENT') && (
-                <Button
-                  htmlType="submit"
-                  loading={sendingColl}
-                  type='primary'
-                  onClick={handleSend}
-                >
-                  {t('finance.recalSend')}
-                </Button>
+                <div className="flex space-x-3">
+                  <Button
+                    onClick={handleDelete}
+                    loading={isDeletingCollection}
+                    className="bg-errorFill text-text04 hover:bg-red-300"
+                  >
+                    {t('marketing.delete')}
+                  </Button>
+                  <Button
+                    htmlType="submit"
+                    loading={isMutating}
+                    type="primary"
+                    onClick={handleRecalculation}
+                  >
+                    {t('finance.recal')}
+                  </Button>
+                  <Button
+                    htmlType="submit"
+                    loading={sendingColl}
+                    type="primary"
+                    onClick={handleSend}
+                  >
+                    {t('finance.recalSend')}
+                  </Button>
+                </div>
               )
             }
           </Can>
@@ -561,7 +585,7 @@ const CollectionCreation: React.FC = () => {
               status === t('tables.SENT') && (
                 <Button
                   loading={returningColl}
-                  type='primary'
+                  type="primary"
                   onClick={handleReturn}
                 >
                   {t('finance.refund')}
