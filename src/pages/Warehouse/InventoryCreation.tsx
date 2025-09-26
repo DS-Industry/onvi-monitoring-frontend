@@ -9,6 +9,7 @@ import {
   deleteNomenclature,
   getCategory,
   getNomenclature,
+  getNomenclatureCount,
   getSupplier,
   updateNomenclature,
 } from '@/services/api/warehouse';
@@ -92,8 +93,10 @@ const InventoryCreation: React.FC = () => {
       'get-inventory',
       filterParams.organizationId,
       filterParams.category,
+      currentPage,
+      pageSize,
     ];
-  }, [filterParams]);
+  }, [filterParams, currentPage, pageSize]);
 
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     user.organizationId ? swrKey : null,
@@ -102,6 +105,21 @@ const InventoryCreation: React.FC = () => {
         page: currentPage,
         size: pageSize,
       });
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: inventoryCount } = useSWR(
+    user.organizationId
+      ? [`get-nomenclature-count`, user.organizationId]
+      : null,
+    () => {
+      return getNomenclatureCount(Number(user.organizationId!)!);
     },
     {
       revalidateOnFocus: false,
@@ -151,12 +169,7 @@ const InventoryCreation: React.FC = () => {
 
   categories.unshift(categoryAllObj);
 
-  const inventoriesDisplay: {
-    id: number;
-    sku: string;
-    name: string;
-    categoryId: string | undefined;
-  }[] = inventories.map(item => ({
+  const inventoriesDisplay = inventories.map(item => ({
     id: item.id,
     sku: item.sku,
     name: item.name,
@@ -459,7 +472,8 @@ const InventoryCreation: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: inventoriesDisplay.length,
+            total: inventoryCount?.count || 0,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
@@ -589,24 +603,27 @@ const InventoryCreation: React.FC = () => {
           />
           <Input
             title={t('warehouse.sizeW')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.width}
             changeValue={e => handleInputChange('width', e.target.value)}
             {...register('width')}
           />
           <Input
             title={t('warehouse.sizeG')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.length}
             changeValue={e => handleInputChange('length', e.target.value)}
             {...register('length')}
           />
           <Input
             title={t('warehouse.sizeB')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.height}
             changeValue={e => handleInputChange('height', e.target.value)}
             {...register('height')}
@@ -664,7 +681,7 @@ const InventoryCreation: React.FC = () => {
                 isEditMode && (
                   <Button
                     onClick={handleDelete}
-                    className="bg-red-600 hover:bg-red-300"
+                    className="bg-errorFill text-text04 hover:bg-red-300"
                   >
                     {t('warehouse.deletePos')}
                   </Button>

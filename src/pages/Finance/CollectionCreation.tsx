@@ -392,7 +392,7 @@ const CollectionCreation: React.FC = () => {
             <div className="flex justify-between">
               <Button
                 htmlType="submit"
-                loading={isMutating}
+                loading={collectionLoading}
                 type='primary'
               >
                 {t('finance.form')}
