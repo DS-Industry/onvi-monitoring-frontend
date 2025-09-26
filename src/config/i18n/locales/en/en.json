@@ -1301,7 +1301,18 @@
     "enterCorrectPassword": "Please enter a valid password"
   },
   "table": {
-    "noData": "No Data"
+    "noData": "No Data",
+    "columns": {
+      "id": "ID",
+      "address": "Address",
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "createdAt": "Created Date",
+      "updatedAt": "Updated Date",
+      "owner": "Owner",
+      "actions": "Actions"
+    }
   },
   "deposit": {
     "columns": {

@@ -1301,7 +1301,18 @@
     "enterCorrectPassword": "Введите правильный пароль"
   },
   "table": {
-    "noData": "Ничего не найдено"
+    "noData": "Ничего не найдено",
+    "columns": {
+      "id": "ID",
+      "address": "Адрес",
+      "name": "Название",
+      "status": "Статус",
+      "type": "Тип",
+      "createdAt": "Дата создания",
+      "updatedAt": "Дата обновления",
+      "owner": "Владелец",
+      "actions": "Действия"
+    }
   },
   "deposit": {
     "columns": {

@@ -101,46 +101,46 @@ const Organization: React.FC = () => {
 
   const columnsOrg: ColumnsType<OrganizationType> = [
     {
-      title: 'id',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Адресс',
+      title: t('table.columns.address'),
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Название',
+      title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
     }
     ,
     {
-      title: 'Статус',
+      title: t('table.columns.status'),
       dataIndex: 'organizationStatus',
       key: 'organizationStatus',
       render: statusRender,
     },
     {
-      title: 'Тип',
+      title: t('table.columns.type'),
       dataIndex: 'organizationType',
       key: 'organizationType',
     },
     {
-      title: 'Дата создания',
+      title: t('table.columns.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: dateRender,
     },
     {
-      title: 'Дата обновления',
+      title: t('table.columns.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       render: dateRender,
     },
     {
-      title: 'Владелец',
+      title: t('table.columns.owner'),
       dataIndex: 'ownerName',
       key: 'ownerName',
     },
@@ -148,11 +148,11 @@ const Organization: React.FC = () => {
 
   if (allowed) {
     columnsOrg.push({
-      title: '',
+      title: t('table.columns.actions'),
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: OrganizationType) => (
-        <Tooltip title="Редактировать">
+        <Tooltip title={t('actions.edit')}>
           {record.organizationStatus ===
             t(`tables.ACTIVE`) && (
             <Button
