@@ -47,6 +47,10 @@
     "overhead": "Overhead Costs",
     "documents": "Documents",
     "suppliers": "Suppliers",
+    "salePrice": "Prices for sale",
+    "saleDocument": "Sale",
+    "saleDocumentView": "Document for sale",
+    "saleDocumentCreate": "Creating a sales document",
     "": "",
     "import": "Import Nomenclature",
     "COMMISSIONING": "Commissioning",
@@ -62,6 +66,8 @@
     "corporateClients": "Corporate Clients",
     "segments": "Segments",
     "loyalty": "Loyalty Program",
+    "hubRequests": "Hub applications",
+    "participantRequests": "Participation requests",
     "share": "Share Constructor",
     "marketRes": "Marketing Research",
     "addClient": "Add a client",
@@ -484,6 +490,17 @@
     "supplierName": "Name",
     "centimeters": "in centimeters"
   },
+  "sale": {
+    "create": "Adding a price",
+    "price": "Price",
+    "nomenclature": "Nomenclature",
+    "manager": "Responsible manager",
+    "availability": "Availability",
+    "saleQuantity": "Quantity for sale",
+    "totalAmount": "Total cost",
+    "totalSum": "Total sum",
+    "date": "Date of sale"
+  },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
@@ -635,6 +652,14 @@
     "award": "Award bonuses for services, motivate them to come back to you",
     "enterDisc": "Enter discount amount",
     "ac": "Accrue bonuses",
+    "hub": "Hub",
+    "hubRequested": "Hub requested",
+    "hubRejected": "Hub rejected",
+    "requestHub": "Request Hub",
+    "hubRequestDescription": "Request to upgrade your loyalty program to Hub status. This will enable additional features and capabilities.",
+    "comment": "Comment",
+    "hubRequestCommentPlaceholder": "Enter your reason for requesting Hub status (optional)",
+    "hubRequestSubmitted": "Hub request submitted successfully",
     "per": "Percent",
     "fix": "Fixed",
     "enterBon": "Enter bonus amount",
@@ -709,7 +734,18 @@
     "createCorporation": "Create Corporation",
     "editCorporation": "Edit Corporation",
     "cards": "Cards",
+    "clientName": "Client Name",
+    "uniqueCardNumber": "Unique Card Number",
+    "cardNumber": "Card Number",
+    "level": "Level",
+    "discount": "Discount",
+    "balance": "Balance",
     "operations": "Operations",
+    "operationId": "ID",
+    "carWashBranch": "Car Wash/Branch",
+    "operationDate": "Operation Date",
+    "amount": "Amount",
+    "records": "records",
     "numOfCards": "Number of cards",
     "selectBranch": "Select a branch",
     "selectLoyaltyProgram": "Select a loyalty program",
@@ -722,7 +758,12 @@
     "delayedStart": "Delayed start",
     "date": "Date",
     "schedule": "Schedule",
-    "errorCampaign": "There was an error saving the campaign."
+    "errorCampaign": "There was an error saving the campaign.",
+    "campaignName": "Campaign Name",
+    "campaignType": "Campaign Type",
+    "launchDate": "Launch Date",
+    "loyaltyCreated": "Loyalty Program created successfully",
+    "loyaltyUpdated": "Loyalty Program updated successfully"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -733,6 +774,7 @@
     "1006": "An error occurred while retrieving contact information. Please try again.",
     "1007": "An error occurred while updating the user role. Please try again.",
     "1008": "Authorization failed. Please check your credentials and try again.",
+    "1103": "Loyalty program not found",
     "2001": "An error occurred while creating the device. Please try again.",
     "2002": "An error occurred while creating the device type. Please try again.",
     "2003": "An error occurred while updating the device type. Please try again.",
@@ -773,6 +815,7 @@
     "submitFailed": "Submit failed",
     "sendFailed": "Send failed",
     "updateFailed": "Update failed",
+    "fetchFailed": "Failed to fetch data",
     "other": {
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
@@ -805,6 +848,7 @@
   },
   "tables": {
     "ACTIVE": "ACTIVE",
+    "INACTIVE": "INACTIVE",
     "BLOCKED": "BLOCKED",
     "VERIFICATE": "VERIFICATE",
     "Weekly": "Weekly",
@@ -841,6 +885,8 @@
     "DISMISSED": "DISMISSED",
     "DRAFT": "DRAFT",
     "PENDING": "PENDING",
+    "PAUSED": "PAUSED",
+    "CANCELLED": "CANCELLED",
     "unknownWorker": "Unknown worker"
   },
   "finance": {
@@ -1236,7 +1282,8 @@
     "sendSuccess": "Send successfully",
     "returnSuccess": "Return successfully",
     "back": "Back",
-    "actions": "Actions"
+    "actions": "Actions",
+    "submit": "Submit"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
@@ -1288,6 +1335,7 @@
     "downtimeRequired": "Downtime is required",
     "loyaltyProgramRequired": "Loyalty program is required",
     "launchDateRequired": "Launch date is required",
+    "billingMonthRequired": "Billing Month is required",
     "discountValueRequired": "Discount value is required",
     "discountValuePositive": "Discount value must be a positive",
     "monthlySalaryRequired": "Monthly salary is required",
@@ -1302,16 +1350,54 @@
     "enterCorrectPassword": "Please enter a valid password"
   },
   "table": {
-    "noData": "No Data"
+    "noData": "No Data",
+    "columns": {
+      "id": "ID",
+      "address": "Address",
+      "city": "City",
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "createdAt": "Created Date",
+      "updatedAt": "Updated Date",
+      "owner": "Owner",
+      "actions": "Actions"
+    }
+  },
+  "deposit": {
+    "columns": {
+      "lastOperation": "Last Operation",
+      "cash": "Cash",
+      "cashless": "Cashless",
+      "cashbackCard": "Card Cashback",
+      "discountSum": "Discount Amount",
+      "operationsCount": "Operations Count",
+      "yandexSum": "Yandex Amount"
+    }
   },
   "general": {
-    "hours": "hrs."
+    "hours": "hrs.",
+    "amount": "Amount/Size",
+    "createdAt": "Created At",
+    "organizationName": "Organization Name"
   },
   "constants": {
     "all": "All",
     "status": "Status",
     "pos": "Pos",
-    "rewardPrograms": "Reward Programs"
+    "rewardPrograms": "Reward Programs",
+    "allStatuses": "All Statuses",
+    "allTypes": "All Types",
+    "requests": "requests",
+    "requestId": "Request ID",
+    "comment": "Comment",
+    "actions": "Actions",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "cancel": "Cancel"
   },
   "filters": {
     "reset": "Reset",
@@ -1363,5 +1449,52 @@
     "selectInvert": "Invert current page",
     "removeAll": "Remove all",
     "removeCurrent": "Remove current page"
+  },
+  "loyaltyRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points"
+  },
+  "loyaltyHubRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points",
+    "requestApproved": "Hub request approved",
+    "requestRejected": "Hub request rejected",
+    "approveRequest": "Approve Hub Request",
+    "rejectRequest": "Reject Hub Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
+  },
+  "loyaltyParticipantRequests": {
+    "loyaltyProgram": "Loyalty Program",
+    "bonusPoints": "Bonus Points",
+    "discount": "Discount",
+    "points": "points",
+    "requestApproved": "Participant request approved",
+    "requestRejected": "Participant request rejected",
+    "approveRequest": "Approve Participant Request",
+    "rejectRequest": "Reject Participant Request",
+    "approvalComment": "Approval comment (optional)",
+    "rejectionComment": "Rejection comment (optional)",
+    "commentOptional": "Comment is optional"
+  },
+  "loyaltyProgramsTable": {
+    "programName": "Program Name",
+    "participationStatus": "Participation Status",
+    "status": "Status",
+    "launchDate": "Launch Date",
+    "owner": "Owner",
+    "participant": "Participant",
+    "join": "Join Program",
+    "selectProgram": "Select a loyalty program",
+    "commentPlaceholder": "Enter your reason for joining this program (optional)",
+    "requestSubmitted": "Request submitted successfully",
+    "noAvailablePrograms": "No available programs to join",
+    "noProgramsFound": "No programs found",
+    "regularProgram": "Regular program"
   }
 }
