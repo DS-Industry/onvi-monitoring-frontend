@@ -830,6 +830,7 @@
   },
   "tables": {
     "ACTIVE": "ACTIVE",
+    "INACTIVE": "INACTIVE",
     "BLOCKED": "BLOCKED",
     "VERIFICATE": "VERIFICATE",
     "Weekly": "Weekly",
