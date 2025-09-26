@@ -78,9 +78,9 @@ const Organization: React.FC = () => {
 
     const orgToEdit = organizations.find(org => org.id === id);
     let orgs;
-    if (orgToEdit?.organizationDocumentId) {
+    if (orgToEdit?.id) {
       const fetchedOrgData = await getOrganizationDocument(
-        orgToEdit?.organizationDocumentId
+        orgToEdit?.id
       );
       orgs = fetchedOrgData.props;
     }
@@ -110,6 +110,12 @@ const Organization: React.FC = () => {
       dataIndex: 'address',
       key: 'address',
     },
+    {
+      title: 'Название',
+      dataIndex: 'name',
+      key: 'name',
+    }
+    ,
     {
       title: 'Статус',
       dataIndex: 'organizationStatus',

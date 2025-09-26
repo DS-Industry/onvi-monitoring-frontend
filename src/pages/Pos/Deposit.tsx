@@ -45,21 +45,23 @@ interface DepositMonitoring {
 }
 
 const Deposit: React.FC = () => {
-  const formattedDate = dayjs().format('YYYY-MM-DD');
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const defaultDateStart = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
+  const defaultDateEnd = dayjs().format('YYYY-MM-DD');
+
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get('posId') || '*';
+  const posId = searchParams.get('posId') || undefined;
   const cityParam = Number(searchParams.get('city')) || '*';
-  const dateStart = searchParams.get('dateStart') || formattedDate;
-  const dateEnd = searchParams.get('dateEnd') || formattedDate;
+  const dateStart = searchParams.get('dateStart') || defaultDateStart;
+  const dateEnd = searchParams.get('dateEnd') || defaultDateEnd;
 
   const filterParams = useMemo(
     () => ({
-      dateStart: dayjs(dateStart).startOf('day').toDate(),
-      dateEnd: dayjs(dateEnd).endOf('day').toDate(),
+      dateStart: dayjs(dateStart).toDate(),
+      dateEnd: dayjs(dateEnd).toDate(),
       posId,
       placementId: cityParam,
       page: currentPage,
@@ -79,9 +81,9 @@ const Deposit: React.FC = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const { data: devices, isLoading: filterLoading } = useSWR(
-    swrKey,
+    posId ? swrKey : null,
     () =>
-      getDeposit(posId, {
+      getDeposit(posId!, {
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
       })
