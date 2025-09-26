@@ -757,7 +757,10 @@
     "delayedStart": "Delayed start",
     "date": "Date",
     "schedule": "Schedule",
-    "errorCampaign": "There was an error saving the campaign."
+    "errorCampaign": "There was an error saving the campaign.",
+    "campaignName": "Campaign Name",
+    "campaignType": "Campaign Type",
+    "launchDate": "Launch Date"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
@@ -878,6 +881,8 @@
     "DISMISSED": "DISMISSED",
     "DRAFT": "DRAFT",
     "PENDING": "PENDING",
+    "PAUSED": "PAUSED",
+    "CANCELLED": "CANCELLED",
     "unknownWorker": "Unknown worker"
   },
   "finance": {
