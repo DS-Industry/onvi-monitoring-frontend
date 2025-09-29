@@ -8,10 +8,11 @@ import useSWR, { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
 import { useSearchParams } from 'react-router-dom';
-import { Drawer, Form, Input, Select, Button, Checkbox, Upload } from 'antd';
+import { Drawer, Form, Input, Select, Button, Upload, TimePicker } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { PlusOutlined } from '@ant-design/icons';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
+import dayjs, { Dayjs } from 'dayjs';
 
 type PosEditDrawerProps = {
   organizations: Organization[];
@@ -32,14 +33,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
-  const [timeWorkCheck, setTimeWorkCheck] = useState<boolean>(false);
   const [isDeletingCarWash, setIsDeletingCarWash] = useState(false);
 
   const defaultValues: PosRequestBody = {
     name: '',
-    timeWork: '',
-    startHour: '',
-    startMinute: '',
+    startTime: '',
+    endTime: '',
     posMetaData: '',
     city: '',
     location: '',
@@ -70,7 +69,8 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
     if (posData) {
       setFormData({
         name: posData.props.name,
-        timeWork: posData.props.timeWork,
+        startTime: posData.props.startTime || '',
+        endTime: posData.props.endTime || '',
         posMetaData: posData.props.posMetaData,
         city: posData.props.address.props.city,
         location: posData.props.address.props.location,
@@ -81,8 +81,6 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
         minSumOrder: posData.props.minSumOrder,
         maxSumOrder: posData.props.maxSumOrder,
         stepSumOrder: posData.props.stepSumOrder,
-        startHour: posData.props.timeWork === '24/7' ? '' : posData.props.timeWork?.split(':')[0] || '',
-        startMinute: posData.props.timeWork === '24/7' ? '' : posData.props.timeWork?.split(':')[1] || '',
       })
     }
   }, [posData])
@@ -93,7 +91,8 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
       createCarWash(
         {
           name: formData.name,
-          timeWork: formData.timeWork,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
           address: {
             city: formData.city,
             location: formData.location,
@@ -117,7 +116,8 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
         Number(id),
         {
           name: formData.name,
-          timeWork: formData.timeWork,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
           address: {
             city: formData.city,
             location: formData.location,
@@ -148,24 +148,10 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
     setValue(field, value);
   };
 
-  const handleTimeWorkChange = (
-    field: 'startHour' | 'startMinute',
-    value: string
-  ) => {
-    setFormData(prev => {
-      const newStartHour = field === 'startHour' ? value : prev.startHour || '00';
-      const newStartMinute = field === 'startMinute' ? value : prev.startMinute || '00';
-      const newTimeWork = timeWorkCheck ? '24/7' : `${newStartHour}:${newStartMinute}`;
-
-      setValue(field, value, { shouldValidate: true, shouldDirty: true });
-      setValue('timeWork', newTimeWork, { shouldValidate: true, shouldDirty: true });
-
-      return {
-        ...prev,
-        [field]: value,
-        timeWork: newTimeWork,
-      };
-    });
+  const handleTimeChange = (field: 'startTime' | 'endTime', time: Dayjs | null) => {
+    const timeString = time ? time.format('HH:mm') : '';
+    setFormData(prev => ({ ...prev, [field]: timeString }));
+    setValue(field, timeString);
   };
 
   const { showToast } = useToast();
@@ -338,106 +324,57 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
               onChange={e => handleInputChange('lon', e.target.value)}
             />
           </div>
-          <div className="flex mt-2">
-            <Checkbox
-              checked={timeWorkCheck}
-              onChange={e => {
-                const checked = e.target.checked;
-                setTimeWorkCheck(checked);
-                const newValue = checked
-                  ? '24/7'
-                  : `${formData.startHour || '00'}:${formData.startMinute || '00'}`;
-                setValue('timeWork', newValue, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                });
-                setFormData(prev => ({
-                  ...prev,
-                  timeWork: newValue,
-                }));
-              }}
-            />
-            <div className="text-text02 ml-2">{t('pos.clock')}</div>
-          </div>
           <div>
-            <div className="flex">
+            <div className="flex mb-2">
               <label className="text-sm text-text02">{t('pos.opening')}</label>
               <span className="text-errorFill">*</span>
             </div>
-            <div className="flex space-x-2">
-              <Form.Item
-                help={errors.startHour?.message}
-                validateStatus={errors.startHour ? 'error' : undefined}
-              >
-                <Input
-                  placeholder="00:00"
-                  type="text"
-                  className="w-40"
-                  min={0}
-                  max={23}
-                  {...register('startHour', {
-                    required: !timeWorkCheck
-                      ? t('validation.timeWorkRequired')
-                      : false,
-                    min: !timeWorkCheck
-                      ? { value: 0, message: t('validation.hourRange') }
-                      : undefined,
-                    max: !timeWorkCheck
-                      ? { value: 23, message: t('validation.hourRange') }
-                      : undefined,
-                    pattern: !timeWorkCheck
-                      ? {
-                        value: /^[0-9]+$/,
-                        message: t('validation.onlyDigits'),
-                      }
-                      : undefined,
-                  })}
-                  value={formData.startHour}
-                  onChange={e =>
-                    handleTimeWorkChange('startHour', e.target.value)
-                  }
-                  status={errors.startHour ? 'error' : ''}
-                  disabled={timeWorkCheck}
-                />
-              </Form.Item>
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <div className="flex mb-1">
+                  <label className="text-xs text-text02">{t('shift.startTime')}</label>
+                  <span className="text-errorFill">*</span>
+                </div>
+                <Form.Item
+                  help={errors.startTime?.message}
+                  validateStatus={errors.startTime ? 'error' : undefined}
+                >
+                  <TimePicker
+                    placeholder={t('shift.selectStartTime')}
+                    format="HH:mm"
+                    className="w-full"
+                    {...register('startTime', {
+                      required: id === null && t('shift.startTimeRequired'),
+                    })}
+                    value={formData.startTime ? dayjs(formData.startTime, 'HH:mm') : null}
+                    onChange={(time) => handleTimeChange('startTime', time)}
+                    status={errors.startTime ? 'error' : ''}
+                  />
+                </Form.Item>
+              </div>
 
-              <span className="text-text02 mt-2">:</span>
-
-              <Form.Item
-                help={errors.startMinute?.message}
-                validateStatus={errors.startMinute ? 'error' : undefined}
-              >
-                <Input
-                  placeholder="23:59"
-                  type="text"
-                  className="w-40"
-                  min={0}
-                  max={59}
-                  {...register('startMinute', {
-                    required: !timeWorkCheck
-                      ? t('validation.timeWorkRequired')
-                      : false,
-                    min: !timeWorkCheck
-                      ? { value: 0, message: t('validation.minuteRange') }
-                      : undefined,
-                    max: !timeWorkCheck
-                      ? { value: 59, message: t('validation.minuteRange') }
-                      : undefined,
-                    pattern: !timeWorkCheck
-                      ? {
-                        value: /^[0-9]+$/,
-                        message: t('validation.onlyDigits'),
-                      }
-                      : undefined,
-                  })}
-                  value={formData.startMinute}
-                  onChange={e =>
-                    handleTimeWorkChange('startMinute', e.target.value)
-                  }
-                  status={errors.startMinute ? 'error' : ''}
-                  disabled={timeWorkCheck}
-                />
-              </Form.Item>
+              <div className="flex-1">
+                <div className="flex mb-1">
+                  <label className="text-xs text-text02">{t('shift.endTime')}</label>
+                  <span className="text-errorFill">*</span>
+                </div>
+                <Form.Item
+                  help={errors.endTime?.message}
+                  validateStatus={errors.endTime ? 'error' : undefined}
+                >
+                  <TimePicker
+                    placeholder={t('shift.selectEndTime')}
+                    format="HH:mm"
+                    className="w-full"
+                    {...register('endTime', {
+                      required: id === null && t('shift.endTimeRequired'),
+                    })}
+                    value={formData.endTime ? dayjs(formData.endTime, 'HH:mm') : null}
+                    onChange={(time) => handleTimeChange('endTime', time)}
+                    status={errors.endTime ? 'error' : ''}
+                  />
+                </Form.Item>
+              </div>
             </div>
           </div>
           <div>
