@@ -203,6 +203,8 @@ type DOCUMENT_PARAMS = {
   dateEnd: Date;
   warehouseId?: number;
   placementId?: number;
+  page?: number;
+  size?: number;
 };
 
 type DOCUMENTS_RESPONSE = {
@@ -215,6 +217,13 @@ type DOCUMENTS_RESPONSE = {
   responsibleName: string;
   status: WarehouseDocumentStatus;
   carryingAt: Date;
+};
+
+type DOCUMENTS_PAGINATED_RESPONSE = {
+  data: DOCUMENTS_RESPONSE[];
+  page: number;
+  size: number;
+  total: number;
 };
 
 type GET_DOCUMENT_RESPONSE = {
@@ -452,8 +461,8 @@ export async function createDocument(
 
 export async function getAllDocuments(
   params: DOCUMENT_PARAMS
-): Promise<DOCUMENTS_RESPONSE[]> {
-  const response: AxiosResponse<DOCUMENTS_RESPONSE[]> = await api.get(
+): Promise<DOCUMENTS_PAGINATED_RESPONSE> {
+  const response: AxiosResponse<DOCUMENTS_PAGINATED_RESPONSE> = await api.get(
     WAREHOUSE.CREATE_DOCUMENT + `s`,
     { params }
   );
