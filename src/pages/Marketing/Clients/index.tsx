@@ -299,6 +299,7 @@ const Clients: React.FC = () => {
           dataSource={clients}
           loading={isLoading}
           rowKey="id"
+          locale={{ emptyText: t('table.noData') }}
           scroll={{ x: 'max-content' }}
           pagination={{
             current: pagination?.currentPage || currentPage,
