@@ -5,7 +5,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import useSWR from 'swr';
 
-import { Button, Table, message } from 'antd';
+import { Button, Table } from 'antd';
 import CorporateClientFilters from '@/components/ui/Filter/CorporateClientFilters';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -54,7 +54,6 @@ const CorporateClients: React.FC = () => {
 
   const {
     data: response,
-    error,
     isLoading,
     mutate,
   } = useSWR<CorporateClientsPaginatedResponse>(
@@ -66,11 +65,6 @@ const CorporateClients: React.FC = () => {
       dedupingInterval: 5000,
     }
   );
-
-  if (error) {
-    console.error('Error fetching corporate clients:', error);
-    message.error('Failed to fetch corporate clients');
-  }
 
   const corporateClients =
     response?.data.map(item => ({
@@ -208,6 +202,7 @@ const CorporateClients: React.FC = () => {
           loading={isLoading}
           rowKey="id"
           scroll={{ x: 'max-content' }}
+          locale={{ emptyText: t('table.noData') }}
           pagination={{
             current: pagination?.currentPage || currentPage,
             pageSize: pagination?.pageSize || pageSize,

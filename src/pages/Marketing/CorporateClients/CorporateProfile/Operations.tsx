@@ -67,13 +67,13 @@ const Operations: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: t('marketing.operationId'),
       dataIndex: 'id',
       key: 'id',
       align: 'left' as const,
     },
     {
-      title: 'Автомойка/Филиал',
+      title: t('marketing.carWashBranch'),
       dataIndex: 'branch',
       key: 'branch',
       render: (text: string) => (
@@ -86,12 +86,12 @@ const Operations: React.FC = () => {
       ),
     },
     {
-      title: '№ Карты',
+      title: t('marketing.cardNumber'),
       dataIndex: 'cardNo',
       key: 'cardNo',
     },
     {
-      title: 'Дата операции',
+      title: t('marketing.operationDate'),
       key: 'date',
       render: (record: (typeof dataSource)[0]) => (
         <span>
@@ -100,7 +100,7 @@ const Operations: React.FC = () => {
       ),
     },
     {
-      title: 'Сумма',
+      title: t('marketing.amount'),
       dataIndex: 'amount',
       key: 'amount',
       align: 'right' as const,
@@ -144,7 +144,7 @@ const Operations: React.FC = () => {
           showSizeChanger: true,
           pageSizeOptions: ALL_PAGE_SIZES,
           showTotal: (total, range) =>
-            `${range[0]}–${range[1]} из ${total} записей`,
+            `${range[0]}–${range[1]} из ${total} ${t('marketing.records')}`,
           onChange: (page, size) =>
             updateSearchParams(searchParams, setSearchParams, {
               page: String(page),
