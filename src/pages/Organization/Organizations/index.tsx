@@ -11,11 +11,15 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import { getWorkers } from '@/services/api/equipment';
 import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -24,16 +28,20 @@ const Organization: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
+  const navigate = useNavigate();
+
   const {
     data,
     isLoading: loadingOrg,
     mutate: mutateOrgs,
-  } = useSWR([`get-org`, city], () =>
-    getOrganization({
-      placementId: city,
-    }),
+  } = useSWR(
+    [`get-org`, city],
+    () =>
+      getOrganization({
+        placementId: city,
+      }),
     {
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -46,7 +54,7 @@ const Organization: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -79,9 +87,7 @@ const Organization: React.FC = () => {
     const orgToEdit = organizations.find(org => org.id === id);
     let orgs;
     if (orgToEdit?.id) {
-      const fetchedOrgData = await getOrganizationDocument(
-        orgToEdit?.id
-      );
+      const fetchedOrgData = await getOrganizationDocument(orgToEdit?.id);
       orgs = fetchedOrgData.props;
     }
 
@@ -114,8 +120,7 @@ const Organization: React.FC = () => {
       title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
-    }
-    ,
+    },
     {
       title: t('table.columns.status'),
       dataIndex: 'organizationStatus',
@@ -153,8 +158,7 @@ const Organization: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: OrganizationType) => (
         <Tooltip title={t('actions.edit')}>
-          {record.organizationStatus ===
-            t(`tables.ACTIVE`) && (
+          {record.organizationStatus === t(`tables.ACTIVE`) && (
             <Button
               type="text"
               icon={
@@ -181,6 +185,15 @@ const Organization: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
