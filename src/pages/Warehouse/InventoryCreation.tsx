@@ -75,6 +75,7 @@ const InventoryCreation: React.FC = () => {
   const navigate = useNavigate();
 
   const category = searchParams.get('category') || '*';
+  const search = searchParams.get('search') || '';
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -84,8 +85,9 @@ const InventoryCreation: React.FC = () => {
     () => ({
       organizationId: user.organizationId,
       category,
+      search,
     }),
-    [user, category]
+    [user, category, search]
   );
 
   const swrKey = useMemo(() => {
@@ -93,6 +95,7 @@ const InventoryCreation: React.FC = () => {
       'get-inventory',
       filterParams.organizationId,
       filterParams.category,
+      filterParams.search,
       currentPage,
       pageSize,
     ];
@@ -104,6 +107,7 @@ const InventoryCreation: React.FC = () => {
       return getNomenclature(Number(user.organizationId!)!, {
         page: currentPage,
         size: pageSize,
+        search: search || undefined,
       });
     },
     {
@@ -116,10 +120,12 @@ const InventoryCreation: React.FC = () => {
 
   const { data: inventoryCount } = useSWR(
     user.organizationId
-      ? [`get-nomenclature-count`, user.organizationId]
+      ? [`get-nomenclature-count`, user.organizationId, search]
       : null,
     () => {
-      return getNomenclatureCount(Number(user.organizationId!)!);
+      return getNomenclatureCount(Number(user.organizationId!)!, {
+        search: search || undefined,
+      });
     },
     {
       revalidateOnFocus: false,
@@ -429,7 +435,7 @@ const InventoryCreation: React.FC = () => {
           </div>
         )}
       </div>
-      <GeneralFilters count={inventoriesDisplay.length} display={['none']}>
+      <GeneralFilters count={inventoriesDisplay.length} display={['search', 'none']}>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.category')}
