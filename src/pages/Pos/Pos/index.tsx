@@ -202,6 +202,7 @@ const Pos: React.FC = () => {
 
   const onClose = () => {
     setDrawerOpen(false);
+    setPosId(null)
   };
 
   return (
