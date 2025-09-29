@@ -1097,10 +1097,7 @@ const routes = [
             component: TechTaskCreate,
             permissions: [
               { action: 'manage', subject: 'TechTask' },
-              { action: 'create', subject: 'TechTask' },
-              { action: 'read', subject: 'TechTask' },
-              { action: 'update', subject: 'TechTask' },
-              { action: 'delete', subject: 'TechTask' },
+              { action: 'create', subject: 'TechTask' }
             ],
             isSidebar: true,
           },

@@ -203,6 +203,8 @@ type DOCUMENT_PARAMS = {
   dateEnd: Date;
   warehouseId?: number;
   placementId?: number;
+  page?: number;
+  size?: number;
 };
 
 type DOCUMENTS_RESPONSE = {
@@ -215,6 +217,13 @@ type DOCUMENTS_RESPONSE = {
   responsibleName: string;
   status: WarehouseDocumentStatus;
   carryingAt: Date;
+};
+
+type DOCUMENTS_PAGINATED_RESPONSE = {
+  data: DOCUMENTS_RESPONSE[];
+  page: number;
+  size: number;
+  total: number;
 };
 
 type GET_DOCUMENT_RESPONSE = {
@@ -394,9 +403,10 @@ export async function getSupplier(
   return response.data;
 }
 
-export async function getSupplierCount(): Promise<{ count: number; }> {
-  const response: AxiosResponse<{ count: number; }> = await api.get(
-    'user/warehouse/supplier-count');
+export async function getSupplierCount(): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    'user/warehouse/supplier-count'
+  );
   return response.data;
 }
 
@@ -405,17 +415,26 @@ export async function getNomenclature(
   params?: NomenclatureParams
 ): Promise<NOMENCLATURE_RESPONSE[]> {
   const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-    WAREHOUSE.CREATE_NOMENCLATURE + `/${orgId}`,
+    `user/warehouse/nomenclature/${orgId}`,
     { params }
   );
   return response.data;
 }
 
 export async function getNomenclatureSale(
-    orgId: number,
+  orgId: number,
 ): Promise<NOMENCLATURE_RESPONSE[]> {
-  const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-      WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`,
+const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
+    WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`,
+);
+return response.data;
+}
+
+export async function getNomenclatureCount(
+  orgId: number
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    `user/warehouse/nomenclature-count/${orgId}`
   );
   return response.data;
 }
@@ -442,8 +461,8 @@ export async function createDocument(
 
 export async function getAllDocuments(
   params: DOCUMENT_PARAMS
-): Promise<DOCUMENTS_RESPONSE[]> {
-  const response: AxiosResponse<DOCUMENTS_RESPONSE[]> = await api.get(
+): Promise<DOCUMENTS_PAGINATED_RESPONSE> {
+  const response: AxiosResponse<DOCUMENTS_PAGINATED_RESPONSE> = await api.get(
     WAREHOUSE.CREATE_DOCUMENT + `s`,
     { params }
   );
@@ -485,6 +504,15 @@ export async function getDocument(
   documentId: number
 ): Promise<GET_DOCUMENT_RESPONSE> {
   const response: AxiosResponse<GET_DOCUMENT_RESPONSE> = await api.get(
+    WAREHOUSE.CREATE_DOCUMENT + `/${documentId}`
+  );
+  return response.data;
+}
+
+export async function deleteDocument(
+  documentId: number
+): Promise<{ status: string }> {
+  const response: AxiosResponse<{ status: string }> = await api.delete(
     WAREHOUSE.CREATE_DOCUMENT + `/${documentId}`
   );
   return response.data;

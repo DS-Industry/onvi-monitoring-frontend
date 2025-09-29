@@ -10,8 +10,7 @@ import {
 import { getWorkers } from '@/services/api/equipment';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/context/useContext';
-import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
-import { Transfer, Button, Spin } from 'antd';
+import { Transfer, Button, Spin, Select } from 'antd';
 
 const PosConnection: React.FC = () => {
   const { t } = useTranslation();
@@ -29,7 +28,7 @@ const PosConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -40,24 +39,24 @@ const PosConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
-  const { data: workerData = [] } = useSWR(
+  const { data: workerData } = useSWR(
     user.organizationId ? ['get-worker', user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const workers =
-    workerData.map(w => ({
-      name: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
+    workerData?.map(w => ({
+      label: `${w.name || ''} ${w.middlename || ''} ${w.surname || ''}`.trim(),
       value: w.id,
     })) || [];
 
@@ -113,19 +112,21 @@ const PosConnection: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 sm:items-center">
-        <SearchDropdownInput
-          title={t('equipment.user')}
-          options={workers}
-          classname="w-full sm:w-72"
-          value={workerId}
-          onChange={setWorkerId}
-          allowClear
-        />
+        <div>
+          <div className="text-text02 text-sm">{t('equipment.user')}</div>
+          <Select
+            options={workers}
+            className="w-full sm:w-72"
+            value={workerId}
+            onChange={setWorkerId}
+            showSearch={true}
+          />
+        </div>
         <Button
           loading={isMutating}
           onClick={handleConnection}
           type="primary"
-          className="mt-5 h-10"
+          className="mt-5"
         >
           {t('organizations.save')}
         </Button>
@@ -143,16 +144,16 @@ const PosConnection: React.FC = () => {
         rowKey={item => item.key}
         style={{ margin: '24px 0' }}
         locale={{
-          itemUnit: t('transfer.item'), 
-          itemsUnit: t('transfer.items'), 
-          notFoundContent: t('transfer.notFound'), 
-          searchPlaceholder: t('transfer.search'), 
-          remove: t('transfer.remove'), 
-          selectAll: t('transfer.selectAll'), 
-          selectCurrent: t('transfer.selectCurrent'), 
-          selectInvert: t('transfer.selectInvert'), 
-          removeAll: t('transfer.removeAll'), 
-          removeCurrent: t('transfer.removeCurrent'), 
+          itemUnit: t('transfer.item'),
+          itemsUnit: t('transfer.items'),
+          notFoundContent: t('transfer.notFound'),
+          searchPlaceholder: t('transfer.search'),
+          remove: t('transfer.remove'),
+          selectAll: t('transfer.selectAll'),
+          selectCurrent: t('transfer.selectCurrent'),
+          selectInvert: t('transfer.selectInvert'),
+          removeAll: t('transfer.removeAll'),
+          removeCurrent: t('transfer.removeCurrent'),
         }}
       />
     </div>

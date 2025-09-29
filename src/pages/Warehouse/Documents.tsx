@@ -23,6 +23,7 @@ import { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 type Documents = {
   statusCheck: string;
@@ -53,6 +54,9 @@ const Documents: React.FC = () => {
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
   const cityParam = Number(searchParams.get('city')) || undefined;
+  
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -63,11 +67,13 @@ const Documents: React.FC = () => {
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
       warehouseId: warehouseId,
       placementId: cityParam,
+      page: currentPage,
+      size: pageSize,
     }),
-    [dateStart, dateEnd, warehouseId, cityParam, formattedDate]
+    [dateStart, dateEnd, warehouseId, cityParam, formattedDate, currentPage, pageSize]
   );
 
-  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}`;
+  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`;
 
   const { data: allDocuments, isLoading: documentsLoading } = useSWR(
     swrKey,
@@ -81,7 +87,7 @@ const Documents: React.FC = () => {
   );
 
   const data =
-    allDocuments?.map(item => ({
+    allDocuments?.data?.map(item => ({
       ...item,
       status: t(`tables.${item.status}`),
       type: t(`routes.${item.type}`),
@@ -210,6 +216,14 @@ const Documents: React.FC = () => {
     { action: 'create', subject: 'Warehouse' },
   ]);
 
+  const handleTableChange = (pagination: any) => {
+    const { current, pageSize } = pagination;
+    updateSearchParams(searchParams, setSearchParams, {
+      page: current,
+      size: pageSize,
+    });
+  };
+
   return (
     <>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
@@ -229,7 +243,7 @@ const Documents: React.FC = () => {
         )}
       </div>
       <GeneralFilters
-        count={data.length}
+        count={allDocuments?.total || 0}
         display={['warehouse', 'city', 'dateTime']}
       />
       <div className="mt-8">
@@ -241,7 +255,14 @@ const Documents: React.FC = () => {
         <Table<Documents>
           dataSource={data}
           columns={visibleColumns}
-          pagination={false}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: allDocuments?.total || 0,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
           loading={documentsLoading}
           scroll={{ x: 'max-content' }}
         />

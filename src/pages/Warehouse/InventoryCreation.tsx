@@ -9,6 +9,7 @@ import {
   deleteNomenclature,
   getCategory,
   getNomenclature,
+  getNomenclatureCount,
   getSupplier,
   updateNomenclature,
 } from '@/services/api/warehouse';
@@ -92,8 +93,10 @@ const InventoryCreation: React.FC = () => {
       'get-inventory',
       filterParams.organizationId,
       filterParams.category,
+      currentPage,
+      pageSize,
     ];
-  }, [filterParams]);
+  }, [filterParams, currentPage, pageSize]);
 
   const { data: inventoryData, isLoading: inventoryLoading } = useSWR(
     user.organizationId ? swrKey : null,
@@ -107,7 +110,22 @@ const InventoryCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: inventoryCount } = useSWR(
+    user.organizationId
+      ? [`get-nomenclature-count`, user.organizationId]
+      : null,
+    () => {
+      return getNomenclatureCount(Number(user.organizationId!)!);
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -115,7 +133,7 @@ const InventoryCreation: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const { data: supplierData } = useSWR(
@@ -125,7 +143,7 @@ const InventoryCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -151,12 +169,7 @@ const InventoryCreation: React.FC = () => {
 
   categories.unshift(categoryAllObj);
 
-  const inventoriesDisplay: {
-    id: number;
-    sku: string;
-    name: string;
-    categoryId: string | undefined;
-  }[] = inventories.map(item => ({
+  const inventoriesDisplay = inventories.map(item => ({
     id: item.id,
     sku: item.sku,
     name: item.name,
@@ -229,19 +242,7 @@ const InventoryCreation: React.FC = () => {
       })
     );
 
-  type FieldType =
-    | 'organizationId'
-    | 'categoryId'
-    | 'supplierId'
-    | 'weight'
-    | 'height'
-    | 'length'
-    | 'width'
-    | 'name'
-    | 'sku'
-    | 'measurement'
-    | 'description'
-    | 'purpose';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = [
@@ -407,17 +408,17 @@ const InventoryCreation: React.FC = () => {
             {t('routes.nomenclature')}
           </span>
         </div>
-        <div className="flex space-x-2">
-          <Button
-            icon={<DownloadOutlined />}
-            className="btn-outline-primary"
-            onClick={() => {
-              navigate('/warehouse/inventory/import');
-            }}
-          >
-            <span className="hidden sm:flex">{t('routes.import')}</span>
-          </Button>
-          {allowed && (
+        {allowed && (
+          <div className="flex space-x-2">
+            <Button
+              icon={<DownloadOutlined />}
+              className="btn-outline-primary"
+              onClick={() => {
+                navigate('/warehouse/inventory/import');
+              }}
+            >
+              <span className="hidden sm:flex">{t('routes.import')}</span>
+            </Button>
             <Button
               icon={<PlusOutlined />}
               className="btn-primary"
@@ -425,8 +426,8 @@ const InventoryCreation: React.FC = () => {
             >
               <span className="hidden sm:flex">{t('routes.add')}</span>
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <GeneralFilters count={inventoriesDisplay.length} display={['none']}>
         <div>
@@ -471,7 +472,8 @@ const InventoryCreation: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize: pageSize,
-            total: inventoriesDisplay.length,
+            total: inventoryCount?.count || 0,
+            showSizeChanger: true,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
@@ -492,7 +494,10 @@ const InventoryCreation: React.FC = () => {
         open={drawerOpen}
         className="custom-drawer"
       >
-        <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="w-full max-w-2xl mx-auto p-4 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <span className="font-semibold text-sm text-text01">
             {t('warehouse.fields')}
           </span>
@@ -598,24 +603,27 @@ const InventoryCreation: React.FC = () => {
           />
           <Input
             title={t('warehouse.sizeW')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.width}
             changeValue={e => handleInputChange('width', e.target.value)}
             {...register('width')}
           />
           <Input
             title={t('warehouse.sizeG')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.length}
             changeValue={e => handleInputChange('length', e.target.value)}
             {...register('length')}
           />
           <Input
             title={t('warehouse.sizeB')}
+            label={t('warehouse.centimeters')}
             type={'number'}
-            classname="w-20"
+            classname="w-40"
             value={formData.height}
             changeValue={e => handleInputChange('height', e.target.value)}
             {...register('height')}
@@ -673,7 +681,7 @@ const InventoryCreation: React.FC = () => {
                 isEditMode && (
                   <Button
                     onClick={handleDelete}
-                    className="bg-red-600 hover:bg-red-300"
+                    className="bg-errorFill text-text04 hover:bg-red-300"
                   >
                     {t('warehouse.deletePos')}
                   </Button>
@@ -682,7 +690,7 @@ const InventoryCreation: React.FC = () => {
             </Can>
             <Button
               htmlType={'submit'}
-              type='primary'
+              type="primary"
               loading={isEditMode ? updatingInventory : isMutating}
             >
               {t('organizations.save')}
