@@ -6,6 +6,7 @@ import { getPoses, TechTaskShapeResponse } from '@/services/api/equipment';
 import useSWR from 'swr';
 import { getContactById } from '@/services/api/organization';
 import { useTranslation } from 'react-i18next';
+import TiptapEditor from '@/components/ui/Input/TipTapEditor';
 
 interface TechTaskDetailsProps {
   techTaskData?: TechTaskShapeResponse;
@@ -99,18 +100,11 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
           </div>
         )}
         {techTaskData?.markdownDescription && (
-          <div className="mt-4">
+          <div className="mt-4 w-full md:w-[600px]">
             <div className="text-sm font-medium mb-1">
               {t('routine.checklist')}
             </div>
-            <FieldBox>
-              <div
-                className="markdown-content"
-                dangerouslySetInnerHTML={{
-                  __html: techTaskData.markdownDescription,
-                }}
-              />
-            </FieldBox>
+            <TiptapEditor value={techTaskData.markdownDescription} readonly={true} />
           </div>
         )}
       </div>
