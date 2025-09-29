@@ -11,15 +11,14 @@ import {
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Button, Select, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import EmployeeCreationDrawer from './EmployeeCreationDrawer';
 import EmployeeUpdateModal from './EmployeeUpdateModal';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
@@ -43,6 +42,7 @@ const ListOfEmployees: React.FC = () => {
   const name = searchParams.get('search') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const navigate = useNavigate();
 
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
     user.organizationId
@@ -69,7 +69,7 @@ const ListOfEmployees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -80,7 +80,7 @@ const ListOfEmployees: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -88,7 +88,7 @@ const ListOfEmployees: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const workers =
@@ -174,12 +174,20 @@ const ListOfEmployees: React.FC = () => {
 
   return (
     <div>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.listOf')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {allowed && (
           <Button
@@ -222,7 +230,7 @@ const ListOfEmployees: React.FC = () => {
               }}
             />
           </div>
-           <div>
+          <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('constants.status')}
             </label>
@@ -231,10 +239,13 @@ const ListOfEmployees: React.FC = () => {
               allowClear={true}
               className="w-full sm:w-80"
               options={[
-                { label: t("tables.ACTIVE"), value: StatusWorkers.ACTIVE },
-                { label: t("tables.BLOCKED"), value: StatusWorkers.BLOCKED },
-                { label: t("tables.VERIFICATE"), value: StatusWorkers.VERIFICATE },
-                { label: t("tables.DELETED"), value: StatusWorkers.DELETED },
+                { label: t('tables.ACTIVE'), value: StatusWorkers.ACTIVE },
+                { label: t('tables.BLOCKED'), value: StatusWorkers.BLOCKED },
+                {
+                  label: t('tables.VERIFICATE'),
+                  value: StatusWorkers.VERIFICATE,
+                },
+                { label: t('tables.DELETED'), value: StatusWorkers.DELETED },
               ]}
               value={searchParams.get('status') || undefined}
               onChange={value => {

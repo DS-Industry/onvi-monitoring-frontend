@@ -1,13 +1,15 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import Notification from "@ui/Notification.tsx";
-import useSWR from "swr";
-import { getRoles } from "@/services/api/organization";
-import { Table } from "antd";
-import QuestionMarkIcon from "@icons/qustion-mark.svg?react";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import Notification from '@ui/Notification.tsx';
+import useSWR from 'swr';
+import { getRoles } from '@/services/api/organization';
+import { Table } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const ListOfRoles: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { data: rolesData, isLoading: loadingRoles } = useSWR(
     [`get-role`],
@@ -16,7 +18,7 @@ const ListOfRoles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -24,26 +26,36 @@ const ListOfRoles: React.FC = () => {
 
   const columnsRoles = [
     {
-      title: "Роль СRM",
-      dataIndex: "name",
-      key: "name",
+      title: 'Роль СRM',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Права доступа",
-      dataIndex: "description",
-      key: "description",
+      title: 'Права доступа',
+      dataIndex: 'description',
+      key: 'description',
     },
   ];
 
   return (
     <div>
-      <div className='ml-12 md:ml-0 flex items-center space-x-2 mb-5'>
-        <span className="text-xl sm:text-3xl font-normal text-text01">{t("routes.listRoles")}</span>
-        <QuestionMarkIcon />
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
+      <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
+        <span className="text-xl sm:text-3xl font-normal text-text01">
+          {t('routes.listRoles')}
+        </span>
       </div>
       <Notification
-        title={t("roles.access")}
-        message={t("roles.the")}
+        title={t('roles.access')}
+        message={t('roles.the')}
         showEmp={true}
       />
       <Table
@@ -51,7 +63,7 @@ const ListOfRoles: React.FC = () => {
         columns={columnsRoles}
         loading={loadingRoles}
         pagination={false}
-        scroll={{ x: "max-content" }}
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );
