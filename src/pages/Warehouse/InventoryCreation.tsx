@@ -542,6 +542,7 @@ const InventoryCreation: React.FC = () => {
             classname="w-64"
             {...register('categoryId', {
               required: !isEditMode && t('validation.categoryIdRequired'),
+              validate: value => value !== 0 || t('validation.categoryIdRequired'),
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}

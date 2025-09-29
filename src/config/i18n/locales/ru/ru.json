@@ -1277,7 +1277,7 @@
     "invalidEmailFormat": "Неверный формат Email",
     "roleRequired": "Роль обязательна",
     "positionRequired": "Должность обязательна",
-    "categoryIdRequired": "ID категории обязателен",
+    "categoryIdRequired": "категории обязателен",
     "measurementRequired": "Единица измерения обязательна",
     "skuRequired": "Артикул обязателен",
     "posRequired": "Выберите автомойку",

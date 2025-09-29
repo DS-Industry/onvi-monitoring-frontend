@@ -128,6 +128,7 @@ const TechTaskCard: React.FC<Props> = ({
       <TechTaskDetails techTaskData={techTaskData} />
       <List
         dataSource={Object.entries(grouped)}
+        locale={{ emptyText: t('table.noData') }}
         renderItem={([groupName, groupItems]) => (
           <List.Item className="w-full md:w-[600px]">
             <Card className="w-full md:w-[600px] border-[#C0D0E0]">
@@ -145,6 +146,7 @@ const TechTaskCard: React.FC<Props> = ({
               {openGroups[groupName] && (
                 <List
                   dataSource={groupItems}
+                  locale={{ emptyText: t('table.noData') }}
                   renderItem={item => (
                     <List.Item className="w-full border-none">
                       <div className="w-full flex flex-col">

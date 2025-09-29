@@ -15,10 +15,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import {
-  getStatusTagRender,
-  getTagRender,
-} from '@/utils/tableUnits';
+import { getStatusTagRender, getTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -62,7 +59,7 @@ const TechTasks: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -70,7 +67,7 @@ const TechTasks: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const techTasks = useMemo(
@@ -79,12 +76,16 @@ const TechTasks: React.FC = () => {
         ...item,
         type: t(`tables.${item.type}`),
         posName: poses?.find(pos => pos.id === item.posId)?.name,
-        status: item.status === StatusTechTask.ACTIVE ? t('tables.PENDING') : t(`tables.${item.status}`),
+        status:
+          item.status === StatusTechTask.ACTIVE
+            ? t('tables.PENDING')
+            : t(`tables.${item.status}`),
       })) || [],
     [data, poses, t]
   );
 
   const renderStatus = getStatusTagRender(t);
+
   const dateRender = (dateString: string) => {
     if (!dateString) return '-';
 
@@ -155,6 +156,9 @@ const TechTasks: React.FC = () => {
       dataIndex: 'endSpecifiedDate',
       key: 'endSpecifiedDate',
       render: dateRender,
+      sorter: (a, b) =>
+        dayjs(b.endSpecifiedDate).valueOf() -
+        dayjs(a.endSpecifiedDate).valueOf(),
     },
   ];
 
