@@ -312,6 +312,7 @@ type GetSupplierParams = {
 type NomenclatureParams = {
   page?: number;
   size?: number;
+  search?: string;
 };
 
 export async function createNomenclature(
@@ -431,10 +432,12 @@ return response.data;
 }
 
 export async function getNomenclatureCount(
-  orgId: number
+  orgId: number,
+  params?: NomenclatureParams
 ): Promise<{ count: number }> {
   const response: AxiosResponse<{ count: number }> = await api.get(
-    `user/warehouse/nomenclature-count/${orgId}`
+    `user/warehouse/nomenclature-count/${orgId}`,
+    { params }
   );
   return response.data;
 }
