@@ -45,21 +45,23 @@ interface DepositMonitoring {
 }
 
 const Deposit: React.FC = () => {
-  const formattedDate = dayjs().format('YYYY-MM-DD');
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const defaultDateStart = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
+  const defaultDateEnd = dayjs().format('YYYY-MM-DD');
+
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get('posId') || '*';
+  const posId = searchParams.get('posId') || undefined;
   const cityParam = Number(searchParams.get('city')) || '*';
-  const dateStart = searchParams.get('dateStart') || formattedDate;
-  const dateEnd = searchParams.get('dateEnd') || formattedDate;
+  const dateStart = searchParams.get('dateStart') || defaultDateStart;
+  const dateEnd = searchParams.get('dateEnd') || defaultDateEnd;
 
   const filterParams = useMemo(
     () => ({
-      dateStart: dayjs(dateStart).startOf('day').toDate(),
-      dateEnd: dayjs(dateEnd).endOf('day').toDate(),
+      dateStart: dayjs(dateStart).toDate(),
+      dateEnd: dayjs(dateEnd).toDate(),
       posId,
       placementId: cityParam,
       page: currentPage,
@@ -79,9 +81,9 @@ const Deposit: React.FC = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const { data: devices, isLoading: filterLoading } = useSWR(
-    swrKey,
+    posId ? swrKey : null,
     () =>
-      getDeposit(posId, {
+      getDeposit(posId!, {
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
       })
@@ -122,13 +124,13 @@ const Deposit: React.FC = () => {
 
   const columns: ColumnsType<DepositMonitoring> = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'Наименование',
+      title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
@@ -144,14 +146,14 @@ const Deposit: React.FC = () => {
       ),
     },
     {
-      title: 'Город',
+      title: t('table.columns.city'),
       dataIndex: 'city',
       key: 'city',
       filters: cities,
       onFilter: (value, record) => record.city === value,
     },
     {
-      title: 'Последняя операция',
+      title: t('deposit.columns.lastOperation'),
       dataIndex: 'lastOper',
       key: 'lastOper',
       render: dateRender,
@@ -159,37 +161,37 @@ const Deposit: React.FC = () => {
         dayjs(a.lastOper).valueOf() - dayjs(b.lastOper).valueOf(),
     },
     {
-      title: 'Наличные',
+      title: t('deposit.columns.cash'),
       dataIndex: 'cashSum',
       key: 'cashSum',
       render: currencyRender,
     },
     {
-      title: 'Безналичные',
+      title: t('deposit.columns.cashless'),
       dataIndex: 'virtualSum',
       key: 'virtualSum',
       render: currencyRender,
     },
     {
-      title: 'Cashback по картам',
+      title: t('deposit.columns.cashbackCard'),
       dataIndex: 'cashbackSumCard',
       key: 'cashbackSumCard',
       render: currencyRender,
     },
     {
-      title: 'Сумма скидки',
+      title: t('deposit.columns.discountSum'),
       dataIndex: 'discountSum',
       key: 'discountSum',
       render: currencyRender,
     },
     {
-      title: 'Кол-во операций',
+      title: t('deposit.columns.operationsCount'),
       dataIndex: 'counter',
       key: 'counter',
       sorter: (a, b) => a.counter - b.counter,
     },
     {
-      title: 'Яндекс Сумма',
+      title: t('deposit.columns.yandexSum'),
       dataIndex: 'yandexSum',
       key: 'yandexSum',
       render: currencyRender,

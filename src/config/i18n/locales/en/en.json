@@ -1302,7 +1302,30 @@
     "enterCorrectPassword": "Please enter a valid password"
   },
   "table": {
-    "noData": "No Data"
+    "noData": "No Data",
+    "columns": {
+      "id": "ID",
+      "address": "Address",
+      "city": "City",
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "createdAt": "Created Date",
+      "updatedAt": "Updated Date",
+      "owner": "Owner",
+      "actions": "Actions"
+    }
+  },
+  "deposit": {
+    "columns": {
+      "lastOperation": "Last Operation",
+      "cash": "Cash",
+      "cashless": "Cashless",
+      "cashbackCard": "Card Cashback",
+      "discountSum": "Discount Amount",
+      "operationsCount": "Operations Count",
+      "yandexSum": "Yandex Amount"
+    }
   },
   "general": {
     "hours": "hrs."

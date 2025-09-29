@@ -1302,7 +1302,30 @@
     "enterCorrectPassword": "Введите правильный пароль"
   },
   "table": {
-    "noData": "Ничего не найдено"
+    "noData": "Ничего не найдено",
+    "columns": {
+      "id": "ID",
+      "address": "Адрес",
+      "city": "Город",
+      "name": "Название",
+      "status": "Статус",
+      "type": "Тип",
+      "createdAt": "Дата создания",
+      "updatedAt": "Дата обновления",
+      "owner": "Владелец",
+      "actions": "Действия"
+    }
+  },
+  "deposit": {
+    "columns": {
+      "lastOperation": "Последняя операция",
+      "cash": "Наличные",
+      "cashless": "Безналичные",
+      "cashbackCard": "Cashback по картам",
+      "discountSum": "Сумма скидки",
+      "operationsCount": "Кол-во операций",
+      "yandexSum": "Яндекс Сумма"
+    }
   },
   "general": {
     "hours": "час."
