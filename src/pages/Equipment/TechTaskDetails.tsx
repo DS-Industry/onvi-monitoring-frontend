@@ -17,7 +17,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const { data: contactData } = useSWR(
@@ -27,7 +27,7 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -96,6 +96,21 @@ const TechTaskDetails: React.FC<TechTaskDetailsProps> = ({ techTaskData }) => {
                 </Tag>
               ))}
             </div>
+          </div>
+        )}
+        {techTaskData?.markdownDescription && (
+          <div className="mt-4">
+            <div className="text-sm font-medium mb-1">
+              {t('routine.checklist')}
+            </div>
+            <FieldBox>
+              <div
+                className="markdown-content"
+                dangerouslySetInnerHTML={{
+                  __html: techTaskData.markdownDescription,
+                }}
+              />
+            </FieldBox>
           </div>
         )}
       </div>

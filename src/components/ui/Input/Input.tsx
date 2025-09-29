@@ -173,6 +173,7 @@ const Input: React.FC<InputProps> = ({
               }
             }}
             {...inputConfig}
+            className={`${error ? 'border-errorFill' : ''}`}
           />
           {type === 'password' && <PasswordIcon />}
           {showIcon && type !== 'date' && type !== 'password' && <CustomIcon />}
