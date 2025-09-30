@@ -12,14 +12,13 @@ import { getWorkers } from '@/services/api/equipment';
 import { Button, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
 import {
-  ArrowLeftOutlined,
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -28,7 +27,6 @@ const Organization: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
-  const navigate = useNavigate();
 
   const {
     data,
@@ -185,15 +183,6 @@ const Organization: React.FC = () => {
 
   return (
     <>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">

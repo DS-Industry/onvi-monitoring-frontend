@@ -13,7 +13,6 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Analysis: React.FC = () => {
   const { t } = useTranslation();
@@ -69,15 +68,6 @@ const Analysis: React.FC = () => {
 
   return (
     <div>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
       <div className="ml-12 md:ml-0 flex items-center justify-between mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">

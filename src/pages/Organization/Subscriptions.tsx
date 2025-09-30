@@ -4,14 +4,11 @@ import Notification from '@/components/ui/Notification';
 const CurrentTariff = React.lazy(() => import('./CurrentTariff'));
 const ChangeTariff = React.lazy(() => import('./ChangeTariff'));
 import GenericTabs from '@ui/Tabs/GenericTab';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Subscriptions: React.FC = () => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = useState('current');
   const [isNotificationVisible, setIsNotificationVisible] = useState(true);
-  const navigate = useNavigate();
 
   const tabItems = [
     {
@@ -28,15 +25,6 @@ const Subscriptions: React.FC = () => {
 
   return (
     <>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
       <div className="ml-12 md:ml-0 flex items-center space-x-2">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.subscriptions')}

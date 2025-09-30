@@ -6,11 +6,11 @@ import { getPoses, getWorkers, PosResponse } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 import { Button, Table, Tooltip } from 'antd';
 import PosEditDrawer from './PosEditDrawer';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { ArrowLeftOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { useUser } from '@/hooks/useUserStore';
@@ -23,7 +23,6 @@ const Pos: React.FC = () => {
   const userPermissions = usePermissions();
   const [posId, setPosId] = useState<number | null>(null);
   const user = useUser();
-  const navigate = useNavigate();
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Organization' },
@@ -207,15 +206,6 @@ const Pos: React.FC = () => {
 
   return (
     <>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
