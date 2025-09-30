@@ -5,10 +5,7 @@ import { getWorkers } from '@/services/api/equipment';
 import { CloseOutlined, CheckOutlined, MoreOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import React, {
-  useMemo,
-  useState,
-} from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -153,9 +150,10 @@ const MonthlyExpanse: React.FC = () => {
   const dateEndParam = searchParams.get('dateEnd')
     ? dayjs(searchParams.get('dateEnd')).toDate()
     : dayjs().endOf('month').toDate();
-  const userIdParam = Number(searchParams.get('userId')) || user.id;
+  const userIdParam = Number(searchParams.get('userId'));
   const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
+  const [loadingManagerPaper, setLoadingManagerPaper] = useState(false);
 
   const userPermissions = usePermissions();
   const { showToast } = useToast();
@@ -194,7 +192,7 @@ const MonthlyExpanse: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const managerPeriods = useMemo(
@@ -214,16 +212,15 @@ const MonthlyExpanse: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const workers = useMemo(() => {
     return (
       workerData?.map(item => ({
-        name: item.name,
+        name: `${item.name} ${item.surname}`,
         value: item.id,
-        surname: item.surname,
       })) || []
     );
   }, [workerData]);
@@ -447,7 +444,7 @@ const MonthlyExpanse: React.FC = () => {
       dataIndex: 'userId',
       render: (text: number) => {
         const worker = workers.find(worker => worker.value === text);
-        return worker ? `${worker.name} ${worker.surname}` : text;
+        return worker ? worker.name : text;
       },
       onCell: (record: DataRecord) => ({
         record,
@@ -554,6 +551,7 @@ const MonthlyExpanse: React.FC = () => {
   };
 
   const onSubmit = async () => {
+    setLoadingManagerPaper(true);
     try {
       await createManagerPaperPeriod({
         startPeriod: formData.startPeriod,
@@ -569,6 +567,8 @@ const MonthlyExpanse: React.FC = () => {
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    } finally {
+      setLoadingManagerPaper(false);
     }
   };
 
@@ -585,7 +585,7 @@ const MonthlyExpanse: React.FC = () => {
           className="btn-primary"
           onClick={() => setDrawerOpen(true)}
         >
-          <span className='hidden sm:flex'>{t('routes.add')}</span>
+          <span className="hidden sm:flex">{t('routes.add')}</span>
         </AntButton>
       </div>
 
@@ -704,7 +704,12 @@ const MonthlyExpanse: React.FC = () => {
               validate: value => value !== 0 || 'User ID is required',
             })}
             value={formData.userId}
-            onChange={value => handleInputChange('userId', value)}
+            onChange={value => {
+              handleInputChange('userId', value);
+              updateSearchParams(searchParams, setSearchParams, {
+                userId: value,
+              });
+            }}
             error={!!errors.userId}
             helperText={errors.userId?.message || ''}
           />
@@ -712,11 +717,7 @@ const MonthlyExpanse: React.FC = () => {
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}
             </Button>
-            <Button
-              htmlType="submit"
-              loading={periodsLoading}
-              type='primary'
-            >
+            <Button htmlType="submit" loading={loadingManagerPaper} type="primary">
               {t('organizations.save')}
             </Button>
           </div>

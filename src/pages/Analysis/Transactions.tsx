@@ -5,19 +5,20 @@ import useSWR, { mutate } from 'swr';
 import { Button, Table } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { DownloadOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -123,12 +124,20 @@ const Transactions: React.FC = () => {
 
   return (
     <div>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.my')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 
