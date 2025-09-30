@@ -888,6 +888,10 @@
     "unknownWorker": "Unknown worker"
   },
   "finance": {
+    "deleteFailed": "Failed to delete shift",
+    "deleteSuccess": "Shift deleted successfully",
+    "confirmDeleteShift": "Confirm delete shift",
+    "deleteShiftWarning": "Are you sure you want to delete the shift?",
     "details": "Details are displayed here for each collection",
     "at": "At the moment you have no completed collections",
     "begin": "Begin of Period",
@@ -1283,7 +1287,8 @@
     "returnSuccess": "Return successfully",
     "back": "Back",
     "actions": "Actions",
-    "submit": "Submit"
+    "submit": "Submit",
+    "delete": "Delete"
   },
   "validation": {
     "contractTypeRequired": "Contract type is required",
