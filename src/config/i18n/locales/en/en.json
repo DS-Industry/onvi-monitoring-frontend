@@ -1200,7 +1200,9 @@
     "all": "All employees",
     "endPaymentDate": "Date of Completion",
     "noAdvance": "There are no more employees to calculate the advance payment during the specified period.",
-    "noSalary": "There are no more employees to calculate salaries during the specified period."
+    "noSalary": "There are no more employees to calculate salaries during the specified period.",
+    "registrationAddress": "Registration Address",
+    "enterRegistrationAddress": "Enter the registration address"
   },
   "notifications": {
     "fav": "Favorite",
