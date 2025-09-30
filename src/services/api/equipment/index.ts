@@ -698,3 +698,10 @@ export async function blockWorker(userId: number): Promise<WorkerBlockResponse> 
   );
   return response.data;
 }
+
+export async function deleteTechTask(id: number): Promise<void> {
+  const response: AxiosResponse<void> = await api.delete(
+    `user/tech-task/${id}`
+  );
+  return response.data;
+}
