@@ -155,7 +155,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   type FieldType = 'organizationId' | 'billingMonth' | 'hrPositionId';
 
-  const handleInputChange = (field: FieldType, value: string | number | '') => {
+  const handleInputChange = (field: FieldType, value: string | number) => {
     const numericFields = ['organizationId'];
     let updatedValue: any = value;
     if (numericFields.includes(field)) {
