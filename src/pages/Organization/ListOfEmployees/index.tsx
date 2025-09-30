@@ -11,14 +11,14 @@ import {
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Button, Select, Table, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
-import { ArrowLeftOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import EmployeeCreationDrawer from './EmployeeCreationDrawer';
 import EmployeeUpdateModal from './EmployeeUpdateModal';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
@@ -42,7 +42,6 @@ const ListOfEmployees: React.FC = () => {
   const name = searchParams.get('search') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const navigate = useNavigate();
 
   const { data: workerData, isLoading: loadingWorkers } = useSWR(
     user.organizationId
@@ -174,15 +173,6 @@ const ListOfEmployees: React.FC = () => {
 
   return (
     <div>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">

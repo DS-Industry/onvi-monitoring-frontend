@@ -16,10 +16,7 @@ import {
   LoyaltyParticipantRequest,
   LTYProgramRequestStatus,
 } from '@/services/api/marketing';
-import {
-  DEFAULT_PAGE,
-  DEFAULT_PAGE_SIZE,
-} from '@/utils/constants';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 const useLoyaltyParticipantRequests = (
   currentPage: number,
@@ -81,21 +78,25 @@ const LoyaltyParticipantRequests: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const status = (searchParams.get('status') as LTYProgramRequestStatus) || undefined;
+  const status =
+    (searchParams.get('status') as LTYProgramRequestStatus) || undefined;
   const search = searchParams.get('search') || undefined;
-  const ltyProgramId = searchParams.get('ltyProgramId') ? Number(searchParams.get('ltyProgramId')) : undefined;
+  const ltyProgramId = searchParams.get('ltyProgramId')
+    ? Number(searchParams.get('ltyProgramId'))
+    : undefined;
   const dateFrom = searchParams.get('dateStart') || undefined;
   const dateTo = searchParams.get('dateEnd') || undefined;
 
-  const { requests, isLoading, mutate, pagination } = useLoyaltyParticipantRequests(
-    currentPage,
-    pageSize,
-    status,
-    search,
-    ltyProgramId,
-    dateFrom,
-    dateTo
-  );
+  const { requests, isLoading, mutate, pagination } =
+    useLoyaltyParticipantRequests(
+      currentPage,
+      pageSize,
+      status,
+      search,
+      ltyProgramId,
+      dateFrom,
+      dateTo
+    );
 
   const { trigger: approveRequest, isMutating: isApproving } = useSWRMutation(
     'approve-loyalty-participant-request',
@@ -117,7 +118,9 @@ const LoyaltyParticipantRequests: React.FC = () => {
         title: t('loyaltyParticipantRequests.approveRequest'),
         content: (
           <div className="mt-4">
-            <p className="mb-2">{t('loyaltyParticipantRequests.approvalComment')}</p>
+            <p className="mb-2">
+              {t('loyaltyParticipantRequests.approvalComment')}
+            </p>
             <Input.TextArea
               id="approval-comment"
               placeholder={t('loyaltyParticipantRequests.commentOptional')}
@@ -128,10 +131,15 @@ const LoyaltyParticipantRequests: React.FC = () => {
         okText: t('constants.approve'),
         cancelText: t('constants.cancel'),
         onOk: async () => {
-          const comment = (document.getElementById('approval-comment') as HTMLTextAreaElement)?.value;
+          const comment = (
+            document.getElementById('approval-comment') as HTMLTextAreaElement
+          )?.value;
           try {
             await approveRequest({ id: record.id, comment });
-            showToast(t('loyaltyParticipantRequests.requestApproved'), 'success');
+            showToast(
+              t('loyaltyParticipantRequests.requestApproved'),
+              'success'
+            );
             mutate();
           } catch (error) {
             showToast(t('constants.errorOccurred'), 'error');
@@ -148,7 +156,9 @@ const LoyaltyParticipantRequests: React.FC = () => {
         title: t('loyaltyParticipantRequests.rejectRequest'),
         content: (
           <div className="mt-4">
-            <p className="mb-2">{t('loyaltyParticipantRequests.rejectionComment')}</p>
+            <p className="mb-2">
+              {t('loyaltyParticipantRequests.rejectionComment')}
+            </p>
             <Input.TextArea
               id="rejection-comment"
               placeholder={t('loyaltyParticipantRequests.commentOptional')}
@@ -159,10 +169,15 @@ const LoyaltyParticipantRequests: React.FC = () => {
         okText: t('constants.reject'),
         cancelText: t('constants.cancel'),
         onOk: async () => {
-          const comment = (document.getElementById('rejection-comment') as HTMLTextAreaElement)?.value;
+          const comment = (
+            document.getElementById('rejection-comment') as HTMLTextAreaElement
+          )?.value;
           try {
             await rejectRequest({ id: record.id, comment });
-            showToast(t('loyaltyParticipantRequests.requestRejected'), 'success');
+            showToast(
+              t('loyaltyParticipantRequests.requestRejected'),
+              'success'
+            );
             mutate();
           } catch (error) {
             showToast(t('constants.errorOccurred'), 'error');
@@ -197,15 +212,22 @@ const LoyaltyParticipantRequests: React.FC = () => {
 
   const getStatusTag = (status: LTYProgramRequestStatus) => {
     const statusConfig = {
-      [LTYProgramRequestStatus.PENDING]: { color: 'orange', text: t('constants.pending') },
-      [LTYProgramRequestStatus.APPROVED]: { color: 'green', text: t('constants.approved') },
-      [LTYProgramRequestStatus.REJECTED]: { color: 'red', text: t('constants.rejected') },
+      [LTYProgramRequestStatus.PENDING]: {
+        color: 'orange',
+        text: t('constants.pending'),
+      },
+      [LTYProgramRequestStatus.APPROVED]: {
+        color: 'green',
+        text: t('constants.approved'),
+      },
+      [LTYProgramRequestStatus.REJECTED]: {
+        color: 'red',
+        text: t('constants.rejected'),
+      },
     };
 
     return (
-      <Tag color={statusConfig[status].color}>
-        {statusConfig[status].text}
-      </Tag>
+      <Tag color={statusConfig[status].color}>{statusConfig[status].text}</Tag>
     );
   };
 
@@ -288,9 +310,11 @@ const LoyaltyParticipantRequests: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2 ms-10 md:ms-0">
-          {t('routes.participantRequests')}
-        </h1>
+        <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.participantRequests')}
+          </span>
+        </div>
       </div>
 
       <GeneralFilters

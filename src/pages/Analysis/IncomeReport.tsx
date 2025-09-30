@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { message, Skeleton, Input, Select, DatePicker, Button } from 'antd';
 import { useToast } from '@/components/context/useContext';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
@@ -132,12 +132,20 @@ const IncomeReport: React.FC = () => {
 
   return (
     <div>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.income')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
       <div className="p-4 bg-white rounded-lg shadow-md">

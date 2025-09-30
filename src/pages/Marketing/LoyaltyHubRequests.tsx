@@ -315,9 +315,11 @@ const LoyaltyHubRequests: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2 ms-10 md:ms-0">
-          {t('routes.hubRequests')}
-        </h1>
+         <div className="flex items-center space-x-2">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
+            {t('routes.hubRequests')}
+          </span>
+        </div>
       </div>
 
       <GeneralFilters

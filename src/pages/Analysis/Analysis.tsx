@@ -5,7 +5,6 @@ import useSWR from 'swr';
 import { CategoryReportTemplate, getAllReports } from '@/services/api/reports';
 import CardSkeleton from '@/components/ui/Card/CardSkeleton';
 import { Pagination, Select } from 'antd';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -74,7 +73,6 @@ const Analysis: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.analysis')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 
