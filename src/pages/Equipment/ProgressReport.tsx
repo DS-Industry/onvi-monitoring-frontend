@@ -199,7 +199,7 @@ const ProgressReport: React.FC = () => {
           onChange={setCheckedList}
         />
         <Table<TechTaskReadAll>
-          dataSource={techTasks.sort((a, b) => a.id - b.id)}
+          dataSource={techTasks}
           columns={visibleColumns}
           loading={techTasksLoading || isInitialLoading}
           pagination={{

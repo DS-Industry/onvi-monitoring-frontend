@@ -62,7 +62,8 @@ type Pos = {
 
 type PosBody = {
   name: string;
-  timeWork: string | null;
+  startTime: string;
+  endTime: string;
   posMetaData?: string;
   address: {
     city: string;
@@ -79,9 +80,8 @@ type PosBody = {
 
 export type PosRequestBody = {
   name: string;
-  timeWork: string;
-  startHour: string;
-  startMinute: string;
+  startTime: string;
+  endTime: string;
   posMetaData: string;
   city: string;
   location: string;
@@ -96,7 +96,8 @@ export type PosRequestBody = {
 
 type UpdatePosBody = {
   name?: string;
-  timeWork?: string | null;
+  startTime?: string;
+  endTime?: string;
   posMetaData?: string;
   address?: {
     city: string;
@@ -127,7 +128,8 @@ interface CarWashProps {
   id: number;
   name: string;
   slug: string;
-  timeWork: string;
+  startTime?: string;
+  endTime?: string;
   organizationId: number;
   placementId: number | null;
   posMetaData: string;
