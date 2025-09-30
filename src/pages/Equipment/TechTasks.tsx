@@ -156,9 +156,6 @@ const TechTasks: React.FC = () => {
       dataIndex: 'endSpecifiedDate',
       key: 'endSpecifiedDate',
       render: dateRender,
-      sorter: (a, b) =>
-        dayjs(b.endSpecifiedDate).valueOf() -
-        dayjs(a.endSpecifiedDate).valueOf(),
     },
   ];
 
@@ -209,7 +206,7 @@ const TechTasks: React.FC = () => {
           onChange={setCheckedList}
         />
         <Table
-          dataSource={techTasks.sort((a, b) => a.id - b.id)}
+          dataSource={techTasks}
           columns={visibleColumns}
           loading={techTasksLoading || isInitialLoading}
           pagination={{
