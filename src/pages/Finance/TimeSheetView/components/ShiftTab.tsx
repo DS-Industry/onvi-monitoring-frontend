@@ -13,7 +13,7 @@ dayjs.extend(duration);
 
 // components
 import { Controller, useForm } from 'react-hook-form';
-import { Select, Button, Form, Input, Card, message } from 'antd';
+import { Select, Button, Form, Input, Card, message, Modal } from 'antd';
 import { StarOutlined } from '@ant-design/icons';
 
 // services
@@ -24,6 +24,7 @@ import {
   returnDayShift,
   sendDayShift,
   updateDayShift,
+  deleteDayShift,
 } from '@/services/api/finance';
 
 import { usePermissions } from '@/hooks/useAuthStore';
@@ -103,6 +104,21 @@ const ShiftTab: React.FC = () => {
         : null
   );
 
+  const { trigger: deleteShift, isMutating: loadingDelete } = useSWRMutation(
+    ['delete-shift'],
+    () =>
+      shiftId
+        ? deleteDayShift(shiftId)
+            .then(() => {
+              message.success(t('finance.deleteSuccess'));
+              window.history.back();
+            })
+            .catch(() => {
+              message.error(t('finance.deleteFailed'));
+            })
+        : null
+  );
+
   const send = async () => {
     const formData = control._formValues as GradingFormData;
     await handleGradingSave(formData, false); 
@@ -164,6 +180,19 @@ const ShiftTab: React.FC = () => {
 
   const handleFormSubmit = async (data: GradingFormData) => {
     await handleGradingSave(data, true); 
+  };
+
+  const handleDelete = () => {
+    Modal.confirm({
+      title: t('finance.confirmDeleteShift'),
+      content: t('finance.deleteShiftWarning'),
+      okText: t('actions.delete'),
+      cancelText: t('actions.cancel'),
+      okType: 'danger',
+      onOk: async () => {
+        await deleteShift();
+      },
+    });
   };
 
   const gradedParams = dayShiftData?.gradingParameterInfo?.parameters.filter(
@@ -342,6 +371,18 @@ const ShiftTab: React.FC = () => {
               </Button>
             ) : (
               <></>
+            )}
+
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && (
+              <Button
+                className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
+                type="primary"
+                danger
+                onClick={handleDelete}
+                loading={loadingDelete}
+              >
+                {t('actions.delete')}
+              </Button>
             )}
           </div>
         </Form>
