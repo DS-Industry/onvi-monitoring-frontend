@@ -105,7 +105,6 @@ const DepositDevice: React.FC = () => {
         title: 'ID',
         dataIndex: 'id',
         key: 'id',
-        sorter: (a, b) => a.id - b.id,
       },
       {
         title: 'Сумма операции',
@@ -129,7 +128,6 @@ const DepositDevice: React.FC = () => {
         title: 'Счетчик',
         dataIndex: 'counter',
         key: 'counter',
-        sorter: (a, b) => a.counter - b.counter,
       },
       {
         title: 'Локальный ID',
