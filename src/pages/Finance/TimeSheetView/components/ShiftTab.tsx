@@ -103,6 +103,13 @@ const ShiftTab: React.FC = () => {
         : null
   );
 
+  const send = async () => {
+    const formData = control._formValues as GradingFormData;
+    await handleGradingSave(formData, false); 
+    
+    await sendCash();
+  };
+
   const start = dayjs(dayShiftData?.startWorkingTime);
   const end = dayjs(dayShiftData?.endWorkingTime);
   const workedHours =
@@ -125,7 +132,7 @@ const ShiftTab: React.FC = () => {
     }
   }, [dayShiftData, reset]);
 
-  const handleGradingSave = async (data: GradingFormData) => {
+  const handleGradingSave = async (data: GradingFormData, showToast: boolean = true) => {
     try {
       const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
         param => ({
@@ -145,12 +152,18 @@ const ShiftTab: React.FC = () => {
       });
 
       if (result) {
-        message.success(t('routes.savedSuccessfully'));
+        if (showToast) {
+          message.success(t('routes.savedSuccessfully'));
+        }
         mutate(['get-shift-data', shiftId]);
       }
     } catch {
       message.error(t('errors.somethingWentWrong'));
     }
+  };
+
+  const handleFormSubmit = async (data: GradingFormData) => {
+    await handleGradingSave(data, true); 
   };
 
   const gradedParams = dayShiftData?.gradingParameterInfo?.parameters.filter(
@@ -231,7 +244,7 @@ const ShiftTab: React.FC = () => {
 
         <Form
           layout="vertical"
-          onFinish={handleSubmit(handleGradingSave)}
+          onFinish={handleSubmit(handleFormSubmit)}
           className="mt-5"
         >
           {dayShiftData?.gradingParameterInfo?.parameters.map(param => (
@@ -322,7 +335,7 @@ const ShiftTab: React.FC = () => {
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
-                onClick={async () => await sendCash()}
+                onClick={send}
                 loading={loadingSendCash}
               >
                 {t('finance.send')}
