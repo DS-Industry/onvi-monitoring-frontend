@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 
 // services
-import { getDeposit } from '@/services/api/pos';
+import { DepositResponse, getDeposit } from '@/services/api/pos';
 import { getPlacement } from '@/services/api/device';
 
 // utils
@@ -26,27 +26,12 @@ import {
 // types
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-
-interface DepositMonitoring {
-  id: number;
-  name: string;
-  city: string;
-  counter: number;
-  cashSum: number;
-  virtualSum: number;
-  yandexSum: number;
-  mobileSum: number;
-  cardSum: number;
-  lastOper: Date;
-  discountSum: number;
-  cashbackSumCard: number;
-  cashbackSumMub: number;
-}
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Deposit: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const defaultDateStart = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
   const defaultDateEnd = dayjs().format('YYYY-MM-DD');
@@ -100,7 +85,7 @@ const Deposit: React.FC = () => {
       revalidateOnReconnect: true,
       keepPreviousData: true,
       revalidateOnFocus: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -115,14 +100,14 @@ const Deposit: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
-  const columns: ColumnsType<DepositMonitoring> = [
+  const columns: ColumnsType<DepositResponse> = [
     {
       title: t('table.columns.id'),
       dataIndex: 'id',
@@ -203,11 +188,19 @@ const Deposit: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.depositDevices')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters count={totalCount} display={['pos', 'dateTime']} />

@@ -16,6 +16,7 @@ import { useToast } from '@/components/context/useContext';
 import TechTaskCard from './TechTaskCard';
 import dayjs from 'dayjs';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const ProgressReportItem: React.FC = () => {
   const { t } = useTranslation();
@@ -61,7 +62,7 @@ const ProgressReportItem: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -189,12 +190,21 @@ const ProgressReportItem: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.list')}
           </span>
-          <div className='mt-2'>{getStatusRender(status || '')}</div>
+          <div className="mt-2">{getStatusRender(status || '')}</div>
         </div>
       </div>
       {techTaskLoading ? (

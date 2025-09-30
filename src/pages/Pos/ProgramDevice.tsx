@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
-import { getProgramDevice } from '@/services/api/pos';
+import { getProgramDevice, ProgramDeviceType } from '@/services/api/pos';
 
 import { Table } from 'antd';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -20,32 +20,13 @@ import {
 
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-
-// Types
-type FilterProgramDevice = {
-  dateStart: string;
-  dateEnd: string;
-  deviceId?: number;
-  page?: number;
-  size?: number;
-};
-
-interface ProgramDeviceType {
-  id: number;
-  name: string;
-  dateBegin: Date;
-  dateEnd: Date;
-  time: string;
-  localId: number;
-  payType: string;
-  isCar: number;
-}
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const ProgramDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const formattedDate = dayjs().format('YYYY-MM-DD');
+  const navigate = useNavigate();
 
   const deviceId = Number(searchParams.get('deviceId') || 0);
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
@@ -56,7 +37,7 @@ const ProgramDevice: React.FC = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   // Filter params (memoized)
-  const filterParams: FilterProgramDevice = useMemo(
+  const filterParams = useMemo(
     () => ({
       dateStart,
       dateEnd,
@@ -94,7 +75,7 @@ const ProgramDevice: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -165,11 +146,19 @@ const ProgramDevice: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programDevice')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters count={totalCount} display={['device', 'dateTime']} />

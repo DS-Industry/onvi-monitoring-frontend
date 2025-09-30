@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 // utils
 import useSWR from 'swr';
-import { getDepositPos } from '@/services/api/pos';
+import { DepositResponse, getDepositPos } from '@/services/api/pos';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { getPlacement } from '@/services/api/device';
 import {
@@ -29,23 +29,6 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-
-interface DevicesMonitoring {
-  id: number;
-  name: string;
-  city: string;
-  counter: number;
-  cashSum: number;
-  virtualSum: number;
-  yandexSum: number;
-  mobileSum: number;
-  cardSum: number;
-  lastOper: Date;
-  discountSum: number;
-  cashbackSumCard: number;
-  cashbackSumMub: number;
-}
 
 const DepositDevices: React.FC = () => {
   const location = useLocation();
@@ -138,7 +121,7 @@ const DepositDevices: React.FC = () => {
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
-  const columns: ColumnsType<DevicesMonitoring> = [
+  const columns: ColumnsType<DepositResponse> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -228,7 +211,6 @@ const DepositDevices: React.FC = () => {
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.deposits')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters

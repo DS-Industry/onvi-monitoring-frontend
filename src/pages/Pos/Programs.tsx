@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { Table } from 'antd';
-import { getPrograms } from '@/services/api/pos';
-import { useSearchParams, Link } from 'react-router-dom';
+import { getPrograms, Program, ProgramDetail } from '@/services/api/pos';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 // UI components
@@ -35,7 +35,7 @@ import {
   getDateRender,
 } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 ChartJS.register(
   CategoryScale,
@@ -46,26 +46,9 @@ ChartJS.register(
   Legend
 );
 
-// Types
-type ProgramDetail = {
-  programName: string;
-  counter: number;
-  totalTime: number;
-  averageTime: string;
-  totalProfit?: number;
-  averageProfit?: number;
-  lastOper?: Date;
-};
-
-type ProgramDevice = {
-  id: number;
-  name: string;
-  posType?: 'SelfService' | 'Portal' | 'SelfServiceAndPortal';
-  programsInfo: ProgramDetail[];
-};
-
 const Programs: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const today = new Date();
   const formattedDate = today.toISOString().split('T')[0];
 
@@ -104,7 +87,7 @@ const Programs: React.FC = () => {
     {
       revalidateOnFocus: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -118,7 +101,7 @@ const Programs: React.FC = () => {
       title: t('Устройство'),
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: ProgramDevice) => (
+      render: (text: string, record: Program) => (
         <Link
           to={{
             pathname: '/station/programs/device',
@@ -206,7 +189,7 @@ const Programs: React.FC = () => {
     return colors[index % colors.length];
   };
 
-  const aggregateProgramsData = (programs: ProgramDevice[]) => {
+  const aggregateProgramsData = (programs: Program[]) => {
     const map = new Map<
       string,
       { programName: string; counter: number; totalProfit: number }
@@ -235,11 +218,19 @@ const Programs: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programDevices')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters
