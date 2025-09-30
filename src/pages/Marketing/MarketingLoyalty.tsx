@@ -9,9 +9,7 @@ import {
 } from '@/services/api/marketing';
 import { Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
-
 import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
@@ -115,12 +113,11 @@ const MarketingLoyalty: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.loyalty')}
           </span>
-          <QuestionMarkIcon />
         </div>
         {!loyaltyProgramsLoading && user && permissions && <div className="flex items-center space-x-2">
           {hasPermission &&  <Button
             icon={<PlusOutlined />}
-            className="btn-primary"
+            className="btn-outline-primary"
             onClick={() => {
               navigate('/marketing/loyalty/rewards');
             }}
