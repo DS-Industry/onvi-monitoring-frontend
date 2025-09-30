@@ -154,6 +154,7 @@ const EmployeeProfile: React.FC = () => {
     passportDateIssue: undefined,
     inn: undefined,
     snils: undefined,
+    registrationAddress: undefined,
   };
 
   useEffect(() => {
@@ -208,6 +209,7 @@ const EmployeeProfile: React.FC = () => {
         status: employee.status ? employee.status : undefined,
         inn: employee.inn ?? undefined,
         snils: employee.snils ?? undefined,
+        registrationAddress: employee.registrationAddress ?? undefined,
         phone: employee.phone ?? undefined,
         email: employee.email ?? undefined,
         gender: employee.gender ?? undefined,
@@ -253,6 +255,7 @@ const EmployeeProfile: React.FC = () => {
           passportDateIssue: formData.passportDateIssue,
           inn: formData.inn,
           snils: formData.snils,
+          registrationAddress: formData.registrationAddress,
         },
         selectedFile
       )
@@ -669,6 +672,18 @@ const EmployeeProfile: React.FC = () => {
                           handleInputChange('snils', e.target.value)
                         }
                         {...register('snils')}
+                        inputType="secondary"
+                      />
+                      <Input
+                        type=""
+                        title={t('hr.registrationAddress')}
+                        label={t('hr.enterRegistrationAddress')}
+                        classname="w-64"
+                        value={formData.registrationAddress}
+                        changeValue={e =>
+                          handleInputChange('registrationAddress', e.target.value)
+                        }
+                        {...register('registrationAddress')}
                         inputType="secondary"
                       />
                     </div>

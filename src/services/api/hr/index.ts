@@ -33,6 +33,7 @@ export type CreateWorkerRequest = {
   passportDateIssue?: Date;
   inn?: string;
   snils?: string;
+  registrationAddress?: string;
 };
 
 export type TWorker = {
@@ -59,6 +60,7 @@ export type TWorker = {
     passportDateIssue?: Date;
     inn?: string;
     snils?: string;
+    registrationAddress?: string;
   };
 };
 
@@ -83,6 +85,7 @@ export type UpdateWorkerRequest = {
   passportDateIssue?: Date;
   inn?: string;
   snils?: string;
+  registrationAddress?: string;
 };
 
 export type WorkerParams = {

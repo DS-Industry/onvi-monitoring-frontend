@@ -5,9 +5,11 @@ import {
   getTechTaskExecution,
   StatusTechTask,
   TechTaskReadAll,
+  deleteTechTask,
 } from '@/services/api/equipment';
 import useSWR from 'swr';
-import { Select, Table } from 'antd';
+import { Select, Table, Modal, Button } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
@@ -18,6 +20,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { getStatusTagRender, getTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
+import { useToast } from '@/hooks/useToast';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import dayjs from 'dayjs';
@@ -31,6 +34,7 @@ dayjs.locale('ru');
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const posId = Number(searchParams.get('posId')) || undefined;
   const status = (searchParams.get('status') as StatusTechTask) || undefined;
@@ -44,7 +48,7 @@ const TechTasks: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const { data, isLoading: techTasksLoading } = useSWR(
+  const { data, isLoading: techTasksLoading, mutate } = useSWR(
     swrKey,
     () =>
       getTechTaskExecution({
@@ -105,6 +109,25 @@ const TechTasks: React.FC = () => {
     { label: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
   ];
 
+  const handleDelete = (id: number, name: string) => {
+    Modal.confirm({
+      title: t('constants.confirm'),
+      content: `Are you sure you want to delete "${name}"?`,
+      okText: t('marketing.delete'),
+      okType: 'danger',
+      cancelText: t('organizations.cancel'),
+      async onOk() {
+        try {
+          await deleteTechTask(id);
+          await mutate();
+          showToast(t('success.recordDeleted'), 'success');
+        } catch (error) {
+          showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
+        }
+      },
+    });
+  };
+
   const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
     {
       title: '№',
@@ -157,6 +180,22 @@ const TechTasks: React.FC = () => {
       key: 'endSpecifiedDate',
       render: dateRender,
     },
+    {
+      title: 'Действия',
+      dataIndex: 'actions',
+      key: 'actions',
+      width: 120,
+      render: (_: unknown, record: TechTaskReadAll) => (
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleDelete(record.id, record.name)}
+          title={t('marketing.delete')}
+          size="small"
+        />
+      ),
+    },
   ];
 
   const resetFilters = () => {
@@ -167,7 +206,7 @@ const TechTasks: React.FC = () => {
   };
 
   const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsTechTasks, 'tech-tasks-columns');
+    useColumnSelector(columnsTechTasks, 'tech-tasks-columns-v2');
 
   return (
     <>

@@ -205,6 +205,7 @@ const Employees: React.FC = () => {
     passportDateIssue: undefined,
     inn: undefined,
     snils: undefined,
+    registrationAddress: undefined,
   };
 
   const [formData, setFormData] = useState(defaultValues);
@@ -236,6 +237,7 @@ const Employees: React.FC = () => {
           passportDateIssue: formData.passportDateIssue,
           inn: formData.inn,
           snils: formData.snils,
+          registrationAddress: formData.registrationAddress,
         },
         selectedFile
       )
@@ -721,6 +723,15 @@ const Employees: React.FC = () => {
             value={formData.snils}
             changeValue={e => handleInputChange('snils', e.target.value)}
             {...register('snils')}
+          />
+          <Input
+            type=""
+            title={t('hr.registrationAddress')}
+            label={t('hr.enterRegistrationAddress')}
+            classname="w-80"
+            value={formData.registrationAddress}
+            changeValue={e => handleInputChange('registrationAddress', e.target.value)}
+            {...register('registrationAddress')}
           />
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <Button onClick={() => resetForm()}>
