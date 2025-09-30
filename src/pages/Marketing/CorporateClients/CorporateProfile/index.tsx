@@ -5,26 +5,31 @@ import KeyIndicators from './KeyIndicators';
 import Cards from './Cards';
 import Operations from './Operations';
 import GenericTabs from '@/components/ui/Tabs/GenericTab';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import useSWR from 'swr';
-import { CorporateClientResponse, getCorporateClientById } from '@/services/api/marketing';
+import {
+  CorporateClientResponse,
+  getCorporateClientById,
+} from '@/services/api/marketing';
 import { Skeleton } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const CorporateProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const activeTab = searchParams.get('tab') || 'basic';
 
   const clientId = searchParams.get('clientId')
-  ? Number(searchParams.get('clientId'))
-  : undefined;
+    ? Number(searchParams.get('clientId'))
+    : undefined;
 
   const {
     data: clientData,
     isLoading,
-    isValidating
+    isValidating,
   } = useSWR<CorporateClientResponse>(
     clientId ? ['corporate-client', clientId] : null,
     () => getCorporateClientById(clientId!),
@@ -66,11 +71,30 @@ const CorporateProfile: React.FC = () => {
 
   return (
     <div>
+      <div>
+        <div
+          className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          <ArrowLeftOutlined />
+          <p className="ms-2">{t('login.back')}</p>
+        </div>
+      </div>
       <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
-          {isLoading || isValidating ? <Skeleton.Input active size="small" style={{ width: 200, height: 28 }} /> : <span className="text-xl sm:text-3xl font-normal text-text01">
-            {clientData?.name || ""}
-          </span>}
+          {isLoading || isValidating ? (
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 200, height: 28 }}
+            />
+          ) : (
+            <span className="text-xl sm:text-3xl font-normal text-text01">
+              {clientData?.name || ''}
+            </span>
+          )}
         </div>
       </div>
 

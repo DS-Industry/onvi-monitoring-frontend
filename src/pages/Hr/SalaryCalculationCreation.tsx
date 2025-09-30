@@ -30,6 +30,7 @@ import {
   PlusOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
@@ -82,7 +83,7 @@ const SalaryCalculationCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -93,7 +94,7 @@ const SalaryCalculationCreation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -101,7 +102,7 @@ const SalaryCalculationCreation: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const organizations = [
@@ -157,10 +158,7 @@ const SalaryCalculationCreation: React.FC = () => {
 
   type FieldType = 'organizationId' | 'billingMonth' | 'hrPositionId';
 
-  const handleInputChange = (
-    field: FieldType,
-    value: string | number | ''
-  ) => {
+  const handleInputChange = (field: FieldType, value: string | number | '') => {
     const numericFields = ['organizationId'];
     let updatedValue: any = value;
     if (numericFields.includes(field)) {
@@ -328,7 +326,7 @@ const SalaryCalculationCreation: React.FC = () => {
       sum:
         item.monthlySalary +
         item.dailySalary *
-        ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
+          ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
         item.prepaymentSum +
         (item.prize || 0) -
         (item.fine || 0),
@@ -336,7 +334,7 @@ const SalaryCalculationCreation: React.FC = () => {
         (item.prepaymentSum || 0) +
         (item.monthlySalary || 0) +
         (item.dailySalary || 0) *
-        ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
+          ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
         (item.prepaymentSum || 0) +
         (item.prize || 0) -
         (item.fine || 0),
@@ -462,7 +460,7 @@ const SalaryCalculationCreation: React.FC = () => {
           (record.prepaymentSum || 0) +
           (record.monthlySalary || 0) +
           (record.dailySalary || 0) *
-          ((record.prepaymentCountShifts || 0) + (record.countShifts || 0)) -
+            ((record.prepaymentCountShifts || 0) + (record.countShifts || 0)) -
           (record.prepaymentSum || 0) +
           (record.prize || 0) -
           (record.fine || 0);
@@ -488,8 +486,15 @@ const SalaryCalculationCreation: React.FC = () => {
     <ConfigProvider locale={currentLocale}>
       <div>
         <div
-          className={`flex items-center`}
+          className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+          onClick={() => {
+            navigate(-1);
+          }}
         >
+          <ArrowLeftOutlined />
+          <p className="ms-2">{t('login.back')}</p>
+        </div>
+        <div className={`flex items-center`}>
           <div className="flex items-center space-x-2">
             <span
               className={`text-xl sm:text-3xl font-normal text-text01 ${screens.md ? '' : 'ml-12'}`}
@@ -575,7 +580,7 @@ const SalaryCalculationCreation: React.FC = () => {
                 <DatePicker
                   picker="month"
                   {...register('billingMonth', {
-                    required: t("validation.billingMonthRequired"),
+                    required: t('validation.billingMonthRequired'),
                   })}
                   value={
                     formData.billingMonth ? dayjs(formData.billingMonth) : null
@@ -594,7 +599,9 @@ const SalaryCalculationCreation: React.FC = () => {
                 )}
               </div>
               <div>
-                <div className="text-sm text-text02">{t('routes.employees')}</div>
+                <div className="text-sm text-text02">
+                  {t('routes.employees')}
+                </div>
                 <Select
                   className="w-64 h-10"
                   options={positions}

@@ -4,12 +4,14 @@ const Settings = React.lazy(() => import('./Settings'));
 const Levels = React.lazy(() => import('./Levels'));
 const Events = React.lazy(() => import('./Events'));
 import GenericTabs from '@ui/Tabs/GenericTab';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 type TAB = 'settings' | 'levels' | 'events';
 
 const BonusProgram: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -48,15 +50,28 @@ const BonusProgram: React.FC = () => {
   ];
 
   return (
-    <div className="w-full px-4 sm:px-8 mt-12 md:mt-0">
-      <GenericTabs
-        tabs={tabItems}
-        activeKey={activeTab}
-        onChange={handleTabChange}
-        tabBarGutter={32}
-        tabBarStyle={{ marginBottom: 24 }}
-      />
-    </div>
+    <>
+      <div>
+        <div
+          className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          <ArrowLeftOutlined />
+          <p className="ms-2">{t('login.back')}</p>
+        </div>
+      </div>
+      <div className="w-full px-4 sm:px-8 mt-12 md:mt-0">
+        <GenericTabs
+          tabs={tabItems}
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          tabBarGutter={32}
+          tabBarStyle={{ marginBottom: 24 }}
+        />
+      </div>
+    </>
   );
 };
 

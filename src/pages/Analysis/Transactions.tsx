@@ -5,7 +5,6 @@ import useSWR, { mutate } from 'swr';
 import { Button, Table } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { DownloadOutlined } from '@ant-design/icons';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -128,7 +127,6 @@ const Transactions: React.FC = () => {
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.my')}
           </span>
-          <QuestionMarkIcon />
         </div>
       </div>
 

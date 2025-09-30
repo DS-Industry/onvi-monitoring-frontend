@@ -34,7 +34,6 @@ const EmployeeFilter: React.FC = () => {
   if (!workerData?.length && !isLoading) return null;
 
   const workers = [
-    { label: t("warehouse.all"), value: "*" },
     ...(workerData ?? []).map(item => ({
       label: `${item.name} ${item.surname}`,
       value: String(item.id)
@@ -49,7 +48,7 @@ const EmployeeFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('filters.employee.placeholder')}
-        value={getParam(searchParams, "userId", "*")}
+        value={getParam(searchParams, "userId")}
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
