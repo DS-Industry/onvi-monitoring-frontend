@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { Table } from 'antd';
-import { getProgramPos } from '@/services/api/pos';
+import { getProgramPos, Program, ProgramDetail } from '@/services/api/pos';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -15,21 +15,6 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { formatNumber, getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
-
-type ProgramDetail = {
-  programName: string;
-  counter: number;
-  totalTime: number;
-  averageTime: string;
-  lastOper?: Date;
-};
-
-type ProgramDevice = {
-  id: number;
-  name: string;
-  programsInfo: ProgramDetail[];
-};
 
 const ProgramDevices: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +70,7 @@ const ProgramDevices: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -126,7 +111,7 @@ const ProgramDevices: React.FC = () => {
       title: t('Устройство'),
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: ProgramDevice) => (
+      render: (text: string, record: Program) => (
         <Link
           to={{
             pathname: '/station/programs/devices',
@@ -149,7 +134,6 @@ const ProgramDevices: React.FC = () => {
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programs')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters
@@ -170,7 +154,7 @@ const ProgramDevices: React.FC = () => {
           columns={visibleColumns}
           scroll={{ x: 'max-content' }}
           expandable={{
-            expandedRowRender: (record: ProgramDevice) => (
+            expandedRowRender: (record: Program) => (
               <Table
                 rowKey={row => `${record.id}-${row.programName}`}
                 dataSource={record.programsInfo}

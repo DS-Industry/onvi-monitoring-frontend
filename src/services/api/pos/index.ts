@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import ProgramDevice from '@/pages/Pos/ProgramDevice';
 
 enum POS {
   GET_POSES = 'user/organization/pos',
@@ -92,7 +93,7 @@ export type PosRequestBody = {
   minSumOrder: number | null;
   maxSumOrder: number | null;
   stepSumOrder: number | null;
-}
+};
 
 type UpdatePosBody = {
   name?: string;
@@ -160,7 +161,7 @@ type DepositParam = {
   size?: number;
 };
 
-type DepositResponse = {
+export type DepositResponse = {
   id: number;
   name: string;
   city: string;
@@ -208,19 +209,21 @@ export type DepositDeviceResponse = {
   totalCount: number;
 };
 
-type Program = {
+export type ProgramDetail = {
+  programName: string;
+  counter: number;
+  totalTime: number;
+  averageTime: string;
+  totalProfit?: number;
+  averageProfit?: number;
+  lastOper?: Date;
+};
+
+export type Program = {
   id: number;
   name: string;
   posType?: CarWashPosType;
-  programsInfo: {
-    programName: string;
-    counter: number;
-    totalTime: number;
-    averageTime: string;
-    totalProfit?: number;
-    averageProfit?: number;
-    lastOper?: Date;
-  }[];
+  programsInfo: ProgramDetail[];
 };
 
 type ProgramPosResponse = {
@@ -254,6 +257,8 @@ type ProgramDevice = {
   }[];
   totalCount: number;
 };
+
+export type ProgramDeviceType = ProgramDevice['prog'][0];
 
 type DevicesParams = {
   dateStart: Date;
@@ -290,7 +295,9 @@ type CurrencyResponse = {
 };
 
 export async function getPosById(id: number): Promise<UpdateCarWashResponse> {
-  const response: AxiosResponse<UpdateCarWashResponse> = await api.get(`user/pos/${id}`);
+  const response: AxiosResponse<UpdateCarWashResponse> = await api.get(
+    `user/pos/${id}`
+  );
   return response.data;
 }
 
@@ -345,16 +352,22 @@ export async function updateCarWash(
     formData.append('file', file);
   }
 
-  const response: AxiosResponse<Pos> = await api.patch(`user/pos/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response: AxiosResponse<Pos> = await api.patch(
+    `user/pos/${id}`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
   return response.data;
 }
 
-export async function deleteCarWash(id: number): Promise<{ status: string; }> {
-  const response: AxiosResponse<{ status: string; }> = await api.patch(`user/pos/${id}/delete`);
+export async function deleteCarWash(id: number): Promise<{ status: string }> {
+  const response: AxiosResponse<{ status: string }> = await api.patch(
+    `user/pos/${id}/delete`
+  );
   return response.data;
 }
 

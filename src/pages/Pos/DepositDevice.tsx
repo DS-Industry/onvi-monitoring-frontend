@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 
@@ -29,12 +29,13 @@ import {
 // types
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const formattedDate = dayjs().format('YYYY-MM-DD');
+  const navigate = useNavigate();
 
   const deviceId = Number(searchParams.get('deviceId') || 0);
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
@@ -85,61 +86,62 @@ const DepositDevice: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const { data: currencyData } = useSWR('get-currency', () => getCurrency(), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
-  const columnsMonitoringDevice: ColumnsType<DepositDeviceResponse["oper"][0]> = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
-      title: 'Сумма операции',
-      dataIndex: 'sumOper',
-      key: 'sumOper',
-      render: currencyRender,
-    },
-    {
-      title: 'Дата операции',
-      dataIndex: 'dateOper',
-      key: 'dateOper',
-      render: dateRender,
-    },
-    {
-      title: 'Дата загрузки',
-      dataIndex: 'dateLoad',
-      key: 'dateLoad',
-      render: dateRender,
-    },
-    {
-      title: 'Счетчик',
-      dataIndex: 'counter',
-      key: 'counter',
-      sorter: (a, b) => a.counter - b.counter,
-    },
-    {
-      title: 'Локальный ID',
-      dataIndex: 'localId',
-      key: 'localId',
-    },
-    {
-      title: 'Валюта',
-      dataIndex: 'currencyType',
-      key: 'currencyType',
-    },
-  ];
+  const columnsMonitoringDevice: ColumnsType<DepositDeviceResponse['oper'][0]> =
+    [
+      {
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+        sorter: (a, b) => a.id - b.id,
+      },
+      {
+        title: 'Сумма операции',
+        dataIndex: 'sumOper',
+        key: 'sumOper',
+        render: currencyRender,
+      },
+      {
+        title: 'Дата операции',
+        dataIndex: 'dateOper',
+        key: 'dateOper',
+        render: dateRender,
+      },
+      {
+        title: 'Дата загрузки',
+        dataIndex: 'dateLoad',
+        key: 'dateLoad',
+        render: dateRender,
+      },
+      {
+        title: 'Счетчик',
+        dataIndex: 'counter',
+        key: 'counter',
+        sorter: (a, b) => a.counter - b.counter,
+      },
+      {
+        title: 'Локальный ID',
+        dataIndex: 'localId',
+        key: 'localId',
+      },
+      {
+        title: 'Валюта',
+        dataIndex: 'currencyType',
+        key: 'currencyType',
+      },
+    ];
 
   const deviceMonitoring = useMemo(() => {
     return (
@@ -157,11 +159,19 @@ const DepositDevice: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.depositDevice')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters count={totalCount} display={['device', 'dateTime']}>
