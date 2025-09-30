@@ -138,7 +138,7 @@ const ProgressReport: React.FC = () => {
       title: 'Дата окончания',
       dataIndex: 'sendWorkDate',
       key: 'sendWorkDate',
-      render: dateRender,
+      // render: dateRender,
     },
     {
       title: 'Исполнитель',
@@ -199,7 +199,7 @@ const ProgressReport: React.FC = () => {
           onChange={setCheckedList}
         />
         <Table<TechTaskReadAll>
-          dataSource={techTasks.sort((a, b) => a.id - b.id)}
+          dataSource={techTasks}
           columns={visibleColumns}
           loading={techTasksLoading || isInitialLoading}
           pagination={{
