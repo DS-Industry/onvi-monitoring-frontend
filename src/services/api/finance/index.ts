@@ -743,6 +743,10 @@ export async function returnDayShift(
   return response.data;
 }
 
+export async function deleteDayShift(id: number): Promise<void> {
+  await api.delete(`user/finance/shift-report/${id}`);
+}
+
 export async function createCashOper(
   body: CreateCashOperBody,
   id: number
