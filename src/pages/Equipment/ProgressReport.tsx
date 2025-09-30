@@ -138,7 +138,7 @@ const ProgressReport: React.FC = () => {
       title: 'Дата окончания',
       dataIndex: 'sendWorkDate',
       key: 'sendWorkDate',
-      // render: dateRender,
+      render: dateRender,
     },
     {
       title: 'Исполнитель',
