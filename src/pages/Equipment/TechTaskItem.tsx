@@ -13,6 +13,7 @@ import { useToast } from '@/components/context/useContext';
 import TechTaskCard from './TechTaskCard';
 import Button from '@/components/ui/Button/Button';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const TechTaskItem: React.FC = () => {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ const TechTaskItem: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const techTaskItems = useMemo(
@@ -151,12 +152,21 @@ const TechTaskItem: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.list')}
           </span>
-          <div className='mt-2'>{getStatusRender(status || '')}</div>
+          <div className="mt-2">{getStatusRender(status || '')}</div>
         </div>
       </div>
       <div className="mt-5">
