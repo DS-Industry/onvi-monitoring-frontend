@@ -9,6 +9,7 @@ import {
   DownloadOutlined,
   FileOutlined,
   CloseOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { Drawer, message } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
@@ -105,6 +106,15 @@ const ClientsImport: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="px-4 md:px-0 mb-5 ml-10 md:ml-0">
         <div className="flex items-center space-x-2">
           <span className="text-lg sm:text-xl md:text-3xl font-normal text-text01">

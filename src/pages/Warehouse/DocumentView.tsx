@@ -13,7 +13,7 @@ import { Skeleton, Button } from 'antd';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import DocumentsViewTable from './DocumentsTables/DocumentsViewTable';
-import { PlusOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { useUser } from '@/hooks/useUserStore';
@@ -189,6 +189,15 @@ const DocumentView: React.FC = () => {
 
   return (
     <div>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">

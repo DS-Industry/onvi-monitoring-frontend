@@ -26,6 +26,7 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import DocumentTypesTable from '@/pages/Warehouse/DocumentsTables/DocumentTypesTable';
 import { useToast } from '@/hooks/useToast';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 interface TableRow {
   id: number;
@@ -385,6 +386,15 @@ const DocumentsCreation: React.FC = () => {
 
   return (
     <>
+      <div
+        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        <ArrowLeftOutlined />
+        <p className="ms-2">{t('login.back')}</p>
+      </div>
       <div className="ml-12 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
