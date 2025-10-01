@@ -296,6 +296,7 @@ const Warehouse: React.FC = () => {
             onChange={value => handleInputChange('managerId', value)}
             error={!!errors.managerId}
             helperText={errors.managerId?.message}
+            showSearch={true}
           />
           <DropdownInput
             title={`${t('marketing.carWash')} *`}
@@ -311,6 +312,7 @@ const Warehouse: React.FC = () => {
             onChange={value => handleInputChange('posId', value)}
             error={!!errors.posId}
             helperText={errors.posId?.message}
+            showSearch={true}
           />
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <Button onClick={() => resetForm()}>
