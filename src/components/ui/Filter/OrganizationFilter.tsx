@@ -11,7 +11,7 @@ const OrganizationFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const city = getParam(searchParams, "city", undefined);
+  const city = getParam(searchParams, 'city', undefined);
   const placementId = city ? Number(city) : undefined;
 
   const { data: organizationData, isLoading } = useSWR(
@@ -21,7 +21,7 @@ const OrganizationFilter: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -47,17 +47,19 @@ const OrganizationFilter: React.FC = () => {
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('analysis.organizationId')}
       </label>
-    <Select
-      className="w-full sm:w-80"
-      placeholder={t('filters.organization.placeholder')}
-      value={getParam(searchParams, 'orgId', '')}
-      onChange={handleChange}
-      loading={isLoading}
-      options={organizations.map(item => ({
-        label: item.name,
-        value: item.value,
-      }))}
-    />
+      <Select
+        className="w-full sm:w-80"
+        placeholder={t('filters.organization.placeholder')}
+        value={getParam(searchParams, 'orgId', '')}
+        onChange={handleChange}
+        loading={isLoading}
+        options={organizations.map(item => ({
+          label: item.name,
+          value: item.value,
+        }))}
+        showSearch={true}
+        notFoundContent={t('table.noData')}
+      />
     </div>
   );
 };

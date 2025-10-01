@@ -15,7 +15,7 @@ const GroupFilter: React.FC = () => {
       page: DEFAULT_PAGE,
     });
   };
-  
+
   const groupsData = [
     { label: t('warehouse.all'), value: '*' },
     ...groups.map(item => ({
@@ -33,11 +33,12 @@ const GroupFilter: React.FC = () => {
         showSearch
         allowClear={false}
         placeholder={t('finance.group')}
-        value={getParam(searchParams, "group", "*")}
+        value={getParam(searchParams, 'group', '*')}
         onChange={handleChange}
         className="w-full"
         options={groupsData}
         optionFilterProp="label"
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

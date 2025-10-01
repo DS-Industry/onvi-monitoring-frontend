@@ -102,12 +102,16 @@ const EmployeeAdvanceCreation: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR(formData?.organizationId ? [`get-workers`, formData.organizationId] : null, () => getWorkers({ organizationId: formData.organizationId }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
+  const { data: workersData } = useSWR(
+    formData?.organizationId ? [`get-workers`, formData.organizationId] : null,
+    () => getWorkers({ organizationId: formData.organizationId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
 
   const organizations = [
     { name: t('chemical.select'), value: 0 },
@@ -474,6 +478,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   onChange={value => handleInputChange('organizationId', value)}
                   listHeight={120}
                   status={errors.organizationId ? 'error' : ''}
+                  showSearch={true}
+                  notFoundContent={t('table.noData')}
                 />
                 {errors.organizationId?.message && (
                   <div className="text-xs text-errorFill mt-1">
@@ -516,6 +522,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   {...register('hrPositionId')}
                   onChange={value => handleInputChange('hrPositionId', value)}
                   listHeight={120}
+                  showSearch={true}
+                  notFoundContent={t('table.noData')}
                 />
               </div>
             </div>
