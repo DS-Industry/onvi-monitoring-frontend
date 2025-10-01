@@ -117,7 +117,6 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
             setIsModalOpen(false);
           }}
           shiftId={shiftId}
-          posId={posId}
         />
       ) : null}
     </>

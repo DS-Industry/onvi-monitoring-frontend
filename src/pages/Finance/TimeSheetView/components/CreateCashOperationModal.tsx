@@ -1,48 +1,26 @@
 import React from 'react';
-import { Modal, Form, Input, Select, DatePicker, Button, message } from 'antd';
+import { Modal, Form, Input, DatePicker, Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
-import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { getDevices } from '@/services/api/equipment';
-import { createCashOper } from '@/services/api/finance';
+import { createCashOper, TypeWorkDayShiftReportCashOper } from '@/services/api/finance';
 import { mutate } from 'swr';
 
 const { TextArea } = Input;
-const { Option } = Select;
 
 interface CreateCashOperationModalProps {
   open: boolean;
   shiftId: number;
-  posId: number;
   onClose: () => void;
 }
 
 const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
   open,
   shiftId,
-  posId,
   onClose,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
-
-  const { data: deviceData } = useSWR(
-    posId ? [`get-device-${posId}`] : null,
-    () => getDevices(posId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false
-    }
-  );
-
-  const devices =
-    deviceData?.map(item => ({
-      label: item.props.name,
-      value: item.props.id,
-    })) || [];
 
   const { trigger: createCash, isMutating } = useSWRMutation(
     ['create-cash-oper'],
@@ -54,6 +32,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
   const onFinish = async (values: any) => {
     const payload = {
       ...values,
+      type: TypeWorkDayShiftReportCashOper.REPLENISHMENT,
       sum: Number(values.sum),
       eventData: values.eventData?.toDate(),
     };
@@ -94,16 +73,6 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
           comment: undefined,
         }}
       >
-        <Form.Item
-          label={t('finance.operType')}
-          name="type"
-          rules={[{ required: true, message: t('validation.typeRequired') }]}
-        >
-          <Select placeholder={t('warehouse.notSel')}>
-            <Option value="REFUND">{t('finance.REFUND')}</Option>
-            <Option value="REPLENISHMENT">{t('finance.REPLENISHMENT')}</Option>
-          </Select>
-        </Form.Item>
 
         <Form.Item
           label={t('finance.sum')}
@@ -113,19 +82,6 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
           <Input type="number" />
         </Form.Item>
 
-        <Form.Item
-          label={t('equipment.device')}
-          name="carWashDeviceId"
-          rules={[{ required: true, message: t('validation.deviceRequired') }]}
-        >
-          <Select
-            placeholder={
-              devices.length ? t('warehouse.notSel') : t('warehouse.noVal')
-            }
-            options={devices}
-            allowClear
-          />
-        </Form.Item>
 
         <Form.Item
           label={t('finance.date')}
