@@ -117,6 +117,7 @@ const RewardProgramsConnection: React.FC = () => {
             value={workerId}
             onChange={setWorkerId}
             showSearch={true}
+            notFoundContent={t('table.noData')}
           />
         </div>
         <Button

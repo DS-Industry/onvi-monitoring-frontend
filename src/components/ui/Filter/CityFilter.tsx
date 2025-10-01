@@ -54,6 +54,7 @@ const CityFilter: React.FC<CityFilterProps> = ({
             .toLowerCase()
             .includes(input.toLowerCase())
         }
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

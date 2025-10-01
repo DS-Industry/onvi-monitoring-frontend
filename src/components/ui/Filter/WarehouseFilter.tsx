@@ -18,15 +18,13 @@ const WarehouseFilter: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
 
   const { data: warehouseData, isLoading } = useSWR(
-    placementId && posId
-      ? [`get-warehouse`, placementId, posId]
-      : null,
+    placementId && posId ? [`get-warehouse`, placementId, posId] : null,
     () => getWarehouses({ placementId, posId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -62,6 +60,8 @@ const WarehouseFilter: React.FC = () => {
           label: item.name,
           value: item.value,
         }))}
+        showSearch={true}
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

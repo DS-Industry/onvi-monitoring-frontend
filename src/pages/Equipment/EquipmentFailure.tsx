@@ -275,57 +275,61 @@ const EquipmentFailure: React.FC = () => {
   };
 
   const handleUpdate = (id: number) => {
-  setEditIncidentId(id);
-  setIsEditMode(true);
-  setDrawerOpen(true);
+    setEditIncidentId(id);
+    setIsEditMode(true);
+    setDrawerOpen(true);
 
-  const incidentToEdit = incidents.find(org => org.id === id);
+    const incidentToEdit = incidents.find(org => org.id === id);
 
-  if (incidentToEdit) {
-    const knotNameToId: { [key: string]: number } = equipmentKnotData
-      ? equipmentKnotData.reduce(
-          (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
-          {},
-        )
-      : {};
+    if (incidentToEdit) {
+      const knotNameToId: { [key: string]: number } = equipmentKnotData
+        ? equipmentKnotData.reduce(
+            (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
+            {}
+          )
+        : {};
 
-    const problemNameToId: { [key: string]: number } = incidentEquipmentKnotData
-      ? incidentEquipmentKnotData.reduce(
-          (acc, item) => ({ ...acc, [item.problemName]: item.id }),
-          {},
-        )
-      : {};
+      const problemNameToId: { [key: string]: number } =
+        incidentEquipmentKnotData
+          ? incidentEquipmentKnotData.reduce(
+              (acc, item) => ({ ...acc, [item.problemName]: item.id }),
+              {}
+            )
+          : {};
 
-    const reasonLabelToValue: { [key: string]: number } = reasons
-      ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
-      : {};
+      const reasonLabelToValue: { [key: string]: number } = reasons
+        ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
+        : {};
 
-    const solutionLabelToValue: { [key: string]: number } = solutions
-      ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
-      : {};
+      const solutionLabelToValue: { [key: string]: number } = solutions
+        ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
+        : {};
 
-    const formatDateTime = (dateString: Date) => {
-      return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
-    };
+      const formatDateTime = (dateString: Date) => {
+        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
+      };
 
-    setFormData({
-      posId: incidentToEdit.posId,
-      workerId: incidentToEdit.workerId,
-      appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
-      startDate: formatDateTime(incidentToEdit.startDate),
-      finishDate: formatDateTime(incidentToEdit.finishDate),
-      objectName: incidentToEdit.objectName,
-      equipmentKnotId: knotNameToId[incidentToEdit.equipmentKnot] || undefined,
-      incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
-      incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
-      incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
-      downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
-      comment: incidentToEdit.comment,
-      carWashDeviceProgramsTypeId: incidentToEdit.programId,
-    });
-  }
-};
-
+      setFormData({
+        posId: incidentToEdit.posId,
+        workerId: incidentToEdit.workerId,
+        appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
+        startDate: formatDateTime(incidentToEdit.startDate),
+        finishDate: formatDateTime(incidentToEdit.finishDate),
+        objectName: incidentToEdit.objectName,
+        equipmentKnotId:
+          knotNameToId[incidentToEdit.equipmentKnot] || undefined,
+        incidentNameId:
+          problemNameToId[incidentToEdit.incidentName] || undefined,
+        incidentReasonId:
+          reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
+        incidentSolutionId:
+          solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
+        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
+        comment: incidentToEdit.comment,
+        carWashDeviceProgramsTypeId: incidentToEdit.programId,
+      });
+    }
+  };
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -551,6 +555,7 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.posId ? 'error' : ''}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -587,6 +592,7 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.workerId ? 'error' : ''}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -682,6 +688,7 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.objectName ? 'error' : ''}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -705,6 +712,7 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('equipmentKnotId', String(value));
                 }}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -728,6 +736,7 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentNameId', String(value));
                 }}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -751,6 +760,7 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentReasonId', String(value));
                 }}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -774,6 +784,7 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentSolutionId', String(value));
                 }}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>
@@ -838,6 +849,7 @@ const EquipmentFailure: React.FC = () => {
                   );
                 }}
                 showSearch={true}
+                notFoundContent={t('table.noData')}
               />
             </Form.Item>
           </div>

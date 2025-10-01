@@ -531,6 +531,8 @@ const Indicators: React.FC = () => {
                     value={selectedValue}
                     onChange={setSelectedValue}
                     listHeight={120}
+                    showSearch={true}
+                    notFoundContent={t('table.noData')}
                   />
                 </div>
                 {durations.map(duration => (

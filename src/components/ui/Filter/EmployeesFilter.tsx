@@ -118,6 +118,8 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         label: item.name,
                         value: String(item.value),
                       }))}
+                      showSearch={true}
+                      notFoundContent={t('table.noData')}
                     />
                   </div>
 
@@ -136,6 +138,8 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         label: item.name,
                         value: String(item.value),
                       }))}
+                      showSearch={true}
+                      notFoundContent={t('table.noData')}
                     />
                   </div>
 
@@ -154,6 +158,8 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                         label: item.name,
                         value: String(item.value),
                       }))}
+                      showSearch={true}
+                      notFoundContent={t('table.noData')}
                     />
                   </div>
 
