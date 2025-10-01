@@ -92,6 +92,7 @@ export type WorkerParams = {
   placementId?: number;
   hrPositionId?: number;
   organizationId?: number;
+  posId?: number;
   name?: string;
   page?: number;
   size?: number;

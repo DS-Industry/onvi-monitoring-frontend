@@ -12,6 +12,7 @@ import {
 import dayjs from 'dayjs';
 import useSWRMutation from 'swr/mutation';
 import { useSearchParams } from 'react-router-dom';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Option } = Select;
 
@@ -47,6 +48,7 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
   const [searchParams] = useSearchParams();
 
   const posId = Number(searchParams.get('posId') || '*');
+  const user = useUser();
 
   const steps = [
     {
@@ -134,8 +136,8 @@ const ShiftCreateModal: React.FC<ShiftCreateModalProps> = ({
   };
 
   const { data: employees, isLoading: isEmployeeLoading } = useSWR(
-    [`get-worker`],
-    () => getWorkers(employeeData),
+    posId && user.organizationId ? [`get-worker`, posId, user.organizationId] : null,
+    () => getWorkers({...employeeData, posId: posId, organizationId: user.organizationId}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
