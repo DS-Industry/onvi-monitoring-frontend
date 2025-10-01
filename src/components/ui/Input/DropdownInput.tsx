@@ -110,11 +110,9 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
           status={error ? 'error' : ''}
           optionLabelProp="label"
           tagRender={isMultiSelect ? tagRender : undefined}
-          popupRender={menu => (
-            <div style={{ maxHeight: 120, overflowY: 'auto' }}>{menu}</div>
-          )}
           showSearch={showSearch}
           notFoundContent={t('table.noData')}
+          listHeight={120}
         >
           {options.map(opt => (
             <Select.Option key={opt.value} value={opt.value} label={opt.name}>

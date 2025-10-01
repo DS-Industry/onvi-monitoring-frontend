@@ -530,11 +530,7 @@ const Indicators: React.FC = () => {
                     }))}
                     value={selectedValue}
                     onChange={setSelectedValue}
-                    dropdownRender={menu => (
-                      <div style={{ maxHeight: 100, overflowY: 'auto' }}>
-                        {menu}
-                      </div>
-                    )}
+                    listHeight={120}
                   />
                 </div>
                 {durations.map(duration => (

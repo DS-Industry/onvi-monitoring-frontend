@@ -89,9 +89,7 @@ const Analysis: React.FC = () => {
               updatePage(1);
             }}
             options={[{ label: t('analysis.posId'), value: 'POS' }]}
-            popupRender={menu => (
-              <div style={{ maxHeight: 100, overflowY: 'auto' }}>{menu}</div>
-            )}
+            listHeight={100}
           />
         </div>
       </GeneralFilters>

@@ -472,11 +472,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                       value !== 0 || t('validation.organizationRequired'),
                   })}
                   onChange={value => handleInputChange('organizationId', value)}
-                  dropdownRender={menu => (
-                    <div style={{ maxHeight: 100, overflowY: 'auto' }}>
-                      {menu}
-                    </div>
-                  )}
+                  listHeight={120}
                   status={errors.organizationId ? 'error' : ''}
                 />
                 {errors.organizationId?.message && (
@@ -519,11 +515,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   placeholder={t('analysis.all')}
                   {...register('hrPositionId')}
                   onChange={value => handleInputChange('hrPositionId', value)}
-                  dropdownRender={menu => (
-                    <div style={{ maxHeight: 100, overflowY: 'auto' }}>
-                      {menu}
-                    </div>
-                  )}
+                  listHeight={120}
                 />
               </div>
             </div>
