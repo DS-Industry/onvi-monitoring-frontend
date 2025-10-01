@@ -109,9 +109,11 @@ const EmployeeProfile: React.FC = () => {
 
   const employee = employeeData?.props;
 
+
+
   const { data: workersData, isLoading: loadingWorkers } = useSWR(
-    [`get-workers`, employee?.avatar],
-    () => getWorkers({}),
+    user.organizationId ? [`get-workers`, employee?.avatar, user.organizationId] : null,
+    () => getWorkers({ organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
