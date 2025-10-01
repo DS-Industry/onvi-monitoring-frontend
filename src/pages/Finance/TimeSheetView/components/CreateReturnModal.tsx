@@ -105,7 +105,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
           name="sum"
           rules={[{ required: true, message: t('validation.sumRequired') }]}
         >
-          <Input type="number" />
+          <Input type="number" placeholder={t('finance.sum')} />
         </Form.Item>
 
         <Form.Item
@@ -127,7 +127,12 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
           name="eventData"
           rules={[{ required: true, message: t('validation.dateRequired') }]}
         >
-          <DatePicker showTime format="YYYY-MM-DDTHH:mm" className="w-full" />
+          <DatePicker 
+            showTime 
+            format="YYYY-MM-DDTHH:mm" 
+            className="w-full" 
+            placeholder={t('finance.date')}
+          />
         </Form.Item>
 
         <Form.Item
@@ -135,7 +140,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
           name="comment"
           rules={[{ required: true, message: t('validation.commentRequired') }]}
         >
-          <TextArea rows={4} />
+          <TextArea rows={4} placeholder={t('equipment.comment')} />
         </Form.Item>
 
         <div className="flex flex-wrap justify-end gap-3 mt-5">
