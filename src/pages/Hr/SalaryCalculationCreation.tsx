@@ -564,6 +564,8 @@ const SalaryCalculationCreation: React.FC = () => {
                   onChange={value => handleInputChange('organizationId', value)}
                   listHeight={120}
                   status={errors.organizationId ? 'error' : ''}
+                  showSearch={true}
+                  notFoundContent={t('table.noData')}
                 />
                 {errors.organizationId?.message && (
                   <div className="text-xs text-errorFill mt-1">
@@ -606,6 +608,8 @@ const SalaryCalculationCreation: React.FC = () => {
                   placeholder={t('analysis.all')}
                   onChange={value => handleInputChange('hrPositionId', value)}
                   listHeight={120}
+                  showSearch={true}
+                  notFoundContent={t('table.noData')}
                 />
               </div>
             </div>

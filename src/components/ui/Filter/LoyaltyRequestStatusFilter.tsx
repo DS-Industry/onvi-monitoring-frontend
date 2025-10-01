@@ -13,8 +13,8 @@ const LoyaltyRequestStatusFilter: React.FC = () => {
 
   const handleStatusChange = (value: string) => {
     updateSearchParams(searchParams, setSearchParams, {
-      status: value === "ALL" ? undefined : value,
-      page: '1', 
+      status: value === 'ALL' ? undefined : value,
+      page: '1',
     });
   };
 
@@ -24,15 +24,25 @@ const LoyaltyRequestStatusFilter: React.FC = () => {
         {t('constants.status')}
       </label>
       <Select
-        value={currentStatus ?? "ALL"}
+        value={currentStatus ?? 'ALL'}
         onChange={handleStatusChange}
         className="w-full min-w-[150px]"
         options={[
-          { value: "ALL", label: t('constants.allStatuses') },
-          { value: LoyaltyRequestStatus.PENDING, label: t('constants.pending') },
-          { value: LoyaltyRequestStatus.APPROVED, label: t('constants.approved') },
-          { value: LoyaltyRequestStatus.REJECTED, label: t('constants.rejected') },
+          { value: 'ALL', label: t('constants.allStatuses') },
+          {
+            value: LoyaltyRequestStatus.PENDING,
+            label: t('constants.pending'),
+          },
+          {
+            value: LoyaltyRequestStatus.APPROVED,
+            label: t('constants.approved'),
+          },
+          {
+            value: LoyaltyRequestStatus.REJECTED,
+            label: t('constants.rejected'),
+          },
         ]}
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

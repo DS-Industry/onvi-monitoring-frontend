@@ -68,9 +68,9 @@ const Timesheet: React.FC = () => {
     `get-pos-${placementId}`,
     () =>
       getPoses({ placementId: placementId })
-        .then((data) => data?.sort((a, b) => a.id - b.id) || [])
-        .then((data) => {
-          const options = data.map((item) => ({
+        .then(data => data?.sort((a, b) => a.id - b.id) || [])
+        .then(data => {
+          const options = data.map(item => ({
             label: item.name,
             value: item.id,
           }));
@@ -81,7 +81,7 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -101,7 +101,7 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -115,7 +115,7 @@ const Timesheet: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -124,8 +124,7 @@ const Timesheet: React.FC = () => {
   const handleSelectSlot = useCallback(() => {
     if (posId) {
       setOpenSlot(true);
-    }
-    else {
+    } else {
       message.error(t('validation.posRequired'));
       return;
     }
@@ -138,8 +137,7 @@ const Timesheet: React.FC = () => {
   const handleCreateEvent = () => {
     if (posId) {
       setOpenSlot(true);
-    }
-    else {
+    } else {
       message.error(t('validation.posRequired'));
     }
   };
@@ -157,9 +155,10 @@ const Timesheet: React.FC = () => {
 
       return {
         id: shift.props.id,
-        title: `${employees.find(emp => emp.props.id === shift.props.workerId)?.props
-          ?.name || t("tables.unknownWorker")
-          }`,
+        title: `${
+          employees.find(emp => emp.props.id === shift.props.workerId)?.props
+            ?.name || t('tables.unknownWorker')
+        }`,
         start: startDate,
         end: endDate,
         resource: {
@@ -193,7 +192,7 @@ const Timesheet: React.FC = () => {
           </span>
         </div>
       </div>
-      <div className='mb-5'>
+      <div className="mb-5">
         <div className={`flex flex-col`}>
           <label className="text-sm text-text02">{t('analysis.posId')}</label>
           <Select
@@ -203,10 +202,12 @@ const Timesheet: React.FC = () => {
             value={posId}
             onChange={value => {
               updateSearchParams(searchParams, setSearchParams, {
-                posId: value
+                posId: value,
               });
             }}
             loading={isPosLoading}
+            showSearch={true}
+            notFoundContent={t('table.noData')}
           />
         </div>
       </div>
@@ -230,8 +231,9 @@ const Timesheet: React.FC = () => {
           }}
         />
         <div
-          className={`${isLoadingShifts ? 'pointer-events-none opacity-30' : ''
-            }`}
+          className={`${
+            isLoadingShifts ? 'pointer-events-none opacity-30' : ''
+          }`}
         >
           <Calendar
             localizer={localize}

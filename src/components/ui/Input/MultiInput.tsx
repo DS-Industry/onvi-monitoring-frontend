@@ -142,6 +142,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
           name: opt.name,
           color: opt.color,
         }))}
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

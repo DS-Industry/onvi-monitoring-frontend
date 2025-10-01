@@ -38,7 +38,7 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
   error = false,
   helperText,
   renderOption,
-  showSearch = false,
+  showSearch = true,
 }) => {
   const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);

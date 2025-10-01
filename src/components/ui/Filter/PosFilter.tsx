@@ -60,7 +60,7 @@ const PosFilter: React.FC = () => {
             .toLowerCase()
             .includes(input.toLowerCase())
         }
-        notFoundContent={isLoading ? <Spin size="small" /> : null}
+        notFoundContent={isLoading ? <Spin size="small" /> : t('table.noData')}
       />
     </div>
   );

@@ -59,6 +59,7 @@ const DeviceFilter: React.FC = () => {
           label: item.name,
           value: item.value,
         }))}
+        notFoundContent={t('table.noData')}
       />
     </div>
   );

@@ -218,6 +218,7 @@ const ListOfEmployees: React.FC = () => {
                   roleId: value,
                 });
               }}
+              notFoundContent={t('table.noData')}
             />
           </div>
           <div>
@@ -243,6 +244,7 @@ const ListOfEmployees: React.FC = () => {
                   status: value,
                 });
               }}
+              notFoundContent={t('table.noData')}
             />
           </div>
         </GeneralFilters>

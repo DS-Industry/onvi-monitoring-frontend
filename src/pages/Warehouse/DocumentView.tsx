@@ -268,7 +268,6 @@ const DocumentView: React.FC = () => {
                   value={document?.document.props.warehouseId}
                   options={warehouses}
                   classname="w-48 sm:w-80"
-                  onChange={() => {}}
                   isDisabled={true}
                 />
               </div>

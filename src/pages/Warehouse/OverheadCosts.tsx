@@ -65,7 +65,7 @@ const OverheadCosts: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const { data: warehouseData } = useSWR(
@@ -79,7 +79,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -161,7 +161,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -184,7 +184,7 @@ const OverheadCosts: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -271,6 +271,7 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
+            notFoundContent={t('table.noData')}
           />
         </div>
         <div>
@@ -298,6 +299,7 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
+            notFoundContent={t('table.noData')}
           />
         </div>
         <div>
@@ -325,6 +327,7 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
+            notFoundContent={t('table.noData')}
           />
         </div>
       </GeneralFilters>
