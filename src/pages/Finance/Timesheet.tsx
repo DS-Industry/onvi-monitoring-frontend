@@ -208,6 +208,12 @@ const Timesheet: React.FC = () => {
             loading={isPosLoading}
             showSearch={true}
             notFoundContent={t('table.noData')}
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
       </div>

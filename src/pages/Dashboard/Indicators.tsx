@@ -533,6 +533,12 @@ const Indicators: React.FC = () => {
                     listHeight={120}
                     showSearch={true}
                     notFoundContent={t('table.noData')}
+                    filterOption={(input, option) =>
+                      (option?.label ?? '')
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
                   />
                 </div>
                 {durations.map(duration => (

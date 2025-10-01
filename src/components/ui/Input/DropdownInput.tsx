@@ -113,6 +113,12 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
           showSearch={showSearch}
           notFoundContent={t('table.noData')}
           listHeight={120}
+          filterOption={(input, option) =>
+            (option?.label ?? '')
+              .toString()
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
         >
           {options.map(opt => (
             <Select.Option key={opt.value} value={opt.value} label={opt.name}>

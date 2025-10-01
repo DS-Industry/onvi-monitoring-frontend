@@ -121,6 +121,12 @@ const PosConnection: React.FC = () => {
             onChange={setWorkerId}
             showSearch={true}
             notFoundContent={t('table.noData')}
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <Button
