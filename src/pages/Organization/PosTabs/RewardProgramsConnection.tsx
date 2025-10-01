@@ -3,7 +3,11 @@ import { Button, Select, Spin, Transfer } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
 import useSWR, { mutate } from 'swr';
-import { getLoyaltyProgramPermissionById, getLoyaltyProgramPermissionByOrgId, loyaltyProgramsConnection } from '@/services/api/marketing';
+import {
+  getLoyaltyProgramPermissionById,
+  getLoyaltyProgramPermissionByOrgId,
+  loyaltyProgramsConnection,
+} from '@/services/api/marketing';
 import { getWorkers } from '@/services/api/equipment';
 import { useTranslation } from 'react-i18next';
 import useSWRMutation from 'swr/mutation';
@@ -18,14 +22,18 @@ const RewardProgramsConnection: React.FC = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   const { data: rewardsPermissionData = [] } = useSWR(
-    user.organizationId ?['get-loyalty-permission', user.organizationId] : null,
+    user.organizationId
+      ? ['get-loyalty-permission', user.organizationId]
+      : null,
     () =>
-      getLoyaltyProgramPermissionByOrgId({ organizationId: String(user.organizationId) }),
+      getLoyaltyProgramPermissionByOrgId({
+        organizationId: String(user.organizationId),
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -36,7 +44,7 @@ const RewardProgramsConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -47,7 +55,7 @@ const RewardProgramsConnection: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -82,7 +90,9 @@ const RewardProgramsConnection: React.FC = () => {
   const { trigger: connectLoyalty, isMutating } = useSWRMutation(
     ['connect-loyalty'],
     async () =>
-      loyaltyProgramsConnection(workerId, { loyaltyProgramIds: targetKeys.map(Number) })
+      loyaltyProgramsConnection(workerId, {
+        loyaltyProgramIds: targetKeys.map(Number),
+      })
   );
 
   const handleConnection = async () => {
@@ -107,7 +117,7 @@ const RewardProgramsConnection: React.FC = () => {
   }
 
   return (
-   <div className="space-y-4">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-2 sm:items-center">
         <div>
           <div className="text-text02 text-sm">{t('equipment.user')}</div>
@@ -118,6 +128,12 @@ const RewardProgramsConnection: React.FC = () => {
             onChange={setWorkerId}
             showSearch={true}
             notFoundContent={t('table.noData')}
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
           />
         </div>
         <Button
@@ -142,16 +158,16 @@ const RewardProgramsConnection: React.FC = () => {
         rowKey={item => item.key}
         style={{ margin: '24px 0' }}
         locale={{
-          itemUnit: t('transfer.item'), 
-          itemsUnit: t('transfer.items'), 
-          notFoundContent: t('transfer.notFound'), 
-          searchPlaceholder: t('transfer.search'), 
-          remove: t('transfer.remove'), 
-          selectAll: t('transfer.selectAll'), 
-          selectCurrent: t('transfer.selectCurrent'), 
-          selectInvert: t('transfer.selectInvert'), 
-          removeAll: t('transfer.removeAll'), 
-          removeCurrent: t('transfer.removeCurrent'), 
+          itemUnit: t('transfer.item'),
+          itemsUnit: t('transfer.items'),
+          notFoundContent: t('transfer.notFound'),
+          searchPlaceholder: t('transfer.search'),
+          remove: t('transfer.remove'),
+          selectAll: t('transfer.selectAll'),
+          selectCurrent: t('transfer.selectCurrent'),
+          selectInvert: t('transfer.selectInvert'),
+          removeAll: t('transfer.removeAll'),
+          removeCurrent: t('transfer.removeCurrent'),
         }}
       />
     </div>

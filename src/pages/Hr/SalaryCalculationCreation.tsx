@@ -98,7 +98,6 @@ const SalaryCalculationCreation: React.FC = () => {
     }
   );
 
-
   const defaultValues: PrepaymentCalculateBody = {
     organizationId: 0,
     billingMonth: '',
@@ -106,12 +105,16 @@ const SalaryCalculationCreation: React.FC = () => {
 
   const [formData, setFormData] = useState(defaultValues);
 
-  const { data: workersData } = useSWR(formData?.organizationId ? [`get-workers`, formData.organizationId] : null, () => getWorkers({ organizationId: formData.organizationId }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
+  const { data: workersData } = useSWR(
+    formData?.organizationId ? [`get-workers`, formData.organizationId] : null,
+    () => getWorkers({ organizationId: formData.organizationId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
 
   const organizations = [
     { name: t('chemical.select'), value: 0 },
@@ -567,6 +570,12 @@ const SalaryCalculationCreation: React.FC = () => {
                   status={errors.organizationId ? 'error' : ''}
                   showSearch={true}
                   notFoundContent={t('table.noData')}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
                 {errors.organizationId?.message && (
                   <div className="text-xs text-errorFill mt-1">
@@ -611,6 +620,12 @@ const SalaryCalculationCreation: React.FC = () => {
                   listHeight={120}
                   showSearch={true}
                   notFoundContent={t('table.noData')}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
               </div>
             </div>

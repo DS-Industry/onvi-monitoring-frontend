@@ -556,6 +556,12 @@ const EquipmentFailure: React.FC = () => {
                 status={errors.posId ? 'error' : ''}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -593,6 +599,12 @@ const EquipmentFailure: React.FC = () => {
                 status={errors.workerId ? 'error' : ''}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -689,6 +701,12 @@ const EquipmentFailure: React.FC = () => {
                 status={errors.objectName ? 'error' : ''}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -713,6 +731,12 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -737,6 +761,12 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -761,6 +791,12 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -785,6 +821,12 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>
@@ -850,6 +892,12 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 showSearch={true}
                 notFoundContent={t('table.noData')}
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               />
             </Form.Item>
           </div>

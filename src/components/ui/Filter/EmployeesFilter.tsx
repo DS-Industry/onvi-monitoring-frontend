@@ -39,7 +39,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const cities: { name: string; value: number | string }[] =
@@ -120,6 +120,12 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                       }))}
                       showSearch={true}
                       notFoundContent={t('table.noData')}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '')
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                     />
                   </div>
 
@@ -140,6 +146,12 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                       }))}
                       showSearch={true}
                       notFoundContent={t('table.noData')}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '')
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                     />
                   </div>
 
@@ -147,7 +159,11 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                     <Text>{t('warehouse.organization')}</Text>
                     <Select
                       className="w-full"
-                      value={getParam(searchParams, 'organizationId', String(user.organizationId))}
+                      value={getParam(
+                        searchParams,
+                        'organizationId',
+                        String(user.organizationId)
+                      )}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           organizationId: val,
@@ -160,6 +176,12 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                       }))}
                       showSearch={true}
                       notFoundContent={t('table.noData')}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '')
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                     />
                   </div>
 

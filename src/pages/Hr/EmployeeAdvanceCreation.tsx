@@ -480,6 +480,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   status={errors.organizationId ? 'error' : ''}
                   showSearch={true}
                   notFoundContent={t('table.noData')}
+                  filterOption={(input, option) =>
+          (option?.label ?? '')
+            .toString()
+            .toLowerCase()
+            .includes(input.toLowerCase())
+        }
                 />
                 {errors.organizationId?.message && (
                   <div className="text-xs text-errorFill mt-1">
@@ -524,6 +530,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   listHeight={120}
                   showSearch={true}
                   notFoundContent={t('table.noData')}
+                  filterOption={(input, option) =>
+          (option?.label ?? '')
+            .toString()
+            .toLowerCase()
+            .includes(input.toLowerCase())
+        }
                 />
               </div>
             </div>
