@@ -1206,7 +1206,11 @@
     "noAdvance": "There are no more employees to calculate the advance payment during the specified period.",
     "noSalary": "There are no more employees to calculate salaries during the specified period.",
     "registrationAddress": "Registration Address",
-    "enterRegistrationAddress": "Enter the registration address"
+    "enterRegistrationAddress": "Enter the registration address",
+    "poses": "Connected Points",
+    "connectedPoses": "Connected Point of Sales",
+    "selectPoses": "Select Point of Sales",
+    "currentlyConnected": "Currently Connected"
   },
   "notifications": {
     "fav": "Favorite",
