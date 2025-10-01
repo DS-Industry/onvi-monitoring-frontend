@@ -73,6 +73,13 @@ const EmployeeAdvanceCreation: React.FC = () => {
 
   const screens = Grid.useBreakpoint();
 
+  const defaultValues: PrepaymentCalculateBody = {
+    organizationId: 0,
+    billingMonth: '',
+  };
+
+  const [formData, setFormData] = useState(defaultValues);
+
   const { data: organizationData } = useSWR(
     [`get-organization`],
     () => getOrganization({ placementId: city }),
@@ -95,7 +102,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({}), {
+  const { data: workersData } = useSWR(formData?.organizationId ? [`get-workers`, formData.organizationId] : null, () => getWorkers({ organizationId: formData.organizationId }), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
@@ -124,13 +131,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
       name: pos.props.name,
     })) || []),
   ];
-
-  const defaultValues: PrepaymentCalculateBody = {
-    organizationId: 0,
-    billingMonth: '',
-  };
-
-  const [formData, setFormData] = useState(defaultValues);
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
