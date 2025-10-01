@@ -133,7 +133,7 @@ const MultiInput: React.FC<MultiInputProps> = ({
           (option?.label as string).toLowerCase().includes(input.toLowerCase())
         }
         optionLabelProp="label"
-        dropdownRender={renderDropdown}
+        popupRender={renderDropdown}
         tagRender={renderTag}
         optionRender={renderOption}
         options={options.map(opt => ({
