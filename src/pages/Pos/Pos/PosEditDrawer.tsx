@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { createCarWash, deleteCarWash, getPosById, PosRequestBody, updateCarWash } from '@/services/api/pos';
+import {
+  createCarWash,
+  deleteCarWash,
+  getPosById,
+  PosRequestBody,
+  updateCarWash,
+} from '@/services/api/pos';
 import useSWR, { mutate } from 'swr';
 import { useToast } from '@/components/context/useContext';
 import { Organization } from '@/services/api/organization';
@@ -56,12 +62,11 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
 
-  const {
-    data: posData
-  } = useSWR(id ? [`get-pos-by-id`, id] : null, () =>
-    getPosById(id!),
+  const { data: posData } = useSWR(
+    id ? [`get-pos-by-id`, id] : null,
+    () => getPosById(id!),
     {
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -81,9 +86,9 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
         minSumOrder: posData.props.minSumOrder,
         maxSumOrder: posData.props.maxSumOrder,
         stepSumOrder: posData.props.stepSumOrder,
-      })
+      });
     }
-  }, [posData])
+  }, [posData]);
 
   const { trigger: createPos, isMutating } = useSWRMutation(
     [`create-pos`],
@@ -138,17 +143,16 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
     field: keyof typeof defaultValues,
     value: string | number | null
   ) => {
-    const numericFields = [
-      'stepSumOrder',
-      'minSumOrder',
-      'maxSumOrder',
-    ];
+    const numericFields = ['stepSumOrder', 'minSumOrder', 'maxSumOrder'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
   };
 
-  const handleTimeChange = (field: 'startTime' | 'endTime', time: Dayjs | null) => {
+  const handleTimeChange = (
+    field: 'startTime' | 'endTime',
+    time: Dayjs | null
+  ) => {
     const timeString = time ? time.format('HH:mm') : '';
     setFormData(prev => ({ ...prev, [field]: timeString }));
     setValue(field, timeString);
@@ -214,7 +218,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
   };
 
   return (
-    <Drawer open={isOpen} width={620} title={t('pos.creating')} onClose={resetForm}>
+    <Drawer
+      open={isOpen}
+      width={620}
+      title={t('pos.creating')}
+      onClose={resetForm}
+    >
       {notificationVisible && organizations.length === 0 && (
         <Notification
           title={t('organizations.legalEntity')}
@@ -250,7 +259,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             >
               <Input
                 placeholder={t('pos.example')}
-                className="w-80 sm:w-96"
+                className="w-full sm:w-96"
                 {...register('name', {
                   required: id === null && t('validation.nameRequired'),
                 })}
@@ -271,7 +280,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             >
               <Input
                 placeholder={t('pos.address')}
-                className="w-80 sm:w-96"
+                className="w-full sm:w-96"
                 {...register('city', {
                   required: id === null && t('validation.cityRequired'),
                 })}
@@ -292,7 +301,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             >
               <Input
                 placeholder={t('pos.country')}
-                className="w-80 sm:w-96"
+                className="w-full sm:w-96"
                 {...register('location', {
                   required: id === null && t('validation.locationRequired'),
                 })}
@@ -332,7 +341,9 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             <div className="flex space-x-4">
               <div className="flex-1">
                 <div className="flex mb-1">
-                  <label className="text-xs text-text02">{t('shift.startTime')}</label>
+                  <label className="text-xs text-text02">
+                    {t('shift.startTime')}
+                  </label>
                   <span className="text-errorFill">*</span>
                 </div>
                 <Form.Item
@@ -346,8 +357,12 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
                     {...register('startTime', {
                       required: id === null && t('shift.startTimeRequired'),
                     })}
-                    value={formData.startTime ? dayjs(formData.startTime, 'HH:mm') : null}
-                    onChange={(time) => handleTimeChange('startTime', time)}
+                    value={
+                      formData.startTime
+                        ? dayjs(formData.startTime, 'HH:mm')
+                        : null
+                    }
+                    onChange={time => handleTimeChange('startTime', time)}
                     status={errors.startTime ? 'error' : ''}
                   />
                 </Form.Item>
@@ -355,7 +370,9 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
 
               <div className="flex-1">
                 <div className="flex mb-1">
-                  <label className="text-xs text-text02">{t('shift.endTime')}</label>
+                  <label className="text-xs text-text02">
+                    {t('shift.endTime')}
+                  </label>
                   <span className="text-errorFill">*</span>
                 </div>
                 <Form.Item
@@ -369,8 +386,10 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
                     {...register('endTime', {
                       required: id === null && t('shift.endTimeRequired'),
                     })}
-                    value={formData.endTime ? dayjs(formData.endTime, 'HH:mm') : null}
-                    onChange={(time) => handleTimeChange('endTime', time)}
+                    value={
+                      formData.endTime ? dayjs(formData.endTime, 'HH:mm') : null
+                    }
+                    onChange={time => handleTimeChange('endTime', time)}
                     status={errors.endTime ? 'error' : ''}
                   />
                 </Form.Item>
@@ -423,7 +442,8 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
                 ]}
                 className="w-80 sm:max-w-96"
                 {...register('carWashPosType', {
-                  required: id === null && t('validation.carWashPosTypeRequired'),
+                  required:
+                    id === null && t('validation.carWashPosTypeRequired'),
                 })}
                 value={formData.carWashPosType}
                 onChange={value => handleInputChange('carWashPosType', value)}
@@ -513,7 +533,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
               beforeUpload={() => false}
               onChange={handleFileChange}
               maxCount={1}
-              className="w-full upload-full-width"
+              className="w-full sm:w-96 upload-full-width"
             >
               {selectedFile ? null : (
                 <div className="text-text02 w-full">
@@ -524,6 +544,23 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
             </Upload>
           </div>
         </div>
+        <style>
+          {`
+    .upload-full-width .ant-upload.ant-upload-select {
+        width: 100% !important;
+        height: auto;
+    }
+    
+    .upload-full-width .ant-upload-list {
+        width: 100%;
+    }
+    
+    .upload-full-width .ant-upload-list-picture-card .ant-upload-list-item {
+        width: 100%;
+        height: auto;
+    }
+`}
+        </style>
         <div className="flex flex-col sm:flex-row gap-4 mt-6">
           <Button onClick={() => resetForm()}>
             {t('organizations.cancel')}
@@ -538,7 +575,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
           <Button
             htmlType="submit"
             loading={id ? isUpdatingPos : isMutating}
-            type='primary'
+            type="primary"
           >
             {t('organizations.save')}
           </Button>
