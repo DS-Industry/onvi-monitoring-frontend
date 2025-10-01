@@ -136,6 +136,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
       <CreateReturnModal
         open={isModalOpenReturn}
         shiftId={shiftId!}
+        posId={posId!}
         onSuccess={handleFormSuccess}
         onCancel={handleFormCancel}
       />

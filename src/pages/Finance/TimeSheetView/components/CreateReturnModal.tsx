@@ -1,8 +1,8 @@
 import React from 'react';
-import { Form, Input, DatePicker, Button, message, Modal } from 'antd';
+import { Form, Input, DatePicker, Button, message, Modal, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWRMutation from 'swr/mutation';
-import { mutate } from 'swr';
+import useSWR, { mutate } from 'swr';
 import dayjs from 'dayjs';
 
 // services
@@ -11,9 +11,12 @@ import {
   CreateCashOperBody,
   TypeWorkDayShiftReportCashOper,
 } from '@/services/api/finance';
+import { getDevices } from '@/services/api/equipment';
+import TextArea from 'antd/es/input/TextArea';
 
 interface CreateReturnModalProps {
   shiftId: number;
+  posId: number;
   onSuccess: () => void;
   onCancel: () => void;
   open: boolean;
@@ -21,12 +24,30 @@ interface CreateReturnModalProps {
 
 const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   shiftId,
+  posId,
   onSuccess,
   onCancel,
   open,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+
+  const { data: deviceData } = useSWR(
+    posId ? [`get-device-${posId}`] : null,
+    () => getDevices(posId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false
+    }
+  );
+
+  const devices =
+    deviceData?.map(item => ({
+      label: item.props.name,
+      value: item.props.id,
+    })) || [];
 
   const { trigger: createCash, isMutating: loadingCash } = useSWRMutation(
     ['create-cash-oper'],
@@ -35,7 +56,7 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
       const payload: CreateCashOperBody = {
         type: TypeWorkDayShiftReportCashOper.REFUND,
         sum: Number(values.sum),
-        carWashDeviceId: undefined,
+        carWashDeviceId: values.carWashDeviceId,
         eventData: values.eventData
           ? dayjs(values.eventData).toDate()
           : undefined,
@@ -87,12 +108,34 @@ const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
           <Input type="number" />
         </Form.Item>
 
-        <Form.Item label={t('finance.date')} name="eventData">
-          <DatePicker showTime className="w-full" format="YYYY-MM-DDTHH:mm" />
+        <Form.Item
+          label={t('equipment.device')}
+          name="carWashDeviceId"
+          rules={[{ required: true, message: t('validation.deviceRequired') }]}
+        >
+          <Select
+            placeholder={
+              devices.length ? t('warehouse.notSel') : t('warehouse.noVal')
+            }
+            options={devices}
+            allowClear
+          />
         </Form.Item>
 
-        <Form.Item label={t('equipment.comment')} name="comment">
-          <Input.TextArea rows={4} />
+        <Form.Item
+          label={t('finance.date')}
+          name="eventData"
+          rules={[{ required: true, message: t('validation.dateRequired') }]}
+        >
+          <DatePicker showTime format="YYYY-MM-DDTHH:mm" className="w-full" />
+        </Form.Item>
+
+        <Form.Item
+          label={t('equipment.comment')}
+          name="comment"
+          rules={[{ required: true, message: t('validation.commentRequired') }]}
+        >
+          <TextArea rows={4} />
         </Form.Item>
 
         <div className="flex flex-wrap justify-end gap-3 mt-5">
