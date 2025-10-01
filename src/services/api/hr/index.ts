@@ -425,3 +425,47 @@ export async function addWorkerPayment(
   );
   return response.data;
 }
+
+export type WorkerPosConnectionRequest = {
+  workerId: number;
+  posIds: number[];
+};
+
+export type WorkerPosConnectionResponse = {
+  status: 'SUCCESS';
+};
+
+export type WorkerPosResponse = {
+  poses: {
+    id: number;
+    name: string;
+    slug: string;
+    organizationId: number;
+    status: string;
+    address: {
+      id: number;
+      city: string;
+      location: string;
+    };
+  }[];
+  totalCount: number;
+};
+
+export async function updateWorkerPosConnections(
+  body: WorkerPosConnectionRequest
+): Promise<WorkerPosConnectionResponse> {
+  const response: AxiosResponse<WorkerPosConnectionResponse> = await api.patch(
+    'user/hr/worker/pos-connection',
+    body
+  );
+  return response.data;
+}
+
+export async function getWorkerConnectedPoses(
+  workerId: number
+): Promise<WorkerPosResponse> {
+  const response: AxiosResponse<WorkerPosResponse> = await api.get(
+    `user/hr/worker/${workerId}/poses`
+  );
+  return response.data;
+}

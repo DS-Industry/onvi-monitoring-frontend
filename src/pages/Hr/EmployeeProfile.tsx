@@ -18,7 +18,11 @@ import {
   StatusHrWorker,
   updateWorker,
   UpdateWorkerRequest,
+  updateWorkerPosConnections,
+  getWorkerConnectedPoses,
 } from '@/services/api/hr';
+import { getPoses } from '@/services/api/equipment';
+import { useUser } from '@/hooks/useUserStore';
 import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
@@ -45,9 +49,11 @@ const EmployeeProfile: React.FC = () => {
   const [searchEmp, setSearchEmp] = useState('');
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
+  const user = useUser();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedPosIds, setSelectedPosIds] = useState<number[]>([]);
   const { showToast } = useToast();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,9 +109,33 @@ const EmployeeProfile: React.FC = () => {
 
   const employee = employeeData?.props;
 
+
+
   const { data: workersData, isLoading: loadingWorkers } = useSWR(
-    [`get-workers`, employee?.avatar],
-    () => getWorkers({}),
+    user.organizationId ? [`get-workers`, employee?.avatar, user.organizationId] : null,
+    () => getWorkers({ organizationId: user.organizationId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: organizationPoses, isLoading: loadingOrganizationPoses } = useSWR(
+    user.organizationId ? [`get-organization-poses`, user.organizationId] : null,
+    () => getPoses({ organizationId: user.organizationId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: connectedPosesData, isLoading: loadingConnectedPoses } = useSWR(
+    workerId !== 0 ? [`get-worker-connected-poses`, workerId] : null,
+    () => getWorkerConnectedPoses(workerId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -131,6 +161,7 @@ const EmployeeProfile: React.FC = () => {
     { id: 'info', name: t('hr.info') },
     { id: 'addi', name: t('hr.addi') },
     { id: 'salary', name: t('hr.salary') },
+    { id: 'poses', name: t('hr.poses') },
   ];
 
   const defaultValues: UpdateWorkerRequest = {
@@ -162,6 +193,12 @@ const EmployeeProfile: React.FC = () => {
       setImagePreview(`${VITE_S3_CLOUD}/avatar/worker/` + employee.avatar);
     } else setImagePreview(null);
   }, [employee?.avatar]);
+
+  useEffect(() => {
+    if (connectedPosesData?.poses) {
+      setSelectedPosIds(connectedPosesData.poses.map(pos => pos.id));
+    }
+  }, [connectedPosesData]);
 
   const scheduleValues = {
     sch: 0,
@@ -261,6 +298,15 @@ const EmployeeProfile: React.FC = () => {
       )
   );
 
+  const { trigger: updatePosConnections, isMutating: updatingPosConnections } = useSWRMutation(
+    ['update-worker-pos-connections'],
+    async () =>
+      updateWorkerPosConnections({
+        workerId: workerId,
+        posIds: selectedPosIds,
+      })
+  );
+
   type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
@@ -304,6 +350,20 @@ const EmployeeProfile: React.FC = () => {
       const result = await updateEmp();
       if (result) {
         mutate([`get-employee-by-id`, workerId]);
+        showToast(t('success.recordUpdated'), 'success');
+      } else {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
+    } catch (error) {
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
+
+  const onUpdatePosConnections = async () => {
+    try {
+      const result = await updatePosConnections();
+      if (result) {
+        mutate([`get-worker-connected-poses`, workerId]);
         showToast(t('success.recordUpdated'), 'success');
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
@@ -735,6 +795,70 @@ const EmployeeProfile: React.FC = () => {
                           <div className="text-text02 text-xl">%</div>
                         }
                       />
+                    </div>
+                  )}
+                  {activeTab === 'poses' && (
+                    <div className="space-y-4">
+                      <div className="text-lg font-semibold text-text01 mb-4">
+                        {t('hr.connectedPoses')}
+                      </div>
+                      {loadingOrganizationPoses || loadingConnectedPoses ? (
+                        <div className="mt-4">{DoubleSkeleton()}</div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div>
+                            <div className="text-sm text-text02 mb-2">
+                              {t('hr.selectPoses')}
+                            </div>
+                            <Select
+                              mode="multiple"
+                              placeholder={t('hr.selectPoses')}
+                              className="w-full max-w-md"
+                              value={selectedPosIds}
+                              onChange={setSelectedPosIds}
+                              options={organizationPoses?.map(pos => ({
+                                label: `${pos.name} - ${pos.address}`,
+                                value: pos.id,
+                              })) || []}
+                              loading={loadingOrganizationPoses}
+                            />
+                          </div>
+                          <div className="mt-4">
+                            <Button
+                              type="primary"
+                              onClick={onUpdatePosConnections}
+                              loading={updatingPosConnections}
+                              className="btn-primary"
+                            >
+                              {t('routes.save')}
+                            </Button>
+                          </div>
+                          {connectedPosesData?.poses && connectedPosesData.poses.length > 0 && (
+                            <div className="mt-6">
+                              <div className="text-sm text-text02 mb-2">
+                                {t('hr.currentlyConnected')}
+                              </div>
+                              <div className="space-y-2">
+                                {connectedPosesData.poses.map(pos => (
+                                  <div
+                                    key={pos.id}
+                                    className="flex items-center justify-between p-3 bg-background05 rounded-lg"
+                                  >
+                                    <div>
+                                      <div className="font-medium text-text01">
+                                        {pos.name}
+                                      </div>
+                                      <div className="text-sm text-text02">
+                                        {pos.address.city}, {pos.address.location}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                   {activeTab === 'sch' && (

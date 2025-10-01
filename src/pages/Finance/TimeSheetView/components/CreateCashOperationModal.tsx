@@ -79,7 +79,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
           name="sum"
           rules={[{ required: true, message: t('validation.sumRequired') }]}
         >
-          <Input type="number" />
+          <Input type="number" placeholder={t('finance.sum')} />
         </Form.Item>
 
 
@@ -88,7 +88,12 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
           name="eventData"
           rules={[{ required: true, message: t('validation.dateRequired') }]}
         >
-          <DatePicker showTime format="YYYY-MM-DDTHH:mm" className="w-full" />
+          <DatePicker 
+            showTime 
+            format="YYYY-MM-DDTHH:mm" 
+            className="w-full" 
+            placeholder={t('finance.date')}
+          />
         </Form.Item>
 
         <Form.Item
@@ -96,7 +101,7 @@ const CreateCashOperationModal: React.FC<CreateCashOperationModalProps> = ({
           name="comment"
           rules={[{ required: true, message: t('validation.commentRequired') }]}
         >
-          <TextArea rows={4} />
+          <TextArea rows={4} placeholder={t('equipment.comment')} />
         </Form.Item>
 
         <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 mt-6">
