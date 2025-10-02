@@ -492,6 +492,8 @@ type ManagersPeriodResponse = {
   totalCount: number;
 };
 
+export type ManagerPeriods = ManagersPeriodResponse['managerReportPeriods'][0];
+
 type ManagerPeriodIdResponse = {
   id: number;
   status: ManagerReportPeriodStatus;
@@ -624,8 +626,8 @@ export async function getCollectionById(
 
 export async function deleteCollectionById(
   id: number
-): Promise<{ status: string}> {
-  const response: AxiosResponse<{ status: string}> = await api.delete(
+): Promise<{ status: string }> {
+  const response: AxiosResponse<{ status: string }> = await api.delete(
     FINANCE.POST_CASH_COLLECTION + `/${id}`
   );
   return response.data;

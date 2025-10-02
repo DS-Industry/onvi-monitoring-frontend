@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Table, Button, Space } from 'antd';
-import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { getPoses } from '@/services/api/equipment';
 import {
   getManagerPeriodById,
+  ManagerReportPeriodStatus,
   returnManagerPaperPeriod,
   sendManagerPaperPeriod,
 } from '@/services/api/finance';
@@ -19,34 +19,8 @@ import {
   CheckOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
-import { ManagerReportPeriodStatus } from './MonthlyExpanse';
 import { groups } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
-
-type ExpenseItem = {
-  id: number;
-  deviceId: number;
-  group: string;
-  posName: string;
-  paperTypeId: number;
-  paperTypeName: string;
-  paperTypeType: string;
-  eventDate: Date;
-  sum: number;
-  imageProductReceipt?: string;
-};
-
-type PeriodItem = {
-  id: number;
-  deviceId: number;
-  title: string;
-  status: string;
-  startPeriod: Date;
-  endPeriod: Date;
-  sumStartPeriod: number;
-  sumEndPeriod: number;
-  shortage: number;
-};
 
 const MonthlyExpanseEdit: React.FC = () => {
   const { t } = useTranslation();
@@ -102,7 +76,7 @@ const MonthlyExpanseEdit: React.FC = () => {
     if (!managerPeriodData)
       return { periodData: [], expenseData: [] };
 
-    const period: PeriodItem[] = [
+    const period = [
       {
         id: managerPeriodData.id,
         deviceId: managerPeriodData.id,
@@ -116,7 +90,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       },
     ];
 
-    const expenses: ExpenseItem[] = managerPeriodData.managerPaper?.map(item => ({
+    const expenses = managerPeriodData.managerPaper?.map(item => ({
       id: item.paperTypeId,
       deviceId: managerPeriodData.id,
       group: groups.find(g => g.value === item.group)?.name || item.group,
@@ -178,7 +152,7 @@ const MonthlyExpanseEdit: React.FC = () => {
     { name: t('tables.SENT'), value: ManagerReportPeriodStatus.SENT },
   ];
 
-  const periodColumns: ColumnsType<PeriodItem> = [
+  const periodColumns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
     {
       title: t('Статус'),
@@ -222,7 +196,7 @@ const MonthlyExpanseEdit: React.FC = () => {
     },
   ];
 
-  const expenseColumns: ColumnsType<ExpenseItem> = [
+  const expenseColumns = [
     {
       title: t('Группа'),
       dataIndex: 'group',
@@ -254,7 +228,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       title: t('Сумма'),
       dataIndex: 'sum',
       key: 'sum',
-      render: (value, record) => {
+      render: (value: string, record: { paperTypeType: string; }) => {
         const formattedCurrency = TableUtils.createCurrencyFormat(formatNumber(Number(value)));
         if (record.paperTypeType === t('finance.RECEIPT')) {
           return <div className="text-successFill">+{formattedCurrency}</div>;

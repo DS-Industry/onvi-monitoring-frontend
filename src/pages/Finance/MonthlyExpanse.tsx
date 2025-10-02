@@ -15,6 +15,8 @@ import {
   createManagerPaperPeriod,
   deleteManagerPaperPeriod,
   getAllManagerPeriods,
+  ManagerPeriods,
+  ManagerReportPeriodStatus,
   updateManagerPaperPeriod,
 } from '@/services/api/finance';
 
@@ -22,7 +24,6 @@ import TableUtils from '@/utils/TableUtils.tsx';
 import Table from 'antd/es/table';
 import Select from 'antd/es/select';
 import Space from 'antd/es/space';
-import Menu from 'antd/es/menu';
 import Dropdown from 'antd/es/dropdown';
 import Modal from 'antd/es/modal';
 import InputNumber from 'antd/es/input-number';
@@ -32,7 +33,7 @@ import DatePicker from 'antd/es/date-picker';
 import Tag from 'antd/es/tag';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
-import { Drawer, Button as AntButton, Button } from 'antd';
+import { Drawer, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import {
@@ -41,29 +42,16 @@ import {
   ALL_PAGE_SIZES,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import hasPermission from '@/permissions/hasPermission';
 
 const { Option } = Select;
-
-export enum ManagerReportPeriodStatus {
-  SAVE = 'SAVE',
-  SENT = 'SENT',
-}
-interface DataRecord {
-  id: number;
-  period: string;
-  sumStartPeriod: number;
-  sumEndPeriod: number;
-  shortage: number;
-  userId: number;
-  status: ManagerReportPeriodStatus;
-}
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: string;
   inputType: 'number' | 'text' | 'select' | 'period';
-  record: DataRecord;
+  record: ManagerPeriods;
   index: number;
   selectOptions?: Array<{ name: string; value: string | number }>;
   children: React.ReactNode;
@@ -235,10 +223,10 @@ const MonthlyExpanse: React.FC = () => {
 
   const [editingKey, setEditingKey] = useState<string>('');
 
-  const isEditing = (record: DataRecord): boolean =>
+  const isEditing = (record: ManagerPeriods): boolean =>
     record.id.toString() === editingKey;
 
-  const edit = (record: DataRecord): void => {
+  const edit = (record: ManagerPeriods): void => {
     const [startStr, endStr] = record.period.split(' - ');
     const startDate = dayjs(startStr, 'DD.MM.YYYY');
     const endDate = dayjs(endStr, 'DD.MM.YYYY');
@@ -328,11 +316,21 @@ const MonthlyExpanse: React.FC = () => {
     });
   };
 
-  const columnsExpanse: ColumnsType<DataRecord> = [
+  const canEdit = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'create', subject: 'ManagerPaper' },
+  ]);
+
+  const canDelete = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'delete', subject: 'ManagerPaper' },
+  ]);
+
+  const columnsExpanse: ColumnsType<ManagerPeriods> = [
     {
       title: 'ID',
       dataIndex: 'id',
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'text',
         dataIndex: 'id',
@@ -343,7 +341,7 @@ const MonthlyExpanse: React.FC = () => {
     {
       title: 'Период',
       dataIndex: 'period',
-      render: (_: string, record: DataRecord) => {
+      render: (_: string, record: ManagerPeriods) => {
         const [startStr, endStr] = record.period.split(' - ');
         const start = dayjs(startStr, 'DD.MM.YYYY').format('DD.MM.YYYY');
         const end = dayjs(endStr, 'DD.MM.YYYY').format('DD.MM.YYYY');
@@ -361,7 +359,7 @@ const MonthlyExpanse: React.FC = () => {
           </div>
         );
       },
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'period',
         dataIndex: 'period',
@@ -372,7 +370,7 @@ const MonthlyExpanse: React.FC = () => {
     {
       title: 'Входная сумма',
       dataIndex: 'sumStartPeriod',
-      render: (text: number, record: DataRecord) => {
+      render: (text: number, record: ManagerPeriods) => {
         if (!isEditing(record)) {
           return (
             <div className="text-text01">
@@ -382,7 +380,7 @@ const MonthlyExpanse: React.FC = () => {
         }
         return text;
       },
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'number',
         dataIndex: 'sumStartPeriod',
@@ -393,7 +391,7 @@ const MonthlyExpanse: React.FC = () => {
     {
       title: 'Выходная сумма',
       dataIndex: 'sumEndPeriod',
-      render: (text: number, record: DataRecord) => {
+      render: (text: number, record: ManagerPeriods) => {
         if (!isEditing(record)) {
           return (
             <div className="text-text01">
@@ -403,7 +401,7 @@ const MonthlyExpanse: React.FC = () => {
         }
         return text;
       },
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'number',
         dataIndex: 'sumEndPeriod',
@@ -431,7 +429,7 @@ const MonthlyExpanse: React.FC = () => {
           </div>
         );
       },
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'number',
         dataIndex: 'shortage',
@@ -446,7 +444,7 @@ const MonthlyExpanse: React.FC = () => {
         const worker = workers.find(worker => worker.value === text);
         return worker ? worker.name : text;
       },
-      onCell: (record: DataRecord) => ({
+      onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'text',
         dataIndex: 'userId',
@@ -454,10 +452,13 @@ const MonthlyExpanse: React.FC = () => {
         editing: false,
       }),
     },
-    {
+  ];
+
+  if (canEdit || canDelete) {
+    columnsExpanse.push({
       title: 'Действия',
       dataIndex: 'actions',
-      render: (_: unknown, record: DataRecord) => {
+      render: (_: unknown, record: ManagerPeriods) => {
         const editable = isEditing(record);
 
         if (editable) {
@@ -476,13 +477,6 @@ const MonthlyExpanse: React.FC = () => {
           );
         }
 
-        const canEdit = userPermissions.some(
-          perm => perm.action === 'create' && perm.subject === 'ManagerPaper'
-        );
-        const canDelete = userPermissions.some(
-          perm => perm.action === 'delete' && perm.subject === 'ManagerPaper'
-        );
-
         const menuItems = [];
         if (canEdit) {
           menuItems.push({ key: 'edit', label: 'Редактировать' });
@@ -495,15 +489,13 @@ const MonthlyExpanse: React.FC = () => {
 
         return (
           <Dropdown
-            overlay={
-              <Menu
-                onClick={({ key }) => {
-                  if (key === 'edit') edit(record);
-                  else if (key === 'delete') handleDelete(record.id);
-                }}
-                items={menuItems}
-              />
-            }
+            menu={{
+              items: menuItems,
+              onClick: ({ key }) => {
+                if (key === 'edit') edit(record);
+                else if (key === 'delete') handleDelete(record.id);
+              },
+            }}
             trigger={['click']}
           >
             <div className="cursor-pointer text-primary02">
@@ -512,8 +504,8 @@ const MonthlyExpanse: React.FC = () => {
           </Dropdown>
         );
       },
-    },
-  ];
+    });
+  }
 
   const memoizedColumns = columnsExpanse.map(col => {
     if (!col.onCell) {
@@ -521,7 +513,7 @@ const MonthlyExpanse: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: DataRecord) => col.onCell!(record),
+      onCell: (record: ManagerPeriods) => col.onCell!(record),
     };
   });
 
@@ -530,12 +522,7 @@ const MonthlyExpanse: React.FC = () => {
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
 
-  type FieldType =
-    | 'startPeriod'
-    | 'endPeriod'
-    | 'userId'
-    | 'sumStartPeriod'
-    | 'sumEndPeriod';
+  type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: Date | number) => {
     const numericFields = ['sumStartPeriod', 'sumEndPeriod', 'userId'];
@@ -572,6 +559,11 @@ const MonthlyExpanse: React.FC = () => {
     }
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'update', subject: 'ManagerPaper' },
+  ]);
+
   return (
     <div>
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
@@ -580,13 +572,15 @@ const MonthlyExpanse: React.FC = () => {
             {t('routes.reportFor')}
           </span>
         </div>
-        <AntButton
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => setDrawerOpen(true)}
-        >
-          <span className="hidden sm:flex">{t('routes.add')}</span>
-        </AntButton>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <span className="hidden sm:flex">{t('routes.add')}</span>
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">
@@ -717,7 +711,11 @@ const MonthlyExpanse: React.FC = () => {
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}
             </Button>
-            <Button htmlType="submit" loading={loadingManagerPaper} type="primary">
+            <Button
+              htmlType="submit"
+              loading={loadingManagerPaper}
+              type="primary"
+            >
               {t('organizations.save')}
             </Button>
           </div>
