@@ -115,10 +115,10 @@ const App: React.FC = () => {
                     </Can>
                   }
                 />
-              );
+              ); 
             })}
 
-            {/* Sub Navigation Routes */}
+            {/* Sub Navigation Routes      */}
             {routes.map(
               route =>
                 route.subNav &&
