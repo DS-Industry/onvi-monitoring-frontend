@@ -49,19 +49,35 @@ const App: React.FC = () => {
   );
 
   useEffect(() => {
-    function handleChunkError(e: ErrorEvent) {
-      if (/Loading chunk [\d]+ failed/.test(e.message)) {
+    function errorHandler(e: ErrorEvent | PromiseRejectionEvent) {
+      if (
+        'message' in e &&
+        typeof e.message === 'string' &&
+        (e.message.includes('Failed to fetch dynamically imported module') ||
+          e.message.includes('Loading chunk'))
+      ) {
+        window.location.reload();
+      }
+      if (
+        'reason' in e &&
+        e.reason &&
+        typeof e.reason.message === 'string' &&
+        (e.reason.message.includes(
+          'Failed to fetch dynamically imported module'
+        ) ||
+          e.reason.message.includes('Loading chunk'))
+      ) {
         window.location.reload();
       }
     }
-
-    window.addEventListener("error", handleChunkError);
+    window.addEventListener('error', errorHandler);
+    window.addEventListener('unhandledrejection', errorHandler);
 
     return () => {
-      window.removeEventListener("error", handleChunkError);
+      window.removeEventListener('error', errorHandler);
+      window.removeEventListener('unhandledrejection', errorHandler);
     };
   }, []);
-
 
   useEffect(() => {
     const getTokenAndUpdate = async () => {
