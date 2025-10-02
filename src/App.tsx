@@ -16,6 +16,10 @@ const PrivateRoute = React.lazy(() => import('@/routes/PrivateRoute'));
 import useSWRMutation from 'swr/mutation';
 import { updateUserProfile } from './services/api/platform';
 const DashboardLayout = React.lazy(() => import('@/layout/DashboardLayout'));
+import { ConfigProvider } from 'antd';
+import ruRU from 'antd/es/locale/ru_RU';
+import enUS from 'antd/es/locale/en_US';
+import { useTranslation } from 'react-i18next';
 
 type ErrorFallbackProps = {
   error: Error;
@@ -32,6 +36,9 @@ function ErrorFallback({ resetError, error }: ErrorFallbackProps) {
 }
 
 const App: React.FC = () => {
+  const { i18n } = useTranslation();
+
+  const antdLocale = i18n.language.startsWith('ru') ? ruRU : enUS;
   const userPermissions = useAuthStore(state => state.permissions);
 
   useFirebaseMessaging();
@@ -49,7 +56,6 @@ const App: React.FC = () => {
       )
   );
 
-
   useEffect(() => {
     const getTokenAndUpdate = async () => {
       if (!isAuthenticated) return; // Skip if not authenticated
@@ -66,115 +72,81 @@ const App: React.FC = () => {
 
     getTokenAndUpdate();
   }, [updateUser, isAuthenticated]);
-  
 
   return (
     <ChunkErrorBoundary>
       <ErrorBoundary fallback={ErrorFallback}>
-        <BrowserRouter basename={'/'}>
-        <Routes>
-          {/* Public Routes */}
-          <Route element={<PublicRoute element={<PublicLayout />} />}>
-            {routes.map(
-              route =>
-                route.isPublicRoute && (
-                  <Route
-                    key={route.path}
-                    path={route.path}
-                    element={<route.component />}
-                  />
-                )
-            )}
-          </Route>
-          {/* Private Routes */}
-          <Route element={<PrivateRoute element={<DashboardLayout />} />}>
-            {routes.map(route => {
-              return (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={
-                    <Can
-                      requiredPermissions={route.permissions || []}
-                      userPermissions={userPermissions}
-                    >
-                      {allowed => {
-                        if (!allowed) {
-                          datadogLogs.logger.warn('Permission denied', {
-                            route: route.path,
-                            userPermissions,
-                            required: route.permissions,
-                          });
-                        }
-                        return allowed ? (
-                          <route.component />
-                        ) : (
-                          <Navigate to="/" replace />
-                        );
-                      }}
-                    </Can>
-                  }
-                />
-              );
-            })}
-
-            {/* Sub Navigation Routes */}
-            {routes.map(
-              route =>
-                route.subNav &&
-                route.subNav.map(subRoute => (
-                  <Route
-                    key={subRoute.path}
-                    path={subRoute.path}
-                    element={
-                      <Can
-                        requiredPermissions={subRoute.permissions || []}
-                        userPermissions={userPermissions}
-                      >
-                        {allowed => {
-                          if (!allowed) {
-                            datadogLogs.logger.warn('Permission denied', {
-                              route: subRoute.path,
-                              userPermissions,
-                              required: subRoute.permissions,
-                            });
-                          }
-                          return allowed ? (
-                            <subRoute.component />
-                          ) : (
-                            <Navigate to="/" replace />
-                          );
-                        }}
-                      </Can>
-                    }
-                  />
-                ))
-            )}
-            {routes.map(
-              route =>
-                route.subNav &&
-                route.subNav.map(
-                  subRoute =>
-                    subRoute.subNav &&
-                    subRoute.subNav.map(subSubRoute => (
+        <ConfigProvider locale={antdLocale}>
+          <BrowserRouter basename={'/'}>
+            <Routes>
+              {/* Public Routes */}
+              <Route element={<PublicRoute element={<PublicLayout />} />}>
+                {routes.map(
+                  route =>
+                    route.isPublicRoute && (
                       <Route
-                        key={subSubRoute.path}
-                        path={subSubRoute.path}
+                        key={route.path}
+                        path={route.path}
+                        element={<route.component />}
+                      />
+                    )
+                )}
+              </Route>
+              {/* Private Routes */}
+              <Route element={<PrivateRoute element={<DashboardLayout />} />}>
+                {routes.map(route => {
+                  return (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={
+                        <Can
+                          requiredPermissions={route.permissions || []}
+                          userPermissions={userPermissions}
+                        >
+                          {allowed => {
+                            if (!allowed) {
+                              datadogLogs.logger.warn('Permission denied', {
+                                route: route.path,
+                                userPermissions,
+                                required: route.permissions,
+                              });
+                            }
+                            return allowed ? (
+                              <route.component />
+                            ) : (
+                              <Navigate to="/" replace />
+                            );
+                          }}
+                        </Can>
+                      }
+                    />
+                  );
+                })}
+
+                {/* Sub Navigation Routes */}
+                {routes.map(
+                  route =>
+                    route.subNav &&
+                    route.subNav.map(subRoute => (
+                      <Route
+                        key={subRoute.path}
+                        path={subRoute.path}
                         element={
                           <Can
-                            requiredPermissions={subSubRoute.permissions || []}
+                            requiredPermissions={subRoute.permissions || []}
                             userPermissions={userPermissions}
                           >
                             {allowed => {
                               if (!allowed) {
                                 datadogLogs.logger.warn('Permission denied', {
-                                  route: subSubRoute.path,
+                                  route: subRoute.path,
                                   userPermissions,
-                                  required: subSubRoute.permissions,
+                                  required: subRoute.permissions,
                                 });
                               }
                               return allowed ? (
-                                <subSubRoute.component />
+                                <subRoute.component />
                               ) : (
                                 <Navigate to="/" replace />
                               );
@@ -183,24 +155,64 @@ const App: React.FC = () => {
                         }
                       />
                     ))
-                )
-            )}
-          </Route>
+                )}
+                {routes.map(
+                  route =>
+                    route.subNav &&
+                    route.subNav.map(
+                      subRoute =>
+                        subRoute.subNav &&
+                        subRoute.subNav.map(subSubRoute => (
+                          <Route
+                            key={subSubRoute.path}
+                            path={subSubRoute.path}
+                            element={
+                              <Can
+                                requiredPermissions={
+                                  subSubRoute.permissions || []
+                                }
+                                userPermissions={userPermissions}
+                              >
+                                {allowed => {
+                                  if (!allowed) {
+                                    datadogLogs.logger.warn(
+                                      'Permission denied',
+                                      {
+                                        route: subSubRoute.path,
+                                        userPermissions,
+                                        required: subSubRoute.permissions,
+                                      }
+                                    );
+                                  }
+                                  return allowed ? (
+                                    <subSubRoute.component />
+                                  ) : (
+                                    <Navigate to="/" replace />
+                                  );
+                                }}
+                              </Can>
+                            }
+                          />
+                        ))
+                    )
+                )}
+              </Route>
 
-          {/* Fallback route */}
-          <Route
-            path="*"
-            element={
-              <>
-                {datadogLogs.logger.warn('Invalid route accessed', {
-                  pathname: window.location.hash,
-                })}
-                <Navigate to="/login" replace />
-              </>
-            }
-          />
-        </Routes>
-        </BrowserRouter>
+              {/* Fallback route */}
+              <Route
+                path="*"
+                element={
+                  <>
+                    {datadogLogs.logger.warn('Invalid route accessed', {
+                      pathname: window.location.hash,
+                    })}
+                    <Navigate to="/login" replace />
+                  </>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </ConfigProvider>
       </ErrorBoundary>
     </ChunkErrorBoundary>
   );

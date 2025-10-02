@@ -559,7 +559,7 @@ const MonthlyExpanse: React.FC = () => {
     }
   };
 
-  const allowed = hasPermission(userPermissions, [
+  const canUpdate = hasPermission(userPermissions, [
     { action: 'manage', subject: 'ManagerPaper' },
     { action: 'update', subject: 'ManagerPaper' },
   ]);
@@ -572,7 +572,7 @@ const MonthlyExpanse: React.FC = () => {
             {t('routes.reportFor')}
           </span>
         </div>
-        {allowed && (
+        {canUpdate && (
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"

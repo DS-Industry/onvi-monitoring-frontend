@@ -13,7 +13,12 @@ import {
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useToast } from '@/components/context/useContext';
-import { formatNumber, getCurrencyRender, getDateRender, getStatusTagRender } from '@/utils/tableUnits';
+import {
+  formatNumber,
+  getCurrencyRender,
+  getDateRender,
+  getStatusTagRender,
+} from '@/utils/tableUnits';
 import {
   ArrowLeftOutlined,
   CheckOutlined,
@@ -21,6 +26,21 @@ import {
 } from '@ant-design/icons';
 import { groups } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
+import { ColumnsType } from 'antd/es/table';
+import { Key } from 'antd/es/table/interface';
+
+type ExpenseItem = {
+  id: number;
+  deviceId: number;
+  group: string;
+  posName: string;
+  paperTypeId: number;
+  paperTypeName: string;
+  paperTypeType: string;
+  eventDate: Date;
+  sum: number;
+  imageProductReceipt?: string;
+};
 
 const MonthlyExpanseEdit: React.FC = () => {
   const { t } = useTranslation();
@@ -43,7 +63,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -60,21 +80,18 @@ const MonthlyExpanseEdit: React.FC = () => {
     isLoading: periodsLoading,
     isValidating: periodsValidating,
   } = useSWR(
-    ownerId
-      ? [`get-manager-period`, ownerId]
-      : null,
+    ownerId ? [`get-manager-period`, ownerId] : null,
     () => getManagerPeriodById(ownerId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const { periodData, expenseData } = useMemo(() => {
-    if (!managerPeriodData)
-      return { periodData: [], expenseData: [] };
+    if (!managerPeriodData) return { periodData: [], expenseData: [] };
 
     const period = [
       {
@@ -90,18 +107,20 @@ const MonthlyExpanseEdit: React.FC = () => {
       },
     ];
 
-    const expenses = managerPeriodData.managerPaper?.map(item => ({
-      id: item.paperTypeId,
-      deviceId: managerPeriodData.id,
-      group: groups.find(g => g.value === item.group)?.name || item.group,
-      posName: poses.find(pos => pos.value === item.posId)?.name || 'Не указано',
-      paperTypeId: item.paperTypeId,
-      paperTypeName: item.paperTypeName,
-      paperTypeType: t(`finance.${item.paperTypeType}`),
-      eventDate: new Date(item.eventDate),
-      sum: item.sum,
-      imageProductReceipt: item.imageProductReceipt || undefined,
-    })) || [];
+    const expenses =
+      managerPeriodData.managerPaper?.map(item => ({
+        id: item.paperTypeId,
+        deviceId: managerPeriodData.id,
+        group: groups.find(g => g.value === item.group)?.name || item.group,
+        posName:
+          poses.find(pos => pos.value === item.posId)?.name || 'Не указано',
+        paperTypeId: item.paperTypeId,
+        paperTypeName: item.paperTypeName,
+        paperTypeType: t(`finance.${item.paperTypeType}`),
+        eventDate: new Date(item.eventDate),
+        sum: item.sum,
+        imageProductReceipt: item.imageProductReceipt || undefined,
+      })) || [];
 
     return {
       periodData: period,
@@ -164,72 +183,87 @@ const MonthlyExpanseEdit: React.FC = () => {
         );
         return statusOption ? tagRender(statusOption.name) : text;
       },
-    }, {
+    },
+    {
       title: t('Начало периода'),
       dataIndex: 'startPeriod',
       key: 'startPeriod',
-      render: dateRender
+      render: dateRender,
     },
     {
       title: t('Конец периода'),
       dataIndex: 'endPeriod',
       key: 'endPeriod',
-      render: dateRender
+      render: dateRender,
     },
     {
       title: t('Сумма на начало периода'),
       dataIndex: 'sumStartPeriod',
       key: 'sumStartPeriod',
-      render: currencyRender
+      render: currencyRender,
     },
     {
       title: t('Сумма на конец периода'),
       dataIndex: 'sumEndPeriod',
       key: 'sumEndPeriod',
-      render: currencyRender
+      render: currencyRender,
     },
     {
       title: t('Недостача'),
       dataIndex: 'shortage',
       key: 'shortage',
-      render: currencyRender
+      render: currencyRender,
     },
   ];
 
-  const expenseColumns = [
+  const expenseColumns: ColumnsType<ExpenseItem> = [
     {
       title: t('Группа'),
       dataIndex: 'group',
-      key: 'group'
+      key: 'group',
+      filters: groups.map(g => ({ text: g.name, value: g.name })),
+      onFilter: (value: boolean | Key, record: ExpenseItem) =>
+        record.group === value,
     },
     {
       title: t('Автомойка/филиал'),
       dataIndex: 'posName',
-      key: 'posName'
+      key: 'posName',
+      filters: poses.map(p => ({ text: p.name, value: p.name })),
+      onFilter: (value: boolean | Key, record: ExpenseItem) =>
+        record.posName === value,
     },
     {
       title: t('Статья'),
       dataIndex: 'paperTypeName',
-      key: 'paperTypeName'
+      key: 'paperTypeName',
     },
     {
       title: t('Тип статьи'),
       dataIndex: 'paperTypeType',
       key: 'paperTypeType',
-      render: tagRender
+      render: tagRender,
+      filters: [
+        { name: t('finance.RECEIPT') },
+        { name: t('finance.EXPENDITURE') },
+      ].map(p => ({ text: p.name, value: p.name })),
+      onFilter: (value: boolean | Key, record: ExpenseItem) =>
+        record.paperTypeType === value,
     },
     {
       title: t('Дата'),
       dataIndex: 'eventDate',
       key: 'eventDate',
-      render: dateRender
+      render: dateRender,
     },
     {
       title: t('Сумма'),
       dataIndex: 'sum',
       key: 'sum',
-      render: (value: string, record: { paperTypeType: string; }) => {
-        const formattedCurrency = TableUtils.createCurrencyFormat(formatNumber(Number(value)));
+      render: (value: string, record: { paperTypeType: string }) => {
+        const formattedCurrency = TableUtils.createCurrencyFormat(
+          formatNumber(Number(value))
+        );
         if (record.paperTypeType === t('finance.RECEIPT')) {
           return <div className="text-successFill">+{formattedCurrency}</div>;
         } else if (record.paperTypeType === t('finance.EXPENDITURE')) {
@@ -329,7 +363,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                   item => item.deviceId === record.id
                 );
                 return hasExpenses;
-              }
+              },
             }}
             pagination={false}
             scroll={{ x: 'max-content' }}
