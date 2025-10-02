@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { datadogLogs } from '@datadog/browser-logs';
 import { useFirebaseMessaging } from './hooks/useFirebaseMessaging';
 import { requestFirebaseNotificationPermission } from './utils/requestPermission';
+import ChunkErrorBoundary from './components/ChunkErrorBoundary';
 const PublicLayout = React.lazy(() => import('./layout/PublicLayout'));
 const PublicRoute = React.lazy(() => import('@/routes/PublicRoute'));
 const PrivateRoute = React.lazy(() => import('@/routes/PrivateRoute'));
@@ -48,20 +49,6 @@ const App: React.FC = () => {
       )
   );
 
-  useEffect(() => {
-    function handleChunkError(e: ErrorEvent) {
-      if (/Loading chunk [\d]+ failed/.test(e.message)) {
-        window.location.reload();
-      }
-    }
-
-    window.addEventListener("error", handleChunkError);
-
-    return () => {
-      window.removeEventListener("error", handleChunkError);
-    };
-  }, []);
-
 
   useEffect(() => {
     const getTokenAndUpdate = async () => {
@@ -79,10 +66,12 @@ const App: React.FC = () => {
 
     getTokenAndUpdate();
   }, [updateUser, isAuthenticated]);
+  
 
   return (
-    <ErrorBoundary fallback={ErrorFallback}>
-      <BrowserRouter basename={'/'}>
+    <ChunkErrorBoundary>
+      <ErrorBoundary fallback={ErrorFallback}>
+        <BrowserRouter basename={'/'}>
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicRoute element={<PublicLayout />} />}>
@@ -211,8 +200,9 @@ const App: React.FC = () => {
             }
           />
         </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </ChunkErrorBoundary>
   );
 };
 
