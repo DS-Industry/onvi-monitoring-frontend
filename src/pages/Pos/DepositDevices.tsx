@@ -30,6 +30,7 @@ import {
 } from '@/utils/constants';
 import { useTranslation } from 'react-i18next';
 
+// Deposit Devices component
 const DepositDevices: React.FC = () => {
   const location = useLocation();
   const { t } = useTranslation();
