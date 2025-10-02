@@ -422,15 +422,6 @@ export async function getNomenclature(
   return response.data;
 }
 
-export async function getNomenclatureSale(
-  orgId: number,
-): Promise<NOMENCLATURE_RESPONSE[]> {
-const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
-    WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`,
-);
-return response.data;
-}
-
 export async function getNomenclatureCount(
   orgId: number,
   params?: NomenclatureParams
@@ -438,6 +429,15 @@ export async function getNomenclatureCount(
   const response: AxiosResponse<{ count: number }> = await api.get(
     `user/warehouse/nomenclature-count/${orgId}`,
     { params }
+  );
+  return response.data;
+}
+
+export async function getNomenclatureSale(
+  orgId: number
+): Promise<NOMENCLATURE_RESPONSE[]> {
+  const response: AxiosResponse<NOMENCLATURE_RESPONSE[]> = await api.get(
+    WAREHOUSE.GET_NOMENCLATURE_SALE + `/${orgId}`
   );
   return response.data;
 }

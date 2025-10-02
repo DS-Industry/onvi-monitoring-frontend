@@ -31,6 +31,7 @@ import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
+// Deposit Device component
 const DepositDevice: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
