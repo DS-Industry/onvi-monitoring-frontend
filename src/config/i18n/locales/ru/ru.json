@@ -815,6 +815,7 @@
     "updateFailed": "Ошибка обновления данных",
     "fetchFailed": "Ошибка получения данных",
     "other": {
+      "errorDeletingPeriod": "Ошибка при удалении периода",
       "registerError": "Ошибка регистрации",
       "errorDeletingTag": "Ошибка при удалении тега",
       "errorDuringFormSubmission": "Ошибка при отправке формы",
@@ -1096,7 +1097,8 @@
     "discardChanges": "Отменить изменения",
     "title": "Вы уверены, что хотите удалить эту запись?",
     "content": "Это действие нельзя будет отменить.",
-    "okText": "Да, удалить"
+    "okText": "Да, удалить",
+    "delete": "Удалить"
   },
   "analysis": {
     "search": "Поиск",
