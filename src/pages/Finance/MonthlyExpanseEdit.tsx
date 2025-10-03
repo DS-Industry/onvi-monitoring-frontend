@@ -9,6 +9,7 @@ import {
   ManagerReportPeriodStatus,
   returnManagerPaperPeriod,
   sendManagerPaperPeriod,
+  deleteManagerPaperPeriod,
 } from '@/services/api/finance';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
@@ -23,6 +24,7 @@ import {
   ArrowLeftOutlined,
   CheckOutlined,
   UndoOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { groups } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
@@ -130,6 +132,7 @@ const MonthlyExpanseEdit: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSendPeriod = async () => {
     try {
@@ -157,9 +160,25 @@ const MonthlyExpanseEdit: React.FC = () => {
       );
       navigate(-1);
     } catch (error) {
-      showToast(t('errors.other.errorDeletingNomenclature'), 'error');
+      showToast(t('errors.other.errorDeletingPeriod'), 'error');
     } finally {
       setIsReturning(false);
+    }
+  };
+
+  const handleDeletePeriod = async () => {
+    try {
+      setIsDeleting(true);
+      await mutate(
+        [`delete-manager-period`],
+        () => deleteManagerPaperPeriod(ownerId),
+        false
+      );
+      navigate(-1);
+    } catch (error) {
+      showToast(t('errors.other.errorDeletingPeriod'), 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -333,6 +352,27 @@ const MonthlyExpanseEdit: React.FC = () => {
                     loading={isReturning}
                   >
                     {t('finance.returns')}
+                  </Button>
+                )
+              }
+            </Can>
+            <Can
+              requiredPermissions={[
+                { action: 'manage', subject: 'ManagerPaper' },
+                { action: 'delete', subject: 'ManagerPaper' },
+              ]}
+              userPermissions={userPermissions}
+            >
+              {allowed =>
+                allowed &&
+                status === 'SAVE' && (
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={handleDeletePeriod}
+                    loading={isDeleting}
+                  >
+                    {t('common.delete')}
                   </Button>
                 )
               }
