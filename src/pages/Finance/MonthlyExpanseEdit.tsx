@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Button, Space } from 'antd';
+import { Table, Button, Space, Descriptions, Divider } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { getPoses } from '@/services/api/equipment';
+import { getPoses, getWorkers } from '@/services/api/equipment';
 import {
   getManagerPeriodById,
   ManagerReportPeriodStatus,
@@ -25,11 +25,15 @@ import {
   CheckOutlined,
   UndoOutlined,
   DeleteOutlined,
+  UpOutlined,
+  DownOutlined,
 } from '@ant-design/icons';
 import { groups } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
 import { ColumnsType } from 'antd/es/table';
 import { Key } from 'antd/es/table/interface';
+import dayjs from 'dayjs';
+import { useUser } from '@/hooks/useUserStore';
 
 type ExpenseItem = {
   id: number;
@@ -57,6 +61,23 @@ const MonthlyExpanseEdit: React.FC = () => {
   const status = searchParams.get('status') as ManagerReportPeriodStatus;
 
   const tagRender = getStatusTagRender(t);
+
+  const user = useUser();
+
+  const { data: workerData } = useSWR(
+    user.organizationId ? [`get-worker`, user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false
+    }
+  );
+
+  const workerMap = workerData
+      ? new Map(workerData.map(work => [work.id, `${work.name} ${work.surname}`]))
+      : new Map();
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -133,6 +154,7 @@ const MonthlyExpanseEdit: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showData, setShowData] = useState(true);
 
   const handleSendPeriod = async () => {
     try {
@@ -311,7 +333,64 @@ const MonthlyExpanseEdit: React.FC = () => {
           </span>
         </div>
       </div>
+      <div className="flex justify-end">
+        {managerPeriodData && Object.keys(managerPeriodData).length > 0 && (
+          <Button
+            icon={showData ? <UpOutlined /> : <DownOutlined />}
+            onClick={() => setShowData(!showData)}
+          >
+            {t('finance.add')}
+          </Button>
+        )}
+      </div>
+      {showData &&
+        managerPeriodData &&
+        Object.keys(managerPeriodData).length > 0 && (
+          <>
+            <Descriptions
+              title={''}
+              column={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 3 }}
+              labelStyle={{ fontWeight: 500 }}
+              contentStyle={{
+                textAlign: 'right',
+                fontSize: '16px',
+                fontWeight: 'bold',
+              }}
+            >
+              <Descriptions.Item label={t('table.columns.user')}>
+                {workerMap.get(managerPeriodData.userId)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.periodStart')}>
+                {`${dayjs(managerPeriodData.startPeriod).format(
+                  'DD.MM.YYYY HH:mm:ss'
+                )}`}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.periodEnd')}>
+                {`${dayjs(managerPeriodData.endPeriod).format(
+                  'DD.MM.YYYY HH:mm:ss'
+                )}`}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.createdAt')}>
+                {`${dayjs(managerPeriodData.createdAt).format(
+                  'DD.MM.YYYY HH:mm:ss'
+                )}`}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.updatedAt')}>
+                {`${dayjs(managerPeriodData.updatedAt).format(
+                  'DD.MM.YYYY HH:mm:ss'
+                )}`}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.createdBy')}>
+                {workerMap.get(managerPeriodData.createdById)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('table.columns.updatedBy')}>
+                {workerMap.get(managerPeriodData.updatedById)}
+              </Descriptions.Item>
+            </Descriptions>
 
+            <Divider />
+          </>
+        )}
       <div className="mt-8">
         <div className="space-y-4">
           <Space>
@@ -395,7 +474,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                     dataSource={expensesForRecord}
                     columns={expenseColumns}
                     pagination={false}
-                    summary={(pageData) => {
+                    summary={pageData => {
                       const totalSum = pageData.reduce(
                         (acc, item) => acc + (item.sum || 0),
                         0
