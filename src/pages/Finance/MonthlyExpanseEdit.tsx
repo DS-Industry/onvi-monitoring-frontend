@@ -339,6 +339,7 @@ const MonthlyExpanseEdit: React.FC = () => {
             </Can>
           </Space>
 
+
           <Table
             rowKey="id"
             dataSource={periodData}

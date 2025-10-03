@@ -12,6 +12,7 @@ enum WAREHOUSE {
   GET_INVENTORY_ITEM = 'user/warehouse/inventory-item/inventory',
   GET_STOCK_LEVEL = 'user/warehouse/inventory-item',
   CREATE_WAREHOUSE = 'user/warehouse',
+  GET_WAREHOUSES_PAGINATED = 'user/warehouse/paginated',
 }
 
 export enum WarehouseDocumentType {
@@ -302,6 +303,14 @@ type WarehouseParams = {
   placementId?: number;
   page?: number;
   size?: number;
+  organizationId?: number;
+};
+
+type WAREHOUSES_PAGINATED_RESPONSE = {
+  data: WAREHOUSE_RESPONSE[];
+  page: number;
+  size: number;
+  total: number;
 };
 
 type GetSupplierParams = {
@@ -558,6 +567,16 @@ export async function getAllStockLevelSales(
 ): Promise<GET_STOCK_LEVEL_SALE_RESPONSE[]> {
   const response: AxiosResponse<GET_STOCK_LEVEL_SALE_RESPONSE[]> = await api.get(
       WAREHOUSE.GET_STOCK_LEVEL + `/sale/${warehouseId}`,
+  );
+  return response.data;
+}
+
+export async function getWarehousesPaginated(
+  params: WarehouseParams
+): Promise<WAREHOUSES_PAGINATED_RESPONSE> {
+  const response: AxiosResponse<WAREHOUSES_PAGINATED_RESPONSE> = await api.get(
+    WAREHOUSE.GET_WAREHOUSES_PAGINATED,
+    { params }
   );
   return response.data;
 }
