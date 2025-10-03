@@ -479,13 +479,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   listHeight={120}
                   status={errors.organizationId ? 'error' : ''}
                   showSearch={true}
-                  notFoundContent={t('table.noData')}
                   filterOption={(input, option) =>
-          (option?.label ?? '')
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
                 {errors.organizationId?.message && (
                   <div className="text-xs text-errorFill mt-1">
@@ -529,13 +528,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   onChange={value => handleInputChange('hrPositionId', value)}
                   listHeight={120}
                   showSearch={true}
-                  notFoundContent={t('table.noData')}
                   filterOption={(input, option) =>
-          (option?.label ?? '')
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
                 />
               </div>
             </div>

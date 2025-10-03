@@ -555,7 +555,6 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.posId ? 'error' : ''}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -598,7 +597,6 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.workerId ? 'error' : ''}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -700,7 +698,6 @@ const EquipmentFailure: React.FC = () => {
                 }}
                 status={errors.objectName ? 'error' : ''}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -730,7 +727,6 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('equipmentKnotId', String(value));
                 }}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -760,7 +756,6 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentNameId', String(value));
                 }}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -790,7 +785,6 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentReasonId', String(value));
                 }}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -820,7 +814,6 @@ const EquipmentFailure: React.FC = () => {
                   handleInputChange('incidentSolutionId', String(value));
                 }}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()
@@ -891,7 +884,6 @@ const EquipmentFailure: React.FC = () => {
                   );
                 }}
                 showSearch={true}
-                notFoundContent={t('table.noData')}
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toString()

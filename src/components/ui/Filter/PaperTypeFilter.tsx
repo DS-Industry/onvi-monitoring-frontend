@@ -64,7 +64,6 @@ const PaperTypeFilter: React.FC = () => {
             .toLowerCase()
             .includes(input.toLowerCase())
         }
-        notFoundContent={t('table.noData')}
       />
     </div>
   );

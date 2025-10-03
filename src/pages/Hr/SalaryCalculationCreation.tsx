@@ -569,7 +569,6 @@ const SalaryCalculationCreation: React.FC = () => {
                   listHeight={120}
                   status={errors.organizationId ? 'error' : ''}
                   showSearch={true}
-                  notFoundContent={t('table.noData')}
                   filterOption={(input, option) =>
                     (option?.label ?? '')
                       .toString()
@@ -619,7 +618,6 @@ const SalaryCalculationCreation: React.FC = () => {
                   onChange={value => handleInputChange('hrPositionId', value)}
                   listHeight={120}
                   showSearch={true}
-                  notFoundContent={t('table.noData')}
                   filterOption={(input, option) =>
                     (option?.label ?? '')
                       .toString()

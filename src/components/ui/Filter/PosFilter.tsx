@@ -2,7 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { Select, Spin } from 'antd';
+import { Select } from 'antd';
 import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
@@ -63,7 +63,6 @@ const PosFilter: React.FC = () => {
             .toLowerCase()
             .includes(input.toLowerCase())
         }
-        notFoundContent={isLoading ? <Spin size="small" /> : t('table.noData')}
       />
     </div>
   );
