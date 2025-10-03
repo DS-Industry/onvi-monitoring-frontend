@@ -5,8 +5,7 @@ import {
 } from '@/services/api/warehouse';
 import useSWR from 'swr';
 import { useTranslation } from 'react-i18next';
-import Button from '@/components/ui/Button/Button';
-import { Input, Modal, Select } from 'antd';
+import { Button, Input, Modal, Select } from 'antd';
 import { ModalTableData } from '@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx';
 
 type SaleDocumentModalProps = {
@@ -189,17 +188,15 @@ const SaleDocumentModal: React.FC<SaleDocumentModalProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
+        <Button onClick={handleCancel}>{t('organizations.cancel')}</Button>
         <Button
-          title={t('organizations.cancel')}
-          type="outline"
-          handleClick={handleCancel}
-        />
-        <Button
-          title={t('organizations.save')}
-          isLoading={isLoading}
-          handleClick={handleSubmit}
+          type="primary"
+          loading={isLoading}
+          onClick={handleSubmit}
           disabled={!canSubmit}
-        />
+        >
+          {t('organizations.save')}
+        </Button>
       </div>
     </Modal>
   );
