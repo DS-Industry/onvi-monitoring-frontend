@@ -1,8 +1,6 @@
 import React from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Select from 'antd/es/select';
-import Spin from 'antd/es/spin';
-import { useTranslation } from 'react-i18next';
 
 type Option = {
   name: string;
@@ -37,7 +35,6 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
   allowClear = false,
   loading = false,
 }) => {
-  const { t } = useTranslation();
   const formattedOptions = loading
     ? [] // Show no options when loading
     : options.map(option => ({
@@ -60,15 +57,6 @@ const SearchDropdownInput: React.FC<SearchableDropdownProps> = ({
         placeholder={placeholder}
         onChange={onChange}
         options={formattedOptions}
-        notFoundContent={
-          loading ? (
-            <div className="flex items-center justify-center">
-              <Spin size="small" />
-            </div>
-          ) : (
-            t('table.noData')
-          )
-        }
         className={`w-full sm:w-80`}
         optionFilterProp="label"
         filterOption={(input, option) => {

@@ -30,7 +30,6 @@ import InputNumber from 'antd/es/input-number';
 import Form from 'antd/es/form';
 import AntInput from 'antd/es/input';
 import DatePicker from 'antd/es/date-picker';
-import Tag from 'antd/es/tag';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { useToast } from '@/components/context/useContext';
 import { Drawer, Button } from 'antd';
@@ -43,6 +42,7 @@ import {
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
 const { Option } = Select;
 
@@ -266,26 +266,7 @@ const MonthlyExpanse: React.FC = () => {
     }
   };
 
-  const getStatusTag = (status: string) => {
-    if (
-      status === t('tables.ACTIVE') ||
-      status === t('tables.SENT') ||
-      status === t('tables.In Progress') ||
-      status === t('analysis.PROGRESS')
-    )
-      return <Tag color="green">{status}</Tag>;
-    if (
-      status === t('tables.OVERDUE') ||
-      status === t('tables.Done') ||
-      status === t('tables.FINISHED') ||
-      status === t('tables.PAUSE') ||
-      status === t('analysis.DONE')
-    )
-      return <Tag color="red">{status}</Tag>;
-    if (status === t('tables.SAVED') || status === t('tables.VERIFICATE'))
-      return <Tag color="orange">{status}</Tag>;
-    else return <Tag color="default">{status}</Tag>;
-  };
+  const getStatusTag = getStatusTagRender(t);
 
   const statusOptions: { name: string; value: ManagerReportPeriodStatus }[] = [
     { name: t('tables.SAVED'), value: ManagerReportPeriodStatus.SAVE },
@@ -296,11 +277,11 @@ const MonthlyExpanse: React.FC = () => {
 
   const handleDelete = (id: string | number) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this record?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes, delete it',
+      title: t('common.title'),
+      content: t('common.content'),
+      okText: t('common.okText'),
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: t('common.cancel'),
       async onOk() {
         try {
           await deleteManagerPaperPeriod(Number(id));
@@ -478,7 +459,7 @@ const MonthlyExpanse: React.FC = () => {
         }
 
         const menuItems = [];
-        if (canEdit) {
+        if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
           menuItems.push({ key: 'edit', label: 'Редактировать' });
         }
         if (canDelete) {

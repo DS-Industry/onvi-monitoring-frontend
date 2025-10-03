@@ -271,7 +271,6 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
-            notFoundContent={t('table.noData')}
           />
         </div>
         <div>
@@ -299,7 +298,6 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
-            notFoundContent={t('table.noData')}
           />
         </div>
         <div>
@@ -327,7 +325,6 @@ const OverheadCosts: React.FC = () => {
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
-            notFoundContent={t('table.noData')}
           />
         </div>
       </GeneralFilters>

@@ -127,7 +127,6 @@ const RewardProgramsConnection: React.FC = () => {
             value={workerId}
             onChange={setWorkerId}
             showSearch={true}
-            notFoundContent={t('table.noData')}
             filterOption={(input, option) =>
               (option?.label ?? '')
                 .toString()

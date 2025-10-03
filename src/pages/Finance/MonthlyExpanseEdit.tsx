@@ -339,7 +339,6 @@ const MonthlyExpanseEdit: React.FC = () => {
             </Can>
           </Space>
 
-
           <Table
             rowKey="id"
             dataSource={periodData}
@@ -356,6 +355,28 @@ const MonthlyExpanseEdit: React.FC = () => {
                     dataSource={expensesForRecord}
                     columns={expenseColumns}
                     pagination={false}
+                    summary={(pageData) => {
+                      const totalSum = pageData.reduce(
+                        (acc, item) => acc + (item.sum || 0),
+                        0
+                      );
+                      return (
+                        <Table.Summary fixed>
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell index={0}>
+                              <strong>{t('finance.total')}</strong>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell index={1} />
+                            <Table.Summary.Cell index={2} />
+                            <Table.Summary.Cell index={3} />
+                            <Table.Summary.Cell index={4} />
+                            <Table.Summary.Cell index={5}>
+                              <strong>{`${totalSum} ₽`}</strong>
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                        </Table.Summary>
+                      );
+                    }}
                   />
                 );
               },

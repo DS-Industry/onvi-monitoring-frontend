@@ -470,7 +470,6 @@ const DocumentsCreation: React.FC = () => {
                       value: w.value,
                       label: w.name,
                     }))}
-                    notFoundContent={t('table.noData')}
                   />
                 </div>
                 {documentType === WarehouseDocumentType.MOVING && (
@@ -495,7 +494,6 @@ const DocumentsCreation: React.FC = () => {
                         value: w.value,
                         label: w.name,
                       }))}
-                      notFoundContent={t('table.noData')}
                     />
                   </div>
                 )}

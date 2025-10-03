@@ -532,7 +532,6 @@ const Indicators: React.FC = () => {
                     onChange={setSelectedValue}
                     listHeight={120}
                     showSearch={true}
-                    notFoundContent={t('table.noData')}
                     filterOption={(input, option) =>
                       (option?.label ?? '')
                         .toString()

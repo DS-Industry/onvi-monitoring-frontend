@@ -42,7 +42,6 @@ const LoyaltyParticipantRequestStatusFilter: React.FC = () => {
             label: t('constants.rejected'),
           },
         ]}
-        notFoundContent={t('table.noData')}
       />
     </div>
   );

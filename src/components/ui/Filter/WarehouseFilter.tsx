@@ -55,7 +55,6 @@ const WarehouseFilter: React.FC = () => {
           value: item.value,
         }))}
         showSearch={true}
-        notFoundContent={t('table.noData')}
         filterOption={(input, option) =>
           (option?.label ?? '')
             .toString()
