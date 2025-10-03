@@ -20,13 +20,11 @@ const CityFilter: React.FC<CityFilterProps> = ({
     shouldRetryOnError: false,
   });
 
-  const cities = [
-    { label: t('warehouse.all'), value: '' },
-    ...(cityData?.map(item => ({
+  const cities =
+    cityData?.map(item => ({
       label: item.region,
       value: String(item.id),
-    })) || []),
-  ];
+    })) || [];
 
   const handleChange = (value: string | undefined) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -42,9 +40,10 @@ const CityFilter: React.FC<CityFilterProps> = ({
       </label>
       <Select
         showSearch
-        allowClear={false}
+        allowClear={true}
         className={className}
-        value={getParam(searchParams, 'city', '')}
+        placeholder={t('filters.city.placeholder')}
+        value={getParam(searchParams, 'city')}
         onChange={handleChange}
         options={cities}
         optionFilterProp="label"

@@ -17,7 +17,7 @@ export const updateSearchParams = (
 export const getParam = (
   searchParams: URLSearchParams,
   key: string,
-  fallback: string = ''
-): string => {
+  fallback: string | undefined = undefined
+): string | undefined => {
   return searchParams.get(key) || fallback;
 };

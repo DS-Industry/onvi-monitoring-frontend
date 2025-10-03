@@ -6,23 +6,28 @@ import { Select, Spin } from 'antd';
 import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
-import {useUser} from "@/hooks/useUserStore.ts";
+import { useUser } from '@/hooks/useUserStore.ts';
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const placementId = Number(searchParams.get("city")) || undefined;
+  const placementId = Number(searchParams.get('city')) || undefined;
   const user = useUser();
 
-  const { data: posData, isLoading } = useSWR([`get-pos`, placementId, user.organizationId], () => getPoses({
-    placementId: placementId,
-    organizationId: user.organizationId!
-  }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false
-  });
+  const { data: posData, isLoading } = useSWR(
+    [`get-pos`, placementId, user.organizationId],
+    () =>
+      getPoses({
+        placementId: placementId,
+        organizationId: user.organizationId!,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
 
   const handleChange = (val: string) => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -31,13 +36,11 @@ const PosFilter: React.FC = () => {
     });
   };
 
-  const poses = [
-    { label: t('warehouse.all'), value: '' },
-    ...(posData?.map(item => ({
+  const poses =
+    posData?.map(item => ({
       label: item.name,
       value: String(item.id),
-    })) || []),
-  ];
+    })) || [];
 
   return (
     <div className="w-full sm:w-80">
@@ -46,7 +49,7 @@ const PosFilter: React.FC = () => {
       </label>
       <Select
         showSearch
-        allowClear={false}
+        allowClear={true}
         placeholder={t('filters.pos.placeholder')}
         value={getParam(searchParams, 'posId')}
         onChange={handleChange}
