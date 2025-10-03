@@ -462,7 +462,7 @@ const MonthlyExpanse: React.FC = () => {
         if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
           menuItems.push({ key: 'edit', label: 'Редактировать' });
         }
-        if (canDelete) {
+        if (canDelete && record.status !== ManagerReportPeriodStatus.SENT) {
           menuItems.push({ key: 'delete', label: 'Удалить', danger: true });
         }
 

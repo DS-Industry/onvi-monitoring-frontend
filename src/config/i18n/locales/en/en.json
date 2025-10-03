@@ -1375,7 +1375,12 @@
       "createdAt": "Created Date",
       "updatedAt": "Updated Date",
       "owner": "Owner",
-      "actions": "Actions"
+      "actions": "Actions",
+      "user": "User",
+      "periodStart": "Start Period",
+      "periodEnd": "End Period",
+      "updatedBy": "Updated by",
+      "createdBy": "Created by"
     }
   },
   "deposit": {
