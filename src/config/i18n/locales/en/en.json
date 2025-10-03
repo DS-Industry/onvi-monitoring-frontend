@@ -815,7 +815,7 @@
     "updateFailed": "Update failed",
     "fetchFailed": "Failed to fetch data",
     "other": {
-      "errorDeletingPeriod": "Ошибка при удалении периода",
+      "errorDeletingPeriod": "Error deleting period",
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
       "errorDuringFormSubmission": "Error during form submission",
