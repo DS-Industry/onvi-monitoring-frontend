@@ -156,9 +156,9 @@ const EmployeeAdvance: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: 'Процент',
-      dataIndex: 'percentageSalary',
-      key: 'percentageSalary',
+      title: t('validation.bonusPayout'),
+      dataIndex: 'bonusPayout',
+      key: 'bonusPayout',
       render: percentRender,
     },
     {

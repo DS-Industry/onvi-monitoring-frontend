@@ -20,8 +20,7 @@ import {
 } from '@/utils/constants';
 import {
   getCurrencyRender,
-  getDateRender,
-  getPercentRender,
+  getDateRender
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
@@ -134,7 +133,6 @@ const SalaryCalculation: React.FC = () => {
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
-  const percentRender = getPercentRender();
 
   const columnsSalaryCalculation: ColumnsType<TablePayment> = [
     {
@@ -169,10 +167,9 @@ const SalaryCalculation: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: 'Процент',
-      dataIndex: 'percentageSalary',
-      key: 'percentageSalary',
-      render: percentRender,
+      title: t('validation.bonusPayout'),
+      dataIndex: 'bonusPayout',
+      key: 'bonusPayout',
     },
     {
       title: 'Количество отработанных смен',
