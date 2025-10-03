@@ -3,16 +3,15 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { getWarehouses } from '@/services/api/warehouse';
 import dayjs, { Dayjs } from 'dayjs';
-import { Card, DatePicker, InputNumber, Select, Table } from 'antd';
+import { DatePicker, InputNumber, Select, Table } from 'antd';
 import {
   getManagers,
   postSaleDocument,
   SALE_DOCUMENT_CREATE_REQUEST,
 } from '@/services/api/sale';
-import AntDButton from 'antd/es/button';
+import Button from 'antd/es/button';
 import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import SaleDocumentModal from '@/pages/Finance/SaleDocument/SaleDocumentModal.tsx';
-import Button from '@ui/Button/Button.tsx';
 import { useNavigate } from 'react-router-dom';
 
 export type ModalTableData = {
@@ -212,10 +211,10 @@ const SaleDocumentCreate: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 py-4">
+      <div className="flex flex-col md:flex-row gap-4 py-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
-            <div className="flex mt-3 text-text01 font-normal text-sm mx-2">
+            <div className="flex items-center justify-center text-text01 font-normal text-sm mx-2">
               {t('sale.date')}
             </div>
             <DatePicker
@@ -230,7 +229,7 @@ const SaleDocumentCreate: React.FC = () => {
         </div>
         <div className="flex flex-col space-y-6">
           <div className="flex space-x-2">
-            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">
+            <div className="flex items-center sm:justify-center text-text01 font-normal text-sm">
               {t('warehouse.ware')}
             </div>
             <Select
@@ -258,7 +257,7 @@ const SaleDocumentCreate: React.FC = () => {
         </div>
         {warehouseId && (
           <div className="flex space-x-2">
-            <div className="flex items-center sm:justify-center sm:w-64 text-text01 font-normal text-sm">
+            <div className="flex items-center sm:justify-center text-text01 font-normal text-sm">
               {t('sale.manager')}
             </div>
             <Select
@@ -285,20 +284,18 @@ const SaleDocumentCreate: React.FC = () => {
         )}
       </div>
 
-      <Card>
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-4 p-4">
-          <div className="flex flex-wrap gap-2">
-            <AntDButton
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={openModal}
-              disabled={!warehouseId}
-            >
-              {t('finance.addRow')}
-            </AntDButton>
-          </div>
+      <div className="flex flex-col lg:flex-row lg:justify-between gap-4 p-4">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openModal}
+            disabled={!warehouseId}
+          >
+            {t('finance.addRow')}
+          </Button>
         </div>
-      </Card>
+      </div>
 
       <Table
         dataSource={tableData}
@@ -319,20 +316,22 @@ const SaleDocumentCreate: React.FC = () => {
         existingNomenclatureIds={existingNomenclatureIds}
       />
 
-      <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
+      <div className="mt-4 flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
         <Button
-          type="outline"
-          title={t('organizations.cancel')}
-          handleClick={() => navigate('/finance/saleDocument')}
+          onClick={() => navigate('/finance/saleDocument')}
           disabled={isLoading}
-        />
+        >
+          {t('organizations.cancel')}
+        </Button>
         <Button
-          title={t('warehouse.saveAccept')}
-          form={true}
-          isLoading={isLoading}
-          handleClick={handleSaveDocument}
+          type="primary"
+          htmlType="submit"
+          loading={isLoading}
+          onClick={handleSaveDocument}
           disabled={!canSave || isLoading}
-        />
+        >
+          {t('warehouse.saveAccept')}
+        </Button>
       </div>
     </>
   );

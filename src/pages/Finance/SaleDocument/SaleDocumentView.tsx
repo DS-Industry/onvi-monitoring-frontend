@@ -92,12 +92,7 @@ const SaleDocumentView: React.FC = () => {
               <div>{t('warehouse.no')}</div>
               <div>{t('warehouse.overhead')}</div>
             </div>
-            <Input
-              type={''}
-              value={saleDocument?.name}
-              changeValue={() => {}}
-              disabled={true}
-            />
+            <Input value={saleDocument?.name} disabled={true} />
           </div>
           <div className="flex">
             <div className="flex mt-3 text-text01 font-normal text-sm mx-2">
@@ -107,7 +102,6 @@ const SaleDocumentView: React.FC = () => {
               value={
                 saleDocument?.saleDate ? dayjs(saleDocument?.saleDate) : null
               }
-              changeValue={() => {}}
               disabled={true}
             />
           </div>
@@ -131,7 +125,6 @@ const SaleDocumentView: React.FC = () => {
               value={saleDocument?.warehouseId}
               options={warehouses}
               classname="w-48 sm:w-80"
-              onChange={() => {}}
               isDisabled={true}
             />
           </div>
