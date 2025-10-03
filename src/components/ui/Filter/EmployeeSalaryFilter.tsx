@@ -221,7 +221,6 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                         value: String(item.value),
                       }))}
                       showSearch={true}
-                      notFoundContent={t('table.noData')}
                       filterOption={(input, option) =>
                         (option?.label ?? '')
                           .toString()

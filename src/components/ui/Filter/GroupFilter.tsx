@@ -38,7 +38,6 @@ const GroupFilter: React.FC = () => {
         className="w-full"
         options={groupsData}
         optionFilterProp="label"
-        notFoundContent={t('table.noData')}
       />
     </div>
   );

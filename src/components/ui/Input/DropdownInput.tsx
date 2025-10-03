@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Select from 'antd/es/select';
-import { useTranslation } from 'react-i18next';
 
 type Option = {
   name: string;
@@ -40,7 +39,6 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
   renderOption,
   showSearch = true,
 }) => {
-  const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
 
   const validOptionValues = options.map(opt => opt.value);
@@ -111,7 +109,6 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
           optionLabelProp="label"
           tagRender={isMultiSelect ? tagRender : undefined}
           showSearch={showSearch}
-          notFoundContent={t('table.noData')}
           listHeight={120}
           filterOption={(input, option) =>
             (option?.label ?? '')
