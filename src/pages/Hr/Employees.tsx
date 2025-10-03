@@ -196,7 +196,7 @@ const Employees: React.FC = () => {
     description: undefined,
     monthlySalary: '',
     dailySalary: '',
-    percentageSalary: '',
+    bonusPayout: '',
     gender: undefined,
     citizenship: undefined,
     passportSeries: undefined,
@@ -228,7 +228,7 @@ const Employees: React.FC = () => {
           description: formData.description,
           monthlySalary: String(formData.monthlySalary),
           dailySalary: String(formData.dailySalary),
-          percentageSalary: String(formData.percentageSalary),
+          bonusPayout: String(formData.bonusPayout),
           gender: formData.gender,
           citizenship: formData.citizenship,
           passportSeries: formData.passportSeries,
@@ -246,7 +246,7 @@ const Employees: React.FC = () => {
   type FieldType = keyof typeof formData;
 
   const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ['monthlySalary', 'dailySalary', 'percentageSalary'];
+    const numericFields = ['monthlySalary', 'dailySalary', 'bonusPayout'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
@@ -627,14 +627,16 @@ const Employees: React.FC = () => {
             error={!!errors.dailySalary}
           />
           <Input
-            title={`${t('marketing.per')}`}
+            title={`${t('validation.bonusPayout')}`}
             type={'number'}
             classname="w-80"
-            value={formData.percentageSalary}
+            value={formData.bonusPayout}
             showIcon={true}
-            IconComponent={<div className="text-text02 text-xl">%</div>}
+            IconComponent={
+              <div className="text-text02 text-xl">₽</div>
+            }
             changeValue={e =>
-              handleInputChange('percentageSalary', e.target.value)
+              handleInputChange('bonusPayout', e.target.value)
             }
           />
           <div className="text-text01 font-semibold text-2xl">

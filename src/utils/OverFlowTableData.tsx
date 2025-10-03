@@ -1274,8 +1274,8 @@ export const columnsEmployee = [
     type: 'currency',
   },
   {
-    label: 'Проценты',
-    key: 'percentageSalary',
+    label: 'Бонусная выплата',
+    key: 'bonusPayout',
     type: 'percent',
   },
 ];
@@ -1400,7 +1400,7 @@ export const columnsPayments = [
   },
   {
     label: 'Процент',
-    key: 'percentageSalary',
+    key: 'bonusPayout',
     type: 'percent',
   },
   {
@@ -1466,7 +1466,7 @@ export const columnsPrePayments = [
   },
   {
     label: 'Процент',
-    key: 'percentageSalary',
+    key: 'bonusPayout',
     type: 'percent',
   },
   {
@@ -1507,7 +1507,7 @@ export const columnsPaymentsCreation = [
   },
   {
     label: 'Процент',
-    key: 'percentageSalary',
+    key: 'bonusPayout',
     type: 'percent',
   },
   {
