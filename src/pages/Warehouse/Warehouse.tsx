@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
 import { getPoses, getWorkers } from '@/services/api/equipment';
-import { createWarehouse, getWarehouses } from '@/services/api/warehouse';
+import { createWarehouse, getWarehousesPaginated } from '@/services/api/warehouse';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
@@ -52,8 +52,8 @@ const Warehouse: React.FC = () => {
   );
 
   const swrKey = useMemo(() => {
-    return ['get-warehouses', filterParams.posId, filterParams.placementId];
-  }, [filterParams]);
+    return ['get-warehouses-paginated', filterParams.posId, filterParams.placementId, currentPage, pageSize];
+  }, [filterParams, currentPage, pageSize]);
 
   const { data: posData } = useSWR(
     [`get-pos`, placementId],
@@ -79,11 +79,12 @@ const Warehouse: React.FC = () => {
     }
   );
 
-  const { data: warehouseData, isLoading: warehouseLoading } = useSWR(
-    swrKey,
+  const { data: warehousePaginatedData, isLoading: warehouseLoading } = useSWR(
+    user.organizationId ? swrKey : null,
     () =>
-      getWarehouses({
+      getWarehousesPaginated({
         posId: posId,
+        organizationId: user.organizationId!,
         placementId: placementId,
         page: currentPage,
         size: pageSize,
@@ -106,11 +107,13 @@ const Warehouse: React.FC = () => {
     })) || [];
 
   const warehouses =
-    warehouseData?.map(item => ({
+    warehousePaginatedData?.data?.map(item => ({
       ...item.props,
       manager: item.props.managerName ?? '',
       posName: poses.find(pos => pos.value === item.props.posId)?.name,
     })) || [];
+
+  const totalCount = warehousePaginatedData?.total || 0;
 
   const defaultValues = {
     name: '',
@@ -227,22 +230,22 @@ const Warehouse: React.FC = () => {
         />
         <Table
           dataSource={warehouses}
-          columns={visibleColumns}
-          loading={warehouseLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: warehouses.length,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page, size) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              });
-            },
-          }}
+           columns={visibleColumns}
+           loading={warehouseLoading}
+           pagination={{
+             current: currentPage,
+             pageSize: pageSize,
+             total: totalCount,
+             pageSizeOptions: ALL_PAGE_SIZES,
+             showTotal: (total, range) =>
+               `${range[0]}-${range[1]} of ${total} items`,
+             onChange: (page, size) => {
+               updateSearchParams(searchParams, setSearchParams, {
+                 page: String(page),
+                 size: String(size),
+               });
+             },
+           }}
           scroll={{ x: 'max-content' }}
         />
       </div>
