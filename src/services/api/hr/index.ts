@@ -24,7 +24,7 @@ export type CreateWorkerRequest = {
   description?: string;
   monthlySalary: string;
   dailySalary: string;
-  percentageSalary: string;
+  bonusPayout: string;
   gender?: string;
   citizenship?: string;
   passportSeries?: string;
@@ -50,7 +50,7 @@ export type TWorker = {
     avatar?: string;
     monthlySalary: number;
     dailySalary: number;
-    percentageSalary: number;
+    bonusPayout: number;
     status: StatusHrWorker;
     gender?: string;
     citizenship?: string;
@@ -75,7 +75,7 @@ export type UpdateWorkerRequest = {
   description?: string;
   monthlySalary?: string;
   dailySalary?: string;
-  percentageSalary?: string;
+  bonusPayout?: string;
   status?: StatusHrWorker;
   gender?: string;
   citizenship?: string;
@@ -131,7 +131,7 @@ type PrepaymentCalculateResponse = {
   billingMonth: Date;
   monthlySalary: number;
   dailySalary: number;
-  percentageSalary: number;
+  bonusPayout: number;
 };
 
 export type PrepaymentCreateRequest = {
@@ -165,7 +165,7 @@ export type PrepaymentResponse = {
   paymentDate: Date;
   monthlySalary: number;
   dailySalary: number;
-  percentageSalary: number;
+  bonusPayout: number;
   countShifts: number;
   sum: number;
   createdAt: Date;
@@ -179,7 +179,7 @@ type PaymentCalculateResponse = {
   billingMonth: Date;
   monthlySalary: number;
   dailySalary: number;
-  percentageSalary: number;
+  bonusPayout: number;
   prepaymentSum: number;
   prepaymentCountShifts: number;
 };
@@ -204,7 +204,7 @@ export type PaymentsResponse = {
   paymentDate: Date;
   monthlySalary: number;
   dailySalary: number;
-  percentageSalary: number;
+  bonusPayout: number;
   countShifts: number;
   prepaymentSum: number;
   paymentSum: number;

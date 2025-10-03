@@ -172,7 +172,7 @@ const EmployeeProfile: React.FC = () => {
     description: undefined,
     monthlySalary: undefined,
     dailySalary: undefined,
-    percentageSalary: undefined,
+    bonusPayout: undefined,
     status: undefined,
     gender: undefined,
     citizenship: undefined,
@@ -237,8 +237,8 @@ const EmployeeProfile: React.FC = () => {
         dailySalary: employee.dailySalary
           ? String(employee.dailySalary)
           : undefined,
-        percentageSalary: employee.percentageSalary
-          ? String(employee.percentageSalary)
+        bonusPayout: employee.bonusPayout
+          ? String(employee.bonusPayout)
           : undefined,
         status: employee.status ? employee.status : undefined,
         inn: employee.inn ?? undefined,
@@ -279,7 +279,7 @@ const EmployeeProfile: React.FC = () => {
           description: formData.description,
           monthlySalary: formData.monthlySalary,
           dailySalary: formData.dailySalary,
-          percentageSalary: formData.percentageSalary,
+          bonusPayout: formData.bonusPayout,
           status: formData.status,
           gender: formData.gender,
           citizenship: formData.citizenship,
@@ -310,7 +310,7 @@ const EmployeeProfile: React.FC = () => {
     const numericFields = [
       'monthlySalary',
       'dailySalary',
-      'percentageSalary',
+      'bonusPayout',
       'hrPositionId',
     ];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
@@ -778,18 +778,18 @@ const EmployeeProfile: React.FC = () => {
                         }
                       />
                       <Input
-                        title={`${t('marketing.per')}`}
+                        title={`${t('validation.bonusPayout')}`}
                         type={'number'}
                         classname="w-64"
-                        value={formData.percentageSalary}
+                        value={formData.bonusPayout}
                         changeValue={e =>
-                          handleInputChange('percentageSalary', e.target.value)
+                          handleInputChange('bonusPayout', e.target.value)
                         }
-                        {...register('percentageSalary')}
+                        {...register('bonusPayout')}
                         inputType="secondary"
                         showIcon={true}
                         IconComponent={
-                          <div className="text-text02 text-xl">%</div>
+                          <div className="text-text02 text-xl">₽</div>
                         }
                       />
                     </div>

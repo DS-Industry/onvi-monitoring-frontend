@@ -38,7 +38,7 @@ import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
-import { getCurrencyRender, getPercentRender } from '@/utils/tableUnits';
+import { getCurrencyRender } from '@/utils/tableUnits';
 import ruRU from 'antd/locale/ru_RU';
 import enUS from 'antd/locale/en_US';
 
@@ -51,7 +51,7 @@ interface PaymentRecord {
   billingMonth: Date;
   monthlySalary: number;
   dailySalary: number;
-  percentageSalary: number;
+  bonusPayout: number;
   paymentDate: Date;
   countShifts: number;
   sum: number;
@@ -355,11 +355,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: getCurrencyRender(),
     },
     {
-      title: 'Процент',
-      dataIndex: 'percentageSalary',
-      key: 'percentageSalary',
-      sorter: (a, b) => a.percentageSalary - b.percentageSalary,
-      render: getPercentRender(),
+      title: t('validation.bonusPayout'),
+      dataIndex: 'bonusPayout',
+      key: 'bonusPayout',
+      sorter: (a, b) => a.bonusPayout - b.bonusPayout,
     },
     {
       title: 'Количество отработанных смен',
