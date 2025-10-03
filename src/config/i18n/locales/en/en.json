@@ -815,6 +815,7 @@
     "updateFailed": "Update failed",
     "fetchFailed": "Failed to fetch data",
     "other": {
+      "errorDeletingPeriod": "Error deleting period",
       "registerError": "Register error",
       "errorDeletingTag": "Error deleting tag",
       "errorDuringFormSubmission": "Error during form submission",
@@ -1093,7 +1094,8 @@
     "next": "Next",
     "cancel": "Cancel",
     "create": "Create",
-    "save": "Save"
+    "save": "Save",
+    "delete": "Delete"
   },
   "analysis": {
     "search": "Search",

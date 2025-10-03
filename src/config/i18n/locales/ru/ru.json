@@ -815,6 +815,7 @@
     "updateFailed": "Ошибка обновления данных",
     "fetchFailed": "Ошибка получения данных",
     "other": {
+      "errorDeletingPeriod": "Ошибка при удалении периода",
       "registerError": "Ошибка регистрации",
       "errorDeletingTag": "Ошибка при удалении тега",
       "errorDuringFormSubmission": "Ошибка при отправке формы",
@@ -1093,7 +1094,8 @@
     "cancel": "Отменить",
     "create": "Создать",
     "save": "Сохранить",
-    "discardChanges": "Отменить изменения"
+    "discardChanges": "Отменить изменения",
+    "delete": "Удалить"
   },
   "analysis": {
     "search": "Поиск",
