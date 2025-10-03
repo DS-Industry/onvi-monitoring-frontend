@@ -1375,7 +1375,12 @@
       "createdAt": "Дата создания",
       "updatedAt": "Дата обновления",
       "owner": "Владелец",
-      "actions": "Действия"
+      "actions": "Действия",
+      "user": "Пользователь",
+      "periodStart": "Период начала",
+      "periodEnd": "период конца",
+      "updatedBy": "Кем обновлено",
+      "createdBy": "Кем создано"
     }
   },
   "deposit": {
