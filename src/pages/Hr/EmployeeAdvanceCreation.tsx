@@ -40,6 +40,7 @@ import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
 import ruRU from 'antd/locale/ru_RU';
 import enUS from 'antd/locale/en_US';
+import { getCurrencyRender } from '@/utils/tableUnits';
 
 interface PaymentRecord {
   check: boolean;
@@ -347,21 +348,21 @@ const EmployeeAdvanceCreation: React.FC = () => {
       dataIndex: 'monthlySalary',
       key: 'monthlySalary',
       sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: (value) => value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '',
+      render: getCurrencyRender(),
     },
     {
       title: 'Посменное начисление',
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
-      render: (value) => value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '',
+      render: getCurrencyRender(),
     },
     {
       title: t('validation.bonusPayout'),
       dataIndex: 'bonusPayout',
       key: 'bonusPayout',
       sorter: (a, b) => a.bonusPayout - b.bonusPayout,
-      render: (value) => value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '',
+      render: getCurrencyRender(),
     },
     {
       title: 'Количество отработанных смен',
