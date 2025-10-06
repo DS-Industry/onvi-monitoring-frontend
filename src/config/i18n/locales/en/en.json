@@ -1012,6 +1012,7 @@
     "employeeName": "Employee Name",
     "shiftHours": "Shift Hours",
     "totalHoursWorked": "Total Hours Worked",
+    "dailyShiftPayout": "Daily Shift Payout",
     "shiftGrading": "Shift Grading",
     "startTime": "Start Time",
     "workingTime": "Working Time",

@@ -210,6 +210,35 @@ const ShiftTab: React.FC = () => {
     ? (totalScore || 0) / gradedParams.length
     : null;
 
+  const calculateDailyShiftPayout = () => {
+    if (!dayShiftData?.dailySalary || !dayShiftData?.bonusPayout || !dayShiftData?.gradingParameterInfo) {
+      return dayShiftData?.dailySalary || 0;
+    }
+
+    const { parameters, allEstimations } = dayShiftData.gradingParameterInfo;
+    
+    const totalPercentage = parameters.reduce((sum, param) => {
+      if (param.estimationId === null) return sum;
+      
+      const estimation = allEstimations.find(est => est.id === param.estimationId);
+
+      if (!estimation) return sum;
+      
+      const parameterWeightPercent = param.weightPercent || 0;
+      const estimationWeightPercent = estimation.weightPercent || 0;
+      
+      const parameterPercent = (parameterWeightPercent * estimationWeightPercent) / 100;
+      
+      return sum + parameterPercent;
+    }, 0);
+
+    const dailyShiftPayout = dayShiftData.dailySalary + (dayShiftData.bonusPayout * totalPercentage) / 100;
+    
+    return Math.round(dailyShiftPayout);
+  };
+
+  const dailyShiftPayout = calculateDailyShiftPayout();
+
   const hasPermissionToSend = hasPermission(
     [
       { subject: 'ShiftReport', action: 'create' },
@@ -262,6 +291,12 @@ const ShiftTab: React.FC = () => {
             <p className="text-bold">{t('finance.totalHoursWorked')}</p>
             <p className="font-bold text-[24px]">
               {workedHours} {t('general.hours')}
+            </p>
+          </div>
+          <div>
+            <p className="text-bold">{t('finance.dailyShiftPayout')}</p>
+            <p className="font-bold text-[24px]">
+              {dailyShiftPayout} ₽
             </p>
           </div>
         </div>

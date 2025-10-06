@@ -1012,6 +1012,7 @@
     "employeeName": "Имя сотрудника",
     "shiftHours": "Часы смены",
     "totalHoursWorked": "Общее отработанное время",
+    "dailyShiftPayout": "Дневная выплата за смену",
     "shiftGrading": "Оценка смены",
     "startTime": "Время начала",
     "workingTime": "Рабочее время",
