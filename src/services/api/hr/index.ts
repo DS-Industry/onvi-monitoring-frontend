@@ -124,15 +124,20 @@ export type PrepaymentCalculateBody = {
   hrPositionId?: number;
 };
 
-type PrepaymentCalculateResponse = {
+export interface PrepaymentCalculateResponseDro {
   hrWorkerId: number;
+  employeeName: string;
   name: string;
   hrPositionId: number;
   billingMonth: Date;
-  monthlySalary: number;
   dailySalary: number;
   bonusPayout: number;
-};
+  numberOfShiftsWorked: number;
+  sum: number;
+  payoutTimestamp?: Date;
+}
+
+type PrepaymentCalculateResponse = PrepaymentCalculateResponseDro;
 
 export type PrepaymentCreateRequest = {
   payments: {
@@ -368,6 +373,17 @@ export async function createPrepayment(
     HR.PREPAYMENT,
     body
   );
+  return response.data;
+}
+
+export async function getPrepaymentsCount(
+  params: PrepaymentFilter
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    HR.PREPAYMENT + 's/count',
+    { params }
+  );
+
   return response.data;
 }
 
