@@ -119,37 +119,48 @@ const EmployeeAdvance: React.FC = () => {
 
   const columnsEmployee: ColumnsType<TablePayment> = [
     {
-      title: 'ФИО',
+      title: t('hr.fullName'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Должность',
+      title: t('hr.employeeName'),
+      dataIndex: 'employeeName',
+      key: 'employeeName',
+    },
+    {
+      title: t('hr.position'),
       dataIndex: 'hrPosition',
       key: 'hrPosition',
       render: value => value || '-',
     },
     {
-      title: 'Расчетный месяц',
+      title: t('hr.salaryPeriod'),
+      dataIndex: 'salaryPeriod',
+      key: 'salaryPeriod',
+      render: dateRender,
+    },
+    {
+      title: t('hr.billingMonth'),
       dataIndex: 'billingMonth',
       key: 'billingMonth',
       render: dateRender,
     },
     {
-      title: 'Дата выдачи',
+      title: t('hr.paymentDate'),
       dataIndex: 'paymentDate',
       key: 'paymentDate',
       render: dateRender,
     },
     {
-      title: 'Оклад',
+      title: t('hr.monthlySalary'),
       dataIndex: 'monthlySalary',
       key: 'monthlySalary',
       sorter: (a, b) => a.monthlySalary - b.monthlySalary,
       render: currencyRender,
     },
     {
-      title: 'Посменное начисление',
+      title: t('hr.dailySalary'),
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
@@ -162,13 +173,32 @@ const EmployeeAdvance: React.FC = () => {
       render: percentRender,
     },
     {
-      title: 'Количество отработанных смен',
-      dataIndex: 'countShifts',
-      key: 'countShifts',
-      sorter: (a, b) => a.countShifts - b.countShifts,
+      title: t('hr.numberOfShiftsWorked'),
+      dataIndex: 'numberOfShiftsWorked',
+      key: 'numberOfShiftsWorked',
+      sorter: (a, b) => a.numberOfShiftsWorked - b.numberOfShiftsWorked,
     },
     {
-      title: 'Выплачено',
+      title: t('hr.advanceSalary'),
+      dataIndex: 'advanceSalary',
+      key: 'advanceSalary',
+      sorter: (a, b) => a.advanceSalary - b.advanceSalary,
+      render: currencyRender,
+    },
+    {
+      title: t('hr.maxAdvanceSalary'),
+      dataIndex: 'maxAdvanceSalary',
+      key: 'maxAdvanceSalary',
+      render: currencyRender,
+    },
+    {
+      title: t('hr.payoutTimestamp'),
+      dataIndex: 'payoutTimestamp',
+      key: 'payoutTimestamp',
+      render: dateRender,
+    },
+    {
+      title: t('hr.paid'),
       dataIndex: 'sum',
       key: 'sum',
       sorter: (a, b) => a.sum - b.sum,
@@ -214,7 +244,7 @@ const EmployeeAdvance: React.FC = () => {
 
         <Table
           rowKey={record =>
-            `${record.name}-${record.billingMonth}-${record.paymentDate}`
+            `${record.hrWorkerId}-${record.salaryPeriod}-${record.paymentDate}`
           }
           dataSource={payments}
           columns={visibleColumns}

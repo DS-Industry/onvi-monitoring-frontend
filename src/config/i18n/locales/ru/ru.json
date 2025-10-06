@@ -1215,7 +1215,20 @@
     "poses": "Подключенные точки",
     "connectedPoses": "Подключенные точки продаж",
     "selectPoses": "Выберите точки продаж",
-    "currentlyConnected": "В настоящее время подключены"
+    "currentlyConnected": "В настоящее время подключены",
+    "fullName": "ФИО",
+    "employeeName": "Имя сотрудника",
+    "position": "Должность",
+    "salaryPeriod": "Расчетный период",
+    "billingMonth": "Расчетный месяц",
+    "paymentDate": "Дата выдачи",
+    "monthlySalary": "Оклад",
+    "dailySalary": "Посменное начисление",
+    "numberOfShiftsWorked": "Количество отработанных смен",
+    "advanceSalary": "Выплата",
+    "maxAdvanceSalary": "Максимальная выплата",
+    "payoutTimestamp": "Время выплаты",
+    "paid": "Выплачено"
   },
   "notifications": {
     "fav": "Избранное",

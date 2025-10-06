@@ -1215,7 +1215,20 @@
     "poses": "Connected Points",
     "connectedPoses": "Connected Point of Sales",
     "selectPoses": "Select Point of Sales",
-    "currentlyConnected": "Currently Connected"
+    "currentlyConnected": "Currently Connected",
+    "fullName": "Full Name",
+    "employeeName": "Employee Name",
+    "position": "Position",
+    "salaryPeriod": "Salary Period",
+    "billingMonth": "Billing Month",
+    "paymentDate": "Payment Date",
+    "monthlySalary": "Monthly Salary",
+    "dailySalary": "Daily Salary",
+    "numberOfShiftsWorked": "Number of Shifts Worked",
+    "advanceSalary": "Advance Payment",
+    "maxAdvanceSalary": "Max Advance Payment",
+    "payoutTimestamp": "Payout Timestamp",
+    "paid": "Paid"
   },
   "notifications": {
     "fav": "Favorite",

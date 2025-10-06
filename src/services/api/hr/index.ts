@@ -159,15 +159,21 @@ export type PrepaymentFilter = {
 
 export type PrepaymentResponse = {
   hrWorkerId: number;
-  name: string;
+  employeeName: string; 
+  name: string; 
   hrPositionId: number;
-  billingMonth: Date;
+  salaryPeriod: Date;
+  billingMonth: Date; 
   paymentDate: Date;
   monthlySalary: number;
   dailySalary: number;
   bonusPayout: number;
-  countShifts: number;
+  numberOfShiftsWorked: number; 
+  countShifts: number; 
+  advanceSalary: number; 
   sum: number;
+  maxAdvanceSalary: number;
+  payoutTimestamp: Date; 
   createdAt: Date;
   createdById: number;
 };
