@@ -38,14 +38,15 @@ import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
-import { getCurrencyRender } from '@/utils/tableUnits';
 import ruRU from 'antd/locale/ru_RU';
 import enUS from 'antd/locale/en_US';
+import { getCurrencyRender } from '@/utils/tableUnits';
 
 interface PaymentRecord {
   check: boolean;
   id: number;
   hrWorkerId: number;
+  employeeName: string;
   name: string;
   hrPositionId: number;
   billingMonth: Date;
@@ -54,7 +55,9 @@ interface PaymentRecord {
   bonusPayout: number;
   paymentDate: Date;
   countShifts: number;
+  numberOfShiftsWorked: number;
   sum: number;
+  payoutTimestamp?: Date;
   hrPosition?: string;
 }
 
@@ -188,9 +191,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
             ...res,
             paymentDate: new Date(),
             check: false,
-            countShifts: 0,
-            sum: 0,
+            countShifts: res.numberOfShiftsWorked,
+            monthlySalary: 0, 
             id: index,
+            payoutTimestamp: new Date(),
           }))
         );
       } else {
@@ -208,9 +212,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       const errors = [];
 
       if (!item.paymentDate) errors.push('Дата выдачи');
-      if (item.countShifts == null || item.countShifts <= 0)
-        errors.push('Количество отработанных смен');
-      if (item.sum == null || item.sum <= 0) errors.push('Выплачено ЗП');
+      if (item.sum == null || item.sum <= 0) errors.push('Авансовая зарплата');
 
       if (errors.length > 0) {
         showToast(
@@ -227,7 +229,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
           hrWorkerId: data.hrWorkerId,
           paymentDate: data.paymentDate,
           billingMonth: data.billingMonth,
-          countShifts: Number(data.countShifts),
+          countShifts: Number(data.numberOfShiftsWorked),
           sum: Number(data.sum),
         })) || [],
     };
@@ -292,9 +294,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
             ...res,
             paymentDate: new Date(),
             check: false,
-            countShifts: 0,
-            sum: 0,
+            countShifts: res.numberOfShiftsWorked,
+            monthlySalary: 0, 
             id: index,
+            payoutTimestamp: new Date(),
           }))
         );
         resetFormWorker();
@@ -325,8 +328,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
     },
     {
       title: 'ФИО',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'employeeName',
+      key: 'employeeName',
     },
     {
       title: 'Должность',
@@ -359,24 +362,22 @@ const EmployeeAdvanceCreation: React.FC = () => {
       dataIndex: 'bonusPayout',
       key: 'bonusPayout',
       sorter: (a, b) => a.bonusPayout - b.bonusPayout,
+      render: getCurrencyRender(),
     },
     {
       title: 'Количество отработанных смен',
-      key: 'countShifts',
-      render: (_, record) => (
-        <InputNumber
-          value={record.countShifts}
-          onChange={value => handleTableChange(record.id, 'countShifts', value)}
-        />
-      ),
+      dataIndex: 'numberOfShiftsWorked',
+      key: 'numberOfShiftsWorked',
     },
     {
-      title: 'Выплачено ЗП',
+      title: 'Авансовая зарплата',
       key: 'sum',
       render: (_, record) => (
         <InputNumber
           value={record.sum}
           onChange={value => handleTableChange(record.id, 'sum', value)}
+          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
         />
       ),
     },
@@ -391,6 +392,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
           }
         />
       ),
+    },
+    {
+      title: 'Время выплаты',
+      key: 'payoutTimestamp',
+      render: (_, record) =>
+        record.payoutTimestamp ? dayjs(record.payoutTimestamp).format('DD.MM.YYYY HH:mm') : '',
     },
   ];
 
@@ -415,7 +422,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </span>
           </div>
         </div>
-
+        
         <Modal
           open={isModalOpen}
           onCancel={() => {
