@@ -809,6 +809,7 @@
     "8002": "An error occurred while recalculate the cash collection. Please try again.",
     "8003": "An error occurred while return the cash collection. Please try again.",
     "8004": "An error occurred while retrieving the cash collection. Please try again.",
+    "1501": "You have no permissions",
     "somethingWentWrong": "Something went wrong",
     "submitFailed": "Submit failed",
     "sendFailed": "Send failed",
