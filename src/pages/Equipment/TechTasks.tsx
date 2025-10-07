@@ -27,6 +27,7 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import 'dayjs/locale/ru';
+import { useUser } from '@/hooks/useUserStore';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
@@ -48,14 +49,17 @@ const TechTasks: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  const user = useUser()
+
   const { data, isLoading: techTasksLoading, mutate } = useSWR(
-    swrKey,
+    user.organizationId ? swrKey : null,
     () =>
       getTechTaskExecution({
         posId: posId,
         status: status,
         page: currentPage,
         size: pageSize,
+        organizationId: user.organizationId,
       }).finally(() => {
         setIsInitialLoading(false);
       }),

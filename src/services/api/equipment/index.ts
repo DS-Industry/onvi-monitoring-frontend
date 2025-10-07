@@ -407,6 +407,7 @@ type TechTasksExecutionParams = {
   status?: StatusTechTask;
   page?: number;
   size?: number;
+  organizationId?: number;
 };
 
 type TechTasksExecutionResponse = {
