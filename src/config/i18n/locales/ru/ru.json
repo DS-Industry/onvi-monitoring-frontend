@@ -1443,6 +1443,20 @@
     "pos": {
       "placeholder": "Выберите POS"
     },
+    "filterTechTasks": {
+      "title": "Фильтры",
+      "branch": "Автомойка/Филиал",
+      "status": "Статус",
+      "tags": "Теги",
+      "dateRange": "Диапазон дат",
+      "author": "Автор",
+      "all": "Все",
+      "apply": "Применить",
+      "clear": "Очистить",
+      "cancel": "Отмена",
+      "startDatePlaceholder": "Дата начала",
+      "endDatePlaceholder": "Дата окончания"
+    },
     "warehouse": {
       "placeholder": "Выберите склад"
     },

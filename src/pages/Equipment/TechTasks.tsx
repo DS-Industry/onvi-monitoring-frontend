@@ -8,7 +8,7 @@ import {
   deleteTechTask,
 } from '@/services/api/equipment';
 import useSWR from 'swr';
-import { Select, Table, Modal, Button } from 'antd';
+import { Table, Modal, Button, Checkbox } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -19,10 +19,9 @@ import {
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { getStatusTagRender, getTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
-import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { useToast } from '@/hooks/useToast';
-import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import ColumnSelectorV2 from '@/components/ui/Table/ColumnSelectorV2';
+import FilterTechTasks from '@/components/ui/Filter/FilterTechTasks';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -36,7 +35,9 @@ dayjs.locale('ru');
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
+
   const [searchParams, setSearchParams] = useSearchParams();
+
   const posId = Number(searchParams.get('posId')) || undefined;
   const status = (searchParams.get('status') as StatusTechTask) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -45,14 +46,14 @@ const TechTasks: React.FC = () => {
   const tags = searchParams.get('tags')?.split(',').map(tag => tag.trim()) || undefined;
   const startDate = searchParams.get('startDate') || undefined;
   const endDate = searchParams.get('endDate') || undefined;
-  const authorId = Number(searchParams.get('authorId')) || undefined;
 
   const swrKey = useMemo(
-    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}-${authorId}`,
-    [currentPage, pageSize, posId, status, name, tags, startDate, endDate, authorId]
+    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}`,
+    [currentPage, pageSize, posId, status, name, tags, startDate, endDate]
   );
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const user = useUser()
 
@@ -69,7 +70,6 @@ const TechTasks: React.FC = () => {
         tags: tags,
         startDate: startDate,
         endDate: endDate,
-        authorId: authorId,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -118,10 +118,6 @@ const TechTasks: React.FC = () => {
     return date.format('D MMMM YYYY');
   };
 
-  const statuses = [
-    { label: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
-    { label: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
-  ];
 
   const handleDelete = (id: number, name: string) => {
     Modal.confirm({
@@ -142,7 +138,62 @@ const TechTasks: React.FC = () => {
     });
   };
 
+  const handleBulkDelete = () => {
+    const selectedTasks = techTasks.filter(task => selectedRowKeys.includes(task.id));
+    const taskNames = selectedTasks.map(task => task.name).join(', ');
+    
+    Modal.confirm({
+      title: t('constants.confirm'),
+      content: `Are you sure you want to delete ${selectedTasks.length} tech task(s): "${taskNames}"?`,
+      okText: t('marketing.delete'),
+      okType: 'danger',
+      cancelText: t('organizations.cancel'),
+      async onOk() {
+        try {
+          for (const taskId of selectedRowKeys) {
+            await deleteTechTask(Number(taskId));
+          }
+          setSelectedRowKeys([]);
+          await mutate();
+          showToast(t('success.recordDeleted'), 'success');
+        } catch (error) {
+          showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
+        }
+      },
+    });
+  };
+
   const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
+    {
+      title: (
+        <Checkbox
+          indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < techTasks.length}
+          checked={techTasks.length > 0 && selectedRowKeys.length === techTasks.length}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setSelectedRowKeys(techTasks.map(task => task.id));
+            } else {
+              setSelectedRowKeys([]);
+            }
+          }}
+        />
+      ),
+      dataIndex: 'checkbox',
+      key: 'checkbox',
+      width: 50,
+      render: (_: unknown, record: TechTaskReadAll) => (
+        <Checkbox
+          checked={selectedRowKeys.includes(record.id)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setSelectedRowKeys([...selectedRowKeys, record.id]);
+            } else {
+              setSelectedRowKeys(selectedRowKeys.filter(key => key !== record.id));
+            }
+          }}
+        />
+      ),
+    },
     {
       title: '№',
       dataIndex: 'id',
@@ -212,20 +263,10 @@ const TechTasks: React.FC = () => {
     },
   ];
 
-  const resetFilters = () => {
-    updateSearchParams(searchParams, setSearchParams, {
-      status: undefined,
-      posId: undefined,
-      name: undefined,
-      tags: undefined,
-      startDate: undefined,
-      endDate: undefined,
-      authorId: undefined,
-    });
-  };
-
-  const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsTechTasks, 'tech-tasks-columns-v2');
+  const { ColumnSelector, visibleColumns } = ColumnSelectorV2({
+    columns: columnsTechTasks,
+    storageKey: 'tech-tasks-columns-v2',
+  });
 
   return (
     <>
@@ -236,33 +277,22 @@ const TechTasks: React.FC = () => {
           </span>
         </div>
       </div>
-      <GeneralFilters
-        count={data?.totalCount || 0}
-        display={['pos', 'reset', 'techTaskName', 'techTaskTags', 'techTaskDateRange', 'techTaskAuthor']}
-        onReset={resetFilters}
-      >
-        <div>
-          <div className="block mb-1 text-sm font-medium text-gray-700">
-            {t('constants.status')}
-          </div>
-          <Select
-            className="w-full sm:w-80"
-            options={statuses}
-            value={searchParams.get('status') || null}
-            onChange={value => {
-              updateSearchParams(searchParams, setSearchParams, {
-                status: value,
-              });
-            }}
-          />
-        </div>
-      </GeneralFilters>
+        <FilterTechTasks />
       <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
+        <div className="flex justify-between items-center mb-4">
+          {ColumnSelector}
+          {selectedRowKeys.length > 0 && (
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleBulkDelete}
+              className="ml-4"
+            >
+              {t('marketing.delete')} ({selectedRowKeys.length})
+            </Button>
+          )}
+        </div>
         <Table
           dataSource={techTasks}
           columns={visibleColumns}

@@ -1443,6 +1443,20 @@
     "pos": {
       "placeholder": "Select POS"
     },
+    "filterTechTasks": {
+      "title": "Filters",
+      "branch": "Branch/Station",
+      "status": "Status",
+      "tags": "Tags",
+      "dateRange": "Date Range",
+      "author": "Author",
+      "all": "All",
+      "apply": "Apply",
+      "clear": "Clear",
+      "cancel": "Cancel",
+      "startDatePlaceholder": "Start Date",
+      "endDatePlaceholder": "End Date"
+    },
     "warehouse": {
       "placeholder": "Select Warehouse"
     },
