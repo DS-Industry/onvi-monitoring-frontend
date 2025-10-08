@@ -1,26 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { debounce } from 'lodash';
 import useSWR from 'swr';
 import {
   getPoses,
   getTechTaskReport,
   getWorkers,
   TechTaskReadAll,
-  TypeTechTask,
+  StatusTechTask,
 } from '@/services/api/equipment';
-import { Select, Table } from 'antd';
+import { Table, Input } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
-import { useColumnSelector } from '@/hooks/useTableColumnSelector';
-import ColumnSelector from '@/components/ui/Table/ColumnSelector';
+import ColumnSelectorV2 from '@/components/ui/Table/ColumnSelectorV2';
+import FilterTechTasks from '@/components/ui/Filter/FilterTechTasks';
 import { useUser } from '@/hooks/useUserStore';
 
 const ProgressReport: React.FC = () => {
@@ -29,22 +29,50 @@ const ProgressReport: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const posId = Number(searchParams.get('posId')) || undefined;
-  const type = (searchParams.get('type') as TypeTechTask) || undefined;
+  const status = (searchParams.get('status') as StatusTechTask) || undefined;
+  const name = searchParams.get('name') || undefined;
+  const tags = searchParams.get('tags')?.split(',').map(tag => tag.trim()) || undefined;
+  const startDate = searchParams.get('startDate') || undefined;
+  const endDate = searchParams.get('endDate') || undefined;
+  const assigned = searchParams.get('assigned') || undefined;
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState(name || '');
 
   const swrKey = useMemo(
-    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${type}`,
-    [currentPage, pageSize, posId, type]
+    () => `get-tech-tasks-report-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}-${assigned}`,
+    [currentPage, pageSize, posId, status, name, tags, startDate, endDate, assigned]
   );
 
+  const user = useUser();
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        name: value || undefined,
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
+
+  useEffect(() => {
+    setSearchValue(name || '');
+  }, [name]);
+
   const { data, isLoading: techTasksLoading } = useSWR(
-    swrKey,
+    user.organizationId ? swrKey : null,
     () =>
       getTechTaskReport({
         posId: posId,
-        type: type,
+        status: status,
         page: currentPage,
         size: pageSize,
+        organizationId: user.organizationId,
+        name: name,
+        tags: tags,
+        startDate: startDate,
+        endDate: endDate,
+        executorId: assigned ? Number(assigned) : undefined,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -62,8 +90,6 @@ const ProgressReport: React.FC = () => {
     keepPreviousData: true,
     shouldRetryOnError: false
   });
-
-  const user = useUser();
 
   const { data: workerData } = useSWR(
     user.organizationId ? [`get-worker`, user.organizationId] : null,
@@ -88,16 +114,44 @@ const ProgressReport: React.FC = () => {
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
+  const assigneeRender = (record: {
+    firstName: string;
+    lastName: string;
+  }) => {
+    const firstName = record.firstName || ""
+    const lastName = record.lastName || ""
+    
+    const initials = 
+      (firstName?.[0]?.toUpperCase() || '') + 
+      (lastName?.[0]?.toUpperCase() || '') || ""
+
+    return (
+      <div className="flex items-center gap-2">
+        <div className="w-10 h-10 rounded-full bg-[#bffa00] flex items-center justify-center">
+          <span className="text-xs font-medium text-black">
+            {initials}
+          </span>
+        </div>
+        <span className="text-sm">{firstName} {lastName}</span>
+      </div>
+    );
+  };
+
   const columnsTechTasksRead: ColumnsType<TechTaskReadAll> = [
     {
-      title: '№',
+      title: t('progressReport.columns.number'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Автомойка/ Филиал',
+      title: t('progressReport.columns.carWashBranch'),
       dataIndex: 'posName',
       key: 'posName',
+    },
+    {
+      title: t('progressReport.columns.workName'),
+      dataIndex: 'name',
+      key: 'name',
       render: (text, record) => {
         return (
           <Link
@@ -113,110 +167,117 @@ const ProgressReport: React.FC = () => {
       },
     },
     {
-      title: 'Наименование работ',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Периодичность',
+      title: t('progressReport.columns.frequency'),
       dataIndex: 'type',
       key: 'type',
     },
     {
-      title: 'Статус',
+      title: t('progressReport.columns.status'),
       dataIndex: 'status',
       key: 'status',
       render: statusRender,
     },
     {
-      title: 'Дата начала',
+      title: t('progressReport.columns.startDate'),
       dataIndex: 'startWorkDate',
       key: 'startWorkDate',
       render: dateRender,
     },
     {
-      title: 'Дата окончания',
+      title: t('progressReport.columns.endDate'),
       dataIndex: 'sendWorkDate',
       key: 'sendWorkDate',
       render: dateRender,
     },
     {
-      title: 'Исполнитель',
-      dataIndex: 'executorName',
-      key: 'executorName',
+      title: t('progressReport.columns.assignee'),
+      dataIndex: 'executor',
+      key: 'executor',
+      render: assigneeRender,
     },
   ];
 
-  const techTasksTypes = [
-    { label: t('tables.REGULAR'), value: TypeTechTask.REGULAR },
-    { label: t('tables.ONETIME'), value: TypeTechTask.ONETIME },
-  ];
-
-  const resetFilters = () => {
-    updateSearchParams(searchParams, setSearchParams, {
-      type: undefined,
-      posId: undefined,
-    });
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    debouncedSearch(value);
   };
 
-  const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsTechTasksRead, 'progress-report-table-columns');
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  const { ColumnSelector, visibleColumns } = ColumnSelectorV2({
+    columns: columnsTechTasksRead,
+    storageKey: 'progress-report-columns-v2',
+  });
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5">
+      <div className="ml-10 md:ml-0 mb-5">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-text01">
             {t('routes.progress')}
           </span>
         </div>
       </div>
-      <GeneralFilters
-        count={data?.totalCount || 0}
-        display={['pos', 'reset']}
-        onReset={resetFilters}
-      >
-        <div>
-          <div className="block mb-1 text-sm font-medium text-gray-700">
-            {t('constants.status')}
+      
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4 mb-6 px-4 sm:px-6 md:px-8 lg:px-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+          <Input.Search
+            placeholder={t('techTasks.searchPlaceholder')}
+            value={searchValue}
+            onChange={handleSearchChange}
+            onSearch={handleSearch}
+            allowClear
+            className="w-full sm:w-72 md:w-80"
+            style={{ height: '32px' }}
+          />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div style={{ height: '32px' }}>
+              <FilterTechTasks 
+                showStatus={false}
+                showAssigned={true}
+                showTags={true}
+                showDateRange={true}
+                showBranch={true}
+              />
+            </div>
+            <div style={{ height: '32px' }}>
+              {ColumnSelector}
+            </div>
           </div>
-          <Select
-            className="w-full sm:w-80"
-            options={techTasksTypes}
-            value={searchParams.get('type') || null}
-            onChange={value => {
-              updateSearchParams(searchParams, setSearchParams, {
-                type: value,
-              });
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <div className="min-w-full max-w-full">
+          <Table<TechTaskReadAll>
+            dataSource={techTasks}
+            columns={visibleColumns}
+            loading={techTasksLoading || isInitialLoading}
+            scroll={{ x: 'max-content' }}
+            className="responsive-table"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: data?.totalCount || 0,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} / ${total}`,
+              onChange: (page, size) => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                });
+              },
+              responsive: true,
+              showSizeChanger: true,
+              showQuickJumper: true,
             }}
           />
         </div>
-      </GeneralFilters>
-      <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
-        <Table<TechTaskReadAll>
-          dataSource={techTasks}
-          columns={visibleColumns}
-          loading={techTasksLoading || isInitialLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: data?.totalCount || 0,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page, size) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              });
-            },
-          }}
-        />
       </div>
     </>
   );

@@ -1447,6 +1447,8 @@
       "title": "Фильтры",
       "branch": "Автомойка/Филиал",
       "status": "Статус",
+      "assigned": "Исполнитель",
+      "selectAssignee": "Выберите исполнителя",
       "tags": "Теги",
       "dateRange": "Диапазон дат",
       "author": "Автор",
@@ -1560,5 +1562,17 @@
     },
     "searchPlaceholder": "Поиск задач...",
     "createTask": "Создать задачу"
+  },
+  "progressReport": {
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Автомойка/ Филиал",
+      "workName": "Наименование работ",
+      "frequency": "Периодичность",
+      "status": "Статус",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "assignee": "Исполнитель"
+    }
   }
 }

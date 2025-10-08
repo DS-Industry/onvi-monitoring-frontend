@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Button, Popover, Select, Checkbox, DatePicker } from 'antd';
-import { CarOutlined, CheckOutlined, FilterOutlined, ScheduleOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Button, Popover, Select, Checkbox, DatePicker, Avatar } from 'antd';
+import { CarOutlined, CheckOutlined, FilterOutlined, ScheduleOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { getTags, getPoses, StatusTechTask } from '@/services/api/equipment';
+import { getTags, getPoses, StatusTechTask, getWorkers } from '@/services/api/equipment';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
@@ -13,12 +13,26 @@ interface FilterValues {
   branch: string;
   status: string[];
   tags: string[];
+  assigned: string[];
   dateFrom: dayjs.Dayjs | null;
   dateTo: dayjs.Dayjs | null;
 }
 
+interface FilterTechTasksProps {
+  showStatus?: boolean;
+  showAssigned?: boolean;
+  showTags?: boolean;
+  showDateRange?: boolean;
+  showBranch?: boolean;
+}
 
-const FilterTechTasks = () => {
+const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
+  showStatus = true,
+  showAssigned = false,
+  showTags = true,
+  showDateRange = true,
+  showBranch = true,
+}) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +55,17 @@ const FilterTechTasks = () => {
     shouldRetryOnError: false,
   });
 
+  const { data: workersData } = useSWR(
+    user.organizationId && showAssigned ? ['get-workers', user.organizationId] : null,
+    () => getWorkers(user.organizationId!),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
   const tagOptions = tagsData?.map(tag => ({
     label: tag.props.name,
     value: tag.props.name,
@@ -49,6 +74,11 @@ const FilterTechTasks = () => {
   const branchOptions = posesData?.map(pos => ({
     label: pos.name,
     value: pos.id.toString(),
+  })) || [];
+
+  const workerOptions = workersData?.map(worker => ({
+    label: worker.name,
+    value: worker.id.toString(),
   })) || [];
 
   const statusOptions = [
@@ -61,6 +91,7 @@ const FilterTechTasks = () => {
   const [filters, setFilters] = useState<FilterValues>(() => {
     const posId = searchParams.get('posId');
     const status = searchParams.get('status');
+    const assigned = searchParams.get('assigned');
     const tags = searchParams.get('tags')?.split(',').map(tag => tag.trim()) || [];
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
@@ -68,6 +99,7 @@ const FilterTechTasks = () => {
     return {
       branch: posId || t('filters.filterTechTasks.all'),
       status: status ? [status] : [],
+      assigned: assigned ? [assigned] : [],
       tags: tags,
       dateFrom: startDate ? dayjs(startDate) : null,
       dateTo: endDate ? dayjs(endDate) : null,
@@ -79,6 +111,7 @@ const FilterTechTasks = () => {
   const defaultFilters: FilterValues = {
     branch: t('filters.filterTechTasks.all'),
     status: [],
+    assigned: [],
     tags: [],
     dateFrom: null,
     dateTo: null,
@@ -87,33 +120,39 @@ const FilterTechTasks = () => {
   const updateFiltersToSearchParams = (newFilters: FilterValues) => {
     const updates: Record<string, string | undefined> = {};
     
-    if (newFilters.branch !== t('filters.filterTechTasks.all')) {
+    if (showBranch && newFilters.branch !== t('filters.filterTechTasks.all')) {
       updates.posId = newFilters.branch;
-    } else {
+    } else if (showBranch) {
       updates.posId = undefined;
     }
     
-    if (newFilters.status.length > 0) {
+    if (showStatus && newFilters.status.length > 0) {
       updates.status = newFilters.status[0];
-    } else {
+    } else if (showStatus) {
       updates.status = undefined;
     }
     
-    if (newFilters.tags.length > 0) {
+    if (showAssigned && newFilters.assigned.length > 0) {
+      updates.assigned = newFilters.assigned[0];
+    } else if (showAssigned) {
+      updates.assigned = undefined;
+    }
+    
+    if (showTags && newFilters.tags.length > 0) {
       updates.tags = newFilters.tags.join(',');
-    } else {
+    } else if (showTags) {
       updates.tags = undefined;
     }
     
-    if (newFilters.dateFrom) {
+    if (showDateRange && newFilters.dateFrom) {
       updates.startDate = newFilters.dateFrom.format('YYYY-MM-DD');
-    } else {
+    } else if (showDateRange) {
       updates.startDate = undefined;
     }
     
-    if (newFilters.dateTo) {
+    if (showDateRange && newFilters.dateTo) {
       updates.endDate = newFilters.dateTo.format('YYYY-MM-DD');
-    } else {
+    } else if (showDateRange) {
       updates.endDate = undefined;
     }
     
@@ -150,81 +189,86 @@ const FilterTechTasks = () => {
       </div>
 
       <div className="space-y-6">
-        <div>
-          <div className="flex items-center mb-3">
-            <CarOutlined className="mr-2 font-bold text-black" />
-            <span className="text-sm font-bold">
-              {t('filters.filterTechTasks.branch')}
-            </span>
+        {showBranch && (
+          <div>
+            <div className="flex items-center mb-3">
+              <CarOutlined className="mr-2 font-bold text-black" />
+              <span className="text-sm font-bold">
+                {t('filters.filterTechTasks.branch')}
+              </span>
+            </div>
+            <Select
+              className="w-full"
+              value={tempFilters.branch}
+              onChange={(value) => setTempFilters(prev => ({ ...prev, branch: value }))}
+              options={[
+                { label: t('filters.filterTechTasks.all'), value: t('filters.filterTechTasks.all') },
+                ...branchOptions
+              ]}
+              suffixIcon={<span className="text-gray-400">▼</span>}
+            />
           </div>
-          <Select
-            className="w-full"
-            value={tempFilters.branch}
-            onChange={(value) => setTempFilters(prev => ({ ...prev, branch: value }))}
-            options={[
-              { label: t('filters.filterTechTasks.all'), value: t('filters.filterTechTasks.all') },
-              ...branchOptions
-            ]}
-            suffixIcon={<span className="text-gray-400">▼</span>}
-          />
-        </div>
+        )}
 
-        <div>
-          <div className="flex items-center mb-3">
-          <CheckOutlined className="mr-2 font-bold text-black" />
-            <span className="text-sm font-bold">
-              {t('filters.filterTechTasks.status')}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {statusOptions.map(option => {
-              const isOverdue = option.value === StatusTechTask.OVERDUE;
-              const isActive = option.value === StatusTechTask.ACTIVE;
-              const isFinished = option.value === StatusTechTask.FINISHED;
-              const isReturned = option.value === StatusTechTask.RETURNED;
-              const isSelected = tempFilters.status.includes(option.value);
-              
-              return (
-                <div 
-                  key={option.value} 
-                  className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
-                    isOverdue 
-                      ? 'border-red-500 bg-red-50' 
-                      : isActive 
-                        ? 'border-orange-500 bg-orange-50' 
-                        : isFinished
-                          ? 'border-green-500 bg-green-50'
-                          : isReturned
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-300 bg-gray-50'
-                  }`}
-                  onClick={() => {
-                    if (isSelected) {
-                      setTempFilters(prev => ({ ...prev, status: [] }));
-                    } else {
-                      setTempFilters(prev => ({ ...prev, status: [option.value] }));
-                    }
-                  }}
-                >
-                  <Checkbox
-                    checked={isSelected}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      if (e.target.checked) {
-                        setTempFilters(prev => ({ ...prev, status: [option.value] }));
-                      } else {
+        {showStatus && (
+          <div>
+            <div className="flex items-center mb-3">
+            <CheckOutlined className="mr-2 font-bold text-black" />
+              <span className="text-sm font-bold">
+                {t('filters.filterTechTasks.status')}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {statusOptions.map(option => {
+                const isOverdue = option.value === StatusTechTask.OVERDUE;
+                const isActive = option.value === StatusTechTask.ACTIVE;
+                const isFinished = option.value === StatusTechTask.FINISHED;
+                const isReturned = option.value === StatusTechTask.RETURNED;
+                const isSelected = tempFilters.status.includes(option.value);
+                
+                return (
+                  <div 
+                    key={option.value} 
+                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
+                      isOverdue 
+                        ? 'border-red-500 bg-red-50' 
+                        : isActive 
+                          ? 'border-orange-500 bg-orange-50' 
+                          : isFinished
+                            ? 'border-green-500 bg-green-50'
+                            : isReturned
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-300 bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      if (isSelected) {
                         setTempFilters(prev => ({ ...prev, status: [] }));
+                      } else {
+                        setTempFilters(prev => ({ ...prev, status: [option.value] }));
                       }
                     }}
-                    className="mr-2"
-                  />
-                  <span className="text-sm">{option.label}</span>
-                </div>
-              );
-            })}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (e.target.checked) {
+                          setTempFilters(prev => ({ ...prev, status: [option.value] }));
+                        } else {
+                          setTempFilters(prev => ({ ...prev, status: [] }));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">{option.label}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
+        {showTags && (
           <div>
             <div className="flex items-center mb-3">
               <UnorderedListOutlined className="mr-2 font-bold text-black" />
@@ -242,34 +286,92 @@ const FilterTechTasks = () => {
               suffixIcon={<span className="text-gray-400">▼</span>}
             />
           </div>
+        )}
 
-        <div>
-          <div className="flex items-center mb-3">
-            <ScheduleOutlined className="mr-2 font-bold text-black" />
-            <span className="text-sm font-bold">
-              {t('filters.filterTechTasks.dateRange')}
-            </span>
+        {showDateRange && (
+          <div>
+            <div className="flex items-center mb-3">
+              <ScheduleOutlined className="mr-2 font-bold text-black" />
+              <span className="text-sm font-bold">
+                {t('filters.filterTechTasks.dateRange')}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <DatePicker
+                className="flex-1"
+                value={tempFilters.dateFrom}
+                onChange={(date) => setTempFilters(prev => ({ ...prev, dateFrom: date }))}
+                placeholder={t('filters.filterTechTasks.startDatePlaceholder')}
+                format="DD.MM.YYYY"
+                suffixIcon={<span className="text-gray-400">📅</span>}
+              />
+              <div className="text-center text-gray-500 text-sm whitespace-nowrap">по</div>
+              <DatePicker
+                className="flex-1"
+                value={tempFilters.dateTo}
+                onChange={(date) => setTempFilters(prev => ({ ...prev, dateTo: date }))}
+                placeholder={t('filters.filterTechTasks.endDatePlaceholder')}
+                format="DD.MM.YYYY"
+                suffixIcon={<span className="text-gray-400">📅</span>}
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <DatePicker
-              className="flex-1"
-              value={tempFilters.dateFrom}
-              onChange={(date) => setTempFilters(prev => ({ ...prev, dateFrom: date }))}
-              placeholder={t('filters.filterTechTasks.startDatePlaceholder')}
-              format="DD.MM.YYYY"
-              suffixIcon={<span className="text-gray-400">📅</span>}
-            />
-            <div className="text-center text-gray-500 text-sm whitespace-nowrap">по</div>
-            <DatePicker
-              className="flex-1"
-              value={tempFilters.dateTo}
-              onChange={(date) => setTempFilters(prev => ({ ...prev, dateTo: date }))}
-              placeholder={t('filters.filterTechTasks.endDatePlaceholder')}
-              format="DD.MM.YYYY"
-              suffixIcon={<span className="text-gray-400">📅</span>}
-            />
+        )}
+
+        {showAssigned && (
+          <div>
+            <div className="flex items-center mb-3">
+              <UserOutlined className="mr-2 font-bold text-black" />
+              <span className="text-sm font-bold">
+                {t('filters.filterTechTasks.assigned')}
+              </span>
+            </div>
+            <Select
+              className="w-full"
+              placeholder={t('filters.filterTechTasks.selectAssignee')}
+              value={tempFilters.assigned.length > 0 ? tempFilters.assigned[0] : undefined}
+              onChange={(value) => {
+                setTempFilters(prev => ({ 
+                  ...prev, 
+                  assigned: value ? [value] : [] 
+                }));
+              }}
+              allowClear
+              showSearch
+              filterOption={(input, option) => {
+                const worker = workerOptions.find(w => w.value === option?.value);
+                return worker?.label.toLowerCase().includes(input.toLowerCase()) || false;
+              }}
+            >
+              {workerOptions.map(worker => {
+                const nameParts = worker.label.split(' ');
+                const initials = nameParts.length >= 2 
+                  ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
+                  : worker.label.charAt(0).toUpperCase();
+                
+                const colors = ['#f56a00', '#87d068', '#108ee9', '#722ed1', '#eb2f96'];
+                const colorIndex = initials.charCodeAt(0) % colors.length;
+                const avatarColor = colors[colorIndex];
+                
+                return (
+                  <Select.Option key={worker.value} value={worker.value}>
+                    <div className="flex items-center gap-3">
+                      <Avatar size="small" style={{ backgroundColor: avatarColor }}>
+                        {initials}
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="font-medium">{worker.label}</div>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {worker.label.toLowerCase().replace(/\s+/g, '')}
+                      </div>
+                    </div>
+                  </Select.Option>
+                );
+              })}
+            </Select>
           </div>
-        </div>
+        )}
 
       </div>
     </div>
