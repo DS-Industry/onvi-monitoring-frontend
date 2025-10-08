@@ -1533,5 +1533,11 @@
     "noAvailablePrograms": "No available programs to join",
     "noProgramsFound": "No programs found",
     "regularProgram": "Regular program"
+  },
+  "techTasks": {
+    "selectedTasks": "Selected {{count}} task",
+    "selectedTasksPlural": "Selected {{count}} tasks",
+    "clearSelection": "Clear selection",
+    "delete": "Delete"
   }
 }

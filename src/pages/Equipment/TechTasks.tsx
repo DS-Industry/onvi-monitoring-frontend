@@ -9,7 +9,7 @@ import {
 } from '@/services/api/equipment';
 import useSWR from 'swr';
 import { Table, Modal, Button, Checkbox } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, CloseOutlined } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
@@ -281,17 +281,6 @@ const TechTasks: React.FC = () => {
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
           {ColumnSelector}
-          {selectedRowKeys.length > 0 && (
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={handleBulkDelete}
-              className="ml-4"
-            >
-              {t('marketing.delete')} ({selectedRowKeys.length})
-            </Button>
-          )}
         </div>
         <Table
           dataSource={techTasks}
@@ -313,6 +302,34 @@ const TechTasks: React.FC = () => {
           }}
         />
       </div>
+
+      {selectedRowKeys.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center">
+            <Button
+              type="text"
+              icon={<CloseOutlined />}
+              onClick={() => setSelectedRowKeys([])}
+              className="text-white hover:text-gray-200 p-0 h-auto"
+            />
+            <span className="text-sm font-medium ml-2">
+              {selectedRowKeys.length === 1 
+                ? t('techTasks.selectedTasks', { count: selectedRowKeys.length })
+                : t('techTasks.selectedTasksPlural', { count: selectedRowKeys.length })
+              }
+            </span>
+            <div className="w-px h-4 bg-white mx-4"></div>
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={handleBulkDelete}
+              className="text-white hover:text-gray-200 p-0 h-auto"
+            >
+              {t('techTasks.delete')}
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

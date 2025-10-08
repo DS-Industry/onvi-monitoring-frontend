@@ -1533,5 +1533,11 @@
     "noAvailablePrograms": "Нет доступных программ для присоединения",
     "noProgramsFound": "Программы не найдены",
     "regularProgram": "Обычная программа"
+  },
+  "techTasks": {
+    "selectedTasks": "Выбрано {{count}} задача",
+    "selectedTasksPlural": "Выбрано {{count}} задач",
+    "clearSelection": "Очистить выбор",
+    "delete": "Удалить"
   }
 }
