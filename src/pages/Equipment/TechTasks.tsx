@@ -300,9 +300,9 @@ const TechTasks: React.FC = () => {
       render: dateRender,
     },
     {
-      title: t('techTasks.columns.actions'),
-      dataIndex: 'actions',
-      key: 'actions',
+      title: t('techTasks.columns.author'),
+      dataIndex: 'author',
+      key: 'author',
       width: 120,
       minWidth: 100,
       render: (_: unknown, record: TechTaskReadAll) => (
@@ -369,6 +369,7 @@ const TechTasks: React.FC = () => {
           <Table
             dataSource={techTasks}
             columns={visibleColumns}
+            rowKey="id"
             loading={techTasksLoading || isInitialLoading}
             scroll={{ x: 'max-content' }}
             className="responsive-table"

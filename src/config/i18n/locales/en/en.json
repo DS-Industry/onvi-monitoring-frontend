@@ -1551,7 +1551,8 @@
       "workType": "Work Type",
       "tags": "Tags",
       "deadline": "Deadline",
-      "actions": "Actions"
+      "actions": "Actions",
+      "author": "Author"
     },
     "columnSelector": {
       "title": "Columns",

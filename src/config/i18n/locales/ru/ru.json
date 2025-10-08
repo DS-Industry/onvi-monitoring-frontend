@@ -1550,7 +1550,8 @@
       "workType": "Тип работы",
       "tags": "Теги",
       "deadline": "Крайний срок",
-      "actions": "Действия"
+      "actions": "Действия",
+      "author": "Автор"
     },
     "columnSelector": {
       "title": "Столбцы",
