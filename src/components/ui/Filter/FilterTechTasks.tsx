@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Popover, Select, Checkbox, DatePicker } from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
+import { CarOutlined, CheckOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -141,8 +141,8 @@ const FilterTechTasks = () => {
       <div className="space-y-6">
         <div>
           <div className="flex items-center mb-3">
-            <span className="text-lg mr-2">🏢</span>
-            <span className="text-sm font-medium text-gray-700">
+            <CarOutlined className="mr-2 font-bold text-black" />
+            <span className="text-sm font-bold">
               {t('filters.filterTechTasks.branch')}
             </span>
           </div>
@@ -160,8 +160,8 @@ const FilterTechTasks = () => {
 
         <div>
           <div className="flex items-center mb-3">
-            <span className="text-lg mr-2">✅</span>
-            <span className="text-sm font-medium text-gray-700">
+          <CheckOutlined className="mr-2 font-bold text-black" />
+            <span className="text-sm font-bold">
               {t('filters.filterTechTasks.status')}
             </span>
           </div>
