@@ -75,28 +75,43 @@ const ColumnSelectorV2 = <T,>({
   };
 
   const popoverContent = (
-    <div className="p-4 min-w-[200px]">
+    <div className="bg-white min-w-[200px] max-w-[300px]">
       <div className="mb-4">
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        <div className="space-y-1 max-h-[300px] overflow-y-auto">
           {columns
             .filter(col => col.key !== 'checkbox')
             .map(col => (
-              <div key={col.key as string}>
+              <div 
+                key={col.key as string}
+                className="flex items-center p-2 rounded hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
+                onClick={() => handleToggleColumn(col.key as string, !tempSelection.includes(col.key as string))}
+              >
                 <Checkbox
                   checked={tempSelection.includes(col.key as string)}
                   onChange={(e) => handleToggleColumn(col.key as string, e.target.checked)}
-                >
+                  className="mr-3"
+                />
+                <span className="text-sm text-gray-700 flex-1">
                   {typeof col.title === 'string' ? col.title : String(col.title)}
-                </Checkbox>
+                </span>
               </div>
             ))}
         </div>
       </div>
-      <div className="flex justify-between space-x-2">
-        <Button size="small" onClick={handleReset}>
+      <div className="flex justify-between space-x-3">
+        <Button 
+          
+          onClick={handleReset}
+          className="border-blue-500 text-blue-500 hover:bg-blue-50 hover:border-blue-600 hover:text-blue-600"
+        >
           {t('techTasks.columnSelector.reset')}
         </Button>
-        <Button type="primary" size="small" onClick={handleApply}>
+        <Button 
+          type="primary" 
+          
+          onClick={handleApply}
+          className="bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600"
+        >
           {t('techTasks.columnSelector.apply')}
         </Button>
       </div>
@@ -111,6 +126,11 @@ const ColumnSelectorV2 = <T,>({
       trigger="click"
       placement="bottomLeft"
       overlayClassName="column-selector-popover"
+      overlayStyle={{ 
+        padding: 0,
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+      }}
     >
       <Button icon={<SettingOutlined />}>
         {t('techTasks.columnSelector.title')}
