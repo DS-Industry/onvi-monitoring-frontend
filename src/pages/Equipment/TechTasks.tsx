@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debounce } from 'lodash';
 import {
-  getPoses,
   getTechTaskExecution,
   StatusTechTask,
   TechTaskReadAll,
@@ -98,27 +97,17 @@ const TechTasks: React.FC = () => {
     }
   );
 
-  const { data: poses } = useSWR(user.organizationId ? [`get-pos`] : null, () => getPoses({
-    organizationId: user.organizationId,
-  }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
-
   const techTasks = useMemo(
     () =>
       data?.techTaskReadAll?.map(item => ({
         ...item,
         type: t(`tables.${item.type}`),
-        posName: poses?.find(pos => pos.id === item.posId)?.name,
         status:
           item.status === StatusTechTask.ACTIVE
             ? t('tables.PENDING')
             : t(`tables.${item.status}`),
       })) || [],
-    [data, poses, t]
+    [data, t]
   );
 
   const renderStatus = getStatusTagRender(t);

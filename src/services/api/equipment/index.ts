@@ -426,6 +426,7 @@ type TechTasksExecutionResponse = {
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
+    posName?: string;
     tags: {
       id: number;
       name: string;
