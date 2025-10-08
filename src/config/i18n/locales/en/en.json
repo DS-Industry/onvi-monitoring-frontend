@@ -1318,7 +1318,7 @@
     "contractTypeRequired": "Contract type is required",
     "fileRequired": "Please select a file to import",
     "fileTooLarge": "File size must be less than 10MB",
-    "organizationRequired": "Organization ID is required",
+    "organizationRequired": "Organization is required",
     "invalidFileType": "Please select a valid Excel/CSV file (.xlsx, .xls, or .csv)",
     "typeRequired": "Type is required",
     "sumRequired": "Sum is required",
