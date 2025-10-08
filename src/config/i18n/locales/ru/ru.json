@@ -1535,9 +1535,29 @@
     "regularProgram": "Обычная программа"
   },
   "techTasks": {
-    "selectedTasks": "Выбрано {{count}} задача",
-    "selectedTasksPlural": "Выбрано {{count}} задач",
+    "selectedTasks": "Выбрано {{count}}",
     "clearSelection": "Очистить выбор",
-    "delete": "Удалить"
+    "delete": "Удалить",
+    "confirmDelete": "Подтвердите удаление",
+    "confirmDeleteMessage": "Вы уверены, что хотите удалить задачи?",
+    "deleteSuccess": "Задачи успешно удалены",
+    "deleteError": "Не удалось удалить задачи",
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Автомойка/ Филиал",
+      "workName": "Наименование работ",
+      "status": "Статус",
+      "workType": "Тип работы",
+      "tags": "Теги",
+      "deadline": "Крайний срок",
+      "actions": "Действия"
+    },
+    "columnSelector": {
+      "title": "Столбцы",
+      "reset": "Сбросить",
+      "apply": "Применить"
+    },
+    "searchPlaceholder": "Поиск задач...",
+    "createTask": "Создать задачу"
   }
 }

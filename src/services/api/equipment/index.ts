@@ -711,3 +711,17 @@ export async function deleteTechTask(id: number): Promise<void> {
   );
   return response.data;
 }
+
+export type BulkDeleteTechTasksBody = {
+  ids: number[];
+  posId?: number;
+  organizationId: number;
+};
+
+export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promise<void> {
+  const response: AxiosResponse<void> = await api.post(
+    'user/tech-task/bulk/delete',
+    body
+  );
+  return response.data;
+}

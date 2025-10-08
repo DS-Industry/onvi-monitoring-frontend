@@ -1,15 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { debounce } from 'lodash';
 import {
   getPoses,
   getTechTaskExecution,
   StatusTechTask,
   TechTaskReadAll,
   deleteTechTask,
+  bulkDeleteTechTasks,
+  BulkDeleteTechTasksBody,
 } from '@/services/api/equipment';
 import useSWR from 'swr';
-import { Table, Modal, Button, Checkbox } from 'antd';
-import { DeleteOutlined, CloseOutlined } from '@ant-design/icons';
+import { Table, Modal, Button, Checkbox, Input } from 'antd';
+import { DeleteOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
@@ -54,8 +57,23 @@ const TechTasks: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [searchValue, setSearchValue] = useState(name || '');
 
   const user = useUser()
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        name: value || undefined,
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
+
+  useEffect(() => {
+    setSearchValue(name || '');
+  }, [name]);
 
   const { data, isLoading: techTasksLoading, mutate } = useSWR(
     user.organizationId ? swrKey : null,
@@ -140,27 +158,47 @@ const TechTasks: React.FC = () => {
 
   const handleBulkDelete = () => {
     const selectedTasks = techTasks.filter(task => selectedRowKeys.includes(task.id));
-    const taskNames = selectedTasks.map(task => task.name).join(', ');
+    const taskIds = selectedRowKeys.map(key => Number(key));
     
     Modal.confirm({
-      title: t('constants.confirm'),
-      content: `Are you sure you want to delete ${selectedTasks.length} tech task(s): "${taskNames}"?`,
-      okText: t('marketing.delete'),
+      title: t('techTasks.confirmDelete'),
+      content: t('techTasks.confirmDeleteMessage', { count: selectedTasks.length }),
+      okText: t('techTasks.delete'),
       okType: 'danger',
       cancelText: t('organizations.cancel'),
       async onOk() {
         try {
-          for (const taskId of selectedRowKeys) {
-            await deleteTechTask(Number(taskId));
+          if (!user.organizationId) {
+            showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
+            return;
           }
+          
+          const bulkDeleteBody: BulkDeleteTechTasksBody = {
+            ids: taskIds,
+            ...(posId && { posId }),
+            organizationId: user.organizationId,
+          };
+          
+          await bulkDeleteTechTasks(bulkDeleteBody);
           setSelectedRowKeys([]);
           await mutate();
-          showToast(t('success.recordDeleted'), 'success');
+          showToast(t('techTasks.deleteSuccess'), 'success');
         } catch (error) {
-          showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
+          showToast(t('techTasks.deleteError'), 'error');
         }
       },
     });
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
   };
 
   const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
@@ -195,14 +233,18 @@ const TechTasks: React.FC = () => {
       ),
     },
     {
-      title: '№',
+      title: t('techTasks.columns.number'),
       dataIndex: 'id',
       key: 'id',
+      width: 60,
+      fixed: 'left',
     },
     {
-      title: 'Автомойка/ Филиал',
+      title: t('techTasks.columns.carWashBranch'),
       dataIndex: 'posName',
       key: 'posName',
+      width: 200,
+      minWidth: 150,
       render: (text, record) => {
         return (
           <Link
@@ -218,38 +260,49 @@ const TechTasks: React.FC = () => {
       },
     },
     {
-      title: 'Наименование работ',
+      title: t('techTasks.columns.workName'),
       dataIndex: 'name',
       key: 'name',
+      width: 250,
+      minWidth: 200,
     },
     {
-      title: 'Статус',
+      title: t('techTasks.columns.status'),
       dataIndex: 'status',
       key: 'status',
+      width: 120,
+      minWidth: 100,
       render: renderStatus,
     },
     {
-      title: 'Тип работы',
+      title: t('techTasks.columns.workType'),
       dataIndex: 'type',
       key: 'type',
+      width: 120,
+      minWidth: 100,
     },
     {
-      title: 'Теги',
+      title: t('techTasks.columns.tags'),
       dataIndex: 'tags',
       key: 'tags',
+      width: 150,
+      minWidth: 120,
       render: value => getTagRender(value),
     },
     {
-      title: 'Крайний срок',
+      title: t('techTasks.columns.deadline'),
       dataIndex: 'endSpecifiedDate',
       key: 'endSpecifiedDate',
+      width: 150,
+      minWidth: 120,
       render: dateRender,
     },
     {
-      title: 'Действия',
+      title: t('techTasks.columns.actions'),
       dataIndex: 'actions',
       key: 'actions',
       width: 120,
+      minWidth: 100,
       render: (_: unknown, record: TechTaskReadAll) => (
         <Button
           type="text"
@@ -270,55 +323,84 @@ const TechTasks: React.FC = () => {
 
   return (
     <>
-      <div className="ml-12 md:ml-0 mb-5">
+      <div className="ml-4 sm:ml-8 md:ml-12 lg:ml-0 mb-5">
         <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
+          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-text01">
             {t('routes.technicalTasks')}
           </span>
         </div>
       </div>
-        <FilterTechTasks />
-      <div className="mt-8">
-        <div className="flex justify-between items-center mb-4">
-          {ColumnSelector}
+      
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 px-4 sm:px-8 md:px-12 lg:px-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <Input.Search
+            placeholder={t('techTasks.searchPlaceholder')}
+            value={searchValue}
+            onChange={handleSearchChange}
+            onSearch={handleSearch}
+            allowClear
+            className="w-full sm:w-80"
+            style={{ height: '32px' }}
+          />
+          <div style={{ height: '32px' }}>
+            <FilterTechTasks />
+          </div>
+          <div style={{ height: '32px' }}>
+            {ColumnSelector}
+          </div>
         </div>
-        <Table
-          dataSource={techTasks}
-          columns={visibleColumns}
-          loading={techTasksLoading || isInitialLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: data?.totalCount || 0,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-            onChange: (page, size) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              });
-            },
-          }}
-        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          className="btn-primary"
+          style={{ height: '32px' }}
+        >
+          <span className="hidden sm:inline">{t('techTasks.createTask')}</span>
+        </Button>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <div className="min-w-full max-w-full">
+          <Table
+            dataSource={techTasks}
+            columns={visibleColumns}
+            loading={techTasksLoading || isInitialLoading}
+            scroll={{ x: 'max-content' }}
+            className="responsive-table"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: data?.totalCount || 0,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`,
+              onChange: (page, size) => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                });
+              },
+              responsive: true,
+              showSizeChanger: true,
+              showQuickJumper: true,
+            }}
+          />
+        </div>
       </div>
 
       {selectedRowKeys.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center">
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] mx-4">
+          <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center gap-2 sm:gap-4">
             <Button
               type="text"
               icon={<CloseOutlined />}
               onClick={() => setSelectedRowKeys([])}
               className="text-white hover:text-gray-200 p-0 h-auto"
             />
-            <span className="text-sm font-medium ml-2">
-              {selectedRowKeys.length === 1 
-                ? t('techTasks.selectedTasks', { count: selectedRowKeys.length })
-                : t('techTasks.selectedTasksPlural', { count: selectedRowKeys.length })
-              }
+            <span className="text-xs sm:text-sm font-medium ml-1 sm:ml-2">
+              {t('techTasks.selectedTasks', { count: selectedRowKeys.length })}
             </span>
-            <div className="w-px h-4 bg-white mx-4"></div>
+            <div className="w-px h-4 bg-white mx-2 sm:mx-4"></div>
             <Button
               type="text"
               icon={<DeleteOutlined />}

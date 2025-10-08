@@ -1535,9 +1535,30 @@
     "regularProgram": "Regular program"
   },
   "techTasks": {
-    "selectedTasks": "Selected {{count}} task",
-    "selectedTasksPlural": "Selected {{count}} tasks",
+    "selectedTasks": "Selected {{count}}",
     "clearSelection": "Clear selection",
-    "delete": "Delete"
+    "delete": "Delete",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete {{count}} task(s)?",
+    "confirmDeleteMessagePlural": "Are you sure you want to delete {{count}} tasks?",
+    "deleteSuccess": "Tasks deleted successfully",
+    "deleteError": "Failed to delete tasks",
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Car Wash / Branch",
+      "workName": "Work Name",
+      "status": "Status",
+      "workType": "Work Type",
+      "tags": "Tags",
+      "deadline": "Deadline",
+      "actions": "Actions"
+    },
+    "columnSelector": {
+      "title": "Columns",
+      "reset": "Reset",
+      "apply": "Apply"
+    },
+    "searchPlaceholder": "Search tasks...",
+    "createTask": "Create task"
   }
 }

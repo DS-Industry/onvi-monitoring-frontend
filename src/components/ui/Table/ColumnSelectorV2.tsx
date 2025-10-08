@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Button, Popover, Checkbox, Space } from 'antd';
+import { Button, Popover, Checkbox } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 
 interface ColumnSelectorV2Props<T = any> {
@@ -17,6 +18,7 @@ const ColumnSelectorV2 = <T,>({
   columns,
   storageKey,
 }: ColumnSelectorV2Props<T>): ColumnSelectorV2Return<T> => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   
   const defaultColumns = columns
@@ -72,17 +74,9 @@ const ColumnSelectorV2 = <T,>({
     setTempSelection(defaultColumns);
   };
 
-  const handleCancel = () => {
-    setTempSelection(selectedColumns);
-    setIsOpen(false);
-  };
-
   const popoverContent = (
     <div className="p-4 min-w-[200px]">
       <div className="mb-4">
-        <div className="text-sm font-medium text-gray-700 mb-2">
-          Выберите столбцы для отображения:
-        </div>
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
           {columns
             .filter(col => col.key !== 'checkbox')
@@ -100,16 +94,11 @@ const ColumnSelectorV2 = <T,>({
       </div>
       <div className="flex justify-between space-x-2">
         <Button size="small" onClick={handleReset}>
-          Сбросить
+          {t('techTasks.columnSelector.reset')}
         </Button>
-        <Space>
-          <Button size="small" onClick={handleCancel}>
-            Отмена
-          </Button>
-          <Button type="primary" size="small" onClick={handleApply}>
-            Применить
-          </Button>
-        </Space>
+        <Button type="primary" size="small" onClick={handleApply}>
+          {t('techTasks.columnSelector.apply')}
+        </Button>
       </div>
     </div>
   );
@@ -124,7 +113,7 @@ const ColumnSelectorV2 = <T,>({
       overlayClassName="column-selector-popover"
     >
       <Button icon={<SettingOutlined />}>
-        Столбцы
+        {t('techTasks.columnSelector.title')}
       </Button>
     </Popover>
   );
