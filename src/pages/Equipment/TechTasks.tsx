@@ -28,6 +28,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import 'dayjs/locale/ru';
 import { useUser } from '@/hooks/useUserStore';
+import { getAvatarColorClasses } from '@/utils/avatarColors';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
@@ -275,14 +276,15 @@ const TechTasks: React.FC = () => {
           return <span className="text-gray-400">-</span>;
         }
         
-        const { firstName, lastName } = record.createdBy;
+        const { firstName, lastName, id } = record.createdBy;
         const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
         const fullName = `${firstName} ${lastName}`;
+        const avatarColors = getAvatarColorClasses(id);
         
         return (
           <div className="flex items-center gap-2">
             <div 
-              className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xs font-medium"
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${avatarColors}`}
               title={fullName}
             >
               {initials}

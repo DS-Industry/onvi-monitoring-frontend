@@ -435,6 +435,12 @@ type TechTasksExecutionResponse = {
     createdBy: {
       firstName: string;
       lastName: string;
+      id: number
+    } | null;
+    executor: {
+      firstName: string;
+      lastName: string;
+      id: number
     } | null;
   }[];
   totalCount: number;
