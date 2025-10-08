@@ -18,26 +18,24 @@ interface FilterValues {
   dateTo: dayjs.Dayjs | null;
 }
 
+type FilterType = 'status' | 'assigned' | 'tags' | 'dateRange' | 'branch';
+
 interface FilterTechTasksProps {
-  showStatus?: boolean;
-  showAssigned?: boolean;
-  showTags?: boolean;
-  showDateRange?: boolean;
-  showBranch?: boolean;
+  display?: FilterType[];
 }
 
 const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
-  showStatus = true,
-  showAssigned = false,
-  showTags = true,
-  showDateRange = true,
-  showBranch = true,
+  display = ['status', 'tags', 'dateRange', 'branch'],
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
 
   const user = useUser()
+
+  const shouldShow = (filter: FilterType): boolean => {
+    return display.includes(filter);
+  };
 
   const { data: tagsData } = useSWR(['get-tags'], getTags, {
     revalidateOnFocus: false,
@@ -56,7 +54,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
   });
 
   const { data: workersData } = useSWR(
-    user.organizationId && showAssigned ? ['get-workers', user.organizationId] : null,
+    user.organizationId && shouldShow('assigned') ? ['get-workers', user.organizationId] : null,
     () => getWorkers(user.organizationId!),
     {
       revalidateOnFocus: false,
@@ -120,39 +118,39 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
   const updateFiltersToSearchParams = (newFilters: FilterValues) => {
     const updates: Record<string, string | undefined> = {};
     
-    if (showBranch && newFilters.branch !== t('filters.filterTechTasks.all')) {
+    if (shouldShow('branch') && newFilters.branch !== t('filters.filterTechTasks.all')) {
       updates.posId = newFilters.branch;
-    } else if (showBranch) {
+    } else if (shouldShow('branch')) {
       updates.posId = undefined;
     }
     
-    if (showStatus && newFilters.status.length > 0) {
+    if (shouldShow('status') && newFilters.status.length > 0) {
       updates.status = newFilters.status[0];
-    } else if (showStatus) {
+    } else if (shouldShow('status')) {
       updates.status = undefined;
     }
     
-    if (showAssigned && newFilters.assigned.length > 0) {
+    if (shouldShow('assigned') && newFilters.assigned.length > 0) {
       updates.assigned = newFilters.assigned[0];
-    } else if (showAssigned) {
+    } else if (shouldShow('assigned')) {
       updates.assigned = undefined;
     }
     
-    if (showTags && newFilters.tags.length > 0) {
+    if (shouldShow('tags') && newFilters.tags.length > 0) {
       updates.tags = newFilters.tags.join(',');
-    } else if (showTags) {
+    } else if (shouldShow('tags')) {
       updates.tags = undefined;
     }
     
-    if (showDateRange && newFilters.dateFrom) {
+    if (shouldShow('dateRange') && newFilters.dateFrom) {
       updates.startDate = newFilters.dateFrom.format('YYYY-MM-DD');
-    } else if (showDateRange) {
+    } else if (shouldShow('dateRange')) {
       updates.startDate = undefined;
     }
     
-    if (showDateRange && newFilters.dateTo) {
+    if (shouldShow('dateRange') && newFilters.dateTo) {
       updates.endDate = newFilters.dateTo.format('YYYY-MM-DD');
-    } else if (showDateRange) {
+    } else if (shouldShow('dateRange')) {
       updates.endDate = undefined;
     }
     
@@ -189,7 +187,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
       </div>
 
       <div className="space-y-6">
-        {showBranch && (
+        {shouldShow('branch') && (
           <div>
             <div className="flex items-center mb-3">
               <CarOutlined className="mr-2 font-bold text-black" />
@@ -210,7 +208,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
           </div>
         )}
 
-        {showStatus && (
+        {shouldShow('status') && (
           <div>
             <div className="flex items-center mb-3">
             <CheckOutlined className="mr-2 font-bold text-black" />
@@ -268,7 +266,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
           </div>
         )}
 
-        {showTags && (
+        {shouldShow('tags') && (
           <div>
             <div className="flex items-center mb-3">
               <UnorderedListOutlined className="mr-2 font-bold text-black" />
@@ -288,7 +286,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
           </div>
         )}
 
-        {showDateRange && (
+        {shouldShow('dateRange') && (
           <div>
             <div className="flex items-center mb-3">
               <ScheduleOutlined className="mr-2 font-bold text-black" />
@@ -318,7 +316,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
           </div>
         )}
 
-        {showAssigned && (
+        {shouldShow('assigned') && (
           <div>
             <div className="flex items-center mb-3">
               <UserOutlined className="mr-2 font-bold text-black" />

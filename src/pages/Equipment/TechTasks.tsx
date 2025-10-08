@@ -324,7 +324,7 @@ const TechTasks: React.FC = () => {
           />
           <div className="flex items-center gap-2 sm:gap-3">
             <div style={{ height: '32px' }}>
-              <FilterTechTasks />
+              <FilterTechTasks display={['status', 'tags', 'dateRange', 'branch']} />
             </div>
             <div style={{ height: '32px' }}>
               {ColumnSelector}

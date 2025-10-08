@@ -236,13 +236,7 @@ const ProgressReport: React.FC = () => {
           />
           <div className="flex items-center gap-2 sm:gap-3">
             <div style={{ height: '32px' }}>
-              <FilterTechTasks 
-                showStatus={false}
-                showAssigned={true}
-                showTags={true}
-                showDateRange={true}
-                showBranch={true}
-              />
+              <FilterTechTasks display={['assigned', 'tags', 'dateRange', 'branch']} />
             </div>
             <div style={{ height: '32px' }}>
               {ColumnSelector}
