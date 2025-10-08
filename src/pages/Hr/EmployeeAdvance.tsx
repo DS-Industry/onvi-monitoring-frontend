@@ -22,13 +22,13 @@ import {
 import {
   getCurrencyRender,
   getDateRender,
-  getPercentRender,
 } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import dayjs from 'dayjs';
 
 type TablePayment = PrepaymentResponse & {
   hrPosition?: string;
@@ -49,7 +49,7 @@ const EmployeeAdvance: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -74,7 +74,14 @@ const EmployeeAdvance: React.FC = () => {
     : undefined;
 
   const { data: paymentsData, isLoading: paymentsLoading } = useSWR(
-    ['get-payments', startPaymentDate, endPaymentDate, workerId, currentPage, pageSize],
+    [
+      'get-payments',
+      startPaymentDate,
+      endPaymentDate,
+      workerId,
+      currentPage,
+      pageSize,
+    ],
     () =>
       getPrepayments({
         startPaymentDate: startPaymentDate,
@@ -87,7 +94,7 @@ const EmployeeAdvance: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -109,7 +116,7 @@ const EmployeeAdvance: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -117,22 +124,19 @@ const EmployeeAdvance: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
-  const workers: { name: string; value: number | '*' }[] = [
-    { name: t('hr.all'), value: '*' },
-    ...(workersData?.map(work => ({
+  const workers: { name: string; value?: number }[] =
+    workersData?.map(work => ({
       name: work.props.name,
       value: work.props.id,
-    })) || []),
-  ];
+    })) || [];
 
   const totalCount = countData?.count || 0;
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
-  const percentRender = getPercentRender();
 
   const columnsEmployee: ColumnsType<TablePayment> = [
     {
@@ -150,20 +154,13 @@ const EmployeeAdvance: React.FC = () => {
       title: 'Расчетный месяц',
       dataIndex: 'billingMonth',
       key: 'billingMonth',
-      render: dateRender,
+      render: (value) => dayjs(value).format('YYYY-MM'),
     },
     {
       title: 'Дата выдачи',
-      dataIndex: 'paymentDate',
-      key: 'paymentDate',
+      dataIndex: 'payoutTimestamp',
+      key: 'payoutTimestamp',
       render: dateRender,
-    },
-    {
-      title: 'Оклад',
-      dataIndex: 'monthlySalary',
-      key: 'monthlySalary',
-      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: currencyRender,
     },
     {
       title: 'Посменное начисление',
@@ -176,13 +173,13 @@ const EmployeeAdvance: React.FC = () => {
       title: t('validation.bonusPayout'),
       dataIndex: 'bonusPayout',
       key: 'bonusPayout',
-      render: percentRender,
+      render: currencyRender,
     },
     {
       title: 'Количество отработанных смен',
-      dataIndex: 'countShifts',
-      key: 'countShifts',
-      sorter: (a, b) => a.countShifts - b.countShifts,
+      dataIndex: 'numberOfShiftsWorked',
+      key: 'numberOfShiftsWorked',
+      sorter: (a, b) => a.numberOfShiftsWorked - b.numberOfShiftsWorked,
     },
     {
       title: 'Выплачено',
@@ -198,7 +195,7 @@ const EmployeeAdvance: React.FC = () => {
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Hr' },
-    { action: 'create', subject: 'Hr' }
+    { action: 'create', subject: 'Hr' },
   ]);
 
   return (
@@ -211,13 +208,15 @@ const EmployeeAdvance: React.FC = () => {
             {t('routes.empAdv')}
           </span>
         </div>
-        {allowed && <Button
-          icon={<PlusOutlined />}
-          className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
-          onClick={() => navigate('/hr/employee/advance/creation')}
-        >
-          {screens.md && t('routes.create')}
-        </Button>}
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className={`btn-primary ${screens.md ? '' : 'ant-btn-icon-only'}`}
+            onClick={() => navigate('/hr/employee/advance/creation')}
+          >
+            {screens.md && t('routes.create')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">

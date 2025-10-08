@@ -116,11 +116,8 @@ const SalaryCalculationCreation: React.FC = () => {
     }
   );
 
-  const organizations = [
-    { name: t('chemical.select'), value: 0 },
-    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) ||
-      []),
-  ];
+  const organizations =
+    organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
 
   const workers = [
     ...(workersData?.map(work => ({
@@ -130,14 +127,12 @@ const SalaryCalculationCreation: React.FC = () => {
     })) || []),
   ];
 
-  const positions = [
-    { label: t('analysis.all'), value: '', name: t('analysis.all') },
-    ...(positionData?.map(pos => ({
+  const positions =
+    positionData?.map(pos => ({
       label: pos.props.name,
       value: pos.props.id,
       name: pos.props.name,
-    })) || []),
-  ];
+    })) || [];
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -554,11 +549,13 @@ const SalaryCalculationCreation: React.FC = () => {
                 </div>
                 <Select
                   className="w-64 h-10"
-                  options={organizations.map(item => ({
-                    label: item.name,
-                    value: item.value,
-                  }))}
-                  value={formData.organizationId}
+                  options={organizations}
+                  placeholder={t('filters.organization.placeholder')}
+                  value={
+                    formData.organizationId === 0
+                      ? undefined
+                      : formData.organizationId
+                  }
                   {...register('organizationId', {
                     required: t('validation.organizationRequired'),
                     validate: value =>
@@ -623,6 +620,7 @@ const SalaryCalculationCreation: React.FC = () => {
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
+                  allowClear={true}
                 />
               </div>
             </div>

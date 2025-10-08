@@ -18,10 +18,7 @@ import {
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
 } from '@/utils/constants';
-import {
-  getCurrencyRender,
-  getDateRender
-} from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
@@ -94,17 +91,11 @@ const SalaryCalculation: React.FC = () => {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const workers = useMemo(() => {
-    const defaultOption = [{ name: t('hr.all'), value: '*' }];
-    if (!workersData) return defaultOption;
-    return [
-      ...defaultOption,
-      ...workersData.map(worker => ({
-        name: worker.props.name,
-        value: String(worker.props.id),
-      })),
-    ];
-  }, [workersData, t]);
+  const workers =
+    workersData?.map(worker => ({
+      name: worker.props.name,
+      value: worker.props.id,
+    })) || [];
 
   const adaptedPositionData = positionData?.map(item => ({
     id: item.props.id,

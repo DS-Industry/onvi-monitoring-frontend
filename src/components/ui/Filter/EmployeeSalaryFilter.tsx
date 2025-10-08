@@ -11,7 +11,7 @@ const Text = Typography.Text;
 
 type Optional = {
   name: string;
-  value: string | number;
+  value?: number;
 };
 
 type SalaryCalculationFilterProps = {
@@ -209,7 +209,8 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                     <Text>{t('routes.employees')}</Text>
                     <Select
                       className="w-full"
-                      value={getParam(searchParams, 'hrWorkerId', '*')}
+                      placeholder={t('warehouse.notSel')}
+                      value={getParam(searchParams, 'hrWorkerId')}
                       onChange={(val: string) => {
                         updateSearchParams(searchParams, setSearchParams, {
                           hrWorkerId: val,
@@ -227,6 +228,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
+                      allowClear={true}
                     />
                   </div>
                 </div>
