@@ -110,6 +110,8 @@ const FilterTechTasks = () => {
       updates.endDate = undefined;
     }
     
+    updates.page = '1';
+    
     updateSearchParams(searchParams, setSearchParams, updates);
   };
 
@@ -123,14 +125,16 @@ const FilterTechTasks = () => {
     setIsOpen(false);
   };
 
-  const handleClear = () => {
-    setTempFilters(defaultFilters);
+  const handleReset = () => {
+    setFilters(defaultFilters);
+    updateFiltersToSearchParams(defaultFilters);
+    setIsOpen(false);
   };
 
   const popoverContent = (
     <div className="px-3 pb-3 w-[90vw] max-w-[500px] sm:w-[400px]">
       <div className="flex justify-end space-x-2 mb-6">
-        <Button onClick={handleClear} className="border-blue-500 text-blue-500 hover:bg-blue-50">
+        <Button onClick={handleReset} className="border-blue-500 text-blue-500 hover:bg-blue-50">
           {t('filters.filterTechTasks.clear')}
         </Button>
         <Button type="primary" onClick={handleApply} className="bg-blue-500 hover:bg-blue-600">
