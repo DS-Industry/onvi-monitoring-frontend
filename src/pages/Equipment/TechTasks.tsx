@@ -6,7 +6,6 @@ import {
   getTechTaskExecution,
   StatusTechTask,
   TechTaskReadAll,
-  deleteTechTask,
   bulkDeleteTechTasks,
   BulkDeleteTechTasksBody,
 } from '@/services/api/equipment';
@@ -136,26 +135,6 @@ const TechTasks: React.FC = () => {
     }
 
     return date.format('D MMMM YYYY');
-  };
-
-
-  const handleDelete = (id: number, name: string) => {
-    Modal.confirm({
-      title: t('constants.confirm'),
-      content: `Are you sure you want to delete "${name}"?`,
-      okText: t('marketing.delete'),
-      okType: 'danger',
-      cancelText: t('organizations.cancel'),
-      async onOk() {
-        try {
-          await deleteTechTask(id);
-          await mutate();
-          showToast(t('success.recordDeleted'), 'success');
-        } catch (error) {
-          showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
-        }
-      },
-    });
   };
 
   const handleBulkDelete = () => {
@@ -301,20 +280,33 @@ const TechTasks: React.FC = () => {
     },
     {
       title: t('techTasks.columns.author'),
-      dataIndex: 'author',
-      key: 'author',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
       width: 120,
       minWidth: 100,
-      render: (_: unknown, record: TechTaskReadAll) => (
-        <Button
-          type="text"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => handleDelete(record.id, record.name)}
-          title={t('marketing.delete')}
-          size="small"
-        />
-      ),
+      render: (_: unknown, record: TechTaskReadAll) => {
+        if (!record.createdBy) {
+          return <span className="text-gray-400">-</span>;
+        }
+        
+        const { firstName, lastName } = record.createdBy;
+        const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+        const fullName = `${firstName} ${lastName}`;
+        
+        return (
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xs font-medium"
+              title={fullName}
+            >
+              {initials}
+            </div>
+            <span className="text-sm text-gray-700 truncate">
+              {fullName}
+            </span>
+          </div>
+        );
+      },
     },
   ];
 

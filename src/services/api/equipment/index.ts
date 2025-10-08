@@ -431,6 +431,10 @@ type TechTasksExecutionResponse = {
       name: string;
       code?: string;
     }[];
+    createdBy: {
+      firstName: string;
+      lastName: string;
+    } | null;
   }[];
   totalCount: number;
 };
