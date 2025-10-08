@@ -1318,7 +1318,7 @@
     "contractTypeRequired": "Тип контракта обязателен",
     "fileRequired": "Пожалуйста, выберите файл для импорта",
     "fileTooLarge": "Размер файла должен быть меньше 10MB",
-    "organizationRequired": "организации обязателен",
+    "organizationRequired": "Укажите организацию",
     "invalidFileType": "Пожалуйста, выберите корректный файл Excel/CSV (.xlsx, .xls или .csv)",
     "typeRequired": "Тип обязателен",
     "sumRequired": "Сумма обязательна",
