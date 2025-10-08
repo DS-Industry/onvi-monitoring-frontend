@@ -39,7 +39,7 @@
     "report": "Create Report",
     "create": "Create",
     "list": "List of works",
-    "progress": "Implementation report",
+    "progress": "Completion Report",
     "from": "From REPORTS",
     "settings": "Settings",
     "nomenclature": "Nomenclature",
@@ -1462,6 +1462,8 @@
       "title": "Filters",
       "branch": "Branch/Station",
       "status": "Status",
+      "assigned": "Assigned",
+      "selectAssignee": "Select assignee",
       "tags": "Tags",
       "dateRange": "Date Range",
       "author": "Author",
@@ -1576,5 +1578,17 @@
     },
     "searchPlaceholder": "Search tasks...",
     "createTask": "Create task"
+  },
+  "progressReport": {
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Car Wash / Branch",
+      "workName": "Work Name",
+      "frequency": "Frequency",
+      "status": "Status",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "assignee": "Assignee"
+    }
   }
 }

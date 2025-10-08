@@ -446,8 +446,15 @@ export type TechTaskReadAll =
 type TechTasksReportParams = {
   posId?: number;
   type?: TypeTechTask;
+  status?: StatusTechTask;
   page?: number;
   size?: number;
+  organizationId?: number;
+  name?: string;
+  tags?: string[];
+  startDate?: string;
+  endDate?: string;
+  executorId?: number;
 };
 
 type WorkersParams = {
