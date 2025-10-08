@@ -39,7 +39,7 @@
     "report": "Create Report",
     "create": "Create",
     "list": "List of works",
-    "progress": "Implementation report",
+    "progress": "Completion Report",
     "from": "From REPORTS",
     "settings": "Settings",
     "nomenclature": "Nomenclature",
@@ -329,7 +329,10 @@
     "deadline": "Deadline",
     "resp": "Responsible",
     "taskInfo": "Task Information",
-    "do": "Do you want to change the status?"
+    "do": "Do you want to change the status?",
+    "taskName": "Task Name",
+    "dateRange": "Date Range",
+    "author": "Author"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -1455,6 +1458,22 @@
     "pos": {
       "placeholder": "Select POS"
     },
+    "filterTechTasks": {
+      "title": "Filters",
+      "branch": "Branch/Station",
+      "status": "Status",
+      "assigned": "Assigned",
+      "selectAssignee": "Select assignee",
+      "tags": "Tags",
+      "dateRange": "Date Range",
+      "author": "Author",
+      "all": "All",
+      "apply": "Apply",
+      "clear": "Clear",
+      "cancel": "Cancel",
+      "startDatePlaceholder": "Start Date",
+      "endDatePlaceholder": "End Date"
+    },
     "warehouse": {
       "placeholder": "Select Warehouse"
     },
@@ -1531,5 +1550,45 @@
     "noAvailablePrograms": "No available programs to join",
     "noProgramsFound": "No programs found",
     "regularProgram": "Regular program"
+  },
+  "techTasks": {
+    "selectedTasks": "Selected {{count}}",
+    "clearSelection": "Clear selection",
+    "delete": "Delete",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete {{count}} task(s)?",
+    "confirmDeleteMessagePlural": "Are you sure you want to delete {{count}} tasks?",
+    "deleteSuccess": "Tasks deleted successfully",
+    "deleteError": "Failed to delete tasks",
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Car Wash / Branch",
+      "workName": "Work Name",
+      "status": "Status",
+      "workType": "Work Type",
+      "tags": "Tags",
+      "deadline": "Deadline",
+      "actions": "Actions",
+      "author": "Author"
+    },
+    "columnSelector": {
+      "title": "Columns",
+      "reset": "Reset",
+      "apply": "Apply"
+    },
+    "searchPlaceholder": "Search tasks...",
+    "createTask": "Create task"
+  },
+  "progressReport": {
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Car Wash / Branch",
+      "workName": "Work Name",
+      "frequency": "Frequency",
+      "status": "Status",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "assignee": "Assignee"
+    }
   }
 }
