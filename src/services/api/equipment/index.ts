@@ -407,6 +407,12 @@ type TechTasksExecutionParams = {
   status?: StatusTechTask;
   page?: number;
   size?: number;
+  organizationId?: number;
+  name?: string;
+  tags?: string[];
+  startDate?: string;
+  endDate?: string;
+  authorId?: number;
 };
 
 type TechTasksExecutionResponse = {
@@ -420,11 +426,16 @@ type TechTasksExecutionResponse = {
     startWorkDate?: Date;
     sendWorkDate?: Date;
     executorId?: number;
+    posName?: string;
     tags: {
       id: number;
       name: string;
       code?: string;
     }[];
+    createdBy: {
+      firstName: string;
+      lastName: string;
+    } | null;
   }[];
   totalCount: number;
 };
@@ -702,6 +713,20 @@ export async function blockWorker(userId: number): Promise<WorkerBlockResponse> 
 export async function deleteTechTask(id: number): Promise<void> {
   const response: AxiosResponse<void> = await api.delete(
     `user/tech-task/${id}`
+  );
+  return response.data;
+}
+
+export type BulkDeleteTechTasksBody = {
+  ids: number[];
+  posId?: number;
+  organizationId: number;
+};
+
+export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promise<void> {
+  const response: AxiosResponse<void> = await api.delete(
+    'user/tech-task/bulk/delete',
+    {data: body}
   );
   return response.data;
 }

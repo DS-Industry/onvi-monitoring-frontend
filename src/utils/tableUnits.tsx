@@ -55,19 +55,80 @@ export function getPercentRender() {
   };
 }
 
-/**
- * Render AntD tags from a list of { id, name, color } objects.
- */
+const TAG_COLOR_PALETTE = [
+  { bg: '#e6f3ff', border: '#1890ff', text: '#1890ff' }, // Blue
+  { bg: '#f6ffed', border: '#52c41a', text: '#52c41a' }, // Green
+  { bg: '#fff7e6', border: '#fa8c16', text: '#fa8c16' }, // Orange
+  { bg: '#fff2f0', border: '#f5222d', text: '#f5222d' }, // Red
+  { bg: '#f9f0ff', border: '#722ed1', text: '#722ed1' }, // Purple
+  { bg: '#e6fffb', border: '#13c2c2', text: '#13c2c2' }, // Cyan
+  { bg: '#fff0f6', border: '#eb2f96', text: '#eb2f96' }, // Magenta
+  { bg: '#fcffe6', border: '#a0d911', text: '#a0d911' }, // Lime
+  { bg: '#fffbe6', border: '#faad14', text: '#faad14' }, // Gold
+  { bg: '#fff2e8', border: '#fa541c', text: '#fa541c' }, // Volcano
+  { bg: '#f0f5ff', border: '#2f54eb', text: '#2f54eb' }, // Geekblue
+  { bg: '#fff0f6', border: '#eb2f96', text: '#eb2f96' }, // Pink
+  { bg: '#feffe6', border: '#fadb14', text: '#fadb14' }, // Yellow
+  { bg: '#f0f5ff', border: '#531dab', text: '#531dab' }, // Indigo
+  { bg: '#e6fffb', border: '#08979c', text: '#08979c' }, // Teal
+  { bg: '#fff7e6', border: '#ad6800', text: '#ad6800' }, // Brown
+];
+
+function getTagColorScheme(tagName: string, existingColor?: string): { bg: string; border: string; text: string } {
+  if (existingColor) {
+    const colorMap: { [key: string]: { bg: string; border: string; text: string } } = {
+      'blue': TAG_COLOR_PALETTE[0],
+      'green': TAG_COLOR_PALETTE[1],
+      'orange': TAG_COLOR_PALETTE[2],
+      'red': TAG_COLOR_PALETTE[3],
+      'purple': TAG_COLOR_PALETTE[4],
+      'cyan': TAG_COLOR_PALETTE[5],
+      'magenta': TAG_COLOR_PALETTE[6],
+      'lime': TAG_COLOR_PALETTE[7],
+      'gold': TAG_COLOR_PALETTE[8],
+      'volcano': TAG_COLOR_PALETTE[9],
+      'geekblue': TAG_COLOR_PALETTE[10],
+      'pink': TAG_COLOR_PALETTE[11],
+      'yellow': TAG_COLOR_PALETTE[12],
+      'indigo': TAG_COLOR_PALETTE[13],
+      'teal': TAG_COLOR_PALETTE[14],
+      'brown': TAG_COLOR_PALETTE[15],
+    };
+    return colorMap[existingColor] || TAG_COLOR_PALETTE[0];
+  }
+  
+  let hash = 0;
+  for (let i = 0; i < tagName.length; i++) {
+    const char = tagName.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; 
+  }
+  
+  const colorIndex = Math.abs(hash) % TAG_COLOR_PALETTE.length;
+  return TAG_COLOR_PALETTE[colorIndex];
+}
+
 export function getTagRender(tags?: TagItem[]): React.ReactNode {
   if (!tags || tags.length === 0) return '—';
 
   return (
     <div className="flex flex-wrap gap-2 max-w-64">
-      {tags.map(tag => (
-        <Tag key={tag.id} color={tag.color ?? 'cyan'}>
-          {tag.name}
-        </Tag>
-      ))}
+      {tags.map(tag => {
+        const colorScheme = getTagColorScheme(tag.name, tag.color);
+        return (
+          <span
+            key={tag.id}
+            className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border"
+            style={{
+              backgroundColor: colorScheme.bg,
+              borderColor: colorScheme.border,
+              color: colorScheme.text,
+            }}
+          >
+            {tag.name}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -75,7 +136,7 @@ export function getTagRender(tags?: TagItem[]): React.ReactNode {
 export function getStatusTagRender(t: TFunction) {
   return (status: string): React.ReactNode => {
     const greenStatuses = [
-      t('tables.ACTIVE'),
+      t('tables.FINISHED'),
       t('tables.SENT'),
       t('tables.In Progress'),
       t('analysis.PROGRESS'),
@@ -83,10 +144,9 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const redStatuses = [
-      t('tables.INACTIVE'),
       t('tables.OVERDUE'),
+      t('tables.INACTIVE'),
       t('tables.Done'),
-      t('tables.FINISHED'),
       t('tables.PAUSE'),
       t('analysis.DONE'),
       t('finance.EXPENDITURE'),
@@ -96,12 +156,16 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const orangeStatuses = [
+      t('tables.ACTIVE'),
       t('tables.SAVE'),
       t('tables.SAVED'),
       t('tables.VERIFICATE'),
-      t('tables.RETURNED'),
       t('tables.COMPLETED'),
       t('tables.PENDING'),
+    ];
+
+    const blueStatuses = [
+      t('tables.RETURNED'),
     ];
 
     if (greenStatuses.includes(status)) {
@@ -114,6 +178,10 @@ export function getStatusTagRender(t: TFunction) {
 
     if (orangeStatuses.includes(status)) {
       return <Tag color="orange">{status}</Tag>;
+    }
+
+    if (blueStatuses.includes(status)) {
+      return <Tag color="blue">{status}</Tag>;
     }
 
     return <Tag color="default">{status}</Tag>;

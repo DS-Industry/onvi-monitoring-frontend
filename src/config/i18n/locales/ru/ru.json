@@ -329,7 +329,10 @@
     "deadline": "Крайний срок",
     "resp": "Ответственный",
     "taskInfo": "Информация о задаче",
-    "do": "Хотите изменить статус?"
+    "do": "Хотите изменить статус?",
+    "taskName": "Название задачи",
+    "dateRange": "Диапазон дат",
+    "author": "Автор"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
@@ -1455,6 +1458,20 @@
     "pos": {
       "placeholder": "Выберите POS"
     },
+    "filterTechTasks": {
+      "title": "Фильтры",
+      "branch": "Автомойка/Филиал",
+      "status": "Статус",
+      "tags": "Теги",
+      "dateRange": "Диапазон дат",
+      "author": "Автор",
+      "all": "Все",
+      "apply": "Применить",
+      "clear": "Очистить",
+      "cancel": "Отмена",
+      "startDatePlaceholder": "Дата начала",
+      "endDatePlaceholder": "Дата окончания"
+    },
     "warehouse": {
       "placeholder": "Выберите склад"
     },
@@ -1531,5 +1548,32 @@
     "noAvailablePrograms": "Нет доступных программ для присоединения",
     "noProgramsFound": "Программы не найдены",
     "regularProgram": "Обычная программа"
+  },
+  "techTasks": {
+    "selectedTasks": "Выбрано {{count}}",
+    "clearSelection": "Очистить выбор",
+    "delete": "Удалить",
+    "confirmDelete": "Подтвердите удаление",
+    "confirmDeleteMessage": "Вы уверены, что хотите удалить задачи?",
+    "deleteSuccess": "Задачи успешно удалены",
+    "deleteError": "Не удалось удалить задачи",
+    "columns": {
+      "number": "№",
+      "carWashBranch": "Автомойка/ Филиал",
+      "workName": "Наименование работ",
+      "status": "Статус",
+      "workType": "Тип работы",
+      "tags": "Теги",
+      "deadline": "Крайний срок",
+      "actions": "Действия",
+      "author": "Автор"
+    },
+    "columnSelector": {
+      "title": "Столбцы",
+      "reset": "Сбросить",
+      "apply": "Применить"
+    },
+    "searchPlaceholder": "Поиск задач...",
+    "createTask": "Создать задачу"
   }
 }
