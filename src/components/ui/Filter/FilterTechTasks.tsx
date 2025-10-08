@@ -128,7 +128,7 @@ const FilterTechTasks = () => {
   };
 
   const popoverContent = (
-    <div className="px-3 pb-3 min-w-[400px] max-w-[500px]">
+    <div className="px-3 pb-3 w-[90vw] max-w-[500px] sm:w-[400px]">
       <div className="flex justify-end space-x-2 mb-6">
         <Button onClick={handleClear} className="border-blue-500 text-blue-500 hover:bg-blue-50">
           {t('filters.filterTechTasks.clear')}
@@ -165,7 +165,7 @@ const FilterTechTasks = () => {
               {t('filters.filterTechTasks.status')}
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {statusOptions.map(option => {
               const isOverdue = option.value === StatusTechTask.OVERDUE;
               const isActive = option.value === StatusTechTask.ACTIVE;
@@ -255,8 +255,10 @@ const FilterTechTasks = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
       trigger="click"
-      placement="bottomLeft"
+      placement="bottomRight"
       overlayClassName="filter-popover"
+      overlayStyle={{ maxWidth: 'calc(100vw - 16px)' }}
+      getPopupContainer={(trigger) => trigger.parentElement || document.body}
     >
       <Button icon={<FilterOutlined />}>
         {t('filters.filterTechTasks.title')}
