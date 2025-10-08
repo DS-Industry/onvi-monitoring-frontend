@@ -305,7 +305,7 @@ const TechTasks: React.FC = () => {
     <>
       <div className="ml-4 sm:ml-8 md:ml-12 lg:ml-0 mb-5">
         <div className="flex items-center space-x-2">
-          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-text01">
+          <span className="ms-10 md:ms-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-text01">
             {t('routes.technicalTasks')}
           </span>
         </div>
