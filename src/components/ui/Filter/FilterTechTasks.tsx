@@ -53,7 +53,9 @@ const FilterTechTasks = () => {
 
   const statusOptions = [
     { label: t('tables.ACTIVE'), value: StatusTechTask.ACTIVE },
+    { label: t('tables.FINISHED'), value: StatusTechTask.FINISHED },
     { label: t('tables.OVERDUE'), value: StatusTechTask.OVERDUE },
+    { label: t('tables.RETURNED'), value: StatusTechTask.RETURNED },
   ];
 
   const [filters, setFilters] = useState<FilterValues>(() => {
@@ -178,25 +180,40 @@ const FilterTechTasks = () => {
             {statusOptions.map(option => {
               const isOverdue = option.value === StatusTechTask.OVERDUE;
               const isActive = option.value === StatusTechTask.ACTIVE;
+              const isFinished = option.value === StatusTechTask.FINISHED;
+              const isReturned = option.value === StatusTechTask.RETURNED;
+              const isSelected = tempFilters.status.includes(option.value);
               
               return (
                 <div 
                   key={option.value} 
-                  className={`flex items-center p-2 rounded border-2 h-[32px] ${
+                  className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
                     isOverdue 
                       ? 'border-red-500 bg-red-50' 
                       : isActive 
                         ? 'border-orange-500 bg-orange-50' 
-                        : 'border-gray-300 bg-gray-50'
+                        : isFinished
+                          ? 'border-green-500 bg-green-50'
+                          : isReturned
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-300 bg-gray-50'
                   }`}
+                  onClick={() => {
+                    if (isSelected) {
+                      setTempFilters(prev => ({ ...prev, status: [] }));
+                    } else {
+                      setTempFilters(prev => ({ ...prev, status: [option.value] }));
+                    }
+                  }}
                 >
                   <Checkbox
-                    checked={tempFilters.status.includes(option.value)}
+                    checked={isSelected}
                     onChange={(e) => {
+                      e.stopPropagation();
                       if (e.target.checked) {
-                        setTempFilters(prev => ({ ...prev, status: [...prev.status, option.value] }));
+                        setTempFilters(prev => ({ ...prev, status: [option.value] }));
                       } else {
-                        setTempFilters(prev => ({ ...prev, status: prev.status.filter(s => s !== option.value) }));
+                        setTempFilters(prev => ({ ...prev, status: [] }));
                       }
                     }}
                     className="mr-2"

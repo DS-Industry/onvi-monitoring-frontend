@@ -136,7 +136,7 @@ export function getTagRender(tags?: TagItem[]): React.ReactNode {
 export function getStatusTagRender(t: TFunction) {
   return (status: string): React.ReactNode => {
     const greenStatuses = [
-      t('tables.ACTIVE'),
+      t('tables.FINISHED'),
       t('tables.SENT'),
       t('tables.In Progress'),
       t('analysis.PROGRESS'),
@@ -144,10 +144,9 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const redStatuses = [
-      t('tables.INACTIVE'),
       t('tables.OVERDUE'),
+      t('tables.INACTIVE'),
       t('tables.Done'),
-      t('tables.FINISHED'),
       t('tables.PAUSE'),
       t('analysis.DONE'),
       t('finance.EXPENDITURE'),
@@ -157,12 +156,16 @@ export function getStatusTagRender(t: TFunction) {
     ];
 
     const orangeStatuses = [
+      t('tables.ACTIVE'),
       t('tables.SAVE'),
       t('tables.SAVED'),
       t('tables.VERIFICATE'),
-      t('tables.RETURNED'),
       t('tables.COMPLETED'),
       t('tables.PENDING'),
+    ];
+
+    const blueStatuses = [
+      t('tables.RETURNED'),
     ];
 
     if (greenStatuses.includes(status)) {
@@ -175,6 +178,10 @@ export function getStatusTagRender(t: TFunction) {
 
     if (orangeStatuses.includes(status)) {
       return <Tag color="orange">{status}</Tag>;
+    }
+
+    if (blueStatuses.includes(status)) {
+      return <Tag color="blue">{status}</Tag>;
     }
 
     return <Tag color="default">{status}</Tag>;

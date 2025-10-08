@@ -102,10 +102,7 @@ const TechTasks: React.FC = () => {
       data?.techTaskReadAll?.map(item => ({
         ...item,
         type: t(`tables.${item.type}`),
-        status:
-          item.status === StatusTechTask.ACTIVE
-            ? t('tables.PENDING')
-            : t(`tables.${item.status}`),
+        status: t(`tables.${item.status}`),
       })) || [],
     [data, t]
   );
