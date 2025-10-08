@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Popover, Select, Checkbox, DatePicker, Avatar } from 'antd';
+import { Button, Popover, Select, Checkbox, DatePicker } from 'antd';
 import { CarOutlined, CheckOutlined, FilterOutlined, ScheduleOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { getTags, getPoses, StatusTechTask, getWorkers } from '@/services/api/eq
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
+import { getAvatarColorClasses } from '@/utils/avatarColors';
 
 interface FilterValues {
   branch: string;
@@ -75,8 +76,9 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
   })) || [];
 
   const workerOptions = workersData?.map(worker => ({
-    label: worker.name,
+    label: worker.name + " " + worker.surname,
     value: worker.id.toString(),
+    id: worker.id,
   })) || [];
 
   const statusOptions = [
@@ -347,21 +349,16 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
                   ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
                   : worker.label.charAt(0).toUpperCase();
                 
-                const colors = ['#f56a00', '#87d068', '#108ee9', '#722ed1', '#eb2f96'];
-                const colorIndex = initials.charCodeAt(0) % colors.length;
-                const avatarColor = colors[colorIndex];
+                const avatarColors = getAvatarColorClasses(worker.id);
                 
                 return (
                   <Select.Option key={worker.value} value={worker.value}>
                     <div className="flex items-center gap-3">
-                      <Avatar size="small" style={{ backgroundColor: avatarColor }}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${avatarColors}`}>
                         {initials}
-                      </Avatar>
+                      </div>
                       <div className="flex-1">
                         <div className="font-medium">{worker.label}</div>
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {worker.label.toLowerCase().replace(/\s+/g, '')}
                       </div>
                     </div>
                   </Select.Option>
