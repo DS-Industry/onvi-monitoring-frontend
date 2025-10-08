@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Popover, Select, Checkbox, DatePicker } from 'antd';
-import { CarOutlined, CheckOutlined, FilterOutlined } from '@ant-design/icons';
+import { CarOutlined, CheckOutlined, FilterOutlined, ScheduleOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -165,30 +165,44 @@ const FilterTechTasks = () => {
               {t('filters.filterTechTasks.status')}
             </span>
           </div>
-          <div className="space-y-2">
-            {statusOptions.map(option => (
-              <div key={option.value} className="flex items-center">
-                <Checkbox
-                  checked={tempFilters.status.includes(option.value)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setTempFilters(prev => ({ ...prev, status: [...prev.status, option.value] }));
-                    } else {
-                      setTempFilters(prev => ({ ...prev, status: prev.status.filter(s => s !== option.value) }));
-                    }
-                  }}
-                  className="mr-2"
-                />
-                <span className="text-sm">{option.label}</span>
-              </div>
-            ))}
+          <div className="flex gap-2">
+            {statusOptions.map(option => {
+              const isOverdue = option.value === StatusTechTask.OVERDUE;
+              const isActive = option.value === StatusTechTask.ACTIVE;
+              
+              return (
+                <div 
+                  key={option.value} 
+                  className={`flex items-center p-2 rounded border-2 h-[32px] ${
+                    isOverdue 
+                      ? 'border-red-500 bg-red-50' 
+                      : isActive 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-gray-300 bg-gray-50'
+                  }`}
+                >
+                  <Checkbox
+                    checked={tempFilters.status.includes(option.value)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setTempFilters(prev => ({ ...prev, status: [...prev.status, option.value] }));
+                      } else {
+                        setTempFilters(prev => ({ ...prev, status: prev.status.filter(s => s !== option.value) }));
+                      }
+                    }}
+                    className="mr-2"
+                  />
+                  <span className="text-sm">{option.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
           <div>
             <div className="flex items-center mb-3">
-              <span className="text-lg mr-2">🏷️</span>
-              <span className="text-sm font-medium text-gray-700">
+              <UnorderedListOutlined className="mr-2 font-bold text-black" />
+              <span className="text-sm font-bold">
                 {t('filters.filterTechTasks.tags')}
               </span>
             </div>
@@ -205,23 +219,23 @@ const FilterTechTasks = () => {
 
         <div>
           <div className="flex items-center mb-3">
-            <span className="text-lg mr-2">📅</span>
-            <span className="text-sm font-medium text-gray-700">
+            <ScheduleOutlined className="mr-2 font-bold text-black" />
+            <span className="text-sm font-bold">
               {t('filters.filterTechTasks.dateRange')}
             </span>
           </div>
-          <div className="space-y-3">
+          <div className="flex items-center gap-3">
             <DatePicker
-              className="w-full"
+              className="flex-1"
               value={tempFilters.dateFrom}
               onChange={(date) => setTempFilters(prev => ({ ...prev, dateFrom: date }))}
               placeholder={t('filters.filterTechTasks.startDatePlaceholder')}
               format="DD.MM.YYYY"
               suffixIcon={<span className="text-gray-400">📅</span>}
             />
-            <div className="text-center text-gray-500 text-sm">по</div>
+            <div className="text-center text-gray-500 text-sm whitespace-nowrap">по</div>
             <DatePicker
-              className="w-full"
+              className="flex-1"
               value={tempFilters.dateTo}
               onChange={(date) => setTempFilters(prev => ({ ...prev, dateTo: date }))}
               placeholder={t('filters.filterTechTasks.endDatePlaceholder')}
