@@ -331,31 +331,34 @@ const TechTasks: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 px-4 sm:px-8 md:px-12 lg:px-0">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4 mb-6 px-4 sm:px-6 md:px-8 lg:px-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
           <Input.Search
             placeholder={t('techTasks.searchPlaceholder')}
             value={searchValue}
             onChange={handleSearchChange}
             onSearch={handleSearch}
             allowClear
-            className="w-full sm:w-80"
+            className="w-full sm:w-72 md:w-80"
             style={{ height: '32px' }}
           />
-          <div style={{ height: '32px' }}>
-            <FilterTechTasks />
-          </div>
-          <div style={{ height: '32px' }}>
-            {ColumnSelector}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div style={{ height: '32px' }}>
+              <FilterTechTasks />
+            </div>
+            <div style={{ height: '32px' }}>
+              {ColumnSelector}
+            </div>
           </div>
         </div>
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          className="btn-primary"
+          className="btn-primary w-full sm:w-auto"
           style={{ height: '32px' }}
         >
           <span className="hidden sm:inline">{t('techTasks.createTask')}</span>
+          <span className="sm:hidden">{t('techTasks.createTask')}</span>
         </Button>
       </div>
       
@@ -373,7 +376,7 @@ const TechTasks: React.FC = () => {
               total: data?.totalCount || 0,
               pageSizeOptions: ALL_PAGE_SIZES,
               showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} items`,
+                `${range[0]}-${range[1]} / ${total}`,
               onChange: (page, size) => {
                 updateSearchParams(searchParams, setSearchParams, {
                   page: String(page),
@@ -389,26 +392,30 @@ const TechTasks: React.FC = () => {
       </div>
 
       {selectedRowKeys.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] mx-4">
-          <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center gap-2 sm:gap-4">
-            <Button
-              type="text"
-              icon={<CloseOutlined />}
-              onClick={() => setSelectedRowKeys([])}
-              className="text-white hover:text-gray-200 p-0 h-auto"
-            />
-            <span className="text-xs sm:text-sm font-medium ml-1 sm:ml-2">
-              {t('techTasks.selectedTasks', { count: selectedRowKeys.length })}
-            </span>
-            <div className="w-px h-4 bg-white mx-2 sm:mx-4"></div>
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              onClick={handleBulkDelete}
-              className="text-white hover:text-gray-200 p-0 h-auto"
-            >
-              {t('techTasks.delete')}
-            </Button>
+        <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-1/2 right-2 sm:right-auto sm:transform sm:-translate-x-1/2 z-50">
+          <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center justify-between sm:justify-center gap-2 sm:gap-4 max-w-full sm:max-w-none">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => setSelectedRowKeys([])}
+                className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+              />
+              <span className="text-xs sm:text-sm font-medium truncate">
+                {t('techTasks.selectedTasks', { count: selectedRowKeys.length })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="w-px h-4 bg-white hidden sm:block"></div>
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                onClick={handleBulkDelete}
+                className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+              >
+                <span className="hidden sm:inline">{t('techTasks.delete')}</span>
+              </Button>
+            </div>
           </div>
         </div>
       )}
