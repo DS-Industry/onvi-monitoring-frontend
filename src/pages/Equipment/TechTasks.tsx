@@ -41,10 +41,15 @@ const TechTasks: React.FC = () => {
   const status = (searchParams.get('status') as StatusTechTask) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const name = searchParams.get('name') || undefined;
+  const tags = searchParams.get('tags')?.split(',').map(tag => tag.trim()) || undefined;
+  const startDate = searchParams.get('startDate') || undefined;
+  const endDate = searchParams.get('endDate') || undefined;
+  const authorId = Number(searchParams.get('authorId')) || undefined;
 
   const swrKey = useMemo(
-    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}`,
-    [currentPage, pageSize, posId, status]
+    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}-${authorId}`,
+    [currentPage, pageSize, posId, status, name, tags, startDate, endDate, authorId]
   );
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -60,6 +65,11 @@ const TechTasks: React.FC = () => {
         page: currentPage,
         size: pageSize,
         organizationId: user.organizationId,
+        name: name,
+        tags: tags,
+        startDate: startDate,
+        endDate: endDate,
+        authorId: authorId,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -206,6 +216,11 @@ const TechTasks: React.FC = () => {
     updateSearchParams(searchParams, setSearchParams, {
       status: undefined,
       posId: undefined,
+      name: undefined,
+      tags: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      authorId: undefined,
     });
   };
 
@@ -223,7 +238,7 @@ const TechTasks: React.FC = () => {
       </div>
       <GeneralFilters
         count={data?.totalCount || 0}
-        display={['pos', 'reset']}
+        display={['pos', 'reset', 'techTaskName', 'techTaskTags', 'techTaskDateRange', 'techTaskAuthor']}
         onReset={resetFilters}
       >
         <div>

@@ -408,6 +408,11 @@ type TechTasksExecutionParams = {
   page?: number;
   size?: number;
   organizationId?: number;
+  name?: string;
+  tags?: string[];
+  startDate?: string;
+  endDate?: string;
+  authorId?: number;
 };
 
 type TechTasksExecutionResponse = {

@@ -329,7 +329,10 @@
     "deadline": "Deadline",
     "resp": "Responsible",
     "taskInfo": "Task Information",
-    "do": "Do you want to change the status?"
+    "do": "Do you want to change the status?",
+    "taskName": "Task Name",
+    "dateRange": "Date Range",
+    "author": "Author"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
