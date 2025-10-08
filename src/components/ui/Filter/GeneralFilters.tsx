@@ -19,10 +19,6 @@ import UserTypeFilter from './UserTypeFilter';
 import TagsFilter from './TagsFilter';
 import PaperTypeFilter from './PaperTypeFilter';
 import GroupFilter from './GroupFilter';
-import TechTaskNameFilter from './TechTaskNameFilter';
-import TechTaskTagsFilter from './TechTaskTagsFilter';
-import TechTaskDateRangeFilter from './TechTaskDateRangeFilter';
-import TechTaskAuthorFilter from './TechTaskAuthorFilter';
 
 type FilterType =
   | 'search'
@@ -40,10 +36,6 @@ type FilterType =
   | 'tagIds'
   | 'paper'
   | 'group'
-  | 'techTaskName'
-  | 'techTaskTags'
-  | 'techTaskDateRange'
-  | 'techTaskAuthor'
   | 'none';
 
 type GeneralFiltersProps = {
@@ -139,10 +131,6 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
                 {shouldShow('tagIds') && <TagsFilter />}
                 {shouldShow('paper') && <PaperTypeFilter />}
                 {shouldShow('group') && <GroupFilter />}
-                {shouldShow('techTaskName') && <TechTaskNameFilter />}
-                {shouldShow('techTaskTags') && <TechTaskTagsFilter />}
-                {shouldShow('techTaskDateRange') && <TechTaskDateRangeFilter />}
-                {shouldShow('techTaskAuthor') && <TechTaskAuthorFilter />}
                 {children}
               </div>
 
