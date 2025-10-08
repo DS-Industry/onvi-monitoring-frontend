@@ -355,7 +355,7 @@ const TechTasks: React.FC = () => {
           type="primary"
           icon={<PlusOutlined />}
           className="btn-primary w-full sm:w-auto"
-          style={{ height: '32px' }}
+          style={{ height: '32px', paddingTop: '4px', paddingBottom: '4px' }}
         >
           <span className="hidden sm:inline">{t('techTasks.createTask')}</span>
           <span className="sm:hidden">{t('techTasks.createTask')}</span>
