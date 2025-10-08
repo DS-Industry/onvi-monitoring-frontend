@@ -724,9 +724,9 @@ export type BulkDeleteTechTasksBody = {
 };
 
 export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promise<void> {
-  const response: AxiosResponse<void> = await api.post(
+  const response: AxiosResponse<void> = await api.delete(
     'user/tech-task/bulk/delete',
-    body
+    {data: body}
   );
   return response.data;
 }
