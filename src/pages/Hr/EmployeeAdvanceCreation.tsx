@@ -116,11 +116,8 @@ const EmployeeAdvanceCreation: React.FC = () => {
     }
   );
 
-  const organizations = [
-    { name: t('chemical.select'), value: 0 },
-    ...(organizationData?.map(item => ({ name: item.name, value: item.id })) ||
-      []),
-  ];
+  const organizations =
+    organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
 
   const workers = [
     ...(workersData?.map(work => ({
@@ -130,14 +127,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
     })) || []),
   ];
 
-  const positions = [
-    { label: t('analysis.all'), value: '', name: t('analysis.all') },
-    ...(positionData?.map(pos => ({
+  const positions =
+    positionData?.map(pos => ({
       label: pos.props.name,
       value: pos.props.id,
       name: pos.props.name,
-    })) || []),
-  ];
+    })) || [];
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
@@ -187,13 +182,13 @@ const EmployeeAdvanceCreation: React.FC = () => {
       const result = await calculateSal();
       if (result) {
         setPaymentsData(
-          result.map((res, index) => ({
+          result.map((res) => ({
             ...res,
             paymentDate: new Date(),
             check: false,
             countShifts: res.numberOfShiftsWorked,
-            monthlySalary: 0, 
-            id: index,
+            monthlySalary: 0,
+            id: res.hrWorkerId,
             payoutTimestamp: new Date(),
           }))
         );
@@ -290,13 +285,13 @@ const EmployeeAdvanceCreation: React.FC = () => {
       if (result) {
         if (result.length === 0) showToast(t('hr.noAdvance'), 'error');
         setPaymentsData(
-          result.map((res, index) => ({
+          result.map((res) => ({
             ...res,
             paymentDate: new Date(),
             check: false,
             countShifts: res.numberOfShiftsWorked,
-            monthlySalary: 0, 
-            id: index,
+            monthlySalary: 0,
+            id: res.hrWorkerId,
             payoutTimestamp: new Date(),
           }))
         );
@@ -375,9 +370,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <InputNumber
           value={record.sum}
+          max={record.sum} 
           onChange={value => handleTableChange(record.id, 'sum', value)}
           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+          suffix={<div>₽</div>}
         />
       ),
     },
@@ -397,7 +394,9 @@ const EmployeeAdvanceCreation: React.FC = () => {
       title: 'Время выплаты',
       key: 'payoutTimestamp',
       render: (_, record) =>
-        record.payoutTimestamp ? dayjs(record.payoutTimestamp).format('DD.MM.YYYY HH:mm') : '',
+        record.payoutTimestamp
+          ? dayjs(record.payoutTimestamp).format('DD.MM.YYYY HH:mm')
+          : '',
     },
   ];
 
@@ -422,7 +421,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </span>
           </div>
         </div>
-        
+
         <Modal
           open={isModalOpen}
           onCancel={() => {
@@ -471,11 +470,13 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 </div>
                 <Select
                   className="w-64 h-10"
-                  options={organizations.map(item => ({
-                    label: item.name,
-                    value: item.value,
-                  }))}
-                  value={formData.organizationId}
+                  options={organizations}
+                  placeholder={t('filters.organization.placeholder')}
+                  value={
+                    formData.organizationId === 0
+                      ? undefined
+                      : formData.organizationId
+                  }
                   {...register('organizationId', {
                     required: t('validation.organizationRequired'),
                     validate: value =>
@@ -540,6 +541,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
+                  allowClear={true}
                 />
               </div>
             </div>
@@ -553,15 +555,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </div>
           </form>
 
-          {calculatingSal ? (
-            <Table
-              columns={columnsPaymentsCreation}
-              dataSource={[]}
-              loading={true}
-              rowKey="id"
-              className="mt-8"
-            />
-          ) : paymentsData.length > 0 ? (
+          {paymentsData.length > 0 ? (
             <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
               <div className="flex flex-wrap justify-between gap-2">
                 <div className="flex space-x-4">
@@ -579,7 +573,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   <Button
                     icon={<ArrowUpOutlined />}
                     onClick={() => {
-                      const sortedData = [...paymentsData].sort(
+                      const sortedData = paymentsData.sort(
                         (a, b) => a.id - b.id
                       );
                       setPaymentsData(sortedData);
@@ -588,7 +582,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   <Button
                     icon={<ArrowDownOutlined />}
                     onClick={() => {
-                      const sortedData = [...paymentsData].sort(
+                      const sortedData = paymentsData.sort(
                         (a, b) => b.id - a.id
                       );
                       setPaymentsData(sortedData);
