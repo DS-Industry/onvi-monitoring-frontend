@@ -99,7 +99,9 @@ const TechTasks: React.FC = () => {
     }
   );
 
-  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
+  const { data: poses } = useSWR(user.organizationId ? [`get-pos`] : null, () => getPoses({
+    organizationId: user.organizationId,
+  }), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,

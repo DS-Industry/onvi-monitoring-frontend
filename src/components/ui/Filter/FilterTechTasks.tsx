@@ -7,6 +7,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { getTags, getPoses, StatusTechTask } from '@/services/api/equipment';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
+import { useUser } from '@/hooks/useUserStore';
 
 interface FilterValues {
   branch: string;
@@ -22,14 +23,18 @@ const FilterTechTasks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data: tagsData } = useSWR('get-tags', getTags, {
+  const user = useUser()
+
+  const { data: tagsData } = useSWR(['get-tags'], getTags, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
     shouldRetryOnError: false,
   });
 
-  const { data: posesData } = useSWR('get-poses', () => getPoses({}), {
+  const { data: posesData } = useSWR( user.organizationId ? ['get-poses'] : null, () => getPoses({
+    organizationId: user.organizationId,
+  }), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
