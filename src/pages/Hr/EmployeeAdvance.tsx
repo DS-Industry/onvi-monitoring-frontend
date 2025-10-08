@@ -10,6 +10,7 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import {
   getPositions,
   getPrepayments,
+  getPrepaymentsCount,
   getWorkers,
   PrepaymentResponse,
 } from '@/services/api/hr';
@@ -96,6 +97,22 @@ const EmployeeAdvance: React.FC = () => {
       hrPosition: positions.find(pos => pos.value === pay.hrPositionId)?.name,
     })) || [];
 
+  const { data: countData } = useSWR(
+    ['get-payments-count', startPaymentDate, endPaymentDate, workerId],
+    () =>
+      getPrepaymentsCount({
+        startPaymentDate: startPaymentDate,
+        endPaymentDate: endPaymentDate,
+        hrWorkerId: workerId,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false
+    }
+  );
+
   const { data: workersData } = useSWR([`get-workers`], () => getWorkers({}), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -111,7 +128,7 @@ const EmployeeAdvance: React.FC = () => {
     })) || []),
   ];
 
-  const totalCount = payments?.length || 0;
+  const totalCount = countData?.count || 0;
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();

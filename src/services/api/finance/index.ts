@@ -263,11 +263,13 @@ type GradingParameter = {
   id: number;
   name: string;
   estimationId: number | null;
+  weightPercent?: number;
 };
 
 type Estimation = {
   id: number;
   name: string;
+  weightPercent?: number;
 };
 
 type GradingParameterInfo = {
@@ -293,6 +295,8 @@ type DayShiftResponse = {
   totalCar: number;
   workerName: string;
   gradingParameterInfo?: GradingParameterInfo;
+  dailySalary?: number | null;
+  bonusPayout?: number | null;
 };
 
 export type UpdateDayShiftBody = {
