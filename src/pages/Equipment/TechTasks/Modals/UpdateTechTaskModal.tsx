@@ -260,7 +260,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
               />
             </Form.Item>
 
-            <div className="flex-1 flex flex-col min-h-[200px]">
+            <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-2">
                 {t('techTasks.taskDescription')}
               </label>
@@ -272,7 +272,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
               </Form.Item>
             </div>
 
-            <div className="flex-1 flex flex-col min-h-[300px]">
+            <div className="flex flex-col min-h-[300px]">
               <h3 className="text-lg font-medium mb-3">
                 {t('techTasks.templates')} ({selectedTemplates.length}/{templates.length})
               </h3>
