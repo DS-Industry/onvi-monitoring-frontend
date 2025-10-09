@@ -166,7 +166,7 @@ const SalaryCalculationCreation: React.FC = () => {
   const handleTableChange = (
     id: number,
     key: keyof PaymentRecord,
-    value: any
+    value: string | number | Date | boolean | null
   ) => {
     setPaymentsData(prevData =>
       prevData?.map(item => (item.id === id ? { ...item, [key]: value } : item))
@@ -182,10 +182,10 @@ const SalaryCalculationCreation: React.FC = () => {
             ...res,
             check: false,
             paymentDate: new Date(),
-            numberOfShiftsWorked: 0,
+            numberOfShiftsWorked: res.numberOfShiftsWorked,
             prize: 0,
             fine: 0,
-            sum: 0,
+            sum: res.sum,
             id: index,
             paymentSum: 0,
             totalPayment: 0,
@@ -433,7 +433,7 @@ const SalaryCalculationCreation: React.FC = () => {
       render: (_, record) => (
         <Input
           value={record.comment}
-          onChange={value => handleTableChange(record.id, 'comment', value)}
+          onChange={e => handleTableChange(record.id, 'comment', e.target.value)}
         />
       ),
     },
