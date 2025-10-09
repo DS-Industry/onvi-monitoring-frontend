@@ -19,10 +19,7 @@ import {
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
 } from '@/utils/constants';
-import {
-  getCurrencyRender,
-  getDateRender,
-} from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import { PlusOutlined } from '@ant-design/icons';
@@ -154,7 +151,8 @@ const EmployeeAdvance: React.FC = () => {
       title: 'Расчетный месяц',
       dataIndex: 'billingMonth',
       key: 'billingMonth',
-      render: (value) => dayjs(value).format('YYYY-MM'),
+      render: (_, record) =>
+        record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
       title: 'Дата выдачи',

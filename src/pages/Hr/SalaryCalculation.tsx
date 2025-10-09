@@ -23,6 +23,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import dayjs from 'dayjs';
 
 type TOption = {
   id: number;
@@ -141,14 +142,14 @@ const SalaryCalculation: React.FC = () => {
       title: 'Месяц расчёта',
       dataIndex: 'billingMonth',
       key: 'billingMonth',
-      render: dateRender,
+      render: (_, record) =>
+        record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
-      title: 'Оклад',
-      dataIndex: 'monthlySalary',
-      key: 'monthlySalary',
-      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: currencyRender,
+      title: 'Дата выдачи',
+      dataIndex: 'paymentDate',
+      key: 'paymentDate',
+      render: dateRender,
     },
     {
       title: 'Посменное начисление',
@@ -164,9 +165,9 @@ const SalaryCalculation: React.FC = () => {
     },
     {
       title: 'Количество отработанных смен',
-      dataIndex: 'countShifts',
-      key: 'countShifts',
-      sorter: (a, b) => a.countShifts - b.countShifts,
+      dataIndex: 'numberOfShiftsWorked',
+      key: 'numberOfShiftsWorked',
+      sorter: (a, b) => a.numberOfShiftsWorked - b.numberOfShiftsWorked,
     },
     {
       title: 'Выплачено аванс',
@@ -197,11 +198,29 @@ const SalaryCalculation: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: 'Выплачено итог',
+      title: 'Безналичная выплата',
+      dataIndex: 'virtualSum',
+      key: 'virtualSum',
+      render: currencyRender,
+    },
+    {
+      title: 'Выплата ЗП',
       dataIndex: 'totalPayment',
       key: 'totalPayment',
       sorter: (a, b) => a.totalPayment - b.totalPayment,
       render: currencyRender,
+    },
+    {
+      title: 'Пывлаченный итог',
+      dataIndex: 'totalPaymentFinal',
+      key: 'totalPaymentFinal',
+      sorter: (a, b) => a.totalPaymentFinal - b.totalPaymentFinal,
+      render: currencyRender,
+    },
+    {
+      title: 'Комментарий',
+      dataIndex: 'comment',
+      key: 'comment',
     },
   ];
 
