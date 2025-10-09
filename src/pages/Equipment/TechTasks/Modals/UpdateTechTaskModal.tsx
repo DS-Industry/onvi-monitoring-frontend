@@ -216,7 +216,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       title={
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span>{t('routes.technicalTasks')} /{techTaskId}</span>
+            <span>{t('routes.technicalTasks')} / {techTaskId}</span>
             {techTaskDetails?.status && (
               <div className="flex items-center">
                 {statusRender(t(`tables.${techTaskDetails.status}`))}

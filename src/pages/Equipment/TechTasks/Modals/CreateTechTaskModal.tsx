@@ -145,7 +145,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
     <Modal
       title={
         <div className="flex items-center justify-between">
-          <span>{t('routes.technicalTasks')} /{user.id}</span>
+          <span>{t('routes.technicalTasks')} / {t('techTasks.createTask')}</span>
         </div>
       }
       open={open}
