@@ -1479,6 +1479,9 @@
     },
     "city": {
       "placeholder": "Выберите город"
+    },
+    "employee": {
+      "placeholder": "Выберите сотрудника"
     }
   },
   "corporateClients": {
