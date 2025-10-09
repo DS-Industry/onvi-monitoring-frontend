@@ -450,11 +450,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
                   </label>
                   <Form.Item 
                     name="customPeriodDays" 
-                    rules={[
-                      { required: true, message: t('techTasks.enterDaysCount') },
-                      { type: 'number', min: 1, message: t('techTasks.minDays') },
-                      { type: 'number', max: 365, message: t('techTasks.maxDays') }
-                    ]}
                   >
                     <Input
                       type="number"
