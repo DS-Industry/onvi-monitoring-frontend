@@ -205,6 +205,8 @@ export type PaymentCreateRequest = {
     sum: number;
     prize: number;
     fine: number;
+    virtualSum?: number;
+    comment?: string;
   }[];
 };
 

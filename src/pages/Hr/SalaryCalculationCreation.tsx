@@ -185,9 +185,8 @@ const SalaryCalculationCreation: React.FC = () => {
             numberOfShiftsWorked: res.numberOfShiftsWorked,
             prize: 0,
             fine: 0,
-            sum: res.sum,
             id: index,
-            paymentSum: 0,
+            paymentSum: res.sum,
             totalPayment: 0,
             totalPaymentFinal: 0,
           }))
@@ -232,6 +231,8 @@ const SalaryCalculationCreation: React.FC = () => {
             data.dailySalary * data.numberOfShiftsWorked - data.prepaymentSum,
           prize: Number(data.prize),
           fine: Number(data.fine),
+          virtualSum: data.virtualSum,
+          comment: data.comment
         })) || [],
     };
 
@@ -331,6 +332,7 @@ const SalaryCalculationCreation: React.FC = () => {
         (item.prize || 0) -
         (item.fine || 0) -
         (item.virtualSum || 0),
+      numberOfShiftsWorked: item.numberOfShiftsWorked
     }));
   };
 
@@ -388,6 +390,7 @@ const SalaryCalculationCreation: React.FC = () => {
     },
     {
       title: 'Количество отработанных смен',
+      dataIndex: 'numberOfShiftsWorked',
       key: 'numberOfShiftsWorked',
     },
     {
