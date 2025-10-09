@@ -436,6 +436,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   placeholder={t('techTasks.endDate')}
                   size="large"
                   format="DD.MM.YYYY"
+                  className="w-full"
                 />
               </Form.Item>
 

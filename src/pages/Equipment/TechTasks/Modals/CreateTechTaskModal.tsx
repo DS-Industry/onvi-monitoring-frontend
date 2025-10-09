@@ -353,6 +353,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
                 rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
               >
                 <DatePicker
+                  className="w-full"
                   placeholder={t('techTasks.endDate')}
                   size="large"
                   format="DD.MM.YYYY"

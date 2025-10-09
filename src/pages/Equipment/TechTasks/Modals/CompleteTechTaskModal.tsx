@@ -256,6 +256,7 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                       size="large"
                       format="DD.MM.YYYY"
                       disabled
+                      className="w-full"
                     />
                   </Form.Item>
 
