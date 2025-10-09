@@ -30,6 +30,14 @@ export enum TypeTechTask {
   REGULAR = 'REGULAR',
 }
 
+export enum PeriodType {
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
+  YEARLY = 'YEARLY',
+  CUSTOM = 'CUSTOM',
+}
+
 export enum StatusWorkers {
   BLOCKED = 'BLOCKED',
   ACTIVE = 'ACTIVE',
@@ -204,8 +212,9 @@ type AllProgramsResponse = {
 export type TechTaskBody = {
   name: string;
   posId: number;
-  type: string;
-  period?: number;
+  type: TypeTechTask;
+  periodType?: PeriodType;
+  customPeriodDays?: number;
   markdownDescription?: string;
   startDate: Date;
   endSpecifiedDate?: Date;
@@ -216,8 +225,9 @@ export type TechTaskBody = {
 type UpdateTechTaskBody = {
   techTaskId: number;
   name?: string;
-  status?: string;
-  period?: number;
+  status?: StatusTechTask;
+  periodType?: PeriodType;
+  customPeriodDays?: number;
   markdownDescription?: string;
   endSpecifiedDate?: Date;
   techTaskItem?: number[];
@@ -228,9 +238,10 @@ type TechTaskResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string;
-    status: string;
-    period: string;
+    type: TypeTechTask;
+    status: StatusTechTask;
+    periodType?: PeriodType;
+    customPeriodDays?: number;
     nextCreateDate?: Date;
     endSpecifiedDate?: Date;
     startDate: Date;
@@ -279,9 +290,10 @@ export type TechTaskShapeResponse = {
   id: number;
   name: string;
   posId: number;
-  type: string;
-  status: string;
-  period?: number;
+  type: TypeTechTask;
+  status: StatusTechTask;
+  periodType?: PeriodType;
+  customPeriodDays?: number;
   markdownDescription?: string;
   endSpecifiedDate?: Date;
   startWorkDate?: Date;
@@ -375,9 +387,10 @@ type TechTasksManageResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string;
-    status: string;
-    period?: number;
+    type: string; 
+    status: string; 
+    periodType?: string; 
+    customPeriodDays?: number;
     markdownDescription?: string;
     nextCreateDate?: Date;
     endSpecifiedDate?: Date;
@@ -399,8 +412,42 @@ type TechTasksManageResponse = {
   totalCount: number;
 };
 
-export type TechTaskManagerInfo =
+export type TechTaskManagerInfoRaw =
   TechTasksManageResponse['techTaskManageInfo'][number];
+
+export type TechTaskManagerInfo = {
+  id: number;
+  name: string;
+  posId: number;
+  type: TypeTechTask;
+  status: StatusTechTask;
+  periodType?: PeriodType;
+  customPeriodDays?: number;
+  markdownDescription?: string;
+  nextCreateDate?: Date;
+  endSpecifiedDate?: Date;
+  startDate: Date;
+  items: {
+    id: number;
+    title: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: number;
+  updatedById: number;
+  tags: {
+    id: number;
+    name: string;
+    code?: string;
+  }[];
+};
+
+export const transformTechTaskManagerInfo = (raw: TechTaskManagerInfoRaw): TechTaskManagerInfo => ({
+  ...raw,
+  type: raw.type as TypeTechTask,
+  status: raw.status as StatusTechTask,
+  periodType: raw.periodType as PeriodType | undefined,
+});
 
 type TechTasksExecutionParams = {
   posId?: number;
@@ -420,8 +467,10 @@ type TechTasksExecutionResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string;
+    type: string; 
     status: string;
+    periodType?: string;
+    customPeriodDays?: number;
     endSpecifiedDate?: Date;
     startWorkDate?: Date;
     sendWorkDate?: Date;
@@ -446,8 +495,45 @@ type TechTasksExecutionResponse = {
   totalCount: number;
 };
 
-export type TechTaskReadAll =
+export type TechTaskReadAllRaw =
   TechTasksExecutionResponse['techTaskReadAll'][number];
+
+export type TechTaskReadAll = {
+  id: number;
+  name: string;
+  posId: number;
+  type: TypeTechTask;
+  status: StatusTechTask;
+  periodType?: PeriodType;
+  customPeriodDays?: number;
+  endSpecifiedDate?: Date;
+  startWorkDate?: Date;
+  sendWorkDate?: Date;
+  executorId?: number;
+  posName?: string;
+  tags: {
+    id: number;
+    name: string;
+    code?: string;
+  }[];
+  createdBy: {
+    firstName: string;
+    lastName: string;
+    id: number
+  } | null;
+  executor: {
+    firstName: string;
+    lastName: string;
+    id: number
+  } | null;
+};
+
+export const transformTechTaskReadAll = (raw: TechTaskReadAllRaw): TechTaskReadAll => ({
+  ...raw,
+  type: raw.type as TypeTechTask,
+  status: raw.status as StatusTechTask,
+  periodType: raw.periodType as PeriodType | undefined,
+});
 
 type TechTasksReportParams = {
   posId?: number;
@@ -685,24 +771,30 @@ export async function getTags(): Promise<CreateTagsResponse[]> {
 
 export async function getTechTaskManage(
   params: TechTasksManageParams
-): Promise<TechTasksManageResponse> {
+): Promise<{ techTaskManageInfo: TechTaskManagerInfo[]; totalCount: number }> {
   const response: AxiosResponse<TechTasksManageResponse> = await api.get(
     TECHTASKS.CREATE_TECH_TASK + '/manage',
     { params }
   );
 
-  return response.data;
+  return {
+    techTaskManageInfo: response.data.techTaskManageInfo.map(transformTechTaskManagerInfo),
+    totalCount: response.data.totalCount
+  };
 }
 
 export async function getTechTaskExecution(
   params: TechTasksExecutionParams
-): Promise<TechTasksExecutionResponse> {
+): Promise<{ techTaskReadAll: TechTaskReadAll[]; totalCount: number }> {
   const response: AxiosResponse<TechTasksExecutionResponse> = await api.get(
     TECHTASKS.CREATE_TECH_TASK + '/me',
     { params }
   );
 
-  return response.data;
+  return {
+    techTaskReadAll: response.data.techTaskReadAll.map(transformTechTaskReadAll),
+    totalCount: response.data.totalCount
+  };
 }
 
 export async function getTechTaskReport(
