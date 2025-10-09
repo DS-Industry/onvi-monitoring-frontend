@@ -15,6 +15,7 @@ import {
 } from '@/services/api/equipment';
 import useSWR from 'swr';
 import TipTapEditor from '@/components/ui/Input/TipTapEditor';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
 const { Option } = Select;
 
@@ -96,12 +97,20 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
   const userInitials = `${user.name?.charAt(0) || ''}${user.name?.charAt(1) || ''}`.toUpperCase();
   const userFullName = user.name || 'Пользователь';
   const avatarColors = getAvatarColorClasses(user.id || 0);
+  const statusRender = getStatusTagRender(t);
 
   return (
     <Modal
       title={
         <div className="flex items-center justify-between">
-          <span>{t('routes.technicalTasks')} /{techTaskId}</span>
+          <div className="flex items-center gap-3">
+            <span>{t('routes.technicalTasks')} /{techTaskId}</span>
+            {techTaskDetails?.status && (
+              <div className="flex items-center">
+                {statusRender(t(`tables.${techTaskDetails.status}`))}
+              </div>
+            )}
+          </div>
         </div>
       }
       open={open}
