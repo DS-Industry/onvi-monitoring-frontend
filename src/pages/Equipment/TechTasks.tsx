@@ -11,7 +11,7 @@ import {
 import useSWR from 'swr';
 import { Table, Modal, Button, Checkbox, Input } from 'antd';
 import { DeleteOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
   DEFAULT_PAGE,
@@ -29,10 +29,17 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import 'dayjs/locale/ru';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
+import { Can } from '@/permissions/Can';
+import { usePermissions } from '@/hooks/useAuthStore';
+import CreateTechTaskModal from '@/components/ui/Modal/CreateTechTaskModal';
+import UpdateTechTaskModal from '@/components/ui/Modal/UpdateTechTaskModal';
+import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.locale('ru');
+
+
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
@@ -57,8 +64,12 @@ const TechTasks: React.FC = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [searchValue, setSearchValue] = useState(name || '');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedTechTask, setSelectedTechTask] = useState<TechTaskReadAll | undefined>();
 
-  const user = useUser()
+  const user = useUser();
+  const userPermissions = usePermissions();
 
   const debouncedSearch = useCallback(
     debounce((value: string) => {
@@ -98,7 +109,7 @@ const TechTasks: React.FC = () => {
     }
   );
 
-  const techTasks = useMemo(
+  const techTasks: TechTaskReadAllDisplay[] = useMemo(
     () =>
       data?.techTaskReadAll?.map(item => ({
         ...item,
@@ -169,7 +180,23 @@ const TechTasks: React.FC = () => {
     debouncedSearch(value);
   };
 
-  const columnsTechTasks: ColumnsType<TechTaskReadAll> = [
+  const handleCreateTask = () => {
+    setCreateModalOpen(true);
+  };
+
+  const handleUpdateTask = (techTask: TechTaskReadAllDisplay) => {
+    const originalTask = data?.techTaskReadAll.find(task => task.id === techTask.id);
+    if (originalTask) {
+      setSelectedTechTask(originalTask);
+      setUpdateModalOpen(true);
+    }
+  };
+
+  const handleCreateSuccess = () => {
+    mutate();
+  };
+
+  const columnsTechTasks: ColumnsType<TechTaskReadAllDisplay> = [
     {
       title: (
         <Checkbox
@@ -187,7 +214,7 @@ const TechTasks: React.FC = () => {
       dataIndex: 'checkbox',
       key: 'checkbox',
       width: 50,
-      render: (_: unknown, record: TechTaskReadAll) => (
+      render: (_: unknown, record: TechTaskReadAllDisplay) => (
         <Checkbox
           checked={selectedRowKeys.includes(record.id)}
           onChange={(e) => {
@@ -215,15 +242,12 @@ const TechTasks: React.FC = () => {
       minWidth: 150,
       render: (text, record) => {
         return (
-          <Link
-            to={{
-              pathname: '/equipment/technical/tasks/list/item',
-              search: `?techTaskId=${record.id}&status=${record.status}&name=${record.name}`,
-            }}
-            className="text-blue-500 hover:text-blue-700 font-semibold"
+          <button
+            onClick={() => handleUpdateTask(record)}
+            className="text-blue-500 hover:text-blue-700 font-semibold text-left"
           >
             {text}
-          </Link>
+          </button>
         );
       },
     },
@@ -271,7 +295,7 @@ const TechTasks: React.FC = () => {
       key: 'createdBy',
       width: 120,
       minWidth: 100,
-      render: (_: unknown, record: TechTaskReadAll) => {
+      render: (_: unknown, record: TechTaskReadAllDisplay) => {
         if (!record.createdBy) {
           return <span className="text-gray-400">-</span>;
         }
@@ -333,20 +357,34 @@ const TechTasks: React.FC = () => {
             </div>
           </div>
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          className="btn-primary w-full sm:w-auto"
-          style={{ height: '32px', paddingTop: '4px', paddingBottom: '4px' }}
+        
+        <Can
+          requiredPermissions={[
+            { action: 'manage', subject: 'TechTask' },
+            { action: 'create', subject: 'TechTask' },
+          ]}
+          userPermissions={userPermissions}
         >
-          <span className="hidden sm:inline">{t('techTasks.createTask')}</span>
-          <span className="sm:hidden">{t('techTasks.createTask')}</span>
-        </Button>
+          {allowed =>
+            allowed && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                className="btn-primary w-full sm:w-auto"
+                style={{ height: '32px', paddingTop: '4px', paddingBottom: '4px' }}
+                onClick={handleCreateTask}
+              >
+                <span className="hidden sm:inline">{t('techTasks.createTask')}</span>
+                <span className="sm:hidden">{t('techTasks.createTask')}</span>
+              </Button>
+            )
+          }
+        </Can>
       </div>
       
       <div className="overflow-x-auto">
         <div className="min-w-full max-w-full">
-          <Table
+          <Table<TechTaskReadAllDisplay>
             dataSource={techTasks}
             columns={visibleColumns}
             rowKey="id"
@@ -402,6 +440,21 @@ const TechTasks: React.FC = () => {
           </div>
         </div>
       )}
+
+      <CreateTechTaskModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
+      
+      <UpdateTechTaskModal
+        open={updateModalOpen}
+        onClose={() => {
+          setUpdateModalOpen(false);
+          setSelectedTechTask(undefined);
+        }}
+        techTask={selectedTechTask}
+      />
     </>
   );
 };
