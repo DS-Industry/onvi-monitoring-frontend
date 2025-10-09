@@ -177,7 +177,7 @@ const SalaryCalculation: React.FC = () => {
       sorter: (a, b) => a.prepaymentSum - b.prepaymentSum,
     },
     {
-      title: 'Выплачено ЗП',
+      title: 'Основная часть ЗП',
       dataIndex: 'paymentSum',
       key: 'paymentSum',
       sorter: (a, b) => a.paymentSum - b.paymentSum,
@@ -204,14 +204,14 @@ const SalaryCalculation: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: 'Выплата ЗП',
+      title: 'К выплате',
       dataIndex: 'totalPayment',
       key: 'totalPayment',
       sorter: (a, b) => a.totalPayment - b.totalPayment,
       render: currencyRender,
     },
     {
-      title: 'Пывлаченный итог',
+      title: 'К выплате итог',
       dataIndex: 'totalPaymentFinal',
       key: 'totalPaymentFinal',
       sorter: (a, b) => a.totalPaymentFinal - b.totalPaymentFinal,
