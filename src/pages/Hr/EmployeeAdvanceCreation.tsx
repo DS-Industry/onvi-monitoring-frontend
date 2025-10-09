@@ -25,7 +25,6 @@ import {
   InputNumber,
   Space,
   Grid,
-  ConfigProvider,
 } from 'antd';
 import {
   PlusOutlined,
@@ -38,8 +37,6 @@ import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
-import ruRU from 'antd/locale/ru_RU';
-import enUS from 'antd/locale/en_US';
 import { getCurrencyRender } from '@/utils/tableUnits';
 
 interface PaymentRecord {
@@ -71,7 +68,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
-  const currentLocale = i18n.language === 'ru' ? ruRU : enUS;
   dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
@@ -182,7 +178,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       const result = await calculateSal();
       if (result) {
         setPaymentsData(
-          result.map((res) => ({
+          result.map(res => ({
             ...res,
             paymentDate: new Date(),
             check: false,
@@ -285,7 +281,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       if (result) {
         if (result.length === 0) showToast(t('hr.noAdvance'), 'error');
         setPaymentsData(
-          result.map((res) => ({
+          result.map(res => ({
             ...res,
             paymentDate: new Date(),
             check: false,
@@ -370,7 +366,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <InputNumber
           value={record.sum}
-          max={record.sum} 
+          max={record.sum}
           onChange={value => handleTableChange(record.id, 'sum', value)}
           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
@@ -401,7 +397,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
   ];
 
   return (
-    <ConfigProvider locale={currentLocale}>
+    <>
       <div>
         <div
           className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
@@ -638,7 +634,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
           )}
         </div>
       </div>
-    </ConfigProvider>
+    </>
   );
 };
 
