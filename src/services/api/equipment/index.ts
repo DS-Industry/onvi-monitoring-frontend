@@ -387,9 +387,9 @@ type TechTasksManageResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string; // API returns string, we'll transform it
-    status: string; // API returns string, we'll transform it
-    periodType?: string; // API returns string, we'll transform it
+    type: string; 
+    status: string; 
+    periodType?: string; 
     customPeriodDays?: number;
     markdownDescription?: string;
     nextCreateDate?: Date;
