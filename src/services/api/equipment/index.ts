@@ -231,6 +231,7 @@ type UpdateTechTaskBody = {
   markdownDescription?: string;
   endSpecifiedDate?: Date;
   techTaskItem?: number[];
+  tagIds?: number[];
 };
 
 type TechTaskResponse = {

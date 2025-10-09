@@ -4,7 +4,6 @@ import { debounce } from 'lodash';
 import {
   getTechTaskExecution,
   StatusTechTask,
-  TechTaskReadAll,
   bulkDeleteTechTasks,
   BulkDeleteTechTasksBody,
 } from '@/services/api/equipment';
@@ -66,7 +65,7 @@ const TechTasks: React.FC = () => {
   const [searchValue, setSearchValue] = useState(name || '');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [selectedTechTask, setSelectedTechTask] = useState<TechTaskReadAll | undefined>();
+  const [selectedTechTaskId, setSelectedTechTaskId] = useState<number | undefined>();
 
   const user = useUser();
   const userPermissions = usePermissions();
@@ -185,11 +184,8 @@ const TechTasks: React.FC = () => {
   };
 
   const handleUpdateTask = (techTask: TechTaskReadAllDisplay) => {
-    const originalTask = data?.techTaskReadAll.find(task => task.id === techTask.id);
-    if (originalTask) {
-      setSelectedTechTask(originalTask);
-      setUpdateModalOpen(true);
-    }
+    setSelectedTechTaskId(techTask.id);
+    setUpdateModalOpen(true);
   };
 
   const handleCreateSuccess = () => {
@@ -240,6 +236,13 @@ const TechTasks: React.FC = () => {
       key: 'posName',
       width: 200,
       minWidth: 150,
+    },
+    {
+      title: t('techTasks.columns.workName'),
+      dataIndex: 'name',
+      key: 'name',
+      width: 250,
+      minWidth: 200,
       render: (text, record) => {
         return (
           <button
@@ -250,13 +253,6 @@ const TechTasks: React.FC = () => {
           </button>
         );
       },
-    },
-    {
-      title: t('techTasks.columns.workName'),
-      dataIndex: 'name',
-      key: 'name',
-      width: 250,
-      minWidth: 200,
     },
     {
       title: t('techTasks.columns.status'),
@@ -451,9 +447,10 @@ const TechTasks: React.FC = () => {
         open={updateModalOpen}
         onClose={() => {
           setUpdateModalOpen(false);
-          setSelectedTechTask(undefined);
+          setSelectedTechTaskId(undefined);
         }}
-        techTask={selectedTechTask}
+        techTaskId={selectedTechTaskId}
+        onSuccess={handleCreateSuccess}
       />
     </>
   );

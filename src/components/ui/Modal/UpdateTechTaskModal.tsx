@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Form, Input, Select, DatePicker, Button, Avatar } from 'antd';
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
+import { CloseOutlined, QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -9,7 +9,7 @@ import {
   updateTechTask, 
   getTags, 
   getTechTaskItem, 
-  TechTaskReadAll,
+  getTechTaskShapeItem,
   TypeTechTask,
   PeriodType,
   StatusTechTask
@@ -17,21 +17,27 @@ import {
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
+import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 
-const { TextArea } = Input;
 const { Option } = Select;
+
+interface TemplateItem {
+  id: number;
+  title: string;
+  description?: string;
+}
 
 interface UpdateTechTaskModalProps {
   open: boolean;
   onClose: () => void;
-  techTask?: TechTaskReadAll;
+  techTaskId?: number;
   onSuccess?: () => void;
 }
 
 const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   open,
   onClose,
-  techTask,
+  techTaskId,
   onSuccess,
 }) => {
   const { t } = useTranslation();
@@ -39,6 +45,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const user = useUser();
   const [form] = Form.useForm();
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+  const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
+  const [selectedTemplateItems, setSelectedTemplateItems] = useState<TemplateItem[]>([]);
+  const [selectedForTransfer, setSelectedForTransfer] = useState<number[]>([]);
 
   const { data: tagsData } = useSWR(['get-tags'], () => getTags(), {
     revalidateOnFocus: false,
@@ -58,6 +67,29 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
   );
 
+  const { data: techTaskDetails, isLoading: isLoadingTechTaskDetails, isValidating: isValidatingTechTaskDetails, mutate: mutateTechTaskDetails } = useSWR(
+    techTaskId ? ['get-tech-task-details', techTaskId] : null,
+    () => getTechTaskShapeItem(techTaskId!),
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      keepPreviousData: false,
+      shouldRetryOnError: false,
+      dedupingInterval: 0, 
+      refreshInterval: 0, 
+    }
+  );
+
+  const templates: TemplateItem[] = useMemo(
+    () =>
+      techTaskItems?.map(item => ({
+        id: item.props.id,
+        title: item.props.title,
+        description: 'This is the description text.',
+      })) || [],
+    [techTaskItems]
+  );
+
   const { trigger: updateTechTaskMutation, isMutating } = useSWRMutation(
     ['update-tech-task'],
     async (_, { arg }: { arg: any }) => {
@@ -66,34 +98,89 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   );
 
   useEffect(() => {
-    if (techTask && open) {
-      setPeriodType(techTask.periodType);
+    if (techTaskDetails && open && templates.length > 0) {
+      setPeriodType(techTaskDetails.periodType);
+      
+      const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
+      
+      const selectedTemplates = templates.filter(template => {
+        const matchingByTitle = techTaskDetails.items?.find(item => item.title === template.title);
+        if (matchingByTitle) return true;
+        
+        return selectedItemIds.includes(template.id);
+      });
+      
+      const availableTemplatesList = templates.filter(template => {
+        const matchingByTitle = techTaskDetails.items?.find(item => item.title === template.title);
+        const matchingById = selectedItemIds.includes(template.id);
+        return !matchingByTitle && !matchingById;
+      });
+      
+      setSelectedTemplateItems(selectedTemplates);
+      setAvailableTemplates(availableTemplatesList);
+      setSelectedForTransfer([]);
       
       form.setFieldsValue({
-        name: techTask.name,
-        status: techTask.status,
-        periodType: techTask.periodType,
-        customPeriodDays: techTask.customPeriodDays,
-        markdownDescription: '', 
-        endDate: techTask.endSpecifiedDate ? dayjs(techTask.endSpecifiedDate) : undefined,
-        techTaskItem: [],
-        tags: techTask.tags?.map(tag => tag.id) || [],
+        name: techTaskDetails.name,
+        status: techTaskDetails.status,
+        periodType: techTaskDetails.periodType,
+        customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
+        markdownDescription: techTaskDetails.markdownDescription || '', 
+        endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
+        tags: techTaskDetails.tags?.map(tag => tag.id) || [],
       });
     }
-  }, [techTask, open, form]);
+  }, [techTaskDetails, open, form, templates]);
 
   useEffect(() => {
     if (!open) {
       form.resetFields();
       setPeriodType(undefined);
+      setAvailableTemplates([]);
+      setSelectedTemplateItems([]);
+      setSelectedForTransfer([]);
+    } else if (open && techTaskId) {
+      mutateTechTaskDetails();
     }
-  }, [open, form]);
+  }, [open, form, techTaskId, mutateTechTaskDetails]);
+
+  const handleTemplateSelect = (templateId: number) => {
+    setSelectedForTransfer(prev =>
+      prev.includes(templateId)
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId]
+    );
+  };
+
+  const handleTransferToSelected = () => {
+    const templatesToTransfer = availableTemplates.filter(template => 
+      selectedForTransfer.includes(template.id)
+    );
+    
+    setSelectedTemplateItems(prev => [...prev, ...templatesToTransfer]);
+    setAvailableTemplates(prev => prev.filter(template => 
+      !selectedForTransfer.includes(template.id)
+    ));
+    setSelectedForTransfer([]);
+  };
+
+  const handleTransferToAvailable = () => {
+    const templatesToTransfer = selectedTemplateItems.filter(template => 
+      selectedForTransfer.includes(template.id)
+    );
+    
+    setAvailableTemplates(prev => [...prev, ...templatesToTransfer]);
+    setSelectedTemplateItems(prev => prev.filter(template => 
+      !selectedForTransfer.includes(template.id)
+    ));
+    setSelectedForTransfer([]);
+  };
 
   const handleSubmit = async (values: any) => {
-    if (!techTask) return;
+    if (!techTaskDetails) return;
 
     try {
-      if (techTask.type === TypeTechTask.REGULAR && values.periodType === PeriodType.CUSTOM) {
+      if (techTaskDetails.type === TypeTechTask.REGULAR && values.periodType === PeriodType.CUSTOM) {
         if (!values.customPeriodDays || values.customPeriodDays <= 0) {
           showToast(t('techTasks.enterDaysForCustomPeriod'), 'error');
           return;
@@ -105,14 +192,15 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       }
 
       const updateData = {
-        techTaskId: techTask.id,
+        techTaskId: techTaskDetails.id,
         name: values.name,
         status: values.status,
-        periodType: techTask.type === TypeTechTask.REGULAR ? values.periodType : undefined,
+        periodType: techTaskDetails.type === TypeTechTask.REGULAR ? values.periodType : undefined,
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.markdownDescription,
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
-        techTaskItem: values.techTaskItem || [],
+        techTaskItem: selectedTemplateItems.map(item => item.id),
+        tagIds: values.tags || [],
       };
 
       await updateTechTaskMutation(updateData);
@@ -132,13 +220,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     <Modal
       title={
         <div className="flex items-center justify-between">
-          <span>{t('routes.technicalTasks')} /{techTask?.id}</span>
-          <Button
-            type="text"
-            icon={<CloseOutlined />}
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          />
+          <span>{t('routes.technicalTasks')} /{techTaskId}</span>
         </div>
       }
       open={open}
@@ -147,13 +229,19 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       width={1200}
       className="update-tech-task-modal"
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        className="h-full flex flex-col"
+      <Spin 
+        spinning={isLoadingTechTaskDetails || isValidatingTechTaskDetails} 
+        tip={t('common.loading')}
+        className="h-full"
       >
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-[600px]">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          className="h-full flex flex-col"
+        >
+          <div className="flex-1 overflow-y-scroll p-6">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <div className="flex-1 flex flex-col gap-4">
             <Form.Item
               name="name"
@@ -170,64 +258,106 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
               <label className="text-sm font-medium text-gray-700 mb-2">
                 {t('techTasks.taskDescription')}
               </label>
-              <div className="flex-1">
-                <div className="border rounded-lg p-2 mb-2 bg-gray-50">
-                  <div className="flex gap-2 flex-wrap">
-                    <Button type="text" size="small" className="font-bold">B</Button>
-                    <Button type="text" size="small" className="italic">I</Button>
-                    <Button type="text" size="small" className="underline">U</Button>
-                    <Button type="text" size="small" className="line-through">S</Button>
-                    <Button type="text" size="small">☑</Button>
-                    <Button type="text" size="small">⋯</Button>
-                  </div>
-                </div>
-                <Form.Item 
-                  name="markdownDescription" 
-                  className="flex-1"
-                >
-                  <TextArea
-                    placeholder={t('techTasks.taskDescriptionPlaceholder')}
-                    className="flex-1 min-h-[120px]"
-                    autoSize={{ minRows: 5 }}
-                  />
-                </Form.Item>
-              </div>
+              <Form.Item 
+                name="markdownDescription" 
+                className="flex-1"
+              >
+                <TipTapEditor />
+              </Form.Item>
             </div>
 
-            <div className="flex-1 flex flex-col min-h-[200px]">
+            <div className="flex-1 flex flex-col min-h-[300px]">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-medium">{t('techTasks.templates')}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-medium">{t('techTasks.templates')} ({selectedTemplateItems.length})</h3>
+                  <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    size="small"
+                    className="text-gray-400 hover:text-gray-600"
+                  />
+                </div>
                 <span className="text-sm text-gray-500">
-                  {t('techTasks.selectedTemplates', { 
-                    selected: form.getFieldValue('techTaskItem')?.length || 0, 
-                    total: techTaskItems?.length || 0 
-                  })}
+                  {t('techTasks.selectedTemplates', { selected: selectedTemplateItems.length, total: templates.length })}
                 </span>
               </div>
               
-              <Form.Item name="techTaskItem">
-                <Select
-                  mode="multiple"
-                  placeholder={t('techTasks.selectTemplates')}
-                  size="large"
-                  className="w-full"
-                  showSearch
-                  filterOption={(input, option) =>
-                    (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {techTaskItems?.map(item => (
-                    <Option key={item.props.id} value={item.props.id}>
-                      {item.props.title}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <div className="flex-1 flex flex-col lg:flex-row gap-4">
+                <div className="flex-1 flex flex-col">
+                  <div className="border rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 border-b">
+                      <span className="text-sm font-medium text-gray-700">{t('techTasks.availableTemplates')}</span>
+                      <span className="text-xs text-gray-500">{availableTemplates.length}</span>
+                    </div>
+                    <div className="h-48 lg:h-64 overflow-y-auto">
+                      {availableTemplates.map(template => (
+                        <div
+                          key={template.id}
+                          className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+                            selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleTemplateSelect(template.id)}
+                        >
+                          <Checkbox
+                            checked={selectedForTransfer.includes(template.id)}
+                            onChange={() => handleTemplateSelect(template.id)}
+                          />
+                          <span className="text-sm">{template.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex lg:flex-col justify-center gap-2 lg:gap-0">
+                  <Button
+                    type="primary"
+                    icon={<ArrowRightOutlined />}
+                    onClick={handleTransferToSelected}
+                    disabled={selectedForTransfer.length === 0}
+                    className="lg:mb-2"
+                    title={t('techTasks.moveToSelected')}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<ArrowRightOutlined style={{ transform: 'rotate(180deg)' }} />}
+                    onClick={handleTransferToAvailable}
+                    disabled={selectedForTransfer.length === 0}
+                    title={t('techTasks.moveToAvailable')}
+                  />
+                </div>
+
+                <div className="flex-1 flex flex-col">
+                  <div className="border rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 border-b">
+                      <span className="text-sm font-medium text-gray-700">{t('techTasks.selectedTemplatesList')}</span>
+                      <span className="text-xs text-gray-500">{selectedTemplateItems.length}</span>
+                    </div>
+                    <div className="h-48 lg:h-64 overflow-y-auto">
+                      {selectedTemplateItems.map(template => (
+                        <div
+                          key={template.id}
+                          className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+                            selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleTemplateSelect(template.id)}
+                        >
+                          <Checkbox
+                            checked={selectedForTransfer.includes(template.id)}
+                            onChange={() => handleTemplateSelect(template.id)}
+                          />
+                          <span className="text-sm">{template.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="w-full lg:w-80 flex flex-col gap-4">
-            <div className="border rounded-lg p-4">
+          <div className="w-full lg:w-[450px] flex flex-col gap-4">
+            <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
               <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
               
               <div className="mb-4">
@@ -245,7 +375,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 </Form.Item>
               </div>
 
-              {techTask?.type === TypeTechTask.REGULAR && (
+              {techTaskDetails?.type === TypeTechTask.REGULAR && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('techTasks.periodicity')} <span className="text-red-500">*</span>
@@ -282,8 +412,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                     name="customPeriodDays" 
                     rules={[
                       { required: true, message: t('techTasks.enterDaysCount') },
-                      { type: 'number', min: 1, message: t('techTasks.minDays') },
-                      { type: 'number', max: 365, message: t('techTasks.maxDays') }
                     ]}
                   >
                     <Input
@@ -349,10 +477,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 </div>
               </div>
             </div>
+          </div>
         </div>
-      </div>
+        </div>
 
-      <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+        <div className="flex justify-end gap-3 p-6 pt-4">
         <Button onClick={onClose} size="large">
           {t('common.cancel')}
         </Button>
@@ -365,7 +494,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           {t('common.update')}
         </Button>
       </div>
-      </Form>
+        </Form>
+      </Spin>
     </Modal>
   );
 };

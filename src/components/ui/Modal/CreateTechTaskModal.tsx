@@ -17,8 +17,8 @@ import {
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
+import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 interface CreateTechTaskModalProps {
@@ -240,7 +240,8 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
         className="h-full flex flex-col"
         initialValues={{}}
       >
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-[600px]">
+        <div className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <div className="flex-1 flex flex-col gap-4">
             <Form.Item
               name="name"
@@ -253,33 +254,17 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
               />
             </Form.Item>
 
-            <div className="flex-1 flex flex-col min-h-[200px]">
+            <div>
               <label className="text-sm font-medium text-gray-700 mb-2">
                 {t('techTasks.authorComment')}: <span className="text-red-500">*</span>
               </label>
-              <div className="flex-1">
-                <div className="border rounded-lg p-2 mb-2 bg-gray-50">
-                  <div className="flex gap-2 flex-wrap">
-                    <Button type="text" size="small" className="font-bold">B</Button>
-                    <Button type="text" size="small" className="italic">I</Button>
-                    <Button type="text" size="small" className="underline">U</Button>
-                    <Button type="text" size="small" className="line-through">S</Button>
-                    <Button type="text" size="small">☑</Button>
-                    <Button type="text" size="small">⋯</Button>
-                  </div>
-                </div>
-                <Form.Item 
-                  name="authorComment" 
-                  className="flex-1"
-                  rules={[{ required: true, message: t('techTasks.authorCommentRequired') }]}
-                >
-                  <TextArea
-                    placeholder={t('techTasks.authorCommentPlaceholder')}
-                    className="flex-1 min-h-[120px]"
-                    autoSize={{ minRows: 5 }}
-                  />
-                </Form.Item>
-              </div>
+              <Form.Item 
+                name="authorComment" 
+                className="flex-1"
+                rules={[{ required: true, message: t('techTasks.authorCommentRequired') }]}
+              >
+                <TipTapEditor />
+              </Form.Item>
             </div>
 
             <div className="flex-1 flex flex-col min-h-[300px]">
@@ -372,8 +357,8 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
             </div>
           </div>
 
-          <div className="w-full lg:w-80 flex flex-col gap-4">
-            <div className="border rounded-lg p-4">
+          <div className="w-full lg:w-[450px] flex flex-col gap-4">
+            <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
               <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
               
               <div className="mb-4">
@@ -519,8 +504,9 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
             </div>
           </div>
         </div>
+        </div>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4">
+        <div className="flex justify-end gap-3 p-6 pt-4">
           <Button onClick={onClose} size="large">
             {t('common.cancel')}
           </Button>
