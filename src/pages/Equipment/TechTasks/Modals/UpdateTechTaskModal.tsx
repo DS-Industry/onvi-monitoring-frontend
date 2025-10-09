@@ -199,6 +199,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       okText: t('techTasks.delete'),
       okType: 'danger',
       cancelText: t('organizations.cancel'),
+      zIndex: 100000,
       async onOk() {
         try {
           await deleteTechTaskMutation(techTaskDetails.id);
