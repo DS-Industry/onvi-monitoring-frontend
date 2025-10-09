@@ -246,9 +246,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onFinish={handleSubmit}
           className="h-full flex flex-col"
         >
-      <div className="p-6 max-h-[700px] overflow-y-auto">
+        <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="flex-1 flex flex-col gap-4">
+          <div className="flex-1 flex flex-col gap-4 lg:min-w-0">
             <Form.Item
               name="name"
               rules={[{ required: true, message: t('techTasks.taskNameRequired') }]}
@@ -277,12 +277,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 {t('techTasks.templates')} ({selectedTemplates.length}/{templates.length})
               </h3>
               
-              <div className="flex gap-4 h-64">
-                <div className="flex-1 border rounded-lg">
+              <div className="flex flex-col lg:flex-row gap-4 lg:h-64">
+                <div className="flex-1 border rounded-lg min-w-0">
                   <div className="p-3 bg-gray-50 border-b">
                     <span className="text-sm font-medium">{t('techTasks.availableTemplates')} ({availableTemplates.length})</span>
                   </div>
-                  <div className="h-48 overflow-y-auto">
+                  <div className="lg:h-48 max-h-48 overflow-y-auto">
                     {availableTemplates.map(template => (
                       <div
                         key={template.id}
@@ -292,19 +292,21 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                         onClick={() => toggleTemplateSelection(template.id)}
                       >
                         <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                        <span className="text-sm">{template.title}</span>
+                        <span className="text-sm truncate">{template.title}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-center gap-2">
+                <div className="flex flex-row lg:flex-col justify-center gap-2 lg:py-0 py-2 flex-shrink-0">
                   <Button
                     type="primary"
                     icon={<ArrowRightOutlined />}
                     onClick={handleTransferToSelected}
                     disabled={selectedForTransfer.length === 0}
                     title={t('techTasks.moveToSelected')}
+                    size="small"
+                    className="lg:w-auto"
                   />
                   <Button
                     type="primary"
@@ -312,14 +314,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                     onClick={handleTransferToAvailable}
                     disabled={selectedForTransfer.length === 0}
                     title={t('techTasks.moveToAvailable')}
+                    size="small"
+                    className="lg:w-auto"
                   />
                 </div>
 
-                <div className="flex-1 border rounded-lg">
+                <div className="flex-1 border rounded-lg min-w-0">
                   <div className="p-3 bg-gray-50 border-b">
                     <span className="text-sm font-medium">{t('techTasks.selectedTemplatesList')} ({selectedTemplates.length})</span>
                   </div>
-                  <div className="h-48 overflow-y-auto">
+                  <div className="lg:h-48 max-h-48 overflow-y-auto">
                     {selectedTemplates.map(template => (
                       <div
                         key={template.id}
@@ -329,7 +333,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                         onClick={() => toggleTemplateSelection(template.id)}
                       >
                         <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                        <span className="text-sm">{template.title}</span>
+                        <span className="text-sm truncate">{template.title}</span>
                       </div>
                     ))}
                   </div>
@@ -338,7 +342,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
             </div>
           </div>
 
-          <div className="w-full lg:w-[450px] flex flex-col gap-4">
+          <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
             <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
               <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
               
