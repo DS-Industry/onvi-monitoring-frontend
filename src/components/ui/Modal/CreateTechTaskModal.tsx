@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Checkbox, Avatar } from 'antd';
-import { CloseOutlined, QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -263,7 +263,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
                 className="flex-1"
                 rules={[{ required: true, message: t('techTasks.authorCommentRequired') }]}
               >
-                <TipTapEditor />
+                <TipTapEditor autoResize />
               </Form.Item>
             </div>
 
@@ -271,12 +271,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-medium">{t('techTasks.templates')} ({selectedTemplateItems.length})</h3>
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    size="small"
-                    className="text-gray-400 hover:text-gray-600"
-                  />
                 </div>
                 <span className="text-sm text-gray-500">
                   {t('techTasks.selectedTemplates', { selected: selectedTemplateItems.length, total: templates.length })}
@@ -393,6 +387,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
                       form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
                       setPeriodType(undefined);
                     }}
+                    placeholder={t('techTasks.selectWorkType')}
                   >
                     <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
                     <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>

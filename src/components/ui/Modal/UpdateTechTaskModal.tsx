@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
-import { CloseOutlined, QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { 
   updateTechTask, 
+  getPoses,
   getTags, 
   getTechTaskItem, 
   getTechTaskShapeItem,
@@ -45,9 +46,17 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const user = useUser();
   const [form] = Form.useForm();
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+  const [taskType, setTaskType] = useState<TypeTechTask | undefined>(undefined);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [selectedTemplateItems, setSelectedTemplateItems] = useState<TemplateItem[]>([]);
   const [selectedForTransfer, setSelectedForTransfer] = useState<number[]>([]);
+
+  const { data: poses } = useSWR(user.organizationId ? ['get-poses'] : null, () => getPoses({ organizationId: user.organizationId }), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+    shouldRetryOnError: false
+  });
 
   const { data: tagsData } = useSWR(['get-tags'], () => getTags(), {
     revalidateOnFocus: false,
@@ -100,6 +109,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   useEffect(() => {
     if (techTaskDetails && open && templates.length > 0) {
       setPeriodType(techTaskDetails.periodType);
+      setTaskType(techTaskDetails.type);
       
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
       
@@ -123,6 +133,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       form.setFieldsValue({
         name: techTaskDetails.name,
         status: techTaskDetails.status,
+        type: techTaskDetails.type,
+        posId: techTaskDetails.posId,
         periodType: techTaskDetails.periodType,
         customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
         markdownDescription: techTaskDetails.markdownDescription || '', 
@@ -136,6 +148,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     if (!open) {
       form.resetFields();
       setPeriodType(undefined);
+      setTaskType(undefined);
       setAvailableTemplates([]);
       setSelectedTemplateItems([]);
       setSelectedForTransfer([]);
@@ -180,7 +193,22 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     if (!techTaskDetails) return;
 
     try {
-      if (techTaskDetails.type === TypeTechTask.REGULAR && values.periodType === PeriodType.CUSTOM) {
+      if (!values.posId) {
+        showToast(t('techTasks.selectCarWash'), 'error');
+        return;
+      }
+      
+      if (!values.type) {
+        showToast(t('techTasks.selectWorkType'), 'error');
+        return;
+      }
+
+      if (values.type === TypeTechTask.ONETIME && !values.endDate) {
+        showToast(t('techTasks.enterEndDateForOnetime'), 'error');
+        return;
+      }
+
+      if (values.type === TypeTechTask.REGULAR && values.periodType === PeriodType.CUSTOM) {
         if (!values.customPeriodDays || values.customPeriodDays <= 0) {
           showToast(t('techTasks.enterDaysForCustomPeriod'), 'error');
           return;
@@ -195,7 +223,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         techTaskId: techTaskDetails.id,
         name: values.name,
         status: values.status,
-        periodType: techTaskDetails.type === TypeTechTask.REGULAR ? values.periodType : undefined,
+        posId: Number(values.posId),
+        type: values.type,
+        periodType: values.type === TypeTechTask.REGULAR ? values.periodType : undefined,
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.markdownDescription,
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
@@ -262,7 +292,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 name="markdownDescription" 
                 className="flex-1"
               >
-                <TipTapEditor />
+                <TipTapEditor autoResize />
               </Form.Item>
             </div>
 
@@ -270,12 +300,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-medium">{t('techTasks.templates')} ({selectedTemplateItems.length})</h3>
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    size="small"
-                    className="text-gray-400 hover:text-gray-600"
-                  />
                 </div>
                 <span className="text-sm text-gray-500">
                   {t('techTasks.selectedTemplates', { selected: selectedTemplateItems.length, total: templates.length })}
@@ -362,6 +386,46 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('techTasks.carWashBranch')} <span className="text-red-500">*</span>
+                </label>
+                <Form.Item name="posId" rules={[{ required: true, message: t('techTasks.selectCarWash') }]}>
+                  <Select
+                    placeholder={t('techTasks.selectCarWash')}
+                    size="large"
+                    className="w-full"
+                  >
+                    {poses?.map(pos => (
+                      <Option key={pos.id} value={pos.id}>
+                        {pos.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('techTasks.workType')} <span className="text-red-500">*</span>
+                </label>
+                <Form.Item name="type" rules={[{ required: true, message: t('techTasks.selectWorkType') }]}>
+                  <Select 
+                    placeholder={t('techTasks.selectWorkType')}
+                    size="large" 
+                    className="w-full"
+                    onChange={(value) => {
+                      setTaskType(value);
+                      form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+                      setPeriodType(undefined);
+                    }}
+                  >
+                    <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
+                    <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
+                  </Select>
+                </Form.Item>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('techTasks.status')} <span className="text-red-500">*</span>
                 </label>
                 <Form.Item name="status" rules={[{ required: true, message: t('techTasks.selectStatus') }]}>
@@ -375,7 +439,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 </Form.Item>
               </div>
 
-              {techTaskDetails?.type === TypeTechTask.REGULAR && (
+              {taskType === TypeTechTask.REGULAR && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('techTasks.periodicity')} <span className="text-red-500">*</span>
@@ -428,9 +492,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.endDate')}
+                  {t('techTasks.endDate')} {taskType === TypeTechTask.ONETIME && <span className="text-red-500">*</span>}
                 </label>
-                <Form.Item name="endDate">
+                <Form.Item 
+                  name="endDate" 
+                  rules={taskType === TypeTechTask.ONETIME ? [{ required: true, message: t('techTasks.selectEndDate') }] : []}
+                >
                   <DatePicker
                     placeholder={t('techTasks.endDate')}
                     size="large"
