@@ -131,7 +131,7 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                 </Form.Item>
 
                 <div className="flex-1 flex flex-col min-h-[200px]">
-                  <label className="text-sm font-medium text-gray-700 mb-2">
+                  <label className="text-lg font-medium text-gray-700 mb-2">
                     {t('techTasks.taskDescription')}
                   </label>
                   <Form.Item 

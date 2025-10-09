@@ -261,7 +261,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
             </Form.Item>
 
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-2">
+              <label className="text-lg font-medium text-gray-700 mb-2">
                 {t('techTasks.taskDescription')}
               </label>
               <Form.Item 
