@@ -206,10 +206,8 @@ const SalaryCalculationCreation: React.FC = () => {
       const errors = [];
 
       if (!item.paymentDate) errors.push('Дата выдачи');
-      if (item.numberOfShiftsWorked == null || item.numberOfShiftsWorked <= 0)
-        errors.push('Количество отработанных смен');
-      if (item.prize == null || item.prize <= 0) errors.push('Премия');
-      if (item.fine == null || item.fine <= 0) errors.push('Штраф');
+      if (item.prize == null || item.prize < 0) errors.push('Премия');
+      if (item.fine == null || item.fine < 0) errors.push('Штраф');
 
       if (errors.length > 0) {
         showToast(
