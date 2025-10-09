@@ -158,6 +158,7 @@ type DepositParam = {
   dateStart: Date;
   dateEnd: Date;
   posId?: number;
+  organizationId?: number;
   placementId?: number;
   page?: number;
   size?: number;

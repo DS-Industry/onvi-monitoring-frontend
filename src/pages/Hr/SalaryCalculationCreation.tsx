@@ -389,17 +389,9 @@ const SalaryCalculationCreation: React.FC = () => {
     {
       title: 'Количество отработанных смен',
       key: 'numberOfShiftsWorked',
-      render: (_, record) => (
-        <InputNumber
-          value={record.numberOfShiftsWorked}
-          onChange={value =>
-            handleTableChange(record.id, 'numberOfShiftsWorked', value)
-          }
-        />
-      ),
     },
     {
-      title: 'Выплачено ЗП',
+      title: 'Основная часть ЗП',
       dataIndex: 'sum',
       key: 'sum',
       render: getCurrencyRender(),
@@ -446,7 +438,7 @@ const SalaryCalculationCreation: React.FC = () => {
       ),
     },
     {
-      title: 'Выплата ЗП',
+      title: 'К выплате',
       key: 'totalPayment',
       sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {
@@ -459,7 +451,7 @@ const SalaryCalculationCreation: React.FC = () => {
       },
     },
     {
-      title: 'Выплаченный итог',
+      title: 'К выплате итог',
       key: 'totalPaymentFinal',
       sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {

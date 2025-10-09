@@ -15,10 +15,12 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { formatNumber, getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
+import { useUser } from '@/hooks/useUserStore';
 
 const ProgramDevices: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const user = useUser();
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
 
@@ -39,6 +41,7 @@ const ProgramDevices: React.FC = () => {
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
+      organizationId: user.organizationId
     }),
     [
       dateStart,
@@ -48,12 +51,13 @@ const ProgramDevices: React.FC = () => {
       currentPage,
       pageSize,
       location.state,
+      user.organizationId
     ]
   );
 
   const swrKey = useMemo(
     () =>
-      `get-pos-programs-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+      `get-pos-programs-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
     [filterParams]
   );
 
