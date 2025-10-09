@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
-import { QuestionCircleOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { 
   updateTechTask, 
-  getPoses,
   getTags, 
   getTechTaskItem, 
   getTechTaskShapeItem,
@@ -25,7 +24,6 @@ const { Option } = Select;
 interface TemplateItem {
   id: number;
   title: string;
-  description?: string;
 }
 
 interface UpdateTechTaskModalProps {
@@ -45,57 +43,24 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { showToast } = useToast();
   const user = useUser();
   const [form] = Form.useForm();
-  const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
-  const [taskType, setTaskType] = useState<TypeTechTask | undefined>(undefined);
-  const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
-  const [selectedTemplateItems, setSelectedTemplateItems] = useState<TemplateItem[]>([]);
   const [selectedForTransfer, setSelectedForTransfer] = useState<number[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
+  const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
+  const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
 
-  const { data: poses } = useSWR(user.organizationId ? ['get-poses'] : null, () => getPoses({ organizationId: user.organizationId }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false
-  });
+  const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
 
-  const { data: tagsData } = useSWR(['get-tags'], () => getTags(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false
-  });
+  const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
+  const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
 
-  const { data: techTaskItems } = useSWR(
-    ['get-tech-task-item'],
-    () => getTechTaskItem(),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false
-    }
-  );
-
-  const { data: techTaskDetails, isLoading: isLoadingTechTaskDetails, isValidating: isValidatingTechTaskDetails, mutate: mutateTechTaskDetails } = useSWR(
+  const { data: techTaskDetails, isLoading, mutate, isValidating } = useSWR(
     techTaskId ? ['get-tech-task-details', techTaskId] : null,
     () => getTechTaskShapeItem(techTaskId!),
-    {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      keepPreviousData: false,
-      shouldRetryOnError: false,
-      dedupingInterval: 0, 
-      refreshInterval: 0, 
-    }
+    { revalidateOnFocus: true, revalidateOnReconnect: true }
   );
 
   const templates: TemplateItem[] = useMemo(
-    () =>
-      techTaskItems?.map(item => ({
-        id: item.props.id,
-        title: item.props.title,
-        description: 'This is the description text.',
-      })) || [],
+    () => techTaskItems?.map(item => ({ id: item.props.id, title: item.props.title })) || [],
     [techTaskItems]
   );
 
@@ -107,16 +72,26 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   );
 
   useEffect(() => {
+    if (!open) {
+      form.resetFields();
+      setSelectedForTransfer([]);
+      setSelectedTemplates([]);
+      setAvailableTemplates([]);
+      setPeriodType(undefined);
+    } else if (open && techTaskId) {
+      mutate();
+    }
+  }, [open, techTaskId, mutate]);
+
+  useEffect(() => {
     if (techTaskDetails && open && templates.length > 0) {
       setPeriodType(techTaskDetails.periodType);
-      setTaskType(techTaskDetails.type);
       
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
       
-      const selectedTemplates = templates.filter(template => {
+      const selectedTemplatesList = templates.filter(template => {
         const matchingByTitle = techTaskDetails.items?.find(item => item.title === template.title);
         if (matchingByTitle) return true;
-        
         return selectedItemIds.includes(template.id);
       });
       
@@ -126,7 +101,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         return !matchingByTitle && !matchingById;
       });
       
-      setSelectedTemplateItems(selectedTemplates);
+      setSelectedTemplates(selectedTemplatesList);
       setAvailableTemplates(availableTemplatesList);
       setSelectedForTransfer([]);
       
@@ -134,7 +109,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         name: techTaskDetails.name,
         status: techTaskDetails.status,
         type: techTaskDetails.type,
-        posId: techTaskDetails.posId,
         periodType: techTaskDetails.periodType,
         customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
         markdownDescription: techTaskDetails.markdownDescription || '', 
@@ -144,24 +118,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
   }, [techTaskDetails, open, form, templates]);
 
-  useEffect(() => {
-    if (!open) {
-      form.resetFields();
-      setPeriodType(undefined);
-      setTaskType(undefined);
-      setAvailableTemplates([]);
-      setSelectedTemplateItems([]);
-      setSelectedForTransfer([]);
-    } else if (open && techTaskId) {
-      mutateTechTaskDetails();
-    }
-  }, [open, form, techTaskId, mutateTechTaskDetails]);
-
-  const handleTemplateSelect = (templateId: number) => {
-    setSelectedForTransfer(prev =>
-      prev.includes(templateId)
-        ? prev.filter(id => id !== templateId)
-        : [...prev, templateId]
+  const toggleTemplateSelection = (templateId: number) => {
+    setSelectedForTransfer(prev => 
+      prev.includes(templateId) ? prev.filter(id => id !== templateId) : [...prev, templateId]
     );
   };
 
@@ -170,7 +129,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       selectedForTransfer.includes(template.id)
     );
     
-    setSelectedTemplateItems(prev => [...prev, ...templatesToTransfer]);
+    setSelectedTemplates(prev => [...prev, ...templatesToTransfer]);
     setAvailableTemplates(prev => prev.filter(template => 
       !selectedForTransfer.includes(template.id)
     ));
@@ -178,12 +137,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   };
 
   const handleTransferToAvailable = () => {
-    const templatesToTransfer = selectedTemplateItems.filter(template => 
+    const templatesToTransfer = selectedTemplates.filter(template => 
       selectedForTransfer.includes(template.id)
     );
     
     setAvailableTemplates(prev => [...prev, ...templatesToTransfer]);
-    setSelectedTemplateItems(prev => prev.filter(template => 
+    setSelectedTemplates(prev => prev.filter(template => 
       !selectedForTransfer.includes(template.id)
     ));
     setSelectedForTransfer([]);
@@ -193,43 +152,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     if (!techTaskDetails) return;
 
     try {
-      if (!values.posId) {
-        showToast(t('techTasks.selectCarWash'), 'error');
-        return;
-      }
-      
-      if (!values.type) {
-        showToast(t('techTasks.selectWorkType'), 'error');
-        return;
-      }
-
-      if (values.type === TypeTechTask.ONETIME && !values.endDate) {
-        showToast(t('techTasks.enterEndDateForOnetime'), 'error');
-        return;
-      }
-
-      if (values.type === TypeTechTask.REGULAR && values.periodType === PeriodType.CUSTOM) {
-        if (!values.customPeriodDays || values.customPeriodDays <= 0) {
-          showToast(t('techTasks.enterDaysForCustomPeriod'), 'error');
-          return;
-        }
-        if (values.customPeriodDays > 365) {
-          showToast(t('techTasks.customPeriodMaxDays'), 'error');
-          return;
-        }
-      }
-
       const updateData = {
         techTaskId: techTaskDetails.id,
         name: values.name,
         status: values.status,
-        posId: Number(values.posId),
         type: values.type,
         periodType: values.type === TypeTechTask.REGULAR ? values.periodType : undefined,
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.markdownDescription,
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
-        techTaskItem: selectedTemplateItems.map(item => item.id),
+        techTaskItem: selectedTemplates.map(item => item.id),
         tagIds: values.tags || [],
       };
 
@@ -259,11 +191,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       width={1200}
       className="update-tech-task-modal"
     >
-      <Spin 
-        spinning={isLoadingTechTaskDetails || isValidatingTechTaskDetails} 
-        tip={t('common.loading')}
-        className="h-full"
-      >
+      <Spin spinning={isLoading || isValidating} tip={t('common.loading')} className="h-full">
         <Form
           form={form}
           layout="vertical"
@@ -297,49 +225,37 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
             </div>
 
             <div className="flex-1 flex flex-col min-h-[300px]">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-medium">{t('techTasks.templates')} ({selectedTemplateItems.length})</h3>
-                </div>
-                <span className="text-sm text-gray-500">
-                  {t('techTasks.selectedTemplates', { selected: selectedTemplateItems.length, total: templates.length })}
-                </span>
-              </div>
+              <h3 className="text-lg font-medium mb-3">
+                {t('techTasks.templates')} ({selectedTemplates.length}/{templates.length})
+              </h3>
               
-              <div className="flex-1 flex flex-col lg:flex-row gap-4">
-                <div className="flex-1 flex flex-col">
-                  <div className="border rounded-lg">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 border-b">
-                      <span className="text-sm font-medium text-gray-700">{t('techTasks.availableTemplates')}</span>
-                      <span className="text-xs text-gray-500">{availableTemplates.length}</span>
-                    </div>
-                    <div className="h-48 lg:h-64 overflow-y-auto">
-                      {availableTemplates.map(template => (
-                        <div
-                          key={template.id}
-                          className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                            selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                          }`}
-                          onClick={() => handleTemplateSelect(template.id)}
-                        >
-                          <Checkbox
-                            checked={selectedForTransfer.includes(template.id)}
-                            onChange={() => handleTemplateSelect(template.id)}
-                          />
-                          <span className="text-sm">{template.title}</span>
-                        </div>
-                      ))}
-                    </div>
+              <div className="flex gap-4 h-64">
+                <div className="flex-1 border rounded-lg">
+                  <div className="p-3 bg-gray-50 border-b">
+                    <span className="text-sm font-medium">{t('techTasks.availableTemplates')} ({availableTemplates.length})</span>
+                  </div>
+                  <div className="h-48 overflow-y-auto">
+                    {availableTemplates.map(template => (
+                      <div
+                        key={template.id}
+                        className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+                          selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                        }`}
+                        onClick={() => toggleTemplateSelection(template.id)}
+                      >
+                        <Checkbox checked={selectedForTransfer.includes(template.id)} />
+                        <span className="text-sm">{template.title}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="flex lg:flex-col justify-center gap-2 lg:gap-0">
+                <div className="flex flex-col justify-center gap-2">
                   <Button
                     type="primary"
                     icon={<ArrowRightOutlined />}
                     onClick={handleTransferToSelected}
                     disabled={selectedForTransfer.length === 0}
-                    className="lg:mb-2"
                     title={t('techTasks.moveToSelected')}
                   />
                   <Button
@@ -351,29 +267,23 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   />
                 </div>
 
-                <div className="flex-1 flex flex-col">
-                  <div className="border rounded-lg">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 border-b">
-                      <span className="text-sm font-medium text-gray-700">{t('techTasks.selectedTemplatesList')}</span>
-                      <span className="text-xs text-gray-500">{selectedTemplateItems.length}</span>
-                    </div>
-                    <div className="h-48 lg:h-64 overflow-y-auto">
-                      {selectedTemplateItems.map(template => (
-                        <div
-                          key={template.id}
-                          className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                            selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                          }`}
-                          onClick={() => handleTemplateSelect(template.id)}
-                        >
-                          <Checkbox
-                            checked={selectedForTransfer.includes(template.id)}
-                            onChange={() => handleTemplateSelect(template.id)}
-                          />
-                          <span className="text-sm">{template.title}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="flex-1 border rounded-lg">
+                  <div className="p-3 bg-gray-50 border-b">
+                    <span className="text-sm font-medium">{t('techTasks.selectedTemplatesList')} ({selectedTemplates.length})</span>
+                  </div>
+                  <div className="h-48 overflow-y-auto">
+                    {selectedTemplates.map(template => (
+                      <div
+                        key={template.id}
+                        className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+                          selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                        }`}
+                        onClick={() => toggleTemplateSelection(template.id)}
+                      >
+                        <Checkbox checked={selectedForTransfer.includes(template.id)} />
+                        <span className="text-sm">{template.title}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -384,164 +294,94 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
             <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
               <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
               
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.carWashBranch')} <span className="text-red-500">*</span>
-                </label>
-                <Form.Item name="posId" rules={[{ required: true, message: t('techTasks.selectCarWash') }]}>
-                  <Select
-                    placeholder={t('techTasks.selectCarWash')}
-                    size="large"
-                    className="w-full"
-                  >
-                    {poses?.map(pos => (
-                      <Option key={pos.id} value={pos.id}>
-                        {pos.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.workType')} <span className="text-red-500">*</span>
-                </label>
-                <Form.Item name="type" rules={[{ required: true, message: t('techTasks.selectWorkType') }]}>
-                  <Select 
-                    placeholder={t('techTasks.selectWorkType')}
-                    size="large" 
-                    className="w-full"
-                    onChange={(value) => {
-                      setTaskType(value);
-                      form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
-                      setPeriodType(undefined);
-                    }}
-                  >
-                    <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
-                    <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
-                  </Select>
-                </Form.Item>
-              </div>
+              <Form.Item 
+                name="type" 
+                label={`${t('techTasks.workType')} *`}
+                rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
+              >
+                <Select placeholder={t('techTasks.selectWorkType')} size="large">
+                  <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
+                  <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
+                </Select>
+              </Form.Item>
               
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.status')} <span className="text-red-500">*</span>
-                </label>
-                <Form.Item name="status" rules={[{ required: true, message: t('techTasks.selectStatus') }]}>
-                  <Select size="large" className="w-full">
-                    <Option value={StatusTechTask.ACTIVE}>{t('techTasks.active')}</Option>
-                    <Option value={StatusTechTask.PAUSE}>{t('techTasks.paused')}</Option>
-                    <Option value={StatusTechTask.RETURNED}>{t('techTasks.returned')}</Option>
-                    <Option value={StatusTechTask.FINISHED}>{t('techTasks.finished')}</Option>
-                    <Option value={StatusTechTask.OVERDUE}>{t('techTasks.overdue')}</Option>
-                  </Select>
-                </Form.Item>
-              </div>
+              <Form.Item 
+                name="status" 
+                label={`${t('techTasks.status')} *`}
+                rules={[{ required: true, message: t('techTasks.selectStatus') }]}
+              >
+                <Select size="large">
+                  <Option value={StatusTechTask.ACTIVE}>{t('techTasks.active')}</Option>
+                  <Option value={StatusTechTask.PAUSE}>{t('techTasks.paused')}</Option>
+                  <Option value={StatusTechTask.RETURNED}>{t('techTasks.returned')}</Option>
+                  <Option value={StatusTechTask.FINISHED}>{t('techTasks.finished')}</Option>
+                  <Option value={StatusTechTask.OVERDUE}>{t('techTasks.overdue')}</Option>
+                </Select>
+              </Form.Item>
 
-              {taskType === TypeTechTask.REGULAR && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('techTasks.periodicity')} <span className="text-red-500">*</span>
-                    <QuestionCircleOutlined className="ml-1 text-gray-400" />
-                  </label>
-                  <Form.Item name="periodType" rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}>
-                    <Select 
-                      placeholder={t('techTasks.selectPeriodicity')} 
-                      size="large" 
-                      className="w-full"
-                      onChange={(value) => {
-                        setPeriodType(value);
-                        if (value !== PeriodType.CUSTOM) {
-                          form.setFieldsValue({ customPeriodDays: undefined });
-                        }
-                      }}
-                    >
-                      <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
-                      <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
-                      <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
-                      <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
-                      <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
-                    </Select>
-                  </Form.Item>
-                </div>
-              )}
+              <Form.Item 
+                name="periodType" 
+                label={`${t('techTasks.periodicity')} *`}
+                rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
+              >
+                <Select 
+                  placeholder={t('techTasks.selectPeriodicity')} 
+                  size="large"
+                  onChange={(value) => {
+                    setPeriodType(value);
+                    if (value !== PeriodType.CUSTOM) {
+                      form.setFieldsValue({ customPeriodDays: undefined });
+                    }
+                  }}
+                >
+                  <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
+                  <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
+                  <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
+                  <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
+                  <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
+                </Select>
+              </Form.Item>
 
               {periodType === PeriodType.CUSTOM && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('techTasks.daysCount')} <span className="text-red-500">*</span>
-                  </label>
-                  <Form.Item 
-                    name="customPeriodDays" 
-                    rules={[
-                      { required: true, message: t('techTasks.enterDaysCount') },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder={t('techTasks.enterDaysCount')}
-                      size="large"
-                      className="w-full"
-                      min={1}
-                      max={365}
-                    />
-                  </Form.Item>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.endDate')} {taskType === TypeTechTask.ONETIME && <span className="text-red-500">*</span>}
-                </label>
                 <Form.Item 
-                  name="endDate" 
-                  rules={taskType === TypeTechTask.ONETIME ? [{ required: true, message: t('techTasks.selectEndDate') }] : []}
+                  name="customPeriodDays" 
+                  label={`${t('techTasks.daysCount')} *`}
+                  rules={[{ required: true, message: t('techTasks.enterDaysCount') }]}
                 >
-                  <DatePicker
-                    placeholder={t('techTasks.endDate')}
+                  <Input
+                    type="number"
+                    placeholder={t('techTasks.enterDaysCount')}
                     size="large"
-                    className="w-full"
-                    format="DD.MM.YYYY"
+                    min={1}
+                    max={365}
                   />
                 </Form.Item>
-              </div>
+              )}
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.tags')}
-                </label>
-                <Form.Item name="tags">
-                  <Select
-                    mode="multiple"
-                    placeholder={t('techTasks.selectTags')}
-                    size="large"
-                    className="w-full"
-                  >
-                    {tagsData?.map(tag => (
-                      <Option key={tag.props.id} value={tag.props.id}>
-                        {tag.props.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </div>
+              <Form.Item 
+                name="endDate" 
+                label={`${t('techTasks.endDate')} *`}
+                rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
+              >
+                <DatePicker
+                  placeholder={t('techTasks.endDate')}
+                  size="large"
+                  format="DD.MM.YYYY"
+                />
+              </Form.Item>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('techTasks.author')}
-                </label>
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                  <Avatar
-                    size={32}
-                    className={avatarColors}
-                  >
-                    {userInitials}
-                  </Avatar>
-                  <span className="text-sm">
-                    {userFullName} ({t('techTasks.you')})
-                  </span>
-                </div>
+              <Form.Item name="tags" label={t('techTasks.tags')}>
+                <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large">
+                  {tagsData?.map(tag => (
+                    <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
+                <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
               </div>
             </div>
           </div>
@@ -549,18 +389,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-3 p-6 pt-4">
-        <Button onClick={onClose} size="large">
-          {t('common.cancel')}
-        </Button>
-        <Button
-          type="primary"
-          htmlType="submit"
-          size="large"
-          loading={isMutating}
-        >
-          {t('common.update')}
-        </Button>
-      </div>
+          <Button onClick={onClose} size="large">{t('common.cancel')}</Button>
+          <Button type="primary" htmlType="submit" size="large" loading={isMutating}>
+            {t('common.update')}
+          </Button>
+        </div>
         </Form>
       </Spin>
     </Modal>
