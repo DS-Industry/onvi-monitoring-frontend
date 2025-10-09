@@ -21,6 +21,10 @@ import { useToast } from '@/hooks/useToast';
 import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 import { getStatusTagRender } from '@/utils/tableUnits';
 
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
+
 const { Option } = Select;
 
 interface TemplateItem {
@@ -49,6 +53,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+
+  const screens = useBreakpoint();
+  const fullscreen = !screens.md;
 
   const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
 
@@ -245,7 +252,15 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1200}
+      width={fullscreen ? '100vw' : 1200}
+      style={{
+        height: fullscreen ? '100vh' : 'auto', 
+        maxWidth: fullscreen ? '100vw' : 'auto', 
+        padding: fullscreen ? 0 : "auto", 
+        top: fullscreen ? 0 : 50,
+        margin: fullscreen ? 0 : "auto",
+      }}
+      zIndex={99999}
       className="update-tech-task-modal"
     >
       <Spin spinning={isLoading || isValidating} tip={t('common.loading')} className="h-full">

@@ -19,6 +19,10 @@ import { getStatusTagRender } from '@/utils/tableUnits';
 
 const { Option } = Select;
 
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
+
 interface TemplateItem {
   id: number;
   title: string;
@@ -40,6 +44,9 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
   const [form] = Form.useForm();
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+
+  const screens = useBreakpoint();
+  const fullscreen = !screens.md;
 
   const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
 
@@ -116,8 +123,16 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1200}
       className="readonly-tech-task-modal"
+      width={fullscreen ? '100vw' : 1200}
+      style={{
+        height: fullscreen ? '100vh' : 'auto', 
+        maxWidth: fullscreen ? '100vw' : 'auto', 
+        padding: fullscreen ? 0 : "auto", 
+        top: fullscreen ? 0 : 50,
+        margin: fullscreen ? 0 : "auto",
+      }}
+      zIndex={99999}
     >
       <Spin spinning={isLoading || isValidating} tip={t('common.loading')} className="h-full">
         <Form

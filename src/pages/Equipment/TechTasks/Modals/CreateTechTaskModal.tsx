@@ -19,6 +19,10 @@ import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
 import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
+
 const { Option } = Select;
 
 interface CreateTechTaskModalProps {
@@ -46,6 +50,8 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
   const [selectedForTransfer, setSelectedForTransfer] = useState<number[]>([]);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
 
+  const screens = useBreakpoint();
+  const fullscreen = !screens.md;
 
   const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
 
@@ -151,7 +157,15 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1200}
+      width={fullscreen ? '100vw' : 1200}
+      style={{
+        height: fullscreen ? '100vh' : 'auto', 
+        maxWidth: fullscreen ? '100vw' : 'auto', 
+        padding: fullscreen ? 0 : "auto", 
+        top: fullscreen ? 0 : 50,
+        margin: fullscreen ? 0 : "auto",
+      }}
+      zIndex={99999}
       className="create-tech-task-modal"
     >
       <Form
