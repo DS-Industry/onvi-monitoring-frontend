@@ -32,7 +32,9 @@ import { Can } from '@/permissions/Can';
 import { usePermissions } from '@/hooks/useAuthStore';
 import CreateTechTaskModal from '@/components/ui/Modal/CreateTechTaskModal';
 import UpdateTechTaskModal from '@/components/ui/Modal/UpdateTechTaskModal';
+import CompleteTechTaskModal from '@/components/ui/Modal/CompleteTechTaskModal';
 import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
+import hasPermission from '@/permissions/hasPermission';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
@@ -65,6 +67,7 @@ const TechTasks: React.FC = () => {
   const [searchValue, setSearchValue] = useState(name || '');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [selectedTechTaskId, setSelectedTechTaskId] = useState<number | undefined>();
 
   const user = useUser();
@@ -185,7 +188,17 @@ const TechTasks: React.FC = () => {
 
   const handleUpdateTask = (techTask: TechTaskReadAllDisplay) => {
     setSelectedTechTaskId(techTask.id);
-    setUpdateModalOpen(true);
+    
+    const hasUpdatePermission = hasPermission(userPermissions, [
+      { action: 'update', subject: 'TechTask' },
+      { action: 'manage', subject: 'TechTask' }
+    ]);
+    
+    if (hasUpdatePermission) {
+      setUpdateModalOpen(true);
+    } else {
+      setCompleteModalOpen(true);
+    }
   };
 
   const handleCreateSuccess = () => {
@@ -442,7 +455,6 @@ const TechTasks: React.FC = () => {
         onClose={() => setCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
       />
-      
       <UpdateTechTaskModal
         open={updateModalOpen}
         onClose={() => {
@@ -451,6 +463,14 @@ const TechTasks: React.FC = () => {
         }}
         techTaskId={selectedTechTaskId}
         onSuccess={handleCreateSuccess}
+      />
+      <CompleteTechTaskModal
+        open={completeModalOpen}
+        onClose={() => {
+          setCompleteModalOpen(false);
+          setSelectedTechTaskId(undefined);
+        }}
+        techTaskId={selectedTechTaskId}
       />
     </>
   );
