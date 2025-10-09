@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Avatar, Spin } from 'antd';
+import { CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -172,7 +173,11 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                   
                   <Form.Item 
                     name="type" 
-                    label={`${t('techTasks.workType')} *`}
+                    label={
+                      <span>
+                        <ToolOutlined className="mr-2" /> {t('techTasks.workType')} 
+                      </span>
+                    }
                   >
                     <Select placeholder={t('techTasks.selectWorkType')} size="large" disabled>
                       <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
@@ -182,7 +187,11 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                   
                   <Form.Item 
                     name="status" 
-                    label={`${t('techTasks.status')} *`}
+                    label={
+                      <span>
+                        <CheckCircleOutlined className="mr-2" /> {t('techTasks.status')} 
+                      </span>
+                    }
                   >
                     <Select size="large" disabled>
                       <Option value={StatusTechTask.ACTIVE}>{t('techTasks.active')}</Option>
@@ -195,7 +204,11 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
 
                   <Form.Item 
                     name="periodType" 
-                    label={`${t('techTasks.periodicity')} *`}
+                    label={
+                      <span>
+                        <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+                      </span>
+                    }
                   >
                     <Select 
                       placeholder={t('techTasks.selectPeriodicity')} 
@@ -213,7 +226,11 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                   {periodType === PeriodType.CUSTOM && (
                     <Form.Item 
                       name="customPeriodDays" 
-                      label={`${t('techTasks.daysCount')} *`}
+                      label={
+                        <span>
+                          <NumberOutlined className="mr-2" /> {t('techTasks.daysCount')} 
+                        </span>
+                      }
                     >
                       <Input
                         type="number"
@@ -228,7 +245,11 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
 
                   <Form.Item 
                     name="endDate" 
-                    label={`${t('techTasks.endDate')} *`}
+                    label={
+                      <span>
+                        <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')} 
+                      </span>
+                    }
                   >
                     <DatePicker
                       placeholder={t('techTasks.endDate')}
@@ -238,7 +259,14 @@ const CompleteTechTaskModal: React.FC<CompleteTechTaskModalProps> = ({
                     />
                   </Form.Item>
 
-                  <Form.Item name="tags" label={t('techTasks.tags')}>
+                  <Form.Item 
+                    name="tags" 
+                    label={
+                      <span>
+                        <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')} 
+                      </span>
+                    }
+                  >
                     <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large" disabled>
                       {tagsData?.map(tag => (
                         <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>

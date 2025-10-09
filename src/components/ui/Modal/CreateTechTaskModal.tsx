@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Checkbox, Avatar } from 'antd';
-import { ArrowRightOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, CalendarOutlined, CarOutlined, ClockCircleOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -260,7 +260,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
               
               <Form.Item 
                 name="posId" 
-                label={`${t('techTasks.carWashBranch')} *`}
+                label={
+                  <span>
+                    <CarOutlined className="mr-2" /> {t('techTasks.carWashBranch')} 
+                  </span>
+                }
                 rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
               >
                 <Select placeholder={t('techTasks.selectCarWash')} size="large">
@@ -272,7 +276,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
               <Form.Item 
                 name="type" 
-                label={`${t('techTasks.workType')} *`}
+                label={
+                  <span>
+                    <ToolOutlined className="mr-2" /> {t('techTasks.workType')} 
+                  </span>
+                }
                 rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
               >
                 <Select 
@@ -290,7 +298,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
               <Form.Item 
                 name="periodType" 
-                label={`${t('techTasks.periodicity')} *`}
+                label={
+                  <span>
+                    <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+                  </span>
+                }
                 rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
               >
                 <Select 
@@ -314,7 +326,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
               {periodType === PeriodType.CUSTOM && (
                 <Form.Item 
                   name="customPeriodDays" 
-                  label={`${t('techTasks.daysCount')} *`}
+                  label={
+                    <span>
+                      <NumberOutlined className="mr-2" /> {t('techTasks.daysCount')} 
+                    </span>
+                  }
                   rules={[{ required: true, message: t('techTasks.enterDaysCount') }]}
                 >
                   <Input
@@ -329,7 +345,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
               <Form.Item 
                 name="endDate" 
-                label={`${t('techTasks.endDate')} *`}
+                label={
+                  <span>
+                    <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')} 
+                  </span>
+                }
                 rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
               >
                 <DatePicker
@@ -341,7 +361,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
               <Form.Item 
                 name="tags" 
-                label={`${t('techTasks.tags')} *`}
+                label={
+                  <span>
+                    <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')} 
+                  </span>
+                }
                 rules={[{ required: true, message: t('techTasks.selectAtLeastOneTag') }]}
               >
                 <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large">
