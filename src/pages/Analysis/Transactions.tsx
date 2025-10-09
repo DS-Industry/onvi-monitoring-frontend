@@ -1,8 +1,8 @@
 import { getAllReports, getTransactions } from '@/services/api/reports';
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
-import { Button, Table } from 'antd';
+import { Button, Input, Table } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { DownloadOutlined } from '@ant-design/icons';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -13,10 +13,13 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { debounce } from 'lodash';
 
 const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState('');
+  const name = searchParams.get('name') || undefined;
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -24,6 +27,31 @@ const Transactions: React.FC = () => {
   const { data: filter } = useSWR(['get-all-report'], () => getAllReports({}), {
     shouldRetryOnError: false,
   });
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        name: value || undefined,
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
+
+  useEffect(() => {
+    setSearchValue(name || '');
+  }, [name]);
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
 
   const allReports = useMemo(() => {
     return (
@@ -54,7 +82,7 @@ const Transactions: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -67,8 +95,10 @@ const Transactions: React.FC = () => {
           allReports.find(rep => rep.value === item.reportTemplateId)?.name ||
           '',
       })) || []
+    ).filter(item =>
+      item.status.toLowerCase().includes((name || '').toLowerCase())
     );
-  }, [allReports, t, transactionData?.transactions]);
+  }, [allReports, t, transactionData?.transactions, name]);
 
   const handleDownload = (reportKey: string, id: number) => {
     const downloadUrl = `${import.meta.env.VITE_S3_CLOUD}/report/${id}/${reportKey}`;
@@ -132,13 +162,24 @@ const Transactions: React.FC = () => {
 
       <div className="mt-5">
         <div className="space-y-4">
-          <Button
-            icon={
-              <UndoOutlined style={{ color: 'orange', fontSize: '24px' }} />
-            }
-            className="h-12 !w-12 flex items-center justify-center"
-            onClick={() => mutate(swrKey)}
-          />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+            <Input.Search
+              placeholder={t('filters.search.placeholder')}
+              value={searchValue}
+              onChange={handleSearchChange}
+              onSearch={handleSearch}
+              allowClear
+              className="w-full sm:w-72 md:w-80"
+              style={{ height: '32px' }}
+            />
+            <Button
+              icon={<UndoOutlined style={{ color: 'orange' }} />}
+              className="flex items-center justify-center"
+              onClick={() => mutate(swrKey)}
+            >
+              {t('constants.refresh')}
+            </Button>
+          </div>
           <Table
             dataSource={transactions}
             columns={columnsTransactions}

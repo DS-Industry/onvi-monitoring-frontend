@@ -97,7 +97,6 @@ const Analysis: React.FC = () => {
       <hr className="my-4" />
 
       <div className="space-y-3">
-        <div className="text-text01 uppercase">{t('analysis.oper')}</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {loadingReports || validatingReports || tableLoading ? (
             <CardSkeleton cardHeight="200px" cardWidth="456px" />
