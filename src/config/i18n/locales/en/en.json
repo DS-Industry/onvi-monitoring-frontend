@@ -1435,7 +1435,8 @@
     "rejected": "Rejected",
     "approve": "Approve",
     "reject": "Reject",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "refresh": "Refresh"
   },
   "filters": {
     "reset": "Reset",
