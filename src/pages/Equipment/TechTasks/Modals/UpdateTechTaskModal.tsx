@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
-import { ArrowRightOutlined, CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseOutlined, DeleteOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseOutlined, DeleteOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -455,7 +455,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 </Select>
               </Form.Item>
 
-              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+              <div className="flex items-center gap-2">
+                <UserOutlined />
+                <div>{t('techTasks.author')}</div>
+              </div>
+              <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
                 <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
                 <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
               </div>
