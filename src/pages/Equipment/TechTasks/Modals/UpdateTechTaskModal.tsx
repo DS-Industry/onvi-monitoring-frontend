@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
-import { ArrowRightOutlined, CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseOutlined, DeleteOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { 
   updateTechTask, 
+  deleteTechTask,
   getTags, 
   getTechTaskItem, 
   getTechTaskShapeItem,
@@ -68,6 +69,13 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     ['update-tech-task'],
     async (_, { arg }: { arg: any }) => {
       return updateTechTask(arg);
+    }
+  );
+
+  const { trigger: deleteTechTaskMutation, isMutating: isDeleting } = useSWRMutation(
+    ['delete-tech-task'],
+    async (_, { arg }: { arg: number }) => {
+      return deleteTechTask(arg);
     }
   );
 
@@ -174,15 +182,55 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
   };
 
+  const handleDelete = () => {
+    if (!techTaskDetails) return;
+
+    Modal.confirm({
+      title: t('techTasks.confirmDelete'),
+      content: t('techTasks.confirmDeleteMessage', { count: 1 }),
+      okText: t('techTasks.delete'),
+      okType: 'danger',
+      cancelText: t('organizations.cancel'),
+      async onOk() {
+        try {
+          await deleteTechTaskMutation(techTaskDetails.id);
+          showToast(t('techTasks.deleteSuccess'), 'success');
+          onSuccess?.();
+          onClose();
+        } catch (error) {
+          showToast(t('techTasks.deleteError'), 'error');
+        }
+      },
+    });
+  };
+
   const userInitials = `${user.name?.charAt(0) || ''}${user.name?.charAt(1) || ''}`.toUpperCase();
   const userFullName = user.name || 'Пользователь';
   const avatarColors = getAvatarColorClasses(user.id || 0);
 
   return (
     <Modal
+      closable={false}
       title={
         <div className="flex items-center justify-between">
           <span>{t('routes.technicalTasks')} /{techTaskId}</span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={handleDelete}
+              loading={isDeleting}
+              className="text-red-500 hover:text-red-700"
+              title={t('techTasks.delete')}
+            />
+            <Button
+              type="text"
+              icon={<CloseOutlined />}
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+              title={t('common.close')}
+            />
+          </div>
         </div>
       }
       open={open}
