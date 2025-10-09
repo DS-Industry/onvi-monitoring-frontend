@@ -164,35 +164,36 @@ export type PrepaymentFilter = {
 
 export type PrepaymentResponse = {
   hrWorkerId: number;
-  employeeName: string; 
-  name: string; 
+  employeeName: string;
+  name: string;
   hrPositionId: number;
   salaryPeriod: Date;
-  billingMonth: Date; 
+  billingMonth: Date;
   paymentDate: Date;
   monthlySalary: number;
   dailySalary: number;
   bonusPayout: number;
-  numberOfShiftsWorked: number; 
-  countShifts: number; 
-  advanceSalary: number; 
+  numberOfShiftsWorked: number;
+  countShifts: number;
+  advanceSalary: number;
   sum: number;
   maxAdvanceSalary: number;
-  payoutTimestamp: Date; 
+  payoutTimestamp: Date;
   createdAt: Date;
   createdById: number;
 };
 
 type PaymentCalculateResponse = {
   hrWorkerId: number;
+  employeeName: string;
   name: string;
   hrPositionId: number;
   billingMonth: Date;
-  monthlySalary: number;
   dailySalary: number;
   bonusPayout: number;
+  numberOfShiftsWorked: number;
   prepaymentSum: number;
-  prepaymentCountShifts: number;
+  sum: number;
 };
 
 export type PaymentCreateRequest = {
@@ -213,15 +214,17 @@ export type PaymentsResponse = {
   hrPositionId: number;
   billingMonth: Date;
   paymentDate: Date;
-  monthlySalary: number;
   dailySalary: number;
   bonusPayout: number;
-  countShifts: number;
+  numberOfShiftsWorked: number;
   prepaymentSum: number;
   paymentSum: number;
   prize: number;
   fine: number;
+  virtualSum?: number;
+  comment?: string;
   totalPayment: number;
+  totalPaymentFinal: number;
   createdAt: Date;
   createdById: number;
 };
@@ -303,8 +306,10 @@ export async function getWorkers(params: WorkerParams): Promise<TWorker[]> {
   return response.data;
 }
 
-export async function getWorkersCount(params: WorkerParams): Promise<{ count: number; }> {
-  const response: AxiosResponse<{ count: number; }> = await api.get(
+export async function getWorkersCount(
+  params: WorkerParams
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
     HR.GET_WORKERS + 's-count',
     { params }
   );

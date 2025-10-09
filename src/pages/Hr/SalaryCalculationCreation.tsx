@@ -24,7 +24,7 @@ import {
   Modal,
   InputNumber,
   Grid,
-  ConfigProvider,
+  Input,
 } from 'antd';
 import {
   PlusOutlined,
@@ -39,8 +39,6 @@ import PositionEmpty from '@/assets/NoPosition.png';
 
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
-import ruRU from 'antd/locale/ru_RU';
-import enUS from 'antd/locale/en_US';
 
 interface PaymentRecord {
   check: boolean;
@@ -49,19 +47,18 @@ interface PaymentRecord {
   name: string;
   hrPositionId: number;
   billingMonth: Date;
-  monthlySalary: number;
+  paymentDate: Date;
   dailySalary: number;
   bonusPayout: number;
+  numberOfShiftsWorked: number;
   prepaymentSum: number;
-  prepaymentCountShifts: number;
-  paymentDate: Date;
-  countShifts: number;
-  sum: number;
+  paymentSum: number;
   prize: number;
   fine: number;
-  hrPosition?: string;
-  totalCountShifts?: number;
-  totalPayment?: number;
+  virtualSum?: number;
+  comment?: string;
+  totalPayment: number;
+  totalPaymentFinal: number;
 }
 
 const SalaryCalculationCreation: React.FC = () => {
@@ -71,7 +68,6 @@ const SalaryCalculationCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
-  const currentLocale = i18n.language === 'ru' ? ruRU : enUS;
   dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
@@ -186,11 +182,14 @@ const SalaryCalculationCreation: React.FC = () => {
             ...res,
             check: false,
             paymentDate: new Date(),
-            countShifts: 0,
+            numberOfShiftsWorked: 0,
             prize: 0,
             fine: 0,
             sum: 0,
             id: index,
+            paymentSum: 0,
+            totalPayment: 0,
+            totalPaymentFinal: 0,
           }))
         );
       } else {
@@ -208,7 +207,7 @@ const SalaryCalculationCreation: React.FC = () => {
       const errors = [];
 
       if (!item.paymentDate) errors.push('Дата выдачи');
-      if (item.countShifts == null || item.countShifts <= 0)
+      if (item.numberOfShiftsWorked == null || item.numberOfShiftsWorked <= 0)
         errors.push('Количество отработанных смен');
       if (item.prize == null || item.prize <= 0) errors.push('Премия');
       if (item.fine == null || item.fine <= 0) errors.push('Штраф');
@@ -228,11 +227,9 @@ const SalaryCalculationCreation: React.FC = () => {
           hrWorkerId: data.hrWorkerId,
           paymentDate: data.paymentDate,
           billingMonth: data.billingMonth,
-          countShifts: Number(data.countShifts),
+          countShifts: Number(data.numberOfShiftsWorked),
           sum:
-            data.monthlySalary +
-            data.dailySalary * data.countShifts -
-            data.prepaymentSum,
+            data.dailySalary * data.numberOfShiftsWorked - data.prepaymentSum,
           prize: Number(data.prize),
           fine: Number(data.fine),
         })) || [],
@@ -298,11 +295,14 @@ const SalaryCalculationCreation: React.FC = () => {
             ...res,
             paymentDate: new Date(),
             check: false,
-            countShifts: 0,
+            numberOfShiftsWorked: 0,
             prize: 0,
             fine: 0,
             sum: 0,
             id: index,
+            paymentSum: 0,
+            totalPayment: 0,
+            totalPaymentFinal: 0,
           }))
         );
         resetFormWorker();
@@ -320,23 +320,17 @@ const SalaryCalculationCreation: React.FC = () => {
       ...item,
       hrPosition:
         positions.find(pos => pos.value === item.hrPositionId)?.name || '',
-      totalCountShifts:
-        (item.prepaymentCountShifts || 0) + (item.countShifts || 0),
-      sum:
-        item.monthlySalary +
-        item.dailySalary *
-          ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
-        item.prepaymentSum +
-        (item.prize || 0) -
-        (item.fine || 0),
       totalPayment:
-        (item.prepaymentSum || 0) +
-        (item.monthlySalary || 0) +
-        (item.dailySalary || 0) *
-          ((item.prepaymentCountShifts || 0) + (item.countShifts || 0)) -
+        (item.paymentSum || 0) -
         (item.prepaymentSum || 0) +
         (item.prize || 0) -
         (item.fine || 0),
+      totalPaymentFinal:
+        (item.paymentSum || 0) -
+        (item.prepaymentSum || 0) +
+        (item.prize || 0) -
+        (item.fine || 0) -
+        (item.virtualSum || 0),
     }));
   };
 
@@ -373,13 +367,6 @@ const SalaryCalculationCreation: React.FC = () => {
         record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
-      title: 'Оклад',
-      dataIndex: 'monthlySalary',
-      key: 'monthlySalary',
-      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: getCurrencyRender(),
-    },
-    {
       title: 'Посменное начисление',
       dataIndex: 'dailySalary',
       key: 'dailySalary',
@@ -400,33 +387,21 @@ const SalaryCalculationCreation: React.FC = () => {
       render: getCurrencyRender(),
     },
     {
-      title: 'Количество отработанных смен аванс',
-      dataIndex: 'prepaymentCountShifts',
-      key: 'prepaymentCountShifts',
-      sorter: (a, b) => a.prepaymentCountShifts - b.prepaymentCountShifts,
-    },
-    {
       title: 'Количество отработанных смен',
-      key: 'countShifts',
+      key: 'numberOfShiftsWorked',
       render: (_, record) => (
         <InputNumber
-          value={record.countShifts}
-          onChange={value => handleTableChange(record.id, 'countShifts', value)}
+          value={record.numberOfShiftsWorked}
+          onChange={value =>
+            handleTableChange(record.id, 'numberOfShiftsWorked', value)
+          }
         />
       ),
-    },
-    {
-      title: 'Количество отработанных смен итог',
-      key: 'totalCountShifts',
-      sorter: (a, b) => (a?.totalCountShifts || 0) - (b?.totalCountShifts || 0),
-      render: (_, record) =>
-        (record.prepaymentCountShifts || 0) + (record.countShifts || 0),
     },
     {
       title: 'Выплачено ЗП',
       dataIndex: 'sum',
       key: 'sum',
-      sorter: (a, b) => a.sum - b.sum,
       render: getCurrencyRender(),
     },
     {
@@ -449,20 +424,51 @@ const SalaryCalculationCreation: React.FC = () => {
         />
       ),
     },
+
     {
-      title: 'Выплачено итог',
+      title: 'Безналичная выплата',
+      key: 'virtualSum',
+      render: (_, record) => (
+        <InputNumber
+          value={record.virtualSum}
+          onChange={value => handleTableChange(record.id, 'virtualSum', value)}
+        />
+      ),
+    },
+    {
+      title: 'Комментарий',
+      key: 'comment',
+      render: (_, record) => (
+        <Input
+          value={record.comment}
+          onChange={value => handleTableChange(record.id, 'comment', value)}
+        />
+      ),
+    },
+    {
+      title: 'Выплата ЗП',
       key: 'totalPayment',
       sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {
         const totalPayment =
-          (record.prepaymentSum || 0) +
-          (record.monthlySalary || 0) +
-          (record.dailySalary || 0) *
-            ((record.prepaymentCountShifts || 0) + (record.countShifts || 0)) -
+          (record.paymentSum || 0) -
           (record.prepaymentSum || 0) +
           (record.prize || 0) -
           (record.fine || 0);
-
+        return getCurrencyRender()(totalPayment);
+      },
+    },
+    {
+      title: 'Выплаченный итог',
+      key: 'totalPaymentFinal',
+      sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
+      render: (_, record) => {
+        const totalPayment =
+          (record.paymentSum || 0) -
+          (record.prepaymentSum || 0) +
+          (record.prize || 0) -
+          (record.fine || 0) -
+          (record.virtualSum || 0);
         return getCurrencyRender()(totalPayment);
       },
     },
@@ -481,7 +487,7 @@ const SalaryCalculationCreation: React.FC = () => {
   ];
 
   return (
-    <ConfigProvider locale={currentLocale}>
+    <>
       <div>
         <div
           className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
@@ -720,7 +726,7 @@ const SalaryCalculationCreation: React.FC = () => {
           )}
         </div>
       </div>
-    </ConfigProvider>
+    </>
   );
 };
 
