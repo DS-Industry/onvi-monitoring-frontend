@@ -198,7 +198,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onFinish={handleSubmit}
           className="h-full flex flex-col"
         >
-          <div className="flex-1 overflow-y-scroll p-6">
+      <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <div className="flex-1 flex flex-col gap-4">
             <Form.Item

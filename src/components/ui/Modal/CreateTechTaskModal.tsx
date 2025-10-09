@@ -161,7 +161,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
         className="h-full flex flex-col"
         initialValues={{}}
       >
-        <div className="p-6">
+        <div className="p-6 max-h-[700px] overflow-y-auto">
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <div className="flex-1 flex flex-col gap-4">
             <Form.Item
