@@ -29,10 +29,12 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { useTranslation } from 'react-i18next';
+import { useUser } from '@/hooks/useUserStore';
 
 const DepositDevices: React.FC = () => {
   const location = useLocation();
   const { t } = useTranslation();
+  const user = useUser();
   const today = new Date();
   const formattedDate = today.toISOString().slice(0, 10);
 
@@ -75,6 +77,7 @@ const DepositDevices: React.FC = () => {
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
+      organizationId: user.organizationId
     }),
     [
       dateStart,
@@ -85,12 +88,13 @@ const DepositDevices: React.FC = () => {
       pageSize,
       formattedDate,
       location.state?.ownerId,
+      user.organizationId
     ]
   );
 
   const swrKey = useMemo(
     () =>
-      `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`,
+      `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
     [filterParams]
   );
 
