@@ -308,6 +308,18 @@ type TechTaskShapeBody = {
   valueData: {
     itemValueId: number;
     value: string;
+    imageUrl?: string;
+  }[];
+};
+
+type TechTaskShapeWithUrlsBody = {
+  valueData: {
+    itemValueId: number;
+    value: string;
+  }[];
+  imageUrls: {
+    itemValueId: number;
+    imageUrl: string;
   }[];
 };
 
@@ -699,26 +711,22 @@ export async function getTechTaskShapeItem(
 export async function createTechTaskShape(
   id: number,
   body: TechTaskShapeBody,
-  files: { itemValueId: number; file: File }[]
 ): Promise<TechTaskResponse> {
-  const formData = new FormData();
-
-  // Append JSON valueData
-  formData.append('valueData', JSON.stringify(body.valueData));
-
-  // Append files with raw itemValueId as key
-  files?.forEach(({ itemValueId, file }) => {
-    formData.append(`${itemValueId}`, file);
-  });
-
   const response: AxiosResponse<TechTaskResponse> = await api.post(
     `${TECHTASKS.CREATE_TECH_TASK}/${id}`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }
+    body
+  );
+
+  return response.data;
+}
+
+export async function createTechTaskShapeWithUrls(
+  id: number,
+  body: TechTaskShapeWithUrlsBody
+): Promise<TechTaskResponse> {
+  const response: AxiosResponse<TechTaskResponse> = await api.post(
+    `${TECHTASKS.CREATE_TECH_TASK}/${id}/with-urls`,
+    body
   );
 
   return response.data;
