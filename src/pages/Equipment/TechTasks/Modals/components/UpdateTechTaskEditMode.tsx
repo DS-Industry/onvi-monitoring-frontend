@@ -27,7 +27,7 @@ const UpdateTechTaskEditMode: React.FC<UpdateTechTaskEditModeProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex-1 flex flex-col gap-4 lg:min-w-0">
+    <div className="flex flex-col gap-4 min-w-0 w-full">
       <Form.Item
         name="name"
         rules={[{ required: true, message: t('techTasks.taskNameRequired') }]}
@@ -56,14 +56,14 @@ const UpdateTechTaskEditMode: React.FC<UpdateTechTaskEditModeProps> = ({
         </Form.Item>
       </div>
 
-      <div className="flex flex-col min-h-[300px]">
+      {isEditMode ? <div className="flex flex-col min-h-[300px] w-full">
         <TechTaskTemplateManager
           selectedTemplates={selectedTemplates}
           availableTemplates={availableTemplates}
           totalTemplates={totalTemplates}
           onTemplatesChange={onTemplatesChange}
-        />
-      </div>
+        /> 
+      </div> : null}
     </div>
   );
 };

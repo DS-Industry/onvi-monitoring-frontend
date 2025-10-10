@@ -80,7 +80,6 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
   };
 
 
-
   return (
     <div className="flex flex-1 flex-col min-h-[300px]">
       <h3 className="text-lg font-medium mb-3">

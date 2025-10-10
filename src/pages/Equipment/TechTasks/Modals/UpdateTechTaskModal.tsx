@@ -9,7 +9,8 @@ import {
   getTechTaskItem, 
   getTechTaskShapeItem,
   TypeTechTask,
-  PeriodType
+  PeriodType,
+  StatusTechTask
 } from '@/services/api/equipment';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
@@ -159,7 +160,55 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       return;
     }
 
-    onSuccess?.();
+    if (!techTaskDetails) {
+      showToast(t('errors.other.general'), 'error');
+      return;
+    }
+
+    try {
+      const result = await updateTechTaskMutation({
+        techTaskId: techTaskDetails.id,
+        status: StatusTechTask.FINISHED,
+      });
+      
+      if (result) {
+        showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
+        onSuccess?.();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to complete tech task:', error);
+      showToast(t('techTasks.completeError') || 'Ошибка при завершении задачи', 'error');
+    }
+  };
+
+  const handleReturn = async () => {
+    if (!hasUpdatePermission) {
+      showToast(t('errors.permission.insufficient'), 'error');
+      return;
+    }
+
+    if (!techTaskDetails) {
+      showToast(t('errors.other.general'), 'error');
+      return;
+    }
+
+    try {
+      const result = await updateTechTaskMutation({
+        techTaskId: techTaskDetails.id,
+        status: StatusTechTask.RETURNED,
+        endSpecifiedDate: techTaskDetails.endSpecifiedDate || dayjs().toDate(),
+      });
+      
+      if (result) {
+        showToast(t('techTasks.returnSuccess'), 'success');
+        onSuccess?.();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to return tech task:', error);
+      showToast(t('techTasks.returnError'), 'error');
+    }
   };
 
   const handleSubmit = async (values: any) => {
@@ -265,7 +314,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         >
         <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              {isEditMode ? (
+              <div className="flex flex-col flex-1 min-w-0 lg:max-w-[60%]">
                 <UpdateTechTaskEditMode
                   isEditMode={isEditMode}
                   selectedTemplates={selectedTemplates}
@@ -273,19 +322,22 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   totalTemplates={templates.length}
                   onTemplatesChange={handleTemplatesChange}
                 />
-              ) : (
-                <TechTaskViewMode
-                  techTaskData={techTaskDetails}
-                />
-              )}
+                {!isEditMode && (
+                  <TechTaskViewMode
+                    techTaskData={techTaskDetails}
+                  />
+                )}
+              </div>
 
-              <UpdateTechTaskInfoPanel
-                form={form}
-                isEditMode={isEditMode}
-                periodType={periodType}
-                onPeriodTypeChange={setPeriodType}
-                tagsData={tagsData}
-              />
+              <div className="flex-shrink-0 lg:max-w-[40%]">
+                <UpdateTechTaskInfoPanel
+                  form={form}
+                  isEditMode={isEditMode}
+                  periodType={periodType}
+                  onPeriodTypeChange={setPeriodType}
+                  tagsData={tagsData}
+                />
+              </div>
         </div>
         </div>
 
@@ -293,10 +345,13 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
             hasUpdatePermission={hasUpdatePermission}
             isEditMode={isEditMode}
             isMutating={isMutating}
-            isCompleting={false}
+            isCompleting={isMutating}
+            isReturning={isMutating}
+            taskStatus={techTaskDetails?.status}
             onCancel={onClose}
             onSave={() => form.submit()}
             onComplete={handleComplete}
+            onReturn={handleReturn}
           />
         </Form>
       </Spin>

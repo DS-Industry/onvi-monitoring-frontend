@@ -68,8 +68,8 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
         {t('techTasks.templates')} ({selectedTemplates.length}/{totalTemplates})
       </h3>
       
-      <div className="flex flex-col lg:flex-row gap-4 lg:h-64">
-        <div className="flex-1 border rounded-lg min-w-0">
+      <div className="flex flex-col lg:flex-row gap-4 lg:h-64 w-full">
+        <div className="flex-1 border rounded-lg min-w-0 max-w-full">
           <div className="p-3 bg-gray-50 border-b">
             <span className="text-sm font-medium">
               {t('techTasks.availableTemplates')} ({availableTemplates.length})
@@ -86,7 +86,7 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
                   onClick={() => toggleTemplateSelection(template.id)}
                 >
                   <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                  <span className="text-sm truncate">{template.title}</span>
+                  <span className="text-sm truncate min-w-0">{template.title}</span>
                 </div>
               ))
             ) : (
@@ -119,7 +119,7 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 border rounded-lg min-w-0">
+        <div className="flex-1 border rounded-lg min-w-0 max-w-full">
           <div className="p-3 bg-gray-50 border-b">
             <span className="text-sm font-medium">
               {t('techTasks.selectedTemplatesList')} ({selectedTemplates.length})
@@ -136,7 +136,7 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
                   onClick={() => toggleTemplateSelection(template.id)}
                 >
                   <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                  <span className="text-sm truncate">{template.title}</span>
+                  <span className="text-sm truncate min-w-0">{template.title}</span>
                 </div>
               ))
             ) : (
