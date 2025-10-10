@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
 import useFormHook from '@/hooks/useFormHook';
@@ -25,6 +25,7 @@ import {
   InputNumber,
   Grid,
   Input,
+  Typography,
 } from 'antd';
 import {
   PlusOutlined,
@@ -39,6 +40,8 @@ import PositionEmpty from '@/assets/NoPosition.png';
 
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants';
 
 interface PaymentRecord {
   check: boolean;
@@ -65,8 +68,11 @@ const SalaryCalculationCreation: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [paymentsData, setPaymentsData] = useState<PaymentRecord[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
+  const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const { showToast } = useToast();
   dayjs.locale(i18n.language);
 
@@ -102,8 +108,14 @@ const SalaryCalculationCreation: React.FC = () => {
   const [formData, setFormData] = useState(defaultValues);
 
   const { data: workersData } = useSWR(
-    formData?.organizationId ? [`get-workers`, formData.organizationId] : null,
-    () => getWorkers({ organizationId: formData.organizationId }),
+    formData?.organizationId
+      ? [`get-workers`, formData.organizationId, hrPositionId]
+      : null,
+    () =>
+      getWorkers({
+        organizationId: formData.organizationId,
+        hrPositionId: hrPositionId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -230,7 +242,7 @@ const SalaryCalculationCreation: React.FC = () => {
           prize: Number(data.prize),
           fine: Number(data.fine),
           virtualSum: data.virtualSum,
-          comment: data.comment
+          comment: data.comment,
         })) || [],
     };
 
@@ -330,7 +342,7 @@ const SalaryCalculationCreation: React.FC = () => {
         (item.prize || 0) -
         (item.fine || 0) -
         (item.virtualSum || 0),
-      numberOfShiftsWorked: item.numberOfShiftsWorked
+      numberOfShiftsWorked: item.numberOfShiftsWorked,
     }));
   };
 
@@ -434,7 +446,9 @@ const SalaryCalculationCreation: React.FC = () => {
       render: (_, record) => (
         <Input
           value={record.comment}
-          onChange={e => handleTableChange(record.id, 'comment', e.target.value)}
+          onChange={e =>
+            handleTableChange(record.id, 'comment', e.target.value)
+          }
         />
       ),
     },
@@ -516,6 +530,32 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
           <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
             <div className="flex flex-col space-y-4 text-text02">
+              <div className="flex flex-col w-full sm:w-80">
+                <Typography.Text>{t('roles.job')}</Typography.Text>
+                <Select
+                  className="w-full"
+                  placeholder={t('warehouse.notSel')}
+                  value={getParam(searchParams, 'hrPositionId')}
+                  onChange={(val: string) => {
+                    updateSearchParams(searchParams, setSearchParams, {
+                      hrPositionId: val,
+                      page: DEFAULT_PAGE,
+                    });
+                  }}
+                  options={positions?.map(item => ({
+                    label: item.name,
+                    value: String(item.value),
+                  }))}
+                  showSearch={true}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  allowClear={true}
+                />
+              </div>
               <Transfer
                 dataSource={workers}
                 targetKeys={formDataWorker.workerIds.map(String)}
