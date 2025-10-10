@@ -163,6 +163,7 @@ export type PrepaymentFilter = {
 };
 
 export type PrepaymentResponse = {
+  id: number;
   hrWorkerId: number;
   employeeName: string;
   name: string;
@@ -235,6 +236,31 @@ export type addWorkerRequest = {
   organizationId: number;
   billingMonth: string;
   workerIds: number[];
+};
+
+
+export type PrePaymentUpdateRequest = {
+  prepaymentId: number;
+  sum?: number;
+  paymentDate?: Date;
+};
+
+type PrePaymentUpdateResponse = {
+  id: number;
+  hrWorkerId: number;
+  paymentType: string;
+  paymentDate: Date;
+  billingMonth: Date;
+  countShifts: number;
+  sum: number;
+  prize: number;
+  fine: number;
+  virtualSum?: number;
+  comment?: string;
+  createdAt: Date;
+  updateAt: Date;
+  createdById: number;
+  updateById: number;
 };
 
 export async function createWorker(
@@ -379,6 +405,26 @@ export async function createPrepayment(
   const response: AxiosResponse<PrepaymentCreateResponse> = await api.post(
     HR.PREPAYMENT,
     body
+  );
+  return response.data;
+}
+
+export async function updatePrepayment(
+  body: PrePaymentUpdateRequest
+): Promise<PrePaymentUpdateResponse> {
+  const response: AxiosResponse<PrePaymentUpdateResponse> = await api.patch(
+    HR.PREPAYMENT,
+    body
+  );
+  return response.data;
+}
+
+export async function deletePrepayments(
+  body: { ids: number[]; }
+): Promise<{status: 'SUCCESS'}> {
+  const response: AxiosResponse<{status: 'SUCCESS'}> = await api.delete(
+    HR.PREPAYMENT + '/many',
+    { data: body }
   );
   return response.data;
 }
