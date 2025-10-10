@@ -1620,7 +1620,14 @@
     "paused": "Paused",
     "returned": "Returned",
     "finished": "Finished",
-    "overdue": "Overdue"
+    "overdue": "Overdue",
+    "templateCompletion": "Template Completion",
+    "noTemplates": "No templates available",
+    "complete": "Complete",
+    "completeSuccess": "Task completed successfully",
+    "edit": "Edit",
+    "cancelEdit": "Cancel Edit",
+    "save": "Save"
   },
   "progressReport": {
     "columns": {
