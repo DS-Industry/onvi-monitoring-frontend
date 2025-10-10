@@ -5,10 +5,8 @@ import {
   getAllStockLevels,
   getAllStockLevelsCount,
   getCategory,
-  getWarehouses,
   STOCK_RESPONSE,
 } from '@/services/api/warehouse';
-import { getOrganization } from '@/services/api/organization';
 import { Select, Table } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -21,12 +19,13 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 const OverheadCosts: React.FC = () => {
   const { t } = useTranslation();
-  const allCategoriesText = t('warehouse.all');
   const [searchParams, setSearchParams] = useSearchParams();
-  const orgId = searchParams.get('orgId') || null;
+  const user = useUser();
+  const orgId = user.organizationId;
   const warehouseId = Number(searchParams.get('warehouseId')) || undefined;
   const categoryId = Number(searchParams.get('categoryId')) || undefined;
   const currentPage = Number(searchParams.get('page')) || DEFAULT_PAGE;
@@ -58,7 +57,6 @@ const OverheadCosts: React.FC = () => {
     []
   );
 
-  const posId = Number(searchParams.get('posId')) || undefined;
   const city = Number(searchParams.get('city')) || undefined;
 
   const { data: categoryData } = useSWR([`get-category`], () => getCategory(), {
@@ -68,67 +66,11 @@ const OverheadCosts: React.FC = () => {
     shouldRetryOnError: false,
   });
 
-  const { data: warehouseData } = useSWR(
-    [`get-warehouse`],
-    () =>
-      getWarehouses({
-        posId: posId,
-        placementId: city,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
-  const { data: organizationData } = useSWR(
-    [`get-organization`],
-    () => getOrganization({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-      onSuccess: data => {
-        if (data && data.length > 0) {
-          updateSearchParams(searchParams, setSearchParams, {
-            orgId: data[0].id.toString(),
-          });
-        }
-      },
-    }
-  );
-
   const categories: { name: string; value: number | string }[] =
     categoryData?.map(item => ({
       name: item.props.name,
       value: item.props.id,
     })) || [];
-
-  const categoryAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
-  categories.unshift(categoryAllObj);
-
-  const warehouses: { name: string; value: number | string }[] =
-    warehouseData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || [];
-
-  const warehousesAllObj = {
-    name: allCategoriesText,
-    value: '*',
-  };
-
-  warehouses.unshift(warehousesAllObj);
-
-  const organizations: { name: string; value: number }[] =
-    organizationData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const filterParams = useMemo(
     () => ({
@@ -245,34 +187,7 @@ const OverheadCosts: React.FC = () => {
           </span>
         </div>
       </div>
-      <GeneralFilters count={transformedData.length} display={['city']}>
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            {t('warehouse.organization')}
-          </label>
-          <Select
-            showSearch
-            allowClear={false}
-            className="w-full sm:w-80"
-            value={searchParams.get('orgId') || null}
-            onChange={value => {
-              updateSearchParams(searchParams, setSearchParams, {
-                orgId: value,
-              });
-            }}
-            options={organizations.map(item => ({
-              label: item.name,
-              value: String(item.value),
-            }))}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </div>
+      <GeneralFilters count={transformedData.length} display={['city', 'warehouse']}>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('warehouse.category')}
@@ -280,42 +195,16 @@ const OverheadCosts: React.FC = () => {
           <Select
             showSearch
             allowClear={false}
+            placeholder={t('warehouse.notSel')}
             className="w-full sm:w-80"
             options={categories.map(item => ({
               label: item.name,
               value: String(item.value),
             }))}
-            value={searchParams.get('categoryId') || '*'}
+            value={searchParams.get('categoryId')}
             onChange={value => {
               updateSearchParams(searchParams, setSearchParams, {
                 categoryId: value,
-              });
-            }}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            {t('warehouse.ware')}
-          </label>
-          <Select
-            showSearch
-            allowClear={false}
-            className="w-full sm:w-80"
-            options={warehouses.map(item => ({
-              label: item.name,
-              value: String(item.value),
-            }))}
-            value={searchParams.get('warehouseId') || '*'}
-            onChange={value => {
-              updateSearchParams(searchParams, setSearchParams, {
-                warehouseId: value,
               });
             }}
             optionFilterProp="label"

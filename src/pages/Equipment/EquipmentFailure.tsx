@@ -89,8 +89,9 @@ const EquipmentFailure: React.FC = () => {
   const user = useUser();
 
   const { data: posData } = useSWR(
-    [`get-pos`, cityParam],
-    () => getPoses({ placementId: cityParam }),
+    user.organizationId ? [`get-pos`, cityParam, user.organizationId] : null,
+    () =>
+      getPoses({ placementId: cityParam, organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
