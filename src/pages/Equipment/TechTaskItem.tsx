@@ -2,6 +2,7 @@ import TableSkeleton from '@ui/Table/TableSkeleton';
 import {
   createTechTaskShapeWithUrls,
   getTechTaskShapeItem,
+  StatusTechTask,
 } from '@/services/api/equipment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -210,7 +211,7 @@ const TechTaskItem: React.FC = () => {
               onChange={handleChange}
               onFileUpload={handleUpload}
               onImageRemove={removeImage}
-              status={status ? status : undefined}
+              status={status ? status as StatusTechTask : undefined}
             />
             {status !== t('tables.FINISHED') && (
               <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-10">

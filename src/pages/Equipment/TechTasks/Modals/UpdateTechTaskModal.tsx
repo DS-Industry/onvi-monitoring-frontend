@@ -170,7 +170,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     try {
       if (!isEditMode && techTaskViewModeRef.current) {
         await techTaskViewModeRef.current.handleSubmit();
-        showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
         onSuccess?.();
         onClose();
       } else {

@@ -217,7 +217,7 @@ const ProgressReportItem: React.FC = () => {
           onChange={handleChange}
           onFileUpload={handleUpload}
           onImageRemove={removeImage}
-          status={status ? status : undefined}
+          status={status ? status as StatusTechTask : undefined}
         />
       )}
       {status !== t('tables.FINISHED') && (
