@@ -4,7 +4,6 @@ import { debounce } from 'lodash';
 import {
   getTechTaskExecution,
   StatusTechTask,
-  TechTaskReadAll,
   bulkDeleteTechTasks,
   BulkDeleteTechTasksBody,
 } from '@/services/api/equipment';
@@ -22,7 +21,7 @@ import { getStatusTagRender, getTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useToast } from '@/hooks/useToast';
 import ColumnSelectorV2 from '@/components/ui/Table/ColumnSelectorV2';
-import FilterTechTasks from '@/components/ui/Filter/FilterTechTasks';
+import FilterTechTasks from './FilterTechTasks';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -31,9 +30,11 @@ import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { Can } from '@/permissions/Can';
 import { usePermissions } from '@/hooks/useAuthStore';
-import CreateTechTaskModal from '@/components/ui/Modal/CreateTechTaskModal';
-import UpdateTechTaskModal from '@/components/ui/Modal/UpdateTechTaskModal';
+import CreateTechTaskModal from './Modals/CreateTechTaskModal';
+import UpdateTechTaskModal from './Modals/UpdateTechTaskModal';
+import CompleteTechTaskModal from './Modals/CompleteTechTaskModal';
 import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
+import hasPermission from '@/permissions/hasPermission';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
@@ -66,7 +67,8 @@ const TechTasks: React.FC = () => {
   const [searchValue, setSearchValue] = useState(name || '');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [selectedTechTask, setSelectedTechTask] = useState<TechTaskReadAll | undefined>();
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
+  const [selectedTechTaskId, setSelectedTechTaskId] = useState<number | undefined>();
 
   const user = useUser();
   const userPermissions = usePermissions();
@@ -185,10 +187,17 @@ const TechTasks: React.FC = () => {
   };
 
   const handleUpdateTask = (techTask: TechTaskReadAllDisplay) => {
-    const originalTask = data?.techTaskReadAll.find(task => task.id === techTask.id);
-    if (originalTask) {
-      setSelectedTechTask(originalTask);
+    setSelectedTechTaskId(techTask.id);
+    
+    const hasUpdatePermission = hasPermission(userPermissions, [
+      { action: 'update', subject: 'TechTask' },
+      { action: 'manage', subject: 'TechTask' }
+    ]);
+    
+    if (hasUpdatePermission) {
       setUpdateModalOpen(true);
+    } else {
+      setCompleteModalOpen(true);
     }
   };
 
@@ -240,6 +249,13 @@ const TechTasks: React.FC = () => {
       key: 'posName',
       width: 200,
       minWidth: 150,
+    },
+    {
+      title: t('techTasks.columns.workName'),
+      dataIndex: 'name',
+      key: 'name',
+      width: 250,
+      minWidth: 200,
       render: (text, record) => {
         return (
           <button
@@ -250,13 +266,6 @@ const TechTasks: React.FC = () => {
           </button>
         );
       },
-    },
-    {
-      title: t('techTasks.columns.workName'),
-      dataIndex: 'name',
-      key: 'name',
-      width: 250,
-      minWidth: 200,
     },
     {
       title: t('techTasks.columns.status'),
@@ -446,14 +455,22 @@ const TechTasks: React.FC = () => {
         onClose={() => setCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
       />
-      
       <UpdateTechTaskModal
         open={updateModalOpen}
         onClose={() => {
           setUpdateModalOpen(false);
-          setSelectedTechTask(undefined);
+          setSelectedTechTaskId(undefined);
         }}
-        techTask={selectedTechTask}
+        techTaskId={selectedTechTaskId}
+        onSuccess={handleCreateSuccess}
+      />
+      <CompleteTechTaskModal
+        open={completeModalOpen}
+        onClose={() => {
+          setCompleteModalOpen(false);
+          setSelectedTechTaskId(undefined);
+        }}
+        techTaskId={selectedTechTaskId}
       />
     </>
   );

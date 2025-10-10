@@ -19,7 +19,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import ColumnSelectorV2 from '@/components/ui/Table/ColumnSelectorV2';
-import FilterTechTasks from '@/components/ui/Filter/FilterTechTasks';
+import FilterTechTasks from './TechTasks/FilterTechTasks';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
