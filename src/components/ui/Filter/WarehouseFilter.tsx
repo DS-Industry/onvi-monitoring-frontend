@@ -6,17 +6,26 @@ import useSWR from 'swr';
 import { getWarehouses } from '@/services/api/warehouse/index.ts';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
+import { useUser } from '@/hooks/useUserStore';
 
 const WarehouseFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
 
   const placementId = Number(searchParams.get('city')) || undefined;
   const posId = Number(searchParams.get('posId')) || undefined;
 
   const { data: warehouseData, isLoading } = useSWR(
-    [`get-warehouse`, placementId, posId],
-    () => getWarehouses({ placementId, posId }),
+    user.organizationId
+      ? [`get-warehouse`, placementId, posId, user.organizationId]
+      : null,
+    () =>
+      getWarehouses({
+        placementId,
+        posId,
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

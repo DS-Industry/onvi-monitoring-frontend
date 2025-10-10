@@ -24,6 +24,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import dayjs from 'dayjs';
+import { useUser } from '@/hooks/useUserStore';
 
 type TOption = {
   id: number;
@@ -41,6 +42,7 @@ const SalaryCalculation: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
   const userPermissions = usePermissions();
+  const user = useUser();
 
   const screens = Grid.useBreakpoint();
 
@@ -82,9 +84,16 @@ const SalaryCalculation: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR(['get-workers'], () => getWorkers({}), {
-    revalidateOnFocus: false,
-  });
+  const { data: workersData } = useSWR(
+    user.organizationId ? ['get-workers', user.organizationId] : null,
+    () =>
+      getWorkers({
+        organizationId: user.organizationId,
+      }),
+    {
+      revalidateOnFocus: false,
+    }
+  );
 
   const { data: positionData } = useSWR(
     ['get-positions'],

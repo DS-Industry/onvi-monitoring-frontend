@@ -17,6 +17,7 @@ import { Table, Button, Select, Spin } from 'antd';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { getPlacement } from '@/services/api/device';
+import { useUser } from '@/hooks/useUserStore';
 
 const ConsumptionRate: React.FC = () => {
   const { t } = useTranslation();
@@ -25,9 +26,11 @@ const ConsumptionRate: React.FC = () => {
   const posId = searchParams.get('posId');
   const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
+  const user = useUser();
+
   const { data: posData, isLoading } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
+    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
+    () => getPoses({ placementId: city, organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
