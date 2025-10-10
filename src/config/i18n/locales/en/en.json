@@ -1571,6 +1571,7 @@
     "createError": "Error creating task",
     "updateSuccess": "Task updated successfully",
     "updateError": "Error updating task",
+    "noSelectedTemplates": "No selected templates",
     "columns": {
       "number": "№",
       "carWashBranch": "Car Wash / Branch",
@@ -1639,7 +1640,14 @@
     "paused": "Paused",
     "returned": "Returned",
     "finished": "Finished",
-    "overdue": "Overdue"
+    "overdue": "Overdue",
+    "templateCompletion": "Template Completion",
+    "noTemplates": "No templates available",
+    "complete": "Complete",
+    "completeSuccess": "Task completed successfully",
+    "edit": "Edit",
+    "cancelEdit": "Cancel Edit",
+    "save": "Save"
   },
   "progressReport": {
     "columns": {

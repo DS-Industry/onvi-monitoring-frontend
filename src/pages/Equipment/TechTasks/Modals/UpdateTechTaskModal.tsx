@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Form, Input, Select, DatePicker, Button, Avatar, Checkbox, Spin } from 'antd';
-import { ArrowRightOutlined, CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseOutlined, DeleteOutlined, NumberOutlined, ToolOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { Modal, Form, Spin } from 'antd';
 import dayjs from 'dayjs';
-import { useUser } from '@/hooks/useUserStore';
-import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { 
   updateTechTask, 
   deleteTechTask,
@@ -12,20 +9,24 @@ import {
   getTechTaskItem, 
   getTechTaskShapeItem,
   TypeTechTask,
-  PeriodType,
-  StatusTechTask
+  PeriodType
 } from '@/services/api/equipment';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
-import TipTapEditor from '@/components/ui/Input/TipTapEditor';
-import { getStatusTagRender } from '@/utils/tableUnits';
-
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 import { Grid } from 'antd';
 
-const { useBreakpoint } = Grid;
+import {
+  TechTaskViewMode,
+  UpdateTechTaskEditMode,
+  UpdateTechTaskInfoPanel,
+  UpdateTechTaskModalHeader,
+  UpdateTechTaskModalFooter,
+} from './components';
 
-const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 interface TemplateItem {
   id: number;
@@ -47,12 +48,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const user = useUser();
+  const userPermissions = usePermissions();
   const [form] = Form.useForm();
-  const [selectedForTransfer, setSelectedForTransfer] = useState<number[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const screens = useBreakpoint();
   const fullscreen = !screens.md;
@@ -62,10 +63,10 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
   const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
 
-  const { data: techTaskDetails, isLoading, mutate, isValidating } = useSWR(
+  const { data: techTaskDetails, isLoading, isValidating } = useSWR(
     techTaskId ? ['get-tech-task-details', techTaskId] : null,
     () => getTechTaskShapeItem(techTaskId!),
-    { revalidateOnFocus: true, revalidateOnReconnect: true }
+    swrConfig
   );
 
   const templates: TemplateItem[] = useMemo(
@@ -87,17 +88,31 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
   );
 
+
+  const hasUpdatePermission = hasPermission(userPermissions, [
+    { action: 'update', subject: 'TechTask' },
+    { action: 'manage', subject: 'TechTask' }
+  ]);
+
+  const hasDeletePermission = hasPermission(userPermissions, [
+    { action: 'delete', subject: 'TechTask' },
+    { action: 'manage', subject: 'TechTask' }
+  ]);
+
+  const hasCompletePermission = hasPermission(userPermissions, [
+    { action: 'complete', subject: 'TechTask' },
+    { action: 'manage', subject: 'TechTask' }
+  ]);
+
   useEffect(() => {
     if (!open) {
       form.resetFields();
-      setSelectedForTransfer([]);
       setSelectedTemplates([]);
       setAvailableTemplates([]);
       setPeriodType(undefined);
-    } else if (open && techTaskId) {
-      mutate();
+      setIsEditMode(false);
     }
-  }, [open, techTaskId, mutate]);
+  }, [open, form]);
 
   useEffect(() => {
     if (techTaskDetails && open && templates.length > 0) {
@@ -119,7 +134,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       
       setSelectedTemplates(selectedTemplatesList);
       setAvailableTemplates(availableTemplatesList);
-      setSelectedForTransfer([]);
       
       form.setFieldsValue({
         name: techTaskDetails.name,
@@ -134,38 +148,25 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
   }, [techTaskDetails, open, form, templates]);
 
-  const toggleTemplateSelection = (templateId: number) => {
-    setSelectedForTransfer(prev => 
-      prev.includes(templateId) ? prev.filter(id => id !== templateId) : [...prev, templateId]
-    );
+  const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
+    setSelectedTemplates(selected);
+    setAvailableTemplates(available);
   };
 
-  const handleTransferToSelected = () => {
-    const templatesToTransfer = availableTemplates.filter(template => 
-      selectedForTransfer.includes(template.id)
-    );
-    
-    setSelectedTemplates(prev => [...prev, ...templatesToTransfer]);
-    setAvailableTemplates(prev => prev.filter(template => 
-      !selectedForTransfer.includes(template.id)
-    ));
-    setSelectedForTransfer([]);
-  };
+  const handleComplete = async () => {
+    if (!hasCompletePermission) {
+      showToast(t('errors.permission.insufficient'), 'error');
+      return;
+    }
 
-  const handleTransferToAvailable = () => {
-    const templatesToTransfer = selectedTemplates.filter(template => 
-      selectedForTransfer.includes(template.id)
-    );
-    
-    setAvailableTemplates(prev => [...prev, ...templatesToTransfer]);
-    setSelectedTemplates(prev => prev.filter(template => 
-      !selectedForTransfer.includes(template.id)
-    ));
-    setSelectedForTransfer([]);
+    onSuccess?.();
   };
 
   const handleSubmit = async (values: any) => {
-    if (!techTaskDetails) return;
+    if (!techTaskDetails || !hasUpdatePermission) {
+      showToast(t('errors.permission.insufficient'), 'error');
+      return;
+    }
 
     try {
       const updateData = {
@@ -186,12 +187,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (error) {
+      console.error('Failed to update tech task:', error);
       showToast(t('techTasks.updateError') || 'Ошибка при обновлении задачи', 'error');
     }
   };
 
   const handleDelete = () => {
-    if (!techTaskDetails) return;
+    if (!techTaskDetails || !hasDeletePermission) {
+      showToast(t('errors.permission.insufficient'), 'error');
+      return;
+    }
 
     Modal.confirm({
       title: t('techTasks.confirmDelete'),
@@ -207,48 +212,35 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onSuccess?.();
           onClose();
         } catch (error) {
+          console.error('Failed to delete tech task:', error);
           showToast(t('techTasks.deleteError'), 'error');
         }
       },
     });
   };
 
-  const userInitials = `${user.name?.charAt(0) || ''}${user.name?.charAt(1) || ''}`.toUpperCase();
-  const userFullName = user.name || 'Пользователь';
-  const avatarColors = getAvatarColorClasses(user.id || 0);
-  const statusRender = getStatusTagRender(t);
+  const handleEditToggle = () => {
+    if (!hasUpdatePermission) {
+      showToast(t('errors.permission.insufficient'), 'error');
+      return;
+    }
+    setIsEditMode(!isEditMode);
+  };
 
   return (
     <Modal
       closable={false}
       title={
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span>{t('routes.technicalTasks')} / {techTaskId}</span>
-            {techTaskDetails?.status && (
-              <div className="flex items-center">
-                {statusRender(t(`tables.${techTaskDetails.status}`))}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              onClick={handleDelete}
-              loading={isDeleting}
-              className="text-red-500 hover:text-red-700"
-              title={t('techTasks.delete')}
-            />
-            <Button
-              type="text"
-              icon={<CloseOutlined />}
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-              title={t('common.close')}
-            />
-          </div>
-        </div>
+        <UpdateTechTaskModalHeader
+          techTaskId={techTaskId}
+          status={techTaskDetails?.status}
+          isEditMode={isEditMode}
+          isDeleting={isDeleting}
+          hasUpdatePermission={hasUpdatePermission}
+          onEditToggle={handleEditToggle}
+          onDelete={handleDelete}
+          onClose={onClose}
+        />
       }
       open={open}
       onCancel={onClose}
@@ -273,236 +265,39 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         >
         <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="flex-1 flex flex-col gap-4 lg:min-w-0">
-            <Form.Item
-              name="name"
-              rules={[{ required: true, message: t('techTasks.taskNameRequired') }]}
-            >
-              <Input
-                placeholder={t('techTasks.enterTaskName')}
-                size="large"
-                className="text-lg"
-              />
-            </Form.Item>
-
-            <div className="flex flex-col">
-              <label className="text-lg font-medium text-gray-700 mb-2">
-                {t('techTasks.taskDescription')}
-              </label>
-              <Form.Item 
-                name="markdownDescription" 
-                className="flex-1"
-              >
-                <TipTapEditor autoResize />
-              </Form.Item>
-            </div>
-
-            <div className="flex flex-col min-h-[300px]">
-              <h3 className="text-lg font-medium mb-3">
-                {t('techTasks.templates')} ({selectedTemplates.length}/{templates.length})
-              </h3>
-              
-              <div className="flex flex-col lg:flex-row gap-4 lg:h-64">
-                <div className="flex-1 border rounded-lg min-w-0">
-                  <div className="p-3 bg-gray-50 border-b">
-                    <span className="text-sm font-medium">{t('techTasks.availableTemplates')} ({availableTemplates.length})</span>
-                  </div>
-                  <div className="lg:h-48 max-h-48 overflow-y-auto">
-                    {availableTemplates.map(template => (
-                      <div
-                        key={template.id}
-                        className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                          selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => toggleTemplateSelection(template.id)}
-                      >
-                        <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                        <span className="text-sm truncate">{template.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-row lg:flex-col justify-center gap-2 lg:py-0 py-2 flex-shrink-0">
-                  <Button
-                    type="primary"
-                    icon={<ArrowRightOutlined />}
-                    onClick={handleTransferToSelected}
-                    disabled={selectedForTransfer.length === 0}
-                    title={t('techTasks.moveToSelected')}
-                    size="small"
-                    className="lg:w-auto"
-                  />
-                  <Button
-                    type="primary"
-                    icon={<ArrowRightOutlined style={{ transform: 'rotate(180deg)' }} />}
-                    onClick={handleTransferToAvailable}
-                    disabled={selectedForTransfer.length === 0}
-                    title={t('techTasks.moveToAvailable')}
-                    size="small"
-                    className="lg:w-auto"
-                  />
-                </div>
-
-                <div className="flex-1 border rounded-lg min-w-0">
-                  <div className="p-3 bg-gray-50 border-b">
-                    <span className="text-sm font-medium">{t('techTasks.selectedTemplatesList')} ({selectedTemplates.length})</span>
-                  </div>
-                  <div className="lg:h-48 max-h-48 overflow-y-auto">
-                    {selectedTemplates.map(template => (
-                      <div
-                        key={template.id}
-                        className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                          selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => toggleTemplateSelection(template.id)}
-                      >
-                        <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                        <span className="text-sm truncate">{template.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
-            <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
-              <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
-              
-
-              <Form.Item 
-                name="type" 
-                label={
-                  <span>
-                    <ToolOutlined className="mr-2" /> {t('techTasks.workType')} 
-                  </span>
-                }
-                rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
-              >
-                <Select placeholder={t('techTasks.selectWorkType')} size="large">
-                  <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
-                  <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
-                </Select>
-              </Form.Item>
-              
-              <Form.Item 
-                name="status" 
-                label={
-                  <span>
-                    <CheckCircleOutlined className="mr-2" /> {t('techTasks.status')} 
-                  </span>
-                }
-                rules={[{ required: true, message: t('techTasks.selectStatus') }]}
-              >
-                <Select size="large">
-                  <Option value={StatusTechTask.ACTIVE}>{t('techTasks.active')}</Option>
-                  <Option value={StatusTechTask.PAUSE}>{t('techTasks.paused')}</Option>
-                  <Option value={StatusTechTask.RETURNED}>{t('techTasks.returned')}</Option>
-                  <Option value={StatusTechTask.FINISHED}>{t('techTasks.finished')}</Option>
-                  <Option value={StatusTechTask.OVERDUE}>{t('techTasks.overdue')}</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item 
-                name="periodType" 
-                label={
-                  <span>
-                    <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
-                  </span>
-                }
-                rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
-              >
-                <Select 
-                  placeholder={t('techTasks.selectPeriodicity')} 
-                  size="large"
-                  onChange={(value) => {
-                    setPeriodType(value);
-                    if (value !== PeriodType.CUSTOM) {
-                      form.setFieldsValue({ customPeriodDays: undefined });
-                    }
-                  }}
-                >
-                  <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
-                  <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
-                  <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
-                  <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
-                  <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
-                </Select>
-              </Form.Item>
-
-              {periodType === PeriodType.CUSTOM && (
-                <Form.Item 
-                  name="customPeriodDays" 
-                  label={
-                    <span>
-                      <NumberOutlined className="mr-2" /> {t('techTasks.daysCount')} 
-                    </span>
-                  }
-                  rules={[{ required: true, message: t('techTasks.enterDaysCount') }]}
-                >
-                  <Input
-                    type="number"
-                    placeholder={t('techTasks.enterDaysCount')}
-                    size="large"
-                    min={1}
-                    max={365}
-                  />
-                </Form.Item>
+              {isEditMode ? (
+                <UpdateTechTaskEditMode
+                  isEditMode={isEditMode}
+                  selectedTemplates={selectedTemplates}
+                  availableTemplates={availableTemplates}
+                  totalTemplates={templates.length}
+                  onTemplatesChange={handleTemplatesChange}
+                />
+              ) : (
+                <TechTaskViewMode
+                  techTaskData={techTaskDetails}
+                />
               )}
 
-              <Form.Item 
-                name="endDate" 
-                label={
-                  <span>
-                    <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')} 
-                  </span>
-                }
-                rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
-              >
-                <DatePicker
-                  placeholder={t('techTasks.endDate')}
-                  size="large"
-                  format="DD.MM.YYYY"
-                  className="w-full"
-                />
-              </Form.Item>
-
-              <Form.Item 
-                name="tags" 
-                label={
-                  <span>
-                    <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')} 
-                  </span>
-                }
-              >
-                <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large">
-                  {tagsData?.map(tag => (
-                    <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <div className="flex items-center gap-2">
-                <UserOutlined />
-                <div>{t('techTasks.author')}</div>
-              </div>
-              <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
-                <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
-                <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
-              </div>
-            </div>
-          </div>
+              <UpdateTechTaskInfoPanel
+                form={form}
+                isEditMode={isEditMode}
+                periodType={periodType}
+                onPeriodTypeChange={setPeriodType}
+                tagsData={tagsData}
+              />
         </div>
         </div>
 
-        <div className="flex justify-end gap-3 p-6 pt-4">
-          <Button onClick={onClose} size="large">{t('common.cancel')}</Button>
-          <Button type="primary" htmlType="submit" size="large" loading={isMutating}>
-            {t('common.update')}
-          </Button>
-        </div>
+          <UpdateTechTaskModalFooter
+            hasUpdatePermission={hasUpdatePermission}
+            isEditMode={isEditMode}
+            isMutating={isMutating}
+            isCompleting={false}
+            onCancel={onClose}
+            onSave={() => form.submit()}
+            onComplete={handleComplete}
+          />
         </Form>
       </Spin>
     </Modal>
