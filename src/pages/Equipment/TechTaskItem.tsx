@@ -175,7 +175,6 @@ const TechTaskItem: React.FC = () => {
         ) : (
           <div>
             <TechTaskCard
-              techTaskData={techTaskData}
               items={techTaskItems}
               values={taskValues}
               uploadedFiles={uploadedFiles}

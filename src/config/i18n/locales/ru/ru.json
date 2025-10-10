@@ -1570,6 +1570,7 @@
     "createError": "Ошибка при создании задачи",
     "updateSuccess": "Задача успешно обновлена",
     "updateError": "Ошибка при обновлении задачи",
+    "noSelectedTemplates": "Не выбраны шаблоны",
     "columns": {
       "number": "№",
       "carWashBranch": "Автомойка/ Филиал",
@@ -1638,7 +1639,14 @@
     "paused": "Приостановлена",
     "returned": "Возвращена",
     "finished": "Завершена",
-    "overdue": "Просрочена"
+    "overdue": "Просрочена",
+    "templateCompletion": "Заполнение шаблонов",
+    "noTemplates": "Шаблоны недоступны",
+    "complete": "Завершить",
+    "completeSuccess": "Задача успешно завершена",
+    "edit": "Редактировать",
+    "cancelEdit": "Отменить редактирование",
+    "save": "Сохранить"
   },
   "progressReport": {
     "columns": {
