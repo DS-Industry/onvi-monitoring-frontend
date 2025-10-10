@@ -9,16 +9,14 @@ interface TemplateItem {
   title: string;
 }
 
-interface TechTaskEditModeProps {
-  isEditMode: boolean;
+interface CreateTechTaskFormProps {
   selectedTemplates: TemplateItem[];
   availableTemplates: TemplateItem[];
   totalTemplates: number;
   onTemplatesChange: (selected: TemplateItem[], available: TemplateItem[]) => void;
 }
 
-const TechTaskEditMode: React.FC<TechTaskEditModeProps> = ({
-  isEditMode,
+const CreateTechTaskForm: React.FC<CreateTechTaskFormProps> = ({
   selectedTemplates,
   availableTemplates,
   totalTemplates,
@@ -36,23 +34,19 @@ const TechTaskEditMode: React.FC<TechTaskEditModeProps> = ({
           placeholder={t('techTasks.enterTaskName')}
           size="large"
           className="text-lg"
-          disabled={!isEditMode}
         />
       </Form.Item>
 
       <div className="flex flex-col">
-        <label className="text-lg font-medium text-gray-700 mb-2">
-          {t('techTasks.taskDescription')}
+        <label className="text-sm font-medium text-gray-700 mb-2">
+          {t('techTasks.authorComment')} *
         </label>
         <Form.Item 
-          name="markdownDescription" 
+          name="authorComment" 
           className="flex-1"
+          rules={[{ required: true, message: t('techTasks.authorCommentRequired') }]}
         >
-          <TipTapEditor 
-            key={`editor-${isEditMode}`}
-            autoResize 
-            readonly={!isEditMode} 
-          />
+          <TipTapEditor autoResize />
         </Form.Item>
       </div>
 
@@ -68,4 +62,4 @@ const TechTaskEditMode: React.FC<TechTaskEditModeProps> = ({
   );
 };
 
-export default TechTaskEditMode;
+export default CreateTechTaskForm;

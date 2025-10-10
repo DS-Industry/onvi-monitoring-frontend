@@ -4,7 +4,7 @@ import { CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import { StatusTechTask } from '@/services/api/equipment';
 
-interface TechTaskModalHeaderProps {
+interface UpdateTechTaskModalHeaderProps {
   techTaskId?: number;
   status?: StatusTechTask;
   isEditMode: boolean;
@@ -15,7 +15,7 @@ interface TechTaskModalHeaderProps {
   onClose: () => void;
 }
 
-const TechTaskModalHeader: React.FC<TechTaskModalHeaderProps> = ({
+const UpdateTechTaskModalHeader: React.FC<UpdateTechTaskModalHeaderProps> = ({
   techTaskId,
   status,
   isEditMode,
@@ -72,4 +72,4 @@ const TechTaskModalHeader: React.FC<TechTaskModalHeaderProps> = ({
   );
 };
 
-export default TechTaskModalHeader;
+export default UpdateTechTaskModalHeader;

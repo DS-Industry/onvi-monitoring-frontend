@@ -20,10 +20,10 @@ import { Grid } from 'antd';
 
 import {
   TechTaskViewMode,
-  TechTaskEditMode,
-  TechTaskInfoPanel,
-  TechTaskModalHeader,
-  TechTaskModalFooter,
+  UpdateTechTaskEditMode,
+  UpdateTechTaskInfoPanel,
+  UpdateTechTaskModalHeader,
+  UpdateTechTaskModalFooter,
 } from './components';
 
 const { useBreakpoint } = Grid;
@@ -63,10 +63,10 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
   const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
 
-  const { data: techTaskDetails, isLoading, mutate, isValidating } = useSWR(
+  const { data: techTaskDetails, isLoading, isValidating } = useSWR(
     techTaskId ? ['get-tech-task-details', techTaskId] : null,
     () => getTechTaskShapeItem(techTaskId!),
-    { revalidateOnFocus: true, revalidateOnReconnect: true }
+    swrConfig
   );
 
   const templates: TemplateItem[] = useMemo(
@@ -111,10 +111,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setAvailableTemplates([]);
       setPeriodType(undefined);
       setIsEditMode(false);
-    } else if (open && techTaskId) {
-      mutate();
     }
-  }, [open, techTaskId, mutate]);
+  }, [open, form]);
 
   useEffect(() => {
     if (techTaskDetails && open && templates.length > 0) {
@@ -233,7 +231,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     <Modal
       closable={false}
       title={
-        <TechTaskModalHeader
+        <UpdateTechTaskModalHeader
           techTaskId={techTaskId}
           status={techTaskDetails?.status}
           isEditMode={isEditMode}
@@ -268,7 +266,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               {isEditMode ? (
-                <TechTaskEditMode
+                <UpdateTechTaskEditMode
                   isEditMode={isEditMode}
                   selectedTemplates={selectedTemplates}
                   availableTemplates={availableTemplates}
@@ -281,7 +279,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 />
               )}
 
-              <TechTaskInfoPanel
+              <UpdateTechTaskInfoPanel
                 form={form}
                 isEditMode={isEditMode}
                 periodType={periodType}
@@ -291,7 +289,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         </div>
         </div>
 
-          <TechTaskModalFooter
+          <UpdateTechTaskModalFooter
             hasUpdatePermission={hasUpdatePermission}
             isEditMode={isEditMode}
             isMutating={isMutating}

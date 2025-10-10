@@ -1552,6 +1552,7 @@
     "createError": "Error creating task",
     "updateSuccess": "Task updated successfully",
     "updateError": "Error updating task",
+    "noSelectedTemplates": "No selected templates",
     "columns": {
       "number": "№",
       "carWashBranch": "Car Wash / Branch",

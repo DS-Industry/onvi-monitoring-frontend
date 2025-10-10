@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, DatePicker, Avatar } from 'antd';
 import { 
   CalendarOutlined, 
-  CheckCircleOutlined, 
+  CarOutlined,
   ClockCircleOutlined, 
   NumberOutlined, 
   ToolOutlined, 
@@ -12,7 +12,9 @@ import {
 } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
-import { TypeTechTask, PeriodType, StatusTechTask } from '@/services/api/equipment';
+import { TypeTechTask, PeriodType } from '@/services/api/equipment';
+
+const { Option } = Select;
 
 interface TagData {
   props: {
@@ -21,22 +23,25 @@ interface TagData {
   };
 }
 
-const { Option } = Select;
+interface PosData {
+  id: number;
+  name: string;
+}
 
-interface TechTaskInfoPanelProps {
+interface CreateTechTaskInfoPanelProps {
   form: any;
-  isEditMode: boolean;
   periodType?: PeriodType;
   onPeriodTypeChange: (value: PeriodType) => void;
   tagsData?: TagData[];
+  posesData?: PosData[];
 }
 
-const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
+const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   form,
-  isEditMode,
   periodType,
   onPeriodTypeChange,
   tagsData,
+  posesData,
 }) => {
   const { t } = useTranslation();
   const user = useUser();
@@ -58,6 +63,22 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
         <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
         
         <Form.Item 
+          name="posId" 
+          label={
+            <span>
+              <CarOutlined className="mr-2" /> {t('techTasks.carWashBranch')} 
+            </span>
+          }
+          rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
+        >
+          <Select placeholder={t('techTasks.selectCarWash')} size="large">
+            {posesData?.map(pos => (
+              <Option key={pos.id} value={pos.id}>{pos.name}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        
+        <Form.Item 
           name="type" 
           label={
             <span>
@@ -66,27 +87,16 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
         >
-          <Select placeholder={t('techTasks.selectWorkType')} size="large" disabled={!isEditMode}>
+          <Select 
+            size="large"
+            onChange={() => {
+              form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+              onPeriodTypeChange(undefined as any);
+            }}
+            placeholder={t('techTasks.selectWorkType')}
+          >
             <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
             <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
-          </Select>
-        </Form.Item>
-        
-        <Form.Item 
-          name="status" 
-          label={
-            <span>
-              <CheckCircleOutlined className="mr-2" /> {t('techTasks.status')} 
-            </span>
-          }
-          rules={[{ required: true, message: t('techTasks.selectStatus') }]}
-        >
-          <Select size="large" disabled={!isEditMode}>
-            <Option value={StatusTechTask.ACTIVE}>{t('techTasks.active')}</Option>
-            <Option value={StatusTechTask.PAUSE}>{t('techTasks.paused')}</Option>
-            <Option value={StatusTechTask.RETURNED}>{t('techTasks.returned')}</Option>
-            <Option value={StatusTechTask.FINISHED}>{t('techTasks.finished')}</Option>
-            <Option value={StatusTechTask.OVERDUE}>{t('techTasks.overdue')}</Option>
           </Select>
         </Form.Item>
 
@@ -102,7 +112,6 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
           <Select 
             placeholder={t('techTasks.selectPeriodicity')} 
             size="large"
-            disabled={!isEditMode}
             onChange={handlePeriodTypeChange}
           >
             <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
@@ -129,7 +138,6 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
               size="large"
               min={1}
               max={365}
-              disabled={!isEditMode}
             />
           </Form.Item>
         )}
@@ -144,11 +152,10 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
           rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
         >
           <DatePicker
+            className="w-full"
             placeholder={t('techTasks.endDate')}
             size="large"
             format="DD.MM.YYYY"
-            className="w-full"
-            disabled={!isEditMode}
           />
         </Form.Item>
 
@@ -159,8 +166,9 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
               <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')} 
             </span>
           }
+          rules={[{ required: true, message: t('techTasks.selectAtLeastOneTag') }]}
         >
-          <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large" disabled={!isEditMode}>
+          <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large">
             {tagsData?.map(tag => (
               <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
             ))}
@@ -171,7 +179,7 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
           <UserOutlined />
           <div>{t('techTasks.author')}</div>
         </div>
-        <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
+        <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
           <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
           <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
         </div>
@@ -180,4 +188,4 @@ const TechTaskInfoPanel: React.FC<TechTaskInfoPanelProps> = ({
   );
 };
 
-export default TechTaskInfoPanel;
+export default CreateTechTaskInfoPanel;

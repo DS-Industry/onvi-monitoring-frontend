@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button/Button';
 
-interface TechTaskModalFooterProps {
+interface UpdateTechTaskModalFooterProps {
   hasUpdatePermission: boolean;
   isEditMode: boolean;
   isMutating: boolean;
@@ -12,7 +12,7 @@ interface TechTaskModalFooterProps {
   onComplete: () => void;
 }
 
-const TechTaskModalFooter: React.FC<TechTaskModalFooterProps> = ({
+const UpdateTechTaskModalFooter: React.FC<UpdateTechTaskModalFooterProps> = ({
   hasUpdatePermission,
   isEditMode,
   isMutating,
@@ -47,4 +47,4 @@ const TechTaskModalFooter: React.FC<TechTaskModalFooterProps> = ({
   );
 };
 
-export default TechTaskModalFooter;
+export default UpdateTechTaskModalFooter;

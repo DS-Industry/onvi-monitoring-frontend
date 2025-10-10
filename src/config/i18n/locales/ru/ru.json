@@ -1551,6 +1551,7 @@
     "createError": "Ошибка при создании задачи",
     "updateSuccess": "Задача успешно обновлена",
     "updateError": "Ошибка при обновлении задачи",
+    "noSelectedTemplates": "Не выбраны шаблоны",
     "columns": {
       "number": "№",
       "carWashBranch": "Автомойка/ Филиал",
