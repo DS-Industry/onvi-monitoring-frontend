@@ -28,6 +28,7 @@ import Button from 'antd/es/button';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { TechTaskManagerDisplay } from '@/types/techTaskDisplay';
 
 const TechTaskCreate: React.FC = () => {
   const { t } = useTranslation();
@@ -38,9 +39,8 @@ const TechTaskCreate: React.FC = () => {
 
   const handleUpdate = (id: number) => {
     setDrawerOpen(true);
-    setTechTaskToEdit(
-      techTasks.find(tech => tech.id === id) || ({} as TechTaskManagerInfo)
-    );
+    const originalTask = data?.techTaskManageInfo.find(tech => tech.id === id);
+    setTechTaskToEdit(originalTask || null);
   };
   
   const [searchParams, setSearchParams] = useSearchParams();
@@ -75,7 +75,8 @@ const TechTaskCreate: React.FC = () => {
     shouldRetryOnError: false
   });
 
-  const techTasks =
+
+  const techTasks: TechTaskManagerDisplay[] =
     data?.techTaskManageInfo.map(item => ({
       ...item,
       type: t(`tables.${item.type}`),
@@ -91,7 +92,7 @@ const TechTaskCreate: React.FC = () => {
   const renderStatus = getStatusTagRender(t);
   const dateRender = getDateRender();
 
-  const columnsTechTasks: ColumnsType<TechTaskManagerInfo> = [
+  const columnsTechTasks: ColumnsType<TechTaskManagerDisplay> = [
     {
       title: '№',
       dataIndex: 'id',

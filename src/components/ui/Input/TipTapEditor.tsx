@@ -162,9 +162,10 @@ type Props = {
   value?: string;
   onChange?: (value: string) => void;
   readonly?: boolean;
+  autoResize?: boolean;
 };
 
-const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
+const TiptapEditor = ({ value, onChange, readonly = false, autoResize = false }: Props) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<string>(value || '');
   const isEditingRef = useRef<boolean>(false);
@@ -180,13 +181,25 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       .ProseMirror ul[data-type="taskList"] { list-style-type: none; margin-left: 0; }
       .ProseMirror ul[data-type="taskList"] li { display: flex; align-items: flex-start; }
       .ProseMirror ul[data-type="taskList"] li > label { margin-right: 0.5em; }
+      ${autoResize ? `
+        .tiptap-auto-resize .ProseMirror {
+          min-height: 1.5em;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+        .tiptap-auto-resize .ProseMirror:empty::before {
+          content: attr(data-placeholder);
+          color: #9ca3af;
+          pointer-events: none;
+        }
+      ` : ''}
     `;
     document.head.appendChild(styleEl);
 
     return () => {
       document.head.removeChild(styleEl);
     };
-  }, []);
+  }, [autoResize]);
 
   const editor = useEditor({
     extensions: [
@@ -243,7 +256,8 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none max-w-none',
+        class: `prose prose-sm focus:outline-none max-w-none ${autoResize ? 'tiptap-auto-resize' : ''}`,
+        ...(autoResize && { 'data-placeholder': 'Комментарий по выполнению' }),
       },
       handleKeyDown: (_view, event) => {
         if (event.key === 'Enter') {
@@ -294,7 +308,7 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
   return (
     <div
       ref={wrapperRef}
-      className="w-full border rounded overflow-hidden bg-white"
+      className={`w-full border rounded overflow-hidden bg-white ${autoResize ? 'tiptap-auto-resize' : ''}`}
       onKeyDown={handleKeyDown}
       onSubmit={handleSubmit}
     >
@@ -302,8 +316,8 @@ const TiptapEditor = ({ value, onChange, readonly = false }: Props) => {
       <div className="border-t p-4">
         <EditorContent
           editor={editor}
-          className="min-h-64 focus:outline-none text-text01"
-          placeholder="Комментарий по выполнению"
+          className={`focus:outline-none text-text01 ${autoResize ? '' : 'min-h-64'}`}
+          placeholder={autoResize ? undefined : "Комментарий по выполнению"}
         />
       </div>
     </div>

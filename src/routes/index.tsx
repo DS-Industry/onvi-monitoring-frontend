@@ -37,7 +37,7 @@ const EquipmentFailure = React.lazy(
 const ChemicalConsumption = React.lazy(
   () => import('@/pages/Equipment/ChemicalConsumption')
 );
-const TechTasks = React.lazy(() => import('@/pages/Equipment/TechTasks'));
+const TechTasks = React.lazy(() => import('@/pages/Equipment/TechTasks/index'));
 const TechTaskCreate = React.lazy(
   () => import('@/pages/Equipment/TechTaskCreate/index')
 );

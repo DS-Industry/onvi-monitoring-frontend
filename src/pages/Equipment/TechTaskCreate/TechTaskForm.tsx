@@ -13,8 +13,10 @@ import {
   TechTaskBody,
   TechTaskManagerInfo,
   updateTechTask,
+  TypeTechTask,
+  PeriodType,
 } from '@/services/api/equipment';
-import { Divider, Drawer, Select, Tabs, Button } from 'antd';
+import { Drawer, Select, Tabs, Button } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
@@ -45,7 +47,6 @@ export type TechTaskFormRef = {
   handleUpdate: (id: number) => void;
 };
 
-const PERIOD_DAYS = [1, 7, 30];
 
 const TechTaskForm: React.FC<TechTaskFormProps> = ({
   techTaskToEdit,
@@ -63,9 +64,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const defaultValues: TechTaskBody = {
     name: '',
     posId: 0,
-    type: '',
-    period: 0,
-    startDate: dayjs().toDate(),
+    type: TypeTechTask.REGULAR,
+    periodType: undefined,
+    customPeriodDays: undefined,
+    startDate: new Date(),
     endSpecifiedDate: undefined,
     markdownDescription: undefined,
     techTaskItem: [],
@@ -118,11 +120,21 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-  const [openCustomList, setOpenCustomList] = useState(false);
+  const [taskType, setTaskType] = useState<TypeTechTask>(TypeTechTask.REGULAR);
+  const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
 
-  const handleSelectChange = (value: number) => {
-    if (value !== -1) {
-      handleInputChange('period', String(value));
+  const handlePeriodTypeChange = (value: PeriodType) => {
+    setPeriodType(value);
+    handleInputChange('periodType', value);
+    if (value !== PeriodType.CUSTOM) {
+      handleInputChange('customPeriodDays', '');
+    }
+  };
+
+  const handleCustomPeriodChange = (value: string) => {
+    const numValue = Number(value);
+    if (numValue >= 1 && numValue <= 365) {
+      handleInputChange('customPeriodDays', String(numValue));
     }
   };
 
@@ -134,10 +146,6 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       }))
     : [];
 
-  const techTasksTypes = [
-    { name: t('tables.REGULAR'), value: 'REGULAR' },
-    { name: t('tables.ONETIME'), value: 'ONETIME' },
-  ];
 
   useEffect(() => {
     if (techTaskToEdit) {
@@ -156,14 +164,16 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       setAvailableItems(
         availableItems.filter(item => !techTaskItemNumber.includes(item.id))
       );
+      setTaskType(techTaskToEdit.type);
+      setPeriodType(techTaskToEdit.periodType);
+      
       setFormData({
         name: techTaskToEdit.name,
         posId: techTaskToEdit.posId,
-        type:
-          techTasksTypes.find(item => item.name === techTaskToEdit.type)
-            ?.value || '-',
-        period: techTaskToEdit.period,
-        startDate: techTaskToEdit.startDate,
+        type: techTaskToEdit.type,
+        periodType: techTaskToEdit.periodType,
+        customPeriodDays: techTaskToEdit.customPeriodDays,
+        startDate: new Date(), 
         endSpecifiedDate:
           techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
         techTaskItem: techTaskItemNumber,
@@ -189,9 +199,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         name: formData.name,
         posId: formData.posId,
         type: formData.type,
-        period: formData.period,
+        periodType: formData.type === TypeTechTask.REGULAR ? formData.periodType : undefined,
+        customPeriodDays: formData.periodType === PeriodType.CUSTOM ? formData.customPeriodDays : undefined,
         markdownDescription: formData.markdownDescription,
-        startDate: dayjs(formData.startDate).toDate(),
+        startDate: new Date(), 
         endSpecifiedDate: formData.endSpecifiedDate
           ? dayjs(formData.endSpecifiedDate).toDate()
           : undefined,
@@ -210,7 +221,8 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           ? dayjs(formData.endSpecifiedDate).toDate()
           : undefined,
         markdownDescription: formData.markdownDescription,
-        period: formData.period,
+        periodType: formData.type === TypeTechTask.REGULAR ? formData.periodType : undefined,
+        customPeriodDays: formData.periodType === PeriodType.CUSTOM ? formData.customPeriodDays : undefined,
         techTaskItem: formData.techTaskItem,
       })
   );
@@ -235,7 +247,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
-    const numericFields = ['posId', 'period'];
+    const numericFields = ['posId', 'customPeriodDays'];
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
@@ -394,89 +406,52 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
             required: techTaskToEdit === null && t('validation.typeRequired'),
           })}
           value={formData.type}
-          onChange={value => handleInputChange('type', value)}
+          onChange={value => {
+            setTaskType(value);
+            handleInputChange('type', value);
+            if (value === TypeTechTask.ONETIME) {
+              handleInputChange('periodType', '');
+              handleInputChange('customPeriodDays', '');
+              setPeriodType(undefined);
+            }
+          }}
           error={!!errors.type}
           helperText={errors.type?.message}
           isDisabled={techTaskToEdit !== null}
         />
-        <div className="w-64">
-          <label className="block text-md text-text02">
-            {t('routine.frequency')}
-          </label>
-          <Select<number>
-            value={Number(formData.period) || undefined}
-            placeholder={t('warehouse.notSel')}
-            className="w-full"
-            onChange={handleSelectChange}
-            open={openCustomList}
-            onOpenChange={setOpenCustomList}
-            popupRender={menu => (
-              <>
-                {menu}
-                <Divider style={{ margin: '8px 0' }} />
-                <div className="px-3 py-2">
-                  <span className="block text-sm text-text02">
-                    {t('routine.custom')}
-                  </span>
-                  <div className="flex space-x-2">
-                    <Input
-                      type="number"
-                      label={t('routine.enterPeriod')}
-                      value={formData.period}
-                      changeValue={e => {
-                        let val = Number(e.target.value);
-                        if (val < 0 || Number.isNaN(val)) {
-                          val = 0;
-                        }
-                        handleInputChange('period', String(val));
-                      }}
-                    />
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        if (formData.period && formData.period >= 0) {
-                          handleInputChange('period', String(formData.period));
-                          setOpenCustomList(false);
-                        }
-                      }}
-                    >
-                      {t('routes.save')}
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          >
-            <Option value={1}>{t('routine.daily')}</Option>
-            <Option value={7}>{t('routine.weekly')}</Option>
-            <Option value={30}>{t('routine.monthly')}</Option>
-            {formData.period &&
-              formData.period >= 0 &&
-              !PERIOD_DAYS.includes(formData.period) && (
-                <Option key="custom" value={formData.period}>
-                  {t('routine.custom')}
-                </Option>
-              )}
-          </Select>
-        </div>
-        <DateInput
-          title={`${t('equipment.start')} *`}
-          classname="w-40"
-          value={formData.startDate ? dayjs(formData.startDate) : null}
-          changeValue={date =>
-            handleInputChange(
-              'startDate',
-              date ? date.format('YYYY-MM-DD') : ''
-            )
-          }
-          error={!!errors.startDate}
-          {...register('startDate', {
-            required:
-              techTaskToEdit === null && t('validation.startDateRequired'),
-          })}
-          helperText={errors.startDate?.message || ''}
-          disabled={techTaskToEdit !== null}
-        />
+        {taskType === TypeTechTask.REGULAR && (
+          <div className="w-64">
+            <label className="block text-md text-text02">
+              {t('routine.frequency')} *
+            </label>
+            <Select<PeriodType>
+              value={formData.periodType}
+              placeholder={t('warehouse.notSel')}
+              className="w-full"
+              onChange={handlePeriodTypeChange}
+            >
+              <Option value={PeriodType.DAILY}>{t('routine.daily')}</Option>
+              <Option value={PeriodType.WEEKLY}>{t('routine.weekly')}</Option>
+              <Option value={PeriodType.MONTHLY}>{t('routine.monthly')}</Option>
+              <Option value={PeriodType.YEARLY}>{t('routine.yearly')}</Option>
+              <Option value={PeriodType.CUSTOM}>{t('routine.custom')}</Option>
+            </Select>
+          </div>
+        )}
+        {periodType === PeriodType.CUSTOM && (
+          <div className="w-64">
+            <label className="block text-md text-text02">
+              {t('routine.enterPeriod')} *
+            </label>
+            <Input
+              type="number"
+              label={t('routine.enterPeriod')}
+              value={formData.customPeriodDays || ''}
+              changeValue={e => handleCustomPeriodChange(e.target.value)}
+              classname="w-full"
+            />
+          </div>
+        )}
         <div>
           <div className="text-sm text-text02">{t('equipment.end')}</div>
           <DateInput

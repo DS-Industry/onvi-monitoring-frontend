@@ -6,7 +6,6 @@ import {
   getPoses,
   getTechTaskReport,
   getWorkers,
-  TechTaskReadAll,
   StatusTechTask,
 } from '@/services/api/equipment';
 import { Table, Input } from 'antd';
@@ -20,8 +19,10 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import ColumnSelectorV2 from '@/components/ui/Table/ColumnSelectorV2';
-import FilterTechTasks from '@/components/ui/Filter/FilterTechTasks';
+import FilterTechTasks from './TechTasks/FilterTechTasks';
 import { useUser } from '@/hooks/useUserStore';
+import { getAvatarColorClasses } from '@/utils/avatarColors';
+import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
 
 const ProgressReport: React.FC = () => {
   const { t } = useTranslation();
@@ -102,7 +103,7 @@ const ProgressReport: React.FC = () => {
     }
   );
 
-  const techTasks =
+  const techTasks: TechTaskReadAllDisplay[] =
     data?.techTaskReadAll?.map(item => ({
       ...item,
       posName: poses?.find(pos => pos.id === item.posId)?.name || '-',
@@ -117,6 +118,7 @@ const ProgressReport: React.FC = () => {
   const assigneeRender = (record: {
     firstName: string;
     lastName: string;
+    id: number;
   }) => {
     const firstName = record.firstName || ""
     const lastName = record.lastName || ""
@@ -125,10 +127,12 @@ const ProgressReport: React.FC = () => {
       (firstName?.[0]?.toUpperCase() || '') + 
       (lastName?.[0]?.toUpperCase() || '') || ""
 
+    const avatarColors = getAvatarColorClasses(record.id);
+
     return (
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-[#bffa00] flex items-center justify-center">
-          <span className="text-xs font-medium text-black">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${avatarColors}`}>
+          <span className="text-xs font-medium">
             {initials}
           </span>
         </div>
@@ -137,7 +141,7 @@ const ProgressReport: React.FC = () => {
     );
   };
 
-  const columnsTechTasksRead: ColumnsType<TechTaskReadAll> = [
+  const columnsTechTasksRead: ColumnsType<TechTaskReadAllDisplay> = [
     {
       title: t('progressReport.columns.number'),
       dataIndex: 'id',
@@ -247,7 +251,7 @@ const ProgressReport: React.FC = () => {
       
       <div className="overflow-x-auto">
         <div className="min-w-full max-w-full">
-          <Table<TechTaskReadAll>
+          <Table<TechTaskReadAllDisplay>
             dataSource={techTasks}
             columns={visibleColumns}
             loading={techTasksLoading || isInitialLoading}
