@@ -43,7 +43,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
       return (
         <Input
           type="text"
-          value={value as string}
+          value={value as string || ''}
           onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full"
@@ -55,6 +55,15 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
         <InputNumber
           value={value as number | null}
           onChange={val => onChange(val ?? null)}
+          onBlur={e => {
+            const inputValue = e.target.value;
+            if (inputValue === '' || inputValue === undefined) {
+              onChange(null);
+            } else {
+              const numValue = Number(inputValue);
+              onChange(isNaN(numValue) ? null : numValue);
+            }
+          }}
           disabled={disabled}
           className="w-full"
         />
@@ -178,14 +187,17 @@ const TechTaskCard: React.FC<Props> = ({
                                 onError={(e) => {
                                   console.error('Image failed to load:', {
                                     src: e.currentTarget.src,
-                                    itemId: item.id
+                                    itemId: item.id,
+                                    uploadedFile: uploadedFiles[item.id],
+                                    uploadedFileType: typeof uploadedFiles[item.id]
                                   });
                                   e.currentTarget.style.display = 'none';
                                 }}
                                 onLoad={() => {
                                   console.log('Image loaded successfully:', {
                                     src: uploadedFiles[item.id],
-                                    itemId: item.id
+                                    itemId: item.id,
+                                    uploadedFileType: typeof uploadedFiles[item.id]
                                   });
                                 }}
                               />

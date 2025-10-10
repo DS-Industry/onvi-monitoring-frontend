@@ -73,9 +73,14 @@ const TechTaskItem: React.FC = () => {
       setTaskValues(initialValues);
 
       const fileEntries = techTaskItems.map(item => {
-        const file = item.image
-          ? `${import.meta.env.VITE_S3_CLOUD}/${item.image}`
-          : null;
+        let file = null;
+        if (item.image) {
+          if (item.image.startsWith('http://') || item.image.startsWith('https://')) {
+            file = item.image;
+          } else {
+            file = `${import.meta.env.VITE_S3_CLOUD}/${item.image}`;
+          }
+        }
         return [item.id, file];
       });
 

@@ -1,4 +1,5 @@
 export { default as TechTaskViewMode } from './TechTaskViewMode';
+export type { TechTaskViewModeRef } from './TechTaskViewMode';
 export { default as TechTaskTemplateManager } from './TechTaskTemplateManager';
 
 export { default as UpdateTechTaskEditMode } from './UpdateTechTaskEditMode';

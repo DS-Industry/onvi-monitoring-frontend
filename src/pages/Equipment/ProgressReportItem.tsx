@@ -88,7 +88,7 @@ const ProgressReportItem: React.FC = () => {
         };
       }
     ) => {
-      return createTechTaskShape(progressReportId, arg, arg.files);
+      return createTechTaskShape(progressReportId, arg);
     }
   );
 

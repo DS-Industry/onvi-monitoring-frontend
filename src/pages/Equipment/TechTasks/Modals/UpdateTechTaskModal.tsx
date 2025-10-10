@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Spin } from 'antd';
 import dayjs from 'dayjs';
@@ -25,6 +25,7 @@ import {
   UpdateTechTaskInfoPanel,
   UpdateTechTaskModalHeader,
   UpdateTechTaskModalFooter,
+  TechTaskViewModeRef,
 } from './components';
 
 const { useBreakpoint } = Grid;
@@ -55,6 +56,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
   const [isEditMode, setIsEditMode] = useState(false);
+  const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
 
   const screens = useBreakpoint();
   const fullscreen = !screens.md;
@@ -101,7 +103,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   ]);
 
   const hasCompletePermission = hasPermission(userPermissions, [
-    { action: 'complete', subject: 'TechTask' },
+    { action: 'read', subject: 'TechTask' },
     { action: 'manage', subject: 'TechTask' }
   ]);
 
@@ -166,15 +168,24 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
 
     try {
-      const result = await updateTechTaskMutation({
-        techTaskId: techTaskDetails.id,
-        status: StatusTechTask.FINISHED,
-      });
-      
-      if (result) {
+      if (!isEditMode && techTaskViewModeRef.current) {
+        // Complete the tech task with shape data - this will automatically set status to FINISHED
+        await techTaskViewModeRef.current.handleSubmit();
         showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
         onSuccess?.();
         onClose();
+      } else {
+        // If in edit mode, just update status to finished
+        const result = await updateTechTaskMutation({
+          techTaskId: techTaskDetails.id,
+          status: StatusTechTask.FINISHED,
+        });
+        
+        if (result) {
+          showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
+          onSuccess?.();
+          onClose();
+        }
       }
     } catch (error) {
       console.error('Failed to complete tech task:', error);
@@ -201,13 +212,13 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       });
       
       if (result) {
-        showToast(t('techTasks.returnSuccess'), 'success');
+        showToast(t('actions.returnSuccess'), 'success');
         onSuccess?.();
         onClose();
       }
     } catch (error) {
       console.error('Failed to return tech task:', error);
-      showToast(t('techTasks.returnError'), 'error');
+      showToast(t('actions.returnError'), 'error');
     }
   };
 
@@ -324,7 +335,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 />
                 {!isEditMode && (
                   <TechTaskViewMode
+                    ref={techTaskViewModeRef}
                     techTaskData={techTaskDetails}
+                    onSave={() => {
+                      onSuccess?.();
+                      onClose();
+                    }}
                   />
                 )}
               </div>
