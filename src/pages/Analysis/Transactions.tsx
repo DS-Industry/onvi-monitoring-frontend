@@ -96,7 +96,7 @@ const Transactions: React.FC = () => {
           '',
       })) || []
     ).filter(item =>
-      item.status.toLowerCase().includes((name || '').toLowerCase())
+      item.reportTemplateId.toLowerCase().includes((name || '').toLowerCase())
     );
   }, [allReports, t, transactionData?.transactions, name]);
 

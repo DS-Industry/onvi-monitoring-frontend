@@ -152,9 +152,9 @@ const IncomeReport: React.FC = () => {
           <div className="flex flex-wrap gap-4">
             {loadingReport || validatingReport ? (
               <div className="flex flex-wrap gap-4">
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
               </div>
             ) : (
               reportData &&
