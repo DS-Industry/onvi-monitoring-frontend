@@ -43,12 +43,14 @@ const UpdateTechTaskModalFooter: React.FC<UpdateTechTaskModalFooterProps> = ({
           handleClick={onSave}
           isLoading={isMutating}
         />
-      ) : taskStatus === StatusTechTask.FINISHED ? (
-        <Button
-          title={t('routine.return')}
-          handleClick={onReturn}
-          isLoading={isReturning}
-        />
+      ) : taskStatus === StatusTechTask.FINISHED  ? (
+        <>
+          {hasUpdatePermission ? <Button
+            title={t('routine.return')}
+            handleClick={onReturn}
+            isLoading={isReturning}
+          /> : <></>}
+        </>
       ) : (
         <Button
           title={t('common.complete')}

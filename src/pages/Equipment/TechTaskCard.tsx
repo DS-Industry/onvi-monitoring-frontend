@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Card, List, Upload, Input, InputNumber, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { TechTasksItem } from '@/services/api/equipment';
+import { TechTasksItem, StatusTechTask } from '@/services/api/equipment';
 
 const selectOptions = [
   { name: 'Ниже нормы', value: 'belowNormal' },
@@ -22,7 +22,7 @@ type Props = {
   onChange: (id: number, value: string | number | boolean | null) => void;
   onFileUpload: (itemId: number) => (options: any) => void;
   onImageRemove: (id: number) => void;
-  status?: string;
+  status?: StatusTechTask;
 };
 
 type DynamicInputProps = {
@@ -43,7 +43,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
       return (
         <Input
           type="text"
-          value={value as string}
+          value={value as string || ''}
           onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full"
@@ -55,6 +55,15 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
         <InputNumber
           value={value as number | null}
           onChange={val => onChange(val ?? null)}
+          onBlur={e => {
+            const inputValue = e.target.value;
+            if (inputValue === '' || inputValue === undefined) {
+              onChange(null);
+            } else {
+              const numValue = Number(inputValue);
+              onChange(isNaN(numValue) ? null : numValue);
+            }
+          }}
           disabled={disabled}
           className="w-full"
         />
@@ -92,7 +101,7 @@ const TechTaskCard: React.FC<Props> = ({
   onChange,
   onFileUpload,
   onImageRemove,
-  status = '',
+  status,
 }) => {
   const { t } = useTranslation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
@@ -144,14 +153,14 @@ const TechTaskCard: React.FC<Props> = ({
                             type={item.type}
                             value={values[item.id]}
                             onChange={val => onChange(item.id, val)}
-                            disabled={status === t('tables.FINISHED')}
+                            disabled={status === StatusTechTask.FINISHED}
                           />
                           <Upload
                             customRequest={onFileUpload(item.id)}
                             showUploadList={false}
                             multiple={false}
                             accept="image/*"
-                            disabled={status === t('tables.FINISHED')}
+                            disabled={status === StatusTechTask.FINISHED}
                           >
                             <Button
                               type="text"
@@ -175,9 +184,26 @@ const TechTaskCard: React.FC<Props> = ({
                                 }
                                 alt="uploaded"
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  console.error('Image failed to load:', {
+                                    src: e.currentTarget.src,
+                                    itemId: item.id,
+                                    uploadedFile: uploadedFiles[item.id],
+                                    uploadedFileType: typeof uploadedFiles[item.id]
+                                  });
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                                onLoad={() => {
+                                  console.log('Image loaded successfully:', {
+                                    src: uploadedFiles[item.id],
+                                    itemId: item.id,
+                                    uploadedFileType: typeof uploadedFiles[item.id]
+                                  });
+                                }}
                               />
-                              <button
+                               <button
                                 onClick={() => onImageRemove(item.id)}
+                                disabled={status === StatusTechTask.FINISHED}
                                 className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1"
                               >
                                 <CloseOutlined style={{ fontSize: '12px' }} />

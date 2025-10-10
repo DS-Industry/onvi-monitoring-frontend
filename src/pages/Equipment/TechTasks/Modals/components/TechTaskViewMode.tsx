@@ -1,23 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TechTaskShapeResponse } from '@/services/api/equipment';
+import { TechTaskShapeResponse, createTechTaskShape } from '@/services/api/equipment';
 import TechTaskCard from '../../../TechTaskCard';
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { useToast } from '@/hooks/useToast';
+import { uploadFileWithPresignedUrl, generateTechTaskImageKey } from '@/services/api/s3';
 
 interface TechTaskViewModeProps {
   techTaskData?: TechTaskShapeResponse;
+  onSave?: () => void;
 }
 
-const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
+export interface TechTaskViewModeRef {
+  handleSubmit: () => Promise<void>;
+}
+
+const TechTaskViewMode = forwardRef<TechTaskViewModeRef, TechTaskViewModeProps>(({
   techTaskData,
-}) => {
+  onSave,
+}, ref) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   
   const [taskValues, setTaskValues] = useState<Record<number, string | number | boolean | null>>({});
   const [uploadedFiles, setUploadedFiles] = useState<Record<number, File | string | null>>({});
 
+  useImperativeHandle(ref, () => ({
+    handleSubmit,
+  }));
 
   useEffect(() => {
     if (techTaskData?.items) {
@@ -31,9 +41,21 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
       setTaskValues(initialValues);
 
       const fileEntries = techTaskData.items.map(item => {
-        const file = item.image
-          ? `${import.meta.env.VITE_S3_CLOUD}/pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
-          : null;
+        let file = null;
+        if (item.image) {
+          if (item.image.startsWith('http://') || item.image.startsWith('https://')) {
+            file = item.image;
+          } else {
+            file = `${import.meta.env.VITE_S3_CLOUD}/${item.image}`;
+          }
+        }
+        
+        console.log('Initial image URL:', {
+          itemId: item.id,
+          image: item.image,
+          fullUrl: file
+        });
+        
         return [item.id, file];
       });
 
@@ -57,17 +79,45 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
       const { file, onSuccess, onError } = options;
 
       try {
-        if (file instanceof File) {
-          setUploadedFiles(prev => ({
-            ...prev,
-            [itemId]: file,
-          }));
-          onSuccess?.('ok');
-        } else {
+        if (!(file instanceof File)) {
           throw new Error('Invalid file type');
         }
+
+        if (!techTaskData) {
+          throw new Error('Tech task data not available');
+        }
+
+        const fileKey = generateTechTaskImageKey(
+          techTaskData.posId,
+          techTaskData.id,
+          itemId,
+          file.name
+        );
+
+        const uploadedKey = await uploadFileWithPresignedUrl(file, fileKey);
+        
+        const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
+        
+        console.log('Upload completed:', {
+          fileKey,
+          uploadedKey,
+          s3Url,
+          itemId
+        });
+        
+        setUploadedFiles(prev => ({
+          ...prev,
+          [itemId]: s3Url,
+        }));
+
+        showToast(t('techTasks.imageUploadSuccess') || 'Image uploaded successfully', 'success');
+        onSuccess?.('ok');
       } catch (err) {
-        showToast(t('errors.other.invalidFileType'), 'error');
+        console.error('Upload error:', err);
+        showToast(
+          t('techTasks.imageUploadError') || 'Failed to upload image', 
+          'error'
+        );
         onError?.(err as Error);
       }
     };
@@ -79,6 +129,46 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
     }));
   };
 
+  const handleSubmit = async () => {
+    if (!techTaskData) {
+      showToast(t('techTasks.noDataError') || 'No tech task data available', 'error');
+      return;
+    }
+
+    try {
+      const valueData = Object.entries(taskValues).map(([itemValueId, value]) => {
+        const uploadedFile = uploadedFiles[Number(itemValueId)];
+        const imageUrl = uploadedFile && typeof uploadedFile === 'string' ? uploadedFile : undefined;
+        
+        let stringValue = '';
+        if (value === null || value === undefined) {
+          stringValue = '';
+        } else if (typeof value === 'number') {
+          stringValue = isNaN(value) ? '' : String(value);
+        } else if (typeof value === 'boolean') {
+          stringValue = String(value);
+        } else {
+          stringValue = String(value);
+        }
+        
+        return {
+          itemValueId: Number(itemValueId),
+          value: stringValue,
+          imageUrl,
+        };
+      });
+
+      await createTechTaskShape(techTaskData.id, {
+        valueData,
+      });
+
+      showToast(t('techTasks.saveSuccess') || 'Tech task saved successfully', 'success');
+      onSave?.();
+    } catch (error) {
+      console.error('Save error:', error);
+      showToast(t('techTasks.saveError') || 'Failed to save tech task', 'error');
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col min-h-[300px]">
@@ -103,6 +193,8 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
       )}
     </div>
   );
-};
+});
+
+TechTaskViewMode.displayName = 'TechTaskViewMode';
 
 export default TechTaskViewMode;
