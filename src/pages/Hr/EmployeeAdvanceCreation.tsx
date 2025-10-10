@@ -25,6 +25,7 @@ import {
   InputNumber,
   Space,
   Grid,
+  Typography,
 } from 'antd';
 import {
   PlusOutlined,
@@ -38,6 +39,8 @@ import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
+import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { DEFAULT_PAGE } from '@/utils/constants';
 
 interface PaymentRecord {
   check: boolean;
@@ -60,8 +63,9 @@ interface PaymentRecord {
 
 const EmployeeAdvanceCreation: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city');
+  const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const city = placementId ? Number(placementId) : undefined;
   const navigate = useNavigate();
   const [paymentsData, setPaymentsData] = useState<PaymentRecord[]>([]);
@@ -102,8 +106,14 @@ const EmployeeAdvanceCreation: React.FC = () => {
   );
 
   const { data: workersData } = useSWR(
-    formData?.organizationId ? [`get-workers`, formData.organizationId] : null,
-    () => getWorkers({ organizationId: formData.organizationId }),
+    formData?.organizationId
+      ? [`get-workers`, formData.organizationId, hrPositionId]
+      : null,
+    () =>
+      getWorkers({
+        organizationId: formData.organizationId,
+        hrPositionId: hrPositionId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -433,6 +443,32 @@ const EmployeeAdvanceCreation: React.FC = () => {
           </div>
           <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
             <div className="flex flex-col space-y-4 text-text02">
+              <div className="flex flex-col w-full sm:w-80">
+                <Typography.Text>{t('roles.job')}</Typography.Text>
+                <Select
+                  className="w-full"
+                  placeholder={t('warehouse.notSel')}
+                  value={getParam(searchParams, 'hrPositionId')}
+                  onChange={(val: string) => {
+                    updateSearchParams(searchParams, setSearchParams, {
+                      hrPositionId: val,
+                      page: DEFAULT_PAGE,
+                    });
+                  }}
+                  options={positions?.map(item => ({
+                    label: item.name,
+                    value: String(item.value),
+                  }))}
+                  showSearch={true}
+                  filterOption={(input, option) =>
+                    (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  allowClear={true}
+                />
+              </div>
               <Transfer
                 dataSource={workers}
                 targetKeys={formDataWorker.workerIds.map(String)}
