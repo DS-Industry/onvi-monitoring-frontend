@@ -1,15 +1,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button/Button';
+import { StatusTechTask } from '@/services/api/equipment';
 
 interface UpdateTechTaskModalFooterProps {
   hasUpdatePermission: boolean;
   isEditMode: boolean;
   isMutating: boolean;
   isCompleting: boolean;
+  isReturning: boolean;
+  taskStatus?: string;
   onCancel: () => void;
   onSave: () => void;
   onComplete: () => void;
+  onReturn: () => void;
 }
 
 const UpdateTechTaskModalFooter: React.FC<UpdateTechTaskModalFooterProps> = ({
@@ -17,9 +21,12 @@ const UpdateTechTaskModalFooter: React.FC<UpdateTechTaskModalFooterProps> = ({
   isEditMode,
   isMutating,
   isCompleting,
+  isReturning,
+  taskStatus,
   onCancel,
   onSave,
   onComplete,
+  onReturn,
 }) => {
   const { t } = useTranslation();
 
@@ -36,9 +43,15 @@ const UpdateTechTaskModalFooter: React.FC<UpdateTechTaskModalFooterProps> = ({
           handleClick={onSave}
           isLoading={isMutating}
         />
+      ) : taskStatus === StatusTechTask.FINISHED ? (
+        <Button
+          title={t('routine.return')}
+          handleClick={onReturn}
+          isLoading={isReturning}
+        />
       ) : (
         <Button
-          title={t('techTasks.complete')}
+          title={t('common.complete')}
           handleClick={onComplete}
           isLoading={isCompleting}
         />
