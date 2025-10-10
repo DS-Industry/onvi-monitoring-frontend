@@ -1104,7 +1104,8 @@
     "content": "This action cannot be undone.",
     "okText": "Yes, delete it'",
     "loading": "Loading...",
-    "close": "Close"
+    "close": "Close",
+    "complete": "Complete"
   },
   "analysis": {
     "search": "Search",
