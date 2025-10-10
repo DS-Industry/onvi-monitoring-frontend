@@ -211,7 +211,6 @@ const ProgressReportItem: React.FC = () => {
         <TableSkeleton columnCount={5} />
       ) : (
         <TechTaskCard
-          techTaskData={techTaskData}
           items={techTaskItems}
           values={taskValues}
           uploadedFiles={uploadedFiles}

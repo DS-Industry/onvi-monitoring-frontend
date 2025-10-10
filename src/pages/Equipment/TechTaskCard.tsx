@@ -1,15 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   CloseOutlined,
   UpOutlined,
   DownOutlined,
   PictureOutlined,
 } from '@ant-design/icons';
-import { Button, Card, Divider, List, Upload } from 'antd';
+import { Button, Card, List, Upload, Input, InputNumber, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { TechTaskShapeResponse, TechTasksItem } from '@/services/api/equipment';
-import TechTaskDetails from './TechTaskDetails';
-import { Input, InputNumber, Select, Checkbox } from 'antd';
+import { TechTasksItem } from '@/services/api/equipment';
 
 const selectOptions = [
   { name: 'Ниже нормы', value: 'belowNormal' },
@@ -18,7 +16,6 @@ const selectOptions = [
 ];
 
 type Props = {
-  techTaskData?: TechTaskShapeResponse;
   items: TechTasksItem[];
   values: Record<number, string | number | boolean | null>;
   uploadedFiles: Record<number, File | string | null>;
@@ -49,7 +46,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
           value={value as string}
           onChange={e => onChange(e.target.value)}
           disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
+          className="w-full"
         />
       );
 
@@ -59,7 +56,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
           value={value as number | null}
           onChange={val => onChange(val ?? null)}
           disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
+          className="w-full"
         />
       );
 
@@ -70,7 +67,7 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
           options={selectOptions}
           onChange={val => onChange(val)}
           disabled={disabled}
-          className="w-full border-[#C0D0E0] h-10 flex items-center"
+          className="w-full"
         />
       );
 
@@ -89,7 +86,6 @@ const DynamicInput: React.FC<DynamicInputProps> = ({
 };
 
 const TechTaskCard: React.FC<Props> = ({
-  techTaskData,
   items,
   values,
   uploadedFiles,
@@ -101,22 +97,14 @@ const TechTaskCard: React.FC<Props> = ({
   const { t } = useTranslation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const grouped = useMemo(() => {
-    const result = items.reduce(
-      (acc, item) => {
-        if (!acc[item.group]) acc[item.group] = [];
-        acc[item.group].push(item);
-        return acc;
-      },
-      {} as Record<string, TechTasksItem[]>
-    );
-
-    Object.values(result).forEach(group => {
-      group.sort((a, b) => a.title.localeCompare(b.title));
-    });
-
-    return result;
-  }, [items]);
+  const grouped = items.reduce(
+    (acc, item) => {
+      if (!acc[item.group]) acc[item.group] = [];
+      acc[item.group].push(item);
+      return acc;
+    },
+    {} as Record<string, TechTasksItem[]>
+  );
 
   const toggleGroup = (group: string) => {
     setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
@@ -124,19 +112,17 @@ const TechTaskCard: React.FC<Props> = ({
 
   return (
     <div>
-      <Divider className="bg-[#c0d0e0]" />
-      <TechTaskDetails techTaskData={techTaskData} />
       <List
         dataSource={Object.entries(grouped)}
         locale={{ emptyText: ' ' }}
         renderItem={([groupName, groupItems]) => (
-          <List.Item className="w-full md:w-[600px]">
-            <Card className="w-full md:w-[600px] border-[#C0D0E0]">
+          <List.Item className="w-full">
+            <Card className="w-full">
               <div
                 className="flex items-center justify-between space-x-2 mb-4 cursor-pointer"
                 onClick={() => toggleGroup(groupName)}
               >
-                <div className="text-lg font-semibold text-text01">
+                <div className="text-lg font-semibold">
                   {t(`chemical.${groupName}`)}
                 </div>
                 <div className="cursor-pointer w-6 h-6 text-primary02_Hover flex justify-center items-center">
@@ -151,10 +137,8 @@ const TechTaskCard: React.FC<Props> = ({
                     <List.Item className="w-full border-none">
                       <div className="w-full flex flex-col">
                         <div className="flex flex-col w-full space-y-2">
-                          <div className="flex items-center gap-2 w-64">
-                            <div className="text-text01 font-semibold">
-                              {item.title}
-                            </div>
+                          <div className="text-text01 font-semibold">
+                            {item.title}
                           </div>
                           <DynamicInput
                             type={item.type}
@@ -172,7 +156,7 @@ const TechTaskCard: React.FC<Props> = ({
                             <Button
                               type="text"
                               icon={<PictureOutlined className="text-xl" />}
-                              className="min-w-full md:w-[550px] h-14 border-2 border-dashed border-[#C0D0E0] rounded-xl flex items-center justify-start gap-2 text-sm font-medium"
+                              className="min-w-full h-14 border-2 border-dashed border-[#C0D0E0] rounded-xl flex items-center justify-start gap-2 text-sm font-medium"
                             >
                               {t('routine.attachImage')}
                             </Button>

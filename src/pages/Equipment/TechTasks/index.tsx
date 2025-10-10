@@ -32,15 +32,11 @@ import { Can } from '@/permissions/Can';
 import { usePermissions } from '@/hooks/useAuthStore';
 import CreateTechTaskModal from './Modals/CreateTechTaskModal';
 import UpdateTechTaskModal from './Modals/UpdateTechTaskModal';
-import CompleteTechTaskModal from './Modals/CompleteTechTaskModal';
 import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
-import hasPermission from '@/permissions/hasPermission';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.locale('ru');
-
-
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();
@@ -67,7 +63,6 @@ const TechTasks: React.FC = () => {
   const [searchValue, setSearchValue] = useState(name || '');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [selectedTechTaskId, setSelectedTechTaskId] = useState<number | undefined>();
 
   const user = useUser();
@@ -188,17 +183,7 @@ const TechTasks: React.FC = () => {
 
   const handleUpdateTask = (techTask: TechTaskReadAllDisplay) => {
     setSelectedTechTaskId(techTask.id);
-    
-    const hasUpdatePermission = hasPermission(userPermissions, [
-      { action: 'update', subject: 'TechTask' },
-      { action: 'manage', subject: 'TechTask' }
-    ]);
-    
-    if (hasUpdatePermission) {
-      setUpdateModalOpen(true);
-    } else {
-      setCompleteModalOpen(true);
-    }
+    setUpdateModalOpen(true);
   };
 
   const handleCreateSuccess = () => {
@@ -463,14 +448,6 @@ const TechTasks: React.FC = () => {
         }}
         techTaskId={selectedTechTaskId}
         onSuccess={handleCreateSuccess}
-      />
-      <CompleteTechTaskModal
-        open={completeModalOpen}
-        onClose={() => {
-          setCompleteModalOpen(false);
-          setSelectedTechTaskId(undefined);
-        }}
-        techTaskId={selectedTechTaskId}
       />
     </>
   );
