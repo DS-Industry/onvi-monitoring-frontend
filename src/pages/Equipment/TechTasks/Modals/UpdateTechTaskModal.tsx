@@ -169,13 +169,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 
     try {
       if (!isEditMode && techTaskViewModeRef.current) {
-        // Complete the tech task with shape data - this will automatically set status to FINISHED
         await techTaskViewModeRef.current.handleSubmit();
         showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
         onSuccess?.();
         onClose();
       } else {
-        // If in edit mode, just update status to finished
         const result = await updateTechTaskMutation({
           techTaskId: techTaskDetails.id,
           status: StatusTechTask.FINISHED,
