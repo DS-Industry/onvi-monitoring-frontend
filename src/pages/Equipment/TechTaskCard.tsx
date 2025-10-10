@@ -175,6 +175,19 @@ const TechTaskCard: React.FC<Props> = ({
                                 }
                                 alt="uploaded"
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  console.error('Image failed to load:', {
+                                    src: e.currentTarget.src,
+                                    itemId: item.id
+                                  });
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                                onLoad={() => {
+                                  console.log('Image loaded successfully:', {
+                                    src: uploadedFiles[item.id],
+                                    itemId: item.id
+                                  });
+                                }}
                               />
                               <button
                                 onClick={() => onImageRemove(item.id)}

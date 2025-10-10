@@ -311,6 +311,17 @@ type TechTaskShapeBody = {
   }[];
 };
 
+type TechTaskShapeWithUrlsBody = {
+  valueData: {
+    itemValueId: number;
+    value: string;
+  }[];
+  imageUrls: {
+    itemValueId: number;
+    imageUrl: string;
+  }[];
+};
+
 type ChemicalParams = {
   dateStart: string;
   dateEnd: string;
@@ -719,6 +730,18 @@ export async function createTechTaskShape(
         'Content-Type': 'multipart/form-data',
       },
     }
+  );
+
+  return response.data;
+}
+
+export async function createTechTaskShapeWithUrls(
+  id: number,
+  body: TechTaskShapeWithUrlsBody
+): Promise<TechTaskResponse> {
+  const response: AxiosResponse<TechTaskResponse> = await api.post(
+    `${TECHTASKS.CREATE_TECH_TASK}/${id}/with-urls`,
+    body
   );
 
   return response.data;

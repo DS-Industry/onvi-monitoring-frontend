@@ -1,6 +1,6 @@
 import TableSkeleton from '@ui/Table/TableSkeleton';
 import {
-  createTechTaskShape,
+  createTechTaskShapeWithUrls,
   getTechTaskShapeItem,
 } from '@/services/api/equipment';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -14,6 +14,7 @@ import TechTaskCard from './TechTaskCard';
 import Button from '@/components/ui/Button/Button';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { uploadFileWithPresignedUrl, generateTechTaskImageKey } from '@/services/api/s3';
 
 const TechTaskItem: React.FC = () => {
   const { t } = useTranslation();
@@ -48,11 +49,11 @@ const TechTaskItem: React.FC = () => {
       }: {
         arg: {
           valueData: { itemValueId: number; value: string }[];
-          files: { itemValueId: number; file: File }[];
+          imageUrls: { itemValueId: number; imageUrl: string }[];
         };
       }
     ) => {
-      return createTechTaskShape(techTaskId, arg, arg.files);
+      return createTechTaskShapeWithUrls(techTaskId, arg);
     }
   );
 
@@ -73,7 +74,7 @@ const TechTaskItem: React.FC = () => {
 
       const fileEntries = techTaskItems.map(item => {
         const file = item.image
-          ? `${import.meta.env.VITE_S3_CLOUD}pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
+          ? `${import.meta.env.VITE_S3_CLOUD}/${item.image}`
           : null;
         return [item.id, file];
       });
@@ -102,17 +103,38 @@ const TechTaskItem: React.FC = () => {
       const { file, onSuccess, onError } = options;
 
       try {
-        if (file instanceof File) {
-          setUploadedFiles(prev => ({
-            ...prev,
-            [itemId]: file,
-          }));
-          onSuccess?.('ok');
-        } else {
+        if (!(file instanceof File)) {
           throw new Error('Invalid file type');
         }
+
+        if (!techTaskData) {
+          throw new Error('Tech task data not available');
+        }
+
+        const fileKey = generateTechTaskImageKey(
+          techTaskData.posId,
+          techTaskData.id,
+          itemId,
+          file.name
+        );
+
+        const uploadedKey = await uploadFileWithPresignedUrl(file, fileKey);
+        
+        const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
+        
+        setUploadedFiles(prev => ({
+          ...prev,
+          [itemId]: s3Url,
+        }));
+
+        showToast(t('techTasks.imageUploadSuccess') || 'Image uploaded successfully', 'success');
+        onSuccess?.('ok');
       } catch (err) {
-        showToast(t('errors.other.invalidFileType'), 'error');
+        console.error('Upload error:', err);
+        showToast(
+          t('techTasks.imageUploadError') || 'Failed to upload image', 
+          'error'
+        );
         onError?.(err as Error);
       }
     };
@@ -132,14 +154,16 @@ const TechTaskItem: React.FC = () => {
       })
     );
 
+    const imageUrls = Object.entries(uploadedFiles)
+      .filter(([, file]) => file && typeof file === 'string')
+      .map(([itemValueId, url]) => ({
+        itemValueId: Number(itemValueId),
+        imageUrl: url as string,
+      }));
+
     const result = await createTechTasks({
       valueData: techTaskValue,
-      files: Object.entries(uploadedFiles)
-        .filter(([, file]) => file instanceof File)
-        .map(([itemValueId, file]) => ({
-          itemValueId: Number(itemValueId),
-          file: file as File,
-        })),
+      imageUrls,
     });
 
     if (result) {

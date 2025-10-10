@@ -4,6 +4,7 @@ import { TechTaskShapeResponse } from '@/services/api/equipment';
 import TechTaskCard from '../../../TechTaskCard';
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { useToast } from '@/hooks/useToast';
+import { uploadFileWithPresignedUrl, generateTechTaskImageKey } from '@/services/api/s3';
 
 interface TechTaskViewModeProps {
   techTaskData?: TechTaskShapeResponse;
@@ -32,8 +33,15 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
 
       const fileEntries = techTaskData.items.map(item => {
         const file = item.image
-          ? `${import.meta.env.VITE_S3_CLOUD}/pos/${techTaskData?.posId}/techTask/${techTaskData?.id}/${item.id}/${item.image}`
+          ? `${import.meta.env.VITE_S3_CLOUD}/${item.image}`
           : null;
+        
+        console.log('Initial image URL:', {
+          itemId: item.id,
+          image: item.image,
+          fullUrl: file
+        });
+        
         return [item.id, file];
       });
 
@@ -57,17 +65,45 @@ const TechTaskViewMode: React.FC<TechTaskViewModeProps> = ({
       const { file, onSuccess, onError } = options;
 
       try {
-        if (file instanceof File) {
-          setUploadedFiles(prev => ({
-            ...prev,
-            [itemId]: file,
-          }));
-          onSuccess?.('ok');
-        } else {
+        if (!(file instanceof File)) {
           throw new Error('Invalid file type');
         }
+
+        if (!techTaskData) {
+          throw new Error('Tech task data not available');
+        }
+
+        const fileKey = generateTechTaskImageKey(
+          techTaskData.posId,
+          techTaskData.id,
+          itemId,
+          file.name
+        );
+
+        const uploadedKey = await uploadFileWithPresignedUrl(file, fileKey);
+        
+        const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
+        
+        console.log('Upload completed:', {
+          fileKey,
+          uploadedKey,
+          s3Url,
+          itemId
+        });
+        
+        setUploadedFiles(prev => ({
+          ...prev,
+          [itemId]: s3Url,
+        }));
+
+        showToast(t('techTasks.imageUploadSuccess') || 'Image uploaded successfully', 'success');
+        onSuccess?.('ok');
       } catch (err) {
-        showToast(t('errors.other.invalidFileType'), 'error');
+        console.error('Upload error:', err);
+        showToast(
+          t('techTasks.imageUploadError') || 'Failed to upload image', 
+          'error'
+        );
         onError?.(err as Error);
       }
     };
