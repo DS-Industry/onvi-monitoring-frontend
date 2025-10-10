@@ -23,7 +23,7 @@ import {
 
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import { useUser } from '@/hooks/useUserStore';
 
 interface PlanFact {
   posId: number;
@@ -39,8 +39,7 @@ interface PlanFact {
 
 const PlanAct: React.FC = () => {
   const { t } = useTranslation();
-  const allLabel = t('warehouse.all');
-
+  const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const today = dayjs().format('YYYY-MM-DD');
@@ -96,29 +95,28 @@ const PlanAct: React.FC = () => {
   );
 
   const { data: posList } = useSWR(
-    ['get-poses', placementId],
-    () => getPoses({ placementId }),
+    user.organizationId
+      ? ['get-poses', placementId, user.organizationId]
+      : null,
+    () =>
+      getPoses({
+        placementId: placementId,
+        organizationId: user.organizationId,
+      }),
     { keepPreviousData: true, shouldRetryOnError: false }
   );
 
   const totalCount = planFactData?.totalCount || 0;
-
-  const posOptions = useMemo(() => {
-    const options =
-      posList?.map(pos => ({ name: pos.name, value: pos.id })) || [];
-    return [{ name: allLabel, value: '*' }, ...options];
-  }, [posList, allLabel]);
 
   const planFacts = useMemo(() => {
     return (
       planFactData?.plan?.map((item: PlanFact) => ({
         ...item,
         posName:
-          posOptions.find(p => p.value === item.posId)?.name ||
-          `POS ${item.posId}`,
+          posList?.find(p => p.id === item.posId)?.name || `POS ${item.posId}`,
       })) || []
     );
-  }, [planFactData, posOptions]);
+  }, [planFactData, posList]);
 
   const currencyRender = getCurrencyRender();
 
@@ -193,7 +191,6 @@ const PlanAct: React.FC = () => {
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.planAct')}
         </span>
-        <QuestionMarkIcon />
       </div>
 
       <GeneralFilters

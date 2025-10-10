@@ -11,6 +11,7 @@ import { Table } from 'antd';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
 
 type TimestampResponse = {
   deviceId: number;
@@ -31,16 +32,17 @@ const Timestamps: React.FC = () => {
     [key: number]: boolean;
   }>({});
   const { showToast } = useToast();
-  const city = Number(searchParams.get("city")) || undefined;
+  const user = useUser();
+  const city = Number(searchParams.get('city')) || undefined;
 
   const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
+    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
+    () => getPoses({ placementId: city, organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 

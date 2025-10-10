@@ -65,9 +65,14 @@ const Timesheet: React.FC = () => {
   const shouldFetch = Boolean(dateStart && dateEnd && posId);
 
   const { data: poses, isLoading: isPosLoading } = useSWR(
-    `get-pos-${placementId}`,
+    user.organizationId
+      ? `get-pos-${placementId}-${user.organizationId}`
+      : null,
     () =>
-      getPoses({ placementId: placementId })
+      getPoses({
+        placementId: placementId,
+        organizationId: user.organizationId,
+      })
         .then(data => data?.sort((a, b) => a.id - b.id) || [])
         .then(data => {
           const options = data.map(item => ({

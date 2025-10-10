@@ -26,6 +26,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import dayjs from 'dayjs';
+import { useUser } from '@/hooks/useUserStore';
 
 type TablePayment = PrepaymentResponse & {
   hrPosition?: string;
@@ -36,6 +37,7 @@ const EmployeeAdvance: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const userPermissions = usePermissions();
+  const user = useUser();
 
   const screens = Grid.useBreakpoint();
 
@@ -117,12 +119,19 @@ const EmployeeAdvance: React.FC = () => {
     }
   );
 
-  const { data: workersData } = useSWR([`get-workers`], () => getWorkers({}), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
+  const { data: workersData } = useSWR(
+    user.organizationId ? ['get-workers', user.organizationId] : null,
+    () =>
+      getWorkers({
+        organizationId: user.organizationId,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
 
   const workers: { name: string; value?: number }[] =
     workersData?.map(work => ({
