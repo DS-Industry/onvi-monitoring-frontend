@@ -18,7 +18,7 @@ const IncomeReport: React.FC = () => {
   const navigate = useNavigate();
   const city = Number(searchParams.get('city')) || undefined;
   const posId = Number(searchParams.get('posId')) || undefined;
-  const reportId = Number(searchParams.get("id"));
+  const reportId = Number(searchParams.get('id'));
   const { showToast } = useToast();
 
   const { data: posData } = useSWR(
@@ -28,7 +28,7 @@ const IncomeReport: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -39,7 +39,7 @@ const IncomeReport: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -54,7 +54,7 @@ const IncomeReport: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -65,7 +65,7 @@ const IncomeReport: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -77,7 +77,7 @@ const IncomeReport: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
   });
 
   const { trigger: createReport, isMutating } = useSWRMutation(
@@ -115,9 +115,7 @@ const IncomeReport: React.FC = () => {
       .map(param => param.description || param.name);
 
     if (missingFields.length > 0) {
-      message.error(
-        `${t("register.for")} : ${missingFields.join(', ')}`
-      );
+      message.error(`${t('register.for')} : ${missingFields.join(', ')}`);
       return;
     }
 
@@ -148,15 +146,15 @@ const IncomeReport: React.FC = () => {
           </span>
         </div>
       </div>
-      <div className="p-4 bg-white rounded-lg shadow-md">
+      <div className="p-4 rounded-lg bg-[#fafafa]">
         <form onSubmit={onSubmit} className="space-y-4">
           <h3 className="text-lg font-semibold mb-4">{t('analysis.repo')}</h3>
           <div className="flex flex-wrap gap-4">
             {loadingReport || validatingReport ? (
               <div className="flex flex-wrap gap-4">
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
-                <Skeleton.Input active style={{ width: 150, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
+                <Skeleton.Input active style={{ width: 256, height: 32 }} />
               </div>
             ) : (
               reportData &&
@@ -176,11 +174,11 @@ const IncomeReport: React.FC = () => {
                         onChange={date =>
                           handleInputChange(
                             value.name,
-                            date ? date.format('YYYY-MM-DD') : ''
+                            date ? date.format('YYYY-MM-DDT:HH:mm:ss') : ''
                           )
                         }
                         className="w-64"
-                        size="large"
+                        showTime={true}
                       />
                     </div>
                   ) : value.name.toLowerCase().includes('pos') ? (
@@ -197,7 +195,6 @@ const IncomeReport: React.FC = () => {
                         }))}
                         onChange={val => handleInputChange(value.name, val)}
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   ) : value.name.toLowerCase().includes('device') ? (
@@ -214,7 +211,6 @@ const IncomeReport: React.FC = () => {
                         }))}
                         onChange={val => handleInputChange(value.name, val)}
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   ) : value.name.toLowerCase().includes('warehouse') ? (
@@ -231,7 +227,6 @@ const IncomeReport: React.FC = () => {
                         }))}
                         onChange={val => handleInputChange(value.name, val)}
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   ) : value.name.toLowerCase().includes('org') ? (
@@ -248,7 +243,6 @@ const IncomeReport: React.FC = () => {
                         }))}
                         onChange={val => handleInputChange(value.name, val)}
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   ) : value.type === 'number' ? (
@@ -263,7 +257,6 @@ const IncomeReport: React.FC = () => {
                           handleInputChange(value.name, Number(e.target.value))
                         }
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   ) : (
@@ -279,7 +272,6 @@ const IncomeReport: React.FC = () => {
                           handleInputChange(value.name, e.target.value)
                         }
                         className="w-64"
-                        size="large"
                       />
                     </div>
                   )}
@@ -287,7 +279,11 @@ const IncomeReport: React.FC = () => {
               ))
             )}
           </div>
-          <Button htmlType="submit" className='btn-primary' loading={isMutating}>
+          <Button
+            htmlType="submit"
+            loading={isMutating}
+            type='primary'
+          >
             {t('analysis.add')}
           </Button>
         </form>

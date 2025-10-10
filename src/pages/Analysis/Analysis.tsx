@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import AnalysisCard from '@ui/Card/AnalysisCard';
 import useSWR from 'swr';
 import { CategoryReportTemplate, getAllReports } from '@/services/api/reports';
-import CardSkeleton from '@/components/ui/Card/CardSkeleton';
-import { Pagination, Select } from 'antd';
+import { Pagination, Select, Skeleton } from 'antd';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -97,10 +96,9 @@ const Analysis: React.FC = () => {
       <hr className="my-4" />
 
       <div className="space-y-3">
-        <div className="text-text01 uppercase">{t('analysis.oper')}</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {loadingReports || validatingReports || tableLoading ? (
-            <CardSkeleton cardHeight="200px" cardWidth="456px" />
+            <Skeleton.Input style={{ width: 456, height: 200 }} />
           ) : (
             reportsData.map(report => (
               <AnalysisCard
