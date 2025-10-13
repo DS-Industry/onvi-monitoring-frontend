@@ -1107,7 +1107,8 @@
     "okText": "Yes, delete it",
     "loading": "Loading...",
     "close": "Close",
-    "complete": "Complete"
+    "complete": "Complete",
+    "attachFile": "Attach file"
   },
   "analysis": {
     "search": "Search",
@@ -1656,7 +1657,11 @@
     "completeSuccess": "Task completed successfully",
     "edit": "Edit",
     "cancelEdit": "Cancel Edit",
-    "save": "Save"
+    "save": "Save",
+    "executionProgress": "Execution Progress",
+    "taskComments": "Task Comments",
+    "noComments": "No comments yet",
+    "send": "Send"
   },
   "progressReport": {
     "columns": {

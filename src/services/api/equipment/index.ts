@@ -855,3 +855,41 @@ export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promis
   );
   return response.data;
 }
+
+export type TechTaskCommentResponse = {
+  id: number;
+  content: string;
+  imageUrl?: string;
+  techTaskId: number;
+  authorId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  author: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+};
+
+export type CreateTechTaskCommentBody = {
+  content: string;
+  imageUrl?: string;
+};
+
+export async function getTechTaskComments(techTaskId: number): Promise<TechTaskCommentResponse[]> {
+  const response: AxiosResponse<TechTaskCommentResponse[]> = await api.get(
+    `user/tech-task/${techTaskId}/comments`
+  );
+  return response.data;
+}
+
+export async function createTechTaskComment(
+  techTaskId: number,
+  body: CreateTechTaskCommentBody
+): Promise<TechTaskCommentResponse> {
+  const response: AxiosResponse<TechTaskCommentResponse> = await api.post(
+    `user/tech-task/${techTaskId}/comments`,
+    body
+  );
+  return response.data;
+}

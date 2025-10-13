@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Input } from 'antd';
+import { Form } from 'antd';
 import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 import TechTaskTemplateManager from './TechTaskTemplateManager';
 
@@ -28,18 +28,6 @@ const UpdateTechTaskEditMode: React.FC<UpdateTechTaskEditModeProps> = ({
 
   return (
     <div className="flex flex-col gap-4 min-w-0 w-full">
-      <Form.Item
-        name="name"
-        rules={[{ required: true, message: t('techTasks.taskNameRequired') }]}
-      >
-        <Input
-          placeholder={t('techTasks.enterTaskName')}
-          size="large"
-          className="text-lg"
-          disabled={!isEditMode}
-        />
-      </Form.Item>
-
       <div className="flex flex-col">
         <label className="text-lg font-medium text-gray-700 mb-2">
           {t('techTasks.taskDescription')}

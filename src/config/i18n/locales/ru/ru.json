@@ -1107,7 +1107,8 @@
     "okText": "Да, удалить",
     "loading": "Загрузка...",
     "close": "Закрыть",
-    "complete": "Завершить"
+    "complete": "Завершить",
+    "attachFile": "Прикрепить файл"
   },
   "analysis": {
     "search": "Поиск",
@@ -1655,7 +1656,11 @@
     "completeSuccess": "Задача успешно завершена",
     "edit": "Редактировать",
     "cancelEdit": "Отменить редактирование",
-    "save": "Сохранить"
+    "save": "Сохранить",
+    "executionProgress": "Ход выполнения",
+    "taskComments": "Комментарии к задаче",
+    "noComments": "Пока нет комментариев",
+    "send": "Отправить"
   },
   "progressReport": {
     "columns": {
