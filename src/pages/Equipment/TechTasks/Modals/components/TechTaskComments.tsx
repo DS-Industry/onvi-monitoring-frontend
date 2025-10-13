@@ -224,9 +224,7 @@ const TechTaskComments = forwardRef<TechTaskCommentsRef, TechTaskCommentsProps>(
                       </span>
                     </div>
                     
-                    <div className="text-gray-700 mb-2">
-                      {comment.content}
-                    </div>
+                    <div className="text-gray-700 mb-2" dangerouslySetInnerHTML={{ __html: comment.content }} />
                     
                     {comment.imageUrl && (
                       <div className="mt-2">
