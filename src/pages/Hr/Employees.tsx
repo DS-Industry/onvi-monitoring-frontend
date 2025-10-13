@@ -74,8 +74,11 @@ const Employees: React.FC = () => {
   );
 
   const { data: positionData } = useSWR(
-    [`get-positions`],
-    () => getPositions(),
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -632,12 +635,8 @@ const Employees: React.FC = () => {
             classname="w-80"
             value={formData.bonusPayout}
             showIcon={true}
-            IconComponent={
-              <div className="text-text02 text-xl">₽</div>
-            }
-            changeValue={e =>
-              handleInputChange('bonusPayout', e.target.value)
-            }
+            IconComponent={<div className="text-text02 text-xl">₽</div>}
+            changeValue={e => handleInputChange('bonusPayout', e.target.value)}
           />
           <div className="text-text01 font-semibold text-2xl">
             {t('hr.add')}
@@ -732,7 +731,9 @@ const Employees: React.FC = () => {
             label={t('hr.enterRegistrationAddress')}
             classname="w-80"
             value={formData.registrationAddress}
-            changeValue={e => handleInputChange('registrationAddress', e.target.value)}
+            changeValue={e =>
+              handleInputChange('registrationAddress', e.target.value)
+            }
             {...register('registrationAddress')}
           />
           <div className="flex flex-col sm:flex-row gap-4 mt-6">

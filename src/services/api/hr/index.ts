@@ -400,11 +400,13 @@ export async function updatePosition(
   return response.data;
 }
 
-export async function getPositions(): Promise<PositionResponse[]> {
+export async function getPositions(params: {
+  organizationId?: number;
+}): Promise<PositionResponse[]> {
   const response: AxiosResponse<PositionResponse[]> = await api.get(
-    HR.GET_POSITIONS + 's'
+    HR.GET_POSITIONS + 's',
+    { params }
   );
-
   return response.data;
 }
 

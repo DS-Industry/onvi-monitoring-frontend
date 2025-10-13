@@ -41,6 +41,7 @@ import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 interface PaymentRecord {
   check: boolean;
@@ -73,6 +74,7 @@ const SalaryCalculationCreation: React.FC = () => {
   const [showAddButton, setShowAddButton] = useState(false);
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const { showToast } = useToast();
+  const user = useUser();
   dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
@@ -89,8 +91,11 @@ const SalaryCalculationCreation: React.FC = () => {
   );
 
   const { data: positionData } = useSWR(
-    [`get-positions`],
-    () => getPositions(),
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

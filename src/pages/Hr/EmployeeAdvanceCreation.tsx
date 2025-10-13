@@ -40,6 +40,7 @@ import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 interface PaymentRecord {
   check: boolean;
@@ -71,6 +72,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
+  const user = useUser();
   dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
@@ -94,8 +96,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
   );
 
   const { data: positionData } = useSWR(
-    [`get-positions`],
-    () => getPositions(),
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
