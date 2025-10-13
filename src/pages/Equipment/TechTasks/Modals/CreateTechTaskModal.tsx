@@ -88,11 +88,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
   const handleSubmit = async (values: any) => {
     try {
-      if (selectedTemplateItems.length === 0) {
-        showToast(t('techTasks.selectAtLeastOneTemplate'), 'error');
-        return;
-      }
-
       const techTaskData: TechTaskBody = {
         name: values.name,
         posId: Number(values.posId),

@@ -183,7 +183,16 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
             </span>
           }
         >
-          <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large" disabled={!isEditMode}>
+          <Select 
+            mode="multiple" 
+            placeholder={t('techTasks.selectTags')} 
+            size="large" 
+            disabled={!isEditMode}
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
             {tagsData?.map(tag => (
               <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
             ))}

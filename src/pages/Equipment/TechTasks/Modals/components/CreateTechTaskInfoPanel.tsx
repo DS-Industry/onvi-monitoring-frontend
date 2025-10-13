@@ -64,7 +64,14 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
         >
-          <Select placeholder={t('techTasks.selectCarWash')} size="large">
+          <Select 
+            placeholder={t('techTasks.selectCarWash')} 
+            size="large"
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
             {posesData?.map(pos => (
               <Option key={pos.id} value={pos.id}>{pos.name}</Option>
             ))}
@@ -168,7 +175,15 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectAtLeastOneTag') }]}
         >
-          <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large">
+          <Select 
+            mode="multiple" 
+            placeholder={t('techTasks.selectTags')} 
+            size="large"
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
             {tagsData?.map(tag => (
               <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
             ))}
