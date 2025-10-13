@@ -1639,7 +1639,9 @@
     "cancelEdit": "Cancel Edit",
     "save": "Save",
     "executionProgress": "Execution Progress",
-    "taskComments": "Task Comments"
+    "taskComments": "Task Comments",
+    "noComments": "No comments yet",
+    "send": "Send"
   },
   "progressReport": {
     "columns": {

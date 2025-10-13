@@ -1638,7 +1638,9 @@
     "cancelEdit": "Отменить редактирование",
     "save": "Сохранить",
     "executionProgress": "Ход выполнения",
-    "taskComments": "Комментарии к задаче"
+    "taskComments": "Комментарии к задаче",
+    "noComments": "Пока нет комментариев",
+    "send": "Отправить"
   },
   "progressReport": {
     "columns": {
