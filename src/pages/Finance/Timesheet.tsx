@@ -289,6 +289,31 @@ const Timesheet: React.FC = () => {
 
               return { start, end };
             }}
+            components={{
+              event: ({ event }) => {
+                let circleColor = '#faad14'; 
+                if (event.resource?.status === 'SENT') {
+                  circleColor = '#ff4d4f'; 
+                }
+
+                return (
+                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: circleColor,
+                        marginRight: 6,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {event.title}
+                  </span>
+                );
+              },
+            }}
           />
         </div>
       </div>
