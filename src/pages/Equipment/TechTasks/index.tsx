@@ -53,9 +53,11 @@ const TechTasks: React.FC = () => {
   const startDate = searchParams.get('startDate') || undefined;
   const endDate = searchParams.get('endDate') || undefined;
 
+  const assigned = searchParams.get('assigned') || undefined;
+
   const swrKey = useMemo(
-    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}`,
-    [currentPage, pageSize, posId, status, name, tags, startDate, endDate]
+    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${assigned}-${tags?.join(',')}-${startDate}-${endDate}`,
+    [currentPage, pageSize, posId, status, name, tags, startDate, endDate, assigned]
   );
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -95,6 +97,7 @@ const TechTasks: React.FC = () => {
         tags: tags,
         startDate: startDate,
         endDate: endDate,
+        executorId: assigned ? Number(assigned) : undefined,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -344,7 +347,7 @@ const TechTasks: React.FC = () => {
           />
           <div className="flex items-center gap-2 sm:gap-3">
             <div style={{ height: '32px' }}>
-              <FilterTechTasks display={['status', 'tags', 'dateRange', 'branch']} />
+              <FilterTechTasks display={['status', 'tags', 'dateRange', 'branch', 'assigned']} />
             </div>
             <div style={{ height: '32px' }}>
               {ColumnSelector}

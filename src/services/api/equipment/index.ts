@@ -483,6 +483,7 @@ type TechTasksExecutionParams = {
   startDate?: string;
   endDate?: string;
   authorId?: number;
+  executorId?: number;
 };
 
 type TechTasksExecutionResponse = {
