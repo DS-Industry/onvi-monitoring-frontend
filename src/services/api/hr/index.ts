@@ -212,6 +212,7 @@ export type PaymentCreateRequest = {
 };
 
 export type PaymentsResponse = {
+  id: number;
   hrWorkerId: number;
   name: string;
   hrPositionId: number;
@@ -238,7 +239,6 @@ export type addWorkerRequest = {
   workerIds: number[];
 };
 
-
 export type PrePaymentUpdateRequest = {
   prepaymentId: number;
   sum?: number;
@@ -246,6 +246,33 @@ export type PrePaymentUpdateRequest = {
 };
 
 type PrePaymentUpdateResponse = {
+  id: number;
+  hrWorkerId: number;
+  paymentType: string;
+  paymentDate: Date;
+  billingMonth: Date;
+  countShifts: number;
+  sum: number;
+  prize: number;
+  fine: number;
+  virtualSum?: number;
+  comment?: string;
+  createdAt: Date;
+  updateAt: Date;
+  createdById: number;
+  updateById: number;
+};
+
+export type PaymentUpdateRequest = {
+  paymentId: number;
+  prize?: number;
+  fine?: number;
+  vitrualSum?: number;
+  comment?: string;
+  payoutTimestamp?: Date;
+};
+
+type PaymentUpdateResponse = {
   id: number;
   hrWorkerId: number;
   paymentType: string;
@@ -419,10 +446,10 @@ export async function updatePrepayment(
   return response.data;
 }
 
-export async function deletePrepayments(
-  body: { ids: number[]; }
-): Promise<{status: 'SUCCESS'}> {
-  const response: AxiosResponse<{status: 'SUCCESS'}> = await api.delete(
+export async function deletePrepayments(body: {
+  ids: number[];
+}): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
     HR.PREPAYMENT + '/many',
     { data: body }
   );
@@ -479,6 +506,26 @@ export async function getPayments(
     { params }
   );
 
+  return response.data;
+}
+
+export async function updatePayment(
+  body: PaymentUpdateRequest
+): Promise<PaymentUpdateResponse> {
+  const response: AxiosResponse<PaymentUpdateResponse> = await api.patch(
+    HR.PAYMENT,
+    body
+  );
+  return response.data;
+}
+
+export async function deletePayments(body: {
+  ids: number[];
+}): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    HR.PAYMENT + '/many',
+    { data: body }
+  );
   return response.data;
 }
 
