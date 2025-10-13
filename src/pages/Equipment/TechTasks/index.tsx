@@ -53,9 +53,11 @@ const TechTasks: React.FC = () => {
   const startDate = searchParams.get('startDate') || undefined;
   const endDate = searchParams.get('endDate') || undefined;
 
+  const assigned = searchParams.get('assigned') || undefined;
+
   const swrKey = useMemo(
-    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${tags?.join(',')}-${startDate}-${endDate}`,
-    [currentPage, pageSize, posId, status, name, tags, startDate, endDate]
+    () => `get-tech-tasks-${currentPage}-${pageSize}-${posId}-${status}-${name}-${assigned}-${tags?.join(',')}-${startDate}-${endDate}`,
+    [currentPage, pageSize, posId, status, name, tags, startDate, endDate, assigned]
   );
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -95,6 +97,7 @@ const TechTasks: React.FC = () => {
         tags: tags,
         startDate: startDate,
         endDate: endDate,
+        executorId: assigned ? Number(assigned) : undefined,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -295,8 +298,43 @@ const TechTasks: React.FC = () => {
         }
         
         const { firstName, lastName, id } = record.createdBy;
-        const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-        const fullName = `${firstName} ${lastName}`;
+        const firstInitial = firstName && firstName.length > 0 ? firstName.charAt(0) : '';
+        const lastInitial = lastName && lastName.length > 0 ? lastName.charAt(0) : '';
+        const initials = `${firstInitial}${lastInitial}`.toUpperCase();
+        const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+        const avatarColors = getAvatarColorClasses(id);
+        
+        return (
+          <div className="flex items-center gap-2">
+            <div 
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${avatarColors}`}
+              title={fullName}
+            >
+              {initials}
+            </div>
+            <span className="text-sm text-gray-700 truncate">
+              {fullName}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      title: t('techTasks.columns.executor'),
+      dataIndex: 'executor',
+      key: 'executor',
+      width: 120,
+      minWidth: 100,
+      render: (_: unknown, record: TechTaskReadAllDisplay) => {
+        if (!record.executor) {
+          return <span className="text-gray-400">-</span>;
+        }
+        
+        const { firstName, lastName, id } = record.executor;
+        const firstInitial = firstName && firstName.length > 0 ? firstName.charAt(0) : '';
+        const lastInitial = lastName && lastName.length > 0 ? lastName.charAt(0) : '';
+        const initials = `${firstInitial}${lastInitial}`.toUpperCase();
+        const fullName = `${firstName || ''} ${lastName || ''}`.trim();
         const avatarColors = getAvatarColorClasses(id);
         
         return (
@@ -344,7 +382,7 @@ const TechTasks: React.FC = () => {
           />
           <div className="flex items-center gap-2 sm:gap-3">
             <div style={{ height: '32px' }}>
-              <FilterTechTasks display={['status', 'tags', 'dateRange', 'branch']} />
+              <FilterTechTasks display={['status', 'tags', 'dateRange', 'branch', 'assigned']} />
             </div>
             <div style={{ height: '32px' }}>
               {ColumnSelector}

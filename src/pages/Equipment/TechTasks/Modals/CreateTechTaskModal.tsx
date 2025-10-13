@@ -48,7 +48,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
   const [form] = Form.useForm();
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [selectedTemplateItems, setSelectedTemplateItems] = useState<TemplateItem[]>([]);
-  const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
 
   const screens = useBreakpoint();
   const fullscreen = !screens.md;
@@ -78,7 +77,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
     if (open) {
       form.resetFields();
       setSelectedTemplateItems([]);
-      setPeriodType(undefined);
       setAvailableTemplates(templates);
     }
   }, [open, form, templates]);
@@ -90,11 +88,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
   const handleSubmit = async (values: any) => {
     try {
-      if (selectedTemplateItems.length === 0) {
-        showToast(t('techTasks.selectAtLeastOneTemplate'), 'error');
-        return;
-      }
-
       const techTaskData: TechTaskBody = {
         name: values.name,
         posId: Number(values.posId),
@@ -154,8 +147,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
             <CreateTechTaskInfoPanel
               form={form}
-              periodType={periodType}
-              onPeriodTypeChange={setPeriodType}
               tagsData={tagsData}
               posesData={poses}
             />

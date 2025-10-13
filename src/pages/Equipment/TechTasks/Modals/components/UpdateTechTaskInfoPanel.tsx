@@ -10,7 +10,6 @@ import {
   UnorderedListOutlined, 
   UserOutlined 
 } from '@ant-design/icons';
-import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { TypeTechTask, PeriodType, StatusTechTask } from '@/services/api/equipment';
 
@@ -26,31 +25,40 @@ const { Option } = Select;
 interface UpdateTechTaskInfoPanelProps {
   form: any;
   isEditMode: boolean;
-  periodType?: PeriodType;
-  onPeriodTypeChange: (value: PeriodType) => void;
   tagsData?: TagData[];
+  createdBy?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  };
+  executor?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  }
 }
 
 const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
   form,
   isEditMode,
-  periodType,
-  onPeriodTypeChange,
   tagsData,
+  createdBy,
+  executor,
 }) => {
   const { t } = useTranslation();
-  const user = useUser();
 
-  const userInitials = `${user.name?.charAt(0) || ''}${user.name?.charAt(1) || ''}`.toUpperCase();
-  const userFullName = user.name || 'Пользователь';
-  const avatarColors = getAvatarColorClasses(user.id || 0);
+  const createdByColors = getAvatarColorClasses(createdBy?.id || 0);
+  const executorColors = getAvatarColorClasses(executor?.id || 0);
 
-  const handlePeriodTypeChange = (value: PeriodType) => {
-    onPeriodTypeChange(value);
-    if (value !== PeriodType.CUSTOM) {
-      form.setFieldsValue({ customPeriodDays: undefined });
-    }
-  };
+  const createdByInitials = `${createdBy?.firstName?.charAt(0) || ''}${createdBy?.lastName?.charAt(0) || ''}`.toUpperCase();
+  const createdByFullName = createdBy?.firstName + " " + createdBy?.lastName;
+
+  const executorInitials = `${executor?.firstName?.charAt(0) || ''}${executor?.lastName?.charAt(0) || ''}`.toUpperCase();
+  const executorFullName = executor?.firstName + " " + executor?.lastName;
+
+
+  const workType = Form.useWatch('type', form);
+  const periodType = Form.useWatch('periodType', form);
 
   return (
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
@@ -66,7 +74,16 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
         >
-          <Select placeholder={t('techTasks.selectWorkType')} size="large" disabled={!isEditMode}>
+          <Select 
+            placeholder={t('techTasks.selectWorkType')} 
+            size="large" 
+            disabled={!isEditMode}
+            onChange={(value: TypeTechTask) => {
+              if (value === TypeTechTask.ONETIME) {
+                form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+              }
+            }}
+          >
             <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
             <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
           </Select>
@@ -90,30 +107,36 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item 
-          name="periodType" 
-          label={
-            <span>
-              <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
-            </span>
-          }
-          rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
-        >
-          <Select 
-            placeholder={t('techTasks.selectPeriodicity')} 
-            size="large"
-            disabled={!isEditMode}
-            onChange={handlePeriodTypeChange}
+        {workType === TypeTechTask.REGULAR && (
+          <Form.Item 
+            name="periodType" 
+            label={
+              <span>
+                <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+              </span>
+            }
+            rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
           >
-            <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
-            <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
-            <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
-            <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
-            <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
-          </Select>
-        </Form.Item>
+            <Select 
+              placeholder={t('techTasks.selectPeriodicity')} 
+              size="large"
+              disabled={!isEditMode}
+              onChange={(value: PeriodType) => {
+                if (value !== PeriodType.CUSTOM) {
+                  form.setFieldsValue({ customPeriodDays: undefined });
+                }
+              }}
+            >
+              <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
+              <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
+              <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
+              <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
+              <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
+            </Select>
+          </Form.Item>
+        )}
 
-        {periodType === PeriodType.CUSTOM && (
+        {workType === TypeTechTask.REGULAR && periodType === PeriodType.CUSTOM && (
           <Form.Item 
             name="customPeriodDays" 
             label={
@@ -160,21 +183,43 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
             </span>
           }
         >
-          <Select mode="multiple" placeholder={t('techTasks.selectTags')} size="large" disabled={!isEditMode}>
+          <Select 
+            mode="multiple" 
+            placeholder={t('techTasks.selectTags')} 
+            size="large" 
+            disabled={!isEditMode}
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
             {tagsData?.map(tag => (
               <Option key={tag.props.id} value={tag.props.id}>{tag.props.name}</Option>
             ))}
           </Select>
         </Form.Item>
 
-        <div className="flex items-center gap-2">
-          <UserOutlined />
-          <div>{t('techTasks.author')}</div>
-        </div>
-        <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
-          <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
-          <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
-        </div>
+        
+        {createdBy && <>
+          <div className="flex items-center gap-2">
+            <UserOutlined />
+            <div>{t('techTasks.author')}</div>
+          </div>
+          <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
+            <Avatar size={32} className={createdByColors}>{createdByInitials}</Avatar>
+            <span className="text-sm">{createdByFullName}</span>
+          </div>
+        </>}
+        {executor && <>
+          <div className="flex items-center gap-2 mt-3">
+            <UserOutlined />
+            <div>{t('techTasks.executor')}</div>
+          </div>
+          <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
+            <Avatar size={32} className={executorColors}>{executorInitials}</Avatar>
+            <span className="text-sm">{executorFullName}</span>
+          </div>
+        </>}
       </div>
     </div>
   );

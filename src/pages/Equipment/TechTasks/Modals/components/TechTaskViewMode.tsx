@@ -50,12 +50,6 @@ const TechTaskViewMode = forwardRef<TechTaskViewModeRef, TechTaskViewModeProps>(
           }
         }
         
-        console.log('Initial image URL:', {
-          itemId: item.id,
-          image: item.image,
-          fullUrl: file
-        });
-        
         return [item.id, file];
       });
 
@@ -97,13 +91,6 @@ const TechTaskViewMode = forwardRef<TechTaskViewModeRef, TechTaskViewModeProps>(
         const uploadedKey = await uploadFileWithPresignedUrl(file, fileKey);
         
         const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
-        
-        console.log('Upload completed:', {
-          fileKey,
-          uploadedKey,
-          s3Url,
-          itemId
-        });
         
         setUploadedFiles(prev => ({
           ...prev,
