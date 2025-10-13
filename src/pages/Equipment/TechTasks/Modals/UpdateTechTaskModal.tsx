@@ -54,7 +54,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [form] = Form.useForm();
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
-  const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
   const [isEditMode, setIsEditMode] = useState(false);
   const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
 
@@ -112,15 +111,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       form.resetFields();
       setSelectedTemplates([]);
       setAvailableTemplates([]);
-      setPeriodType(undefined);
       setIsEditMode(false);
     }
   }, [open, form]);
 
   useEffect(() => {
     if (techTaskDetails && open && templates.length > 0) {
-      setPeriodType(techTaskDetails.periodType);
-      
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
       
       const selectedTemplatesList = templates.filter(template => {
@@ -346,9 +342,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 <UpdateTechTaskInfoPanel
                   form={form}
                   isEditMode={isEditMode}
-                  periodType={periodType}
-                  onPeriodTypeChange={setPeriodType}
                   tagsData={tagsData}
+                  createdBy={techTaskDetails?.createdBy}
+                  executor={techTaskDetails?.executor}
                 />
               </div>
         </div>

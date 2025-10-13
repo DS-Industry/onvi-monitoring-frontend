@@ -1561,6 +1561,7 @@
     "regularProgram": "Обычная программа"
   },
   "techTasks": {
+    "executor": "Исполнитель",
     "selectedTasks": "Выбрано {{count}}",
     "clearSelection": "Очистить выбор",
     "delete": "Удалить",
@@ -1587,7 +1588,8 @@
       "tags": "Теги",
       "deadline": "Крайний срок",
       "actions": "Действия",
-      "author": "Автор"
+      "author": "Автор",
+      "executor": "Исполнитель"
     },
     "columnSelector": {
       "title": "Столбцы",
