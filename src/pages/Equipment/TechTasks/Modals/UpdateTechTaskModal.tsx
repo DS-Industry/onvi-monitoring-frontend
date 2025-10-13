@@ -358,32 +358,30 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   }}
                   items={TABS}
                 />
-                {selectedTab === 'progress' && (
-                  <>   
-                    <UpdateTechTaskEditMode
-                      isEditMode={isEditMode}
-                      selectedTemplates={selectedTemplates}
-                      availableTemplates={availableTemplates}
-                      totalTemplates={templates.length}
-                      onTemplatesChange={handleTemplatesChange}
-                    />               
-                      {!isEditMode && (
-                        <TechTaskViewMode
-                          ref={techTaskViewModeRef}
-                          techTaskData={techTaskDetails}
-                          onSave={() => {
-                            onSuccess?.();
-                            onClose();
-                          }}
-                        />
-                      )}
-                  </>
-                )}  
-                {selectedTab === 'comments' && (
+                <div className={selectedTab === 'progress' ? 'block' : 'hidden'}>
+                  <UpdateTechTaskEditMode
+                    isEditMode={isEditMode}
+                    selectedTemplates={selectedTemplates}
+                    availableTemplates={availableTemplates}
+                    totalTemplates={templates.length}
+                    onTemplatesChange={handleTemplatesChange}
+                  />               
+                  {!isEditMode && (
+                    <TechTaskViewMode
+                      ref={techTaskViewModeRef}
+                      techTaskData={techTaskDetails}
+                      onSave={() => {
+                        onSuccess?.();
+                        onClose();
+                      }}
+                    />
+                  )}
+                </div>
+                <div className={selectedTab === 'comments' ? 'block' : 'hidden'}>
                   <TechTaskComments
                     techTaskId={techTaskDetails?.id}
                   />
-                )}
+                </div>
               </div>
               <div className="flex-shrink-0 lg:max-w-[40%]">
                 <UpdateTechTaskInfoPanel
