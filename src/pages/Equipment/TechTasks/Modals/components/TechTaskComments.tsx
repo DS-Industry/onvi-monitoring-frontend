@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Avatar, Upload, Tooltip, Spin } from 'antd';
 import { 
@@ -18,9 +18,14 @@ import dayjs from 'dayjs';
 
 interface TechTaskCommentsProps {
   techTaskId?: number;
+  open: boolean
 }
 
-const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
+export interface TechTaskCommentsRef {
+  cleanup: () => void;
+}
+
+const TechTaskComments = forwardRef<TechTaskCommentsRef, TechTaskCommentsProps>(({ techTaskId }, ref) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [newComment, setNewComment] = useState('');
@@ -121,12 +126,25 @@ const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
     return dayjs(date).format('HH:mm');
   };
 
+  const cleanup = () => {
+    setNewComment('');
+    setImageUrl(undefined);
+    setIsSubmitting(false);
+    setUploadingImage(false);
+    console.log("TechTaskComments: cleaning up states");
+  };
+
+  useImperativeHandle(ref, () => ({
+    cleanup
+  }));
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col gap-3 mb-6">
         
           <div className="mb-3">
             <TipTapEditor
+              key={`editor-${techTaskId}`}
               value={newComment}
               onChange={setNewComment}
               autoResize
@@ -134,7 +152,7 @@ const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
           </div>
 
           {imageUrl && (
-            <div className="mb-3 relative inline-block">
+            <div className="mb-3 relative inline-block max-w-32">
               <img 
                 src={imageUrl} 
                 alt="Uploaded image"
@@ -145,14 +163,14 @@ const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
                 size="small"
                 icon={<DeleteOutlined />}
                 onClick={removeImage}
-                className="absolute -top-2 -right-2 bg-red-500 text-white hover:bg-red-600"
+                className="absolute top-1 right-1 bg-red-500 text-white hover:bg-red-600 w-6 h-6 flex items-center justify-center p-0"
               />
             </div>
           )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Tooltip title="Attach file">
+              {!imageUrl && <Tooltip title={t('common.attachFile')}>
                 <Upload
                   showUploadList={false}
                   beforeUpload={handleImageUpload}
@@ -166,7 +184,7 @@ const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
                     loading={uploadingImage}
                   />
                 </Upload>
-              </Tooltip>
+              </Tooltip>}
             </div>
             
             <div className="flex items-center gap-2">
@@ -242,6 +260,6 @@ const TechTaskComments: React.FC<TechTaskCommentsProps> = ({ techTaskId }) => {
       </div>
     </div>
   );
-};
+});
 
 export default TechTaskComments;

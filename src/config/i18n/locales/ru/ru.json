@@ -1105,7 +1105,8 @@
     "okText": "Да, удалить",
     "loading": "Загрузка...",
     "close": "Закрыть",
-    "complete": "Завершить"
+    "complete": "Завершить",
+    "attachFile": "Прикрепить файл"
   },
   "analysis": {
     "search": "Поиск",

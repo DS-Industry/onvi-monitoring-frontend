@@ -27,6 +27,7 @@ import {
   UpdateTechTaskModalFooter,
   TechTaskViewModeRef,
   TechTaskComments,
+  TechTaskCommentsRef,
 } from './components';
 
 const { useBreakpoint } = Grid;
@@ -58,6 +59,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [hasFormChanges, setHasFormChanges] = useState(false);
   const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
+  const techTaskCommentsRef = useRef<TechTaskCommentsRef>(null);
+
 
   const TABS = [
     {
@@ -130,6 +133,10 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setIsEditMode(false);
       setHasFormChanges(false);
       setSelectedTab('progress');
+      
+      if (techTaskCommentsRef.current) {
+        techTaskCommentsRef.current.cleanup();
+      }
     }
   }, [open, form]);
 
@@ -388,7 +395,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 </div>
                 <div className={selectedTab === 'comments' ? 'block' : 'hidden'}>
                   <TechTaskComments
+                    ref={techTaskCommentsRef}
                     techTaskId={techTaskDetails?.id}
+                    open={open}
                   />
                 </div>
               </div>

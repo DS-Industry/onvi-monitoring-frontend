@@ -1105,7 +1105,8 @@
     "okText": "Yes, delete it'",
     "loading": "Loading...",
     "close": "Close",
-    "complete": "Complete"
+    "complete": "Complete",
+    "attachFile": "Attach file"
   },
   "analysis": {
     "search": "Search",
