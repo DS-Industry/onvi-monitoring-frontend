@@ -26,16 +26,12 @@ const { Option } = Select;
 interface UpdateTechTaskInfoPanelProps {
   form: any;
   isEditMode: boolean;
-  periodType?: PeriodType;
-  onPeriodTypeChange: (value: PeriodType) => void;
   tagsData?: TagData[];
 }
 
 const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
   form,
   isEditMode,
-  periodType,
-  onPeriodTypeChange,
   tagsData,
 }) => {
   const { t } = useTranslation();
@@ -45,12 +41,8 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
   const userFullName = user.name || 'Пользователь';
   const avatarColors = getAvatarColorClasses(user.id || 0);
 
-  const handlePeriodTypeChange = (value: PeriodType) => {
-    onPeriodTypeChange(value);
-    if (value !== PeriodType.CUSTOM) {
-      form.setFieldsValue({ customPeriodDays: undefined });
-    }
-  };
+  const workType = Form.useWatch('type', form);
+  const periodType = Form.useWatch('periodType', form);
 
   return (
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
@@ -66,7 +58,16 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
         >
-          <Select placeholder={t('techTasks.selectWorkType')} size="large" disabled={!isEditMode}>
+          <Select 
+            placeholder={t('techTasks.selectWorkType')} 
+            size="large" 
+            disabled={!isEditMode}
+            onChange={(value: TypeTechTask) => {
+              if (value === TypeTechTask.ONETIME) {
+                form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+              }
+            }}
+          >
             <Option value={TypeTechTask.ONETIME}>{t('techTasks.onetime')}</Option>
             <Option value={TypeTechTask.REGULAR}>{t('techTasks.regular')}</Option>
           </Select>
@@ -90,30 +91,36 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item 
-          name="periodType" 
-          label={
-            <span>
-              <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
-            </span>
-          }
-          rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
-        >
-          <Select 
-            placeholder={t('techTasks.selectPeriodicity')} 
-            size="large"
-            disabled={!isEditMode}
-            onChange={handlePeriodTypeChange}
+        {workType === TypeTechTask.REGULAR && (
+          <Form.Item 
+            name="periodType" 
+            label={
+              <span>
+                <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+              </span>
+            }
+            rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
           >
-            <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
-            <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
-            <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
-            <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
-            <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
-          </Select>
-        </Form.Item>
+            <Select 
+              placeholder={t('techTasks.selectPeriodicity')} 
+              size="large"
+              disabled={!isEditMode}
+              onChange={(value: PeriodType) => {
+                if (value !== PeriodType.CUSTOM) {
+                  form.setFieldsValue({ customPeriodDays: undefined });
+                }
+              }}
+            >
+              <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
+              <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
+              <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
+              <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
+              <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
+            </Select>
+          </Form.Item>
+        )}
 
-        {periodType === PeriodType.CUSTOM && (
+        {workType === TypeTechTask.REGULAR && periodType === PeriodType.CUSTOM && (
           <Form.Item 
             name="customPeriodDays" 
             label={

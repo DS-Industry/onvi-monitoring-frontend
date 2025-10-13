@@ -30,16 +30,12 @@ interface PosData {
 
 interface CreateTechTaskInfoPanelProps {
   form: any;
-  periodType?: PeriodType;
-  onPeriodTypeChange: (value: PeriodType) => void;
   tagsData?: TagData[];
   posesData?: PosData[];
 }
 
 const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   form,
-  periodType,
-  onPeriodTypeChange,
   tagsData,
   posesData,
 }) => {
@@ -50,12 +46,10 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   const userFullName = user.name || 'Пользователь';
   const avatarColors = getAvatarColorClasses(user.id || 0);
 
-  const handlePeriodTypeChange = (value: PeriodType) => {
-    onPeriodTypeChange(value);
-    if (value !== PeriodType.CUSTOM) {
-      form.setFieldsValue({ customPeriodDays: undefined });
-    }
-  };
+  // Watch form values for conditional rendering
+  const workType = Form.useWatch('type', form);
+  const periodType = Form.useWatch('periodType', form);
+
 
   return (
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
@@ -89,9 +83,10 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
         >
           <Select 
             size="large"
-            onChange={() => {
-              form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
-              onPeriodTypeChange(undefined as any);
+            onChange={(value: TypeTechTask) => {
+              if (value === TypeTechTask.ONETIME) {
+                form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+              }
             }}
             placeholder={t('techTasks.selectWorkType')}
           >
@@ -100,29 +95,35 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item 
-          name="periodType" 
-          label={
-            <span>
-              <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
-            </span>
-          }
-          rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
-        >
-          <Select 
-            placeholder={t('techTasks.selectPeriodicity')} 
-            size="large"
-            onChange={handlePeriodTypeChange}
+        {workType === TypeTechTask.REGULAR && (
+          <Form.Item 
+            name="periodType" 
+            label={
+              <span>
+                <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+              </span>
+            }
+            rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
           >
-            <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
-            <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
-            <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
-            <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
-            <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
-          </Select>
-        </Form.Item>
+            <Select 
+              placeholder={t('techTasks.selectPeriodicity')} 
+              size="large"
+              onChange={(value: PeriodType) => {
+                if (value !== PeriodType.CUSTOM) {
+                  form.setFieldsValue({ customPeriodDays: undefined });
+                }
+              }}
+            >
+              <Option value={PeriodType.DAILY}>{t('techTasks.daily')}</Option>
+              <Option value={PeriodType.WEEKLY}>{t('techTasks.weekly')}</Option>
+              <Option value={PeriodType.MONTHLY}>{t('techTasks.monthly')}</Option>
+              <Option value={PeriodType.YEARLY}>{t('techTasks.yearly')}</Option>
+              <Option value={PeriodType.CUSTOM}>{t('techTasks.customPeriod')}</Option>
+            </Select>
+          </Form.Item>
+        )}
 
-        {periodType === PeriodType.CUSTOM && (
+        {workType === TypeTechTask.REGULAR && periodType === PeriodType.CUSTOM && (
           <Form.Item 
             name="customPeriodDays" 
             label={
