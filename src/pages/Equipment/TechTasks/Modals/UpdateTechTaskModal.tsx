@@ -56,6 +56,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [hasFormChanges, setHasFormChanges] = useState(false);
   const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
 
   const TABS = [
@@ -127,6 +128,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setSelectedTemplates([]);
       setAvailableTemplates([]);
       setIsEditMode(false);
+      setHasFormChanges(false);
       setSelectedTab('progress');
     }
   }, [open, form]);
@@ -160,12 +162,15 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
         tags: techTaskDetails.tags?.map(tag => tag.id) || [],
       });
+      
+      setHasFormChanges(false);
     }
   }, [techTaskDetails, open, form, templates]);
 
   const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
     setSelectedTemplates(selected);
     setAvailableTemplates(available);
+    setHasFormChanges(true);
   };
 
   const handleComplete = async () => {
@@ -293,6 +298,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       showToast(t('errors.permission.insufficient'), 'error');
       return;
     }
+    
+    if (isEditMode && hasFormChanges) {
+      mutateTechTaskDetails();
+    }
+    
     setIsEditMode(!isEditMode);
   };
 
@@ -308,9 +318,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onEditToggle={() => {
             if (selectedTab === 'comments') return
             handleEditToggle()
-            if (isEditMode) {
-              mutateTechTaskDetails()
-            }
           }}
           onDelete={handleDelete}
           onClose={onClose}
@@ -335,6 +342,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
+          onValuesChange={() => setHasFormChanges(true)}
           className="h-full flex flex-col"
         >
         <div className="p-6 max-h-[700px] overflow-y-auto">
