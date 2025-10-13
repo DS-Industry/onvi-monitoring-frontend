@@ -1542,6 +1542,7 @@
     "regularProgram": "Обычная программа"
   },
   "techTasks": {
+    "executor": "Исполнитель",
     "selectedTasks": "Выбрано {{count}}",
     "clearSelection": "Очистить выбор",
     "delete": "Удалить",

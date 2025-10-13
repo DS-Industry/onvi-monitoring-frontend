@@ -1542,6 +1542,7 @@
     "regularProgram": "Regular program"
   },
   "techTasks": {
+    "executor": "Assigned to",
     "selectedTasks": "Selected {{count}}",
     "clearSelection": "Clear selection",
     "delete": "Delete",

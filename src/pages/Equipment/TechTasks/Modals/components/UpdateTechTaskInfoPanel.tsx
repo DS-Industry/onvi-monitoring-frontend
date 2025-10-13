@@ -10,7 +10,6 @@ import {
   UnorderedListOutlined, 
   UserOutlined 
 } from '@ant-design/icons';
-import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { TypeTechTask, PeriodType, StatusTechTask } from '@/services/api/equipment';
 
@@ -27,19 +26,36 @@ interface UpdateTechTaskInfoPanelProps {
   form: any;
   isEditMode: boolean;
   tagsData?: TagData[];
+  createdBy?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  };
+  executor?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  }
 }
 
 const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
   form,
   isEditMode,
   tagsData,
+  createdBy,
+  executor,
 }) => {
   const { t } = useTranslation();
-  const user = useUser();
 
-  const userInitials = `${user.name?.charAt(0) || ''}${user.name?.charAt(1) || ''}`.toUpperCase();
-  const userFullName = user.name || 'Пользователь';
-  const avatarColors = getAvatarColorClasses(user.id || 0);
+  const createdByColors = getAvatarColorClasses(createdBy?.id || 0);
+  const executorColors = getAvatarColorClasses(executor?.id || 0);
+
+  const createdByInitials = `${createdBy?.firstName?.charAt(0) || ''}${createdBy?.lastName?.charAt(0) || ''}`.toUpperCase();
+  const createdByFullName = createdBy?.firstName + " " + createdBy?.lastName;
+
+  const executorInitials = `${executor?.firstName?.charAt(0) || ''}${executor?.lastName?.charAt(0) || ''}`.toUpperCase();
+  const executorFullName = executor?.firstName + " " + executor?.lastName;
+
 
   const workType = Form.useWatch('type', form);
   const periodType = Form.useWatch('periodType', form);
@@ -174,14 +190,27 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
           </Select>
         </Form.Item>
 
-        <div className="flex items-center gap-2">
-          <UserOutlined />
-          <div>{t('techTasks.author')}</div>
-        </div>
-        <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
-          <Avatar size={32} className={avatarColors}>{userInitials}</Avatar>
-          <span className="text-sm">{userFullName} ({t('techTasks.you')})</span>
-        </div>
+        
+        {createdBy && <>
+          <div className="flex items-center gap-2">
+            <UserOutlined />
+            <div>{t('techTasks.author')}</div>
+          </div>
+          <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
+            <Avatar size={32} className={createdByColors}>{createdByInitials}</Avatar>
+            <span className="text-sm">{createdByFullName}</span>
+          </div>
+        </>}
+        {executor && <>
+          <div className="flex items-center gap-2 mt-3">
+            <UserOutlined />
+            <div>{t('techTasks.executor')}</div>
+          </div>
+          <div className="flex items-center gap-2 pt-2 bg-gray-50 rounded">
+            <Avatar size={32} className={executorColors}>{executorInitials}</Avatar>
+            <span className="text-sm">{executorFullName}</span>
+          </div>
+        </>}
       </div>
     </div>
   );

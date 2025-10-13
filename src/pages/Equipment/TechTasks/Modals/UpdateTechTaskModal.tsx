@@ -343,6 +343,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   form={form}
                   isEditMode={isEditMode}
                   tagsData={tagsData}
+                  createdBy={techTaskDetails?.createdBy}
+                  executor={techTaskDetails?.executor}
                 />
               </div>
         </div>

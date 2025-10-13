@@ -302,6 +302,16 @@ export type TechTaskShapeResponse = {
   executorId?: number;
   items: TechTasksItem[];
   tags: TechTasksTags[];
+  createdBy: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  };
+  executor: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  }
 };
 
 type TechTaskShapeBody = {
