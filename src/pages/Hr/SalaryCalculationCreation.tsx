@@ -25,7 +25,6 @@ import {
   InputNumber,
   Grid,
   Input,
-  Typography,
 } from 'antd';
 import {
   PlusOutlined,
@@ -40,7 +39,7 @@ import PositionEmpty from '@/assets/NoPosition.png';
 
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
-import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 
 interface PaymentRecord {
@@ -530,32 +529,6 @@ const SalaryCalculationCreation: React.FC = () => {
           </div>
           <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
             <div className="flex flex-col space-y-4 text-text02">
-              <div className="flex flex-col w-full sm:w-80">
-                <Typography.Text>{t('roles.job')}</Typography.Text>
-                <Select
-                  className="w-full"
-                  placeholder={t('warehouse.notSel')}
-                  value={getParam(searchParams, 'hrPositionId')}
-                  onChange={(val: string) => {
-                    updateSearchParams(searchParams, setSearchParams, {
-                      hrPositionId: val,
-                      page: DEFAULT_PAGE,
-                    });
-                  }}
-                  options={positions?.map(item => ({
-                    label: item.name,
-                    value: String(item.value),
-                  }))}
-                  showSearch={true}
-                  filterOption={(input, option) =>
-                    (option?.label ?? '')
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  allowClear={true}
-                />
-              </div>
               <Transfer
                 dataSource={workers}
                 targetKeys={formDataWorker.workerIds.map(String)}
@@ -650,7 +623,13 @@ const SalaryCalculationCreation: React.FC = () => {
                   value={formData.hrPositionId}
                   {...register('hrPositionId')}
                   placeholder={t('analysis.all')}
-                  onChange={value => handleInputChange('hrPositionId', value)}
+                  onChange={value => {
+                    handleInputChange('hrPositionId', value);
+                    updateSearchParams(searchParams, setSearchParams, {
+                      hrPositionId: value,
+                      page: DEFAULT_PAGE,
+                    });
+                  }}
                   listHeight={120}
                   showSearch={true}
                   filterOption={(input, option) =>
