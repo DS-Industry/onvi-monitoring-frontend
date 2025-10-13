@@ -46,7 +46,6 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   const userFullName = user.name || 'Пользователь';
   const avatarColors = getAvatarColorClasses(user.id || 0);
 
-  // Watch form values for conditional rendering
   const workType = Form.useWatch('type', form);
   const periodType = Form.useWatch('periodType', form);
 
