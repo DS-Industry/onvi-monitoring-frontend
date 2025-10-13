@@ -38,16 +38,7 @@ const ChemicalConsumption = React.lazy(
   () => import('@/pages/Equipment/ChemicalConsumption')
 );
 const TechTasks = React.lazy(() => import('@/pages/Equipment/TechTasks/index'));
-const TechTaskCreate = React.lazy(
-  () => import('@/pages/Equipment/TechTaskCreate/index')
-);
 const TechTaskItem = React.lazy(() => import('@/pages/Equipment/TechTaskItem'));
-const ProgressReport = React.lazy(
-  () => import('@/pages/Equipment/ProgressReport')
-);
-const ProgressReportItem = React.lazy(
-  () => import('@/pages/Equipment/ProgressReportItem')
-);
 const ConsumptionRate = React.lazy(
   () => import('@/pages/Equipment/ConsumptionRate')
 );
@@ -1067,39 +1058,6 @@ const routes = [
               { action: 'delete', subject: 'TechTask' },
             ],
             isSidebar: false,
-          },
-          {
-            name: 'progress',
-            isVisible: true,
-            path: '/equipment/technical/tasks/progress',
-            component: ProgressReport,
-            permissions: [
-              { action: 'manage', subject: 'TechTask' },
-              { action: 'read', subject: 'TechTask' },
-            ],
-            isSidebar: true,
-          },
-          {
-            name: 'progress',
-            isVisible: true,
-            path: '/equipment/technical/tasks/progress/item',
-            component: ProgressReportItem,
-            permissions: [
-              { action: 'manage', subject: 'TechTask' },
-              { action: 'read', subject: 'TechTask' },
-            ],
-            isSidebar: false,
-          },
-          {
-            name: 'createTask',
-            isVisible: true,
-            path: '/equipment/technical/tasks/create',
-            component: TechTaskCreate,
-            permissions: [
-              { action: 'manage', subject: 'TechTask' },
-              { action: 'create', subject: 'TechTask' }
-            ],
-            isSidebar: true,
           },
         ],
         subMenu: true,
