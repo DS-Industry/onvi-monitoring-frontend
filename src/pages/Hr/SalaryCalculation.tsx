@@ -283,12 +283,6 @@ const SalaryCalculation: React.FC = () => {
             currentPage,
             pageSize,
           ]);
-          mutate([
-            'get-payments-count',
-            startPaymentDate,
-            endPaymentDate,
-            workerId,
-          ]);
           newData.splice(index, 1, updatedItem);
           setData(newData);
           setEditingKey('');
@@ -329,12 +323,6 @@ const SalaryCalculation: React.FC = () => {
               workerId,
               currentPage,
               pageSize,
-            ]);
-            mutate([
-              'get-payments-count',
-              startPaymentDate,
-              endPaymentDate,
-              workerId,
             ]);
             setSelectedRowKeys([]);
             if (selectedRowKeys.includes(editingKey)) {
