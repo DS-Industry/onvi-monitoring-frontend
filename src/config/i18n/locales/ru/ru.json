@@ -1569,7 +1569,8 @@
       "tags": "Теги",
       "deadline": "Крайний срок",
       "actions": "Действия",
-      "author": "Автор"
+      "author": "Автор",
+      "executor": "Исполнитель"
     },
     "columnSelector": {
       "title": "Столбцы",

@@ -1570,7 +1570,8 @@
       "tags": "Tags",
       "deadline": "Deadline",
       "actions": "Actions",
-      "author": "Author"
+      "author": "Author",
+      "executor": "Executor"
     },
     "columnSelector": {
       "title": "Columns",
