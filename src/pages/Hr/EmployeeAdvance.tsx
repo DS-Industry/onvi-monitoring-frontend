@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
-import { Table, Button, Grid, Form, DatePicker, Input, Typography, Popconfirm } from 'antd';
+import {
+  Table,
+  Button,
+  Grid,
+  Form,
+  DatePicker,
+  Input,
+  Typography,
+  Modal,
+} from 'antd';
 import { TableProps } from 'antd/es/table';
 import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import {
@@ -23,7 +32,7 @@ import {
 import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import dayjs from 'dayjs';
@@ -115,8 +124,11 @@ const EmployeeAdvance: React.FC = () => {
   const screens = Grid.useBreakpoint();
 
   const { data: positionData } = useSWR(
-    [`get-positions`],
-    () => getPositions(),
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -304,38 +316,52 @@ const EmployeeAdvance: React.FC = () => {
   };
 
   const handleDeleteRow = async () => {
-      try {
-        const result = await mutate(
-          [`delete-manager-data`],
-          () =>
-            deletePrepayments({ ids: selectedRowKeys.map(key => Number(key)) }),
-          false
-        );
-  
-        if (result) {
-          mutate([
-            'get-payments',
-            startPaymentDate,
-            endPaymentDate,
-            workerId,
-            currentPage,
-            pageSize,
-          ]);
-          mutate([
-            'get-payments-count',
-            startPaymentDate,
-            endPaymentDate,
-            workerId,
-          ]);
-          setSelectedRowKeys([]);
-          if (selectedRowKeys.includes(editingKey)) {
-            setEditingKey('');
+    Modal.confirm({
+      title: t('common.title'),
+      content: t('common.content'),
+      okText: t('common.okText'),
+      okType: 'danger',
+      cancelText: t('common.cancel'),
+      async onOk() {
+        try {
+          const result = await mutate(
+            [`delete-manager-data`],
+            () =>
+              deletePrepayments({
+                ids: selectedRowKeys.map(key => Number(key)),
+              }),
+            false
+          );
+
+          if (result) {
+            mutate([
+              'get-payments',
+              startPaymentDate,
+              endPaymentDate,
+              workerId,
+              currentPage,
+              pageSize,
+            ]);
+            mutate([
+              'get-payments-count',
+              startPaymentDate,
+              endPaymentDate,
+              workerId,
+            ]);
+            setSelectedRowKeys([]);
+            if (selectedRowKeys.includes(editingKey)) {
+              setEditingKey('');
+            }
           }
+        } catch (error) {
+          console.error('Error deleting nomenclature:', error);
         }
-      } catch (error) {
-        console.error('Error deleting nomenclature:', error);
-      }
-    };
+      },
+      onCancel() {
+        showToast(t('info.deleteCancelled'), 'info');
+      },
+    });
+  };
 
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
@@ -423,14 +449,15 @@ const EmployeeAdvance: React.FC = () => {
                 <div>
                   {editable ? (
                     <span className="flex space-x-4">
-                      <Button type="primary" onClick={cancel}>
-                        Отмена
+                      <Button onClick={cancel}>
+                        {t('organizations.cancel')}
                       </Button>
                       <Button
                         onClick={() => save(record.key)}
+                        type="primary"
                         loading={updatingPrePayment}
                       >
-                        Сохранять
+                        {t('routes.save')}
                       </Button>
                     </span>
                   ) : (
@@ -438,7 +465,7 @@ const EmployeeAdvance: React.FC = () => {
                       disabled={editingKey !== ''}
                       onClick={() => edit(record)}
                     >
-                      Редактировать
+                      {t('actions.edit')}
                     </Typography.Link>
                   )}
                 </div>
@@ -501,35 +528,6 @@ const EmployeeAdvance: React.FC = () => {
 
       <div className="mt-5">
         <EmployeeSalaryFilter count={totalCount} workers={workers} />
-        <div style={{ marginBottom: 16 }}>
-          <div className='flex flex-col space-y-4 space-x-0 sm:space-x-2 sm:flex-row sm:space-y-0'>
-            <Can
-              requiredPermissions={[
-                { action: 'manage', subject: 'Hr' },
-                { action: 'delete', subject: 'Hr' },
-              ]}
-              userPermissions={userPermissions}
-            >
-              {allowed =>
-                allowed && (
-                  <Popconfirm
-                    title="Are you sure you want to delete the selected rows?"
-                    onConfirm={handleDeleteRow}
-                    disabled={selectedRowKeys.length === 0}
-                  >
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                      disabled={selectedRowKeys.length === 0}
-                    >
-                      {t('finance.del')} ({selectedRowKeys.length})
-                    </Button>
-                  </Popconfirm>
-                )
-              }
-            </Can>
-          </div>
-        </div>
         <Form form={form} component={false}>
           <Table<DataType>
             dataSource={payments}
@@ -558,6 +556,38 @@ const EmployeeAdvance: React.FC = () => {
             }}
           />
         </Form>
+        {selectedRowKeys.length > 0 && (
+          <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-1/2 right-2 sm:right-auto sm:transform sm:-translate-x-1/2 z-50">
+            <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center justify-between sm:justify-center gap-2 sm:gap-4 max-w-full sm:max-w-none">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Button
+                  type="text"
+                  icon={<CloseOutlined />}
+                  onClick={() => setSelectedRowKeys([])}
+                  className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+                />
+                <span className="text-xs sm:text-sm font-medium truncate">
+                  {t('techTasks.selectedTasks', {
+                    count: selectedRowKeys.length,
+                  })}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="w-px h-4 bg-white hidden sm:block"></div>
+                <Button
+                  type="text"
+                  icon={<DeleteOutlined />}
+                  onClick={handleDeleteRow}
+                  className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+                >
+                  <span className="hidden sm:inline">
+                    {t('techTasks.delete')}
+                  </span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

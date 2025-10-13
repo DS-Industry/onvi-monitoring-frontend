@@ -25,7 +25,6 @@ import {
   InputNumber,
   Space,
   Grid,
-  Typography,
 } from 'antd';
 import {
   PlusOutlined,
@@ -39,8 +38,9 @@ import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
-import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 interface PaymentRecord {
   check: boolean;
@@ -72,6 +72,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
+  const user = useUser();
   dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
@@ -95,8 +96,11 @@ const EmployeeAdvanceCreation: React.FC = () => {
   );
 
   const { data: positionData } = useSWR(
-    [`get-positions`],
-    () => getPositions(),
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -443,32 +447,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
           </div>
           <form onSubmit={handleSubmitWorker(onSubmitWorker)}>
             <div className="flex flex-col space-y-4 text-text02">
-              <div className="flex flex-col w-full sm:w-80">
-                <Typography.Text>{t('roles.job')}</Typography.Text>
-                <Select
-                  className="w-full"
-                  placeholder={t('warehouse.notSel')}
-                  value={getParam(searchParams, 'hrPositionId')}
-                  onChange={(val: string) => {
-                    updateSearchParams(searchParams, setSearchParams, {
-                      hrPositionId: val,
-                      page: DEFAULT_PAGE,
-                    });
-                  }}
-                  options={positions?.map(item => ({
-                    label: item.name,
-                    value: String(item.value),
-                  }))}
-                  showSearch={true}
-                  filterOption={(input, option) =>
-                    (option?.label ?? '')
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  allowClear={true}
-                />
-              </div>
               <Transfer
                 dataSource={workers}
                 targetKeys={formDataWorker.workerIds.map(String)}
@@ -564,7 +542,13 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   value={formData.hrPositionId}
                   placeholder={t('analysis.all')}
                   {...register('hrPositionId')}
-                  onChange={value => handleInputChange('hrPositionId', value)}
+                  onChange={value => {
+                    handleInputChange('hrPositionId', value);
+                    updateSearchParams(searchParams, setSearchParams, {
+                      hrPositionId: value,
+                      page: DEFAULT_PAGE,
+                    });
+                  }}
                   listHeight={120}
                   showSearch={true}
                   filterOption={(input, option) =>
