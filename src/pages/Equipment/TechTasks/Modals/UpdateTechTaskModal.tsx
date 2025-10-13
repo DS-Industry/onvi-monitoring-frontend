@@ -375,7 +375,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                 <Tabs
                   activeKey={selectedTab}
                   onChange={(key) => {
-                    if (isEditMode) return
                     setSelectedTab(key as 'progress' | 'comments')
                   }}
                   items={TABS}
