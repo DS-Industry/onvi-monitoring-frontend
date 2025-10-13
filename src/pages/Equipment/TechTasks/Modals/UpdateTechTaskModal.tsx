@@ -80,7 +80,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
   const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
 
-  const { data: techTaskDetails, isLoading, isValidating } = useSWR(
+  const { data: techTaskDetails, isLoading, isValidating, mutate: mutateTechTaskDetails } = useSWR(
     techTaskId ? ['get-tech-task-details', techTaskId] : null,
     () => getTechTaskShapeItem(techTaskId!),
     swrConfig
@@ -303,13 +303,14 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         <UpdateTechTaskModalHeader
           techTaskId={techTaskId}
           status={techTaskDetails?.status}
-          isEditMode={isEditMode}
           isDeleting={isDeleting}
           hasUpdatePermission={hasUpdatePermission}
-          disableEdit={selectedTab === 'comments'}
           onEditToggle={() => {
             if (selectedTab === 'comments') return
             handleEditToggle()
+            if (isEditMode) {
+              mutateTechTaskDetails()
+            }
           }}
           onDelete={handleDelete}
           onClose={onClose}
