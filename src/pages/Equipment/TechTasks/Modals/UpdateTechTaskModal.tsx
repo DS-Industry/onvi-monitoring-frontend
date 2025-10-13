@@ -323,7 +323,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           isDeleting={isDeleting}
           hasUpdatePermission={hasUpdatePermission}
           onEditToggle={() => {
-            if (selectedTab === 'comments') return
             handleEditToggle()
           }}
           onDelete={handleDelete}
