@@ -15,6 +15,7 @@ import {
 import { getPresignedUploadUrl, uploadFileToS3 } from '@/services/api/s3';
 import { useToast } from '@/hooks/useToast';
 import dayjs from 'dayjs';
+import { getAvatarColorClasses } from '@/utils/avatarColors';
 
 interface TechTaskCommentsProps {
   techTaskId?: number;
@@ -101,21 +102,6 @@ const TechTaskComments = forwardRef<TechTaskCommentsRef, TechTaskCommentsProps>(
 
   const removeImage = () => {
     setImageUrl(undefined);
-  };
-
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      'bg-lime-400',
-      'bg-blue-400', 
-      'bg-purple-400',
-      'bg-pink-400',
-      'bg-green-400',
-      'bg-yellow-400',
-      'bg-red-400',
-      'bg-indigo-400'
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -209,7 +195,7 @@ const TechTaskComments = forwardRef<TechTaskCommentsRef, TechTaskCommentsProps>(
                 <div key={comment.id} className="flex gap-3">
                   <Avatar 
                     size={40}
-                    className={`${getAvatarColor(comment.author.firstName)} text-white font-medium`}
+                    className={`${getAvatarColorClasses(comment.author.id || 0)} font-medium`}
                   >
                     {getInitials(comment.author.firstName, comment.author.lastName)}
                   </Avatar>

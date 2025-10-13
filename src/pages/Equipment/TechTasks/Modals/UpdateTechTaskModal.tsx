@@ -127,7 +127,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 
   useEffect(() => {
     if (!open) {
-      form.resetFields();
       setSelectedTemplates([]);
       setAvailableTemplates([]);
       setIsEditMode(false);
@@ -137,10 +136,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       if (techTaskCommentsRef.current) {
         techTaskCommentsRef.current.cleanup();
       }
+    } else {
+      form.resetFields();
     }
   }, [open, form]);
 
   useEffect(() => {
+    initForm()
+  }, [techTaskDetails, open, form, templates]);
+
+  const initForm = () => {
     if (techTaskDetails && open && templates.length > 0) {
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
       
@@ -158,21 +163,21 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       
       setSelectedTemplates(selectedTemplatesList);
       setAvailableTemplates(availableTemplatesList);
-      
-      form.setFieldsValue({
-        name: techTaskDetails.name,
-        status: techTaskDetails.status,
-        type: techTaskDetails.type,
-        periodType: techTaskDetails.periodType,
-        customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
-        markdownDescription: techTaskDetails.markdownDescription || '', 
-        endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
-        tags: techTaskDetails.tags?.map(tag => tag.id) || [],
-      });
+
+        form.setFieldsValue({
+          name: techTaskDetails.name,
+          status: techTaskDetails.status,
+          type: techTaskDetails.type,
+          periodType: techTaskDetails.periodType,
+          customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
+          markdownDescription: techTaskDetails.markdownDescription || '', 
+          endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
+          tags: techTaskDetails.tags?.map(tag => tag.id) || [],
+        });
       
       setHasFormChanges(false);
     }
-  }, [techTaskDetails, open, form, templates]);
+  }
 
   const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
     setSelectedTemplates(selected);
@@ -307,7 +312,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
     
     if (isEditMode && hasFormChanges) {
-      mutateTechTaskDetails();
+      mutateTechTaskDetails().then(() => {
+        initForm()
+      })
     }
     
     setIsEditMode(!isEditMode);
