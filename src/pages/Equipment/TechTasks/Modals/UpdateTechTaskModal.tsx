@@ -141,6 +141,10 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   }, [open, form]);
 
   useEffect(() => {
+    initForm()
+  }, [techTaskDetails, open, form, templates]);
+
+  const initForm = () => {
     if (techTaskDetails && open && templates.length > 0) {
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
       
@@ -172,7 +176,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       
       setHasFormChanges(false);
     }
-  }, [techTaskDetails, open, form, templates]);
+  }
 
   const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
     setSelectedTemplates(selected);
@@ -307,7 +311,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
     
     if (isEditMode && hasFormChanges) {
-      mutateTechTaskDetails();
+      mutateTechTaskDetails().then(() => {
+        initForm()
+      })
     }
     
     setIsEditMode(!isEditMode);
