@@ -358,7 +358,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onValuesChange={() => setHasFormChanges(true)}
           className="h-full flex flex-col"
         >
-        <div className="p-6 max-h-[700px] overflow-y-auto">
+        <div className="p-6 h-full overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               <div className="flex flex-col flex-1 min-w-0 lg:max-w-[60%]">
                 <Form.Item
