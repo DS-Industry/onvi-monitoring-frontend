@@ -205,9 +205,17 @@ const SalaryCalculation: React.FC = () => {
   );
 
   const { data: positionData } = useSWR(
-    ['get-positions'],
-    () => getPositions(),
-    { revalidateOnFocus: false, shouldRetryOnError: false }
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
   );
 
   const workers =

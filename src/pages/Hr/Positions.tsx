@@ -29,6 +29,7 @@ import { useSearchParams } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { useUser } from '@/hooks/useUserStore';
 
 type Positions = {
   id: number;
@@ -46,6 +47,7 @@ const Positions: React.FC = () => {
   const placementId = searchParams.get('city');
   const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
+  const user = useUser();
 
   const screens = Grid.useBreakpoint();
 
@@ -69,12 +71,19 @@ const Positions: React.FC = () => {
     data: positionData,
     isLoading: positionLoading,
     isValidating,
-  } = useSWR([`get-positions`], () => getPositions(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
+  } = useSWR(
+    user.organizationId ? [`get-positions`, user.organizationId] : null,
+    () =>
+      getPositions({
+        organizationId: user.organizationId,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
 
   const defaultValues: Positions = {
     id: -1,
