@@ -1637,7 +1637,9 @@
     "completeSuccess": "Task completed successfully",
     "edit": "Edit",
     "cancelEdit": "Cancel Edit",
-    "save": "Save"
+    "save": "Save",
+    "executionProgress": "Execution Progress",
+    "taskComments": "Task Comments"
   },
   "progressReport": {
     "columns": {

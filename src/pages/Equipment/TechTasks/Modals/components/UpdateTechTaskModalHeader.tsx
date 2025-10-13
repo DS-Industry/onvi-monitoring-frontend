@@ -10,6 +10,7 @@ interface UpdateTechTaskModalHeaderProps {
   isEditMode: boolean;
   isDeleting: boolean;
   hasUpdatePermission: boolean;
+  disableEdit?: boolean;
   onEditToggle: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -21,6 +22,7 @@ const UpdateTechTaskModalHeader: React.FC<UpdateTechTaskModalHeaderProps> = ({
   isEditMode,
   isDeleting,
   hasUpdatePermission,
+  disableEdit = false,
   onEditToggle,
   onDelete,
   onClose,
@@ -39,13 +41,11 @@ const UpdateTechTaskModalHeader: React.FC<UpdateTechTaskModalHeaderProps> = ({
         )}
       </div>
       <div className="flex items-center gap-2">
-        {hasUpdatePermission && (
+        {hasUpdatePermission && !disableEdit && !isEditMode && (
           <button
             onClick={onEditToggle}
-            className={`p-2 rounded hover:bg-gray-100 ${
-              isEditMode ? "text-blue-500 hover:text-blue-700" : "text-gray-500 hover:text-gray-700"
-            }`}
-            title={isEditMode ? t('common.cancelEdit') : t('common.edit')}
+            className={`p-2 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700`}
+            title={t('common.edit')}
           >
             <EditOutlined />
           </button>
