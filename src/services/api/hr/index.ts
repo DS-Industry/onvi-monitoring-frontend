@@ -242,7 +242,7 @@ export type addWorkerRequest = {
 export type PrePaymentUpdateRequest = {
   prepaymentId: number;
   sum?: number;
-  paymentDate?: Date;
+  payoutTimestamp?: Date;
 };
 
 type PrePaymentUpdateResponse = {

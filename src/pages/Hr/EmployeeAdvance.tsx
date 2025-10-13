@@ -268,7 +268,7 @@ const EmployeeAdvance: React.FC = () => {
         const apiPayload = {
           prepaymentId: item.prepaymentId || item.id || row.id, // ✅ ensure ID is sent
           sum: updatedItem.sum,
-          paymentDate: dayjs(updatedItem.payoutTimestamp).toDate(),
+          payoutTimestamp: dayjs(updatedItem.payoutTimestamp).toDate(),
         };
 
         const result = await updatePayment(apiPayload);
