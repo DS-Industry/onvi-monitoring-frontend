@@ -37,7 +37,6 @@ import type { ColumnsType } from 'antd/es/table';
 import NoDataUI from '@/components/ui/NoDataUI';
 import PositionEmpty from '@/assets/NoPosition.png';
 
-import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
@@ -79,17 +78,6 @@ const SalaryCalculationCreation: React.FC = () => {
 
   const screens = Grid.useBreakpoint();
 
-  const { data: organizationData } = useSWR(
-    [`get-organization`],
-    () => getOrganization({ placementId: undefined }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
   const { data: positionData } = useSWR(
     user.organizationId ? [`get-positions`, user.organizationId] : null,
     () =>
@@ -105,7 +93,7 @@ const SalaryCalculationCreation: React.FC = () => {
   );
 
   const defaultValues: PrepaymentCalculateBody = {
-    organizationId: 0,
+    organizationId: user.organizationId!,
     billingMonth: '',
   };
 
@@ -127,9 +115,6 @@ const SalaryCalculationCreation: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
-
-  const organizations =
-    organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
 
   const workers = [
     ...(workersData?.map(work => ({
@@ -560,41 +545,6 @@ const SalaryCalculationCreation: React.FC = () => {
         <div className="mt-5">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-              <div>
-                <div className="text-sm text-text02">
-                  {t('warehouse.organization')}
-                </div>
-                <Select
-                  className="w-64 h-10"
-                  options={organizations}
-                  placeholder={t('filters.organization.placeholder')}
-                  value={
-                    formData.organizationId === 0
-                      ? undefined
-                      : formData.organizationId
-                  }
-                  {...register('organizationId', {
-                    required: t('validation.organizationRequired'),
-                    validate: value =>
-                      value !== 0 || t('validation.organizationRequired'),
-                  })}
-                  onChange={value => handleInputChange('organizationId', value)}
-                  listHeight={120}
-                  status={errors.organizationId ? 'error' : ''}
-                  showSearch={true}
-                  filterOption={(input, option) =>
-                    (option?.label ?? '')
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                />
-                {errors.organizationId?.message && (
-                  <div className="text-xs text-errorFill mt-1">
-                    {errors.organizationId.message}
-                  </div>
-                )}
-              </div>
               <div>
                 <div className="text-sm text-text02">{t('hr.billing')}</div>
                 <DatePicker
