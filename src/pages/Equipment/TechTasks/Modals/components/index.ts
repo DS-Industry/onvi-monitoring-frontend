@@ -2,6 +2,9 @@ export { default as TechTaskViewMode } from './TechTaskViewMode';
 export type { TechTaskViewModeRef } from './TechTaskViewMode';
 export { default as TechTaskTemplateManager } from './TechTaskTemplateManager';
 
+export { default as TechTaskComments } from './TechTaskComments';
+export type { TechTaskCommentsRef } from './TechTaskComments';
+
 export { default as UpdateTechTaskEditMode } from './UpdateTechTaskEditMode';
 export { default as UpdateTechTaskInfoPanel } from './UpdateTechTaskInfoPanel';
 export { default as UpdateTechTaskModalHeader } from './UpdateTechTaskModalHeader';

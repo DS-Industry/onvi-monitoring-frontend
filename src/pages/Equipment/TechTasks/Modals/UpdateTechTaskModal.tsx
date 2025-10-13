@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Form, Spin } from 'antd';
+import { Modal, Form, Spin, Tabs, Input } from 'antd';
 import dayjs from 'dayjs';
 import { 
   updateTechTask, 
@@ -26,6 +26,8 @@ import {
   UpdateTechTaskModalHeader,
   UpdateTechTaskModalFooter,
   TechTaskViewModeRef,
+  TechTaskComments,
+  TechTaskCommentsRef,
 } from './components';
 
 const { useBreakpoint } = Grid;
@@ -55,7 +57,24 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [hasFormChanges, setHasFormChanges] = useState(false);
   const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
+  const techTaskCommentsRef = useRef<TechTaskCommentsRef>(null);
+
+
+  const TABS = [
+    {
+      key: 'progress',
+      label: t('techTasks.executionProgress'),
+    },
+    {
+      key: 'comments',
+      label: t('techTasks.taskComments'),
+      disabled: isEditMode,
+    },
+  ];
+
+  const [selectedTab, setSelectedTab] = useState<'progress' | 'comments'>('progress');
 
   const screens = useBreakpoint();
   const fullscreen = !screens.md;
@@ -65,7 +84,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
   const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
 
-  const { data: techTaskDetails, isLoading, isValidating } = useSWR(
+  const { data: techTaskDetails, isLoading, isValidating, mutate: mutateTechTaskDetails } = useSWR(
     techTaskId ? ['get-tech-task-details', techTaskId] : null,
     () => getTechTaskShapeItem(techTaskId!),
     swrConfig
@@ -112,6 +131,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setSelectedTemplates([]);
       setAvailableTemplates([]);
       setIsEditMode(false);
+      setHasFormChanges(false);
+      setSelectedTab('progress');
+      
+      if (techTaskCommentsRef.current) {
+        techTaskCommentsRef.current.cleanup();
+      }
     }
   }, [open, form]);
 
@@ -144,12 +169,15 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
         tags: techTaskDetails.tags?.map(tag => tag.id) || [],
       });
+      
+      setHasFormChanges(false);
     }
   }, [techTaskDetails, open, form, templates]);
 
   const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
     setSelectedTemplates(selected);
     setAvailableTemplates(available);
+    setHasFormChanges(true);
   };
 
   const handleComplete = async () => {
@@ -277,6 +305,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       showToast(t('errors.permission.insufficient'), 'error');
       return;
     }
+    
+    if (isEditMode && hasFormChanges) {
+      mutateTechTaskDetails();
+    }
+    
     setIsEditMode(!isEditMode);
   };
 
@@ -287,10 +320,11 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         <UpdateTechTaskModalHeader
           techTaskId={techTaskId}
           status={techTaskDetails?.status}
-          isEditMode={isEditMode}
           isDeleting={isDeleting}
           hasUpdatePermission={hasUpdatePermission}
-          onEditToggle={handleEditToggle}
+          onEditToggle={() => {
+            handleEditToggle()
+          }}
           onDelete={handleDelete}
           onClose={onClose}
         />
@@ -314,30 +348,58 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
+          onValuesChange={() => setHasFormChanges(true)}
           className="h-full flex flex-col"
         >
         <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               <div className="flex flex-col flex-1 min-w-0 lg:max-w-[60%]">
-                <UpdateTechTaskEditMode
-                  isEditMode={isEditMode}
-                  selectedTemplates={selectedTemplates}
-                  availableTemplates={availableTemplates}
-                  totalTemplates={templates.length}
-                  onTemplatesChange={handleTemplatesChange}
-                />
-                {!isEditMode && (
-                  <TechTaskViewMode
-                    ref={techTaskViewModeRef}
-                    techTaskData={techTaskDetails}
-                    onSave={() => {
-                      onSuccess?.();
-                      onClose();
-                    }}
+                <Form.Item
+                  name="name"
+                  rules={[{ required: true, message: t('techTasks.taskNameRequired') }]}
+                >
+                  <Input
+                    placeholder={t('techTasks.enterTaskName')}
+                    size="large"
+                    className="text-lg"
+                    disabled={!isEditMode}
                   />
-                )}
+                </Form.Item>
+                <Tabs
+                  activeKey={selectedTab}
+                  onChange={(key) => {
+                    if (isEditMode) return
+                    setSelectedTab(key as 'progress' | 'comments')
+                  }}
+                  items={TABS}
+                />
+                <div className={selectedTab === 'progress' ? 'block' : 'hidden'}>
+                  <UpdateTechTaskEditMode
+                    isEditMode={isEditMode}
+                    selectedTemplates={selectedTemplates}
+                    availableTemplates={availableTemplates}
+                    totalTemplates={templates.length}
+                    onTemplatesChange={handleTemplatesChange}
+                  />               
+                  {!isEditMode && (
+                    <TechTaskViewMode
+                      ref={techTaskViewModeRef}
+                      techTaskData={techTaskDetails}
+                      onSave={() => {
+                        onSuccess?.();
+                        onClose();
+                      }}
+                    />
+                  )}
+                </div>
+                <div className={selectedTab === 'comments' ? 'block' : 'hidden'}>
+                  <TechTaskComments
+                    ref={techTaskCommentsRef}
+                    techTaskId={techTaskDetails?.id}
+                    open={open}
+                  />
+                </div>
               </div>
-
               <div className="flex-shrink-0 lg:max-w-[40%]">
                 <UpdateTechTaskInfoPanel
                   form={form}
