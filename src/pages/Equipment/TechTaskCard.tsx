@@ -5,7 +5,7 @@ import {
   DownOutlined,
   PictureOutlined,
 } from '@ant-design/icons';
-import { Button, Card, List, Upload, Input, InputNumber, Select, Checkbox } from 'antd';
+import { Button, Card, List, Upload, Input, InputNumber, Select, Checkbox, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { TechTasksItem, StatusTechTask } from '@/services/api/equipment';
 
@@ -105,6 +105,13 @@ const TechTaskCard: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [previewImage, setPreviewImage] = useState<{
+    visible: boolean;
+    src: string;
+  }>({
+    visible: false,
+    src: '',
+  });
 
   const grouped = items.reduce(
     (acc, item) => {
@@ -117,6 +124,24 @@ const TechTaskCard: React.FC<Props> = ({
 
   const toggleGroup = (group: string) => {
     setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  const handleImagePreview = (itemId: number) => {
+    const imageSrc = uploadedFiles[itemId] instanceof File
+      ? URL.createObjectURL(uploadedFiles[itemId] as File)
+      : (uploadedFiles[itemId] as string);
+    
+    setPreviewImage({
+      visible: true,
+      src: imageSrc,
+    });
+  };
+
+  const handleClosePreview = () => {
+    setPreviewImage({
+      visible: false,
+      src: '',
+    });
   };
 
   return (
@@ -183,7 +208,8 @@ const TechTaskCard: React.FC<Props> = ({
                                     : (uploadedFiles[item.id] as string)
                                 }
                                 alt="uploaded"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => handleImagePreview(item.id)}
                                 onError={(e) => {
                                   console.error('Image failed to load:', {
                                     src: e.currentTarget.src,
@@ -202,9 +228,12 @@ const TechTaskCard: React.FC<Props> = ({
                                 }}
                               />
                                <button
-                                onClick={() => onImageRemove(item.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onImageRemove(item.id);
+                                }}
                                 disabled={status === StatusTechTask.FINISHED}
-                                className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1"
+                                className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
                               >
                                 <CloseOutlined style={{ fontSize: '12px' }} />
                               </button>
@@ -220,6 +249,26 @@ const TechTaskCard: React.FC<Props> = ({
           </List.Item>
         )}
       />
+      
+      <Modal
+        open={previewImage.visible}
+        onCancel={handleClosePreview}
+        footer={null}
+        centered
+        width="auto"
+        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+        className="image-preview-modal"
+      >
+        <img
+          src={previewImage.src}
+          alt="Preview"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '80vh',
+            objectFit: 'contain',
+          }}
+        />
+      </Modal>
     </div>
   );
 };
