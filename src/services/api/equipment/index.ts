@@ -856,7 +856,6 @@ export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promis
   return response.data;
 }
 
-// Tech Task Comments Types and API Functions
 export type TechTaskCommentResponse = {
   id: number;
   content: string;
