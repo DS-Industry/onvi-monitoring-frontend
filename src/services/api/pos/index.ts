@@ -298,13 +298,10 @@ type CurrencyResponse = {
 };
 
 export type FalseDepositResponse = {
-  falseData: {
-    deviceId: number;
-    deviceName: string;
-    operDay: Date;
-    falseOperCount: string;
-  }[];
-  totalCount: number;
+  deviceId: number;
+  deviceName: string;
+  operDay: Date;
+  falseOperCount: string;
 };
 
 export type FalseDepositDeviceResponse = {
@@ -486,8 +483,8 @@ export async function getCurrency(): Promise<CurrencyResponse[]> {
 export async function getFalseDepositDevice(
   posId: number,
   params: DeviceParams
-): Promise<FalseDepositResponse> {
-  const response: AxiosResponse<FalseDepositResponse> = await api.get(
+): Promise<FalseDepositResponse[]> {
+  const response: AxiosResponse<FalseDepositResponse[]> = await api.get(
     `/user/pos/false-operations/${posId}`,
     { params }
   );
