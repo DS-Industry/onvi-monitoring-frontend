@@ -5,12 +5,6 @@ import {
   FalseDepositResponse,
   getFalseDepositDevice,
 } from '@/services/api/pos';
-import {
-  ALL_PAGE_SIZES,
-  DEFAULT_PAGE,
-  DEFAULT_PAGE_SIZE,
-} from '@/utils/constants';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { getDateRender } from '@/utils/tableUnits';
 import Table, { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -20,25 +14,21 @@ import { useSearchParams, Link } from 'react-router-dom';
 import useSWR from 'swr';
 
 const FalseDeposits: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const formattedDate = dayjs().format('YYYY-MM-DD');
 
   const posId = Number(searchParams.get('posId') || 0);
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
-  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
-  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-
+  
   const filterParams = useMemo(
     () => ({
       dateStart,
       dateEnd,
-      page: currentPage,
-      size: pageSize,
       posId,
     }),
-    [dateStart, dateEnd, currentPage, pageSize, posId]
+    [dateStart, dateEnd, posId]
   );
 
   const swrKey = useMemo(() => {
@@ -48,8 +38,6 @@ const FalseDeposits: React.FC = () => {
       posId,
       filterParams.dateStart,
       filterParams.dateEnd,
-      filterParams.page,
-      filterParams.size,
     ];
   }, [posId, filterParams]);
 
@@ -59,8 +47,6 @@ const FalseDeposits: React.FC = () => {
       getFalseDepositDevice(posId, {
         dateStart: new Date(filterParams.dateStart),
         dateEnd: new Date(filterParams.dateEnd),
-        page: filterParams.page,
-        size: filterParams.size,
       }),
     {
       revalidateOnFocus: false,
@@ -71,7 +57,7 @@ const FalseDeposits: React.FC = () => {
 
   const dateRender = getDateRender();
 
-  const columnsFalseDeposit: ColumnsType<FalseDepositResponse['falseData'][0]> =
+  const columnsFalseDeposit: ColumnsType<FalseDepositResponse> =
     [
       {
         title: 'Устройство',
@@ -106,13 +92,12 @@ const FalseDeposits: React.FC = () => {
 
   const falseDeposits = useMemo(() => {
     return (
-      filterData?.falseData?.sort(
+      filterData?.sort(
         (a, b) => new Date(a.operDay).getTime() - new Date(b.operDay).getTime()
       ) || []
     );
   }, [filterData]);
 
-  const totalCount = filterData?.totalCount || 0;
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsFalseDeposit, 'false-deposits-table-columns');
@@ -140,20 +125,7 @@ const FalseDeposits: React.FC = () => {
           columns={visibleColumns}
           loading={isLoading}
           scroll={{ x: 'max-content' }}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showSizeChanger: true,
-            showTotal: (total, range) =>
-              `${range[0]}–${range[1]} из ${total} операций`,
-            onChange: (page, size) =>
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              }),
-          }}
+          pagination={false}
         />
       </div>
     </div>
