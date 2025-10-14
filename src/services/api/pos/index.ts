@@ -297,6 +297,21 @@ type CurrencyResponse = {
   currencyView?: CurrencyView;
 };
 
+export type FalseDepositResponse = {
+  oper: {
+    id: number;
+    posName: string;
+    deviceName: string;
+    sumOper: number;
+    dateOper: Date;
+    dateLoad: Date;
+    counter: string;
+    localId: number;
+    currencyType: string;
+  }[];
+  totalCount: number;
+};
+
 export async function getPosById(id: number): Promise<UpdateCarWashResponse> {
   const response: AxiosResponse<UpdateCarWashResponse> = await api.get(
     `user/pos/${id}`
@@ -456,5 +471,26 @@ export async function getPlanFact(
 export async function getCurrency(): Promise<CurrencyResponse[]> {
   const url = POS.GET_CURRENCY;
   const response: AxiosResponse<CurrencyResponse[]> = await api.get(url);
+  return response.data;
+}
+
+export async function getFalseDepositDevice(
+  posId: number,
+  params: DeviceParams
+): Promise<FalseDepositResponse> {
+  const response: AxiosResponse<FalseDepositResponse> = await api.get(
+    `/user/pos/false-operations/${posId}`,
+    { params }
+  );
+  return response.data;
+}
+
+export async function deleteFalseOperations(body: {
+  ids: number[];
+}): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    `/user/device/operations`,
+    { data: body }
+  );
   return response.data;
 }

@@ -113,7 +113,9 @@
     "createTask": "Create a task",
     "timesheetView": "Employee Shift View",
     "marketingCompanies": "Marketing Companies",
-    "newMarketingCampaign": "New Marketing Campaign"
+    "newMarketingCampaign": "New Marketing Campaign",
+    "debugging": "Debugging",
+    "falseDeposits": "False deposits"
   },
   "dashboard": {
     "news": "News",
