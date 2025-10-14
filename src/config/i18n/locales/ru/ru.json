@@ -113,7 +113,9 @@
     "createTask": "Создать задчу",
     "timesheetView": "Просмотр табеля",
     "marketingCompanies": "Маркетинговые компании",
-    "newMarketingCampaign": "Новая маркетинговая кампания"
+    "newMarketingCampaign": "Новая маркетинговая кампания",
+    "debugging": "Отладка",
+    "falseDeposits": "Ложные зачисления"
   },
   "dashboard": {
     "news": "Новости",

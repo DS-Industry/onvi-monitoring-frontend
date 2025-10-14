@@ -17,6 +17,7 @@ const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
 );
+const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
 const ProgramDevice = React.lazy(() => import('@/pages/Pos/ProgramDevice'));
@@ -59,10 +60,18 @@ const Documents = React.lazy(() => import('@/pages/Warehouse/Documents'));
 const DocumentsCreation = React.lazy(
   () => import('@/pages/Warehouse/DocumentsCreation/index')
 );
-const SalePrice = React.lazy(() => import('@/pages/Warehouse/SalePrice/SalePrice.tsx'));
-const SaleDocument = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocument.tsx'));
-const SaleDocumentView = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentView.tsx'));
-const SaleDocumentCreate = React.lazy(() => import('@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx'));
+const SalePrice = React.lazy(
+  () => import('@/pages/Warehouse/SalePrice/SalePrice.tsx')
+);
+const SaleDocument = React.lazy(
+  () => import('@/pages/Finance/SaleDocument/SaleDocument.tsx')
+);
+const SaleDocumentView = React.lazy(
+  () => import('@/pages/Finance/SaleDocument/SaleDocumentView.tsx')
+);
+const SaleDocumentCreate = React.lazy(
+  () => import('@/pages/Finance/SaleDocument/SaleDocumentCreate.tsx')
+);
 const DocumentView = React.lazy(() => import('@/pages/Warehouse/DocumentView'));
 const Clients = React.lazy(() => import('@/pages/Marketing/Clients'));
 const CorporateClients = React.lazy(
@@ -97,9 +106,7 @@ const ListOfEmployees = React.lazy(
 const ListOfRoles = React.lazy(
   () => import('@/pages/Organization/ListOfRoles')
 );
-const PosTabs = React.lazy(
-  () => import('@/pages/Organization/PosTabs')
-);
+const PosTabs = React.lazy(() => import('@/pages/Organization/PosTabs'));
 const PlanAct = React.lazy(() => import('@/pages/Pos/PlanAct'));
 const InviteUser = React.lazy(() => import('@/pages/Onboarding/InviteUser'));
 const Employees = React.lazy(() => import('@/pages/Hr/Employees'));
@@ -156,6 +163,9 @@ const routes = [
       { action: 'read', subject: 'Organization' },
       { action: 'update', subject: 'Organization' },
       { action: 'delete', subject: 'Organization' },
+      { action: 'manage', subject: 'Pos' },
+      { action: 'create', subject: 'Pos' },
+      { action: 'read', subject: 'Pos' },
     ],
     subNav: [
       {
@@ -169,9 +179,6 @@ const routes = [
           { action: 'read', subject: 'Organization' },
           { action: 'update', subject: 'Organization' },
           { action: 'delete', subject: 'Organization' },
-          { action: 'manage', subject: 'Pos' },
-          { action: 'create', subject: 'Pos' },
-          { action: 'read', subject: 'Pos' },
         ],
         isSidebar: true,
         isHr: false,
@@ -573,6 +580,9 @@ const routes = [
       { action: 'read', subject: 'ManagerPaper' },
       { action: 'update', subject: 'ManagerPaper' },
       { action: 'delete', subject: 'ManagerPaper' },
+      { action: 'manage', subject: 'Pos' },
+      { action: 'read', subject: 'Pos' },
+      { action: 'delete', subject: 'Pos' },
     ],
     subNavHeading: '',
     subNav: [
@@ -795,6 +805,39 @@ const routes = [
         isSidebar: false,
         permissions: [],
       },
+      {
+        name: 'debugging',
+        isVisible: true,
+        path: '/finance/debugging',
+        component: Default,
+        permissions: [
+          { action: 'manage', subject: 'Pos' },
+          { action: 'read', subject: 'Pos' },
+          { action: 'delete', subject: 'Pos' },
+        ],
+        isSidebar: true,
+        isHr: true,
+        titleName: '',
+        subNav: [
+          {
+            name: 'falseDeposits',
+            isVisible: true,
+            path: '/finance/debugging/false/deposits',
+            component: FalseDeposits,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+              { action: 'delete', subject: 'Pos' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+        ],
+        subMenu: true,
+      },
     ],
   },
   {
@@ -876,7 +919,9 @@ const routes = [
         name: 'corporateClientProfile',
         isVisible: true,
         path: '/marketing/corporate-clients/profile',
-        component: React.lazy(() => import('@/pages/Marketing/CorporateClients/CorporateProfile')),
+        component: React.lazy(
+          () => import('@/pages/Marketing/CorporateClients/CorporateProfile')
+        ),
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
@@ -896,7 +941,9 @@ const routes = [
         name: 'newMarketingCampaign',
         isVisible: true,
         path: '/marketing/companies/new/marketing/campaign',
-        component: React.lazy(() => import('@/pages/Marketing/NewMarketingCampaign')),
+        component: React.lazy(
+          () => import('@/pages/Marketing/NewMarketingCampaign')
+        ),
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
@@ -991,7 +1038,7 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
-      }
+      },
     ],
     component: Marketing,
     isSidebar: true,
