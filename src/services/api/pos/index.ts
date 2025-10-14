@@ -298,16 +298,25 @@ type CurrencyResponse = {
 };
 
 export type FalseDepositResponse = {
+  falseData: {
+    deviceId: number;
+    deviceName: string;
+    operDay: Date;
+    falseOperCount: string;
+  }[];
+  totalCount: number;
+};
+
+export type FalseDepositDeviceResponse = {
   oper: {
     id: number;
-    posName: string;
-    deviceName: string;
     sumOper: number;
     dateOper: Date;
     dateLoad: Date;
     counter: string;
     localId: number;
     currencyType: string;
+    falseCheck: boolean;
   }[];
   totalCount: number;
 };
@@ -491,6 +500,17 @@ export async function deleteFalseOperations(body: {
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
     `/user/device/operations`,
     { data: body }
+  );
+  return response.data;
+}
+
+export async function getFalseDepositDeviceById(
+  deviceId: number,
+  params: DeviceParams
+): Promise<FalseDepositDeviceResponse> {
+  const response: AxiosResponse<FalseDepositDeviceResponse> = await api.get(
+    `/user/device/false-operations/${deviceId}`,
+    { params }
   );
   return response.data;
 }

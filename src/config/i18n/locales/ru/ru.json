@@ -115,7 +115,8 @@
     "marketingCompanies": "Маркетинговые компании",
     "newMarketingCampaign": "Новая маркетинговая кампания",
     "debugging": "Отладка",
-    "falseDeposits": "Ложные зачисления"
+    "falseDeposits": "Ложные зачисления",
+    "falseDeposit": "Ложный кредит"
   },
   "dashboard": {
     "news": "Новости",
