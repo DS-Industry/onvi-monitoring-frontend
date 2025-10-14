@@ -115,7 +115,8 @@
     "marketingCompanies": "Marketing Companies",
     "newMarketingCampaign": "New Marketing Campaign",
     "debugging": "Debugging",
-    "falseDeposits": "False deposits"
+    "falseDeposits": "False deposits",
+    "falseDeposit": "False deposit"
   },
   "dashboard": {
     "news": "News",
