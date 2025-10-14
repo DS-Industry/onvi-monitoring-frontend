@@ -775,10 +775,7 @@ const EquipmentFailure: React.FC = () => {
                     ? t('warehouse.noVal')
                     : t('warehouse.notSel')
                 }
-                options={incidentEquipmentKnotData?.map(item => ({
-                  value: item.id,
-                  label: item.reason,
-                }))}
+                options={reasons}
                 className="!w-72"
                 {...register('incidentReasonId')}
                 value={formData.incidentReasonId}
@@ -804,10 +801,7 @@ const EquipmentFailure: React.FC = () => {
                     ? t('warehouse.noVal')
                     : t('warehouse.notSel')
                 }
-                options={incidentEquipmentKnotData?.map(item => ({
-                  value: item.id,
-                  label: item.solution,
-                }))}
+                options={solutions}
                 className="!w-72"
                 {...register('incidentSolutionId')}
                 value={formData.incidentSolutionId}
