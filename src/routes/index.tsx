@@ -18,6 +18,7 @@ const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
 );
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
+const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
 const ProgramDevice = React.lazy(() => import('@/pages/Pos/ProgramDevice'));
@@ -830,6 +831,22 @@ const routes = [
               { action: 'delete', subject: 'Pos' },
             ],
             isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'falseDeposit',
+            isVisible: true,
+            path: '/finance/debugging/false/deposit',
+            component: FalseDeposit,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+              { action: 'delete', subject: 'Pos' },
+            ],
+            isSidebar: false,
             isHr: false,
             titleName: '',
             subNav: [],
