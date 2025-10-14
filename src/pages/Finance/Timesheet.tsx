@@ -293,7 +293,7 @@ const Timesheet: React.FC = () => {
               event: ({ event }) => {
                 let circleColor = '#faad14'; 
                 if (event.resource?.status === 'SENT') {
-                  circleColor = '#ff4d4f'; 
+                  circleColor = '#98fb98'; 
                 }
 
                 return (

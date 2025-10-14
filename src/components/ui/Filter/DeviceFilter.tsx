@@ -34,8 +34,6 @@ const DeviceFilter: React.FC = () => {
     });
   };
 
-  if (!devicesData?.length && !isLoading) return null;
-
   const devices = [
     { name: t('warehouse.all'), value: '*' },
     ...(devicesData?.map(item => ({
