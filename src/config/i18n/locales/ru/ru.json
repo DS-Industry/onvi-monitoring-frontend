@@ -116,7 +116,8 @@
     "newMarketingCampaign": "Новая маркетинговая кампания",
     "debugging": "Отладка",
     "falseDeposits": "Ложные зачисления",
-    "falseDeposit": "Ложный кредит"
+    "falseDeposit": "Ложный кредит",
+    "createLoyalty": "Создание программы лояльности"
   },
   "dashboard": {
     "news": "Новости",
@@ -1676,5 +1677,12 @@
       "endDate": "Дата окончания",
       "assignee": "Исполнитель"
     }
+  },
+  "marketingLoyalty": {
+    "basicData": "Базовые данные",
+    "writeOff": "Правила списания",
+    "participants": "Участники",
+    "levelsAndBonuses": "Уровни и бонусы",
+    "publication": "Публикация"
   }
 }
