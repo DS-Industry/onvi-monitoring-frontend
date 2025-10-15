@@ -268,6 +268,7 @@ const InventoryCreation: React.FC = () => {
   const handleUpdate = (id: number) => {
     setIsEditMode(true);
     setDrawerOpen(true);
+    setEditInventoryId(id);
     const inventoryToEdit = inventories.find(inventory => inventory.id === id);
     if (inventoryToEdit) {
       setFormData({
@@ -548,7 +549,7 @@ const InventoryCreation: React.FC = () => {
             classname="w-64"
             {...register('categoryId', {
               required: !isEditMode && t('validation.categoryIdRequired'),
-              validate: value => value !== 0 || t('validation.categoryIdRequired'),
+              validate: value => value !== 0 || (isEditMode) || t('validation.categoryIdRequired'),
             })}
             value={formData.categoryId}
             onChange={value => handleInputChange('categoryId', value)}
