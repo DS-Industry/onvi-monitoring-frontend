@@ -36,7 +36,7 @@ const FalseDeposit: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const { data: filterData, isLoading } = useSWR(
-    [`get-false-device`],
+    [`get-false-device`, dateStart, dateEnd, currentPage, pageSize],
     () =>
       getFalseDepositDeviceById(deviceId, {
         dateStart: new Date(dateStart),
@@ -77,7 +77,13 @@ const FalseDeposit: React.FC = () => {
           );
 
           if (result) {
-            mutate([`get-false-device`]);
+            mutate([
+              `get-false-device`,
+              dateStart,
+              dateEnd,
+              currentPage,
+              pageSize,
+            ]);
             setSelectedRowKeys([]);
           }
         } catch (error) {
@@ -127,16 +133,6 @@ const FalseDeposit: React.FC = () => {
       render: dateRender,
     },
     {
-      title: 'Счетчик',
-      dataIndex: 'counter',
-      key: 'counter',
-    },
-    {
-      title: 'Локальный ID',
-      dataIndex: 'localId',
-      key: 'localId',
-    },
-    {
       title: 'Валюта',
       dataIndex: 'currencyType',
       key: 'currencyType',
@@ -159,7 +155,7 @@ const FalseDeposit: React.FC = () => {
       <div
         className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
         onClick={() => {
-          navigate(-1);
+          navigate('/finance/debugging/false/deposits');
         }}
       >
         <ArrowLeftOutlined />
@@ -178,7 +174,7 @@ const FalseDeposit: React.FC = () => {
           rowSelection={rowSelection}
           loading={isLoading}
           scroll={{ x: 'max-content' }}
-          rowClassName={record => (record.falseCheck ? 'bg-orange-100' : '')}
+          rowClassName={record => (record.falseCheck ? 'bg-red-100' : '')}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
