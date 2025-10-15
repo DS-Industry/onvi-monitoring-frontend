@@ -1030,7 +1030,7 @@ const routes = [
       {
         name: 'createLoyalty',
         isVisible: true,
-        path: '/marketing/loyalty/programs',
+        path: '/marketing/loyalty/program',
         component: LoyaltyPrograms,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,

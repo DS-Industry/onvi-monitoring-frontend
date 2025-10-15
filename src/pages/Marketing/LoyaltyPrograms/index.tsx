@@ -16,7 +16,7 @@ const LoyaltyPrograms: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-const currentStep = (Number(searchParams.get('step')) || 1) - 1;
+  const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
   const steps = [
     {
@@ -47,12 +47,6 @@ const currentStep = (Number(searchParams.get('step')) || 1) - 1;
     });
   };
 
-  const prev = () => {
-    updateSearchParams(searchParams, setSearchParams, {
-      step: Math.max(currentStep, 1),
-    });
-  };
-
   return (
     <div>
       <div className="ml-12 md:ml-0 mb-5">
@@ -64,13 +58,15 @@ const currentStep = (Number(searchParams.get('step')) || 1) - 1;
             <ArrowLeftOutlined />
             <p className="ms-2">{t('login.back')}</p>
           </div>
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.createLoyalty')}
-          </span>
+          <div>
+            <span className="text-xl sm:text-3xl font-normal text-text01">
+              {t('routes.createLoyalty')}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="ml-12 md:ml-0">
+      <div className="ml-12">
         <Steps current={currentStep} size="default" labelPlacement="vertical">
           {steps.map((step, index) => (
             <Step key={index} title={step.title} />
@@ -80,9 +76,6 @@ const currentStep = (Number(searchParams.get('step')) || 1) - 1;
         <div className="mt-5">{steps[currentStep].content}</div>
 
         <div className="mt-5 flex gap-2">
-          <Button onClick={prev} disabled={currentStep === 0}>
-            {t('common.previous')}
-          </Button>
           <Button
             onClick={next}
             disabled={currentStep === steps.length - 1}

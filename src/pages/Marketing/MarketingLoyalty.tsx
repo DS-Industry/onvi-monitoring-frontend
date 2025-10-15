@@ -142,7 +142,7 @@ const MarketingLoyalty: React.FC = () => {
                 icon={<PlusOutlined />}
                 className="btn-outline-primary"
                 onClick={() => {
-                  navigate('/marketing/loyalty/programs');
+                  navigate('/marketing/loyalty/program');
                 }}
               >
                 {t('routes.add')}
