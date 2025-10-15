@@ -125,12 +125,6 @@ const TechTasks: React.FC = () => {
     if (!dateString) return '-';
 
     const date = dayjs(dateString);
-    const today = dayjs().startOf('day');
-    const in7Days = today.add(7, 'day');
-
-    if (date.isBetween(today, in7Days, null, '[]')) {
-      return date.format('dddd');
-    }
 
     return date.format('D MMMM YYYY');
   };

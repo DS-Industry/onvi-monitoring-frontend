@@ -25,7 +25,7 @@ export function getCurrencyRender() {
 export function getDateRender() {
   return (val: Date | string | null | undefined): string => {
     if (!val || !dayjs(val).isValid()) return '—';
-    return dayjs(val).format('YYYY-MM-DD HH:mm');
+    return dayjs(val).format('YYYY-MM-DD HH:mm:ss');
   };
 }
 

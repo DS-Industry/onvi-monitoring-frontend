@@ -1,11 +1,8 @@
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import ColumnSelector from '@/components/ui/Table/ColumnSelector';
-import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import {
   FalseDepositResponse,
   getFalseDepositDevice,
 } from '@/services/api/pos';
-import { getDateRender } from '@/utils/tableUnits';
 import Table, { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
@@ -55,8 +52,6 @@ const FalseDeposits: React.FC = () => {
     }
   );
 
-  const dateRender = getDateRender();
-
   const columnsFalseDeposit: ColumnsType<FalseDepositResponse> =
     [
       {
@@ -68,7 +63,7 @@ const FalseDeposits: React.FC = () => {
             <Link
               to={{
                 pathname: '/finance/debugging/false/deposit',
-                search: `?deviceId=${record.deviceId}&dateStart=${record.operDay}&dateEnd=${dayjs(record.operDay).add(1, 'day').format('YYYY-MM-DD')}`,
+                search: `?deviceId=${record.deviceId}&dateStart=${dayjs(record.operDay).toDate().toISOString()}&dateEnd=${dayjs(record.operDay).add(1, 'day').toISOString()}`,
               }}
               className="text-blue-500 hover:text-blue-700 font-semibold"
             >
@@ -86,7 +81,7 @@ const FalseDeposits: React.FC = () => {
         title: 'День',
         dataIndex: 'operDay',
         key: 'operDay',
-        render: dateRender,
+        render: (val) => dayjs(val).format('YYYY-MM-DD'),
       },
     ];
 
@@ -97,10 +92,6 @@ const FalseDeposits: React.FC = () => {
       ) || []
     );
   }, [filterData]);
-
-
-  const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columnsFalseDeposit, 'false-deposits-table-columns');
 
   return (
     <div>
@@ -113,16 +104,10 @@ const FalseDeposits: React.FC = () => {
       <GeneralFilters count={0} display={['pos', 'dateTime']} />
 
       <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
-
         <Table
           rowKey="id"
           dataSource={falseDeposits}
-          columns={visibleColumns}
+          columns={columnsFalseDeposit}
           loading={isLoading}
           scroll={{ x: 'max-content' }}
           pagination={false}
