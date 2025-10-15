@@ -116,7 +116,8 @@
     "newMarketingCampaign": "New Marketing Campaign",
     "debugging": "Debugging",
     "falseDeposits": "False deposits",
-    "falseDeposit": "False deposit"
+    "falseDeposit": "False deposit",
+    "createLoyalty": "Creating a loyalty program"
   },
   "dashboard": {
     "news": "News",
@@ -1677,5 +1678,12 @@
       "endDate": "End Date",
       "assignee": "Assignee"
     }
+  },
+  "marketingLoyalty": {
+    "basicData": "Basic data",
+    "writeOff": "Write-off rules",
+    "participants": "Participants",
+    "levelsAndBonuses": "Levels and bonuses",
+    "publication": "Publication"
   }
 }

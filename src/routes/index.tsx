@@ -26,6 +26,7 @@ const LogIn = React.lazy(() => import('@/pages/Onboarding/LogIn'));
 const ProfileForm = React.lazy(() => import('@/pages/Profile/Profile'));
 const Default = React.lazy(() => import('@/pages/Default/Default'));
 const Register = React.lazy(() => import('@/pages/Onboarding/Register'));
+const LoyaltyPrograms = React.lazy(() => import('@/pages/Marketing/LoyaltyPrograms'));
 const ForgotPassword = React.lazy(
   () => import('@/pages/Onboarding/ForgotPassword')
 );
@@ -1021,6 +1022,16 @@ const routes = [
         isVisible: true,
         path: '/marketing/loyalty/rewards',
         component: RewardsCreation,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'createLoyalty',
+        isVisible: true,
+        path: '/marketing/loyalty/programs',
+        component: LoyaltyPrograms,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
