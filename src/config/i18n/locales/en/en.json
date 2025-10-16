@@ -1685,6 +1685,7 @@
     "participants": "Participants",
     "levelsAndBonuses": "Levels and bonuses",
     "publication": "Publication",
-    "configuring": "Configuring the main program components"
+    "configuring": "Configuring the main program components",
+    "maxLevels": "Maximum levels"
   }
 }
