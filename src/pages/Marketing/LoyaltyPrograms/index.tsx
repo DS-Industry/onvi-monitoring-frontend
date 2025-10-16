@@ -73,7 +73,7 @@ const LoyaltyPrograms: React.FC = () => {
           ))}
         </Steps>
 
-        <div className="mt-5">{steps[currentStep].content}</div>
+        <div>{steps[currentStep].content}</div>
 
         <div className="mt-5 flex gap-2">
           <Button
