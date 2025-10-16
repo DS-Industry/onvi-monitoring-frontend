@@ -1689,6 +1689,7 @@
     "maxLevels": "Maximum levels",
     "maxLoyalty": "The maximum number of loyalty program levels.It will not be possible to create more levels than this value, but it will be possible to create fewer levels.",
     "selectQuantity": "Select quantity",
-    "enterDesc": "Enter a description"
+    "enterDesc": "Enter a description",
+    "settingUp": "Setting up rules for writing off bonuses from a client"
   }
 }

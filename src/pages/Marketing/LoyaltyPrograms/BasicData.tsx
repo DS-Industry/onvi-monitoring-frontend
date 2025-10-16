@@ -3,7 +3,7 @@ import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
 import { Button, Form, Input, Select } from 'antd';
-import MarketingBasicData from '@/assets/MarketingBasicData.png';
+import MarketingBasicData from '@/assets/MarketingBasicData.webp';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined } from "@ant-design/icons";
