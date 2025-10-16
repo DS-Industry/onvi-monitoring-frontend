@@ -1686,6 +1686,9 @@
     "levelsAndBonuses": "Levels and bonuses",
     "publication": "Publication",
     "configuring": "Configuring the main program components",
-    "maxLevels": "Maximum levels"
+    "maxLevels": "Maximum levels",
+    "maxLoyalty": "The maximum number of loyalty program levels.It will not be possible to create more levels than this value, but it will be possible to create fewer levels.",
+    "selectQuantity": "Select quantity",
+    "enterDesc": "Enter a description"
   }
 }
