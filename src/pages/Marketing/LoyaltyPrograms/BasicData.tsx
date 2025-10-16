@@ -6,7 +6,7 @@ import { Button, Form, Input, Select } from 'antd';
 import MarketingBasicData from '@/assets/MarketingBasicData.webp';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { RightOutlined } from "@ant-design/icons";
+import { RightOutlined } from '@ant-design/icons';
 
 const BasicData: React.FC = () => {
   const { t } = useTranslation();
@@ -33,7 +33,7 @@ const BasicData: React.FC = () => {
   const onSubmit = async () => {};
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background02 p-4">
+    <div className="flex items-center justify-center bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8">
           <div className="flex items-center space-x-4">
@@ -118,19 +118,19 @@ const BasicData: React.FC = () => {
         </div>
       </div>
       <div className="flex mt-auto justify-end gap-2">
-          <Button
-            onClick={() =>
-              updateSearchParams(searchParams, setSearchParams, {
-                step: 2,
-              })
-            }
-            type="primary"
-            icon={<RightOutlined />}
-            iconPosition='end'
-          >
-            {t('common.next')}
-          </Button>
-        </div>
+        <Button
+          onClick={() =>
+            updateSearchParams(searchParams, setSearchParams, {
+              step: 2,
+            })
+          }
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+        >
+          {t('common.next')}
+        </Button>
+      </div>
     </div>
   );
 };
