@@ -1690,6 +1690,11 @@
     "maxLoyalty": "The maximum number of loyalty program levels.It will not be possible to create more levels than this value, but it will be possible to create fewer levels.",
     "selectQuantity": "Select quantity",
     "enterDesc": "Enter a description",
-    "settingUp": "Setting up rules for writing off bonuses from a client"
+    "settingUp": "Setting up rules for writing off bonuses from a client",
+    "maximumWriteOff": "Maximum write-off percentage for payment with bonuses",
+    "maximumPossible": "The maximum possible percentage of bonuses deducted from the purchase price",
+    "useBonuses": "Use bonuses with discounts",
+    "allowBonuses": "Allow bonuses to be used for payment with any discounts",
+    "afterPeriod": "After a period"
   }
 }

@@ -2,20 +2,19 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Steps, Button } from 'antd';
+import { Steps } from 'antd';
 import BasicData from './BasicData';
 import WriteOffRules from './WriteOffRules';
 import LevelsBonuses from './LevelsBonuses';
 import Participants from './Participants';
 import Publications from './Publications';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const { Step } = Steps;
 
 const LoyaltyPrograms: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
   const steps = [
@@ -40,12 +39,6 @@ const LoyaltyPrograms: React.FC = () => {
       content: <Publications />,
     },
   ];
-
-  const next = () => {
-    updateSearchParams(searchParams, setSearchParams, {
-      step: Math.min(currentStep + 2, steps.length),
-    });
-  };
 
   return (
     <div>
@@ -74,16 +67,6 @@ const LoyaltyPrograms: React.FC = () => {
         </Steps>
 
         <div>{steps[currentStep].content}</div>
-
-        <div className="mt-5 flex gap-2">
-          <Button
-            onClick={next}
-            disabled={currentStep === steps.length - 1}
-            type="primary"
-          >
-            {t('common.next')}
-          </Button>
-        </div>
       </div>
     </div>
   );
