@@ -223,36 +223,6 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
           </div>
           <div>
             <div className="flex">
-              <div className="text-text02 text-sm">{t('marketing.type')}</div>
-              <span className="text-errorFill">*</span>
-            </div>
-            <Form.Item
-              help={errors.contractType?.message}
-              validateStatus={errors.contractType ? 'error' : undefined}
-              labelCol={{ span: 24 }}
-              className="w-full sm:w-96"
-            >
-              <Controller
-                name="contractType"
-                control={control}
-                rules={{
-                  required: t('validation.contractTypeRequired') as string,
-                }}
-                render={({ field }) => (
-                  <Select {...field} className="w-full sm:w-96">
-                    <Option value={ContractType.INDIVIDUAL}>
-                      {t('marketing.physical')}
-                    </Option>
-                    <Option value={ContractType.CORPORATE}>
-                      {t('marketing.legal')}
-                    </Option>
-                  </Select>
-                )}
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <div className="flex">
               <div className="text-text02 text-sm">{t('marketing.name')}</div>
               <span className="text-errorFill">*</span>
             </div>
