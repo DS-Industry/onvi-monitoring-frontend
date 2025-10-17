@@ -5,14 +5,67 @@ import { Button, Input, Radio, RadioChangeEvent, Select, Switch } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import { RightOutlined } from '@ant-design/icons';
+import {
+  BonusBurnoutType,
+  BonusRedemptionUpdate,
+  patchBonusRedemption,
+} from '@/services/api/marketing';
+import useFormHook from '@/hooks/useFormHook';
+import useSWRMutation from 'swr/mutation';
+import { useToast } from '@/components/context/useContext';
 
 const WriteOffRules: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [radioValue, setRadioValue] = useState('never');
+  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const { showToast } = useToast();
+
+  const defaultValues: BonusRedemptionUpdate = {
+    loyaltyProgramId: loyaltyProgramId,
+    burnoutType: 'month',
+    lifetimeBonusDays: undefined,
+    maxRedeemPercentage: 0,
+    hasBonusWithSale: false,
+  };
+
+  const [formData, setFormData] = useState(defaultValues);
+
+  const { register, handleSubmit, setValue } = useFormHook(formData);
+
+  const { trigger: updateBonusRedemption, isMutating } = useSWRMutation(
+    [`create-loyalty-program`],
+    async () => patchBonusRedemption(formData)
+  );
+
+  const handleInputChange = (
+    field: keyof typeof defaultValues,
+    value?: number | boolean | BonusBurnoutType
+  ) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setValue(field, value);
+  };
+
+  const onSubmit = async () => {
+    try {
+      const result = await updateBonusRedemption();
+      if (result) {
+        updateSearchParams(searchParams, setSearchParams, {
+          step: 3,
+          loyaltyProgramId: result.props.id,
+        });
+        showToast(t('success.recordCreated'), 'success');
+      } else {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
+    } catch (error) {
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex items-center justify-center bg-background02 p-4">
         <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
           <div className="flex items-center space-x-4">
@@ -36,7 +89,18 @@ const WriteOffRules: React.FC = () => {
               </div>
             </div>
             <div>
-              <Input suffix={<div>%</div>} className="w-20" value={50} />
+              <Input
+                {...register('maxRedeemPercentage')}
+                suffix={<div>%</div>}
+                className="w-20"
+                value={formData.maxRedeemPercentage}
+                onChange={e =>
+                  handleInputChange(
+                    'maxRedeemPercentage',
+                    Number(e.target.value)
+                  )
+                }
+              />
             </div>
           </div>
           <div className="flex flex-col sm:flex-row">
@@ -49,7 +113,12 @@ const WriteOffRules: React.FC = () => {
               </div>
             </div>
             <div>
-              <Switch defaultChecked />
+              <Switch
+                checked={formData.hasBonusWithSale}
+                onChange={checked =>
+                  handleInputChange('hasBonusWithSale', checked)
+                }
+              />
             </div>
           </div>
           <div className="flex flex-col sm:flex-row">
@@ -92,10 +161,63 @@ const WriteOffRules: React.FC = () => {
                 </Radio>
               </Radio.Group>
               {radioValue === 'period' && (
-                <div className="w-96">
+                <div>
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
-                    options={[]}
+                    className="min-w-80"
+                    value={formData.burnoutType}
+                    onChange={value => handleInputChange('burnoutType', value)}
+                    popupRender={menu => (
+                      <>
+                        {menu}
+                        <div className="flex items-center p-3 border-t border-gray-200 bg-gray-50">
+                          <span>{t('marketingLoyalty.every')}</span>
+                          <Input
+                            className="mx-2 w-24"
+                            type="number"
+                            {...register('lifetimeBonusDays')}
+                            value={formData.lifetimeBonusDays}
+                            onChange={e =>
+                              handleInputChange(
+                                'lifetimeBonusDays',
+                                Number(e.target.value)
+                              )
+                            }
+                            placeholder={t('marketingLoyalty.days')}
+                          />
+                          <span>{t('marketingLoyalty.days')}</span>
+                          <Button
+                            type="primary"
+                            size="small"
+                            className="ml-3"
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleInputChange('burnoutType', 'custom');
+                              showToast(
+                                t('routes.savedSuccessfully'),
+                                'success'
+                              );
+                            }}
+                          >
+                            {t('marketing.apply')}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                    options={[
+                      {
+                        label: t('marketingLoyalty.everyMonth'),
+                        value: 'month',
+                      },
+                      {
+                        label: t('marketingLoyalty.everyYear'),
+                        value: 'year',
+                      },
+                      {
+                        label: '',
+                        value: 'custom',
+                      },
+                    ]}
                   />
                 </div>
               )}
@@ -105,11 +227,8 @@ const WriteOffRules: React.FC = () => {
       </div>
       <div className="flex mt-auto justify-end gap-2">
         <Button
-          onClick={() =>
-            updateSearchParams(searchParams, setSearchParams, {
-              step: 3,
-            })
-          }
+          htmlType="submit"
+          loading={isMutating}
           type="primary"
           icon={<RightOutlined />}
           iconPosition="end"
@@ -117,7 +236,7 @@ const WriteOffRules: React.FC = () => {
           {t('common.next')}
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 

@@ -1390,7 +1390,8 @@
     "hourRange": "Hours must be between 0 and 23",
     "passwordRequired": "Password is required",
     "passwordNotMatch": "Password and confirmation password do not match",
-    "enterCorrectPassword": "Please enter a valid password"
+    "enterCorrectPassword": "Please enter a valid password",
+    "descriptionRequired": "Description is required"
   },
   "table": {
     "noData": "No Data",
@@ -1695,6 +1696,15 @@
     "maximumPossible": "The maximum possible percentage of bonuses deducted from the purchase price",
     "useBonuses": "Use bonuses with discounts",
     "allowBonuses": "Allow bonuses to be used for payment with any discounts",
-    "afterPeriod": "After a period"
+    "afterPeriod": "After a period",
+    "displaying": "Displaying loyalty program participants",
+    "participatingBranches": "Participating branches",
+    "theLoyalty": "The loyalty program is created for all branches linked to the creator organization.",
+    "expansion": "Expansion of the loyalty program",
+    "toExpand": "To expand the loyalty program, an organization can request the Hub to add branches outside the organization.",
+    "everyMonth": "Every month",
+    "everyYear": "Every year",
+    "every": "every",
+    "days": "days"
   }
 }
