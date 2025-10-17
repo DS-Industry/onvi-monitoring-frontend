@@ -878,10 +878,8 @@ export async function getCorporateClientOperationsById(
 export async function getMarketingCampaign(
   filters: MarketingCampaignsFilterDto
 ): Promise<MarketingCampaignsPaginatedResponseDto> {
-  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> = await api.get(
-    'user/loyalty/marketing-campaigns',
-    { params: filters }
-  );
+  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> =
+    await api.get('user/loyalty/marketing-campaigns', { params: filters });
 
   return response.data;
 }
@@ -1008,6 +1006,46 @@ export type LoyaltyRequestsResponse = {
   hasPrevious: boolean;
 };
 
+type LoyaltyProgramCreateBody = {
+  name: string;
+  ownerOrganizationId: number;
+  description: string;
+  maxLevels: number;
+};
+
+export type BonusBurnoutType = 'year' | 'month' | 'custom';
+
+export type BonusRedemptionUpdate = {
+  loyaltyProgramId: number;
+  burnoutType: BonusBurnoutType;
+  lifetimeBonusDays?: number;
+  maxRedeemPercentage: number;
+  hasBonusWithSale: boolean;
+};
+
+enum LTYProgramStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSE = 'PAUSE',
+}
+
+type LoyaltyProgramResponse = {
+  props: {
+    id?: number;
+    name: string;
+    status: LTYProgramStatus;
+    ownerOrganizationId: number;
+    startDate: Date;
+    lifetimeDays?: number;
+    isHub?: boolean;
+    isHubRequested?: boolean;
+    isHubRejected?: boolean;
+    isPublic?: boolean;
+    programParticipantOrganizationIds?: number[];
+    description?: string;
+    maxLevels: number;
+  };
+};
+
 export async function getLoyaltyHubRequests(
   params: LoyaltyHubRequestsParams
 ): Promise<LoyaltyRequestsResponse> {
@@ -1089,10 +1127,8 @@ export type PublicProgramsPaginatedResponse = {
 export async function getPublicLoyaltyPrograms(
   params: PublicProgramsParams = {}
 ): Promise<PublicProgramsPaginatedResponse> {
-  const response: AxiosResponse<PublicProgramsPaginatedResponse> = await api.get(
-    MARKETING.PUBLIC_PROGRAMS,
-    { params }
-  );
+  const response: AxiosResponse<PublicProgramsPaginatedResponse> =
+    await api.get(MARKETING.PUBLIC_PROGRAMS, { params });
   return response.data;
 }
 
@@ -1130,10 +1166,8 @@ export type LoyaltyParticipantRequestsResponse = {
 export async function getLoyaltyParticipantRequests(
   params: LoyaltyParticipantRequestsParams
 ): Promise<LoyaltyParticipantRequestsResponse> {
-  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> = await api.get(
-    MARKETING.PARTICIPANT_REQUESTS,
-    { params }
-  );
+  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> =
+    await api.get(MARKETING.PARTICIPANT_REQUESTS, { params });
   return response.data;
 }
 
@@ -1155,6 +1189,26 @@ export async function rejectLoyaltyParticipantRequest(
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
     `user/loyalty/programs/${requestId}/reject-participant`,
     { comment }
+  );
+  return response.data;
+}
+
+export async function createNewLoyaltyProgram(
+  request: LoyaltyProgramCreateBody
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.post(
+    'user/loyalty/program',
+    request
+  );
+  return response.data;
+}
+
+export async function patchBonusRedemption(
+  request: BonusRedemptionUpdate
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    'user/loyalty/program/bonus-redemption-rules',
+    request
   );
   return response.data;
 }

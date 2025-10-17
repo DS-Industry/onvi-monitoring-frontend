@@ -27,12 +27,12 @@ const LoyaltyPrograms: React.FC = () => {
       content: <WriteOffRules />,
     },
     {
-      title: t('marketingLoyalty.levelsAndBonuses'),
-      content: <LevelsBonuses />,
-    },
-    {
       title: t('marketingLoyalty.participants'),
       content: <Participants />,
+    },
+    {
+      title: t('marketingLoyalty.levelsAndBonuses'),
+      content: <LevelsBonuses />,
     },
     {
       title: t('marketingLoyalty.publication'),

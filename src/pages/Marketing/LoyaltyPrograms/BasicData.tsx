@@ -7,60 +7,105 @@ import MarketingBasicData from '@/assets/MarketingBasicData.webp';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined } from '@ant-design/icons';
+import useSWRMutation from 'swr/mutation';
+import { createNewLoyaltyProgram } from '@/services/api/marketing';
+import { useUser } from '@/hooks/useUserStore';
+import { useToast } from '@/components/context/useContext';
 
 const BasicData: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
+  const { showToast } = useToast();
 
   const defaultValues = {
     name: '',
     description: '',
-    maxLevels: undefined,
+    maxLevels: 1,
   };
 
   const [formData, setFormData] = useState(defaultValues);
 
-  const { register, handleSubmit, setValue } = useFormHook(formData);
+  const { register, handleSubmit, setValue, errors } = useFormHook(formData);
+
+  const { trigger: createLtyProgram, isMutating } = useSWRMutation(
+    [`create-loyalty-program`],
+    async () =>
+      createNewLoyaltyProgram({
+        name: formData.name,
+        ownerOrganizationId: user.organizationId!,
+        description: formData.description,
+        maxLevels: formData.maxLevels,
+      })
+  );
 
   const handleInputChange = (
     field: keyof typeof defaultValues,
-    value: string
+    value: string | number
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
   };
 
-  const onSubmit = async () => {};
+  const onSubmit = async () => {
+    try {
+      const result = await createLtyProgram();
+      if (result) {
+        updateSearchParams(searchParams, setSearchParams, {
+          step: 2,
+          loyaltyProgramId: result.props.id
+        });
+        showToast(t('success.recordCreated'), 'success');
+      } else {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
+    } catch (error) {
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center bg-background02 p-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex items-center justify-center bg-background02 p-4"
+    >
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8">
-          <div className="flex items-center space-x-4">
-            <BonusImage />
-
-            <div>
-              <div className="text-lg font-semibold text-text01">
-                {t('marketingLoyalty.basicData')}
-              </div>
-              <div className="text-text02">
-                {t('marketingLoyalty.configuring')}
+          <div className="flex items-center justify-center bg-background02 p-4">
+            <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+              <div className="flex items-center space-x-4">
+                <BonusImage />
+                <div>
+                  <div className="font-semibold text-text01">
+                    {t('marketingLoyalty.basicData')}
+                  </div>
+                  <div className="text-text03 text-xs">
+                    {t('marketingLoyalty.configuring')}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
+          <div className="mt-10">
             <div className="flex flex-col w-full">
               <div>
                 <div className="text-text01 text-sm font-semibold">
                   {t('equipment.name')}
                 </div>
-                <Form.Item>
+                <Form.Item
+                  help={errors.name?.message}
+                  validateStatus={errors.name ? 'error' : undefined}
+                >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
                     className="w-80 sm:w-96"
-                    {...register('name')}
+                    {...register('name', {
+                      required: t('validation.nameRequired'),
+                    })}
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
+                    status={errors.name ? 'error' : ''}
                   />
                 </Form.Item>
               </div>
@@ -68,16 +113,22 @@ const BasicData: React.FC = () => {
                 <div className="text-text01 text-sm font-semibold">
                   {t('warehouse.desc')}
                 </div>
-                <Form.Item>
+                <Form.Item
+                  help={errors.description?.message}
+                  validateStatus={errors.description ? 'error' : undefined}
+                >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
                     className="w-80 sm:w-96"
-                    {...register('description')}
+                    {...register('description', {
+                      required: t('validation.descriptionRequired'),
+                    })}
                     value={formData.description}
                     onChange={e =>
                       handleInputChange('description', e.target.value)
                     }
                     rows={4}
+                    status={errors.description ? 'error' : ''}
                   />
                 </Form.Item>
               </div>
@@ -94,14 +145,16 @@ const BasicData: React.FC = () => {
                     className="max-w-80 sm:max-w-96"
                     {...register('maxLevels')}
                     value={formData.maxLevels}
-                    onChange={value =>
-                      handleInputChange('maxLevels', String(value))
-                    }
+                    options={[
+                      { label: 1, value: 1 },
+                      { label: 2, value: 2 },
+                    ]}
+                    onChange={value => handleInputChange('maxLevels', value)}
                   />
                 </Form.Item>
               </div>
             </div>
-          </form>
+          </div>
         </div>
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20">
@@ -119,19 +172,16 @@ const BasicData: React.FC = () => {
       </div>
       <div className="flex mt-auto justify-end gap-2">
         <Button
-          onClick={() =>
-            updateSearchParams(searchParams, setSearchParams, {
-              step: 2,
-            })
-          }
+          htmlType="submit"
           type="primary"
           icon={<RightOutlined />}
           iconPosition="end"
+          loading={isMutating}
         >
           {t('common.next')}
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
