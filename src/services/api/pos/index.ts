@@ -10,7 +10,7 @@ enum POS {
   GET_CURRENCY = 'user/device/currency',
 }
 
-enum CarWashPosType {
+export enum CarWashPosType {
   SelfService = 'SelfService',
   Portal = 'Portal',
   SelfServiceAndPortal = 'SelfServiceAndPortal',

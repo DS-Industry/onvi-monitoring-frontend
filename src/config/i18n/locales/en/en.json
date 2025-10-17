@@ -116,7 +116,8 @@
     "newMarketingCampaign": "New Marketing Campaign",
     "debugging": "Debugging",
     "falseDeposits": "False deposits",
-    "falseDeposit": "False deposit"
+    "falseDeposit": "False deposit",
+    "createLoyalty": "Creating a loyalty program"
   },
   "dashboard": {
     "news": "News",
@@ -1389,7 +1390,8 @@
     "hourRange": "Hours must be between 0 and 23",
     "passwordRequired": "Password is required",
     "passwordNotMatch": "Password and confirmation password do not match",
-    "enterCorrectPassword": "Please enter a valid password"
+    "enterCorrectPassword": "Please enter a valid password",
+    "descriptionRequired": "Description is required"
   },
   "table": {
     "noData": "No Data",
@@ -1677,5 +1679,47 @@
       "endDate": "End Date",
       "assignee": "Assignee"
     }
+  },
+  "marketingLoyalty": {
+    "basicData": "Basic data",
+    "writeOff": "Write-off rules",
+    "participants": "Participants",
+    "levelsAndBonuses": "Levels and bonuses",
+    "publication": "Publication",
+    "configuring": "Configuring the main program components",
+    "maxLevels": "Maximum levels",
+    "maxLoyalty": "The maximum number of loyalty program levels.It will not be possible to create more levels than this value, but it will be possible to create fewer levels.",
+    "selectQuantity": "Select quantity",
+    "enterDesc": "Enter a description",
+    "settingUp": "Setting up rules for writing off bonuses from a client",
+    "maximumWriteOff": "Maximum write-off percentage for payment with bonuses",
+    "maximumPossible": "The maximum possible percentage of bonuses deducted from the purchase price",
+    "useBonuses": "Use bonuses with discounts",
+    "allowBonuses": "Allow bonuses to be used for payment with any discounts",
+    "afterPeriod": "After a period",
+    "displaying": "Displaying loyalty program participants",
+    "participatingBranches": "Participating branches",
+    "theLoyalty": "The loyalty program is created for all branches linked to the creator organization.",
+    "expansion": "Expansion of the loyalty program",
+    "toExpand": "To expand the loyalty program, an organization can request the Hub to add branches outside the organization.",
+    "everyMonth": "Every month",
+    "everyYear": "Every year",
+    "every": "every",
+    "days": "days",
+    "creatingLevels": "Creating levels with different privileges",
+    "recalculationPeriod": "Recalculation period",
+    "recal": "Loyalty program levels will be recalculated on Monday at 00:00 each week.",
+    "level": "Level",
+    "from": "from",
+    "lossOfLevel": "Loss of level",
+    "bonuses": "Bonuses",
+    "edit": "Edit",
+    "discount": "Discount",
+    "cashback": "Cashback",
+    "initialLevel": "Initial level of the loyalty program",
+    "middleLevel": "Middle level of the loyalty program",
+    "highestLevel": "Highest level of the loyalty program",
+    "notApplicable": "Not applicable",
+    "spent": "spent"
   }
 }

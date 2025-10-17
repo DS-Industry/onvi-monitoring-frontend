@@ -26,12 +26,17 @@ const MarketingLoyalty: React.FC = () => {
 
   const permissions = usePermissions();
 
-  const hasPermission = user?.organizationId ? permissions.some(permission =>
-    (permission.action === "create" || permission.action === "manage" || permission.action === "read") &&
-    permission.subject === "Pos" &&
-    Array.isArray(permission.conditions?.organizationId?.in) &&
-    permission.conditions.organizationId.in.includes(user.organizationId!)
-  ) : false;
+  const hasPermission = user?.organizationId
+    ? permissions.some(
+        permission =>
+          (permission.action === 'create' ||
+            permission.action === 'manage' ||
+            permission.action === 'read') &&
+          permission.subject === 'Pos' &&
+          Array.isArray(permission.conditions?.organizationId?.in) &&
+          permission.conditions.organizationId.in.includes(user.organizationId!)
+      )
+    : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyProgramsResponse[]>(
@@ -84,13 +89,29 @@ const MarketingLoyalty: React.FC = () => {
         title: t('loyaltyProgramsTable.participationStatus'),
         dataIndex: 'type',
         key: 'type',
-        render: (_, record) => <span>{record.ownerOrganizationId === user.organizationId ? <>{t('loyaltyProgramsTable.owner')}</> : <>{t('loyaltyProgramsTable.participant')}</>}</span>,
+        render: (_, record) => (
+          <span>
+            {record.ownerOrganizationId === user.organizationId ? (
+              <>{t('loyaltyProgramsTable.owner')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.participant')}</>
+            )}
+          </span>
+        ),
       },
       {
         title: t('marketing.ty'),
         dataIndex: 'isHub',
         key: 'isHub',
-        render: (_, record) => <span>{record.isHub ? <>{t('marketing.hub')}</> : <>{t('loyaltyProgramsTable.regularProgram')}</>}</span>,
+        render: (_, record) => (
+          <span>
+            {record.isHub ? (
+              <>{t('marketing.hub')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.regularProgram')}</>
+            )}
+          </span>
+        ),
       },
       {
         title: t('loyaltyProgramsTable.status'),
@@ -114,24 +135,28 @@ const MarketingLoyalty: React.FC = () => {
             {t('routes.loyalty')}
           </span>
         </div>
-        {!loyaltyProgramsLoading && user && permissions && <div className="flex items-center space-x-2">
-          {hasPermission &&  <Button
-            icon={<PlusOutlined />}
-            className="btn-outline-primary"
-            onClick={() => {
-              navigate('/marketing/loyalty/rewards');
-            }}
-          >
-            {t('routes.add')}
-          </Button>}
-          <Button
-            icon={<PlusOutlined />}
-            className="btn-primary"
-            onClick={() => setIsParticipantModalOpen(true)}
-          >
-            {t('loyaltyProgramsTable.join')}
-          </Button>
-        </div>}
+        {!loyaltyProgramsLoading && user && permissions && (
+          <div className="flex items-center space-x-2">
+            {hasPermission && (
+              <Button
+                icon={<PlusOutlined />}
+                className="btn-outline-primary"
+                onClick={() => {
+                  navigate('/marketing/loyalty/program');
+                }}
+              >
+                {t('routes.add')}
+              </Button>
+            )}
+            <Button
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => setIsParticipantModalOpen(true)}
+            >
+              {t('loyaltyProgramsTable.join')}
+            </Button>
+          </div>
+        )}
       </div>
       <div className="mt-2">
         {notificationVisible && (
@@ -153,7 +178,7 @@ const MarketingLoyalty: React.FC = () => {
           />
         </div>
       </div>
-      
+
       <ParticipantRequestModal
         open={isParticipantModalOpen}
         onClose={() => setIsParticipantModalOpen(false)}
