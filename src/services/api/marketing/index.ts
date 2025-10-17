@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
 import { ContractType, MarketingCampaignStatus } from '@/utils/constants';
+import { CarWashPosType } from '../pos';
 
 enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
@@ -1046,6 +1047,41 @@ type LoyaltyProgramResponse = {
   };
 };
 
+type PosResponse = {
+  id: number;
+  name: string;
+  slug: string;
+  startTime?: string;
+  endTime?: string;
+  organizationId: number;
+  placementId: number;
+  posMetaData: string;
+  timezone: number;
+  image: string;
+  rating: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: number;
+  updatedById: number;
+  address: {
+    id: number;
+    city: string;
+    location: string;
+    lat: string;
+    lon: string;
+  };
+  posType: {
+    id: number;
+    name: string;
+    slug: string;
+    carWashPosType: CarWashPosType;
+    minSumOrder: number;
+    maxSumOrder: number;
+    stepSumOrder: number;
+  };
+};
+
 export async function getLoyaltyHubRequests(
   params: LoyaltyHubRequestsParams
 ): Promise<LoyaltyRequestsResponse> {
@@ -1210,5 +1246,13 @@ export async function patchBonusRedemption(
     'user/loyalty/program/bonus-redemption-rules',
     request
   );
+  return response.data;
+}
+
+export async function getPosesParticipants(id: number): Promise<PosResponse> {
+  const response: AxiosResponse<PosResponse> = await api.get(
+    `user/loyalty/program/${id}/participant-poses`
+  );
+
   return response.data;
 }
