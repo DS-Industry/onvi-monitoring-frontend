@@ -1,9 +1,30 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import CarIcon from '@icons/CarIcon.svg?react';
+import useSWR from 'swr';
+import { getPosesParticipants } from '@/services/api/marketing';
+import { useSearchParams } from 'react-router-dom';
+import { Button } from 'antd';
+import { RightOutlined } from '@ant-design/icons';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 const Participants: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+
+  const { data: participantsData } = useSWR(
+    loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
+    () => getPosesParticipants(loyaltyProgramId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  console.log('Participants data: ', participantsData);
 
   return (
     <div className="flex flex-col space-y-10 bg-background02 p-4">
@@ -38,6 +59,21 @@ const Participants: React.FC = () => {
         <div className="text-text03 text-sm">
           {t('marketingLoyalty.toExpand')}
         </div>
+      </div>
+      <div className="flex mt-auto justify-end gap-2">
+        <Button
+          htmlType="submit"
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+          onClick={() => {
+            updateSearchParams(searchParams, setSearchParams, {
+              step: 4,
+            });
+          }}
+        >
+          {t('common.next')}
+        </Button>
       </div>
     </div>
   );

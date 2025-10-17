@@ -1705,6 +1705,21 @@
     "everyMonth": "Every month",
     "everyYear": "Every year",
     "every": "every",
-    "days": "days"
+    "days": "days",
+    "creatingLevels": "Creating levels with different privileges",
+    "recalculationPeriod": "Recalculation period",
+    "recal": "Loyalty program levels will be recalculated on Monday at 00:00 each week.",
+    "level": "Level",
+    "from": "from",
+    "lossOfLevel": "Loss of level",
+    "bonuses": "Bonuses",
+    "edit": "Edit",
+    "discount": "Discount",
+    "cashback": "Cashback",
+    "initialLevel": "Initial level of the loyalty program",
+    "middleLevel": "Middle level of the loyalty program",
+    "highestLevel": "Highest level of the loyalty program",
+    "notApplicable": "Not applicable",
+    "spent": "spent"
   }
 }
