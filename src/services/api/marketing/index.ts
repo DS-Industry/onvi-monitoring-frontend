@@ -233,6 +233,7 @@ type BenefitRequest = {
   type: BenefitType;
   bonus: number;
   benefitActionTypeId?: number;
+  ltyProgramId: number
 };
 
 type BenefitResponse = {

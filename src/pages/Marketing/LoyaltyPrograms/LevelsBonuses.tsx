@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CopyOutlined,
@@ -6,47 +6,27 @@ import {
   PlusOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { Button, Select } from 'antd';
-import LevelCard from './LevelCard';
+import { Button, List, Tag } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
+import { getTiers } from '@/services/api/marketing';
+import LevelsBonusesModal from './LevelsBonusesModal';
 
 const LevelsBonuses: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
 
-  const levels = [
-    {
-      levelNumber: 1,
-      fromAmount: '0 ₽',
-      description: t('marketingLoyalty.initialLevel'),
-      lossCondition: t('marketingLoyalty.notApplicable'),
-      bonuses: [
-        { label: 'Нива Gold 2%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 2%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-    {
-      levelNumber: 2,
-      fromAmount: '2000 ₽',
-      description: t('marketingLoyalty.middleLevel'),
-      lossCondition: '<2000 ₽ ' + t('marketingLoyalty.spent'),
-      bonuses: [
-        { label: 'Нива Gold 5%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 5%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-    {
-      levelNumber: 3,
-      fromAmount: '5000 ₽',
-      description: t('marketingLoyalty.highestLevel'),
-      lossCondition: '<10000 ₽ ' + t('marketingLoyalty.spent'),
-      bonuses: [
-        { label: 'Нива Gold 10%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 10%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-  ];
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(
+    [`get-tiers`, loyaltyProgramId],
+    () => getTiers({ programId: loyaltyProgramId || '*' }),
+    { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+  );
+
+  const tiers = tiersData || [];
+
+  const [levelModalOpen, setLevelModalOpen] = useState(false);
 
   return (
     <div>
@@ -75,22 +55,38 @@ const LevelsBonuses: React.FC = () => {
               </Button>
             </div>
           </div>
-          <div>
-            <div className="text-text01">
-              {t('marketingLoyalty.recalculationPeriod')}
-            </div>
-            <Select className="w-72" value={''} options={[]} />
-            <div className="text-sm text-text03">
-              {t('marketingLoyalty.recal')}
+          <div className="flex items-center justify-between">
+            <div className="text-text01">{t('marketingLoyalty.recalculationPeriod')}</div>
+            <div className="flex space-x-2">
+              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
+                {t('marketing.addLevel')}
+              </Button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-6 justify-center">
-            {levels.map(level => (
-              <LevelCard key={level.levelNumber} {...level} />
-            ))}
+          <div className="text-sm text-text03">{t('marketingLoyalty.recal')}</div>
+
+          <div className="mt-6">
+            <List
+              loading={tiersLoading}
+              dataSource={tiers}
+              rowKey={item => String(item.id)}
+              renderItem={(item: any) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={item.name}
+                    description={item.description}
+                  />
+                  <div className="flex items-center space-x-3">
+                    <Tag color="red">{item.limitBenefit}</Tag>
+                    <span className="text-text02">{t('marketing.limitBenefit')}</span>
+                  </div>
+                </List.Item>
+              )}
+            />
           </div>
         </div>
       </div>
+      <LevelsBonusesModal open={levelModalOpen} onClose={() => setLevelModalOpen(false)} loyaltyProgramId={loyaltyProgramId} />
       <div className="flex mt-auto justify-end gap-2">
         <Button
           htmlType="submit"
