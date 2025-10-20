@@ -1035,6 +1035,15 @@ const routes = [
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
+      },
+      {
+        name: 'updateLoyalty',
+        isVisible: false,
+        path: '/marketing/loyalty/program/:id',
+        component: LoyaltyPrograms,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
         subMenu: false,
       },
       {
