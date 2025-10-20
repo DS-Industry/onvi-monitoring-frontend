@@ -69,8 +69,8 @@ const MarketingLoyalty: React.FC = () => {
               {record.ownerOrganizationId === user.organizationId ? (
                 <Link
                   to={{
-                    pathname: '/marketing/loyalty/bonus',
-                    search: `?loyaltyId=${record.id}`,
+                    pathname: `/marketing/loyalty/program/${record.id}`,
+                    search: `?loyaltyProgramId=${record.id}&step=1`,
                   }}
                   className="text-blue-500 hover:text-blue-700 font-semibold"
                 >

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import WalletIcon from '@icons/WalletIcon.svg?react';
-import { Button, Input, Radio, RadioChangeEvent, Select, Switch } from 'antd';
+import { Button, Input, Radio, RadioChangeEvent, Select, Switch, Typography } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import { RightOutlined } from '@ant-design/icons';
@@ -9,6 +9,7 @@ import {
   BonusBurnoutType,
   BonusRedemptionUpdate,
   patchBonusRedemption,
+  getLoyaltyProgramById,
 } from '@/services/api/marketing';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
@@ -30,8 +31,51 @@ const WriteOffRules: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+  const [selectOpen, setSelectOpen] = useState(false);
 
-  const { register, handleSubmit, setValue } = useFormHook(formData);
+  const { register, handleSubmit, setValue, reset } = useFormHook(formData);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!loyaltyProgramId) return;
+      try {
+        const program = await getLoyaltyProgramById(loyaltyProgramId);
+        if (program) {
+          const rawBurnoutType = (program as any).burnoutType as string | undefined;
+          const lifetimeBonusDays = program.lifetimeBonusDays as number | undefined;
+          const maxRedeemPercentage = program.maxRedeemPercentage as number | undefined;
+          const hasBonusWithSale = program.hasBonusWithSale as boolean | undefined;
+
+          const normalizedType = (rawBurnoutType || '').toString().toLowerCase();
+          let burnoutType: BonusBurnoutType | undefined;
+          if (normalizedType === 'never') {
+            burnoutType = undefined;
+          } else if (normalizedType === 'month' || normalizedType === 'year' || normalizedType === 'custom') {
+            burnoutType = normalizedType as BonusBurnoutType;
+          } else if (typeof lifetimeBonusDays === 'number' && lifetimeBonusDays > 0) {
+            burnoutType = 'custom';
+          } else {
+            burnoutType = 'month';
+          }
+
+          const next = {
+            loyaltyProgramId,
+            burnoutType,
+            lifetimeBonusDays,
+            maxRedeemPercentage: maxRedeemPercentage ?? 0,
+            hasBonusWithSale: hasBonusWithSale ?? false,
+          } as BonusRedemptionUpdate;
+
+          setFormData(prev => ({ ...prev, ...next }));
+          reset(next);
+          setRadioValue(next.burnoutType === 'custom' || next.burnoutType === 'month' || next.burnoutType === 'year' ? 'period' : 'never');
+        }
+      } catch (error) {
+        console.error('Failed to load loyalty program for write-off rules', error);
+      }
+    };
+    load();
+  }, [loyaltyProgramId]);
 
   const { trigger: updateBonusRedemption, isMutating } = useSWRMutation(
     [`create-loyalty-program`],
@@ -133,6 +177,15 @@ const WriteOffRules: React.FC = () => {
                 value={radioValue}
                 onChange={(e: RadioChangeEvent) => {
                   setRadioValue(e.target.value);
+                  if (e.target.value === 'never') {
+                    handleInputChange('burnoutType', undefined);
+                    handleInputChange('lifetimeBonusDays', undefined);
+                    setSelectOpen(false);
+                  } else if (e.target.value === 'period') {
+                    if (!formData.burnoutType) {
+                      handleInputChange('burnoutType', 'month');
+                    }
+                  }
                 }}
               >
                 <Radio
@@ -165,24 +218,38 @@ const WriteOffRules: React.FC = () => {
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
                     className="min-w-80"
-                    value={formData.burnoutType}
-                    onChange={value => handleInputChange('burnoutType', value)}
+                    value={formData.burnoutType || (formData.lifetimeBonusDays ? 'custom' : undefined)}
+                    onChange={value => {
+                      handleInputChange('burnoutType', value);
+                      if (value !== 'custom') {
+                        handleInputChange('lifetimeBonusDays', undefined);
+                      }
+                    }}
+                    open={selectOpen}
+                    onDropdownVisibleChange={() => {
+                      setSelectOpen(true);
+                    }}
+                    defaultActiveFirstOption={false}
                     popupRender={menu => (
                       <>
                         {menu}
                         <div className="flex items-center p-3 border-t border-gray-200 bg-gray-50">
-                          <span>{t('marketingLoyalty.every')}</span>
+                          <Typography.Text>{t('marketingLoyalty.every')}</Typography.Text>
                           <Input
                             className="mx-2 w-24"
                             type="number"
                             {...register('lifetimeBonusDays')}
                             value={formData.lifetimeBonusDays}
-                            onChange={e =>
-                              handleInputChange(
-                                'lifetimeBonusDays',
-                                Number(e.target.value)
-                              )
-                            }
+                            min={0}
+                            disabled={formData.burnoutType !== 'custom'}
+                            onChange={e => {
+                              if (formData.burnoutType === 'custom') {
+                                handleInputChange(
+                                  'lifetimeBonusDays',
+                                  Number(e.target.value)
+                                );
+                              }
+                            }}
                             placeholder={t('marketingLoyalty.days')}
                           />
                           <span>{t('marketingLoyalty.days')}</span>
@@ -190,9 +257,13 @@ const WriteOffRules: React.FC = () => {
                             type="primary"
                             size="small"
                             className="ml-3"
+                            disabled={formData.burnoutType === 'custom' && !formData.lifetimeBonusDays}
                             onClick={e => {
                               e.stopPropagation();
-                              handleInputChange('burnoutType', 'custom');
+                              if (formData.burnoutType !== 'custom') {
+                                handleInputChange('lifetimeBonusDays', undefined);
+                              }
+                              setSelectOpen(false);
                               showToast(
                                 t('routes.savedSuccessfully'),
                                 'success'
@@ -214,7 +285,7 @@ const WriteOffRules: React.FC = () => {
                         value: 'year',
                       },
                       {
-                        label: '',
+                        label: t('marketingLoyalty.custom'),
                         value: 'custom',
                       },
                     ]}

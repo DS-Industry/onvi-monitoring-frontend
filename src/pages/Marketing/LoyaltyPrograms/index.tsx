@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Steps } from 'antd';
 import BasicData from './BasicData';
+import BasicDataUpdate from './update/BasicDataUpdate';
 import WriteOffRules from './WriteOffRules';
 import LevelsBonuses from './LevelsBonuses';
 import Participants from './Participants';
@@ -17,10 +18,12 @@ const LoyaltyPrograms: React.FC = () => {
   const [searchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
+  const isUpdate = Boolean(searchParams.get('loyaltyProgramId'));
+
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: <BasicData />,
+      content: isUpdate ? <BasicDataUpdate /> : <BasicData />,
     },
     {
       title: t('marketingLoyalty.writeOff'),

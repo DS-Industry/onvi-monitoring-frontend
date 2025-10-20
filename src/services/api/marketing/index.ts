@@ -188,6 +188,12 @@ type LoyaltyProgramsByIdResponse = {
   }[];
   startDate: Date;
   lifetimeDays?: number;
+  description?: string;
+  maxLevels?: number;
+  burnoutType?: BonusBurnoutType;
+  lifetimeBonusDays?: number;
+  maxRedeemPercentage?: number;
+  hasBonusWithSale?: boolean;
 };
 
 type TierRequest = {
@@ -1014,7 +1020,7 @@ type LoyaltyProgramCreateBody = {
   maxLevels: number;
 };
 
-export type BonusBurnoutType = 'year' | 'month' | 'custom';
+export type BonusBurnoutType = 'year' | 'month' | 'custom' | "never";
 
 export type BonusRedemptionUpdate = {
   loyaltyProgramId: number;
@@ -1023,6 +1029,8 @@ export type BonusRedemptionUpdate = {
   maxRedeemPercentage: number;
   hasBonusWithSale: boolean;
 };
+
+export type BonusRedemptionRules = BonusRedemptionUpdate;
 
 enum LTYProgramStatus {
   ACTIVE = 'ACTIVE',
@@ -1249,10 +1257,37 @@ export async function patchBonusRedemption(
   return response.data;
 }
 
+export async function getBonusRedemptionRules(
+  loyaltyProgramId: number
+): Promise<BonusRedemptionRules> {
+  const response: AxiosResponse<BonusRedemptionRules> = await api.get(
+    'user/loyalty/program/bonus-redemption-rules',
+    { params: { loyaltyProgramId } }
+  );
+  return response.data;
+}
+
 export async function getPosesParticipants(id: number): Promise<PosResponse> {
   const response: AxiosResponse<PosResponse> = await api.get(
     `user/loyalty/program/${id}/participant-poses`
   );
 
+  return response.data;
+}
+
+export type LoyaltyProgramUpdateBody = {
+  loyaltyProgramId: number;
+  name?: string;
+  description?: string;
+  maxLevels?: number;
+};
+
+export async function updateNewLoyaltyProgram(
+  request: LoyaltyProgramUpdateBody
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    'user/loyalty/program',
+    request
+  );
   return response.data;
 }
