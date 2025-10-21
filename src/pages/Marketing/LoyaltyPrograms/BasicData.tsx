@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input } from 'antd';
 import MarketingBasicData from '@/assets/MarketingBasicData.webp';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -11,6 +11,8 @@ import useSWRMutation from 'swr/mutation';
 import { createNewLoyaltyProgram } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
+import { FireOutlined } from '@ant-design/icons';
+import { MAX_LEVELS } from '@/utils/constants';
 
 const BasicData: React.FC = () => {
   const { t } = useTranslation();
@@ -53,7 +55,7 @@ const BasicData: React.FC = () => {
       if (result) {
         updateSearchParams(searchParams, setSearchParams, {
           step: 2,
-          loyaltyProgramId: result.props.id
+          loyaltyProgramId: result.props.id,
         });
         showToast(t('success.recordCreated'), 'success');
       } else {
@@ -68,7 +70,7 @@ const BasicData: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex items-center justify-center bg-background02 p-4"
+      className="bg-background02 p-4"
     >
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8">
@@ -132,26 +134,38 @@ const BasicData: React.FC = () => {
                   />
                 </Form.Item>
               </div>
-              <div className="space-y-5">
+              <div>
                 <div className="text-text01 text-sm font-semibold">
                   {t('marketingLoyalty.maxLevels')}
                 </div>
                 <div className="text-text03 text-sm">
                   {t('marketingLoyalty.maxLoyalty')}
                 </div>
-                <Form.Item>
-                  <Select
-                    placeholder={t('marketingLoyalty.selectQuantity')}
-                    className="max-w-80 sm:max-w-96"
-                    {...register('maxLevels')}
-                    value={formData.maxLevels}
-                    options={[
-                      { label: 1, value: 1 },
-                      { label: 2, value: 2 },
-                    ]}
-                    onChange={value => handleInputChange('maxLevels', value)}
-                  />
-                </Form.Item>
+                <div className="mt-2 flex items-center space-x-3">
+                  <div className="flex space-x-2">
+                    {[...Array(MAX_LEVELS)].map((_, index) => {
+                      const level = index + 1;
+                      const isActive = level <= formData.maxLevels;
+                      return (
+                        <div
+                          key={level}
+                          onClick={() => handleInputChange('maxLevels', level)}
+                          className={`cursor-pointer w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                            isActive ? 'bg-blue-500' : 'bg-gray-300'
+                          }`}
+                        >
+                          <FireOutlined style={{ fontSize: 24 }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="text-sm text-text02 font-medium">
+                    {formData.maxLevels}{' '}
+                    {t('marketing.levels', {
+                      count: formData.maxLevels,
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

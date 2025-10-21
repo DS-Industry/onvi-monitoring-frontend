@@ -1,7 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Input, Modal, Select, Steps, Transfer } from 'antd';
+import { Button, Form, Input, Modal, Select, Steps, Transfer } from 'antd';
 import useSWR, { mutate } from 'swr';
-import { createBenefit, createTier, getBenefits, getTierById, updateTier } from '@/services/api/marketing';
+import {
+  BenefitType,
+  createBenefit,
+  createTier,
+  getBenefits,
+  getTierById,
+  updateTier,
+} from '@/services/api/marketing';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +23,12 @@ type Props = {
   tierId?: number;
 };
 
-const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, tierId }) => {
+const LevelsBonusesModal: React.FC<Props> = ({
+  open,
+  onClose,
+  loyaltyProgramId,
+  tierId,
+}) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
 
@@ -27,15 +39,29 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
 
   const [searchParams] = useSearchParams();
 
-  const ltyProgramId = searchParams.get("loyaltyProgramId")
+  const ltyProgramId = searchParams.get('loyaltyProgramId');
 
-  const levelDefaults = { name: '', description: '', limitBenefit: 0, promotionSpendAmount: 0 };
+  const levelDefaults = {
+    name: '',
+    description: '',
+    limitBenefit: 0,
+    promotionSpendAmount: 0,
+  };
   const [levelForm, setLevelForm] = useState(levelDefaults);
-  const { handleSubmit: handleSubmitLevel, errors: levelErrors, setValue: setLevelValue, reset: resetLevel } =
-    useFormHook(levelForm);
-  const handleLevelChange = (field: keyof typeof levelDefaults, value: string | number) => {
+  const {
+    register: registerLevel,
+    handleSubmit: handleSubmitLevel,
+    errors: levelErrors,
+    setValue: setLevelValue,
+    reset: resetLevel,
+  } = useFormHook(levelForm);
+
+  const handleLevelChange = (
+    field: keyof typeof levelDefaults,
+    value: string | number
+  ) => {
     setLevelForm(prev => ({ ...prev, [field]: value }));
-    setLevelValue(field, value as any);
+    setLevelValue(field, value);
   };
 
   const { trigger: doCreateTier, isMutating: creatingTier } = useSWRMutation(
@@ -55,29 +81,49 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
     keepPreviousData: true,
   });
   const benefitOptions = useMemo(
-    () => (benefitsData || []).map(b => ({ key: String(b.props.id), title: b.props.name, id: b.props.id })),
+    () =>
+      (benefitsData || []).map(b => ({
+        key: String(b.props.id),
+        title: b.props.name,
+        id: b.props.id,
+      })),
     [benefitsData]
   );
 
-  const benefitDefaults = { name: '', type: '', bonus: 0, benefitActionTypeId: undefined as number | undefined };
-  const [benefitForm, setBenefitForm] = useState(benefitDefaults);
-  const { handleSubmit: handleSubmitBenefit, errors: benefitErrors, setValue: setBenefitValue, reset: resetBenefit } =
-    useFormHook(benefitForm);
-  const handleBenefitChange = (field: keyof typeof benefitDefaults, value: string | number | undefined) => {
-    setBenefitForm(prev => ({ ...prev, [field]: value as any }));
-    setBenefitValue(field as any, value as any);
+  const benefitDefaults = {
+    name: '',
+    type: '',
+    bonus: 0,
+    benefitActionTypeId: undefined as number | undefined,
   };
-  const { trigger: doCreateBenefit, isMutating: creatingBenefit } = useSWRMutation(
-    ['create-benefit'],
-    async () =>
+
+  const [benefitForm, setBenefitForm] = useState(benefitDefaults);
+  const {
+    register: registerBenefit,
+    handleSubmit: handleSubmitBenefit,
+    errors: benefitErrors,
+    setValue: setBenefitValue,
+    reset: resetBenefit,
+  } = useFormHook(benefitForm);
+
+  const handleBenefitChange = (
+    field: keyof typeof benefitDefaults,
+    value: string | number | undefined
+  ) => {
+    setBenefitForm(prev => ({ ...prev, [field]: value }));
+    setBenefitValue(field, value);
+  };
+
+  const { trigger: doCreateBenefit, isMutating: creatingBenefit } =
+    useSWRMutation(['create-benefit'], async () =>
       createBenefit({
         name: benefitForm.name,
-        type: benefitForm.type as any,
+        type: benefitForm.type as BenefitType,
         bonus: Number(benefitForm.bonus) || 0,
         benefitActionTypeId: benefitForm.benefitActionTypeId,
-        ltyProgramId: Number(ltyProgramId) || 0
+        ltyProgramId: Number(ltyProgramId) || 0,
       })
-  );
+    );
 
   useEffect(() => {
     const prefillForEdit = async () => {
@@ -99,7 +145,6 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
       }
     };
     prefillForEdit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isEdit, tierId]);
 
   const submitCreateLevel = async () => {
@@ -155,24 +200,35 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
     setSelectedBenefitKeys([]);
     resetLevel(levelDefaults);
     resetBenefit(benefitDefaults);
+    setLevelForm(levelDefaults);           
+    setBenefitForm(benefitDefaults);      
     onClose();
   };
 
   return (
-    <Modal open={open} onCancel={handleClose} footer={null} width={860}>
-        <div className="flex justify-center">
-            <div className="w-[500px]">
-                <Steps
-                    size="small"
-                    current={current}
-                    items={[
-                    { title: t('marketing.addLevel', { defaultValue: 'Добавить уровень' }) },
-                    { title: t('marketing.addBen', { defaultValue: 'Добавить преимущество' }) },
-                    ]}
-                    style={{ marginBottom: 16 }}
-                />
-            </div>
+    <Modal open={open} onCancel={handleClose} footer={null}>
+      <div className="flex justify-center">
+        <div className="w-[500px]">
+          <Steps
+            size="small"
+            current={current}
+            items={[
+              {
+                title: t('marketing.addLevel', {
+                  defaultValue: 'Добавить уровень',
+                }),
+              },
+              {
+                title: t('marketing.addBen', {
+                  defaultValue: 'Добавить преимущество',
+                }),
+              },
+            ]}
+            style={{ marginBottom: 16 }}
+            labelPlacement="vertical"
+          />
         </div>
+      </div>
 
       {current === 0 && (
         <form onSubmit={handleSubmitLevel(submitCreateLevel)}>
@@ -180,31 +236,49 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
             <div className="border-t border-gray-200 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                 <div className="font-semibold text-text01 md:col-span-1">
-                  {t('marketingLoyalty.basicData', { defaultValue: 'Основные данные' })}
+                  {t('marketingLoyalty.basicData', {
+                    defaultValue: 'Основные данные',
+                  })}
                 </div>
                 <div className="md:col-span-2 space-y-4">
                   <div>
-                    <div className="text-sm font-semibold text-text01">
-                      {t('marketing.levelName', { defaultValue: 'Название уровня' })}
+                    <div className="text-sm text-text01">
+                      {t('marketing.levelName', {
+                        defaultValue: 'Название уровня',
+                      })}
                     </div>
-                    <Input
-                      placeholder={t('profile.namePlaceholder')}
-                      value={levelForm.name}
-                      onChange={e => handleLevelChange('name', e.target.value)}
-                      disabled={isEdit}
-                    />
-                    {!!levelErrors.name && (
-                      <div className="text-red-500 text-xs mt-1">{levelErrors.name.message}</div>
-                    )}
+                    <Form.Item
+                      help={levelErrors.name?.message}
+                      validateStatus={levelErrors.name ? 'error' : undefined}
+                    >
+                      <Input
+                        placeholder={t('profile.namePlaceholder')}
+                        {...registerLevel('name', {
+                          required: t('validation.nameRequired'),
+                        })}
+                        value={levelForm.name}
+                        onChange={e =>
+                          handleLevelChange('name', e.target.value)
+                        }
+                        disabled={isEdit}
+                        className="w-72"
+                        status={levelErrors.name ? 'error' : ''}
+                      />
+                    </Form.Item>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-text01">
-                      {t('marketing.levelDescription', { defaultValue: 'Описание уровня' })}
+                    <div className="text-sm text-text01">
+                      {t('marketing.levelDescription', {
+                        defaultValue: 'Описание уровня',
+                      })}
                     </div>
                     <Input.TextArea
                       rows={4}
                       value={levelForm.description}
-                      onChange={e => handleLevelChange('description', e.target.value)}
+                      onChange={e =>
+                        handleLevelChange('description', e.target.value)
+                      }
+                      className="w-72"
                     />
                   </div>
                 </div>
@@ -214,19 +288,29 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
             <div className="border-t border-gray-200 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                 <div className="font-semibold text-text01 md:col-span-1">
-                  {t('marketing.upDown', { defaultValue: 'Повышение/понижение' })}
+                  {t('marketing.upDown', {
+                    defaultValue: 'Повышение/понижение',
+                  })}
                 </div>
                 <div className="md:col-span-2 space-y-4">
                   <div>
-                    <div className="text-sm font-semibold text-text01">
-                      {t('marketing.promotionSpend', { defaultValue: 'Сумма трат для повышения уровня' })}
+                    <div className="text-sm text-text01">
+                      {t('marketing.promotionSpend', {
+                        defaultValue: 'Сумма трат для повышения уровня',
+                      })}
                     </div>
                     <Input
                       type="number"
                       suffix={<div className="text-text02">₽</div>}
                       value={levelForm.limitBenefit}
-                      onChange={e => handleLevelChange('limitBenefit', Number(e.target.value))}
+                      onChange={e =>
+                        handleLevelChange(
+                          'limitBenefit',
+                          Number(e.target.value)
+                        )
+                      }
                       disabled={isEdit}
+                      className="w-72"
                     />
                   </div>
                 </div>
@@ -234,11 +318,17 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={handleClose}>{t('analysis.reset', { defaultValue: 'Сбросить' })}</Button>
+            <Button onClick={handleClose}>
+              {t('analysis.reset', { defaultValue: 'Сбросить' })}
+            </Button>
             {isEdit ? (
-              <Button type="primary" onClick={() => setCurrent(1)}>{t('common.next', { defaultValue: 'Далее' })}</Button>
+              <Button type="primary" onClick={() => setCurrent(1)}>
+                {t('common.next', { defaultValue: 'Далее' })}
+              </Button>
             ) : (
-              <Button htmlType="submit" type="primary" loading={creatingTier}>{t('common.next', { defaultValue: 'Далее' })}</Button>
+              <Button htmlType="submit" type="primary" loading={creatingTier}>
+                {t('common.next', { defaultValue: 'Далее' })}
+              </Button>
             )}
           </div>
         </form>
@@ -251,14 +341,14 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
               dataSource={benefitOptions}
               targetKeys={selectedBenefitKeys}
               onChange={keys => setSelectedBenefitKeys(keys as string[])}
-              render={item => item.title as any}
-              listStyle={{ width: 300, height: 280 }}
+              render={item => item.title}
+              listStyle={{ width: 220 }}
               titles={[
                 t('marketing.available', { defaultValue: 'Доступные бонусы' }),
                 t('marketing.selected', { defaultValue: 'Выбранные бонусы' }),
               ]}
               showSelectAll={false}
-              style={{ width: 720 }}
+              oneWay={true}
             />
           </div>
 
@@ -272,28 +362,68 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
               <form onSubmit={handleSubmitBenefit(submitCreateBenefit)}>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm font-semibold text-text01">{t('equipment.name', { defaultValue: 'Название уровня' })}</div>
-                    <Input value={benefitForm.name} onChange={e => handleBenefitChange('name', e.target.value)} />
-                    {!!benefitErrors.name && <div className="text-red-500 text-xs mt-1">{benefitErrors.name.message}</div>}
+                    <div className="text-sm font-semibold text-text01">
+                      {t('equipment.name', { defaultValue: 'Название уровня' })}
+                    </div>
+                    <Form.Item
+                      help={benefitErrors.name?.message}
+                      validateStatus={benefitErrors.name ? 'error' : undefined}
+                    >
+                      <Input
+                        placeholder={t('profile.namePlaceholder')}
+                        {...registerBenefit('name', {
+                          required: t('validation.nameRequired'),
+                        })}
+                        value={benefitForm.name}
+                        onChange={e =>
+                          handleBenefitChange('name', e.target.value)
+                        }
+                        className="w-72"
+                        status={benefitErrors.name ? 'error' : ''}
+                      />
+                    </Form.Item>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-text01">{t('marketing.ty', { defaultValue: 'Тип' })}</div>
+                    <div className="text-sm font-semibold text-text01">
+                      {t('marketing.ty', { defaultValue: 'Тип' })}
+                    </div>
                     <Select
-                      value={benefitForm.type as any}
+                      placeholder={t('warehouse.notSel')}
+                      value={benefitForm.type}
                       onChange={v => handleBenefitChange('type', v)}
                       options={[
                         { label: t('marketing.CASHBACK'), value: 'CASHBACK' },
                         { label: t('marketing.DISCOUNT'), value: 'DISCOUNT' },
-                        { label: t('marketing.GIFT_POINTS'), value: 'GIFT_POINTS' },
+                        {
+                          label: t('marketing.GIFT_POINTS'),
+                          value: 'GIFT_POINTS',
+                        },
                       ]}
+                      className="w-72"
                     />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-text01">{t('marketing.value', { defaultValue: 'Значение' })}</div>
-                    <Input type="number" value={benefitForm.bonus} onChange={e => handleBenefitChange('bonus', Number(e.target.value))} />
+                    <div className="text-sm font-semibold text-text01">
+                      {t('marketing.value', { defaultValue: 'Значение' })}
+                    </div>
+                    <Input
+                      type="number"
+                      value={benefitForm.bonus}
+                      onChange={e =>
+                        handleBenefitChange('bonus', Number(e.target.value))
+                      }
+                      className="w-72"
+                    />
                   </div>
-                  <div className="pt-2">
-                    <Button htmlType="submit" type="primary" loading={creatingBenefit}>{t('marketing.create', { defaultValue: 'Создать' })}</Button>
+                  <div className="pt-2 flex justify-end">
+                    <Button
+                      htmlType="submit"
+                      type="primary"
+                      loading={creatingBenefit}
+                      className="bg-primary01"
+                    >
+                      {t('marketing.create', { defaultValue: 'Создать' })}
+                    </Button>
                   </div>
                 </div>
               </form>
@@ -302,10 +432,22 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
 
           <div className="flex justify-between gap-2 mt-6">
             <div>
-              <Button onClick={() => setCurrent(0)}>{t('common.back', { defaultValue: 'Назад' })}</Button>
+              <Button onClick={() => setCurrent(0)}>
+                {t('common.back', { defaultValue: 'Назад' })}
+              </Button>
             </div>
-            <Button onClick={handleClose}>{t('analysis.reset', { defaultValue: 'Сбросить' })}</Button>
-            <Button type="primary" loading={updatingTier} onClick={handleSave}>{t('routes.save', { defaultValue: 'Сохранить' })}</Button>
+            <div className="flex gap-2">
+              <Button onClick={handleClose}>
+                {t('analysis.reset', { defaultValue: 'Сбросить' })}
+              </Button>
+              <Button
+                type="primary"
+                loading={updatingTier}
+                onClick={handleSave}
+              >
+                {t('routes.save', { defaultValue: 'Сохранить' })}
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -314,5 +456,3 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
 };
 
 export default LevelsBonusesModal;
-
-

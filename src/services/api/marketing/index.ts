@@ -32,7 +32,7 @@ export enum LoyaltyProgramStatus {
   PAUSE = 'PAUSE',
 }
 
-enum BenefitType {
+export enum BenefitType {
   CASHBACK = 'CASHBACK',
   DISCOUNT = 'DISCOUNT',
   GIFT_POINTS = 'GIFT_POINTS',
