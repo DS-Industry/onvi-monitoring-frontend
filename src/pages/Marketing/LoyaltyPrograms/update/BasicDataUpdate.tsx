@@ -134,7 +134,7 @@ const BasicDataUpdate: React.FC = () => {
                 >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
-                    className="w-80 sm:w-96"
+                    className="w-full sm:w-96"
                     {...register('name', {
                       required: t('validation.nameRequired'),
                     })}
@@ -155,7 +155,7 @@ const BasicDataUpdate: React.FC = () => {
                 >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
-                    className="w-80 sm:w-96"
+                    className="w-full sm:w-96"
                     {...register('description', {
                       required: t('validation.descriptionRequired'),
                     })}
