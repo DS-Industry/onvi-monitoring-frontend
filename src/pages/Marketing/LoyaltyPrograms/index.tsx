@@ -15,10 +15,16 @@ const { Step } = Steps;
 const LoyaltyPrograms: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
   const isUpdate = Boolean(searchParams.get('loyaltyProgramId'));
+
+  const handleStepClick = (stepIndex: number) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('step', (stepIndex + 1).toString());
+    setSearchParams(newSearchParams);
+  };
 
   const steps = [
     {
@@ -63,7 +69,12 @@ const LoyaltyPrograms: React.FC = () => {
       </div>
 
       <div className="ml-12">
-        <Steps current={currentStep} size="default" labelPlacement="vertical">
+        <Steps 
+          current={currentStep} 
+          size="default" 
+          labelPlacement="vertical"
+          onChange={handleStepClick}
+        >
           {steps.map((step, index) => (
             <Step key={index} title={step.title} />
           ))}
