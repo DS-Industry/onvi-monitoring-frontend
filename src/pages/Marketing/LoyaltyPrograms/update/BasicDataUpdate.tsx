@@ -106,9 +106,9 @@ const BasicDataUpdate: React.FC = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
-        <div className="lg:w-5/12 p-8">
-          <div className="flex items-center justify-center bg-background02 p-4">
-            <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+        <div>
+          <div className="flex items-center justify-center bg-background02">
+            <div className="flex flex-col rounded-lg w-full md:p-0 space-y-10">
               <div className="flex items-center space-x-4">
                 <BonusImage />
                 <div>
@@ -134,7 +134,7 @@ const BasicDataUpdate: React.FC = () => {
                 >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
-                    className="w-80 sm:w-96"
+                    className="w-full sm:w-96"
                     {...register('name', {
                       required: t('validation.nameRequired'),
                     })}
@@ -155,7 +155,7 @@ const BasicDataUpdate: React.FC = () => {
                 >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
-                    className="w-80 sm:w-96"
+                    className="w-full sm:w-96"
                     {...register('description', {
                       required: t('validation.descriptionRequired'),
                     })}

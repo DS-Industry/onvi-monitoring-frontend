@@ -276,7 +276,7 @@ const WriteOffRules: React.FC = () => {
                 <div>
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
-                    className="min-w-80"
+                    className="w-full sm:min-w-80"
                     value={
                       formData.burnoutType ||
                       (formData.lifetimeBonusDays ? 'custom' : undefined)
