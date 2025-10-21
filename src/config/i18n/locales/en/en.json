@@ -1720,6 +1720,25 @@
     "middleLevel": "Middle level of the loyalty program",
     "highestLevel": "Highest level of the loyalty program",
     "notApplicable": "Not applicable",
-    "spent": "spent"
+    "spent": "spent",
+    "custom": "Custom",
+    "implementation": "Implementation of the loyalty program publication",
+    "basicInformation": "Basic information",
+    "name": "Name",
+    "testProgram": "Test program",
+    "description": "Description",
+    "programText": "The more often you are with us—the more beneficial! Our loyalty program is designed so that each of your visits counts.",
+    "maxWriteOffPercent": "Max. write-off percentage",
+    "useBonusesWithDiscounts": "Use bonuses with discounts",
+    "yes": "yes",
+    "bonusExpiration": "Bonus expiration",
+    "bonusExpirationValue": "after 30 days",
+    "participantsAndLevels": "Participants and levels",
+    "numberOfLevels": "Number of levels",
+    "hub": "Hub",
+    "hubRequest": "You can request a Hub to expand your loyalty program and add branches not belonging to your organization.",
+    "request": "Request",
+    "saveAndExit": "Save and exit",
+    "startNow": "Start now"
   }
 }
