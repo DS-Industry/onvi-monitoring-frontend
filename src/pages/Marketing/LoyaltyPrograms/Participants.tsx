@@ -7,13 +7,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Button } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import ParticipantsMap from '@/components/ui/ParticipantsMap';
 
 const Participants: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
 
-  const { data: participantsData } = useSWR(
+  const { data: participantsData, isLoading: participantsLoading } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
     () => getPosesParticipants(loyaltyProgramId),
     {
@@ -46,11 +47,19 @@ const Participants: React.FC = () => {
           <div className="font-semibold text-text01">
             {t('marketingLoyalty.participatingBranches')} —
           </div>
-          <div className="font-semibold text-primary02">10</div>
+          <div className="font-semibold text-primary02">
+            {participantsData?.length || 0}
+          </div>
         </div>
         <div className="text-text03 text-sm">
           {t('marketingLoyalty.theLoyalty')}
         </div>
+      </div>
+      <div>
+        <ParticipantsMap 
+          participants={participantsData || []} 
+          loading={participantsLoading} 
+        />
       </div>
       <div>
         <div className="font-semibold text-text01">
@@ -60,6 +69,8 @@ const Participants: React.FC = () => {
           {t('marketingLoyalty.toExpand')}
         </div>
       </div>
+    
+      
       <div className="flex mt-auto justify-end gap-2">
         <Button
           htmlType="submit"

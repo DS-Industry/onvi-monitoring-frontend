@@ -99,7 +99,6 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, 
       }
     };
     prefillForEdit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isEdit, tierId]);
 
   const submitCreateLevel = async () => {
