@@ -1063,7 +1063,7 @@ type LoyaltyProgramResponse = {
   };
 };
 
-type PosResponse = {
+export type PosResponse = {
   id: number;
   name: string;
   slug: string;
@@ -1275,8 +1275,8 @@ export async function getBonusRedemptionRules(
   return response.data;
 }
 
-export async function getPosesParticipants(id: number): Promise<PosResponse> {
-  const response: AxiosResponse<PosResponse> = await api.get(
+export async function getPosesParticipants(id: number): Promise<PosResponse[]> {
+  const response: AxiosResponse<PosResponse[]> = await api.get(
     `user/loyalty/program/${id}/participant-poses`
   );
 
