@@ -21,6 +21,7 @@ const LoyaltyPrograms: React.FC = () => {
   const isUpdate = Boolean(searchParams.get('loyaltyProgramId'));
 
   const handleStepClick = (stepIndex: number) => {
+    if (!isUpdate) return
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('step', (stepIndex + 1).toString());
     setSearchParams(newSearchParams);
