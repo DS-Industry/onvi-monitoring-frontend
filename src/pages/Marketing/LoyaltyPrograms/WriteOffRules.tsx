@@ -31,6 +31,8 @@ const WriteOffRules: React.FC = () => {
   const currentStep = Number(searchParams.get('step')) || 1;
   const { showToast } = useToast();
 
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
   const defaultValues: BonusRedemptionUpdate = {
     loyaltyProgramId: loyaltyProgramId,
     burnoutType: 'month',
@@ -366,7 +368,7 @@ const WriteOffRules: React.FC = () => {
       </div>
       <div className="flex mt-auto justify-end gap-2">
         <div>
-          {currentStep > 1 && (
+          {currentStep > 1 && isUpdate && (
             <Button
               icon={<LeftOutlined />}
               onClick={goBack}

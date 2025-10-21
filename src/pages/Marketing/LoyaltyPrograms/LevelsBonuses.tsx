@@ -20,6 +20,8 @@ const LevelsBonuses: React.FC = () => {
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   const currentStep = Number(searchParams.get('step')) || 1;
 
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
     [`get-tiers`, loyaltyProgramId],
     () => getTiers({ programId: loyaltyProgramId || '*' }),
@@ -130,7 +132,7 @@ const LevelsBonuses: React.FC = () => {
       </Modal>
       <div className="flex mt-auto justify-end gap-2">
         <div>
-          {currentStep > 1 && (
+          {currentStep > 1 && isUpdate && (
             <Button
               icon={<LeftOutlined />}
               onClick={goBack}

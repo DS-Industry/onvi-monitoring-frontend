@@ -70,7 +70,7 @@ const MarketingLoyalty: React.FC = () => {
                 <Link
                   to={{
                     pathname: `/marketing/loyalty/program/${record.id}`,
-                    search: `?loyaltyProgramId=${record.id}&step=1`,
+                    search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
                   }}
                   className="text-blue-500 hover:text-blue-700 font-semibold"
                 >
