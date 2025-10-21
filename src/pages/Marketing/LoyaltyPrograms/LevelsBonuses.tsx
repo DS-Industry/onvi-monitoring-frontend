@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  CopyOutlined,
   FireOutlined,
   PlusOutlined,
   RightOutlined,
@@ -55,22 +54,14 @@ const LevelsBonuses: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="flex space-x-4">
-              <Button icon={<CopyOutlined />}>
-                {t('equipment.templates')}
-              </Button>
-              <Button icon={<PlusOutlined />} type="primary">
+             <div className="flex space-x-2">
+              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
                 {t('marketing.addLevel')}
               </Button>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-text01">{t('marketingLoyalty.recalculationPeriod')}</div>
-            <div className="flex space-x-2">
-              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
-                {t('marketing.addLevel')}
-              </Button>
-            </div>
           </div>
           <div className="text-sm text-text03">{t('marketingLoyalty.recal')}</div>
 

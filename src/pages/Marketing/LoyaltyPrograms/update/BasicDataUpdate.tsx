@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { RightOutlined } from '@ant-design/icons';
+import { FireOutlined, RightOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import {
@@ -14,6 +14,7 @@ import {
   LoyaltyProgramUpdateBody,
 } from '@/services/api/marketing';
 import { useToast } from '@/components/context/useContext';
+import { MAX_LEVELS } from '@/utils/constants';
 
 const BasicDataUpdate: React.FC = () => {
   const { t } = useTranslation();
@@ -30,7 +31,8 @@ const BasicDataUpdate: React.FC = () => {
 
   const [formData, setFormData] = useState(defaultValues);
 
-  const { register, handleSubmit, setValue, errors, reset } = useFormHook(formData);
+  const { register, handleSubmit, setValue, errors, reset } =
+    useFormHook(formData);
 
   const { data: program, isValidating } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
@@ -41,8 +43,8 @@ const BasicDataUpdate: React.FC = () => {
     if (program) {
       const next = {
         name: program.name ?? '',
-        description: (program as any).description ?? '',
-        maxLevels: (program as any).maxLevels ?? 1,
+        description: program.description ?? '',
+        maxLevels: program.maxLevels ?? 1,
       };
       setFormData(next);
       reset(next);
@@ -51,7 +53,8 @@ const BasicDataUpdate: React.FC = () => {
 
   const { trigger: updateProgram, isMutating } = useSWRMutation(
     [`update-loyalty-program`, loyaltyProgramId],
-    async (_key, { arg }: { arg: LoyaltyProgramUpdateBody }) => updateNewLoyaltyProgram(arg)
+    async (_key, { arg }: { arg: LoyaltyProgramUpdateBody }) =>
+      updateNewLoyaltyProgram(arg)
   );
 
   const handleInputChange = (
@@ -64,12 +67,27 @@ const BasicDataUpdate: React.FC = () => {
 
   const onSubmit = async () => {
     try {
+      // If program is loaded and unchanged, skip API call
+      if (
+        program &&
+        formData.name === (program.name ?? '') &&
+        formData.description === (program.description ?? '') &&
+        formData.maxLevels === (program.maxLevels ?? 1)
+      ) {
+        updateSearchParams(searchParams, setSearchParams, {
+          step: 2,
+          loyaltyProgramId,
+        });
+        return; 
+      }
+
       const result = await updateProgram({
-        loyaltyProgramId: loyaltyProgramId,
+        loyaltyProgramId,
         name: formData.name,
         description: formData.description,
         maxLevels: formData.maxLevels,
       });
+
       if (result?.props?.id) {
         updateSearchParams(searchParams, setSearchParams, {
           step: 2,
@@ -86,7 +104,7 @@ const BasicDataUpdate: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex items-center justify-center bg-background02 p-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="bg-background02 p-4">
       <div className="flex flex-col rounded-lg p-8 lg:flex-row md:p-0">
         <div className="lg:w-5/12 p-8">
           <div className="flex items-center justify-center bg-background02 p-4">
@@ -110,11 +128,16 @@ const BasicDataUpdate: React.FC = () => {
                 <div className="text-text01 text-sm font-semibold">
                   {t('equipment.name')}
                 </div>
-                <Form.Item help={errors.name?.message} validateStatus={errors.name ? 'error' : undefined}>
+                <Form.Item
+                  help={errors.name?.message}
+                  validateStatus={errors.name ? 'error' : undefined}
+                >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
                     className="w-80 sm:w-96"
-                    {...register('name', { required: t('validation.nameRequired') })}
+                    {...register('name', {
+                      required: t('validation.nameRequired'),
+                    })}
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
                     status={errors.name ? 'error' : ''}
@@ -126,13 +149,20 @@ const BasicDataUpdate: React.FC = () => {
                 <div className="text-text01 text-sm font-semibold">
                   {t('warehouse.desc')}
                 </div>
-                <Form.Item help={errors.description?.message} validateStatus={errors.description ? 'error' : undefined}>
+                <Form.Item
+                  help={errors.description?.message}
+                  validateStatus={errors.description ? 'error' : undefined}
+                >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
                     className="w-80 sm:w-96"
-                    {...register('description', { required: t('validation.descriptionRequired') })}
+                    {...register('description', {
+                      required: t('validation.descriptionRequired'),
+                    })}
                     value={formData.description}
-                    onChange={e => handleInputChange('description', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('description', e.target.value)
+                    }
                     rows={4}
                     status={errors.description ? 'error' : ''}
                     disabled={isValidating}
@@ -143,28 +173,49 @@ const BasicDataUpdate: React.FC = () => {
                 <div className="text-text01 text-sm font-semibold">
                   {t('marketingLoyalty.maxLevels')}
                 </div>
-                <div className="text-text03 text-sm">{t('marketingLoyalty.maxLoyalty')}</div>
-                <Form.Item>
-                  <Select
-                    placeholder={t('marketingLoyalty.selectQuantity')}
-                    className="max-w-80 sm:max-w-96"
-                    {...register('maxLevels')}
-                    value={formData.maxLevels}
-                    options={[{ label: 1, value: 1 }, { label: 2, value: 2 }]}
-                    onChange={value => handleInputChange('maxLevels', value)}
-                    disabled={isValidating}
-                  />
-                </Form.Item>
+                <div className="text-text03 text-sm">
+                  {t('marketingLoyalty.maxLoyalty')}
+                </div>
+                <div className="mt-2 flex items-center space-x-3">
+                  <div className="flex space-x-2">
+                    {[...Array(MAX_LEVELS)].map((_, index) => {
+                      const level = index + 1;
+                      const isActive = level <= formData.maxLevels;
+                      return (
+                        <div
+                          key={level}
+                          onClick={() => handleInputChange('maxLevels', level)}
+                          className={`cursor-pointer w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                            isActive ? 'bg-blue-500' : 'bg-gray-300'
+                          }`}
+                        >
+                          <FireOutlined style={{ fontSize: 24 }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="text-sm text-text02 font-medium">
+                    {formData.maxLevels}{' '}
+                    {t('marketing.levels', {
+                      count: formData.maxLevels,
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20">
-        </div>
+        <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20"></div>
       </div>
       <div className="flex mt-auto justify-end gap-2">
-        <Button htmlType="submit" type="primary" icon={<RightOutlined />} iconPosition="end" loading={isMutating || isValidating}>
+        <Button
+          htmlType="submit"
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+          loading={isMutating || isValidating}
+        >
           {t('common.next')}
         </Button>
       </div>
@@ -173,5 +224,3 @@ const BasicDataUpdate: React.FC = () => {
 };
 
 export default BasicDataUpdate;
-
-

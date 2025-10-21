@@ -142,6 +142,7 @@ const Events: React.FC = () => {
     ['create-benefit'],
     async () =>
       createBenefit({
+        ltyProgramId: 1,
         name: formData.name,
         type: formData.type,
         bonus: formData.bonus,

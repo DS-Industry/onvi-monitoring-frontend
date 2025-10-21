@@ -3,6 +3,7 @@ import i18n from '@/config/i18n';
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 15;
 export const ALL_PAGE_SIZES = ['15', '50', '100', '120'];
+export const MAX_LEVELS = 5;
 
 export enum ManagerPaperGroup {
   RENT = 'RENT',
