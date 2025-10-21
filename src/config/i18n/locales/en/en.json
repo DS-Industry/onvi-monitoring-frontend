@@ -1101,6 +1101,7 @@
   "common": {
     "previous": "Previous",
     "next": "Next",
+    "back": "Back",
     "cancel": "Cancel",
     "create": "Create",
     "update": "Update",
