@@ -173,9 +173,6 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
             <Title level={4} type="secondary">
               {t('marketingLoyalty.noParticipants')}
             </Title>
-            <p className="text-gray-500">
-              Участники не имеют корректных координат для отображения на карте
-            </p>
           </div>
         </div>
       </Card>

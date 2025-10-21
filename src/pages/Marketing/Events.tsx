@@ -147,7 +147,6 @@ const Events: React.FC = () => {
         type: formData.type,
         bonus: formData.bonus,
         benefitActionTypeId: formData.benefitActionTypeId,
-        ltyProgramId: 1,
       })
   );
 
