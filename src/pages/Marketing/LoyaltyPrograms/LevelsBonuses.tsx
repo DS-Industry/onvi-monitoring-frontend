@@ -1,52 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  CopyOutlined,
   FireOutlined,
   PlusOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { Button, Select } from 'antd';
-import LevelCard from './LevelCard';
+import { Button, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
+import useSWR, { mutate } from 'swr';
+import { deleteTier, getBenefits, getTiers } from '@/services/api/marketing';
+import LevelsBonusesModal from './LevelsBonusesModal';
+import LevelCard from './LevelCard';
 
 const LevelsBonuses: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
 
-  const levels = [
-    {
-      levelNumber: 1,
-      fromAmount: '0 ₽',
-      description: t('marketingLoyalty.initialLevel'),
-      lossCondition: t('marketingLoyalty.notApplicable'),
-      bonuses: [
-        { label: 'Нива Gold 2%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 2%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-    {
-      levelNumber: 2,
-      fromAmount: '2000 ₽',
-      description: t('marketingLoyalty.middleLevel'),
-      lossCondition: '<2000 ₽ ' + t('marketingLoyalty.spent'),
-      bonuses: [
-        { label: 'Нива Gold 5%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 5%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-    {
-      levelNumber: 3,
-      fromAmount: '5000 ₽',
-      description: t('marketingLoyalty.highestLevel'),
-      lossCondition: '<10000 ₽ ' + t('marketingLoyalty.spent'),
-      bonuses: [
-        { label: 'Нива Gold 10%', value: t('marketingLoyalty.discount') },
-        { label: 'Нива Gold 10%', value: t('marketingLoyalty.cashback') },
-      ],
-    },
-  ];
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(
+    [`get-tiers`, loyaltyProgramId],
+    () => getTiers({ programId: loyaltyProgramId || '*' }),
+    { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+  );
+
+  const tiers = tiersData || [];
+
+  const [levelModalOpen, setLevelModalOpen] = useState(false);
+  const [editTierId, setEditTierId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   return (
     <div>
@@ -66,31 +54,72 @@ const LevelsBonuses: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="flex space-x-4">
-              <Button icon={<CopyOutlined />}>
-                {t('equipment.templates')}
-              </Button>
-              <Button icon={<PlusOutlined />} type="primary">
+             <div className="flex space-x-2">
+              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
                 {t('marketing.addLevel')}
               </Button>
             </div>
           </div>
-          <div>
-            <div className="text-text01">
-              {t('marketingLoyalty.recalculationPeriod')}
-            </div>
-            <Select className="w-72" value={''} options={[]} />
-            <div className="text-sm text-text03">
-              {t('marketingLoyalty.recal')}
-            </div>
+          <div className="flex items-center justify-between">
+            <div className="text-text01">{t('marketingLoyalty.recalculationPeriod')}</div>
           </div>
-          <div className="flex flex-wrap gap-6 justify-center">
-            {levels.map(level => (
-              <LevelCard key={level.levelNumber} {...level} />
-            ))}
+          <div className="text-sm text-text03">{t('marketingLoyalty.recal')}</div>
+
+          <div className="mt-6">
+            {tiersLoading ? (
+              <div className="w-full flex justify-center py-8"><Spin /></div>
+            ) : (
+              <div className="flex flex-wrap gap-4">
+                {tiers.map((tier: any, index: number) => {
+                  const tierBenefits = (benefitsData || []).filter(b => tier.benefitIds?.includes(b.props.id));
+                  const bonuses = tierBenefits.map(b => ({ label: b.props.name, value: String(b.props.bonus) }));
+                  return (
+                    <LevelCard
+                      key={tier.id}
+                      levelNumber={index + 1}
+                      fromAmount={String(tier.limitBenefit)}
+                      lossCondition={t('marketingLoyalty.lossCondition', { defaultValue: '-' })}
+                      description={tier.description || ''}
+                      bonuses={bonuses}
+                      onEdit={() => {
+                        setEditTierId(tier.id);
+                        setLevelModalOpen(true);
+                      }}
+                      onDelete={() => setDeletingId(tier.id)}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <LevelsBonusesModal
+        open={levelModalOpen}
+        onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
+        loyaltyProgramId={loyaltyProgramId}
+        tierId={editTierId || undefined}
+      />
+
+      <Modal
+        open={!!deletingId}
+        onCancel={() => setDeletingId(null)}
+        okButtonProps={{ danger: true }}
+        okText={t('common.delete')}
+        onOk={async () => {
+          if (!deletingId) return;
+          try {
+            await deleteTier(deletingId);
+            setDeletingId(null);
+            await mutate([`get-tiers`, loyaltyProgramId]);
+          } finally {
+            // refresh tiers
+          }
+        }}
+        title={t('marketing.deleteTierConfirm', { defaultValue: 'Удалить уровень?' })}
+      >
+        {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
+      </Modal>
       <div className="flex mt-auto justify-end gap-2">
         <Button
           htmlType="submit"

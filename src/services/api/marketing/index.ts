@@ -32,7 +32,7 @@ export enum LoyaltyProgramStatus {
   PAUSE = 'PAUSE',
 }
 
-enum BenefitType {
+export enum BenefitType {
   CASHBACK = 'CASHBACK',
   DISCOUNT = 'DISCOUNT',
   GIFT_POINTS = 'GIFT_POINTS',
@@ -233,6 +233,7 @@ type BenefitRequest = {
   type: BenefitType;
   bonus: number;
   benefitActionTypeId?: number;
+  ltyProgramId: number
 };
 
 type BenefitResponse = {
@@ -428,6 +429,13 @@ export async function getTierById(id: number): Promise<TierByIdResponse> {
     MARKETING.LOYALTY + `/tier/${id}`
   );
 
+  return response.data;
+}
+
+export async function deleteTier(id: number): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    MARKETING.LOYALTY + `/tier/${id}`
+  );
   return response.data;
 }
 
