@@ -1,7 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { 
+  ArrowLeftOutlined, 
+  SettingOutlined, 
+  CreditCardOutlined, 
+  CarOutlined, 
+  FireOutlined, 
+  SyncOutlined 
+} from '@ant-design/icons';
 import { Steps } from 'antd';
 import BasicData from './BasicData';
 import BasicDataUpdate from './update/BasicDataUpdate';
@@ -18,7 +25,7 @@ const LoyaltyPrograms: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
-  const isUpdate = Boolean(searchParams.get('loyaltyProgramId'));
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
 
   const handleStepClick = (stepIndex: number) => {
     if (!isUpdate) return
@@ -31,22 +38,27 @@ const LoyaltyPrograms: React.FC = () => {
     {
       title: t('marketingLoyalty.basicData'),
       content: isUpdate ? <BasicDataUpdate /> : <BasicData />,
+      icon: <SettingOutlined />,
     },
     {
       title: t('marketingLoyalty.writeOff'),
       content: <WriteOffRules />,
+      icon: <CreditCardOutlined />,
     },
     {
       title: t('marketingLoyalty.participants'),
       content: <Participants />,
+      icon: <CarOutlined />,
     },
     {
       title: t('marketingLoyalty.levelsAndBonuses'),
       content: <LevelsBonuses />,
+      icon: <FireOutlined />,
     },
     {
       title: t('marketingLoyalty.publication'),
       content: <Publications />,
+      icon: <SyncOutlined />,
     },
   ];
 
@@ -77,7 +89,11 @@ const LoyaltyPrograms: React.FC = () => {
           onChange={handleStepClick}
         >
           {steps.map((step, index) => (
-            <Step key={index} title={step.title} />
+            <Step 
+              key={index} 
+              title={step.title} 
+              icon={isUpdate ? step.icon : undefined}
+            />
           ))}
         </Steps>
 
