@@ -5,7 +5,7 @@ import useSWR from 'swr';
 import { getPosesParticipants } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from 'antd';
-import { RightOutlined } from '@ant-design/icons';
+import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 
@@ -13,6 +13,7 @@ const Participants: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const currentStep = Number(searchParams.get('step')) || 1;
 
   const { data: participantsData, isLoading: participantsLoading } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
@@ -26,6 +27,12 @@ const Participants: React.FC = () => {
   );
 
   console.log('Participants data: ', participantsData);
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
 
   return (
     <div className="flex flex-col space-y-10 bg-background02 p-4">
@@ -72,6 +79,16 @@ const Participants: React.FC = () => {
     
       
       <div className="flex mt-auto justify-end gap-2">
+        <div>
+          {currentStep > 1 && (
+            <Button
+              icon={<LeftOutlined />}
+              onClick={goBack}
+            >
+              {t('common.back')}
+            </Button>
+          )}
+        </div>
         <Button
           htmlType="submit"
           type="primary"

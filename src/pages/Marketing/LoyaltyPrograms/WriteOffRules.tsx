@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
-import { RightOutlined } from '@ant-design/icons';
+import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import {
   BonusBurnoutType,
   BonusRedemptionUpdate,
@@ -28,6 +28,7 @@ const WriteOffRules: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [radioValue, setRadioValue] = useState('never');
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const currentStep = Number(searchParams.get('step')) || 1;
   const { showToast } = useToast();
 
   const defaultValues: BonusRedemptionUpdate = {
@@ -135,6 +136,12 @@ const WriteOffRules: React.FC = () => {
     updateSearchParams(searchParams, setSearchParams, {
       step: 3,
       loyaltyProgramId,
+    });
+  };
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
     });
   };
 
@@ -358,6 +365,16 @@ const WriteOffRules: React.FC = () => {
         </div>
       </div>
       <div className="flex mt-auto justify-end gap-2">
+        <div>
+          {currentStep > 1 && (
+            <Button
+              icon={<LeftOutlined />}
+              onClick={goBack}
+            >
+              {t('common.back')}
+            </Button>
+          )}
+        </div>
         <Button
           htmlType="submit"
           loading={isMutating}
