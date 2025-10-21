@@ -6,12 +6,13 @@ import {
   PlusOutlined,
   RightOutlined,
 } from '@ant-design/icons';
-import { Button, List, Tag } from 'antd';
+import { Button, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
-import { getTiers } from '@/services/api/marketing';
+import useSWR, { mutate } from 'swr';
+import { deleteTier, getBenefits, getTiers } from '@/services/api/marketing';
 import LevelsBonusesModal from './LevelsBonusesModal';
+import LevelCard from './LevelCard';
 
 const LevelsBonuses: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +28,14 @@ const LevelsBonuses: React.FC = () => {
   const tiers = tiersData || [];
 
   const [levelModalOpen, setLevelModalOpen] = useState(false);
+  const [editTierId, setEditTierId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    keepPreviousData: true,
+  });
 
   return (
     <div>
@@ -66,27 +75,60 @@ const LevelsBonuses: React.FC = () => {
           <div className="text-sm text-text03">{t('marketingLoyalty.recal')}</div>
 
           <div className="mt-6">
-            <List
-              loading={tiersLoading}
-              dataSource={tiers}
-              rowKey={item => String(item.id)}
-              renderItem={(item: any) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={item.name}
-                    description={item.description}
-                  />
-                  <div className="flex items-center space-x-3">
-                    <Tag color="red">{item.limitBenefit}</Tag>
-                    <span className="text-text02">{t('marketing.limitBenefit')}</span>
-                  </div>
-                </List.Item>
-              )}
-            />
+            {tiersLoading ? (
+              <div className="w-full flex justify-center py-8"><Spin /></div>
+            ) : (
+              <div className="flex flex-wrap gap-4">
+                {tiers.map((tier: any, index: number) => {
+                  const tierBenefits = (benefitsData || []).filter(b => tier.benefitIds?.includes(b.props.id));
+                  const bonuses = tierBenefits.map(b => ({ label: b.props.name, value: String(b.props.bonus) }));
+                  return (
+                    <LevelCard
+                      key={tier.id}
+                      levelNumber={index + 1}
+                      fromAmount={String(tier.limitBenefit)}
+                      lossCondition={t('marketingLoyalty.lossCondition', { defaultValue: '-' })}
+                      description={tier.description || ''}
+                      bonuses={bonuses}
+                      onEdit={() => {
+                        setEditTierId(tier.id);
+                        setLevelModalOpen(true);
+                      }}
+                      onDelete={() => setDeletingId(tier.id)}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <LevelsBonusesModal open={levelModalOpen} onClose={() => setLevelModalOpen(false)} loyaltyProgramId={loyaltyProgramId} />
+      <LevelsBonusesModal
+        open={levelModalOpen}
+        onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
+        loyaltyProgramId={loyaltyProgramId}
+        tierId={editTierId || undefined}
+      />
+
+      <Modal
+        open={!!deletingId}
+        onCancel={() => setDeletingId(null)}
+        okButtonProps={{ danger: true }}
+        okText={t('common.delete')}
+        onOk={async () => {
+          if (!deletingId) return;
+          try {
+            await deleteTier(deletingId);
+            setDeletingId(null);
+            await mutate([`get-tiers`, loyaltyProgramId]);
+          } finally {
+            // refresh tiers
+          }
+        }}
+        title={t('marketing.deleteTierConfirm', { defaultValue: 'Удалить уровень?' })}
+      >
+        {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
+      </Modal>
       <div className="flex mt-auto justify-end gap-2">
         <Button
           htmlType="submit"

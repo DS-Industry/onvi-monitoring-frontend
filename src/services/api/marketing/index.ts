@@ -432,6 +432,13 @@ export async function getTierById(id: number): Promise<TierByIdResponse> {
   return response.data;
 }
 
+export async function deleteTier(id: number): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    MARKETING.LOYALTY + `/tier/${id}`
+  );
+  return response.data;
+}
+
 export async function createBenefit(
   body: BenefitRequest
 ): Promise<BenefitResponse> {

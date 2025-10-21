@@ -1,26 +1,29 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Input, Modal, Select, Steps, Transfer } from 'antd';
 import useSWR, { mutate } from 'swr';
-import { createBenefit, createTier, getBenefits, updateTier } from '@/services/api/marketing';
+import { createBenefit, createTier, getBenefits, getTierById, updateTier } from '@/services/api/marketing';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/context/useContext';
 import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   loyaltyProgramId: number;
+  tierId?: number;
 };
 
-const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }) => {
+const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId, tierId }) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
 
   const [current, setCurrent] = useState(0);
   const [createdLevelId, setCreatedLevelId] = useState<number | null>(null);
   const [selectedBenefitKeys, setSelectedBenefitKeys] = useState<string[]>([]);
+  const isEdit = !!tierId;
 
   const [searchParams] = useSearchParams();
 
@@ -75,6 +78,29 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }
         ltyProgramId: Number(ltyProgramId) || 0
       })
   );
+
+  useEffect(() => {
+    const prefillForEdit = async () => {
+      if (open && isEdit && tierId) {
+        try {
+          const tier = await getTierById(tierId);
+          setCreatedLevelId(tier.id);
+          setLevelForm({
+            name: tier.name || '',
+            description: tier.description || '',
+            limitBenefit: tier.limitBenefit || 0,
+            promotionSpendAmount: 0,
+          });
+          setSelectedBenefitKeys((tier.benefitIds || []).map(id => String(id)));
+          // Stay on the first step; user can navigate to the next step manually
+        } catch {
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        }
+      }
+    };
+    prefillForEdit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEdit, tierId]);
 
   const submitCreateLevel = async () => {
     try {
@@ -165,6 +191,7 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }
                       placeholder={t('profile.namePlaceholder')}
                       value={levelForm.name}
                       onChange={e => handleLevelChange('name', e.target.value)}
+                      disabled={isEdit}
                     />
                     {!!levelErrors.name && (
                       <div className="text-red-500 text-xs mt-1">{levelErrors.name.message}</div>
@@ -199,6 +226,7 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }
                       suffix={<div className="text-text02">₽</div>}
                       value={levelForm.limitBenefit}
                       onChange={e => handleLevelChange('limitBenefit', Number(e.target.value))}
+                      disabled={isEdit}
                     />
                   </div>
                 </div>
@@ -207,7 +235,11 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }
           </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button onClick={handleClose}>{t('analysis.reset', { defaultValue: 'Сбросить' })}</Button>
-            <Button htmlType="submit" type="primary" loading={creatingTier}>{t('common.next', { defaultValue: 'Далее' })}</Button>
+            {isEdit ? (
+              <Button type="primary" onClick={() => setCurrent(1)}>{t('common.next', { defaultValue: 'Далее' })}</Button>
+            ) : (
+              <Button htmlType="submit" type="primary" loading={creatingTier}>{t('common.next', { defaultValue: 'Далее' })}</Button>
+            )}
           </div>
         </form>
       )}
@@ -268,7 +300,10 @@ const LevelsBonusesModal: React.FC<Props> = ({ open, onClose, loyaltyProgramId }
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 mt-6">
+          <div className="flex justify-between gap-2 mt-6">
+            <div>
+              <Button onClick={() => setCurrent(0)}>{t('common.back', { defaultValue: 'Назад' })}</Button>
+            </div>
             <Button onClick={handleClose}>{t('analysis.reset', { defaultValue: 'Сбросить' })}</Button>
             <Button type="primary" loading={updatingTier} onClick={handleSave}>{t('routes.save', { defaultValue: 'Сохранить' })}</Button>
           </div>

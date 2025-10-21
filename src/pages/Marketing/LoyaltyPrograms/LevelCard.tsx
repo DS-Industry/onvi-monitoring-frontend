@@ -14,6 +14,8 @@ interface LevelCardProps {
   lossCondition: string;
   description: string;
   bonuses: { label: string; value: string }[];
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const LevelCard: React.FC<LevelCardProps> = ({
@@ -22,12 +24,14 @@ const LevelCard: React.FC<LevelCardProps> = ({
   lossCondition,
   description,
   bonuses,
+  onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation();
 
   return (
     <div className="bg-white shadow-md rounded-2xl p-6 w-80 relative flex flex-col text-center">
-      <div className="absolute top-3 right-3 text-gray-400 cursor-pointer">
+      <div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
         <CloseOutlined />
       </div>
 
@@ -74,6 +78,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
           className="text-primary02 font-medium"
           icon={<RightOutlined />}
           iconPosition="end"
+          onClick={onEdit}
         >
           {t('marketingLoyalty.edit')}
         </Button>
