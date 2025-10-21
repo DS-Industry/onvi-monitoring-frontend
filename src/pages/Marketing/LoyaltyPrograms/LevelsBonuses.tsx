@@ -4,6 +4,7 @@ import {
   FireOutlined,
   PlusOutlined,
   RightOutlined,
+  LeftOutlined,
 } from '@ant-design/icons';
 import { Button, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -17,6 +18,7 @@ const LevelsBonuses: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const currentStep = Number(searchParams.get('step')) || 1;
 
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
     [`get-tiers`, loyaltyProgramId],
@@ -35,6 +37,12 @@ const LevelsBonuses: React.FC = () => {
     revalidateOnReconnect: false,
     keepPreviousData: true,
   });
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
 
   return (
     <div>
@@ -121,6 +129,16 @@ const LevelsBonuses: React.FC = () => {
         {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
       </Modal>
       <div className="flex mt-auto justify-end gap-2">
+        <div>
+          {currentStep > 1 && (
+            <Button
+              icon={<LeftOutlined />}
+              onClick={goBack}
+            >
+              {t('common.back')}
+            </Button>
+          )}
+        </div>
         <Button
           htmlType="submit"
           type="primary"
