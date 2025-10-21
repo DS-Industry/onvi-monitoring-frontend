@@ -1,20 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileTextOutlined, PlayCircleOutlined } from '@ant-design/icons';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import {
   getLoyaltyProgramById,
   getPosesParticipants,
+  publishLoyaltyProgram,
+  requestHubStatus,
+  unpublishLoyaltyProgram,
 } from '@/services/api/marketing';
-import { useSearchParams } from 'react-router-dom';
-import { Button, Divider } from 'antd';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, Divider, Input, Modal } from 'antd';
+import { useToast } from '@/components/context/useContext';
+import useSWRMutation from 'swr/mutation';
 
 const Publications: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+  const [isHubRequestModalOpen, setIsHubRequestModalOpen] = useState(false);
+  const [hubRequestComment, setHubRequestComment] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
 
-  const { data: program } = useSWR(
+  const { data: program, isLoading: loadingPrograms } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
     () => getLoyaltyProgramById(loyaltyProgramId)
   );
@@ -29,6 +39,63 @@ const Publications: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const { trigger: requestHub, isMutating: isRequestingHub } = useSWRMutation(
+    ['request-hub-status'],
+    async (_, { arg }: { arg: { id: number; comment?: string } }) => {
+      return requestHubStatus(arg.id, arg.comment);
+    }
+  );
+
+  const handlePublishToggle = async () => {
+    if (!program || !loyaltyProgramId) return;
+
+    try {
+      setIsPublishing(true);
+
+      const isActive = program.status === 'ACTIVE';
+      const apiFn = isActive ? unpublishLoyaltyProgram : publishLoyaltyProgram;
+
+      const result = await apiFn(loyaltyProgramId);
+
+      if (result) {
+        showToast(
+          isActive
+            ? t('marketing.loyaltyUnpublished')
+            : t('marketing.loyaltyPublished'),
+          'success'
+        );
+
+        await mutate([`get-loyalty-program-by-id`, loyaltyProgramId]);
+
+        navigate('/marketing/loyalty');
+      }
+    } catch (error) {
+      showToast(t('common.errorOccurred'), 'error');
+      console.error(error);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleHubRequest = async () => {
+    try {
+      if (!loyaltyProgramId) return;
+
+      await requestHub({
+        id: loyaltyProgramId,
+        comment: hubRequestComment || undefined,
+      });
+
+      showToast(t('marketing.hubRequestSubmitted'), 'success');
+      setIsHubRequestModalOpen(false);
+      setHubRequestComment('');
+      mutate([`get-loyalty-program-by-id`, loyaltyProgramId]);
+    } catch (error) {
+      console.error('Error during hub request: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
 
   return (
     <div>
@@ -78,7 +145,7 @@ const Publications: React.FC = () => {
               <div>{program?.maxRedeemPercentage || '0%'}</div>
               <div>{program?.hasBonusWithSale || '-'}</div>
               <div>
-                {program?.lifetimeBonusDays || '-'} {t('marketingLoyalty.days')}
+                {program?.lifetimeBonusDays || '0'} {t('marketingLoyalty.days')}
               </div>
             </div>
           </div>
@@ -104,20 +171,73 @@ const Publications: React.FC = () => {
             <div className="flex flex-col space-y-4 text-base03 text-xs">
               <div>{t('marketingLoyalty.hubRequest')}</div>
             </div>
-            <Button className="bg-primary01 w-28">
-              {t('marketingLoyalty.request')}
-            </Button>
+            {program && program.isHub ? (
+              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm">
+                {t('marketing.hub')}
+              </span>
+            ) : program?.isHubRejected ? (
+              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm">
+                {t('marketing.hubRejected')}
+              </span>
+            ) : program?.isHubRequested ? (
+              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm">
+                {t('marketing.hubRequested')}
+              </span>
+            ) : loadingPrograms ? (
+              <></>
+            ) : (
+              <Button
+                className="bg-primary01 w-32"
+                onClick={() => setIsHubRequestModalOpen(true)}
+                disabled={!loyaltyProgramId}
+              >
+                {t('marketing.requestHub')}
+              </Button>
+            )}
           </div>
           <div className="flex space-x-4 justify-end">
             <Button className="text-primary02">
               {t('marketingLoyalty.saveAndExit')}
             </Button>
-            <Button type="primary" icon={<PlayCircleOutlined />}>
+            <Button
+              type="primary"
+              icon={<PlayCircleOutlined />}
+              onClick={handlePublishToggle}
+              loading={isPublishing}
+            >
               {t('marketingLoyalty.startNow')}
             </Button>
           </div>
         </div>
       </div>
+      <Modal
+        title={t('marketing.requestHub')}
+        open={isHubRequestModalOpen}
+        onOk={handleHubRequest}
+        onCancel={() => {
+          setIsHubRequestModalOpen(false);
+          setHubRequestComment('');
+        }}
+        confirmLoading={isRequestingHub}
+        okText={t('actions.submit')}
+        cancelText={t('actions.cancel')}
+      >
+        <div className="space-y-4">
+          <p className="text-text02">{t('marketing.hubRequestDescription')}</p>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t('marketing.comment')}
+            </label>
+            <Input.TextArea
+              value={hubRequestComment}
+              onChange={e => setHubRequestComment(e.target.value)}
+              placeholder={t('marketing.hubRequestCommentPlaceholder')}
+              rows={4}
+              maxLength={500}
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

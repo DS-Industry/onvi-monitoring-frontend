@@ -28,8 +28,6 @@ const Participants: React.FC = () => {
     }
   );
 
-  console.log('Participants data: ', participantsData);
-
   const goBack = () => {
     updateSearchParams(searchParams, setSearchParams, {
       step: currentStep - 1,

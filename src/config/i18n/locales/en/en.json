@@ -1740,6 +1740,8 @@
     "hubRequest": "You can request a Hub to expand your loyalty program and add branches not belonging to your organization.",
     "request": "Request",
     "saveAndExit": "Save and exit",
-    "startNow": "Start now"
+    "startNow": "Start now",
+    "loyaltyPublished": "Loyalty program published successfully",
+    "loyaltyUnpublished": "Loyalty program unpublished successfully"
   }
 }
