@@ -1742,6 +1742,7 @@
     "saveAndExit": "Save and exit",
     "startNow": "Start now",
     "loyaltyPublished": "Loyalty program published successfully",
-    "loyaltyUnpublished": "Loyalty program unpublished successfully"
+    "loyaltyUnpublished": "Loyalty program unpublished successfully",
+    "stopNow": "Stop now"
   }
 }

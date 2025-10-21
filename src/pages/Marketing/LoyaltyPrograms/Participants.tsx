@@ -36,7 +36,7 @@ const Participants: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-10 bg-background02 p-4">
-      <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+      <div className="flex flex-col rounded-lg w-full space-y-10">
         <div className="flex items-center space-x-4">
           <CarIcon />
           <div>

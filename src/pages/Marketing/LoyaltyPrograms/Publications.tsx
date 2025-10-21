@@ -61,8 +61,8 @@ const Publications: React.FC = () => {
       if (result) {
         showToast(
           isActive
-            ? t('marketing.loyaltyUnpublished')
-            : t('marketing.loyaltyPublished'),
+            ? t('marketingLoyalty.loyaltyUnpublished')
+            : t('marketingLoyalty.loyaltyPublished'),
           'success'
         );
 
@@ -99,11 +99,11 @@ const Publications: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-center bg-background02 p-4">
-        <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+      <div className="flex items-center justify-center bg-background02">
+        <div className="flex flex-col rounded-lg w-full space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
+              <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
                 <FileTextOutlined style={{ fontSize: 20 }} />
               </div>
               <div>
@@ -195,7 +195,7 @@ const Publications: React.FC = () => {
               </Button>
             )}
           </div>
-          <div className="flex space-x-4 justify-end">
+          <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-4 justify-end">
             <Button className="text-primary02">
               {t('marketingLoyalty.saveAndExit')}
             </Button>
@@ -205,7 +205,7 @@ const Publications: React.FC = () => {
               onClick={handlePublishToggle}
               loading={isPublishing}
             >
-              {t('marketingLoyalty.startNow')}
+              {program?.status === 'ACTIVE' ? t('marketingLoyalty.stopNow') : t('marketingLoyalty.startNow')}
             </Button>
           </div>
         </div>

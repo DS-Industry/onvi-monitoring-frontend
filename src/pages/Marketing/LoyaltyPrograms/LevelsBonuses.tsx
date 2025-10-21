@@ -25,7 +25,11 @@ const LevelsBonuses: React.FC = () => {
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
     [`get-tiers`, loyaltyProgramId],
     () => getTiers({ programId: loyaltyProgramId || '*' }),
-    { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true }
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
   );
 
   const tiers = tiersData || [];
@@ -48,13 +52,14 @@ const LevelsBonuses: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-center bg-background02 p-4">
-        <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+      <div className="flex items-center justify-center bg-background02">
+        <div className="flex flex-col rounded-lg w-full space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
+              <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
                 <FireOutlined style={{ fontSize: 20 }} />
               </div>
+
               <div>
                 <div className="font-semibold text-text01">
                   {t('marketingLoyalty.levelsAndBonuses')}
@@ -64,31 +69,48 @@ const LevelsBonuses: React.FC = () => {
                 </div>
               </div>
             </div>
-             <div className="flex space-x-2">
-              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
+            <div className="flex space-x-2">
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setLevelModalOpen(true)}
+              >
                 {t('marketing.addLevel')}
               </Button>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div className="text-text01">{t('marketingLoyalty.recalculationPeriod')}</div>
+            <div className="text-text01">
+              {t('marketingLoyalty.recalculationPeriod')}
+            </div>
           </div>
-          <div className="text-sm text-text03">{t('marketingLoyalty.recal')}</div>
+          <div className="text-sm text-text03">
+            {t('marketingLoyalty.recal')}
+          </div>
 
           <div className="mt-6">
             {tiersLoading ? (
-              <div className="w-full flex justify-center py-8"><Spin /></div>
+              <div className="w-full flex justify-center py-8">
+                <Spin />
+              </div>
             ) : (
               <div className="flex flex-wrap gap-4">
                 {tiers.map((tier: any, index: number) => {
-                  const tierBenefits = (benefitsData || []).filter(b => tier.benefitIds?.includes(b.props.id));
-                  const bonuses = tierBenefits.map(b => ({ label: b.props.name, value: String(b.props.bonus) }));
+                  const tierBenefits = (benefitsData || []).filter(b =>
+                    tier.benefitIds?.includes(b.props.id)
+                  );
+                  const bonuses = tierBenefits.map(b => ({
+                    label: b.props.name,
+                    value: String(b.props.bonus),
+                  }));
                   return (
                     <LevelCard
                       key={tier.id}
                       levelNumber={index + 1}
                       fromAmount={String(tier.limitBenefit)}
-                      lossCondition={t('marketingLoyalty.lossCondition', { defaultValue: '-' })}
+                      lossCondition={t('marketingLoyalty.lossCondition', {
+                        defaultValue: '-',
+                      })}
                       description={tier.description || ''}
                       bonuses={bonuses}
                       onEdit={() => {
@@ -106,7 +128,10 @@ const LevelsBonuses: React.FC = () => {
       </div>
       <LevelsBonusesModal
         open={levelModalOpen}
-        onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
+        onClose={() => {
+          setLevelModalOpen(false);
+          setEditTierId(null);
+        }}
         loyaltyProgramId={loyaltyProgramId}
         tierId={editTierId || undefined}
       />
@@ -126,17 +151,18 @@ const LevelsBonuses: React.FC = () => {
             // refresh tiers
           }
         }}
-        title={t('marketing.deleteTierConfirm', { defaultValue: 'Удалить уровень?' })}
+        title={t('marketing.deleteTierConfirm', {
+          defaultValue: 'Удалить уровень?',
+        })}
       >
-        {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
+        {t('marketing.deleteTierWarning', {
+          defaultValue: 'Действие необратимо. Продолжить?',
+        })}
       </Modal>
-      <div className="flex mt-auto justify-end gap-2">
+      <div className="flex mt-4 justify-end gap-2">
         <div>
           {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-            >
+            <Button icon={<LeftOutlined />} onClick={goBack}>
               {t('common.back')}
             </Button>
           )}
