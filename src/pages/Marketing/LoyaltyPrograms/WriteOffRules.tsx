@@ -259,6 +259,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                   }
                 }}
                 disabled={!isEditable}
+                className='space-y-4'
               >
                 <Radio
                   value="never"
@@ -289,7 +290,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                 <div>
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
-                    className="min-w-80"
+                    className="w-full sm:min-w-80"
                     value={
                       formData.burnoutType ||
                       (formData.lifetimeBonusDays ? 'custom' : undefined)
@@ -385,7 +386,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
         </div>
       </div>
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2">
+        <div className="flex mt-auto justify-end gap-2 mt-3">
           <div>
             {currentStep > 1 && isUpdate && (
               <Button

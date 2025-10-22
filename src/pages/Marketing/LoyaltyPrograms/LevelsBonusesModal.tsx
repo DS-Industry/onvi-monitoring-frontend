@@ -200,8 +200,8 @@ const LevelsBonusesModal: React.FC<Props> = ({
     setSelectedBenefitKeys([]);
     resetLevel(levelDefaults);
     resetBenefit(benefitDefaults);
-    setLevelForm(levelDefaults);           
-    setBenefitForm(benefitDefaults);      
+    setLevelForm(levelDefaults);
+    setBenefitForm(benefitDefaults);
     onClose();
   };
 
@@ -342,14 +342,34 @@ const LevelsBonusesModal: React.FC<Props> = ({
               targetKeys={selectedBenefitKeys}
               onChange={keys => setSelectedBenefitKeys(keys as string[])}
               render={item => item.title}
-              listStyle={{ width: 220 }}
+              listStyle={{ width: 200 }}
               titles={[
-                t('marketing.available', { defaultValue: 'Доступные бонусы' }),
+                t('marketing.available', {
+                  defaultValue: 'Доступные бонусы',
+                }),
                 t('marketing.selected', { defaultValue: 'Выбранные бонусы' }),
               ]}
               showSelectAll={false}
               oneWay={true}
             />
+            <style>
+              {`
+.ant-transfer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ant-transfer-list {
+  min-width: 0; 
+}
+
+@media (max-width: 640px) {
+  .ant-transfer {
+    flex-direction: column; 
+  }
+}`}
+            </style>
           </div>
 
           <div className="border-t border-gray-200 my-6" />

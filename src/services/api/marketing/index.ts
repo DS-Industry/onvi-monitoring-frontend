@@ -234,7 +234,7 @@ type BenefitRequest = {
   type: BenefitType;
   bonus: number;
   benefitActionTypeId?: number;
-  ltyProgramId: number
+  ltyProgramId: number;
 };
 
 type BenefitResponse = {
@@ -1029,7 +1029,7 @@ type LoyaltyProgramCreateBody = {
   maxLevels: number;
 };
 
-export type BonusBurnoutType = 'year' | 'month' | 'custom' | "never";
+export type BonusBurnoutType = 'year' | 'month' | 'custom' | 'never';
 
 export type BonusRedemptionUpdate = {
   loyaltyProgramId: number;
@@ -1316,6 +1316,15 @@ export async function getLoyaltyProgramAnalytics(
   return response.data;
 }
 
+export async function publishLoyaltyProgram(
+  id: number
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    `user/loyalty/program/${id}/publish`
+  );
+  return response.data;
+}
+
 export type TransactionAnalyticsParams = {
   period?: 'custom' | 'lastMonth' | 'lastWeek' | 'lastYear';
   startDate?: string;
@@ -1342,6 +1351,15 @@ export async function getLoyaltyProgramTransactionAnalytics(
   const response: AxiosResponse<TransactionAnalyticsResponse> = await api.get(
     `user/loyalty/program/${programId}/transaction-analytics`,
     { params }
+  );
+  return response.data;
+}
+
+export async function unpublishLoyaltyProgram(
+  id: number
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    `user/loyalty/program/${id}/unpublish`
   );
   return response.data;
 }
