@@ -184,7 +184,7 @@ const BasicData: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex mt-auto justify-end gap-2">
+      <div className="flex mt-4 justify-end gap-2">
         <Button
           htmlType="submit"
           type="primary"

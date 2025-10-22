@@ -200,8 +200,8 @@ const LevelsBonusesModal: React.FC<Props> = ({
     setSelectedBenefitKeys([]);
     resetLevel(levelDefaults);
     resetBenefit(benefitDefaults);
-    setLevelForm(levelDefaults);           
-    setBenefitForm(benefitDefaults);      
+    setLevelForm(levelDefaults);
+    setBenefitForm(benefitDefaults);
     onClose();
   };
 
@@ -342,9 +342,11 @@ const LevelsBonusesModal: React.FC<Props> = ({
               targetKeys={selectedBenefitKeys}
               onChange={keys => setSelectedBenefitKeys(keys as string[])}
               render={item => item.title}
-              listStyle={{ width: 220 }}
+              listStyle={{ width: 200 }}
               titles={[
-                t('marketing.available', { defaultValue: 'Доступные бонусы' }),
+                t('marketing.available', {
+                  defaultValue: 'Доступные бонусы',
+                }),
                 t('marketing.selected', { defaultValue: 'Выбранные бонусы' }),
               ]}
               showSelectAll={false}

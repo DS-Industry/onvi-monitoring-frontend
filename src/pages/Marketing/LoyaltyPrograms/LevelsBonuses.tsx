@@ -94,7 +94,7 @@ const LevelsBonuses: React.FC = () => {
                 <Spin />
               </div>
             ) : (
-              <div className="flex flex-wrap gap-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {tiers.map((tier: any, index: number) => {
                   const tierBenefits = (benefitsData || []).filter(b =>
                     tier.benefitIds?.includes(b.props.id)

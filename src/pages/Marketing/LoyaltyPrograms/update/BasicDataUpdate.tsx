@@ -208,7 +208,7 @@ const BasicDataUpdate: React.FC = () => {
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20"></div>
       </div>
-      <div className="flex mt-auto justify-end gap-2">
+      <div className="flex mt-4 justify-end gap-2">
         <Button
           htmlType="submit"
           type="primary"
