@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Spin, Alert, Select, DatePicker } from 'antd';
+import { Card, Spin, Alert, Select, DatePicker, Button } from 'antd';
 import { 
   LineChartOutlined, 
   CarOutlined, 
   UsergroupAddOutlined, 
-  CalendarOutlined 
+  CalendarOutlined, 
+  LeftOutlined
 } from '@ant-design/icons';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
@@ -17,15 +18,24 @@ import {
 } from '@/services/api/marketing';
 import TransactionAnalyticsChart from '@/components/ui/TransactionAnalyticsChart';
 
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+
 const { RangePicker } = DatePicker;
 
-const Stats: React.FC = () => {
+interface StatsProps {
+  isEditable?: boolean;
+}
+
+const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   
   const [period, setPeriod] = useState<'custom' | 'lastMonth' | 'lastWeek' | 'lastYear'>('lastMonth');
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
+  
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+  const currentStep = Number(searchParams.get('step')) || 1;
 
   const { data: analytics, error, isLoading } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-analytics`, loyaltyProgramId] : null,
@@ -56,6 +66,12 @@ const Stats: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
 
   if (!loyaltyProgramId) {
     return (
@@ -222,6 +238,19 @@ const Stats: React.FC = () => {
             )}
           </Card>
         </div>
+        {isEditable && (
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+        <div className="order-2 sm:order-1">
+          {currentStep > 1 && isUpdate && (
+            <Button
+              icon={<LeftOutlined />}
+              onClick={goBack}
+              className="w-full sm:w-auto"
+            >
+              {t('common.back')}
+            </Button>
+          )}
+        </div></div>)}
     </div>
   );
 };
