@@ -28,12 +28,12 @@ import { LoyaltyProgramsByIdResponse } from '@/services/api/marketing';
 
 interface WriteOffRulesProps {
   program?: LoyaltyProgramsByIdResponse;
-  isValidating: boolean;
+  isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
 }
 
-const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mutate, isEditable = true }) => {
+const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutate, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [radioValue, setRadioValue] = useState('never');
@@ -156,7 +156,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
       if (result) {
         mutate();
         goNextStep();
-        showToast(t('success.recordCreated'), 'success');
+        showToast(t('routes.savedSuccessfully'), 'success');
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
@@ -166,7 +166,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
     }
   };
 
-  if (isValidating) {
+  if (isLoading) {
     return (
       <div className="bg-background02 p-4">
         <div className="flex items-center justify-center h-96">

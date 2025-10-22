@@ -34,9 +34,12 @@ const LoyaltyPrograms: React.FC = () => {
 
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
 
-  const { data: program, isValidating, mutate } = useSWR(
+  const { data: program, isValidating, isLoading, mutate } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
-    () => getLoyaltyProgramById(loyaltyProgramId)
+    () => getLoyaltyProgramById(loyaltyProgramId),
+    {
+      revalidateOnFocus: false,
+    }
   );
 
   const user = useUser()
@@ -53,12 +56,12 @@ const LoyaltyPrograms: React.FC = () => {
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: isUpdate ? <BasicDataUpdate program={program} isValidating={isValidating} mutate={mutate} isEditable={isOwner} /> : <BasicData isEditable={true} />,
+      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
     },
     {
       title: t('marketingLoyalty.writeOff'),
-      content: <WriteOffRules program={program} isValidating={isValidating} mutate={mutate} isEditable={isOwner} />,
+      content: <WriteOffRules program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} />,
       icon: <CreditCardOutlined />,
     },
     {
@@ -119,8 +122,7 @@ const LoyaltyPrograms: React.FC = () => {
             />
           ))}
         </Steps>
-
-        <div>{steps[currentStep].content}</div>
+        <div className="mt-5">{steps[currentStep].content}</div>
       </div>
     </div>
   );

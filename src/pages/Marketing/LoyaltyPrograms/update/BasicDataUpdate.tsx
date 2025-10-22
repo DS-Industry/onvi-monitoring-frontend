@@ -17,12 +17,12 @@ import { MAX_LEVELS } from '@/utils/constants';
 
 interface BasicDataUpdateProps {
   program?: LoyaltyProgramsByIdResponse;
-  isValidating: boolean;
+  isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
 }
 
-const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating, mutate, isEditable = true }) => {
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -89,13 +89,12 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
       });
 
       if (result?.props?.id) {
-        // Refetch program data after successful update
         mutate();
         updateSearchParams(searchParams, setSearchParams, {
           step: 2,
           loyaltyProgramId: result.props.id,
         });
-        showToast(t('success.recordUpdated'), 'success');
+        showToast(t('marketing.loyaltyUpdated'), 'success');
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
@@ -105,7 +104,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
     }
   };
 
-  if (isValidating) {
+  if (isLoading) {
     return (
       <div className="bg-background02 p-4">
         <div className="flex items-center justify-center h-96">
@@ -153,7 +152,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
                     status={errors.name ? 'error' : ''}
-                    disabled={isValidating || !isEditable}
+                    disabled={isLoading || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -177,7 +176,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                     }
                     rows={4}
                     status={errors.description ? 'error' : ''}
-                    disabled={isValidating || !isEditable}
+                    disabled={isLoading || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -227,7 +226,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
-            loading={isMutating || isValidating}
+            loading={isMutating || isLoading}
           >
             {t('common.next')}
           </Button>
