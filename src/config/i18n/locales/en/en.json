@@ -117,7 +117,8 @@
     "debugging": "Debugging",
     "falseDeposits": "False deposits",
     "falseDeposit": "False deposit",
-    "createLoyalty": "Creating a loyalty program"
+    "createLoyalty": "Creating a loyalty program",
+    "viewLoyalty": "Viewing a loyalty program"
   },
   "dashboard": {
     "news": "News",
@@ -1682,6 +1683,9 @@
     }
   },
   "marketingLoyalty": {
+    "loadingMap": "Loading map...",
+    "noParticipants": "No Participants",
+    "noParticipantsDescription": "No participants found for this loyalty program",
     "basicData": "Basic data",
     "writeOff": "Write-off rules",
     "participants": "Participants",
