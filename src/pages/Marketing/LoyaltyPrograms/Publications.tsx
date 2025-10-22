@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileTextOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { FileTextOutlined, PlayCircleOutlined, RightOutlined, LeftOutlined } from '@ant-design/icons';
 import useSWR, { mutate } from 'swr';
 import {
   getLoyaltyProgramById,
@@ -13,16 +13,24 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Divider, Input, Modal } from 'antd';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-const Publications: React.FC = () => {
+interface PublicationsProps {
+  isEditable?: boolean;
+}
+
+const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const currentStep = Number(searchParams.get('step')) || 1;
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [isHubRequestModalOpen, setIsHubRequestModalOpen] = useState(false);
   const [hubRequestComment, setHubRequestComment] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
 
   const { data: program, isLoading: loadingPrograms } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
@@ -95,6 +103,18 @@ const Publications: React.FC = () => {
       console.error('Error during hub request: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
+  };
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
+
+  const goNext = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep + 1,
+    });
   };
 
   return (
@@ -172,15 +192,15 @@ const Publications: React.FC = () => {
               <div>{t('marketingLoyalty.hubRequest')}</div>
             </div>
             {program && program.isHub ? (
-              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hub')}
               </span>
             ) : program?.isHubRejected ? (
-              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hubRejected')}
               </span>
             ) : program?.isHubRequested ? (
-              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hubRequested')}
               </span>
             ) : loadingPrograms ? (
@@ -213,6 +233,32 @@ const Publications: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {isEditable && (
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+        <div className="order-2 sm:order-1">
+          {currentStep > 1 && isUpdate && (
+            <Button
+              icon={<LeftOutlined />}
+              onClick={goBack}
+              className="w-full sm:w-auto"
+            >
+              {t('common.back')}
+            </Button>
+          )}
+        </div>
+        {isUpdate && <Button
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+          onClick={goNext}
+          className="w-full sm:w-auto order-1 sm:order-2"
+        >
+          {t('common.next')}
+        </Button>}
+      </div>
+      )}
+      
       <Modal
         title={t('marketing.requestHub')}
         open={isHubRequestModalOpen}
