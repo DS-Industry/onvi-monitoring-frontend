@@ -39,8 +39,8 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
   };
 
   return (
-    <div className="flex flex-col space-y-10 bg-background02 p-4">
-      <div className="flex flex-col rounded-lg w-full space-y-10">
+    <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02">
+      <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
         <div className="flex items-center space-x-4">
           <CarIcon />
           <div>
@@ -83,12 +83,13 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
     
       
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
-          <div>
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
+          <div className="order-2 sm:order-1">
             {currentStep > 1 && isUpdate && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}
+                className="w-full sm:w-auto"
               >
                 {t('common.back')}
               </Button>
@@ -99,6 +100,7 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
+            className="w-full sm:w-auto order-1 sm:order-2"
             onClick={() => {
               updateSearchParams(searchParams, setSearchParams, {
                 step: 4,

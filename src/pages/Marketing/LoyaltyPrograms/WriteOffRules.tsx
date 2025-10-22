@@ -28,12 +28,12 @@ import { LoyaltyProgramsByIdResponse } from '@/services/api/marketing';
 
 interface WriteOffRulesProps {
   program?: LoyaltyProgramsByIdResponse;
-  isValidating: boolean;
+  isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
 }
 
-const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mutate, isEditable = true }) => {
+const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutate, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [radioValue, setRadioValue] = useState('never');
@@ -156,7 +156,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
       if (result) {
         mutate();
         goNextStep();
-        showToast(t('success.recordCreated'), 'success');
+        showToast(t('routes.savedSuccessfully'), 'success');
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
@@ -166,7 +166,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
     }
   };
 
-  if (isValidating) {
+  if (isLoading) {
     return (
       <div className="bg-background02 p-4">
         <div className="flex items-center justify-center h-96">
@@ -178,8 +178,8 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex items-center justify-center bg-background02 p-4">
-        <div className="flex flex-col rounded-lg p-8 w-full md:p-0 space-y-10">
+      <div className="flex items-center justify-center bg-background02">
+        <div className="flex flex-col rounded-lg p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex items-center space-x-4">
             <WalletIcon />
             <div>
@@ -191,8 +191,8 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row flex-1">
-            <div className="w-7/12">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+            <div className="flex-1 lg:w-7/12">
               <div className="text-text01 font-semibold">
                 {t('marketingLoyalty.maximumWriteOff')}
               </div>
@@ -200,11 +200,11 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                 {t('marketingLoyalty.maximumPossible')}
               </div>
             </div>
-            <div>
+            <div className="flex-shrink-0">
               <Input
                 {...register('maxRedeemPercentage')}
                 suffix={<div>%</div>}
-                className="w-20"
+                className="w-20 sm:w-24"
                 value={formData.maxRedeemPercentage}
                 onChange={e =>
                   handleInputChange(
@@ -216,8 +216,8 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
               />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row">
-            <div className="w-7/12">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+            <div className="flex-1 lg:w-7/12">
               <div className="text-text01 font-semibold">
                 {t('marketingLoyalty.useBonuses')}
               </div>
@@ -225,7 +225,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                 {t('marketingLoyalty.allowBonuses')}
               </div>
             </div>
-            <div>
+            <div className="flex-shrink-0">
               <Switch
                 checked={formData.hasBonusWithSale}
                 onChange={checked =>
@@ -235,14 +235,15 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
               />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row">
-            <div className="w-7/12">
+          <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
+            <div className="flex-1 lg:w-7/12">
               <div className="text-text01 font-semibold">
                 {t('marketing.burni')}
               </div>
               <div className="text-text03">{t('marketing.bonusesCan')}</div>
             </div>
-            <div className="space-y-4">
+            <div className="flex-shrink-0 w-full lg:w-auto">
+              <div className="space-y-4">
               <Radio.Group
                 value={radioValue}
                 onChange={(e: RadioChangeEvent) => {
@@ -253,9 +254,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                     handleInputChange('lifetimeBonusDays', undefined);
                     setSelectOpen(false);
                   } else if (e.target.value === 'period') {
-                    if (!formData.burnoutType) {
-                      handleInputChange('burnoutType', 'month');
-                    }
+                    handleInputChange('burnoutType', 'month');
                   }
                 }}
                 disabled={!isEditable}
@@ -287,10 +286,10 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                 </Radio>
               </Radio.Group>
               {radioValue === 'period' && (
-                <div>
+                <div className="w-full">
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
-                    className="w-full sm:min-w-80"
+                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[360px]"
                     value={
                       formData.burnoutType ||
                       (formData.lifetimeBonusDays ? 'custom' : undefined)
@@ -312,12 +311,12 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                     popupRender={menu => (
                       <>
                         {menu}
-                        <div className="flex items-center p-3 border-t border-gray-200 bg-gray-50">
-                          <Typography.Text>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 p-3 border-t border-gray-200 bg-gray-50">
+                          <Typography.Text className="whitespace-nowrap">
                             {t('marketingLoyalty.every')}
                           </Typography.Text>
                           <Input
-                            className="mx-2 w-24"
+                            className="w-full sm:w-24 sm:mx-2"
                             type="number"
                             {...register('lifetimeBonusDays')}
                             value={formData.lifetimeBonusDays}
@@ -333,11 +332,11 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                             }}
                             placeholder={t('marketingLoyalty.days')}
                           />
-                          <span>{t('marketingLoyalty.days')}</span>
+                          <span className="whitespace-nowrap">{t('marketingLoyalty.days')}</span>
                           <Button
                             type="primary"
                             size="small"
-                            className="ml-3"
+                            className="w-full sm:w-auto sm:ml-3"
                             disabled={
                               !isEditable ||
                               (formData.burnoutType === 'custom' &&
@@ -353,10 +352,6 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                                 );
                               }
                               setSelectOpen(false);
-                              showToast(
-                                t('routes.savedSuccessfully'),
-                                'success'
-                              );
                             }}
                           >
                             {t('marketing.apply')}
@@ -381,17 +376,19 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
                   />
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
       </div>
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
-          <div>
+        <div className="flex flex-col sm:flex-row mt-auto justify-end gap-2 mt-3">
+          <div className="order-2 sm:order-1">
             {currentStep > 1 && isUpdate && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}
+                className="w-full sm:w-auto"
               >
                 {t('common.back')}
               </Button>
@@ -403,6 +400,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isValidating, mu
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
+            className="w-full sm:w-auto order-1 sm:order-2"
           >
             {t('common.next')}
           </Button>

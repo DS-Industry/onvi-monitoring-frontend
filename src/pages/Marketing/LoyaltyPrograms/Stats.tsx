@@ -125,13 +125,13 @@ const Stats: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-6 bg-background02 p-6">
-      <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+    <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02">
+      <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
           <LineChartOutlined className="text-white text-xl" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-text01">
+          <h2 className="text-xl sm:text-2xl font-bold text-text01">
             {t('marketingLoyalty.stats')}
           </h2>
           <p className="text-gray-500 text-sm">
@@ -140,7 +140,7 @@ const Stats: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {statsCards.map((card, index) => (
           <Card
             key={index}
@@ -168,11 +168,11 @@ const Stats: React.FC = () => {
 
         <div className="grid grid-cols-1">
           <Card className="shadow-md">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
               <h3 className="text-lg font-semibold text-text01">
                 {t('marketingLoyalty.accrualsAndDebits')}
               </h3>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                 {period === 'custom' && (
                   <RangePicker
                     value={dateRange}
@@ -185,6 +185,7 @@ const Stats: React.FC = () => {
                     }}
                     format="YYYY-MM-DD"
                     placeholder={['Start Date', 'End Date']}
+                    className="w-full sm:w-auto"
                   />
                 )}
                 <Select
@@ -196,7 +197,7 @@ const Stats: React.FC = () => {
                     }
                   }}
                   options={periodOptions}
-                  style={{ width: 150 }}
+                  className="w-full sm:w-[150px]"
                 />
               </div>
             </div>
