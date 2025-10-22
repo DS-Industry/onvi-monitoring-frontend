@@ -57,7 +57,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
   return (
     <div>
       <div className="flex items-center justify-center bg-background02">
-        <div className="flex flex-col rounded-lg w-full space-y-10">
+        <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
               <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
@@ -75,7 +75,12 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
             </div>
             {isEditable && (
               <div className="flex space-x-2">
-                <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
+                <Button 
+                  icon={<PlusOutlined />} 
+                  type="primary" 
+                  onClick={() => setLevelModalOpen(true)}
+                  className="w-full sm:w-auto"
+                >
                   {t('marketing.addLevel')}
                 </Button>
               </div>
@@ -164,12 +169,13 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
         </Modal>
       )}
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
-          <div>
+        <div className="flex flex-col sm:flex-row mt-auto justify-end gap-2 mt-3">
+          <div className="order-2 sm:order-1">
             {currentStep > 1 && isUpdate && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}
+                className="w-full sm:w-auto"
               >
                 {t('common.back')}
               </Button>
@@ -180,6 +186,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
+            className="w-full sm:w-auto order-1 sm:order-2"
             onClick={() => {
               updateSearchParams(searchParams, setSearchParams, {
                 step: 5,

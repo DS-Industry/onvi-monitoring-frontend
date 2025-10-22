@@ -100,7 +100,7 @@ const Publications: React.FC = () => {
   return (
     <div>
       <div className="flex items-center justify-center bg-background02">
-        <div className="flex flex-col rounded-lg w-full space-y-10">
+        <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
               <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
@@ -195,8 +195,10 @@ const Publications: React.FC = () => {
               </Button>
             )}
           </div>
-          <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-4 justify-end">
-            <Button className="text-primary02">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end">
+            <Button 
+              className="text-primary02 w-full sm:w-auto"
+            >
               {t('marketingLoyalty.saveAndExit')}
             </Button>
             <Button
@@ -204,6 +206,7 @@ const Publications: React.FC = () => {
               icon={<PlayCircleOutlined />}
               onClick={handlePublishToggle}
               loading={isPublishing}
+              className="w-full sm:w-auto"
             >
               {program?.status === 'ACTIVE' ? t('marketingLoyalty.stopNow') : t('marketingLoyalty.startNow')}
             </Button>

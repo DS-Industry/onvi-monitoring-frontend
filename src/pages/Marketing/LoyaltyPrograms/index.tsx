@@ -107,7 +107,7 @@ const LoyaltyPrograms: React.FC = () => {
         </div>
       </div>
 
-      <div className="ml-12">
+      <div  className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
         <Steps 
           current={currentStep} 
           size="default" 
@@ -122,7 +122,11 @@ const LoyaltyPrograms: React.FC = () => {
             />
           ))}
         </Steps>
-        <div className="mt-5">{steps[currentStep].content}</div>
+        <div className="mt-5">
+          <div>
+            {steps[currentStep].content}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -116,10 +116,10 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-background02">
-      <div className="flex flex-col rounded-lglg:flex-row mb-3">
+      <div className="flex flex-col rounded-lg lg:flex-row mb-3">
         <div>
           <div className="flex items-center justify-center bg-background02">
-            <div className="flex flex-col rounded-lg w-full space-y-10">
+            <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
               <div className="flex items-center space-x-4">
                 <BonusImage />
                 <div>
@@ -133,8 +133,8 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
               </div>
             </div>
           </div>
-          <div className="mt-10">
-            <div className="flex flex-col w-full">
+          <div className="mt-6 sm:mt-8 lg:mt-10">
+            <div className="flex flex-col w-full space-y-6 sm:space-y-8">
               <div>
                 <div className="text-text01 text-sm font-semibold">
                   {t('equipment.name')}
@@ -145,7 +145,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                 >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
-                    className="w-full sm:w-96"
+                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
                     {...register('name', {
                       required: t('validation.nameRequired'),
                     })}
@@ -166,7 +166,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                 >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
-                    className="w-full sm:w-96"
+                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
                     {...register('description', {
                       required: t('validation.descriptionRequired'),
                     })}
@@ -187,8 +187,8 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                 <div className="text-text03 text-sm">
                   {t('marketingLoyalty.maxLoyalty')}
                 </div>
-                <div className="mt-2 flex items-center space-x-3">
-                  <div className="flex space-x-2">
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {[...Array(MAX_LEVELS)].map((_, index) => {
                       const level = index + 1;
                       const isActive = level <= formData.maxLevels;
