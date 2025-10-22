@@ -192,15 +192,15 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
               <div>{t('marketingLoyalty.hubRequest')}</div>
             </div>
             {program && program.isHub ? (
-              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm w-20">
+              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hub')}
               </span>
             ) : program?.isHubRejected ? (
-              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm w-20">
+              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hubRejected')}
               </span>
             ) : program?.isHubRequested ? (
-              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm w-20">
+              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hubRequested')}
               </span>
             ) : loadingPrograms ? (
