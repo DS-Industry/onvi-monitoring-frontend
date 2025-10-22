@@ -115,11 +115,12 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
                       })}
                       description={tier.description || ''}
                       bonuses={bonuses}
-                      onEdit={isEditable ? () => {
+                      isEditable={isEditable}
+                      onEdit={() => {
                         setEditTierId(tier.id);
                         setLevelModalOpen(true);
-                      } : undefined}
-                      onDelete={isEditable ? () => setDeletingId(tier.id) : undefined}
+                      }}
+                      onDelete={() => setDeletingId(tier.id)}
                     />
                   );
                 })}

@@ -14,6 +14,7 @@ interface LevelCardProps {
   lossCondition: string;
   description: string;
   bonuses: { label: string; value: string }[];
+  isEditable: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -24,6 +25,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
   lossCondition,
   description,
   bonuses,
+  isEditable,
   onEdit,
   onDelete,
 }) => {
@@ -31,9 +33,9 @@ const LevelCard: React.FC<LevelCardProps> = ({
 
   return (
     <div className="bg-white shadow-md rounded-2xl p-6 w-full relative flex flex-col text-center">
-      <div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
+      {isEditable ?<div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
         <CloseOutlined />
-      </div>
+      </div> : null}
 
       <div className="flex items-center justify-center">
         <div className="w-14 h-14 rounded-full bg-[#D9FF57] flex items-center justify-center mb-3">
@@ -73,7 +75,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
         ))}
       </div>
       <div className="flex justify-end">
-        <Button
+        {isEditable ? <Button
           type="link"
           className="text-primary02 font-medium"
           icon={<RightOutlined />}
@@ -81,8 +83,8 @@ const LevelCard: React.FC<LevelCardProps> = ({
           onClick={onEdit}
         >
           {t('marketingLoyalty.edit')}
-        </Button>
-      </div>
+        </Button> : null}
+      </div> 
     </div>
   );
 };
