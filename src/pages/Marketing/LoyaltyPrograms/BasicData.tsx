@@ -14,7 +14,11 @@ import { useToast } from '@/components/context/useContext';
 import { FireOutlined } from '@ant-design/icons';
 import { MAX_LEVELS } from '@/utils/constants';
 
-const BasicData: React.FC = () => {
+interface BasicDataProps {
+  isEditable?: boolean;
+}
+
+const BasicData: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
@@ -108,6 +112,7 @@ const BasicData: React.FC = () => {
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
                     status={errors.name ? 'error' : ''}
+                    disabled={!isEditable}
                   />
                 </Form.Item>
               </div>
@@ -131,6 +136,7 @@ const BasicData: React.FC = () => {
                     }
                     rows={4}
                     status={errors.description ? 'error' : ''}
+                    disabled={!isEditable}
                   />
                 </Form.Item>
               </div>
@@ -149,8 +155,8 @@ const BasicData: React.FC = () => {
                       return (
                         <div
                           key={level}
-                          onClick={() => handleInputChange('maxLevels', level)}
-                          className={`cursor-pointer w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                          onClick={() => isEditable && handleInputChange('maxLevels', level)}
+                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
                             isActive ? 'bg-blue-500' : 'bg-gray-300'
                           }`}
                         >
@@ -184,17 +190,19 @@ const BasicData: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex mt-auto justify-end gap-2">
-        <Button
-          htmlType="submit"
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          loading={isMutating}
-        >
-          {t('common.next')}
-        </Button>
-      </div>
+      {isEditable && (
+        <div className="flex mt-auto justify-end gap-2">
+          <Button
+            htmlType="submit"
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            loading={isMutating}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

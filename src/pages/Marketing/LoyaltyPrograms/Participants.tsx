@@ -9,7 +9,11 @@ import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 
-const Participants: React.FC = () => {
+interface ParticipantsProps {
+  isEditable?: boolean;
+}
+
+const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
@@ -80,31 +84,33 @@ const Participants: React.FC = () => {
       </div>
     
       
-      <div className="flex mt-auto justify-end gap-2">
-        <div>
-          {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-            >
-              {t('common.back')}
-            </Button>
-          )}
+      {isEditable && (
+        <div className="flex mt-auto justify-end gap-2">
+          <div>
+            {currentStep > 1 && isUpdate && (
+              <Button
+                icon={<LeftOutlined />}
+                onClick={goBack}
+              >
+                {t('common.back')}
+              </Button>
+            )}
+          </div>
+          <Button
+            htmlType="submit"
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            onClick={() => {
+              updateSearchParams(searchParams, setSearchParams, {
+                step: 4,
+              });
+            }}
+          >
+            {t('common.next')}
+          </Button>
         </div>
-        <Button
-          htmlType="submit"
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          onClick={() => {
-            updateSearchParams(searchParams, setSearchParams, {
-              step: 4,
-            });
-          }}
-        >
-          {t('common.next')}
-        </Button>
-      </div>
+      )}
     </div>
   );
 };

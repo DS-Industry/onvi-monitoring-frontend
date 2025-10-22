@@ -175,7 +175,7 @@ export type LoyaltyProgramsResponse = {
   };
 };
 
-type LoyaltyProgramsByIdResponse = {
+export type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
@@ -194,6 +194,7 @@ type LoyaltyProgramsByIdResponse = {
   lifetimeBonusDays?: number;
   maxRedeemPercentage?: number;
   hasBonusWithSale?: boolean;
+  ownerOrganizationId: number;
 };
 
 type TierRequest = {
@@ -1296,6 +1297,51 @@ export async function updateNewLoyaltyProgram(
   const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
     'user/loyalty/program',
     request
+  );
+  return response.data;
+}
+
+export type LoyaltyProgramAnalyticsResponse = {
+  connectedPoses: number;
+  engagedClients: number;
+  programDurationDays: number;
+};
+
+export async function getLoyaltyProgramAnalytics(
+  programId: number
+): Promise<LoyaltyProgramAnalyticsResponse> {
+  const response: AxiosResponse<LoyaltyProgramAnalyticsResponse> = await api.get(
+    `user/loyalty/program/${programId}/analytics`
+  );
+  return response.data;
+}
+
+export type TransactionAnalyticsParams = {
+  period?: 'custom' | 'lastMonth' | 'lastWeek' | 'lastYear';
+  startDate?: string;
+  endDate?: string;
+};
+
+export type TransactionAnalyticsDataPoint = {
+  date: string;
+  accruals: number;
+  debits: number;
+};
+
+export type TransactionAnalyticsResponse = {
+  data: TransactionAnalyticsDataPoint[];
+  totalAccruals: number;
+  totalDebits: number;
+  period: string;
+};
+
+export async function getLoyaltyProgramTransactionAnalytics(
+  programId: number,
+  params: TransactionAnalyticsParams = {}
+): Promise<TransactionAnalyticsResponse> {
+  const response: AxiosResponse<TransactionAnalyticsResponse> = await api.get(
+    `user/loyalty/program/${programId}/transaction-analytics`,
+    { params }
   );
   return response.data;
 }

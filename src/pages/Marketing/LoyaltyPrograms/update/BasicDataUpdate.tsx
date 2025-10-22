@@ -2,21 +2,27 @@ import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { FireOutlined, RightOutlined } from '@ant-design/icons';
-import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import {
-  getLoyaltyProgramById,
   updateNewLoyaltyProgram,
   LoyaltyProgramUpdateBody,
+  LoyaltyProgramsByIdResponse,
 } from '@/services/api/marketing';
 import { useToast } from '@/components/context/useContext';
 import { MAX_LEVELS } from '@/utils/constants';
 
-const BasicDataUpdate: React.FC = () => {
+interface BasicDataUpdateProps {
+  program?: LoyaltyProgramsByIdResponse;
+  isValidating: boolean;
+  mutate: () => void;
+  isEditable?: boolean;
+}
+
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating, mutate, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -33,11 +39,6 @@ const BasicDataUpdate: React.FC = () => {
 
   const { register, handleSubmit, setValue, errors, reset } =
     useFormHook(formData);
-
-  const { data: program, isValidating } = useSWR(
-    loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
-    () => getLoyaltyProgramById(loyaltyProgramId)
-  );
 
   useEffect(() => {
     if (program) {
@@ -67,7 +68,6 @@ const BasicDataUpdate: React.FC = () => {
 
   const onSubmit = async () => {
     try {
-      // If program is loaded and unchanged, skip API call
       if (
         program &&
         formData.name === (program.name ?? '') &&
@@ -89,6 +89,8 @@ const BasicDataUpdate: React.FC = () => {
       });
 
       if (result?.props?.id) {
+        // Refetch program data after successful update
+        mutate();
         updateSearchParams(searchParams, setSearchParams, {
           step: 2,
           loyaltyProgramId: result.props.id,
@@ -102,6 +104,16 @@ const BasicDataUpdate: React.FC = () => {
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
+
+  if (isValidating) {
+    return (
+      <div className="bg-background02 p-4">
+        <div className="flex items-center justify-center h-96">
+          <Spin size="large" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-background02 p-4">
@@ -141,7 +153,7 @@ const BasicDataUpdate: React.FC = () => {
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
                     status={errors.name ? 'error' : ''}
-                    disabled={isValidating}
+                    disabled={isValidating || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -165,7 +177,7 @@ const BasicDataUpdate: React.FC = () => {
                     }
                     rows={4}
                     status={errors.description ? 'error' : ''}
-                    disabled={isValidating}
+                    disabled={isValidating || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -184,8 +196,8 @@ const BasicDataUpdate: React.FC = () => {
                       return (
                         <div
                           key={level}
-                          onClick={() => handleInputChange('maxLevels', level)}
-                          className={`cursor-pointer w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                          onClick={() => isEditable && handleInputChange('maxLevels', level)}
+                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
                             isActive ? 'bg-blue-500' : 'bg-gray-300'
                           }`}
                         >
@@ -208,17 +220,19 @@ const BasicDataUpdate: React.FC = () => {
 
         <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20"></div>
       </div>
-      <div className="flex mt-auto justify-end gap-2">
-        <Button
-          htmlType="submit"
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          loading={isMutating || isValidating}
-        >
-          {t('common.next')}
-        </Button>
-      </div>
+      {isEditable && (
+        <div className="flex mt-auto justify-end gap-2">
+          <Button
+            htmlType="submit"
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            loading={isMutating || isValidating}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

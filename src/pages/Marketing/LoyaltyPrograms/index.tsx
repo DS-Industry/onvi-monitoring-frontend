@@ -7,7 +7,8 @@ import {
   CreditCardOutlined, 
   CarOutlined, 
   FireOutlined, 
-  SyncOutlined 
+  SyncOutlined, 
+  LineChartOutlined
 } from '@ant-design/icons';
 import { Steps } from 'antd';
 import BasicData from './BasicData';
@@ -16,6 +17,10 @@ import WriteOffRules from './WriteOffRules';
 import LevelsBonuses from './LevelsBonuses';
 import Participants from './Participants';
 import Publications from './Publications';
+import Stats from './Stats';
+import useSWR from 'swr';
+import { getLoyaltyProgramById } from '@/services/api/marketing';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Step } = Steps;
 
@@ -25,7 +30,18 @@ const LoyaltyPrograms: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
+  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
+  const { data: program, isValidating, mutate } = useSWR(
+    loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
+    () => getLoyaltyProgramById(loyaltyProgramId)
+  );
+
+  const user = useUser()
+
+  const isOwner = program?.ownerOrganizationId === user?.organizationId;
 
   const handleStepClick = (stepIndex: number) => {
     if (!isUpdate) return
@@ -37,29 +53,36 @@ const LoyaltyPrograms: React.FC = () => {
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: isUpdate ? <BasicDataUpdate /> : <BasicData />,
+      content: isUpdate ? <BasicDataUpdate program={program} isValidating={isValidating} mutate={mutate} isEditable={isOwner} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
     },
     {
       title: t('marketingLoyalty.writeOff'),
-      content: <WriteOffRules />,
+      content: <WriteOffRules program={program} isValidating={isValidating} mutate={mutate} isEditable={isOwner} />,
       icon: <CreditCardOutlined />,
     },
     {
       title: t('marketingLoyalty.participants'),
-      content: <Participants />,
+      content: <Participants isEditable={isOwner} />,
       icon: <CarOutlined />,
     },
     {
       title: t('marketingLoyalty.levelsAndBonuses'),
-      content: <LevelsBonuses />,
+      content: <LevelsBonuses isEditable={isOwner} />,
       icon: <FireOutlined />,
     },
-    {
+    ...(isOwner ? [{
       title: t('marketingLoyalty.publication'),
-      content: <Publications />,
-      icon: <SyncOutlined />,
-    },
+        content: <Publications />,
+        icon: <SyncOutlined />,
+      }] : []),
+    ...(isUpdate
+      ? [{
+          title: t('marketingLoyalty.stats'),
+          content: <Stats />,
+          icon: <LineChartOutlined />,
+        }]
+      : []),
   ];
 
   return (

@@ -14,7 +14,11 @@ import { deleteTier, getBenefits, getTiers } from '@/services/api/marketing';
 import LevelsBonusesModal from './LevelsBonusesModal';
 import LevelCard from './LevelCard';
 
-const LevelsBonuses: React.FC = () => {
+interface LevelsBonusesProps {
+  isEditable?: boolean;
+}
+
+const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
@@ -64,11 +68,13 @@ const LevelsBonuses: React.FC = () => {
                 </div>
               </div>
             </div>
-             <div className="flex space-x-2">
-              <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
-                {t('marketing.addLevel')}
-              </Button>
-            </div>
+             {isEditable && (
+              <div className="flex space-x-2">
+                <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
+                  {t('marketing.addLevel')}
+                </Button>
+              </div>
+            )}
           </div>
           <div className="flex items-center justify-between">
             <div className="text-text01">{t('marketingLoyalty.recalculationPeriod')}</div>
@@ -91,11 +97,11 @@ const LevelsBonuses: React.FC = () => {
                       lossCondition={t('marketingLoyalty.lossCondition', { defaultValue: '-' })}
                       description={tier.description || ''}
                       bonuses={bonuses}
-                      onEdit={() => {
+                      onEdit={isEditable ? () => {
                         setEditTierId(tier.id);
                         setLevelModalOpen(true);
-                      }}
-                      onDelete={() => setDeletingId(tier.id)}
+                      } : undefined}
+                      onDelete={isEditable ? () => setDeletingId(tier.id) : undefined}
                     />
                   );
                 })}
@@ -104,57 +110,63 @@ const LevelsBonuses: React.FC = () => {
           </div>
         </div>
       </div>
-      <LevelsBonusesModal
-        open={levelModalOpen}
-        onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
-        loyaltyProgramId={loyaltyProgramId}
-        tierId={editTierId || undefined}
-      />
+      {isEditable && (
+        <LevelsBonusesModal
+          open={levelModalOpen}
+          onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
+          loyaltyProgramId={loyaltyProgramId}
+          tierId={editTierId || undefined}
+        />
+      )}
 
-      <Modal
-        open={!!deletingId}
-        onCancel={() => setDeletingId(null)}
-        okButtonProps={{ danger: true }}
-        okText={t('common.delete')}
-        onOk={async () => {
-          if (!deletingId) return;
-          try {
-            await deleteTier(deletingId);
-            setDeletingId(null);
-            await mutate([`get-tiers`, loyaltyProgramId]);
-          } finally {
-            // refresh tiers
-          }
-        }}
-        title={t('marketing.deleteTierConfirm', { defaultValue: 'Удалить уровень?' })}
-      >
-        {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
-      </Modal>
-      <div className="flex mt-auto justify-end gap-2">
-        <div>
-          {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-            >
-              {t('common.back')}
-            </Button>
-          )}
-        </div>
-        <Button
-          htmlType="submit"
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          onClick={() => {
-            updateSearchParams(searchParams, setSearchParams, {
-              step: 5,
-            });
+      {isEditable && (
+        <Modal
+          open={!!deletingId}
+          onCancel={() => setDeletingId(null)}
+          okButtonProps={{ danger: true }}
+          okText={t('common.delete')}
+          onOk={async () => {
+            if (!deletingId) return;
+            try {
+              await deleteTier(deletingId);
+              setDeletingId(null);
+              await mutate([`get-tiers`, loyaltyProgramId]);
+            } finally {
+              // refresh tiers
+            }
           }}
+          title={t('marketing.deleteTierConfirm', { defaultValue: 'Удалить уровень?' })}
         >
-          {t('common.next')}
-        </Button>
-      </div>
+          {t('marketing.deleteTierWarning', { defaultValue: 'Действие необратимо. Продолжить?' })}
+        </Modal>
+      )}
+      {isEditable && (
+        <div className="flex mt-auto justify-end gap-2">
+          <div>
+            {currentStep > 1 && isUpdate && (
+              <Button
+                icon={<LeftOutlined />}
+                onClick={goBack}
+              >
+                {t('common.back')}
+              </Button>
+            )}
+          </div>
+          <Button
+            htmlType="submit"
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            onClick={() => {
+              updateSearchParams(searchParams, setSearchParams, {
+                step: 5,
+              });
+            }}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

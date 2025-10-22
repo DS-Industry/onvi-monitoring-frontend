@@ -1721,6 +1721,21 @@
     "highestLevel": "Высший уровень программы лояльности",
     "notApplicable": "не применимо",
     "spent": "трат",
-    "custom": "Произвольно"
+    "custom": "Произвольно",
+    "stats": "Статистика",
+    "statsSubtitle": "Отображение итогов использования программы лояльности",
+    "connectedBranches": "Подключенных филиалов",
+    "engagedClients": "Клиентов задействовано",
+    "programDurationDays": "Существует дней",
+    "accrualsAndDebits": "Начисления и списания",
+    "accruals": "Начисления",
+    "debits": "Списания",
+    "lastMonth": "Крайний месяц",
+    "lastWeek": "Крайняя неделя",
+    "lastYear": "Крайний год",
+    "rating": "Рейтинг",
+    "rank": "Ранг",
+    "branch": "Филиал",
+    "turnover": "Оборот, ₽"
   }
 }
