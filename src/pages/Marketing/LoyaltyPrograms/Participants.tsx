@@ -83,7 +83,7 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
     
       
       {isEditable && (
-        <div className="flex flex-col sm:flex-row mt-auto justify-end gap-2 mt-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
           <div className="order-2 sm:order-1">
             {currentStep > 1 && isUpdate && (
               <Button
