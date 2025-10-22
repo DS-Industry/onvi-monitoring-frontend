@@ -101,7 +101,7 @@ const LoyaltyPrograms: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {t('routes.createLoyalty')}
+              {t('routes.viewLoyalty')}
             </span>
           </div>
         </div>

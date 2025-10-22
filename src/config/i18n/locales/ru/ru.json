@@ -117,7 +117,8 @@
     "debugging": "Отладка",
     "falseDeposits": "Ложные зачисления",
     "falseDeposit": "Ложный кредит",
-    "createLoyalty": "Создание программы лояльности"
+    "createLoyalty": "Создание программы лояльности",
+    "viewLoyalty": "Просмотр программы лояльности"
   },
   "dashboard": {
     "news": "Новости",
@@ -1681,6 +1682,9 @@
     }
   },
   "marketingLoyalty": {
+    "loadingMap": "Загрузка карты...",
+    "noParticipants": "Нет участников",
+    "noParticipantsDescription": "Участники для данной программы лояльности не найдены",
     "basicData": "Базовые данные",
     "writeOff": "Правила списания",
     "participants": "Участники",
