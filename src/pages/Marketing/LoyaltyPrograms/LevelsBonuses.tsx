@@ -86,14 +86,6 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
               </div>
             )}
           </div>
-          <div className="flex items-center justify-between">
-            <div className="text-text01">
-              {t('marketingLoyalty.recalculationPeriod')}
-            </div>
-          </div>
-          <div className="text-sm text-text03">
-            {t('marketingLoyalty.recal')}
-          </div>
 
           <div className="mt-6">
             {tiersLoading ? (
