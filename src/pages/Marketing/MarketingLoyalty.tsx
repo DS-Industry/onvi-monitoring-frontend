@@ -66,8 +66,7 @@ const MarketingLoyalty: React.FC = () => {
         render: (text: string, record) => {
           return (
             <>
-              {record.ownerOrganizationId === user.organizationId ? (
-                <Link
+               <Link
                   to={{
                     pathname: `/marketing/loyalty/program/${record.id}`,
                     search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
@@ -76,11 +75,6 @@ const MarketingLoyalty: React.FC = () => {
                 >
                   {text}
                 </Link>
-              ) : (
-                <span className="text-gray-500 font-semibold cursor-not-allowed">
-                  {text}
-                </span>
-              )}
             </>
           );
         },
