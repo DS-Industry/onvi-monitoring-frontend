@@ -33,20 +33,4 @@ input:-webkit-autofill {
   padding: 0 !important;
 }
 
-/* Make Transfer component responsive */
-.ant-transfer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.ant-transfer-list {
-  min-width: 0; /* important to prevent overflow */
-}
-
-@media (max-width: 640px) {
-  .ant-transfer {
-    flex-direction: column; /* stack vertically on small screens */
-  }
-}
 

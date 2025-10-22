@@ -352,6 +352,24 @@ const LevelsBonusesModal: React.FC<Props> = ({
               showSelectAll={false}
               oneWay={true}
             />
+            <style>
+              {`
+.ant-transfer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ant-transfer-list {
+  min-width: 0; 
+}
+
+@media (max-width: 640px) {
+  .ant-transfer {
+    flex-direction: column; 
+  }
+}`}
+            </style>
           </div>
 
           <div className="border-t border-gray-200 my-6" />
