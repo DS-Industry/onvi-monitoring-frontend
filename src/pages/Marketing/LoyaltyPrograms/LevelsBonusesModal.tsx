@@ -243,9 +243,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                 <div className="md:col-span-2 space-y-4">
                   <div>
                     <div className="text-sm text-text01">
-                      {t('marketing.levelName', {
-                        defaultValue: 'Название уровня',
-                      })}
+                      {t('marketingLoyalty.levelName')}
                     </div>
                     <Form.Item
                       help={levelErrors.name?.message}
@@ -268,9 +266,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                   </div>
                   <div>
                     <div className="text-sm text-text01">
-                      {t('marketing.levelDescription', {
-                        defaultValue: 'Описание уровня',
-                      })}
+                      {t('marketingLoyalty.levelDescription')}
                     </div>
                     <Input.TextArea
                       rows={4}
@@ -288,16 +284,12 @@ const LevelsBonusesModal: React.FC<Props> = ({
             <div className="border-t border-gray-200 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                 <div className="font-semibold text-text01 md:col-span-1">
-                  {t('marketing.upDown', {
-                    defaultValue: 'Повышение/понижение',
-                  })}
+                  {t('marketingLoyalty.promotion')}
                 </div>
                 <div className="md:col-span-2 space-y-4">
                   <div>
                     <div className="text-sm text-text01">
-                      {t('marketing.promotionSpend', {
-                        defaultValue: 'Сумма трат для повышения уровня',
-                      })}
+                      {t('marketingLoyalty.promotionSpend')}
                     </div>
                     <Input
                       type="number"
@@ -344,10 +336,10 @@ const LevelsBonusesModal: React.FC<Props> = ({
               render={item => item.title}
               listStyle={{ width: 200 }}
               titles={[
-                t('marketing.available', {
+                t('marketingLoyalty.available', {
                   defaultValue: 'Доступные бонусы',
                 }),
-                t('marketing.selected', { defaultValue: 'Выбранные бонусы' }),
+                t('marketingLoyalty.selected', { defaultValue: 'Выбранные бонусы' }),
               ]}
               showSelectAll={false}
               oneWay={true}
@@ -376,14 +368,14 @@ const LevelsBonusesModal: React.FC<Props> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             <div className="font-semibold text-text01 md:col-span-1">
-              {t('marketing.createNew', { defaultValue: 'Создай новый' })}
+              {t('marketingLoyalty.createNew')}
             </div>
             <div className="md:col-span-2">
               <form onSubmit={handleSubmitBenefit(submitCreateBenefit)}>
                 <div className="space-y-4">
                   <div>
                     <div className="text-sm font-semibold text-text01">
-                      {t('equipment.name', { defaultValue: 'Название уровня' })}
+                      {t('marketingLoyalty.levelName')}
                     </div>
                     <Form.Item
                       help={benefitErrors.name?.message}
@@ -424,7 +416,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-text01">
-                      {t('marketing.value', { defaultValue: 'Значение' })}
+                      {t('warehouse.purpose')}
                     </div>
                     <Input
                       type="number"

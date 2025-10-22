@@ -75,7 +75,11 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
             </div>
             {isEditable && (
               <div className="flex space-x-2">
-                <Button icon={<PlusOutlined />} type="primary" onClick={() => setLevelModalOpen(true)}>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={() => setLevelModalOpen(true)}
+                >
                   {t('marketing.addLevel')}
                 </Button>
               </div>
@@ -96,7 +100,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
                 <Spin />
               </div>
             ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {tiers.map((tier: any, index: number) => {
                   const tierBenefits = (benefitsData || []).filter(b =>
                     tier.benefitIds?.includes(b.props.id)
@@ -132,7 +136,10 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
       {isEditable && (
         <LevelsBonusesModal
           open={levelModalOpen}
-          onClose={() => { setLevelModalOpen(false); setEditTierId(null); }}
+          onClose={() => {
+            setLevelModalOpen(false);
+            setEditTierId(null);
+          }}
           loyaltyProgramId={loyaltyProgramId}
           tierId={editTierId || undefined}
         />
@@ -164,13 +171,10 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
         </Modal>
       )}
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
+        <div className="flex justify-end gap-2 mt-5">
           <div>
             {currentStep > 1 && isUpdate && (
-              <Button
-                icon={<LeftOutlined />}
-                onClick={goBack}
-              >
+              <Button icon={<LeftOutlined />} onClick={goBack}>
                 {t('common.back')}
               </Button>
             )}
