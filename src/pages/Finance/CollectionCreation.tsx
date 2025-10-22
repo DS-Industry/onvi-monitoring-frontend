@@ -6,6 +6,7 @@ import {
   getCollectionById,
   postCollection,
   recalculateCollection,
+  RecalculateCollectionBody,
   returnCollection,
   sendCollection,
 } from '@/services/api/finance';
@@ -225,17 +226,7 @@ const CollectionCreation: React.FC = () => {
       {
         arg,
       }: {
-        arg: {
-          cashCollectionDeviceData: {
-            cashCollectionDeviceId: number;
-            tookMoneyTime: Date;
-          }[];
-          cashCollectionDeviceTypeData: {
-            cashCollectionDeviceTypeId: number;
-            sumCoin?: number;
-            sumPaper?: number;
-          }[];
-        };
+        arg: RecalculateCollectionBody;
       }
     ) => {
       return recalculateCollection(arg, collectionData.id);
@@ -249,17 +240,7 @@ const CollectionCreation: React.FC = () => {
       {
         arg,
       }: {
-        arg: {
-          cashCollectionDeviceData: {
-            cashCollectionDeviceId: number;
-            tookMoneyTime: Date;
-          }[];
-          cashCollectionDeviceTypeData: {
-            cashCollectionDeviceTypeId: number;
-            sumCoin?: number;
-            sumPaper?: number;
-          }[];
-        };
+        arg: RecalculateCollectionBody;
       }
     ) => {
       return sendCollection(arg, collectionData.id);
@@ -280,10 +261,12 @@ const CollectionCreation: React.FC = () => {
 
     const collectionDevice: {
       cashCollectionDeviceId: number;
+      oldTookMoneyTime?: Date;
       tookMoneyTime: Date;
     }[] =
       deviceData?.map(data => ({
         cashCollectionDeviceId: data.id,
+        oldTookMoneyTime: data.oldTookMoneyTime,
         tookMoneyTime: data.tookMoneyTime,
       })) || [];
 
@@ -313,13 +296,14 @@ const CollectionCreation: React.FC = () => {
 
     const collectionDevice: {
       cashCollectionDeviceId: number;
+      oldTookMoneyTime?: Date;
       tookMoneyTime: Date;
     }[] =
       deviceData?.map(data => ({
         cashCollectionDeviceId: data.id,
+        oldTookMoneyTime: data.oldTookMoneyTime,
         tookMoneyTime: data.tookMoneyTime,
       })) || [];
-
     const result = await senCollection({
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,

@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Table,
-  Popconfirm,
-  Typography,
-  Button,
-  DatePicker,
-} from 'antd';
+import { Table, Popconfirm, Typography, Button, DatePicker } from 'antd';
 import { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
@@ -47,12 +41,24 @@ const CollectionDeviceTable: React.FC<Props> = ({
   t,
   loading,
 }) => {
-  const [editingValue, setEditingValue] = useState<string>('');
+  const [editingValue, setEditingValue] = useState<string>(''); // new tookMoneyTime
+  const [editingOldValue, setEditingOldValue] = useState<string>(''); // oldTookMoneyTime
 
   const startEditing = (record: CashCollectionDevice) => {
     setEditingRow(record.id);
-    const date = record.tookMoneyTime;
-    setEditingValue(date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : '');
+
+    // ✅ Properly separate the two fields
+    setEditingValue(
+      record.tookMoneyTime
+        ? dayjs(record.tookMoneyTime).format('YYYY-MM-DDTHH:mm:ss')
+        : ''
+    );
+
+    setEditingOldValue(
+      record.oldTookMoneyTime
+        ? dayjs(record.oldTookMoneyTime).format('YYYY-MM-DDTHH:mm:ss')
+        : ''
+    );
   };
 
   const cancelEditing = () => {
@@ -60,10 +66,20 @@ const CollectionDeviceTable: React.FC<Props> = ({
   };
 
   const saveEditing = (record: CashCollectionDevice) => {
-    const fakeEvent = {
-      target: { value: editingValue },
-    } as React.ChangeEvent<HTMLInputElement>;
-    handleDateChange(fakeEvent, record.deviceId, 'tookMoneyTime');
+    if (editingOldValue) {
+      const fakeOldEvent = {
+        target: { value: editingOldValue },
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleDateChange(fakeOldEvent, record.deviceId, 'oldTookMoneyTime');
+    }
+
+    if (editingValue) {
+      const fakeNewEvent = {
+        target: { value: editingValue },
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleDateChange(fakeNewEvent, record.deviceId, 'tookMoneyTime');
+    }
+
     setEditingRow(null);
   };
 
@@ -84,8 +100,38 @@ const CollectionDeviceTable: React.FC<Props> = ({
       title: t('Время сбора (старое)'),
       dataIndex: 'oldTookMoneyTime',
       key: 'oldTookMoneyTime',
-      width: '12%',
-      render: (text: string) => dayjs(text).format('DD.MM.YYYY HH:mm:ss'),
+      width: '15%',
+      render: (_: unknown, record: CashCollectionDevice) => {
+        const isEditable =
+          editingRow === record.id && status !== t('tables.SENT');
+
+        return isEditable ? (
+          <DatePicker
+            showTime={{ format: 'HH:mm:ss' }}
+            format="DD.MM.YYYY HH:mm:ss"
+            value={
+              editingOldValue && dayjs(editingOldValue).isValid()
+                ? dayjs(editingOldValue)
+                : null
+            }
+            onChange={momentObj => {
+              setEditingOldValue(
+                momentObj ? momentObj.format('YYYY-MM-DDTHH:mm:ss') : ''
+              );
+            }}
+            className="w-full"
+          />
+        ) : (
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              if (status !== t('tables.SENT')) startEditing(record);
+            }}
+          >
+            {dayjs(record.oldTookMoneyTime).format('DD.MM.YYYY HH:mm:ss')}
+          </div>
+        );
+      },
     },
     {
       title: t('Время сбора (новое)'),
@@ -93,7 +139,6 @@ const CollectionDeviceTable: React.FC<Props> = ({
       key: 'tookMoneyTime',
       width: '15%',
       render: (_: unknown, record: CashCollectionDevice) => {
-        const date = record.tookMoneyTime;
         const isEditable =
           editingRow === record.id && status !== t('tables.SENT');
 
@@ -112,7 +157,6 @@ const CollectionDeviceTable: React.FC<Props> = ({
               );
             }}
             className="w-full"
-            autoFocus
           />
         ) : (
           <div
@@ -121,7 +165,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
               if (status !== t('tables.SENT')) startEditing(record);
             }}
           >
-            {dayjs(date).format('DD.MM.YYYY HH:mm:ss')}
+            {dayjs(record.tookMoneyTime).format('DD.MM.YYYY HH:mm:ss')}
           </div>
         );
       },
