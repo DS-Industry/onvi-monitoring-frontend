@@ -4,7 +4,7 @@ import CarIcon from '@icons/CarIcon.svg?react';
 import useSWR from 'swr';
 import { getPosesParticipants } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, Skeleton } from 'antd';
 import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
@@ -59,7 +59,15 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
             {t('marketingLoyalty.participatingBranches')} —
           </div>
           <div className="font-semibold text-primary02">
-            {participantsData?.length || 0}
+            {participantsLoading ? (
+              <Skeleton.Input 
+                active 
+                size="small" 
+                style={{ width: 20, height: 20 }} 
+              />
+            ) : (
+              participantsData?.length || 0
+            )}
           </div>
         </div>
         <div className="text-text03 text-sm">
