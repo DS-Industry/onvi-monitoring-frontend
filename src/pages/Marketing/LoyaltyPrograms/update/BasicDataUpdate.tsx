@@ -17,12 +17,12 @@ import { MAX_LEVELS } from '@/utils/constants';
 
 interface BasicDataUpdateProps {
   program?: LoyaltyProgramsByIdResponse;
-  isValidating: boolean;
+  isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
 }
 
-const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating, mutate, isEditable = true }) => {
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -89,13 +89,12 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
       });
 
       if (result?.props?.id) {
-        // Refetch program data after successful update
         mutate();
         updateSearchParams(searchParams, setSearchParams, {
           step: 2,
           loyaltyProgramId: result.props.id,
         });
-        showToast(t('success.recordUpdated'), 'success');
+        showToast(t('marketing.loyaltyUpdated'), 'success');
       } else {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
@@ -105,7 +104,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
     }
   };
 
-  if (isValidating) {
+  if (isLoading) {
     return (
       <div className="bg-background02 p-4">
         <div className="flex items-center justify-center h-96">
@@ -117,10 +116,10 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-background02">
-      <div className="flex flex-col rounded-lglg:flex-row mb-3">
+      <div className="flex flex-col rounded-lg lg:flex-row mb-3">
         <div>
           <div className="flex items-center justify-center bg-background02">
-            <div className="flex flex-col rounded-lg w-full space-y-10">
+            <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
               <div className="flex items-center space-x-4">
                 <BonusImage />
                 <div>
@@ -134,8 +133,8 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
               </div>
             </div>
           </div>
-          <div className="mt-10">
-            <div className="flex flex-col w-full">
+          <div className="mt-6 sm:mt-8 lg:mt-10">
+            <div className="flex flex-col w-full space-y-6 sm:space-y-8">
               <div>
                 <div className="text-text01 text-sm font-semibold">
                   {t('equipment.name')}
@@ -146,14 +145,14 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                 >
                   <Input
                     placeholder={t('profile.namePlaceholder')}
-                    className="w-full sm:w-96"
+                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
                     {...register('name', {
                       required: t('validation.nameRequired'),
                     })}
                     value={formData.name}
                     onChange={e => handleInputChange('name', e.target.value)}
                     status={errors.name ? 'error' : ''}
-                    disabled={isValidating || !isEditable}
+                    disabled={isLoading || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -167,7 +166,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                 >
                   <Input.TextArea
                     placeholder={t('marketingLoyalty.enterDesc')}
-                    className="w-full sm:w-96"
+                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
                     {...register('description', {
                       required: t('validation.descriptionRequired'),
                     })}
@@ -177,7 +176,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                     }
                     rows={4}
                     status={errors.description ? 'error' : ''}
-                    disabled={isValidating || !isEditable}
+                    disabled={isLoading || !isEditable}
                   />
                 </Form.Item>
               </div>
@@ -188,8 +187,8 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
                 <div className="text-text03 text-sm">
                   {t('marketingLoyalty.maxLoyalty')}
                 </div>
-                <div className="mt-2 flex items-center space-x-3">
-                  <div className="flex space-x-2">
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {[...Array(MAX_LEVELS)].map((_, index) => {
                       const level = index + 1;
                       const isActive = level <= formData.maxLevels;
@@ -227,7 +226,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isValidating
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
-            loading={isMutating || isValidating}
+            loading={isMutating || isLoading}
           >
             {t('common.next')}
           </Button>
