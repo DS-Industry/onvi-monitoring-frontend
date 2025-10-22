@@ -30,7 +30,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white shadow-md rounded-2xl p-6 w-80 relative flex flex-col text-center">
+    <div className="bg-white shadow-md rounded-2xl p-6 w-full relative flex flex-col text-center">
       <div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
         <CloseOutlined />
       </div>

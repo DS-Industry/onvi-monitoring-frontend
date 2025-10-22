@@ -246,6 +246,7 @@ const WriteOffRules: React.FC = () => {
                     }
                   }
                 }}
+                className='space-y-4'
               >
                 <Radio
                   value="never"
@@ -369,10 +370,7 @@ const WriteOffRules: React.FC = () => {
       <div className="flex mt-auto justify-end gap-2">
         <div>
           {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-            >
+            <Button icon={<LeftOutlined />} onClick={goBack}>
               {t('common.back')}
             </Button>
           )}
