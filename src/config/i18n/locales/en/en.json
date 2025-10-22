@@ -1765,6 +1765,10 @@
     "promotionSpend": "Amount of spending to increase the level",
     "available": "Available bonuses",
     "selected": "Selected bonuses",
-    "createNew": "Create a new one"
+    "createNew": "Create a new one",
+    "moreDetails": "More details",
+    "branches": "Branches",
+    "numberOfBranches": "Number of branches",
+    "numberOfClients": "Number of clients"
   }
 }

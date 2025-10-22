@@ -172,15 +172,15 @@ const Publications: React.FC = () => {
               <div>{t('marketingLoyalty.hubRequest')}</div>
             </div>
             {program && program.isHub ? (
-              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-successFill text-white px-2 py-0.5 rounded text-sm w-20">
                 {t('marketing.hub')}
               </span>
             ) : program?.isHubRejected ? (
-              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-errorFill text-white px-2 py-0.5 rounded text-sm w-20">
                 {t('marketing.hubRejected')}
               </span>
             ) : program?.isHubRequested ? (
-              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm">
+              <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm w-20">
                 {t('marketing.hubRequested')}
               </span>
             ) : loadingPrograms ? (

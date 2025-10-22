@@ -1764,6 +1764,10 @@
     "promotionSpend": "Сумма трат для повышения уровня",
     "available": "Доступные бонусы",
     "selected": "Выбранные бонусы",
-    "createNew": "Создай новый"
+    "createNew": "Создай новый",
+    "moreDetails": "Подробнее",
+    "branches": "Филиалов",
+    "numberOfBranches": "Количество филиалов",
+    "numberOfClients": "Количество клиентов"
   }
 }
