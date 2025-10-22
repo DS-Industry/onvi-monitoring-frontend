@@ -784,6 +784,7 @@
     "1007": "An error occurred while updating the user role. Please try again.",
     "1008": "Authorization failed. Please check your credentials and try again.",
     "1103": "Loyalty program not found",
+    "1108": "Cannot delete tier. Some clients are currently using this tier.",
     "2001": "An error occurred while creating the device. Please try again.",
     "2002": "An error occurred while creating the device type. Please try again.",
     "2003": "An error occurred while updating the device type. Please try again.",
