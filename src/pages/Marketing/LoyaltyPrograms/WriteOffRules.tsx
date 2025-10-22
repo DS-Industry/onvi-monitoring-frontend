@@ -253,9 +253,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                     handleInputChange('lifetimeBonusDays', undefined);
                     setSelectOpen(false);
                   } else if (e.target.value === 'period') {
-                    if (!formData.burnoutType) {
-                      handleInputChange('burnoutType', 'month');
-                    }
+                    handleInputChange('burnoutType', 'month');
                   }
                 }}
                 disabled={!isEditable}
@@ -290,7 +288,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                 <div>
                   <Select
                     placeholder={t('techTasks.selectPeriodicity')}
-                    className="w-full sm:min-w-80"
+                    style={{ minWidth: '360px' }}
                     value={
                       formData.burnoutType ||
                       (formData.lifetimeBonusDays ? 'custom' : undefined)
@@ -353,10 +351,6 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                                 );
                               }
                               setSelectOpen(false);
-                              showToast(
-                                t('routes.savedSuccessfully'),
-                                'success'
-                              );
                             }}
                           >
                             {t('marketing.apply')}
