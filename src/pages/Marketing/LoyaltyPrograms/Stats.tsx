@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Spin, Alert, Select, DatePicker, Button } from 'antd';
+import { Card, Spin, Alert, Select, Button } from 'antd';
 import { 
   LineChartOutlined, 
   CarOutlined, 
@@ -10,7 +10,6 @@ import {
   LeftOutlined
 } from '@ant-design/icons';
 import useSWR from 'swr';
-import dayjs from 'dayjs';
 import { 
   getLoyaltyProgramAnalytics, 
   getLoyaltyProgramTransactionAnalytics,
@@ -19,8 +18,6 @@ import {
 import TransactionAnalyticsChart from '@/components/ui/TransactionAnalyticsChart';
 
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-
-const { RangePicker } = DatePicker;
 
 interface StatsProps {
   isEditable?: boolean;
@@ -31,8 +28,7 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   
-  const [period, setPeriod] = useState<'custom' | 'lastMonth' | 'lastWeek' | 'lastYear'>('lastMonth');
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
+  const [period, setPeriod] = useState<'lastMonth' | 'lastWeek' | 'lastYear'>('lastMonth');
   
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
   const currentStep = Number(searchParams.get('step')) || 1;
@@ -49,11 +45,7 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
   );
 
   const transactionParams: TransactionAnalyticsParams = {
-    period,
-    ...(period === 'custom' && dateRange && {
-      startDate: dateRange[0].format('YYYY-MM-DD'),
-      endDate: dateRange[1].format('YYYY-MM-DD'),
-    }),
+    period
   };
 
   const { data: transactionAnalytics, error: transactionError, isLoading: transactionLoading } = useSWR(
@@ -113,30 +105,29 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
     { value: 'lastWeek', label: t('marketingLoyalty.lastWeek') },
     { value: 'lastMonth', label: t('marketingLoyalty.lastMonth') },
     { value: 'lastYear', label: t('marketingLoyalty.lastYear') },
-    { value: 'custom', label: t('marketingLoyalty.custom') },
   ];
 
   const statsCards = [
     {
-      icon: <CarOutlined className="text-green-600" />,
+      icon: <CarOutlined className="text-black" />,
       label: t('marketingLoyalty.connectedBranches'),
       value: analytics?.connectedPoses || 0,
-      bgColor: 'bg-green-100',
-      iconBgColor: 'bg-green-500',
+      bgColor: 'bg-[#BFFA00]',
+      iconBgColor:'bg-[#BFFA00]',
     },
     {
-      icon: <UsergroupAddOutlined className="text-green-600" />,
+      icon: <UsergroupAddOutlined className="text-black" />,
       label: t('marketingLoyalty.engagedClients'),
       value: analytics?.engagedClients || 0,
-      bgColor: 'bg-green-100',
-      iconBgColor: 'bg-green-500',
+      bgColor: 'bg-[#BFFA00]',
+      iconBgColor: 'bg-[#BFFA00]',
     },
     {
-      icon: <CalendarOutlined className="text-green-600" />,
+      icon: <CalendarOutlined className="text-black" />,
       label: t('marketingLoyalty.programDurationDays'),
       value: analytics?.programDurationDays || 0,
-      bgColor: 'bg-green-100',
-      iconBgColor: 'bg-green-500',
+      bgColor: '#CCC',
+      iconBgColor: 'bg-[#BFFA00]',
     },
   ];
 
@@ -163,20 +154,21 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
             className="shadow-md hover:shadow-lg transition-shadow duration-200"
             bodyStyle={{ padding: '24px' }}
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className={`w-16 h-16 ${card.iconBgColor} rounded-full flex items-center justify-center`}>
-                <div className="text-white text-2xl">
+            <div className="flex items-center space-x-4">
+              <div className={`w-12 h-12 ${card.iconBgColor} rounded-full flex items-center justify-center flex-shrink-0`}>
+                <div className="text-white text-lg">
                   {card.icon}
                 </div>
               </div>
               
-              <p className="text-gray-500 text-sm font-medium">
-                {card.label}
-              </p>
-              
-              <p className="text-3xl font-bold text-text01">
-                {card.value}
-              </p>
+              <div className="flex flex-col">
+                <p className="text-gray-500 text-sm font-medium mb-1">
+                  {card.label}
+                </p>
+                <p className="text-2xl font-bold text-text01">
+                  {card.value}
+                </p>
+              </div>
             </div>
           </Card>
         ))}
@@ -189,28 +181,10 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
                 {t('marketingLoyalty.accrualsAndDebits')}
               </h3>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                {period === 'custom' && (
-                  <RangePicker
-                    value={dateRange}
-                    onChange={(dates) => {
-                      if (dates && dates[0] && dates[1]) {
-                        setDateRange([dates[0], dates[1]]);
-                      } else {
-                        setDateRange(null);
-                      }
-                    }}
-                    format="YYYY-MM-DD"
-                    placeholder={['Start Date', 'End Date']}
-                    className="w-full sm:w-auto"
-                  />
-                )}
                 <Select
                   value={period}
                   onChange={(value) => {
                     setPeriod(value);
-                    if (value !== 'custom') {
-                      setDateRange(null);
-                    }
                   }}
                   options={periodOptions}
                   className="w-full sm:w-[150px]"
@@ -233,7 +207,7 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
               <TransactionAnalyticsChart data={transactionAnalytics.data} />
             ) : (
               <div className="flex items-center justify-center h-96 text-gray-500">
-                No data available for the selected period
+                {t("table.noData")}
               </div>
             )}
           </Card>
