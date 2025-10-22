@@ -76,13 +76,13 @@ const LoyaltyPrograms: React.FC = () => {
     },
     ...(isOwner ? [{
       title: t('marketingLoyalty.publication'),
-        content: <Publications />,
+        content: <Publications  />,
         icon: <SyncOutlined />,
       }] : []),
     ...(isUpdate
       ? [{
           title: t('marketingLoyalty.stats'),
-          content: <Stats />,
+          content: <Stats isEditable={isOwner} />,
           icon: <LineChartOutlined />,
         }]
       : []),
