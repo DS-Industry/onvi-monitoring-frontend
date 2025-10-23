@@ -23,6 +23,7 @@ interface LoyaltyCardProps {
   clients: number;
   status: LoyaltyProgramStatus;
   onClick?: () => void;
+  loading: boolean;
 }
 
 const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
@@ -33,6 +34,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
   clients,
   status,
   onClick,
+  loading,
 }) => {
   const { t } = useTranslation();
 
@@ -78,6 +80,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
         borderRadius: 12,
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       }}
+      loading={loading}
     >
       <div className="flex justify-between items-start mb-3">
         <div

@@ -271,6 +271,48 @@ type UpdateBenefitBody = {
   benefitType?: BenefitType;
 };
 
+export enum ParticipationRole {
+  OWNER = 'owner',
+  PARTICIPANT = 'participant',
+  ALL = 'all',
+}
+
+type LoyaltyProgramParams = {
+  organizationId: number;
+  status?: LoyaltyProgramStatus;
+  participantRole?: ParticipationRole;
+  page?: number;
+  size?: number;
+};
+
+export type LoyaltyProgramParticipantResponseDto = {
+  props: {
+    id: number;
+    name: string;
+    status: string;
+    startDate: Date;
+    isHub: boolean;
+    isHubRequested: boolean;
+    isHubRejected: boolean;
+    lifetimeDays?: number;
+    participantId: number;
+    ownerOrganizationId: number;
+    connectedPoses: number;
+    engagedClients: number;
+    description?: string;
+  };
+};
+
+export type LoyaltyParticipantProgramsPaginatedResponse = {
+  data: LoyaltyProgramParticipantResponseDto[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export async function createClient(
   body: ClientRequestBody
 ): Promise<ClientResponseBody> {
@@ -370,6 +412,17 @@ export async function getLoyaltyPrograms(
   const response: AxiosResponse<LoyaltyProgramsResponse[]> = await api.get(
     MARKETING.LOYALTY + `/participant-programs?organizationId=${orgId || ''}`
   );
+
+  return response.data;
+}
+
+export async function getLoyaltyProgramsPaginated(
+  params: LoyaltyProgramParams
+): Promise<LoyaltyParticipantProgramsPaginatedResponse> {
+  const response: AxiosResponse<LoyaltyParticipantProgramsPaginatedResponse> =
+    await api.get(MARKETING.LOYALTY + `/participant-programs-paginated`, {
+      params,
+    });
 
   return response.data;
 }
@@ -1310,9 +1363,8 @@ export type LoyaltyProgramAnalyticsResponse = {
 export async function getLoyaltyProgramAnalytics(
   programId: number
 ): Promise<LoyaltyProgramAnalyticsResponse> {
-  const response: AxiosResponse<LoyaltyProgramAnalyticsResponse> = await api.get(
-    `user/loyalty/program/${programId}/analytics`
-  );
+  const response: AxiosResponse<LoyaltyProgramAnalyticsResponse> =
+    await api.get(`user/loyalty/program/${programId}/analytics`);
   return response.data;
 }
 

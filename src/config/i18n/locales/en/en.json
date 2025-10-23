@@ -899,7 +899,10 @@
     "PENDING": "PENDING",
     "PAUSED": "PAUSED",
     "CANCELLED": "CANCELLED",
-    "unknownWorker": "Unknown worker"
+    "unknownWorker": "Unknown worker",
+    "OWNER": "Owner",
+    "PARTICIPANT": "Participant",
+    "ALL": "All"
   },
   "finance": {
     "deleteFailed": "Failed to delete shift",
@@ -1490,7 +1493,8 @@
       "clear": "Clear",
       "cancel": "Cancel",
       "startDatePlaceholder": "Start Date",
-      "endDatePlaceholder": "End Date"
+      "endDatePlaceholder": "End Date",
+      "participantRole": "Participant Role"
     },
     "warehouse": {
       "placeholder": "Select Warehouse"

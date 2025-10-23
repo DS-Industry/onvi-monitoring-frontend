@@ -4,13 +4,15 @@ import Notification from '@ui/Notification.tsx';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import {
+  LoyaltyParticipantProgramsPaginatedResponse,
+  LoyaltyProgramParticipantResponseDto,
   LoyaltyProgramStatus,
-  getLoyaltyPrograms,
+  ParticipationRole,
+  getLoyaltyProgramsPaginated,
 } from '@/services/api/marketing';
-import { Button, Input, Table } from 'antd';
+import { Button, Input, Pagination, Table } from 'antd';
 import { CopyOutlined, PlusOutlined, TableOutlined } from '@ant-design/icons';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
-import { LoyaltyProgramsResponse } from '@/services/api/marketing';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
 import { usePermissions } from '@/hooks/useAuthStore';
@@ -19,6 +21,11 @@ import { debounce } from 'lodash';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import LoyaltyCard from './LoyaltyCard';
 import FilterLoyalty from './FilterLoyalty';
+import {
+  ALL_PAGE_SIZES,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +34,12 @@ const MarketingLoyalty: React.FC = () => {
   const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const navigate = useNavigate();
   const name = searchParams.get('name') || undefined;
+  const status =
+    (searchParams.get('status') as LoyaltyProgramStatus) || undefined;
+  const participantRole =
+    (searchParams.get('participantRole') as ParticipationRole) || undefined;
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const [searchValue, setSearchValue] = useState(name || '');
   const [view, setView] = useState<'table' | 'cards'>('table');
 
@@ -71,9 +84,25 @@ const MarketingLoyalty: React.FC = () => {
     : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
-    useSWR<LoyaltyProgramsResponse[]>(
-      'get-loyalty-programs',
-      () => getLoyaltyPrograms(user.organizationId),
+    useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
+      user.organizationId
+        ? [
+            'get-loyalty-programs',
+            user.organizationId,
+            status,
+            participantRole,
+            currentPage,
+            pageSize,
+          ]
+        : null,
+      () =>
+        getLoyaltyProgramsPaginated({
+          organizationId: user.organizationId!,
+          status: status,
+          participantRole: participantRole,
+          page: currentPage,
+          size: pageSize,
+        }),
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
@@ -81,7 +110,7 @@ const MarketingLoyalty: React.FC = () => {
       }
     );
   const loyaltyPrograms =
-    loyaltyProgramsData?.map(item => ({
+    loyaltyProgramsData?.data?.map(item => ({
       ...item.props,
       status: t(`tables.${item.props.status}`) as LoyaltyProgramStatus,
     })) || [];
@@ -89,81 +118,80 @@ const MarketingLoyalty: React.FC = () => {
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
-  const columnsLoyaltyPrograms: ColumnsType<LoyaltyProgramsResponse['props']> =
-    [
-      {
-        title: t('loyaltyProgramsTable.programName'),
-        dataIndex: 'name',
-        key: 'name',
-        render: (text: string, record) => {
-          return (
-            <>
-              <Link
-                to={{
-                  pathname: `/marketing/loyalty/program/${record.id}`,
-                  search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
-                }}
-                className="text-blue-500 hover:text-blue-700 font-semibold"
-              >
-                {text}
-              </Link>
-            </>
-          );
-        },
+  const columnsLoyaltyPrograms: ColumnsType<
+    LoyaltyProgramParticipantResponseDto['props']
+  > = [
+    {
+      title: t('loyaltyProgramsTable.programName'),
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string, record) => {
+        return (
+          <>
+            <Link
+              to={{
+                pathname: `/marketing/loyalty/program/${record.id}`,
+                search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
+              }}
+              className="text-blue-500 hover:text-blue-700 font-semibold"
+            >
+              {text}
+            </Link>
+          </>
+        );
       },
-      {
-        title: t('loyaltyProgramsTable.status'),
-        dataIndex: 'status',
-        key: 'status',
-        render: statusRender,
-      },
-      {
-        title: t('loyaltyProgramsTable.launchDate'),
-        dataIndex: 'startDate',
-        key: 'startDate',
-        render: dateRender,
-      },
-      {
-        title: t('loyaltyProgramsTable.participationStatus'),
-        dataIndex: 'type',
-        key: 'type',
-        render: (_, record) => (
-          <span>
-            {record.ownerOrganizationId === user.organizationId ? (
-              <>{t('loyaltyProgramsTable.owner')}</>
-            ) : (
-              <>{t('loyaltyProgramsTable.participant')}</>
-            )}
-          </span>
-        ),
-      },
-      {
-        title: t('marketing.ty'),
-        dataIndex: 'isHub',
-        key: 'isHub',
-        render: (_, record) => (
-          <span>
-            {record.isHub ? (
-              <>{t('marketing.hub')}</>
-            ) : (
-              <>{t('loyaltyProgramsTable.regularProgram')}</>
-            )}
-          </span>
-        ),
-      },
-      {
-        title: t('marketingLoyalty.numberOfBranches'),
-        dataIndex: 'numberOfBranches',
-        key: 'numberOfBranches',
-        render: () => 10,
-      },
-      {
-        title: t('marketingLoyalty.numberOfClients'),
-        dataIndex: 'numberOfClients',
-        key: 'numberOfClients',
-        render: () => 10,
-      },
-    ];
+    },
+    {
+      title: t('loyaltyProgramsTable.status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: statusRender,
+    },
+    {
+      title: t('loyaltyProgramsTable.launchDate'),
+      dataIndex: 'startDate',
+      key: 'startDate',
+      render: dateRender,
+    },
+    {
+      title: t('loyaltyProgramsTable.participationStatus'),
+      dataIndex: 'type',
+      key: 'type',
+      render: (_, record) => (
+        <span>
+          {record.ownerOrganizationId === user.organizationId ? (
+            <>{t('loyaltyProgramsTable.owner')}</>
+          ) : (
+            <>{t('loyaltyProgramsTable.participant')}</>
+          )}
+        </span>
+      ),
+    },
+    {
+      title: t('marketing.ty'),
+      dataIndex: 'isHub',
+      key: 'isHub',
+      render: (_, record) => (
+        <span>
+          {record.isHub ? (
+            <>{t('marketing.hub')}</>
+          ) : (
+            <>{t('loyaltyProgramsTable.regularProgram')}</>
+          )}
+        </span>
+      ),
+    },
+    {
+      title: t('marketingLoyalty.numberOfBranches'),
+      dataIndex: 'connectedPoses',
+      key: 'connectedPoses',
+    },
+    {
+      title: t('marketingLoyalty.numberOfClients'),
+      dataIndex: 'engagedClients',
+      key: 'engagedClients',
+    },
+  ];
 
   return (
     <>
@@ -219,7 +247,7 @@ const MarketingLoyalty: React.FC = () => {
             />
             <div className="flex items-center gap-2 sm:gap-3">
               <div style={{ height: '32px' }}>
-                <FilterLoyalty display={['status', 'assigned']} />
+                <FilterLoyalty display={['status', 'participantRole']} />
               </div>
             </div>
             <Button
@@ -243,23 +271,59 @@ const MarketingLoyalty: React.FC = () => {
               loading={loyaltyProgramsLoading}
               scroll={{ x: 'max-content' }}
               locale={{ emptyText: t('table.noData') }}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: loyaltyProgramsData?.total || 0,
+                pageSizeOptions: ALL_PAGE_SIZES,
+                showSizeChanger: true,
+                showTotal: (total, range) =>
+                  `${range[0]}–${range[1]} из ${total} операций`,
+                onChange: (page, size) =>
+                  updateSearchParams(searchParams, setSearchParams, {
+                    page: String(page),
+                    size: String(size),
+                  }),
+              }}
             />
           </div>
         )}
 
         {view === 'cards' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {loyaltyPrograms.map((card, i) => (
-              <LoyaltyCard
-                key={i}
-                title={card.name}
-                date={card.startDate}
-                description=""
-                branches={0}
-                status={card.status}
-                clients={0}
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {loyaltyPrograms.map((card, i) => (
+                <LoyaltyCard
+                  key={i}
+                  title={card.name}
+                  date={card.startDate}
+                  description={card.description || ''}
+                  branches={card.connectedPoses}
+                  status={card.status}
+                  clients={card.engagedClients}
+                  loading={loyaltyProgramsLoading}
+                />
+              ))}
+            </div>
+            <div className="mt-4">
+              <Pagination
+                current={currentPage}
+                total={loyaltyProgramsData?.total || 0}
+                pageSize={pageSize}
+                pageSizeOptions={ALL_PAGE_SIZES}
+                showTotal={(total, range) =>
+                  `${range[0]}–${range[1]} из ${total} операций`
+                }
+                onChange={(page, size) => {
+                  updateSearchParams(searchParams, setSearchParams, {
+                    page: String(page),
+                    size: String(size),
+                  });
+                }}
+                showSizeChanger={true}
+                align='end'
               />
-            ))}
+            </div>
           </div>
         )}
       </div>

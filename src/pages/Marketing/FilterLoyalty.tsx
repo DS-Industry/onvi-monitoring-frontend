@@ -4,23 +4,18 @@ import { CheckOutlined, FilterOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { getWorkers } from '@/services/api/equipment';
-import useSWR from 'swr';
-import dayjs from 'dayjs';
-import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
-import { LoyaltyProgramStatus } from '@/services/api/marketing';
+import {
+  LoyaltyProgramStatus,
+  ParticipationRole,
+} from '@/services/api/marketing';
 
 interface FilterValues {
-  branch: string;
   status: string[];
-  tags: string[];
-  assigned: string[];
-  dateFrom: dayjs.Dayjs | null;
-  dateTo: dayjs.Dayjs | null;
+  participantRole: string[];
 }
 
-type FilterType = 'status' | 'assigned';
+type FilterType = 'status' | 'participantRole';
 
 interface FilterLoyaltyProps {
   display?: FilterType[];
@@ -33,68 +28,36 @@ const FilterLoyalty: React.FC<FilterLoyaltyProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
 
-  const user = useUser();
-
   const shouldShow = (filter: FilterType): boolean => {
     return display.includes(filter);
   };
-
-  const { data: workersData } = useSWR(
-    user.organizationId && shouldShow('assigned')
-      ? ['get-workers', user.organizationId]
-      : null,
-    () => getWorkers(user.organizationId!),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
-  const workerOptions =
-    workersData?.map(worker => ({
-      label: worker.name + ' ' + worker.surname,
-      value: worker.id.toString(),
-      id: worker.id,
-    })) || [];
 
   const statusOptions = [
     { label: t('tables.ACTIVE'), value: LoyaltyProgramStatus.ACTIVE },
     { label: t('tables.PAUSE'), value: LoyaltyProgramStatus.PAUSE },
   ];
 
+  const participantRoleOptions = [
+    { label: t('tables.OWNER'), value: ParticipationRole.OWNER },
+    { label: t('tables.PARTICIPANT'), value: ParticipationRole.PARTICIPANT },
+    { label: t('tables.ALL'), value: ParticipationRole.ALL },
+  ];
+
   const [filters, setFilters] = useState<FilterValues>(() => {
-    const posId = searchParams.get('posId');
     const status = searchParams.get('status');
-    const assigned = searchParams.get('assigned');
-    const tags =
-      searchParams
-        .get('tags')
-        ?.split(',')
-        .map(tag => tag.trim()) || [];
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const participantRole = searchParams.get('participantRole');
 
     return {
-      branch: posId || t('filters.filterTechTasks.all'),
       status: status ? [status] : [],
-      assigned: assigned ? [assigned] : [],
-      tags: tags,
-      dateFrom: startDate ? dayjs(startDate) : null,
-      dateTo: endDate ? dayjs(endDate) : null,
+      participantRole: participantRole ? [participantRole] : [],
     };
   });
 
   const [tempFilters, setTempFilters] = useState<FilterValues>(filters);
 
   const defaultFilters: FilterValues = {
-    branch: t('filters.filterTechTasks.all'),
     status: [],
-    assigned: [],
-    tags: [],
-    dateFrom: null,
-    dateTo: null,
+    participantRole: [],
   };
 
   const updateFiltersToSearchParams = (newFilters: FilterValues) => {
@@ -106,10 +69,13 @@ const FilterLoyalty: React.FC<FilterLoyaltyProps> = ({
       updates.status = undefined;
     }
 
-    if (shouldShow('assigned') && newFilters.assigned.length > 0) {
-      updates.assigned = newFilters.assigned[0];
-    } else if (shouldShow('assigned')) {
-      updates.assigned = undefined;
+    if (
+      shouldShow('participantRole') &&
+      newFilters.participantRole.length > 0
+    ) {
+      updates.participantRole = newFilters.participantRole[0];
+    } else if (shouldShow('participantRole')) {
+      updates.participantRole = undefined;
     }
 
     updates.page = '1';
@@ -210,32 +176,32 @@ const FilterLoyalty: React.FC<FilterLoyaltyProps> = ({
           </div>
         )}
 
-        {shouldShow('assigned') && (
+        {shouldShow('participantRole') && (
           <div>
             <div className="flex items-center mb-3">
               <UserOutlined className="mr-2 font-bold text-black" />
               <span className="text-sm font-bold">
-                {t('filters.filterTechTasks.assigned')}
+                {t('filters.filterTechTasks.participantRole')}
               </span>
             </div>
             <Select
               className="w-full"
               placeholder={t('filters.filterTechTasks.selectAssignee')}
               value={
-                tempFilters.assigned.length > 0
-                  ? tempFilters.assigned[0]
+                tempFilters.participantRole.length > 0
+                  ? tempFilters.participantRole[0]
                   : undefined
               }
               onChange={value => {
                 setTempFilters(prev => ({
                   ...prev,
-                  assigned: value ? [value] : [],
+                  participantRole: value ? [value] : [],
                 }));
               }}
               allowClear
               showSearch
               filterOption={(input, option) => {
-                const worker = workerOptions.find(
+                const worker = participantRoleOptions.find(
                   w => w.value === option?.value
                 );
                 return (
@@ -244,14 +210,14 @@ const FilterLoyalty: React.FC<FilterLoyaltyProps> = ({
                 );
               }}
             >
-              {workerOptions.map(worker => {
+              {participantRoleOptions.map(worker => {
                 const nameParts = worker.label.split(' ');
                 const initials =
                   nameParts.length >= 2
                     ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
                     : worker.label.charAt(0).toUpperCase();
 
-                const avatarColors = getAvatarColorClasses(worker.id);
+                const avatarColors = getAvatarColorClasses(worker.value.length);
 
                 return (
                   <Select.Option key={worker.value} value={worker.value}>
