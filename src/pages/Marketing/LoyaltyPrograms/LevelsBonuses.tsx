@@ -65,24 +65,24 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
         <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
-                <FireOutlined style={{ fontSize: 20 }} />
+              <div className="aspect-square rounded-full bg-primary02 flex items-center justify-center text-text04">
+                <FireOutlined className="w-12 h-12 flex justify-center items-center text-2xl" />
               </div>
 
               <div>
-                <div className="font-semibold text-text01">
+                <div className="font-bold text-text01 text-2xl">
                   {t('marketingLoyalty.levelsAndBonuses')}
                 </div>
-                <div className="text-text03 text-xs">
+                <div className="text-text02 text-md">
                   {t('marketingLoyalty.creatingLevels')}
                 </div>
               </div>
             </div>
             {isEditable && program?.maxLevels && program.maxLevels > tiers.length && (
               <div className="flex space-x-2">
-                <Button 
-                  icon={<PlusOutlined />} 
-                  type="primary" 
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
                   onClick={() => setLevelModalOpen(true)}
                   className="w-full sm:w-auto"
                 >

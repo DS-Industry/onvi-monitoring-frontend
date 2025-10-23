@@ -33,7 +33,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
 
   return (
     <div className="bg-white shadow-md rounded-2xl p-6 w-full relative flex flex-col text-center">
-      {isEditable ?<div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
+      {isEditable ? <div className="absolute top-3 right-3 text-gray-400 cursor-pointer" onClick={onDelete}>
         <CloseOutlined />
       </div> : null}
 
@@ -69,7 +69,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
             </div>
             <div className='flex flex-col items-start'>
               <div className="font-medium">{bonus.label}</div>
-              <div className="text-gray-400">{bonus.value}</div>
+              <div className="text-text02">{bonus.value}</div>
             </div>
           </div>
         ))}
@@ -84,7 +84,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
         >
           {t('marketingLoyalty.edit')}
         </Button> : null}
-      </div> 
+      </div>
     </div>
   );
 };

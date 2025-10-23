@@ -181,13 +181,13 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
         <div className="mb-3">
           <div className="flex items-center justify-center bg-background02">
             <div className="flex flex-col rounded-lg w-full">
-              <div className="flex items-center space-x-4">
-                <WalletIcon />
+              <div className="flex items-center">
+                <WalletIcon className="w-12 h-12 flex justify-center items-center mr-4" />
                 <div>
-                  <div className="font-semibold text-text01">
+                  <div className="font-bold text-text01 text-2xl">
                     {t('marketingLoyalty.writeOff')}
                   </div>
-                  <div className="text-text03 text-xs">
+                  <div className="text-text02 text-md">
                     {t('marketingLoyalty.settingUp')}
                   </div>
                 </div>
@@ -201,7 +201,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                 <div className="text-text01 font-semibold">
                   {t('marketingLoyalty.maximumWriteOff')}
                 </div>
-                <div className="text-text03">
+                <div className="text-text02">
                   {t('marketingLoyalty.maximumPossible')}
                 </div>
               </div>
@@ -226,7 +226,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                 <div className="text-text01 font-semibold">
                   {t('marketingLoyalty.useBonuses')}
                 </div>
-                <div className="text-text03">
+                <div className="text-text02">
                   {t('marketingLoyalty.allowBonuses')}
                 </div>
               </div>
@@ -245,7 +245,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
                 <div className="text-text01 font-semibold">
                   {t('marketing.burni')}
                 </div>
-                <div className="text-text03">{t('marketing.bonusesCan')}</div>
+                <div className="text-text02">{t('marketing.bonusesCan')}</div>
               </div>
               <div className="flex-shrink-0 w-full lg:w-auto">
                 <div className="space-y-4">
