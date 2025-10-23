@@ -899,7 +899,10 @@
     "PENDING": "PENDING",
     "PAUSED": "PAUSED",
     "CANCELLED": "CANCELLED",
-    "unknownWorker": "Unknown worker"
+    "unknownWorker": "Unknown worker",
+    "OWNER": "Owner",
+    "PARTICIPANT": "Participant",
+    "ALL": "All"
   },
   "finance": {
     "deleteFailed": "Failed to delete shift",
@@ -1490,7 +1493,8 @@
       "clear": "Clear",
       "cancel": "Cancel",
       "startDatePlaceholder": "Start Date",
-      "endDatePlaceholder": "End Date"
+      "endDatePlaceholder": "End Date",
+      "participantRole": "Participant Role"
     },
     "warehouse": {
       "placeholder": "Select Warehouse"
@@ -1764,15 +1768,19 @@
     "request": "Request",
     "saveAndExit": "Save and exit",
     "startNow": "Start now",
-      "loyaltyPublished": "Loyalty program published successfully",
-      "loyaltyUnpublished": "Loyalty program unpublished successfully",
-      "stopNow": "Stop now",
-      "levelName": "Level Name",
-      "levelDescription": "Level Description",
-      "promotion": "Promotion/demotion",
-      "promotionSpend": "Amount of spending to increase the level",
-      "available": "Available bonuses",
-      "selected": "Selected bonuses",
-      "createNew": "Create a new one"
+    "loyaltyPublished": "Loyalty program published successfully",
+    "loyaltyUnpublished": "Loyalty program unpublished successfully",
+    "stopNow": "Stop now",
+    "levelName": "Level Name",
+    "levelDescription": "Level Description",
+    "promotion": "Promotion/demotion",
+    "promotionSpend": "Amount of spending to increase the level",
+    "available": "Available bonuses",
+    "selected": "Selected bonuses",
+    "createNew": "Create a new one",
+    "moreDetails": "More details",
+    "branches": "Branches",
+    "numberOfBranches": "Number of branches",
+    "numberOfClients": "Number of clients"
   }
 }
