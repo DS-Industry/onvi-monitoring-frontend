@@ -1243,7 +1243,9 @@
     "advanceSalary": "Выплата",
     "maxAdvanceSalary": "Максимальная выплата",
     "payoutTimestamp": "Время выплаты",
-    "paid": "Выплачено"
+    "paid": "Выплачено",
+    "enterPosition": "Введите позицию",
+    "aboutPosition": "О позиции"
   },
   "notifications": {
     "fav": "Избранное",

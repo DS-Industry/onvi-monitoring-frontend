@@ -107,9 +107,10 @@ type CollectionResponse = {
   }[];
 };
 
-type RecalculateCollectionBody = {
+export type RecalculateCollectionBody = {
   cashCollectionDeviceData: {
     cashCollectionDeviceId: number;
+    oldTookMoneyTime?: Date;
     tookMoneyTime: Date;
   }[];
   cashCollectionDeviceTypeData: {

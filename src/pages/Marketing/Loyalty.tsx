@@ -131,7 +131,7 @@ const Loyalty: React.FC = () => {
                 {t('marketing.card')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.cardDevNumber || '-'}
+                {loyaltyStats.cardNumber || '-'}
               </div>
             </div>
 
@@ -140,7 +140,7 @@ const Loyalty: React.FC = () => {
                 {t('marketing.un')}
               </Text>
               <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.cardNumber || '-'}
+                {loyaltyStats.cardDevNumber || '-'}
               </div>
             </div>
 
