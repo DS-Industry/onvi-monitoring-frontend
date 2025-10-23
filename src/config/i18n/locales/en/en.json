@@ -772,7 +772,8 @@
     "campaignType": "Campaign Type",
     "launchDate": "Launch Date",
     "loyaltyCreated": "Loyalty Program created successfully",
-    "loyaltyUpdated": "Loyalty Program updated successfully"
+    "loyaltyUpdated": "Loyalty Program updated successfully",
+    "value": "Value"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",
