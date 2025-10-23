@@ -1241,7 +1241,9 @@
     "advanceSalary": "Advance Payment",
     "maxAdvanceSalary": "Max Advance Payment",
     "payoutTimestamp": "Payout Timestamp",
-    "paid": "Paid"
+    "paid": "Paid",
+    "enterPosition": "Enter position",
+    "aboutPosition": "About the position"
   },
   "notifications": {
     "fav": "Favorite",
