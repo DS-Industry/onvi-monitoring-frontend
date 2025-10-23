@@ -289,13 +289,13 @@ const Positions: React.FC = () => {
           </div>
           <Input
             title={`${t('hr.name')}*`}
-            label={t('hr.enter')}
+            label={t('hr.enterPosition')}
             type={'text'}
             classname="w-80"
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
-            {...register('name', { required: 'Name is required' })}
+            {...register('name', { required: t('validation.nameRequired') })}
             helperText={errors.name?.message || ''}
           />
           <DropdownInput
@@ -303,8 +303,8 @@ const Positions: React.FC = () => {
             options={organizations}
             classname="w-80"
             {...register('organizationId', {
-              required: 'Organization Id is required',
-              validate: value => value !== 0 || 'Organization Id is required',
+              required: t('validation.organizationRequired'),
+              validate: value => value !== 0 || t('validation.organizationRequired'),
             })}
             value={formData.organizationId}
             onChange={value => handleInputChange('organizationId', value)}
@@ -313,7 +313,7 @@ const Positions: React.FC = () => {
           />
           <MultilineInput
             title={t('warehouse.desc')}
-            label={t('hr.about')}
+            label={t('hr.aboutPosition')}
             classname="w-80"
             inputType="secondary"
             value={formData.description}
