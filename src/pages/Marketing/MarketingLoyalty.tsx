@@ -239,7 +239,7 @@ const MarketingLoyalty: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4 mb-6 px-4 sm:px-6 md:px-8 lg:px-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
             <Input.Search
-              placeholder={t('techTasks.searchPlaceholder')}
+              placeholder={t('analysis.search')}
               value={searchValue}
               onChange={handleSearchChange}
               onSearch={handleSearch}
