@@ -27,8 +27,11 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      keepPreviousData: true,
+      revalidateOnMount: true,
+      dedupingInterval: 30000,
       shouldRetryOnError: false,
+      errorRetryCount: 1,
+      errorRetryInterval: 5000,
     }
   );
 
