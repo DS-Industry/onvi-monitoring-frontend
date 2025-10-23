@@ -87,7 +87,7 @@ const LoyaltyPrograms: React.FC = () => {
       content: <LevelsBonuses program={program} isEditable={isOwner} />,
       icon: <FireOutlined />,
     },
-    ...(isOwner ? [{
+    ...(isOwner || !isUpdate ? [{
       title: t('marketingLoyalty.publication'),
       content: <Publications program={program} loadingProgram={isValidating || isLoading} />,
       icon: <SyncOutlined />,
@@ -121,7 +121,7 @@ const LoyaltyPrograms: React.FC = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
-        {isLoading || tiersLoading ? (
+        {(isLoading || tiersLoading) && isUpdate ? (
           <Skeleton active paragraph={{ rows: 3 }} />
         ) : (
           <Steps
