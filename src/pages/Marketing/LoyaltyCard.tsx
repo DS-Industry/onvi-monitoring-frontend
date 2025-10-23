@@ -75,10 +75,11 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
     <Card
       hoverable
       onClick={onClick}
+      className="w-full h-full"
       style={{
-        width: 300,
         borderRadius: 12,
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        minHeight: '280px',
       }}
       loading={loading}
     >
