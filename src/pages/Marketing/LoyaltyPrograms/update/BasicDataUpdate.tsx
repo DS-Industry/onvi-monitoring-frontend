@@ -20,9 +20,10 @@ interface BasicDataUpdateProps {
   isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
+  minLevels: number;
 }
 
-const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true }) => {
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true, minLevels = 1 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -78,7 +79,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
           step: 2,
           loyaltyProgramId,
         });
-        return; 
+        return;
       }
 
       const result = await updateProgram({
@@ -121,12 +122,12 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
           <div className="flex items-center justify-center bg-background02">
             <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
               <div className="flex items-center space-x-4">
-                <BonusImage />
+                <BonusImage className="w-12 h-12" />
                 <div>
-                  <div className="font-semibold text-text01">
+                  <div className="font-bold text-text01 text-2xl">
                     {t('marketingLoyalty.basicData')}
                   </div>
-                  <div className="text-text03 text-xs">
+                  <div className="text-text02 text-md">
                     {t('marketingLoyalty.configuring')}
                   </div>
                 </div>
@@ -184,7 +185,7 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                 <div className="text-text01 text-sm font-semibold">
                   {t('marketingLoyalty.maxLevels')}
                 </div>
-                <div className="text-text03 text-sm">
+                <div className="text-text02 text-sm">
                   {t('marketingLoyalty.maxLoyalty')}
                 </div>
                 <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -192,13 +193,14 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                     {[...Array(MAX_LEVELS)].map((_, index) => {
                       const level = index + 1;
                       const isActive = level <= formData.maxLevels;
+                      const isDisabled = level < minLevels;
+                      const isClickable = isEditable && !isDisabled;
                       return (
                         <div
                           key={level}
-                          onClick={() => isEditable && handleInputChange('maxLevels', level)}
-                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
-                            isActive ? 'bg-blue-500' : 'bg-gray-300'
-                          }`}
+                          onClick={() => isClickable && handleInputChange('maxLevels', level)}
+                          className={`${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${isActive ? 'bg-blue-500' : isDisabled ? 'bg-gray-200' : 'bg-gray-300'
+                            } ${isDisabled ? 'opacity-50' : ''}`}
                         >
                           <FireOutlined style={{ fontSize: 24 }} />
                         </div>

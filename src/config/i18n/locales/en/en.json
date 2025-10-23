@@ -117,7 +117,8 @@
     "debugging": "Debugging",
     "falseDeposits": "False deposits",
     "falseDeposit": "False deposit",
-    "createLoyalty": "Creating a loyalty program"
+    "createLoyalty": "Creating a loyalty program",
+    "viewLoyalty": "Viewing a loyalty program"
   },
   "dashboard": {
     "news": "News",
@@ -722,6 +723,9 @@
     "loy": "Loyalty Level",
     "reg": "Registration date",
     "addLevel": "Add Level",
+    "deleteTierConfirm": "Delete Level?",
+    "deleteTierWarning": "This action is irreversible. Continue?",
+    "lossCondition": "Loss condition",
     "levelsAre": "Levels are arranged automatically in ascending order depending on the condition of the amount of transformation of services and purchases",
     "maxNo": "Maximum number of bonuses",
     "updateLevel": "Update Level",
@@ -781,6 +785,7 @@
     "1007": "An error occurred while updating the user role. Please try again.",
     "1008": "Authorization failed. Please check your credentials and try again.",
     "1103": "Loyalty program not found",
+    "1108": "Cannot delete tier. Some clients are currently using this tier.",
     "2001": "An error occurred while creating the device. Please try again.",
     "2002": "An error occurred while creating the device type. Please try again.",
     "2003": "An error occurred while updating the device type. Please try again.",
@@ -895,7 +900,10 @@
     "PENDING": "PENDING",
     "PAUSED": "PAUSED",
     "CANCELLED": "CANCELLED",
-    "unknownWorker": "Unknown worker"
+    "unknownWorker": "Unknown worker",
+    "OWNER": "Owner",
+    "PARTICIPANT": "Participant",
+    "ALL": "All"
   },
   "finance": {
     "deleteFailed": "Failed to delete shift",
@@ -1488,7 +1496,8 @@
       "clear": "Clear",
       "cancel": "Cancel",
       "startDatePlaceholder": "Start Date",
-      "endDatePlaceholder": "End Date"
+      "endDatePlaceholder": "End Date",
+      "participantRole": "Participant Role"
     },
     "warehouse": {
       "placeholder": "Select Warehouse"
@@ -1685,6 +1694,9 @@
     }
   },
   "marketingLoyalty": {
+    "loadingMap": "Loading map...",
+    "noParticipants": "No Participants",
+    "noParticipantsDescription": "No participants found for this loyalty program",
     "basicData": "Basic data",
     "writeOff": "Write-off rules",
     "participants": "Participants",
@@ -1740,7 +1752,7 @@
     "highestLevel": "Highest level of the loyalty program",
     "notApplicable": "Not applicable",
     "spent": "spent",
-    "stats": "Stats",
+    "stats": "Results and analytics",
     "implementation": "Implementation of the loyalty program publication",
     "basicInformation": "Basic information",
     "name": "Name",
@@ -1769,6 +1781,9 @@
     "available": "Available bonuses",
     "selected": "Selected bonuses",
     "createNew": "Create a new one",
-    "noParticipants": "No participants found"
+    "moreDetails": "More details",
+    "branches": "Branches",
+    "numberOfBranches": "Number of branches",
+    "numberOfClients": "Number of clients"
   }
 }

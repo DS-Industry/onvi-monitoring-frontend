@@ -10,21 +10,26 @@ import { Button, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { deleteTier, getBenefits, getTiers } from '@/services/api/marketing';
+import { deleteTier, getBenefits, getTiers, LoyaltyProgramsByIdResponse } from '@/services/api/marketing';
 import LevelsBonusesModal from './LevelsBonusesModal';
 import LevelCard from './LevelCard';
 
+import { useToast } from '@/components/context/useContext';
+
 interface LevelsBonusesProps {
   isEditable?: boolean;
+  program?: LoyaltyProgramsByIdResponse;
 }
 
-const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
+const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   const currentStep = Number(searchParams.get('step')) || 1;
 
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
+  const { showToast } = useToast();
 
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
     [`get-tiers`, loyaltyProgramId],
@@ -60,24 +65,24 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
         <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
-                <FireOutlined style={{ fontSize: 20 }} />
+              <div className="aspect-square rounded-full bg-primary02 flex items-center justify-center text-text04">
+                <FireOutlined className="w-12 h-12 flex justify-center items-center text-2xl" />
               </div>
 
               <div>
-                <div className="font-semibold text-text01">
+                <div className="font-bold text-text01 text-2xl">
                   {t('marketingLoyalty.levelsAndBonuses')}
                 </div>
-                <div className="text-text03 text-xs">
+                <div className="text-text02 text-md">
                   {t('marketingLoyalty.creatingLevels')}
                 </div>
               </div>
             </div>
-            {isEditable && (
+            {isEditable && program?.maxLevels && program.maxLevels > tiers.length && (
               <div className="flex space-x-2">
-                <Button 
-                  icon={<PlusOutlined />} 
-                  type="primary" 
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
                   onClick={() => setLevelModalOpen(true)}
                   className="w-full sm:w-auto"
                 >
@@ -85,14 +90,6 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
                 </Button>
               </div>
             )}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-text01">
-              {t('marketingLoyalty.recalculationPeriod')}
-            </div>
-          </div>
-          <div className="text-sm text-text03">
-            {t('marketingLoyalty.recal')}
           </div>
 
           <div className="mt-6">
@@ -158,8 +155,8 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
               await deleteTier(deletingId);
               setDeletingId(null);
               await mutate([`get-tiers`, loyaltyProgramId]);
-            } finally {
-              // refresh tiers
+            } catch (error) {
+              showToast(t('errors.other.errorDuringFormSubmission'), 'error');
             }
           }}
           title={t('marketing.deleteTierConfirm', {

@@ -4,7 +4,7 @@ import CarIcon from '@icons/CarIcon.svg?react';
 import useSWR from 'swr';
 import { getPosesParticipants } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, Skeleton } from 'antd';
 import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
@@ -27,8 +27,11 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      keepPreviousData: true,
+      revalidateOnMount: true,
+      dedupingInterval: 30000,
       shouldRetryOnError: false,
+      errorRetryCount: 1,
+      errorRetryInterval: 5000,
     }
   );
 
@@ -42,12 +45,12 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02">
       <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
         <div className="flex items-center space-x-4">
-          <CarIcon />
+          <CarIcon className="w-12 h-12 flex justify-center items-center" />
           <div>
-            <div className="font-semibold text-text01">
+            <div className="font-bold text-text01 text-2xl">
               {t('marketingLoyalty.participants')}
             </div>
-            <div className="text-text03 text-xs">
+            <div className="text-text02 text-md">
               {t('marketingLoyalty.displaying')}
             </div>
           </div>
@@ -59,29 +62,37 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
             {t('marketingLoyalty.participatingBranches')} —
           </div>
           <div className="font-semibold text-primary02">
-            {participantsData?.length || 0}
+            {participantsLoading ? (
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 20, height: 20 }}
+              />
+            ) : (
+              participantsData?.length || 0
+            )}
           </div>
         </div>
-        <div className="text-text03 text-sm">
+        <div className="text-text02 text-sm">
           {t('marketingLoyalty.theLoyalty')}
         </div>
       </div>
       <div>
-        <ParticipantsMap 
-          participants={participantsData || []} 
-          loading={participantsLoading} 
+        <ParticipantsMap
+          participants={participantsData || []}
+          loading={participantsLoading}
         />
       </div>
       <div>
         <div className="font-semibold text-text01">
           {t('marketingLoyalty.expansion')}
         </div>
-        <div className="text-text03 text-sm">
+        <div className="text-text02 text-sm">
           {t('marketingLoyalty.toExpand')}
         </div>
       </div>
-    
-      
+
+
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
           <div className="order-2 sm:order-1">

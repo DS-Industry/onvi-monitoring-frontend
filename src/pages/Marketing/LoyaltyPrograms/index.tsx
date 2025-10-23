@@ -1,16 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  ArrowLeftOutlined, 
-  SettingOutlined, 
-  CreditCardOutlined, 
-  CarOutlined, 
-  FireOutlined, 
-  SyncOutlined, 
+import {
+  ArrowLeftOutlined,
+  SettingOutlined,
+  CreditCardOutlined,
+  CarOutlined,
+  FireOutlined,
+  SyncOutlined,
   LineChartOutlined
 } from '@ant-design/icons';
-import { Steps } from 'antd';
+import { Steps, Skeleton } from 'antd';
 import BasicData from './BasicData';
 import BasicDataUpdate from './update/BasicDataUpdate';
 import WriteOffRules from './WriteOffRules';
@@ -19,7 +19,7 @@ import Participants from './Participants';
 import Publications from './Publications';
 import Stats from './Stats';
 import useSWR from 'swr';
-import { getLoyaltyProgramById } from '@/services/api/marketing';
+import { getLoyaltyProgramById, getTiers } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 
 const { Step } = Steps;
@@ -42,6 +42,19 @@ const LoyaltyPrograms: React.FC = () => {
     }
   );
 
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(loyaltyProgramId ?
+    [`get-tiers`, loyaltyProgramId] : null,
+    () => getTiers({ programId: loyaltyProgramId || '*' }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const tiers = tiersData || [];
+
+
   const user = useUser()
 
   const isOwner = program?.ownerOrganizationId === user?.organizationId;
@@ -56,7 +69,7 @@ const LoyaltyPrograms: React.FC = () => {
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} /> : <BasicData isEditable={true} />,
+      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading || tiersLoading} mutate={mutate} isEditable={isOwner} minLevels={tiers.length > 0 ? tiers.length : 1} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
     },
     {
@@ -71,20 +84,20 @@ const LoyaltyPrograms: React.FC = () => {
     },
     {
       title: t('marketingLoyalty.levelsAndBonuses'),
-      content: <LevelsBonuses isEditable={isOwner} />,
+      content: <LevelsBonuses program={program} isEditable={isOwner} />,
       icon: <FireOutlined />,
     },
-    ...(isOwner ? [{
+    ...(isOwner || !isUpdate ? [{
       title: t('marketingLoyalty.publication'),
-        content: <Publications />,
-        icon: <SyncOutlined />,
-      }] : []),
+      content: <Publications program={program} loadingProgram={isValidating || isLoading} />,
+      icon: <SyncOutlined />,
+    }] : []),
     ...(isUpdate
       ? [{
-          title: t('marketingLoyalty.stats'),
-          content: <Stats />,
-          icon: <LineChartOutlined />,
-        }]
+        title: t('marketingLoyalty.stats'),
+        content: <Stats isEditable={isOwner} />,
+        icon: <LineChartOutlined />,
+      }]
       : []),
   ];
 
@@ -101,27 +114,31 @@ const LoyaltyPrograms: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {t('routes.createLoyalty')}
+              {t('routes.viewLoyalty')}
             </span>
           </div>
         </div>
       </div>
 
-      <div  className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
-        <Steps 
-          current={currentStep} 
-          size="default" 
-          labelPlacement="vertical"
-          onChange={handleStepClick}
-        >
-          {steps.map((step, index) => (
-            <Step 
-              key={index} 
-              title={step.title} 
-              icon={isUpdate ? step.icon : undefined}
-            />
-          ))}
-        </Steps>
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
+        {(isLoading || tiersLoading) && isUpdate ? (
+          <Skeleton active paragraph={{ rows: 3 }} />
+        ) : (
+          <Steps
+            current={currentStep}
+            size="default"
+            labelPlacement="vertical"
+            onChange={handleStepClick}
+          >
+            {steps.map((step, index) => (
+              <Step
+                key={index}
+                title={step.title}
+                icon={isUpdate ? step.icon : undefined}
+              />
+            ))}
+          </Steps>
+        )}
         <div className="mt-5">
           <div>
             {steps[currentStep].content}
