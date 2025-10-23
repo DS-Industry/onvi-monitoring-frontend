@@ -86,6 +86,8 @@ const LevelsBonusesModal: React.FC<Props> = ({
         key: String(b.props.id),
         title: b.props.name,
         id: b.props.id,
+        type: b.props.benefitType,
+        bonus: b.props.bonus,
       })),
     [benefitsData]
   );
@@ -333,13 +335,26 @@ const LevelsBonusesModal: React.FC<Props> = ({
               dataSource={benefitOptions}
               targetKeys={selectedBenefitKeys}
               onChange={keys => setSelectedBenefitKeys(keys as string[])}
-              render={item => item.title}
+              render={item => (
+                <div className="flex flex-col">
+                  <span className="font-medium text-text01">{item.title}</span>
+                  <span className="text-xs text-base03">
+                    {t('marketing.ty', { defaultValue: 'Тип' })}: {t(`marketing.${item.type}`)}
+                  </span>
+                  <span className="text-xs text-base03">
+                    {t('marketing.bonu')}:{' '}
+                    {item.bonus}{item.type === BenefitType.CASHBACK ? '%' : 'р'}
+                  </span>
+                </div>
+              )}
               listStyle={{ width: 200 }}
               titles={[
                 t('marketingLoyalty.available', {
                   defaultValue: 'Доступные бонусы',
                 }),
-                t('marketingLoyalty.selected', { defaultValue: 'Выбранные бонусы' }),
+                t('marketingLoyalty.selected', {
+                  defaultValue: 'Выбранные бонусы',
+                }),
               ]}
               showSelectAll={false}
               oneWay={true}
@@ -416,7 +431,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-text01">
-                      {t('warehouse.purpose')}
+                      {t('marketing.value')}
                     </div>
                     <Input
                       type="number"
