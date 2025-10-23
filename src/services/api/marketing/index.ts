@@ -280,9 +280,10 @@ export enum ParticipationRole {
 type LoyaltyProgramParams = {
   organizationId: number;
   status?: LoyaltyProgramStatus;
-  participantRole?: ParticipationRole;
+  participationRole?: ParticipationRole;
   page?: number;
   size?: number;
+  search?: string;
 };
 
 export type LoyaltyProgramParticipantResponseDto = {

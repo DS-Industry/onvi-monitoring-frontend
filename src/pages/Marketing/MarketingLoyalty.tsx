@@ -36,7 +36,7 @@ const MarketingLoyalty: React.FC = () => {
   const name = searchParams.get('name') || undefined;
   const status =
     (searchParams.get('status') as LoyaltyProgramStatus) || undefined;
-  const participantRole =
+  const participationRole =
     (searchParams.get('participantRole') as ParticipationRole) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -73,35 +73,37 @@ const MarketingLoyalty: React.FC = () => {
 
   const hasPermission = user?.organizationId
     ? permissions.some(
-        permission =>
-          (permission.action === 'create' ||
-            permission.action === 'manage' ||
-            permission.action === 'read') &&
-          permission.subject === 'Pos' &&
-          Array.isArray(permission.conditions?.organizationId?.in) &&
-          permission.conditions.organizationId.in.includes(user.organizationId!)
-      )
+      permission =>
+        (permission.action === 'create' ||
+          permission.action === 'manage' ||
+          permission.action === 'read') &&
+        permission.subject === 'Pos' &&
+        Array.isArray(permission.conditions?.organizationId?.in) &&
+        permission.conditions.organizationId.in.includes(user.organizationId!)
+    )
     : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
       user.organizationId
         ? [
-            'get-loyalty-programs',
-            user.organizationId,
-            status,
-            participantRole,
-            currentPage,
-            pageSize,
-          ]
+          'get-loyalty-programs',
+          user.organizationId,
+          status,
+          participationRole,
+          currentPage,
+          pageSize,
+          name
+        ]
         : null,
       () =>
         getLoyaltyProgramsPaginated({
           organizationId: user.organizationId!,
           status: status,
-          participantRole: participantRole,
+          participationRole: participationRole,
           page: currentPage,
           size: pageSize,
+          search: name
         }),
       {
         revalidateOnFocus: false,
@@ -121,77 +123,77 @@ const MarketingLoyalty: React.FC = () => {
   const columnsLoyaltyPrograms: ColumnsType<
     LoyaltyProgramParticipantResponseDto['props']
   > = [
-    {
-      title: t('loyaltyProgramsTable.programName'),
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string, record) => {
-        return (
-          <>
-            <Link
-              to={{
-                pathname: `/marketing/loyalty/program/${record.id}`,
-                search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
-              }}
-              className="text-blue-500 hover:text-blue-700 font-semibold"
-            >
-              {text}
-            </Link>
-          </>
-        );
+      {
+        title: t('loyaltyProgramsTable.programName'),
+        dataIndex: 'name',
+        key: 'name',
+        render: (text: string, record) => {
+          return (
+            <>
+              <Link
+                to={{
+                  pathname: `/marketing/loyalty/program/${record.id}`,
+                  search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
+                }}
+                className="text-blue-500 hover:text-blue-700 font-semibold"
+              >
+                {text}
+              </Link>
+            </>
+          );
+        },
       },
-    },
-    {
-      title: t('loyaltyProgramsTable.status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: statusRender,
-    },
-    {
-      title: t('loyaltyProgramsTable.launchDate'),
-      dataIndex: 'startDate',
-      key: 'startDate',
-      render: dateRender,
-    },
-    {
-      title: t('loyaltyProgramsTable.participationStatus'),
-      dataIndex: 'type',
-      key: 'type',
-      render: (_, record) => (
-        <span>
-          {record.ownerOrganizationId === user.organizationId ? (
-            <>{t('loyaltyProgramsTable.owner')}</>
-          ) : (
-            <>{t('loyaltyProgramsTable.participant')}</>
-          )}
-        </span>
-      ),
-    },
-    {
-      title: t('marketing.ty'),
-      dataIndex: 'isHub',
-      key: 'isHub',
-      render: (_, record) => (
-        <span>
-          {record.isHub ? (
-            <>{t('marketing.hub')}</>
-          ) : (
-            <>{t('loyaltyProgramsTable.regularProgram')}</>
-          )}
-        </span>
-      ),
-    },
-    {
-      title: t('marketingLoyalty.numberOfBranches'),
-      dataIndex: 'connectedPoses',
-      key: 'connectedPoses',
-    },
-    {
-      title: t('marketingLoyalty.numberOfClients'),
-      dataIndex: 'engagedClients',
-      key: 'engagedClients',
-    },
-  ];
+      {
+        title: t('loyaltyProgramsTable.status'),
+        dataIndex: 'status',
+        key: 'status',
+        render: statusRender,
+      },
+      {
+        title: t('loyaltyProgramsTable.launchDate'),
+        dataIndex: 'startDate',
+        key: 'startDate',
+        render: dateRender,
+      },
+      {
+        title: t('loyaltyProgramsTable.participationStatus'),
+        dataIndex: 'type',
+        key: 'type',
+        render: (_, record) => (
+          <span>
+            {record.ownerOrganizationId === user.organizationId ? (
+              <>{t('loyaltyProgramsTable.owner')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.participant')}</>
+            )}
+          </span>
+        ),
+      },
+      {
+        title: t('marketing.ty'),
+        dataIndex: 'isHub',
+        key: 'isHub',
+        render: (_, record) => (
+          <span>
+            {record.isHub ? (
+              <>{t('marketing.hub')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.regularProgram')}</>
+            )}
+          </span>
+        ),
+      },
+      {
+        title: t('marketingLoyalty.numberOfBranches'),
+        dataIndex: 'connectedPoses',
+        key: 'connectedPoses',
+      },
+      {
+        title: t('marketingLoyalty.numberOfClients'),
+        dataIndex: 'engagedClients',
+        key: 'engagedClients',
+      },
+    ];
 
   return (
     <>
@@ -202,7 +204,7 @@ const MarketingLoyalty: React.FC = () => {
           </span>
         </div>
         {!loyaltyProgramsLoading && user && permissions && (
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
             {hasPermission && (
               <Button
                 icon={<PlusOutlined />}

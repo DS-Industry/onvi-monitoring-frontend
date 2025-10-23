@@ -135,13 +135,12 @@ const FilterLoyalty: React.FC<FilterLoyaltyProps> = ({
                 return (
                   <div
                     key={option.value}
-                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
-                      isPause
+                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${isPause
                         ? 'border-orange-500 bg-orange-50'
                         : isActive
                           ? 'border-green-500 bg-green-50'
                           : 'border-gray-300 bg-gray-50'
-                    }`}
+                      }`}
                     onClick={() => {
                       if (isSelected) {
                         setTempFilters(prev => ({ ...prev, status: [] }));
