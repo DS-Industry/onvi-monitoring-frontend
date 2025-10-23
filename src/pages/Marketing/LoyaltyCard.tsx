@@ -51,19 +51,19 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
       color: 'green',
       iconBg: '#2F80ED',
       icon: <GiftOutlined style={{ color: 'white', fontSize: 24 }} />,
-      label: 'Активна',
+      label: t('tables.ACTIVE'),
     },
     [t('tables.PAUSE')]: {
       color: 'orange',
       iconBg: '#FB8C00',
       icon: <PauseOutlined style={{ color: 'white', fontSize: 24 }} />,
-      label: 'Приостановлена',
+      label: t('tables.PAUSE'),
     },
     DRAFT: {
       color: 'red',
       iconBg: '#BDBDBD',
       icon: <DownloadOutlined style={{ color: 'white', fontSize: 24 }} />,
-      label: 'Черновик',
+      label: t('tables.DRAFT'),
     },
   };
   const config = statusConfig[status] ?? statusConfig.DRAFT;

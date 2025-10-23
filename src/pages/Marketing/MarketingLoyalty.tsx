@@ -280,7 +280,7 @@ const MarketingLoyalty: React.FC = () => {
                 pageSizeOptions: ALL_PAGE_SIZES,
                 showSizeChanger: true,
                 showTotal: (total, range) =>
-                  `${range[0]}–${range[1]} из ${total} операций`,
+                  `${range[0]}–${range[1]} / ${total}`,
                 onChange: (page, size) =>
                   updateSearchParams(searchParams, setSearchParams, {
                     page: String(page),
@@ -314,7 +314,7 @@ const MarketingLoyalty: React.FC = () => {
                 pageSize={pageSize}
                 pageSizeOptions={ALL_PAGE_SIZES}
                 showTotal={(total, range) =>
-                  `${range[0]}–${range[1]} из ${total} операций`
+                  `${range[0]}–${range[1]} / ${total}`
                 }
                 onChange={(page, size) => {
                   updateSearchParams(searchParams, setSearchParams, {
