@@ -80,13 +80,14 @@ const BasicData: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         <div className="mb-3">
           <div className="flex items-center justify-center bg-background02">
             <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
+
               <div className="flex items-center space-x-4">
-                <BonusImage />
+                <BonusImage className="w-12 h-12" />
                 <div>
-                  <div className="font-semibold text-text01">
+                  <div className="font-bold text-text01 text-2xl">
                     {t('marketingLoyalty.basicData')}
                   </div>
-                  <div className="text-text03 text-xs">
+                  <div className="text-text02 text-md">
                     {t('marketingLoyalty.configuring')}
                   </div>
                 </div>
@@ -144,7 +145,7 @@ const BasicData: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                 <div className="text-text01 text-sm font-semibold">
                   {t('marketingLoyalty.maxLevels')}
                 </div>
-                <div className="text-text03 text-sm">
+                <div className="text-text02 text-sm">
                   {t('marketingLoyalty.maxLoyalty')}
                 </div>
                 <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -156,9 +157,8 @@ const BasicData: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                         <div
                           key={level}
                           onClick={() => isEditable && handleInputChange('maxLevels', level)}
-                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
-                            isActive ? 'bg-blue-500' : 'bg-gray-300'
-                          }`}
+                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${isActive ? 'bg-blue-500' : 'bg-gray-300'
+                            }`}
                         >
                           <FireOutlined style={{ fontSize: 24 }} />
                         </div>

@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Spin, Alert, Select, Button } from 'antd';
-import { 
-  LineChartOutlined, 
-  CarOutlined, 
-  UsergroupAddOutlined, 
-  CalendarOutlined, 
+import {
+  LineChartOutlined,
+  CarOutlined,
+  UsergroupAddOutlined,
+  CalendarOutlined,
   LeftOutlined
 } from '@ant-design/icons';
 import useSWR from 'swr';
-import { 
-  getLoyaltyProgramAnalytics, 
+import {
+  getLoyaltyProgramAnalytics,
   getLoyaltyProgramTransactionAnalytics,
   TransactionAnalyticsParams,
 } from '@/services/api/marketing';
@@ -23,13 +23,13 @@ interface StatsProps {
   isEditable?: boolean;
 }
 
-const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
+const Stats: React.FC<StatsProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
-  
+
   const [period, setPeriod] = useState<'lastMonth' | 'lastWeek' | 'lastYear'>('lastMonth');
-  
+
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
   const currentStep = Number(searchParams.get('step')) || 1;
 
@@ -113,7 +113,7 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
       label: t('marketingLoyalty.connectedBranches'),
       value: analytics?.connectedPoses || 0,
       bgColor: 'bg-[#BFFA00]',
-      iconBgColor:'bg-[#BFFA00]',
+      iconBgColor: 'bg-[#BFFA00]',
     },
     {
       icon: <UsergroupAddOutlined className="text-black" />,
@@ -134,16 +134,16 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02">
       <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-          <LineChartOutlined className="text-white text-xl" />
+        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <LineChartOutlined className="w-12 h-12 flex justify-center items-center text-2xl text-white" />
         </div>
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-text01">
+          <div className="font-bold text-text01 text-2xl">
             {t('marketingLoyalty.stats')}
-          </h2>
-          <p className="text-gray-500 text-sm">
+          </div>
+          <div className="text-text02 text-md">
             {t('marketingLoyalty.statsSubtitle')}
-          </p>
+          </div>
         </div>
       </div>
 
@@ -160,7 +160,7 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
                   {card.icon}
                 </div>
               </div>
-              
+
               <div className="flex flex-col">
                 <p className="text-gray-500 text-sm font-medium mb-1">
                   {card.label}
@@ -174,57 +174,57 @@ const Stats: React.FC<StatsProps> = ({isEditable = true}) => {
         ))}
       </div>
 
-        <div className="grid grid-cols-1">
-          <Card className="shadow-md">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-              <h3 className="text-lg font-semibold text-text01">
-                {t('marketingLoyalty.accrualsAndDebits')}
-              </h3>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                <Select
-                  value={period}
-                  onChange={(value) => {
-                    setPeriod(value);
-                  }}
-                  options={periodOptions}
-                  className="w-full sm:w-[150px]"
-                />
-              </div>
-            </div>
-            
-            {transactionLoading ? (
-              <div className="flex items-center justify-center h-96">
-                <Spin size="large" />
-              </div>
-            ) : transactionError ? (
-              <Alert
-                message="Error Loading Chart Data"
-                description="Failed to load transaction analytics. Please try again later."
-                type="error"
-                showIcon
+      <div className="grid grid-cols-1">
+        <Card className="shadow-md">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-text01">
+              {t('marketingLoyalty.accrualsAndDebits')}
+            </h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              <Select
+                value={period}
+                onChange={(value) => {
+                  setPeriod(value);
+                }}
+                options={periodOptions}
+                className="w-full sm:w-[150px]"
               />
-            ) : transactionAnalytics?.data ? (
-              <TransactionAnalyticsChart data={transactionAnalytics.data} />
-            ) : (
-              <div className="flex items-center justify-center h-96 text-gray-500">
-                {t("table.noData")}
-              </div>
-            )}
-          </Card>
-        </div>
-        {isEditable && (
-        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
-        <div className="order-2 sm:order-1">
-          {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-              className="w-full sm:w-auto"
-            >
-              {t('common.back')}
-            </Button>
+            </div>
+          </div>
+
+          {transactionLoading ? (
+            <div className="flex items-center justify-center h-96">
+              <Spin size="large" />
+            </div>
+          ) : transactionError ? (
+            <Alert
+              message="Error Loading Chart Data"
+              description="Failed to load transaction analytics. Please try again later."
+              type="error"
+              showIcon
+            />
+          ) : transactionAnalytics?.data ? (
+            <TransactionAnalyticsChart data={transactionAnalytics.data} />
+          ) : (
+            <div className="flex items-center justify-center h-96 text-gray-500">
+              {t("table.noData")}
+            </div>
           )}
-        </div></div>)}
+        </Card>
+      </div>
+      {isEditable && (
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+          <div className="order-2 sm:order-1">
+            {currentStep > 1 && isUpdate && (
+              <Button
+                icon={<LeftOutlined />}
+                onClick={goBack}
+                className="w-full sm:w-auto"
+              >
+                {t('common.back')}
+              </Button>
+            )}
+          </div></div>)}
     </div>
   );
 };

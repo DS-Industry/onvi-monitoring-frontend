@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FileTextOutlined, PlayCircleOutlined, RightOutlined, LeftOutlined } from '@ant-design/icons';
 import useSWR, { mutate } from 'swr';
 import {
-  getLoyaltyProgramById,
   getPosesParticipants,
+  LoyaltyProgramsByIdResponse,
   publishLoyaltyProgram,
   requestHubStatus,
   unpublishLoyaltyProgram,
@@ -17,9 +17,11 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 interface PublicationsProps {
   isEditable?: boolean;
+  program?: LoyaltyProgramsByIdResponse
+  loadingProgram: boolean
 }
 
-const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
+const Publications: React.FC<PublicationsProps> = ({ isEditable = true, program, loadingProgram }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
@@ -31,11 +33,6 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
-
-  const { data: program, isLoading: loadingPrograms } = useSWR(
-    loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
-    () => getLoyaltyProgramById(loyaltyProgramId)
-  );
 
   const { data: participantsData } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
@@ -123,14 +120,14 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
         <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex flex-col space-y-10 sm:space-y-0 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-4">
-              <div className="aspect-square w-10 rounded-full bg-primary02 flex items-center justify-center text-text04">
-                <FileTextOutlined style={{ fontSize: 20 }} />
+              <div className="aspect-square rounded-full bg-primary02 flex items-center justify-center text-text04">
+                <FileTextOutlined className="w-12 h-12 flex justify-center items-center text-2xl" />
               </div>
               <div>
-                <div className="font-semibold text-text01">
+                <div className="font-bold text-text01 text-2xl">
                   {t('marketingLoyalty.publication')}
                 </div>
-                <div className="text-base03 text-xs">
+                <div className="text-text02 text-md">
                   {t('marketingLoyalty.implementation')}
                 </div>
               </div>
@@ -203,7 +200,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
               <span className="bg-primary01 text-white px-2 py-0.5 rounded text-sm max-w-48 flex justify-center">
                 {t('marketing.hubRequested')}
               </span>
-            ) : loadingPrograms ? (
+            ) : loadingProgram ? (
               <></>
             ) : (
               <Button
@@ -216,7 +213,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
             )}
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end">
-            <Button 
+            <Button
               className="text-primary02 w-full sm:w-auto"
             >
               {t('marketingLoyalty.saveAndExit')}
@@ -233,32 +230,32 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true }) => {
           </div>
         </div>
       </div>
-      
+
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
-        <div className="order-2 sm:order-1">
-          {currentStep > 1 && isUpdate && (
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goBack}
-              className="w-full sm:w-auto"
-            >
-              {t('common.back')}
-            </Button>
-          )}
+          <div className="order-2 sm:order-1">
+            {currentStep > 1 && isUpdate && (
+              <Button
+                icon={<LeftOutlined />}
+                onClick={goBack}
+                className="w-full sm:w-auto"
+              >
+                {t('common.back')}
+              </Button>
+            )}
+          </div>
+          {isUpdate && <Button
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            onClick={goNext}
+            className="w-full sm:w-auto order-1 sm:order-2"
+          >
+            {t('common.next')}
+          </Button>}
         </div>
-        {isUpdate && <Button
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          onClick={goNext}
-          className="w-full sm:w-auto order-1 sm:order-2"
-        >
-          {t('common.next')}
-        </Button>}
-      </div>
       )}
-      
+
       <Modal
         title={t('marketing.requestHub')}
         open={isHubRequestModalOpen}

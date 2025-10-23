@@ -175,207 +175,213 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
       </div>
     );
   }
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex items-center justify-center bg-background02">
-        <div className="flex flex-col rounded-lg p-4 sm:p-6 lg:p-8 w-full space-y-6 sm:space-y-8 lg:space-y-10">
-          <div className="flex items-center space-x-4">
-            <WalletIcon />
-            <div>
-              <div className="font-semibold text-text01">
-                {t('marketingLoyalty.writeOff')}
-              </div>
-              <div className="text-text03 text-xs">
-                {t('marketingLoyalty.settingUp')}
+    <form onSubmit={handleSubmit(onSubmit)} className="bg-background02 pb-3">
+      <div className="flex flex-col rounded-lg lg:flex-row">
+        <div className="mb-3">
+          <div className="flex items-center justify-center bg-background02">
+            <div className="flex flex-col rounded-lg w-full">
+              <div className="flex items-center">
+                <WalletIcon className="w-12 h-12 flex justify-center items-center mr-4" />
+                <div>
+                  <div className="font-bold text-text01 text-2xl">
+                    {t('marketingLoyalty.writeOff')}
+                  </div>
+                  <div className="text-text02 text-md">
+                    {t('marketingLoyalty.settingUp')}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-            <div className="flex-1 lg:w-7/12">
-              <div className="text-text01 font-semibold">
-                {t('marketingLoyalty.maximumWriteOff')}
+          <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10">
+
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mt-6 sm:mt-8 lg:mt-10">
+              <div className="flex-1 lg:w-7/12">
+                <div className="text-text01 font-semibold">
+                  {t('marketingLoyalty.maximumWriteOff')}
+                </div>
+                <div className="text-text02">
+                  {t('marketingLoyalty.maximumPossible')}
+                </div>
               </div>
-              <div className="text-text03">
-                {t('marketingLoyalty.maximumPossible')}
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              <Input
-                {...register('maxRedeemPercentage')}
-                suffix={<div>%</div>}
-                className="w-20 sm:w-24"
-                value={formData.maxRedeemPercentage}
-                onChange={e =>
-                  handleInputChange(
-                    'maxRedeemPercentage',
-                    Number(e.target.value)
-                  )
-                }
-                disabled={!isEditable}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-            <div className="flex-1 lg:w-7/12">
-              <div className="text-text01 font-semibold">
-                {t('marketingLoyalty.useBonuses')}
-              </div>
-              <div className="text-text03">
-                {t('marketingLoyalty.allowBonuses')}
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              <Switch
-                checked={formData.hasBonusWithSale}
-                onChange={checked =>
-                  handleInputChange('hasBonusWithSale', checked)
-                }
-                disabled={!isEditable}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-            <div className="flex-1 lg:w-7/12">
-              <div className="text-text01 font-semibold">
-                {t('marketing.burni')}
-              </div>
-              <div className="text-text03">{t('marketing.bonusesCan')}</div>
-            </div>
-            <div className="flex-shrink-0 w-full lg:w-auto">
-              <div className="space-y-4">
-              <Radio.Group
-                value={radioValue}
-                onChange={(e: RadioChangeEvent) => {
-                  if (!isEditable) return;
-                  setRadioValue(e.target.value);
-                  if (e.target.value === 'never') {
-                    handleInputChange('burnoutType', "never");
-                    handleInputChange('lifetimeBonusDays', undefined);
-                    setSelectOpen(false);
-                  } else if (e.target.value === 'period') {
-                    handleInputChange('burnoutType', 'month');
+              <div className="flex-shrink-0">
+                <Input
+                  {...register('maxRedeemPercentage')}
+                  suffix={<div>%</div>}
+                  className="w-20 sm:w-24"
+                  value={formData.maxRedeemPercentage}
+                  onChange={e =>
+                    handleInputChange(
+                      'maxRedeemPercentage',
+                      Number(e.target.value)
+                    )
                   }
-                }}
-                disabled={!isEditable}
-                className='space-y-4'
-              >
-                <Radio
-                  value="never"
-                  style={{
-                    backgroundColor:
-                      radioValue === 'never' ? '#E4F0FF' : '#E4E5E7',
-                    borderColor: '#E4F0FF',
-                    color: '#000',
-                    padding: '8px',
-                  }}
-                >
-                  {t('marketing.never')}
-                </Radio>
-                <Radio
-                  value="period"
-                  style={{
-                    backgroundColor:
-                      radioValue === 'period' ? '#E4F0FF' : '#E4E5E7',
-                    borderColor: '#E4F0FF',
-                    color: '#000',
-                    padding: '8px',
-                  }}
-                >
-                  {t('marketingLoyalty.afterPeriod')}
-                </Radio>
-              </Radio.Group>
-              {radioValue === 'period' && (
-                <div className="w-full">
-                  <Select
-                    placeholder={t('techTasks.selectPeriodicity')}
-                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[360px]"
-                    value={
-                      formData.burnoutType ||
-                      (formData.lifetimeBonusDays ? 'custom' : undefined)
-                    }
-                    onChange={value => {
+                  disabled={!isEditable}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+              <div className="flex-1 lg:w-7/12">
+                <div className="text-text01 font-semibold">
+                  {t('marketingLoyalty.useBonuses')}
+                </div>
+                <div className="text-text02">
+                  {t('marketingLoyalty.allowBonuses')}
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <Switch
+                  checked={formData.hasBonusWithSale}
+                  onChange={checked =>
+                    handleInputChange('hasBonusWithSale', checked)
+                  }
+                  disabled={!isEditable}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
+              <div className="flex-1 lg:w-7/12">
+                <div className="text-text01 font-semibold">
+                  {t('marketing.burni')}
+                </div>
+                <div className="text-text02">{t('marketing.bonusesCan')}</div>
+              </div>
+              <div className="flex-shrink-0 w-full lg:w-auto">
+                <div className="space-y-4">
+                  <Radio.Group
+                    value={radioValue}
+                    onChange={(e: RadioChangeEvent) => {
                       if (!isEditable) return;
-                      handleInputChange('burnoutType', value);
-                      if (value !== 'custom') {
+                      setRadioValue(e.target.value);
+                      if (e.target.value === 'never') {
+                        handleInputChange('burnoutType', "never");
                         handleInputChange('lifetimeBonusDays', undefined);
+                        setSelectOpen(false);
+                      } else if (e.target.value === 'period') {
+                        handleInputChange('burnoutType', 'month');
                       }
                     }}
-                    open={selectOpen}
-                    onDropdownVisibleChange={() => {
-                      if (!isEditable) return;
-                      setSelectOpen(true);
-                    }}
-                    defaultActiveFirstOption={false}
                     disabled={!isEditable}
-                    popupRender={menu => (
-                      <>
-                        {menu}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 p-3 border-t border-gray-200 bg-gray-50">
-                          <Typography.Text className="whitespace-nowrap">
-                            {t('marketingLoyalty.every')}
-                          </Typography.Text>
-                          <Input
-                            className="w-full sm:w-24 sm:mx-2"
-                            type="number"
-                            {...register('lifetimeBonusDays')}
-                            value={formData.lifetimeBonusDays}
-                            min={0}
-                            disabled={formData.burnoutType !== 'custom' || !isEditable}
-                            onChange={e => {
-                              if (formData.burnoutType === 'custom' && isEditable) {
-                                handleInputChange(
-                                  'lifetimeBonusDays',
-                                  Number(e.target.value)
-                                );
-                              }
-                            }}
-                            placeholder={t('marketingLoyalty.days')}
-                          />
-                          <span className="whitespace-nowrap">{t('marketingLoyalty.days')}</span>
-                          <Button
-                            type="primary"
-                            size="small"
-                            className="w-full sm:w-auto sm:ml-3"
-                            disabled={
-                              !isEditable ||
-                              (formData.burnoutType === 'custom' &&
-                                !formData.lifetimeBonusDays)
-                            }
-                            onClick={e => {
-                              if (!isEditable) return;
-                              e.stopPropagation();
-                              if (formData.burnoutType !== 'custom') {
-                                handleInputChange(
-                                  'lifetimeBonusDays',
-                                  undefined
-                                );
-                              }
-                              setSelectOpen(false);
-                            }}
-                          >
-                            {t('marketing.apply')}
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                    options={[
-                      {
-                        label: t('marketingLoyalty.everyMonth'),
-                        value: 'month',
-                      },
-                      {
-                        label: t('marketingLoyalty.everyYear'),
-                        value: 'year',
-                      },
-                      {
-                        label: t('marketingLoyalty.custom'),
-                        value: 'custom',
-                      },
-                    ]}
-                  />
+                    className='space-y-4'
+                  >
+                    <Radio
+                      value="never"
+                      style={{
+                        backgroundColor:
+                          radioValue === 'never' ? '#E4F0FF' : '#E4E5E7',
+                        borderColor: '#E4F0FF',
+                        color: '#000',
+                        padding: '8px',
+                      }}
+                    >
+                      {t('marketing.never')}
+                    </Radio>
+                    <Radio
+                      value="period"
+                      style={{
+                        backgroundColor:
+                          radioValue === 'period' ? '#E4F0FF' : '#E4E5E7',
+                        borderColor: '#E4F0FF',
+                        color: '#000',
+                        padding: '8px',
+                      }}
+                    >
+                      {t('marketingLoyalty.afterPeriod')}
+                    </Radio>
+                  </Radio.Group>
+                  {radioValue === 'period' && (
+                    <div className="w-full">
+                      <Select
+                        placeholder={t('techTasks.selectPeriodicity')}
+                        className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[360px]"
+                        value={
+                          formData.burnoutType ||
+                          (formData.lifetimeBonusDays ? 'custom' : undefined)
+                        }
+                        onChange={value => {
+                          if (!isEditable) return;
+                          handleInputChange('burnoutType', value);
+                          if (value !== 'custom') {
+                            handleInputChange('lifetimeBonusDays', undefined);
+                          }
+                        }}
+                        open={selectOpen}
+                        onDropdownVisibleChange={() => {
+                          if (!isEditable) return;
+                          setSelectOpen(true);
+                        }}
+                        defaultActiveFirstOption={false}
+                        disabled={!isEditable}
+                        popupRender={menu => (
+                          <>
+                            {menu}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 p-3 border-t border-gray-200 bg-gray-50">
+                              <Typography.Text className="whitespace-nowrap">
+                                {t('marketingLoyalty.every')}
+                              </Typography.Text>
+                              <Input
+                                className="w-full sm:w-24 sm:mx-2"
+                                type="number"
+                                {...register('lifetimeBonusDays')}
+                                value={formData.lifetimeBonusDays}
+                                min={0}
+                                disabled={formData.burnoutType !== 'custom' || !isEditable}
+                                onChange={e => {
+                                  if (formData.burnoutType === 'custom' && isEditable) {
+                                    handleInputChange(
+                                      'lifetimeBonusDays',
+                                      Number(e.target.value)
+                                    );
+                                  }
+                                }}
+                                placeholder={t('marketingLoyalty.days')}
+                              />
+                              <span className="whitespace-nowrap">{t('marketingLoyalty.days')}</span>
+                              <Button
+                                type="primary"
+                                size="small"
+                                className="w-full sm:w-auto sm:ml-3"
+                                disabled={
+                                  !isEditable ||
+                                  (formData.burnoutType === 'custom' &&
+                                    !formData.lifetimeBonusDays)
+                                }
+                                onClick={e => {
+                                  if (!isEditable) return;
+                                  e.stopPropagation();
+                                  if (formData.burnoutType !== 'custom') {
+                                    handleInputChange(
+                                      'lifetimeBonusDays',
+                                      undefined
+                                    );
+                                  }
+                                  setSelectOpen(false);
+                                }}
+                              >
+                                {t('marketing.apply')}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                        options={[
+                          {
+                            label: t('marketingLoyalty.everyMonth'),
+                            value: 'month',
+                          },
+                          {
+                            label: t('marketingLoyalty.everyYear'),
+                            value: 'year',
+                          },
+                          {
+                            label: t('marketingLoyalty.custom'),
+                            value: 'custom',
+                          },
+                        ]}
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
               </div>
             </div>
           </div>
