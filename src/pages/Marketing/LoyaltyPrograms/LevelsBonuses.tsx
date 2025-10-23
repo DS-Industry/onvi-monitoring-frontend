@@ -10,21 +10,26 @@ import { Button, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { deleteTier, getBenefits, getTiers } from '@/services/api/marketing';
+import { deleteTier, getBenefits, getTiers, LoyaltyProgramsByIdResponse } from '@/services/api/marketing';
 import LevelsBonusesModal from './LevelsBonusesModal';
 import LevelCard from './LevelCard';
 
+import { useToast } from '@/components/context/useContext';
+
 interface LevelsBonusesProps {
   isEditable?: boolean;
+  program?: LoyaltyProgramsByIdResponse;
 }
 
-const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
+const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   const currentStep = Number(searchParams.get('step')) || 1;
 
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
+  const { showToast } = useToast();
 
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
     [`get-tiers`, loyaltyProgramId],
@@ -73,7 +78,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
                 </div>
               </div>
             </div>
-            {isEditable && (
+            {isEditable && program?.maxLevels && program.maxLevels > tiers.length && (
               <div className="flex space-x-2">
                 <Button 
                   icon={<PlusOutlined />} 
@@ -150,8 +155,8 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ isEditable = true }) => {
               await deleteTier(deletingId);
               setDeletingId(null);
               await mutate([`get-tiers`, loyaltyProgramId]);
-            } finally {
-              // refresh tiers
+            } catch (error) {
+              showToast(t('errors.other.errorDuringFormSubmission'), 'error');
             }
           }}
           title={t('marketing.deleteTierConfirm', {

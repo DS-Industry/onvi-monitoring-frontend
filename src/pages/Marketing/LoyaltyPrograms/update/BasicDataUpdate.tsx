@@ -20,9 +20,10 @@ interface BasicDataUpdateProps {
   isLoading: boolean;
   mutate: () => void;
   isEditable?: boolean;
+  minLevels: number;
 }
 
-const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true }) => {
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true, minLevels = 1 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -192,13 +193,15 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                     {[...Array(MAX_LEVELS)].map((_, index) => {
                       const level = index + 1;
                       const isActive = level <= formData.maxLevels;
+                      const isDisabled = level < minLevels;
+                      const isClickable = isEditable && !isDisabled;
                       return (
                         <div
                           key={level}
-                          onClick={() => isEditable && handleInputChange('maxLevels', level)}
-                          className={`${isEditable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
-                            isActive ? 'bg-blue-500' : 'bg-gray-300'
-                          }`}
+                          onClick={() => isClickable && handleInputChange('maxLevels', level)}
+                          className={`${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                            isActive ? 'bg-blue-500' : isDisabled ? 'bg-gray-200' : 'bg-gray-300'
+                          } ${isDisabled ? 'opacity-50' : ''}`}
                         >
                           <FireOutlined style={{ fontSize: 24 }} />
                         </div>

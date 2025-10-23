@@ -19,7 +19,7 @@ import Participants from './Participants';
 import Publications from './Publications';
 import Stats from './Stats';
 import useSWR from 'swr';
-import { getLoyaltyProgramById } from '@/services/api/marketing';
+import { getLoyaltyProgramById, getTiers } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 
 const { Step } = Steps;
@@ -42,6 +42,19 @@ const LoyaltyPrograms: React.FC = () => {
     }
   );
 
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(
+    [`get-tiers`, loyaltyProgramId],
+    () => getTiers({ programId: loyaltyProgramId || '*' }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const tiers = tiersData || [];
+
+
   const user = useUser()
 
   const isOwner = program?.ownerOrganizationId === user?.organizationId;
@@ -56,7 +69,7 @@ const LoyaltyPrograms: React.FC = () => {
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} /> : <BasicData isEditable={true} />,
+      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading || tiersLoading} mutate={mutate} isEditable={isOwner} minLevels={tiers.length > 0 ? tiers.length : 1} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
     },
     {
@@ -71,7 +84,7 @@ const LoyaltyPrograms: React.FC = () => {
     },
     {
       title: t('marketingLoyalty.levelsAndBonuses'),
-      content: <LevelsBonuses isEditable={isOwner} />,
+      content: <LevelsBonuses program={program} isEditable={isOwner} />,
       icon: <FireOutlined />,
     },
     ...(isOwner ? [{
