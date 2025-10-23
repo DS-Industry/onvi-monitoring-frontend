@@ -899,7 +899,10 @@
     "PENDING": "Ожидает выполнения",
     "PAUSED": "Приостановлен",
     "CANCELLED": "Отменен",
-    "unknownWorker": "Неизвестный работник"
+    "unknownWorker": "Неизвестный работник",
+    "OWNER": "Владелец",
+    "PARTICIPANT": "Участник",
+    "ALL": "Все"
   },
   "finance": {
     "deleteFailed": "Не удалось удалить смену",
@@ -1490,7 +1493,8 @@
       "clear": "Очистить",
       "cancel": "Отмена",
       "startDatePlaceholder": "Дата начала",
-      "endDatePlaceholder": "Дата окончания"
+      "endDatePlaceholder": "Дата окончания",
+      "participantRole": "Роль участника"
     },
     "warehouse": {
       "placeholder": "Выберите склад"
@@ -1772,6 +1776,10 @@
     "promotionSpend": "Сумма трат для повышения уровня",
     "available": "Доступные бонусы",
     "selected": "Выбранные бонусы",
-    "createNew": "Создай новый"
+    "createNew": "Создай новый",
+    "moreDetails": "Подробнее",
+    "branches": "Филиалов",
+    "numberOfBranches": "Количество филиалов",
+    "numberOfClients": "Количество клиентов"
   }
 }
