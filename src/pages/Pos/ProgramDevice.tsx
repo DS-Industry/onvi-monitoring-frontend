@@ -83,46 +83,46 @@ const ProgramDevice: React.FC = () => {
   const dateRender = getDateRender();
   const columnsProgramDevice: ColumnsType<ProgramDeviceType> = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'Название',
+      title: t('hr.name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Начало программы',
+      title: t('table.headers.beginDate'),
       dataIndex: 'dateBegin',
       key: 'dateBegin',
       render: dateRender,
     },
     {
-      title: 'Конец программы',
+      title: t('table.headers.endDate'),
       dataIndex: 'dateEnd',
       key: 'dateEnd',
       render: dateRender,
     },
     {
-      title: 'Время выполнения',
+      title: t('table.headers.leadTime'),
       dataIndex: 'time',
       key: 'time',
     },
     {
-      title: 'Локальный ID',
+      title: t('deposit.columns.localId'),
       dataIndex: 'localId',
       key: 'localId',
       render: (_value, record) => formatNumber(record.localId),
     },
     {
-      title: 'Оплата',
+      title: t('subscriptions.payment'),
       dataIndex: 'payType',
       key: 'payType',
     },
     {
-      title: 'Машина',
+      title: t('table.headers.car'),
       dataIndex: 'isCar',
       key: 'isCar',
     },

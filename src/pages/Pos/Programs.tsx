@@ -93,12 +93,12 @@ const Programs: React.FC = () => {
 
   const deviceColumns = [
     {
-      title: t('ID'),
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: t('Устройство'),
+      title: t('equipment.device'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Program) => (
@@ -126,58 +126,66 @@ const Programs: React.FC = () => {
   const childColumns: ColumnsType<ProgramDetail> =
     portalPrograms.length > 0
       ? [
-          { title: 'Программа', dataIndex: 'programName', key: 'programName' },
           {
-            title: 'Кол-во программ',
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
             dataIndex: 'counter',
             key: 'counter',
             render: (_value, record) => formatNumber(record.counter),
           },
           {
-            title: 'Общее время (мин)',
+            title: t('finance.totalTime'),
             dataIndex: 'totalTime',
             key: 'totalTime',
             render: (_value, record) => formatNumber(record.totalTime),
           },
           {
-            title: 'Среднее время (мин)',
+            title: t('table.headers.averageTime'),
             dataIndex: 'averageTime',
             key: 'averageTime',
           },
           {
-            title: 'Выручка',
+            title: t('finance.REVENUE'),
             dataIndex: 'totalProfit',
             key: 'totalProfit',
             render: currencyRender,
           },
           {
-            title: 'Средний чек',
+            title: t('marketing.avg'),
             dataIndex: 'averageProfit',
             key: 'averageProfit',
             render: currencyRender,
           },
         ]
       : [
-          { title: 'Программа', dataIndex: 'programName', key: 'programName' },
           {
-            title: 'Кол-во программ',
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
             dataIndex: 'counter',
             key: 'counter',
             render: (_value, record) => formatNumber(record.counter),
           },
           {
-            title: 'Общее время (мин)',
+            title: t('finance.totalTime'),
             dataIndex: 'totalTime',
             key: 'totalTime',
             render: (_value, record) => formatNumber(record.totalTime),
           },
           {
-            title: 'Среднее время (мин)',
+            title: t('table.headers.averageTime'),
             dataIndex: 'averageTime',
             key: 'averageTime',
           },
           {
-            title: 'Последняя программа',
+            title: t('table.headers.latestProgram'),
             dataIndex: 'lastOper',
             key: 'lastOper',
             render: getDateRender(),

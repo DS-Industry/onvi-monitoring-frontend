@@ -9,36 +9,7 @@ import { precreateOrganization } from '@/services/api/platform';
 import { useSetAuthenticated, useSetPermissions } from '@/hooks/useAuthStore';
 import { useClearUserData, useSetUser } from '@/hooks/useUserStore';
 import { useToast } from '@/components/context/useContext';
-
-type User = {
-  id: number;
-  userRoleId: number;
-  name: string;
-  surname: string;
-  middlename?: string;
-  birthday?: Date;
-  phone?: string;
-  email: string;
-  password: string;
-  gender: string;
-  position: string;
-  status: string;
-  avatar?: string;
-  country: string;
-  countryCode: number;
-  timezone: number;
-  refreshTokenId: string;
-  receiveNotifications: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type Token = {
-  accessToken: string;
-  accessTokenExp: Date;
-  refreshToken: string;
-  refreshTokenExp: Date;
-};
+import { User } from '@/config/store/userSlice';
 
 type Permissions = {
   action: string;
@@ -47,7 +18,6 @@ type Permissions = {
 
 type Props = {
   registerUser: User;
-  registerToken: Token;
   registerPermissions: Permissions[];
 };
 
