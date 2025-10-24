@@ -110,11 +110,11 @@ const OverheadCosts: React.FC = () => {
   const { data: allStockLevelsCount } = useSWR(
     orgId
       ? [
-          'filter-params-count',
-          filterParams.categoryId,
-          filterParams.placementId,
-          filterParams.warehouseId,
-        ]
+        'filter-params-count',
+        filterParams.categoryId,
+        filterParams.placementId,
+        filterParams.warehouseId,
+      ]
       : null,
     () =>
       getAllStockLevelsCount(Number(orgId)!, {
@@ -205,6 +205,7 @@ const OverheadCosts: React.FC = () => {
             onChange={value => {
               updateSearchParams(searchParams, setSearchParams, {
                 categoryId: value,
+                page: DEFAULT_PAGE,
               });
             }}
             optionFilterProp="label"
