@@ -359,20 +359,20 @@ const SalaryCalculation: React.FC = () => {
 
   const columnsSalaryCalculation = [
     {
-      title: 'ФИО',
+      title: t('hr.full'),
       dataIndex: 'name',
       key: 'name',
       editable: false,
     },
     {
-      title: 'Должность',
+      title: t('roles.position'),
       dataIndex: 'hrPosition',
       key: 'hrPosition',
       render: (value: string) => value || '-',
       editable: false,
     },
     {
-      title: 'Месяц расчёта',
+      title: t('table.headers.monthCalculation'),
       dataIndex: 'billingMonth',
       key: 'billingMonth',
       render: (_: unknown, record: DataType) =>
@@ -380,14 +380,14 @@ const SalaryCalculation: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Дата выдачи',
+      title: t('hr.paymentDate'),
       dataIndex: 'paymentDate',
       key: 'paymentDate',
       render: dateRender,
       editable: true,
     },
     {
-      title: 'Посменное начисление',
+      title: t('hr.dailySalary'),
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       render: currencyRender,
@@ -400,48 +400,48 @@ const SalaryCalculation: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Количество отработанных смен',
+      title: t('hr.numberOfShiftsWorked'),
       dataIndex: 'numberOfShiftsWorked',
       key: 'numberOfShiftsWorked',
       editable: false,
     },
     {
-      title: 'Выплачено аванс',
+      title: t('hr.prepaymentSum'),
       dataIndex: 'prepaymentSum',
       key: 'prepaymentSum',
       render: currencyRender,
       editable: false,
     },
     {
-      title: 'Основная часть ЗП',
+      title: t('hr.paymentSum'),
       dataIndex: 'paymentSum',
       key: 'paymentSum',
       render: currencyRender,
       editable: false,
     },
     {
-      title: 'Премия',
+      title: t('finance.prize'),
       dataIndex: 'prize',
       key: 'prize',
       render: currencyRender,
       editable: true,
     },
     {
-      title: 'Штраф',
+      title: t('finance.fine'),
       dataIndex: 'fine',
       key: 'fine',
       render: currencyRender,
       editable: true,
     },
     {
-      title: 'Безналичная выплата',
+      title: t('table.headers.cashlessSum'),
       dataIndex: 'virtualSum',
       key: 'virtualSum',
       render: currencyRender,
       editable: true,
     },
     {
-      title: 'К выплате',
+      title: t('table.headers.toBePaid'),
       dataIndex: 'totalPayment',
       key: 'totalPayment',
       sorter: (a: DataType, b: DataType) => a.totalPayment - b.totalPayment,
@@ -449,7 +449,7 @@ const SalaryCalculation: React.FC = () => {
       editable: false,
     },
     {
-      title: 'К выплате итог',
+      title: t('table.headers.total'),
       dataIndex: 'totalPaymentFinal',
       key: 'totalPaymentFinal',
       sorter: (a: DataType, b: DataType) =>
@@ -458,13 +458,13 @@ const SalaryCalculation: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Комментарий',
+      title: t('equipment.comment'),
       dataIndex: 'comment',
       key: 'comment',
       editable: true,
     },
     {
-      title: 'Операции',
+      title: t('marketing.operations'),
       dataIndex: 'operation',
       width: '15%',
       render: (_: unknown, record: DataType) => {

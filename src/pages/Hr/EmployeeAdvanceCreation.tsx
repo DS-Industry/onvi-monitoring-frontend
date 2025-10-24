@@ -34,8 +34,6 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import NoDataUI from '@/components/ui/NoDataUI';
-import PositionEmpty from '@/assets/NoPosition.png';
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -70,7 +68,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const navigate = useNavigate();
   const [paymentsData, setPaymentsData] = useState<PaymentRecord[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAddButton, setShowAddButton] = useState(false);
   const { showToast } = useToast();
   const user = useUser();
   dayjs.locale(i18n.language);
@@ -155,7 +152,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
         hrPositionId: Number(formData.hrPositionId) || undefined,
       });
 
-      setShowAddButton(true);
       return result;
     }
   );
@@ -332,31 +328,31 @@ const EmployeeAdvanceCreation: React.FC = () => {
       ),
     },
     {
-      title: 'ФИО',
+      title: t('hr.full'),
       dataIndex: 'employeeName',
       key: 'employeeName',
     },
     {
-      title: 'Должность',
+      title: t('roles.position'),
       key: 'hrPosition',
       render: (_, record) =>
         positions.find(pos => pos.value === record.hrPositionId)?.name || '',
     },
     {
-      title: 'Месяц расчёта',
+      title: t('table.headers.monthCalculation'),
       key: 'billingMonth',
       render: (_, record) =>
         record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
-      title: 'Оклад',
+      title: t('finance.salary'),
       dataIndex: 'monthlySalary',
       key: 'monthlySalary',
       sorter: (a, b) => a.monthlySalary - b.monthlySalary,
       render: getCurrencyRender(),
     },
     {
-      title: 'Посменное начисление',
+      title: t('hr.dailySalary'),
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
@@ -370,12 +366,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: getCurrencyRender(),
     },
     {
-      title: 'Количество отработанных смен',
+      title: t('hr.numberOfShiftsWorked'),
       dataIndex: 'numberOfShiftsWorked',
       key: 'numberOfShiftsWorked',
     },
     {
-      title: 'Авансовая зарплата',
+      title: t('hr.advanceSalary'),
       key: 'sum',
       render: (_, record) => (
         <InputNumber
@@ -389,7 +385,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       ),
     },
     {
-      title: 'Дата выдачи',
+      title: t('hr.paymentDate'),
       key: 'paymentDate',
       render: (_, record) => (
         <DatePicker
@@ -401,7 +397,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       ),
     },
     {
-      title: 'Время выплаты',
+      title: t('hr.payoutTimestamp'),
       key: 'payoutTimestamp',
       render: (_, record) =>
         record.payoutTimestamp
@@ -571,78 +567,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
             </div>
           </form>
 
-          {paymentsData.length > 0 ? (
-            <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
-              <div className="flex flex-wrap justify-between gap-2">
-                <div className="flex space-x-4">
-                  <Button onClick={deleteRow} danger>
-                    {t('marketing.delete')}
-                  </Button>
-                  <Button
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    {t('finance.addE')}
-                  </Button>
-                </div>
-                <Space>
-                  <Button
-                    icon={<ArrowUpOutlined />}
-                    onClick={() => {
-                      const sortedData = paymentsData.sort(
-                        (a, b) => a.id - b.id
-                      );
-                      setPaymentsData(sortedData);
-                    }}
-                  />
-                  <Button
-                    icon={<ArrowDownOutlined />}
-                    onClick={() => {
-                      const sortedData = paymentsData.sort(
-                        (a, b) => b.id - a.id
-                      );
-                      setPaymentsData(sortedData);
-                    }}
-                  />
-                </Space>
-              </div>
-
-              <Table
-                columns={columnsPaymentsCreation}
-                dataSource={paymentsData.map(item => ({
-                  ...item,
-                  hrPosition:
-                    positions.find(pos => pos.value === item.hrPositionId)
-                      ?.name || '',
-                }))}
-                rowKey="id"
-                pagination={false}
-                scroll={{ x: 'max-content' }}
-              />
-
-              <div>
-                <div className="flex space-x-4">
-                  <Button
-                    type="primary"
-                    loading={creatingSal}
-                    onClick={handlePaymentCreation}
-                  >
-                    {t('organizations.save')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            showAddButton && (
-              <div className="flex flex-col justify-center items-center space-y-4">
-                <NoDataUI title={t('marketing.nodata')} description={''}>
-                  <img
-                    src={PositionEmpty}
-                    className="mx-auto"
-                    loading="lazy"
-                    alt="Position Empty"
-                  />
-                </NoDataUI>
+          <div className="mt-8 space-y-5">
+            <div className="flex flex-wrap justify-between gap-2">
+              <div className="flex space-x-4">
+                <Button onClick={deleteRow} danger>
+                  {t('marketing.delete')}
+                </Button>
                 <Button
                   icon={<PlusOutlined />}
                   onClick={() => setIsModalOpen(true)}
@@ -650,8 +580,49 @@ const EmployeeAdvanceCreation: React.FC = () => {
                   {t('finance.addE')}
                 </Button>
               </div>
-            )
-          )}
+              <Space>
+                <Button
+                  icon={<ArrowUpOutlined />}
+                  onClick={() => {
+                    const sortedData = paymentsData.sort((a, b) => a.id - b.id);
+                    setPaymentsData(sortedData);
+                  }}
+                />
+                <Button
+                  icon={<ArrowDownOutlined />}
+                  onClick={() => {
+                    const sortedData = paymentsData.sort((a, b) => b.id - a.id);
+                    setPaymentsData(sortedData);
+                  }}
+                />
+              </Space>
+            </div>
+
+            <Table
+              columns={columnsPaymentsCreation}
+              dataSource={paymentsData.map(item => ({
+                ...item,
+                hrPosition:
+                  positions.find(pos => pos.value === item.hrPositionId)
+                    ?.name || '',
+              }))}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+            />
+
+            <div>
+              <div className="flex space-x-4">
+                <Button
+                  type="primary"
+                  loading={creatingSal}
+                  onClick={handlePaymentCreation}
+                >
+                  {t('organizations.save')}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

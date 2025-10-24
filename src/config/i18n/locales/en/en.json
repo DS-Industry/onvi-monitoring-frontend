@@ -1254,7 +1254,9 @@
     "payoutTimestamp": "Payout Timestamp",
     "paid": "Paid",
     "enterPosition": "Enter position",
-    "aboutPosition": "About the position"
+    "aboutPosition": "About the position",
+    "prepaymentSum": "Prepayment Sum",
+    "paymentSum": "Payment Sum"
   },
   "notifications": {
     "fav": "Favorite",
@@ -1422,7 +1424,10 @@
       "periodStart": "Start Period",
       "periodEnd": "End Period",
       "updatedBy": "Updated by",
-      "createdBy": "Created by"
+      "createdBy": "Created by",
+      "banknotes": "Banknotes",
+      "coins": "Coins",
+      "totalSum": "Total sum"
     },
     "headers": {
       "name": "Employee Name",
@@ -1441,7 +1446,11 @@
       "plan": "Plan",
       "factSummary": "Fact (summary)",
       "planCompleted": "Plan completed",
-      "planNotCompleted": "Plan not completed"
+      "planNotCompleted": "Plan not completed",
+      "monthCalculation": "Month of calculation",
+      "cashlessSum": "Cashless payment",
+      "toBePaid": "To be paid",
+      "total": "Total to be paid"
     }
   },
   "deposit": {
