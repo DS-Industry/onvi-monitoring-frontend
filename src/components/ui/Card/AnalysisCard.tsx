@@ -56,7 +56,7 @@ const AnalysisCard: React.FC<Props> = ({
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div className="bg-primary02 h-12 w-12 rounded-full flex justify-center items-center shadow-md">
-            {React.cloneElement(IconComponent as React.ReactElement, {
+            {React.cloneElement(IconComponent as React.ReactElement<any>, {
               className: 'text-white text-[22px]',
             })}
           </div>
