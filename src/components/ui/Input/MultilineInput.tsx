@@ -54,7 +54,7 @@ const MultilineInput: React.FC<MultilineInputProps> = ({
         title && <label className="text-sm text-text02">{title}</label>
       )}
 
-      <div className="relative mt-1">
+      <div className="relative">
         <Input.TextArea
           value={value}
           onChange={changeValue}
