@@ -1423,6 +1423,25 @@
       "periodEnd": "период конца",
       "updatedBy": "Кем обновлено",
       "createdBy": "Кем создано"
+    },
+    "headers": {
+      "name": "ФИО Сотрудника",
+      "roleName": "Роль СRM",
+      "status": "Статус",
+      "createdAt": "Дата регистарции",
+      "created": "Создано",
+      "updated": "Обновлено",
+      "programs": "Кол-во программ",
+      "averageTime": "Среднее время",
+      "latestProgram": "Последняя программа",
+      "beginDate": "Начало программы",
+      "endDate": "Конец программы",
+      "leadTime": "Время выполнения",
+      "car": "Машина",
+      "plan": "План",
+      "factSummary": "Факт (итог)",
+      "planCompleted": "Выполнен план",
+      "planNotCompleted": "Не выполнен план"
     }
   },
   "deposit": {
@@ -1433,7 +1452,11 @@
       "cashbackCard": "Cashback по картам",
       "discountSum": "Сумма скидки",
       "operationsCount": "Кол-во операций",
-      "yandexSum": "Яндекс Сумма"
+      "yandexSum": "Яндекс Сумма",
+      "sumOper": "Сумма операции",
+      "uploadDate": "Дата загрузки",
+      "localId": "Локальный ID",
+      "currency": "Валюта"
     }
   },
   "general": {

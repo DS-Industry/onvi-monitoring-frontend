@@ -17,7 +17,6 @@ export interface User {
   country: string;
   countryCode: number;
   timezone: number;
-  refreshTokenId: string;
   receiveNotifications: number;
   createdAt: Date;
   updatedAt: Date;

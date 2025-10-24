@@ -1423,6 +1423,25 @@
       "periodEnd": "End Period",
       "updatedBy": "Updated by",
       "createdBy": "Created by"
+    },
+    "headers": {
+      "name": "Employee Name",
+      "roleName": "CRM Role",
+      "status": "Status",
+      "createdAt": "Registration Date",
+      "created": "Created",
+      "updated": "Updated",
+      "programs": "Number of Programs",
+      "averageTime": "Average Time",
+      "latestProgram": "Latest Program",
+      "beginDate": "Start of the program",
+      "endDate": "End of the program",
+      "leadTime": "Lead Time",
+      "car": "Car",
+      "plan": "Plan",
+      "factSummary": "Fact (summary)",
+      "planCompleted": "Plan completed",
+      "planNotCompleted": "Plan not completed"
     }
   },
   "deposit": {
@@ -1433,7 +1452,11 @@
       "cashbackCard": "Card Cashback",
       "discountSum": "Discount Amount",
       "operationsCount": "Operations Count",
-      "yandexSum": "Yandex Amount"
+      "yandexSum": "Yandex Amount",
+      "sumOper": "Transaction amount",
+      "uploadDate": "Upload date",
+      "localId": "Local ID",
+      "currency": "Currency"
     }
   },
   "general": {

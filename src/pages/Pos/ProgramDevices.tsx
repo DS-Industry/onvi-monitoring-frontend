@@ -80,30 +80,30 @@ const ProgramDevices: React.FC = () => {
 
   const programColumns: ColumnsType<ProgramDetail> = [
     {
-      title: t('Программа'),
+      title: t('equipment.program'),
       dataIndex: 'programName',
       key: 'programName',
     },
     {
-      title: t('Кол-во программ'),
+      title: t('table.headers.programs'),
       dataIndex: 'counter',
       key: 'counter',
       render: (_value, record) => formatNumber(record.counter),
       sorter: (a: ProgramDetail, b: ProgramDetail) => a.counter - b.counter,
     },
     {
-      title: t('Общее время (мин)'),
+      title: t('finance.totalTime'),
       dataIndex: 'totalTime',
       key: 'totalTime',
       render: (_value, record) => formatNumber(record.totalTime),
     },
     {
-      title: t('Среднее время (мин)'),
+      title: t('table.headers.averageTime'),
       dataIndex: 'averageTime',
       key: 'averageTime',
     },
     {
-      title: t('Последняя программа'),
+      title: t('table.headers.latestProgram'),
       dataIndex: 'lastOper',
       key: 'lastOper',
       render: getDateRender(),
@@ -112,7 +112,7 @@ const ProgramDevices: React.FC = () => {
 
   const deviceColumns = [
     {
-      title: t('Устройство'),
+      title: t('equipment.device'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Program) => (
