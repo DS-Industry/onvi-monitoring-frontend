@@ -1254,7 +1254,9 @@
     "payoutTimestamp": "Время выплаты",
     "paid": "Выплачено",
     "enterPosition": "Введите позицию",
-    "aboutPosition": "О позиции"
+    "aboutPosition": "О позиции",
+    "prepaymentSum": "Выплачено аванс",
+    "paymentSum": "Основная часть ЗП"
   },
   "notifications": {
     "fav": "Избранное",
@@ -1422,7 +1424,10 @@
       "periodStart": "Период начала",
       "periodEnd": "период конца",
       "updatedBy": "Кем обновлено",
-      "createdBy": "Кем создано"
+      "createdBy": "Кем создано",
+      "banknotes": "Купюры",
+      "coins": "Монеты",
+      "totalSum": "Сумма всего"
     },
     "headers": {
       "name": "ФИО Сотрудника",
@@ -1441,7 +1446,11 @@
       "plan": "План",
       "factSummary": "Факт (итог)",
       "planCompleted": "Выполнен план",
-      "planNotCompleted": "Не выполнен план"
+      "planNotCompleted": "Не выполнен план",
+      "monthCalculation": "Месяц расчёта",
+      "cashlessSum": "Безналичная выплата",
+      "toBePaid": "К выплате",
+      "total": "К выплате итог"
     }
   },
   "deposit": {

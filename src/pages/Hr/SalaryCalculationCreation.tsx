@@ -34,8 +34,6 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import NoDataUI from '@/components/ui/NoDataUI';
-import PositionEmpty from '@/assets/NoPosition.png';
 
 import { getOrganization } from '@/services/api/organization';
 import { getCurrencyRender } from '@/utils/tableUnits';
@@ -71,7 +69,6 @@ const SalaryCalculationCreation: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAddButton, setShowAddButton] = useState(false);
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const { showToast } = useToast();
   const user = useUser();
@@ -157,7 +154,6 @@ const SalaryCalculationCreation: React.FC = () => {
         hrPositionId: Number(formData.hrPositionId) || undefined,
       });
 
-      setShowAddButton(true);
       return result;
     }
   );
@@ -366,24 +362,24 @@ const SalaryCalculationCreation: React.FC = () => {
       ),
     },
     {
-      title: 'ФИО',
+      title: t('hr.full'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Должность',
+      title: t('roles.position'),
       key: 'hrPosition',
       render: (_, record) =>
         positions.find(pos => pos.value === record.hrPositionId)?.name || '',
     },
     {
-      title: 'Месяц расчёта',
+      title: t('table.headers.monthCalculation'),
       key: 'billingMonth',
       render: (_, record) =>
         record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
     },
     {
-      title: 'Посменное начисление',
+      title: t('hr.dailySalary'),
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       sorter: (a, b) => a.dailySalary - b.dailySalary,
@@ -396,25 +392,25 @@ const SalaryCalculationCreation: React.FC = () => {
       sorter: (a, b) => a.bonusPayout - b.bonusPayout,
     },
     {
-      title: 'Выплачено аванс',
+      title: t('hr.prepaymentSum'),
       dataIndex: 'prepaymentSum',
       key: 'prepaymentSum',
       sorter: (a, b) => a.prepaymentSum - b.prepaymentSum,
       render: getCurrencyRender(),
     },
     {
-      title: 'Количество отработанных смен',
+      title: t('hr.numberOfShiftsWorked'),
       dataIndex: 'numberOfShiftsWorked',
       key: 'numberOfShiftsWorked',
     },
     {
-      title: 'Основная часть ЗП',
+      title: t('hr.paymentSum'),
       dataIndex: 'sum',
       key: 'sum',
       render: getCurrencyRender(),
     },
     {
-      title: 'Премия',
+      title: t('finance.prize'),
       key: 'prize',
       render: (_, record) => (
         <InputNumber
@@ -424,7 +420,7 @@ const SalaryCalculationCreation: React.FC = () => {
       ),
     },
     {
-      title: 'Штраф',
+      title: t('finance.fine'),
       key: 'fine',
       render: (_, record) => (
         <InputNumber
@@ -435,7 +431,7 @@ const SalaryCalculationCreation: React.FC = () => {
     },
 
     {
-      title: 'Безналичная выплата',
+      title: t('table.headers.cashlessSum'),
       key: 'virtualSum',
       render: (_, record) => (
         <InputNumber
@@ -445,7 +441,7 @@ const SalaryCalculationCreation: React.FC = () => {
       ),
     },
     {
-      title: 'Комментарий',
+      title: t('equipment.comment'),
       key: 'comment',
       render: (_, record) => (
         <Input
@@ -457,7 +453,7 @@ const SalaryCalculationCreation: React.FC = () => {
       ),
     },
     {
-      title: 'К выплате',
+      title: t('table.headers.toBePaid'),
       key: 'totalPayment',
       sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {
@@ -470,7 +466,7 @@ const SalaryCalculationCreation: React.FC = () => {
       },
     },
     {
-      title: 'К выплате итог',
+      title: t('table.headers.total'),
       key: 'totalPaymentFinal',
       sorter: (a, b) => (a?.totalPayment || 0) - (b?.totalPayment || 0),
       render: (_, record) => {
@@ -484,7 +480,7 @@ const SalaryCalculationCreation: React.FC = () => {
       },
     },
     {
-      title: 'Дата выдачи',
+      title: t('hr.paymentDate'),
       key: 'paymentDate',
       render: (_, record) => (
         <DatePicker
@@ -657,81 +653,12 @@ const SalaryCalculationCreation: React.FC = () => {
             </div>
           </form>
 
-          {calculatingSal ? (
-            <Table
-              columns={columnsPaymentsCreation}
-              dataSource={[]}
-              loading={true}
-              rowKey="id"
-              className="mt-8"
-            />
-          ) : paymentsData.length > 0 ? (
-            <div className="mt-8 space-y-5 shadow-card rounded-2xl p-5">
-              <div className="flex flex-wrap justify-between gap-2">
-                <div className="flex space-x-4">
-                  <Button onClick={deleteRow} danger>
-                    {t('marketing.delete')}
-                  </Button>
-                  <Button
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    {t('finance.addE')}
-                  </Button>
-                </div>
-                <div className="space-x-2">
-                  <Button
-                    icon={<ArrowUpOutlined />}
-                    onClick={() => {
-                      const sortedData = [...paymentsData].sort(
-                        (a, b) => a.id - b.id
-                      );
-                      setPaymentsData(sortedData);
-                    }}
-                  />
-                  <Button
-                    icon={<ArrowDownOutlined />}
-                    onClick={() => {
-                      const sortedData = [...paymentsData].sort(
-                        (a, b) => b.id - a.id
-                      );
-                      setPaymentsData(sortedData);
-                    }}
-                  />
-                </div>
-              </div>
-
-              <Table
-                columns={columnsPaymentsCreation}
-                dataSource={transformPaymentsData(paymentsData)}
-                rowKey="id"
-                pagination={false}
-                scroll={{ x: 'max-content' }}
-              />
-
-              <div>
-                <div className="flex space-x-4">
-                  <Button
-                    type="primary"
-                    loading={creatingSal}
-                    onClick={handlePaymentCreation}
-                  >
-                    {t('organizations.save')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            showAddButton && (
-              <div className="flex flex-col justify-center items-center space-y-4">
-                <NoDataUI title={t('marketing.nodata')} description={''}>
-                  <img
-                    src={PositionEmpty}
-                    className="mx-auto"
-                    loading="lazy"
-                    alt="Position Empty"
-                  />
-                </NoDataUI>
+          <div className="mt-8 space-y-5">
+            <div className="flex flex-wrap justify-between gap-2">
+              <div className="flex space-x-4">
+                <Button onClick={deleteRow} danger>
+                  {t('marketing.delete')}
+                </Button>
                 <Button
                   icon={<PlusOutlined />}
                   onClick={() => setIsModalOpen(true)}
@@ -739,8 +666,49 @@ const SalaryCalculationCreation: React.FC = () => {
                   {t('finance.addE')}
                 </Button>
               </div>
-            )
-          )}
+              <div className="space-x-2">
+                <Button
+                  icon={<ArrowUpOutlined />}
+                  onClick={() => {
+                    const sortedData = [...paymentsData].sort(
+                      (a, b) => a.id - b.id
+                    );
+                    setPaymentsData(sortedData);
+                  }}
+                />
+                <Button
+                  icon={<ArrowDownOutlined />}
+                  onClick={() => {
+                    const sortedData = [...paymentsData].sort(
+                      (a, b) => b.id - a.id
+                    );
+                    setPaymentsData(sortedData);
+                  }}
+                />
+              </div>
+            </div>
+
+            <Table
+              columns={columnsPaymentsCreation}
+              dataSource={transformPaymentsData(paymentsData)}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              loading={calculatingSal}
+            />
+
+            <div>
+              <div className="flex space-x-4">
+                <Button
+                  type="primary"
+                  loading={creatingSal}
+                  onClick={handlePaymentCreation}
+                >
+                  {t('organizations.save')}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

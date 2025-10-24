@@ -320,7 +320,7 @@ const Employees: React.FC = () => {
 
   const columnsEmployee: ColumnsType<TWorker['props']> = [
     {
-      title: 'ФИО Сотрудника',
+      title: t('table.headers.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => {
@@ -335,19 +335,19 @@ const Employees: React.FC = () => {
       },
     },
     {
-      title: 'Город',
+      title: t('pos.city'),
       dataIndex: 'placement',
       key: 'placement',
       render: value => value || '-',
     },
     {
-      title: 'Организация',
+      title: t('warehouse.organization'),
       dataIndex: 'organization',
       key: 'organization',
       render: value => value || '-',
     },
     {
-      title: 'Должность',
+      title: t('roles.job'),
       dataIndex: 'position',
       key: 'position',
       render: value => value || '-',

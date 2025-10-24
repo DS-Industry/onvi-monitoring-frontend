@@ -72,30 +72,30 @@ const CashCollectionDeviceTypeTable: React.FC<Props> = ({
 }) => {
   const getColumns = () => [
     {
-      title: t('Тип'),
+      title: t('table.columns.type'),
       dataIndex: 'typeName',
       key: 'typeName',
     },
     {
-      title: t('Купюры'),
+      title: t('table.columns.banknotes'),
       dataIndex: 'sumPaperDeviceType',
       key: 'sumPaperDeviceType',
       editable: status !== t('tables.SENT'),
     },
     {
-      title: t('Монеты'),
+      title: t('table.columns.coins'),
       dataIndex: 'sumCoinDeviceType',
       key: 'sumCoinDeviceType',
       editable: status !== t('tables.SENT'),
     },
     {
-      title: t('Сумма всего'),
+      title: t('table.columns.totalSum'),
       dataIndex: 'sumFactDeviceType',
       key: 'sumFactDeviceType',
       render: getCurrencyRender(),
     },
     {
-      title: t('Недостача'),
+      title: t('finance.short'),
       dataIndex: 'shortageDeviceType',
       key: 'shortageDeviceType',
       render: (val: number) => (
@@ -103,7 +103,7 @@ const CashCollectionDeviceTypeTable: React.FC<Props> = ({
       ),
     },
     {
-      title: t('Безналичная оплата'),
+      title: t('finance.cash'),
       dataIndex: 'virtualSumDeviceType',
       key: 'virtualSumDeviceType',
       render: getCurrencyRender(),

@@ -146,12 +146,12 @@ const Collection: React.FC = () => {
   const baseColumns = useMemo(
     () => [
       {
-        title: '№ Документа',
+        title: t('finance.no'),
         dataIndex: 'id',
         key: 'id',
       },
       {
-        title: 'Мойка/Филиал',
+        title: t('marketing.carWashBranch'),
         dataIndex: 'posName',
         key: 'posName',
         render: (text: string, record: { id: number; status: string }) => {
@@ -169,49 +169,49 @@ const Collection: React.FC = () => {
         },
       },
       {
-        title: 'Период',
+        title: t('marketing.period'),
         dataIndex: 'period',
         key: 'period',
         render: formatPeriodType,
       },
       {
-        title: 'Статус',
+        title: t('table.headers.status'),
         dataIndex: 'status',
         key: 'status',
         render: renderStatus,
       },
       {
-        title: 'Инкассация',
+        title: t('routes.collection'),
         dataIndex: 'sumFact',
         key: 'sumFact',
         render: renderCurrency,
       },
       {
-        title: 'Сумма по картам',
+        title: t('finance.amt'),
         dataIndex: 'sumCard',
         key: 'sumCard',
         render: renderCurrency,
       },
       {
-        title: 'Безналичная оплата',
+        title: t('finance.cash'),
         dataIndex: 'sumVirtual',
         key: 'sumVirtual',
         render: renderCurrency,
       },
       {
-        title: 'Прибыль',
+        title: t('indicators.profit'),
         dataIndex: 'profit',
         key: 'profit',
         render: renderCurrency,
       },
       {
-        title: 'Недостача',
+        title: t('finance.short'),
         dataIndex: 'shortage',
         key: 'shortage',
         render: renderCurrency,
       },
       {
-        title: 'Создал',
+        title: t('table.headers.created'),
         dataIndex: 'createdByName',
         key: 'createdByName',
       },

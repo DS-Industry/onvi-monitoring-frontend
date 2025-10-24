@@ -375,20 +375,20 @@ const EmployeeAdvance: React.FC = () => {
 
   const columnsEmployee = [
     {
-      title: 'ФИО',
+      title: t('hr.full'),
       dataIndex: 'name',
       key: 'name',
       editable: false,
     },
     {
-      title: 'Должность',
+      title: t('roles.position'),
       dataIndex: 'hrPosition',
       key: 'hrPosition',
       render: (value: string) => value || '-',
       editable: false,
     },
     {
-      title: 'Расчетный месяц',
+      title: t('table.headers.monthCalculation'),
       dataIndex: 'billingMonth',
       key: 'billingMonth',
       render: (_: unknown, record: DataType) =>
@@ -396,14 +396,14 @@ const EmployeeAdvance: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Дата выдачи',
+      title: t('hr.paymentDate'),
       dataIndex: 'payoutTimestamp',
       key: 'payoutTimestamp',
       render: dateRender,
       editable: true,
     },
     {
-      title: 'Посменное начисление',
+      title: t('hr.dailySalary'),
       dataIndex: 'dailySalary',
       key: 'dailySalary',
       render: currencyRender,
@@ -417,13 +417,13 @@ const EmployeeAdvance: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Количество отработанных смен',
+      title: t('hr.numberOfShiftsWorked'),
       dataIndex: 'numberOfShiftsWorked',
       key: 'numberOfShiftsWorked',
       editable: false,
     },
     {
-      title: 'Выплачено',
+      title: t('hr.paid'),
       dataIndex: 'sum',
       key: 'sum',
       sorter: (a: DataType, b: DataType) => a.sum - b.sum,
@@ -431,7 +431,7 @@ const EmployeeAdvance: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Операции',
+      title: t('marketing.operations'),
       dataIndex: 'operation',
       width: '15%',
       render: (_: unknown, record: DataType) => {
