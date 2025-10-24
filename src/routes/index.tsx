@@ -26,6 +26,7 @@ const LogIn = React.lazy(() => import('@/pages/Onboarding/LogIn'));
 const ProfileForm = React.lazy(() => import('@/pages/Profile/Profile'));
 const Default = React.lazy(() => import('@/pages/Default/Default'));
 const Register = React.lazy(() => import('@/pages/Onboarding/Register'));
+const LoyaltyPrograms = React.lazy(() => import('@/pages/Marketing/LoyaltyPrograms'));
 const ForgotPassword = React.lazy(
   () => import('@/pages/Onboarding/ForgotPassword')
 );
@@ -89,7 +90,6 @@ const Marketing = React.lazy(() => import('@/pages/Marketing/Marketing'));
 const ClientsProfile = React.lazy(
   () => import('@/pages/Marketing/ClientsProfile')
 );
-const BonusProgram = React.lazy(() => import('@/pages/Marketing/BonusProgram'));
 const NewSegment = React.lazy(() => import('@/pages/Marketing/NewSegment'));
 const Collection = React.lazy(() => import('@/pages/Finance/Collection'));
 const CollectionCreation = React.lazy(
@@ -122,9 +122,6 @@ const SalaryCalculationCreation = React.lazy(
 );
 const Notifications = React.lazy(
   () => import('@/pages/Notifications/Notifications')
-);
-const RewardsCreation = React.lazy(
-  () => import('@/pages/Marketing/RewardsCreation')
 );
 const LoyaltyHubRequests = React.lazy(
   () => import('@/pages/Marketing/LoyaltyHubRequests')
@@ -1017,20 +1014,19 @@ const routes = [
         subMenu: false,
       },
       {
-        name: 'bonus',
+        name: 'createLoyalty',
         isVisible: true,
-        path: '/marketing/loyalty/rewards',
-        component: RewardsCreation,
+        path: '/marketing/loyalty/program',
+        component: LoyaltyPrograms,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
-        subMenu: false,
       },
       {
-        name: 'bonus',
-        isVisible: true,
-        path: '/marketing/loyalty/bonus',
-        component: BonusProgram,
+        name: 'updateLoyalty',
+        isVisible: false,
+        path: '/marketing/loyalty/program/:id',
+        component: LoyaltyPrograms,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],

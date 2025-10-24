@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
 import { ContractType, MarketingCampaignStatus } from '@/utils/constants';
+import { CarWashPosType } from '../pos';
 
 enum MARKETING {
   GET_LOYALTY = 'user/loyalty/client',
@@ -31,7 +32,7 @@ export enum LoyaltyProgramStatus {
   PAUSE = 'PAUSE',
 }
 
-enum BenefitType {
+export enum BenefitType {
   CASHBACK = 'CASHBACK',
   DISCOUNT = 'DISCOUNT',
   GIFT_POINTS = 'GIFT_POINTS',
@@ -174,7 +175,7 @@ export type LoyaltyProgramsResponse = {
   };
 };
 
-type LoyaltyProgramsByIdResponse = {
+export type LoyaltyProgramsByIdResponse = {
   id: number;
   name: string;
   status: LoyaltyProgramStatus;
@@ -187,6 +188,13 @@ type LoyaltyProgramsByIdResponse = {
   }[];
   startDate: Date;
   lifetimeDays?: number;
+  description?: string;
+  maxLevels?: number;
+  burnoutType?: BonusBurnoutType;
+  lifetimeBonusDays?: number;
+  maxRedeemPercentage?: number;
+  hasBonusWithSale?: boolean;
+  ownerOrganizationId: number;
 };
 
 type TierRequest = {
@@ -226,6 +234,7 @@ type BenefitRequest = {
   type: BenefitType;
   bonus: number;
   benefitActionTypeId?: number;
+  ltyProgramId: number;
 };
 
 type BenefitResponse = {
@@ -260,6 +269,49 @@ type UpdateBenefitBody = {
   name?: string;
   bonus?: number;
   benefitType?: BenefitType;
+};
+
+export enum ParticipationRole {
+  OWNER = 'owner',
+  PARTICIPANT = 'participant',
+  ALL = 'all',
+}
+
+type LoyaltyProgramParams = {
+  organizationId: number;
+  status?: LoyaltyProgramStatus;
+  participationRole?: ParticipationRole;
+  page?: number;
+  size?: number;
+  search?: string;
+};
+
+export type LoyaltyProgramParticipantResponseDto = {
+  props: {
+    id: number;
+    name: string;
+    status: string;
+    startDate: Date;
+    isHub: boolean;
+    isHubRequested: boolean;
+    isHubRejected: boolean;
+    lifetimeDays?: number;
+    participantId: number;
+    ownerOrganizationId: number;
+    connectedPoses: number;
+    engagedClients: number;
+    description?: string;
+  };
+};
+
+export type LoyaltyParticipantProgramsPaginatedResponse = {
+  data: LoyaltyProgramParticipantResponseDto[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 };
 
 export async function createClient(
@@ -365,6 +417,17 @@ export async function getLoyaltyPrograms(
   return response.data;
 }
 
+export async function getLoyaltyProgramsPaginated(
+  params: LoyaltyProgramParams
+): Promise<LoyaltyParticipantProgramsPaginatedResponse> {
+  const response: AxiosResponse<LoyaltyParticipantProgramsPaginatedResponse> =
+    await api.get(MARKETING.LOYALTY + `/participant-programs-paginated`, {
+      params,
+    });
+
+  return response.data;
+}
+
 export async function getLoyaltyProgramById(
   id: number
 ): Promise<LoyaltyProgramsByIdResponse> {
@@ -421,6 +484,13 @@ export async function getTierById(id: number): Promise<TierByIdResponse> {
     MARKETING.LOYALTY + `/tier/${id}`
   );
 
+  return response.data;
+}
+
+export async function deleteTier(id: number): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    MARKETING.LOYALTY + `/tier/${id}`
+  );
   return response.data;
 }
 
@@ -878,10 +948,8 @@ export async function getCorporateClientOperationsById(
 export async function getMarketingCampaign(
   filters: MarketingCampaignsFilterDto
 ): Promise<MarketingCampaignsPaginatedResponseDto> {
-  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> = await api.get(
-    'user/loyalty/marketing-campaigns',
-    { params: filters }
-  );
+  const response: AxiosResponse<MarketingCampaignsPaginatedResponseDto> =
+    await api.get('user/loyalty/marketing-campaigns', { params: filters });
 
   return response.data;
 }
@@ -1008,6 +1076,83 @@ export type LoyaltyRequestsResponse = {
   hasPrevious: boolean;
 };
 
+type LoyaltyProgramCreateBody = {
+  name: string;
+  ownerOrganizationId: number;
+  description: string;
+  maxLevels: number;
+};
+
+export type BonusBurnoutType = 'year' | 'month' | 'custom' | 'never';
+
+export type BonusRedemptionUpdate = {
+  loyaltyProgramId: number;
+  burnoutType: BonusBurnoutType;
+  lifetimeBonusDays?: number;
+  maxRedeemPercentage: number;
+  hasBonusWithSale: boolean;
+};
+
+export type BonusRedemptionRules = BonusRedemptionUpdate;
+
+enum LTYProgramStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSE = 'PAUSE',
+}
+
+type LoyaltyProgramResponse = {
+  props: {
+    id?: number;
+    name: string;
+    status: LTYProgramStatus;
+    ownerOrganizationId: number;
+    startDate: Date;
+    lifetimeDays?: number;
+    isHub?: boolean;
+    isHubRequested?: boolean;
+    isHubRejected?: boolean;
+    isPublic?: boolean;
+    programParticipantOrganizationIds?: number[];
+    description?: string;
+    maxLevels: number;
+  };
+};
+
+export type PosResponse = {
+  id: number;
+  name: string;
+  slug: string;
+  startTime?: string;
+  endTime?: string;
+  organizationId: number;
+  placementId: number;
+  posMetaData: string;
+  timezone: number;
+  image: string;
+  rating: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: number;
+  updatedById: number;
+  address: {
+    id: number;
+    city: string;
+    location: string;
+    lat: string;
+    lon: string;
+  };
+  posType: {
+    id: number;
+    name: string;
+    slug: string;
+    carWashPosType: CarWashPosType;
+    minSumOrder: number;
+    maxSumOrder: number;
+    stepSumOrder: number;
+  };
+};
+
 export async function getLoyaltyHubRequests(
   params: LoyaltyHubRequestsParams
 ): Promise<LoyaltyRequestsResponse> {
@@ -1089,10 +1234,8 @@ export type PublicProgramsPaginatedResponse = {
 export async function getPublicLoyaltyPrograms(
   params: PublicProgramsParams = {}
 ): Promise<PublicProgramsPaginatedResponse> {
-  const response: AxiosResponse<PublicProgramsPaginatedResponse> = await api.get(
-    MARKETING.PUBLIC_PROGRAMS,
-    { params }
-  );
+  const response: AxiosResponse<PublicProgramsPaginatedResponse> =
+    await api.get(MARKETING.PUBLIC_PROGRAMS, { params });
   return response.data;
 }
 
@@ -1130,10 +1273,8 @@ export type LoyaltyParticipantRequestsResponse = {
 export async function getLoyaltyParticipantRequests(
   params: LoyaltyParticipantRequestsParams
 ): Promise<LoyaltyParticipantRequestsResponse> {
-  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> = await api.get(
-    MARKETING.PARTICIPANT_REQUESTS,
-    { params }
-  );
+  const response: AxiosResponse<LoyaltyParticipantRequestsResponse> =
+    await api.get(MARKETING.PARTICIPANT_REQUESTS, { params });
   return response.data;
 }
 
@@ -1155,6 +1296,123 @@ export async function rejectLoyaltyParticipantRequest(
   const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.put(
     `user/loyalty/programs/${requestId}/reject-participant`,
     { comment }
+  );
+  return response.data;
+}
+
+export async function createNewLoyaltyProgram(
+  request: LoyaltyProgramCreateBody
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.post(
+    'user/loyalty/program',
+    request
+  );
+  return response.data;
+}
+
+export async function patchBonusRedemption(
+  request: BonusRedemptionUpdate
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    'user/loyalty/program/bonus-redemption-rules',
+    request
+  );
+  return response.data;
+}
+
+export async function getBonusRedemptionRules(
+  loyaltyProgramId: number
+): Promise<BonusRedemptionRules> {
+  const response: AxiosResponse<BonusRedemptionRules> = await api.get(
+    'user/loyalty/program/bonus-redemption-rules',
+    { params: { loyaltyProgramId } }
+  );
+  return response.data;
+}
+
+export async function getPosesParticipants(id: number): Promise<PosResponse[]> {
+  const response: AxiosResponse<PosResponse[]> = await api.get(
+    `user/loyalty/program/${id}/participant-poses`
+  );
+
+  return response.data;
+}
+
+export type LoyaltyProgramUpdateBody = {
+  loyaltyProgramId: number;
+  name?: string;
+  description?: string;
+  maxLevels?: number;
+};
+
+export async function updateNewLoyaltyProgram(
+  request: LoyaltyProgramUpdateBody
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    'user/loyalty/program',
+    request
+  );
+  return response.data;
+}
+
+export type LoyaltyProgramAnalyticsResponse = {
+  connectedPoses: number;
+  engagedClients: number;
+  programDurationDays: number;
+};
+
+export async function getLoyaltyProgramAnalytics(
+  programId: number
+): Promise<LoyaltyProgramAnalyticsResponse> {
+  const response: AxiosResponse<LoyaltyProgramAnalyticsResponse> =
+    await api.get(`user/loyalty/program/${programId}/analytics`);
+  return response.data;
+}
+
+export async function publishLoyaltyProgram(
+  id: number
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    `user/loyalty/program/${id}/publish`
+  );
+  return response.data;
+}
+
+export type TransactionAnalyticsParams = {
+  period?: 'custom' | 'lastMonth' | 'lastWeek' | 'lastYear';
+  startDate?: string;
+  endDate?: string;
+};
+
+export type TransactionAnalyticsDataPoint = {
+  date: string;
+  accruals: number;
+  debits: number;
+};
+
+export type TransactionAnalyticsResponse = {
+  data: TransactionAnalyticsDataPoint[];
+  totalAccruals: number;
+  totalDebits: number;
+  period: string;
+};
+
+export async function getLoyaltyProgramTransactionAnalytics(
+  programId: number,
+  params: TransactionAnalyticsParams = {}
+): Promise<TransactionAnalyticsResponse> {
+  const response: AxiosResponse<TransactionAnalyticsResponse> = await api.get(
+    `user/loyalty/program/${programId}/transaction-analytics`,
+    { params }
+  );
+  return response.data;
+}
+
+export async function unpublishLoyaltyProgram(
+  id: number
+): Promise<LoyaltyProgramResponse> {
+  const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
+    `user/loyalty/program/${id}/unpublish`
   );
   return response.data;
 }

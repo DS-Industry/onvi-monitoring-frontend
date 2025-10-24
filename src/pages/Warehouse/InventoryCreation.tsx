@@ -453,6 +453,7 @@ const InventoryCreation: React.FC = () => {
             onChange={value =>
               updateSearchParams(searchParams, setSearchParams, {
                 category: value,
+                page: DEFAULT_PAGE
               })
             }
             optionFilterProp="label"
