@@ -150,18 +150,18 @@ const InventoryImport: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <Button onClick={() => navigate(-1)}>
-              {t('warehouse.reset')}
-            </Button>
-            <Button
-              htmlType="submit"
-              loading={isMutating}
-              onClick={handleSubmit}
-              type='primary'
-            >
-              {t('pos.download')}
-            </Button>
-          </div>
+          <Button onClick={() => navigate(-1)}>
+            {t('warehouse.reset')}
+          </Button>
+          <Button
+            htmlType="submit"
+            loading={isMutating}
+            onClick={handleSubmit}
+            type='primary'
+          >
+            {t('pos.download')}
+          </Button>
+        </div>
         <Drawer
           title={t('warehouse.fileReq')}
           placement="right"

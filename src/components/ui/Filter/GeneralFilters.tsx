@@ -19,6 +19,7 @@ import UserTypeFilter from './UserTypeFilter';
 import TagsFilter from './TagsFilter';
 import PaperTypeFilter from './PaperTypeFilter';
 import GroupFilter from './GroupFilter';
+import { DEFAULT_PAGE } from '@/utils/constants';
 
 type FilterType =
   | 'search'
@@ -90,6 +91,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
         updateSearchParams(searchParams, setSearchParams, {
           dateStart: defaultStart,
           dateEnd: defaultEnd,
+          page: DEFAULT_PAGE,
         });
       }
     }
