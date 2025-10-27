@@ -14,6 +14,7 @@ import {
 } from '@/services/api/marketing';
 import { useToast } from '@/components/context/useContext';
 import { MAX_LEVELS } from '@/utils/constants';
+import MarketingBasicData from '@/assets/MarketingBasicData.webp';
 
 interface BasicDataUpdateProps {
   program?: LoyaltyProgramsByIdResponse;
@@ -23,7 +24,13 @@ interface BasicDataUpdateProps {
   minLevels: number;
 }
 
-const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, mutate, isEditable = true, minLevels = 1 }) => {
+const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({
+  program,
+  isLoading,
+  mutate,
+  isEditable = true,
+  minLevels = 1,
+}) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
@@ -198,9 +205,16 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
                       return (
                         <div
                           key={level}
-                          onClick={() => isClickable && handleInputChange('maxLevels', level)}
-                          className={`${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${isActive ? 'bg-blue-500' : isDisabled ? 'bg-gray-200' : 'bg-gray-300'
-                            } ${isDisabled ? 'opacity-50' : ''}`}
+                          onClick={() =>
+                            isClickable && handleInputChange('maxLevels', level)
+                          }
+                          className={`${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'} w-10 h-10 flex items-center justify-center text-text04 transition-all duration-200 rounded-full ${
+                            isActive
+                              ? 'bg-blue-500'
+                              : isDisabled
+                                ? 'bg-gray-200'
+                                : 'bg-gray-300'
+                          } ${isDisabled ? 'opacity-50' : ''}`}
                         >
                           <FireOutlined style={{ fontSize: 24 }} />
                         </div>
@@ -219,10 +233,21 @@ const BasicDataUpdate: React.FC<BasicDataUpdateProps> = ({ program, isLoading, m
           </div>
         </div>
 
-        <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20"></div>
+        <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20">
+          <div className="p-8">
+            <img
+              src={MarketingBasicData}
+              alt="Rocket illustration"
+              loading="lazy"
+              decoding="async"
+              className="object-cover w-11/12 h-11/12"
+              key="login-image"
+            />
+          </div>
+        </div>
       </div>
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
+        <div className="flex justify-end gap-2 mt-3">
           <Button
             htmlType="submit"
             type="primary"
