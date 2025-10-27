@@ -146,17 +146,17 @@ const Suppliers: React.FC = () => {
 
   const columnsSupplier: ColumnsType<Supplier> = [
     {
-      title: '№',
+      title: t('warehouse.no'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Наименование',
+      title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Контакт',
+      title: t('warehouse.contact'),
       dataIndex: 'contact',
       key: 'contact',
     },

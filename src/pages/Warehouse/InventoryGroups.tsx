@@ -196,7 +196,7 @@ const InventoryGroups: React.FC = () => {
       width: 50,
     },
     {
-      title: 'Название группы',
+      title: t('table.headers.groupName'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: TreeData) => {
@@ -207,7 +207,7 @@ const InventoryGroups: React.FC = () => {
               onChange={e =>
                 setEditingData(prev => ({ ...prev, name: e.target.value }))
               }
-              placeholder="Название группы"
+              placeholder={t('table.headers.groupName')}
             />
           );
         }
@@ -215,7 +215,7 @@ const InventoryGroups: React.FC = () => {
       },
     },
     {
-      title: 'Описание',
+      title: t('marketingLoyalty.description'),
       dataIndex: 'description',
       key: 'description',
       render: (text: string, record: TreeData) => {
@@ -229,7 +229,7 @@ const InventoryGroups: React.FC = () => {
                   description: e.target.value,
                 }))
               }
-              placeholder="Описание"
+              placeholder={t('marketingLoyalty.description')}
             />
           );
         }

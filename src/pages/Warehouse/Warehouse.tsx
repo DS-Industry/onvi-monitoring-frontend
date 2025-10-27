@@ -170,22 +170,22 @@ const Warehouse: React.FC = () => {
 
   const columnsWarehouses: ColumnsType<Warehouse> = [
     {
-      title: 'Наименование',
+      title: t('warehouse.supplierName'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Расположение',
+      title: t('pos.location'),
       dataIndex: 'location',
       key: 'location',
     },
     {
-      title: 'Менеджер',
+      title: t('warehouse.manager'),
       dataIndex: 'manager',
       key: 'manager',
     },
     {
-      title: 'Автомойка/ Филиал',
+      title: t('finance.carWash'),
       dataIndex: 'posName',
       key: 'posName',
     },

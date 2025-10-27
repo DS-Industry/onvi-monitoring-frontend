@@ -110,24 +110,24 @@ const Transactions: React.FC = () => {
 
   const columnsTransactions = [
     {
-      title: 'Отчет',
+      title: t('table.headers.report'),
       dataIndex: 'reportTemplateId',
       key: 'reportTemplateId',
     },
     {
-      title: 'Статус',
+      title: t('table.columns.status'),
       dataIndex: 'status',
       key: 'status',
       render: statusRender,
     },
     {
-      title: 'Дата начала создания',
+      title: t('table.headers.creationStartDate'),
       dataIndex: 'startTemplateAt',
       key: 'startTemplateAt',
       render: dateRender,
     },
     {
-      title: 'Дата окончания создания',
+      title: t('table.headers.creationEndDate'),
       dataIndex: 'endTemplateAt',
       key: 'endTemplateAt',
       render: dateRender,

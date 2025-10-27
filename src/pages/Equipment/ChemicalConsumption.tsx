@@ -75,7 +75,7 @@ const ChemicalConsumption: React.FC = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -84,114 +84,114 @@ const ChemicalConsumption: React.FC = () => {
 
   const columnsChemicalConsumption: ColumnsType<TableRow> = [
     {
-      title: 'Период',
+      title: t('chemicalConsumption.period'),
       dataIndex: 'period',
       key: 'period',
     },
     {
-      title: 'Вода + шампунь, факт',
+      title: t('chemicalConsumption.waterShampooFact'),
       dataIndex: 'Вода + шампунь, факт',
       key: 'Вода + шампунь, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Вода + шампунь, время',
+      title: t('chemicalConsumption.waterShampooTime'),
       dataIndex: 'Вода + шампунь, время',
       key: 'Вода + шампунь, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Вода + шампунь, пересчет',
+      title: t('chemicalConsumption.waterShampooRecalculated'),
       dataIndex: 'Вода + шампунь, пересчет',
       key: 'Вода + шампунь, пересчет',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Активная химия, факт',
+      title: t('chemicalConsumption.activeChemistryFact'),
       dataIndex: 'Активная химия, факт',
       key: 'Активная химия, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Активная химия, время',
+      title: t('chemicalConsumption.activeChemistryTime'),
       dataIndex: 'Активная химия, время',
       key: 'Активная химия, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Активная химия, пересчет',
+      title: t('chemicalConsumption.activeChemistryRecalculated'),
       dataIndex: 'Активная химия, пересчет',
       key: 'Активная химия, пересчет',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Мойка дисков, факт',
+      title: t('chemicalConsumption.diskWashFact'),
       dataIndex: 'Мойка дисков, факт',
       key: 'Мойка дисков, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Мойка дисков, время',
+      title: t('chemicalConsumption.diskWashTime'),
       dataIndex: 'Мойка дисков, время',
       key: 'Мойка дисков, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Мойка дисков, пересчет',
+      title: t('chemicalConsumption.diskWashRecalculated'),
       dataIndex: 'Мойка дисков, пересчет',
       key: 'Мойка дисков, пересчет',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Щетка + пена, факт',
+      title: t('chemicalConsumption.brushFoamFact'),
       dataIndex: 'Щетка + пена, факт',
       key: 'Щетка + пена, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Щетка + пена, время',
+      title: t('chemicalConsumption.brushFoamTime'),
       dataIndex: 'Щетка + пена, время',
       key: 'Щетка + пена, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Щетка + пена, пересчет',
+      title: t('chemicalConsumption.brushFoamRecalculated'),
       dataIndex: 'Щетка + пена, пересчет',
       key: 'Щетка + пена, пересчет',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Воск + защита, факт',
+      title: t('chemicalConsumption.waxProtectionFact'),
       dataIndex: 'Воск + защита, факт',
       key: 'Воск + защита, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Воск + защита, время',
+      title: t('chemicalConsumption.waxProtectionTime'),
       dataIndex: 'Воск + защита, время',
       key: 'Воск + защита, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'Воск + защита, пересчет',
+      title: t('chemicalConsumption.waxProtectionRecalculated'),
       dataIndex: 'Воск + защита, пересчет',
       key: 'Воск + защита, пересчет',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'T-POWER, факт',
+      title: t('chemicalConsumption.tPowerFact'),
       dataIndex: 'T-POWER, факт',
       key: 'T-POWER, факт',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'T-POWER, время',
+      title: t('chemicalConsumption.tPowerTime'),
       dataIndex: 'T-POWER, время',
       key: 'T-POWER, время',
       render: (value: number) => formatNumber(value),
     },
     {
-      title: 'T-POWER, пересчет',
+      title: t('chemicalConsumption.tPowerRecalculated'),
       dataIndex: 'T-POWER, пересчет',
       key: 'T-POWER, пересчет',
       render: (value: number) => formatNumber(value),
