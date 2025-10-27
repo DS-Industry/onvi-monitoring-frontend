@@ -638,27 +638,27 @@ const Articles: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       width: '5%',
       editable: false,
     },
     {
-      title: 'Группа',
+      title: t('finance.group'),
       dataIndex: 'group',
       width: '10%',
       editable: true,
       render: (value: string) => groups.find(pos => pos.value === value)?.name,
     },
     {
-      title: 'Назначение',
+      title: t('warehouse.purpose'),
       dataIndex: 'posId',
       width: '10%',
       editable: true,
       render: (value: number) => poses.find(pos => pos.value === value)?.name,
     },
     {
-      title: 'Статья',
+      title: t('finance.article'),
       dataIndex: 'paperTypeId',
       width: '10%',
       editable: true,
@@ -681,33 +681,33 @@ const Articles: React.FC = () => {
       ),
     },
     {
-      title: 'Дата',
+      title: t('marketing.date'),
       dataIndex: 'eventDate',
       width: '10%',
       editable: true,
       render: (value: Dayjs) => value?.format('DD-MM-YYYY'),
     },
     {
-      title: 'Сумма',
+      title: t('finance.sum'),
       dataIndex: 'sum',
       width: '5%',
       editable: true,
       render: (value: number) => `${value.toLocaleString('ru-RU')} ₽`,
     },
     {
-      title: 'Примечание',
+      title: t('equipment.comment'),
       dataIndex: 'comment',
       width: '15%',
       editable: true,
     },
     {
-      title: 'Создал',
+      title: t('table.headers.created'),
       dataIndex: 'createdByName',
       width: '20%',
       editable: false
     },
     {
-      title: 'Операции',
+      title: t('marketing.operations'),
       dataIndex: 'operation',
       width: '25%',
       render: (_: unknown, record: DataType) => {
@@ -1165,13 +1165,6 @@ const Articles: React.FC = () => {
               error={!!errors.userId}
               errorText={errors.userId?.message}
             />
-            {/* <div>
-                            <div className="text-text02 text-sm">{t("equipment.user")}</div>
-                            <div className="text-text02 flex items-center space-x-1">
-                                <UserOutlined style={{ fontSize: "24px" }} />
-                                <span className="text-text01">{user.name}</span>
-                            </div>
-                        </div> */}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
               <Button
                 title={t('organizations.cancel')}

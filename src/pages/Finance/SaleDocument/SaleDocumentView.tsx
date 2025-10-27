@@ -45,22 +45,22 @@ const SaleDocumentView: React.FC = () => {
 
   const baseColumns = [
     {
-      title: '№',
+      title: t('warehouse.no'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Номенклатура',
+      title: t('routes.nomenclature'),
       dataIndex: 'nomenclatureName',
       key: 'nomenclatureName',
     },
     {
-      title: 'Кол-во',
+      title: t('sale.remainder'),
       dataIndex: 'count',
       key: 'count',
     },
     {
-      title: 'Итоговая сумма',
+      title: t('marketing.total'),
       dataIndex: 'fullSum',
       key: 'fullSum',
     },
