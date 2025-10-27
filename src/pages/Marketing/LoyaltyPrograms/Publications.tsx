@@ -160,7 +160,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true, program,
             </div>
             <div className="flex flex-col space-y-4 text-sm text-base03">
               <div>{program?.maxRedeemPercentage || '0%'}</div>
-              <div>{program?.hasBonusWithSale || '-'}</div>
+              <div>{program?.hasBonusWithSale ? t('equipment.yes') : t('equipment.no') || '-'}</div>
               <div>
                 {program?.lifetimeBonusDays || '0'} {t('marketingLoyalty.days')}
               </div>

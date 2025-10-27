@@ -114,7 +114,7 @@ const LoyaltyPrograms: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {t('routes.viewLoyalty')}
+              {isUpdate ? t('routes.viewLoyalty') : t('routes.createLoyalty')}
             </span>
           </div>
         </div>
