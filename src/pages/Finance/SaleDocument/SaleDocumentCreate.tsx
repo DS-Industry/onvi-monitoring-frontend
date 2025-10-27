@@ -149,23 +149,23 @@ const SaleDocumentCreate: React.FC = () => {
 
   const baseColumns = [
     {
-      title: 'Номенклатура',
+      title: t('routes.nomenclature'),
       dataIndex: 'nomenclatureName',
       key: 'nomenclatureName',
     },
     {
-      title: 'Цена',
+      title: t('sale.price'),
       dataIndex: 'price',
       key: 'price',
       render: (price: number) => `${price.toLocaleString('ru-RU')} ₽`,
     },
     {
-      title: 'Остаток',
+      title: t('sale.remainder'),
       dataIndex: 'quantity',
       key: 'quantity',
     },
     {
-      title: 'Кол-во',
+      title: t('sale.qty'),
       dataIndex: 'count',
       key: 'count',
       render: (count: number, record: ModalTableData) => (
@@ -185,7 +185,7 @@ const SaleDocumentCreate: React.FC = () => {
       ),
     },
     {
-      title: 'Итоговая сумма',
+      title: t('marketing.total'),
       dataIndex: 'fullSum',
       key: 'fullSum',
       render: (sum: number) => `${sum.toLocaleString('ru-RU')} ₽`,

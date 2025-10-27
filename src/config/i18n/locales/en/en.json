@@ -507,7 +507,9 @@
     "saleQuantity": "Quantity for sale",
     "totalAmount": "Total cost",
     "totalSum": "Total sum",
-    "date": "Date of sale"
+    "date": "Date of sale",
+    "remainder": "Remainder",
+    "qty": "Qty"
   },
   "marketing": {
     "noClient": "At the moment you have no clients in the system",
@@ -1450,7 +1452,18 @@
       "monthCalculation": "Month of calculation",
       "cashlessSum": "Cashless payment",
       "toBePaid": "To be paid",
-      "total": "Total to be paid"
+      "total": "Total to be paid",
+      "deviceType": "Device Type",
+      "oldMoneyTime": "Collection time (old)",
+      "newMoneyTime": "Collection time (new)",
+      "datePrevious": "Date of previous collection",
+      "dateCurrent": "Current collection date",
+      "inputAmount": "Input amount",
+      "outputAmount": "Output Amount",
+      "number": "Number",
+      "numberFalse": "Number of false credits",
+      "amountBegin": "Amount at the beginning of the period",
+      "amountEnd": "Amount at the end of the period"
     }
   },
   "deposit": {

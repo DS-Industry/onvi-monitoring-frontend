@@ -57,12 +57,12 @@ const SaleDocument: React.FC = () => {
 
   const baseColumns = [
     {
-      title: '№',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Номер',
+      title: t('table.headers.number'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: { id: number }) => (
@@ -78,18 +78,18 @@ const SaleDocument: React.FC = () => {
       ),
     },
     {
-      title: 'Дата',
+      title: t('marketing.date'),
       dataIndex: 'saleDate',
       key: 'saleDate',
       render: dateRender,
     },
     {
-      title: 'Склад',
+      title: t('routes.store'),
       dataIndex: 'warehouseName',
       key: 'warehouseName',
     },
     {
-      title: 'Ответственный менеджер',
+      title: t('sale.manager'),
       dataIndex: 'responsibleManagerName',
       key: 'responsibleManagerName',
     },

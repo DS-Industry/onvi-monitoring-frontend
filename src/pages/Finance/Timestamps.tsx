@@ -98,12 +98,12 @@ const Timestamps: React.FC = () => {
 
   const columnsTimestamp = [
     {
-      title: 'Устройство',
+      title: t('equipment.device'),
       dataIndex: 'deviceName',
       key: 'deviceName',
     },
     {
-      title: 'Инкассация',
+      title: t('routes.collection'),
       key: 'begin',
       render: (_: unknown, record: TimestampResponse) => (
         <div className="flex justify-start">
@@ -118,14 +118,14 @@ const Timestamps: React.FC = () => {
       ),
     },
     {
-      title: 'Дата предыдущей инкасации',
+      title: t('table.headers.datePrevious'),
       dataIndex: 'oldTookMoneyTime',
       key: 'oldTookMoneyTime',
       render: (val: Date) =>
         val ? dayjs(val).format('DD.MM.YYYY HH:mm:ss') : '-',
     },
     {
-      title: 'Дата текущей инкассации',
+      title: t('table.headers.dateCurrent'),
       dataIndex: 'tookMoneyTime',
       key: 'tookMoneyTime',
       render: (val: Date) =>

@@ -48,17 +48,17 @@ const DirectoryArticles: React.FC = () => {
 
   const columns: ColumnsType<PaperTypeRecord> = [
     {
-      title: '№',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Наименование',
+      title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Тип статьи',
+      title: t('finance.articleType'),
       dataIndex: 'typeName',
       key: 'typeName',
       render: getStatusTag,
