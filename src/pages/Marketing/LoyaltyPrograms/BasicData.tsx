@@ -191,7 +191,7 @@ const BasicData: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         </div>
       </div>
       {isEditable && (
-        <div className="flex mt-auto justify-end gap-2 mt-3">
+        <div className="flex justify-end gap-2 mt-3">
           <Button
             htmlType="submit"
             type="primary"
