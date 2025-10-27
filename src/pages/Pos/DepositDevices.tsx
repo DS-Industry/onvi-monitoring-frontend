@@ -31,6 +31,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useUser } from '@/hooks/useUserStore';
 
+// Deposit Devices component
 const DepositDevices: React.FC = () => {
   const location = useLocation();
   const { t } = useTranslation();
