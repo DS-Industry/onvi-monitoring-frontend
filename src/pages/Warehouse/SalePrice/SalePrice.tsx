@@ -150,14 +150,14 @@ const SalePrice: React.FC = () => {
 
   const baseColumns = [
     {
-      title: 'Номенклатура',
+      title: t('routes.nomenclature'),
       dataIndex: 'nomenclatureName',
       key: 'nomenclatureName',
       width: '50%',
       editable: false,
     },
     {
-      title: 'Цена',
+      title: t('sale.price'),
       dataIndex: 'price',
       key: 'price',
       width: '30%',
@@ -168,7 +168,7 @@ const SalePrice: React.FC = () => {
           <Input
             type="number"
             value={value}
-            className='w-80'
+            className="w-80"
             onChange={e => handleChange(record.id, 'price', e.target.value)}
           />
         ) : (
@@ -177,7 +177,7 @@ const SalePrice: React.FC = () => {
       },
     },
     {
-      title: 'Операции',
+      title: t('marketing.operations'),
       dataIndex: 'operation',
       key: 'operation',
       width: '20%',

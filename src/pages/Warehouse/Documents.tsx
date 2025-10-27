@@ -157,12 +157,12 @@ const Documents: React.FC = () => {
         ),
     },
     {
-      title: '№',
+      title: t('warehouse.no'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Номер',
+      title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: { id: number; type: string }) => (
@@ -180,29 +180,29 @@ const Documents: React.FC = () => {
       ),
     },
     {
-      title: 'Дата',
+      title: t('marketing.date'),
       dataIndex: 'carryingAt',
       key: 'carryingAt',
       render: dateRender,
     },
     {
-      title: 'Статус',
+      title: t('table.columns.status'),
       dataIndex: 'status',
       key: 'status',
       render: statusRender,
     },
     {
-      title: 'Вид документа',
+      title: t('warehouse.docType'),
       dataIndex: 'type',
       key: 'type',
     },
     {
-      title: 'Склад',
+      title: t('routes.ware'),
       dataIndex: 'warehouseName',
       key: 'warehouseName',
     },
     {
-      title: 'Ответственный',
+      title: t('equipment.resp'),
       dataIndex: 'responsibleName',
       key: 'responsibleName',
     },

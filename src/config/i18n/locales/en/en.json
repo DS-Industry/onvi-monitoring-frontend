@@ -337,7 +337,15 @@
     "do": "Do you want to change the status?",
     "taskName": "Task Name",
     "dateRange": "Date Range",
-    "author": "Author"
+    "author": "Author",
+    "consumption": "Consumption liter/minute",
+    "concentration": "Concentration 1/x",
+    "object": "Object Name",
+    "date": "Date of breakdown",
+    "problem": "Problem",
+    "time": "Time to fix",
+    "oldQuantity": "Old Quantity",
+    "deviation": "Deviation"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -496,7 +504,10 @@
     "all": "All",
     "noExpanse": "You do not have expanse tracker data in the program",
     "supplierName": "Name",
-    "centimeters": "in centimeters"
+    "centimeters": "in centimeters",
+    "unitMeasurement": "Unit measurements",
+    "total": "Total for all car washes",
+    "contact": "Contact"
   },
   "sale": {
     "create": "Adding a price",
@@ -1463,7 +1474,13 @@
       "number": "Number",
       "numberFalse": "Number of false credits",
       "amountBegin": "Amount at the beginning of the period",
-      "amountEnd": "Amount at the end of the period"
+      "amountEnd": "Amount at the end of the period",
+      "report": "Report",
+      "creationStartDate": "Creation start date",
+      "creationEndDate": "Creation end date",
+      "sku": "SKU",
+      "groupName": "Group Name",
+      "productName": "Product Name"
     }
   },
   "deposit": {
@@ -1830,5 +1847,26 @@
     "branches": "Branches",
     "numberOfBranches": "Number of branches",
     "numberOfClients": "Number of clients"
+  },
+  "chemicalConsumption": {
+    "period": "Period",
+    "waterShampooFact": "Water + Shampoo, Actual",
+    "waterShampooTime": "Water + Shampoo, Time",
+    "waterShampooRecalculated": "Water + Shampoo, Recalculated",
+    "activeChemistryFact": "Active Chemistry, Actual",
+    "activeChemistryTime": "Active Chemistry, Time",
+    "activeChemistryRecalculated": "Active Chemistry, Recalculated",
+    "diskWashFact": "Disk Wash, Actual",
+    "diskWashTime": "Disk Wash, Time",
+    "diskWashRecalculated": "Disk Wash, Recalculated",
+    "brushFoamFact": "Brush + Foam, Actual",
+    "brushFoamTime": "Brush + Foam, Time",
+    "brushFoamRecalculated": "Brush + Foam, Recalculated",
+    "waxProtectionFact": "Wax + Protection, Actual",
+    "waxProtectionTime": "Wax + Protection, Time",
+    "waxProtectionRecalculated": "Wax + Protection, Recalculated",
+    "tPowerFact": "T-POWER, Actual",
+    "tPowerTime": "T-POWER, Time",
+    "tPowerRecalculated": "T-POWER, Recalculated"
   }
 }

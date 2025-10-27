@@ -78,7 +78,7 @@ const Pos: React.FC = () => {
       : new Map();
 
     const workerMap = workerData
-      ? new Map(workerData.map(work => [work.id, work.name]))
+      ? new Map(workerData.map(work => [work.id, `${work.name} ${work.surname}`]))
       : new Map();
 
     const placeMap = placementData

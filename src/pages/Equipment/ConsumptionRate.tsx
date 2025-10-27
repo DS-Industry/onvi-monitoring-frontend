@@ -155,7 +155,7 @@ const ConsumptionRate: React.FC = () => {
 
   const columnsConsumptionRate = [
     {
-      title: 'Программа',
+      title: t('equipment.program'),
       dataIndex: 'programTypeName',
       key: 'programTypeName',
       render: (row: { programTypeName: string }) => (
@@ -163,7 +163,7 @@ const ConsumptionRate: React.FC = () => {
       ),
     },
     {
-      title: 'Расход литр/минута',
+      title: t('equipment.consumption'),
       dataIndex: 'literRate',
       key: 'literRate',
       render: (
@@ -179,7 +179,7 @@ const ConsumptionRate: React.FC = () => {
       ),
     },
     {
-      title: 'Концентрация 1/х',
+      title: t('equipment.concentration'),
       dataIndex: 'concentration',
       key: 'concentration',
       render: (

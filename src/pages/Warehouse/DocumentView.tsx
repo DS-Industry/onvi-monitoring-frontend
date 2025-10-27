@@ -91,27 +91,27 @@ const DocumentView: React.FC = () => {
 
   const baseColumns = [
     {
-      title: '№',
+      title: t('warehouse.no'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Ответственный',
+      title: t('equipment.resp'),
       dataIndex: 'responsibleName',
       key: 'responsibleName',
     },
     {
-      title: 'Номенклатура',
+      title: t('routes.nomenclature'),
       dataIndex: 'nomenclatureName',
       key: 'nomenclatureName',
     },
     {
-      title: 'Кол-во',
+      title: t('sale.qty'),
       dataIndex: 'quantity',
       key: 'quantity',
     },
     {
-      title: 'Комментарий',
+      title: t('equipment.comment'),
       dataIndex: 'comment',
       key: 'comment',
     },
@@ -119,12 +119,12 @@ const DocumentView: React.FC = () => {
 
   const inventoryExtraColumns = [
     {
-      title: 'Кол-во учет',
+      title: t('equipment.oldQuantity'),
       dataIndex: 'oldQuantity',
       key: 'oldQuantity',
     },
     {
-      title: 'Отклонение',
+      title: t('equipment.deviation'),
       dataIndex: 'deviation',
       key: 'deviation',
     },
