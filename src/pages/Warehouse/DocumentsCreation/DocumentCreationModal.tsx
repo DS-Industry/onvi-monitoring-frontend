@@ -163,12 +163,12 @@ const DocumentCreationModal: React.FC<DocumentCreationModalProps> = ({
       ),
     },
     {
-      title: 'Код',
+      title: t('table.headers.sku'),
       dataIndex: 'sku',
       key: 'sku',
     },
     {
-      title: 'Наименование товара',
+      title: t('table.headers.productName'),
       dataIndex: 'nomenclatureName',
       key: 'nomenclatureName',
     },

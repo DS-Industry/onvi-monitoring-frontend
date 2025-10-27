@@ -364,17 +364,17 @@ const InventoryCreation: React.FC = () => {
 
   const columnsInventory: ColumnsType<InventoryColumn> = [
     {
-      title: 'Код',
+      title: t('table.headers.sku'),
       dataIndex: 'sku',
       key: 'sku',
     },
     {
-      title: 'Номенклатура',
+      title: t('routes.nomenclature'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Категория',
+      title: t('warehouse.category'),
       dataIndex: 'categoryId',
       key: 'categoryId',
     },
@@ -382,7 +382,7 @@ const InventoryCreation: React.FC = () => {
 
   if (allowed) {
     columnsInventory.push({
-      title: '',
+      title: t('routes.edit'),
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (

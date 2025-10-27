@@ -337,7 +337,15 @@
     "do": "Хотите изменить статус?",
     "taskName": "Название задачи",
     "dateRange": "Диапазон дат",
-    "author": "Автор"
+    "author": "Автор",
+    "consumption": "Расход литр/минута",
+    "concentration": "Концентрация 1/х",
+    "object": "Название объекта",
+    "date": "Дата поломки",
+    "problem": "Проблема",
+    "time": "Время исправления",
+    "oldQuantity": "Кол-во учет",
+    "deviation": "Отклонение"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
@@ -496,7 +504,10 @@
     "all": "Все",
     "noExpanse": "У вас нет данных трекера экспансии в программе",
     "supplierName": "Наименование",
-    "centimeters": "в сантиметрах"
+    "centimeters": "в сантиметрах",
+    "unitMeasurement": "Ед. измирения",
+    "total": "Итого по всем автомойкам",
+    "contact": "Контакт"
   },
   "sale": {
     "create": "Добавление цены",
@@ -1463,7 +1474,13 @@
       "number": "Номер",
       "numberFalse": "Количество ложных зачислений",
       "amountBegin": "Сумма на начало периода",
-      "amountEnd": "Сумма на конец периода"
+      "amountEnd": "Сумма на конец периода",
+      "report": "Отчет",
+      "creationStartDate": "Дата начала создания",
+      "creationEndDate": "Дата окончания создания",
+      "sku": "Код",
+      "groupName": "Название группы",
+      "productName": "Наименование товара"
     }
   },
   "deposit": {
@@ -1829,5 +1846,26 @@
     "branches": "Филиалов",
     "numberOfBranches": "Количество филиалов",
     "numberOfClients": "Количество клиентов"
+  },
+  "chemicalConsumption": {
+    "period": "Период",
+    "waterShampooFact": "Вода + шампунь, факт",
+    "waterShampooTime": "Вода + шампунь, время",
+    "waterShampooRecalculated": "Вода + шампунь, пересчет",
+    "activeChemistryFact": "Активная химия, факт",
+    "activeChemistryTime": "Активная химия, время",
+    "activeChemistryRecalculated": "Активная химия, пересчет",
+    "diskWashFact": "Мойка дисков, факт",
+    "diskWashTime": "Мойка дисков, время",
+    "diskWashRecalculated": "Мойка дисков, пересчет",
+    "brushFoamFact": "Щетка + пена, факт",
+    "brushFoamTime": "Щетка + пена, время",
+    "brushFoamRecalculated": "Щетка + пена, пересчет",
+    "waxProtectionFact": "Воск + защита, факт",
+    "waxProtectionTime": "Воск + защита, время",
+    "waxProtectionRecalculated": "Воск + защита, пересчет",
+    "tPowerFact": "T-POWER, факт",
+    "tPowerTime": "T-POWER, время",
+    "tPowerRecalculated": "T-POWER, пересчет"
   }
 }

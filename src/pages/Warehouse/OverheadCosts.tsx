@@ -34,22 +34,22 @@ const OverheadCosts: React.FC = () => {
   const baseColumns = useMemo(
     () => [
       {
-        title: 'Номенклатура',
+        title: t('routes.nomenclature'),
         dataIndex: 'nomenclatureName',
         key: 'nomenclatureName',
       },
       {
-        title: 'Категория',
+        title: t('warehouse.category'),
         dataIndex: 'categoryName',
         key: 'categoryName',
       },
       {
-        title: 'Ед. измирения',
+        title: t('warehouse.unitMeasurement'),
         dataIndex: 'measurement',
         key: 'measurement',
       },
       {
-        title: 'Итого по всем автомойкам',
+        title: t('warehouse.total'),
         dataIndex: 'sum',
         key: 'sum',
       },
