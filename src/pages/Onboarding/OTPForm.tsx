@@ -6,36 +6,7 @@ import useSWRMutation from 'swr/mutation';
 import { registerActivationUser } from '@/services/api/platform';
 import { useClearUserData } from '@/hooks/useUserStore';
 import { useSetAuthenticated } from '@/hooks/useAuthStore';
-
-type User = {
-  id: number;
-  userRoleId: number;
-  name: string;
-  surname: string;
-  middlename?: string;
-  birthday?: Date;
-  phone?: string;
-  email: string;
-  password: string;
-  gender: string;
-  position: string;
-  status: string;
-  avatar?: string;
-  country: string;
-  countryCode: number;
-  timezone: number;
-  refreshTokenId: string;
-  receiveNotifications: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type Token = {
-  accessToken: string;
-  accessTokenExp: Date;
-  refreshToken: string;
-  refreshTokenExp: Date;
-};
+import { User } from '@/config/store/userSlice';
 
 type Permissions = {
   action: string;
@@ -47,7 +18,6 @@ type Props = {
   count: number;
   setCount: (count: number) => void;
   setRegisterUser: (user: User | null) => void;
-  setRegisterToken: (tokens: Token | null) => void;
   setRegisterPermissions: (permissions: Permissions[]) => void;
 };
 
@@ -56,7 +26,6 @@ const OTPForm: React.FC<Props> = ({
   count,
   setCount,
   setRegisterUser,
-  setRegisterToken,
   setRegisterPermissions,
 }: Props) => {
   const { t } = useTranslation();
@@ -112,7 +81,6 @@ const OTPForm: React.FC<Props> = ({
       if (result && result.admin && result.permissionInfo) {
         const { admin, permissionInfo } = result;
         setRegisterUser(admin?.props);
-        setRegisterToken(null);
         setAuthenticated(true);
         setRegisterPermissions(permissionInfo.permissions);
         setCount(count + 1);

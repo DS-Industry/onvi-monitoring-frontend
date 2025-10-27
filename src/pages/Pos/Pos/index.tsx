@@ -108,12 +108,12 @@ const Pos: React.FC = () => {
 
   const columnsPos: ColumnsType<PosResponse> = [
     {
-      title: 'id',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Название',
+      title: t('hr.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => {
@@ -131,50 +131,50 @@ const Pos: React.FC = () => {
       },
     },
     {
-      title: 'Страна',
+      title: t('pos.country'),
       dataIndex: 'country',
       key: 'country',
     },
     {
-      title: 'Город',
+      title: t('pos.city'),
       dataIndex: 'city',
       key: 'city',
     },
     {
-      title: 'Адрес',
+      title: t('pos.address'),
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Организация',
+      title: t('warehouse.organization'),
       dataIndex: 'organizationName',
       key: 'organizationName',
     },
     {
-      title: 'Статус',
+      title: t('table.headers.status'),
       dataIndex: 'status',
       key: 'status',
       render: statusRender,
     },
     {
-      title: 'Дата создания',
+      title: t('table.headers.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: dateRender,
     },
     {
-      title: 'Дата обновления',
+      title: t('table.columns.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       render: dateRender,
     },
     {
-      title: 'Создал',
+      title: t('table.headers.created'),
       dataIndex: 'createdByName',
       key: 'createdByName',
     },
     {
-      title: 'Обновил',
+      title: t('table.headers.updated'),
       dataIndex: 'updatedByName',
       key: 'updatedByName',
     },

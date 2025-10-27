@@ -23,12 +23,12 @@ const ListOfRoles: React.FC = () => {
 
   const columnsRoles = [
     {
-      title: 'Роль СRM',
+      title: t('table.headers.roleName'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Права доступа',
+      title: t('routes.accessRights'),
       dataIndex: 'description',
       key: 'description',
     },

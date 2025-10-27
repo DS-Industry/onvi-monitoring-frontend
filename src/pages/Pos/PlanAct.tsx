@@ -122,55 +122,55 @@ const PlanAct: React.FC = () => {
 
   const columnsPlanFact: ColumnsType<PlanFact> = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'posId',
       key: 'posId',
       sorter: (a, b) => a.posId - b.posId,
     },
     {
-      title: 'Название',
+      title: t('hr.name'),
       dataIndex: 'posName',
       key: 'posName',
     },
     {
-      title: 'План',
+      title: t('table.headers.plan'),
       dataIndex: 'plan',
       key: 'plan',
       render: currencyRender,
     },
     {
-      title: 'Наличные',
+      title: t('deposit.columns.cash'),
       dataIndex: 'cashFact',
       key: 'cashFact',
       render: currencyRender,
     },
     {
-      title: 'Безналичные',
+      title: t('deposit.columns.cashless'),
       dataIndex: 'virtualSumFact',
       key: 'virtualSumFact',
       render: currencyRender,
     },
     {
-      title: 'Яндекс Зачисления',
+      title: t('deposit.columns.yandexSum'),
       dataIndex: 'yandexSumFact',
       key: 'yandexSumFact',
       render: currencyRender,
     },
     {
-      title: 'Факт (итог)',
+      title: t('table.headers.factSummary'),
       dataIndex: 'sumFact',
       key: 'sumFact',
       render: currencyRender,
     },
     {
-      title: 'Выполнен план',
+      title: t('table.headers.planCompleted'),
       dataIndex: 'completedPercent',
       key: 'completedPercent',
       render: (_value, record) =>
         TableUtils.createPercentFormat(record.completedPercent),
     },
     {
-      title: 'Не выполнен план',
+      title: t('table.headers.planNotCompleted'),
       dataIndex: 'notCompletedPercent',
       key: 'notCompletedPercent',
       render: (_value, record) =>

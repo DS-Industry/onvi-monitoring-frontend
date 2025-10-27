@@ -309,18 +309,18 @@ const MonthlyExpanse: React.FC = () => {
 
   const columnsExpanse: ColumnsType<ManagerPeriods> = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       onCell: (record: ManagerPeriods) => ({
         record,
         inputType: 'text',
         dataIndex: 'id',
-        title: 'ID',
+        title: t('table.columns.id'),
         editing: false,
       }),
     },
     {
-      title: 'Период',
+      title: t('marketing.period'),
       dataIndex: 'period',
       render: (_: string, record: ManagerPeriods) => {
         const [startStr, endStr] = record.period.split(' - ');
@@ -344,12 +344,12 @@ const MonthlyExpanse: React.FC = () => {
         record,
         inputType: 'period',
         dataIndex: 'period',
-        title: 'Период',
+        title: t('marketing.period'),
         editing: isEditing(record),
       }),
     },
     {
-      title: 'Входная сумма',
+      title: t('table.headers.inputAmount'),
       dataIndex: 'sumStartPeriod',
       render: (text: number, record: ManagerPeriods) => {
         if (!isEditing(record)) {
@@ -365,12 +365,12 @@ const MonthlyExpanse: React.FC = () => {
         record,
         inputType: 'number',
         dataIndex: 'sumStartPeriod',
-        title: 'Входная сумма',
+        title: t('table.headers.inputAmount'),
         editing: isEditing(record),
       }),
     },
     {
-      title: 'Выходная сумма',
+      title: t('table.headers.outputAmount'),
       dataIndex: 'sumEndPeriod',
       render: (text: number, record: ManagerPeriods) => {
         if (!isEditing(record)) {
@@ -386,12 +386,12 @@ const MonthlyExpanse: React.FC = () => {
         record,
         inputType: 'number',
         dataIndex: 'sumEndPeriod',
-        title: 'Выходная сумма',
+        title: t('table.headers.outputAmount'),
         editing: isEditing(record),
       }),
     },
     {
-      title: 'Статус',
+      title: t('table.columns.status'),
       dataIndex: 'status',
       render: (text: string) => {
         const statusOption = statusOptions.find(
@@ -401,7 +401,7 @@ const MonthlyExpanse: React.FC = () => {
       },
     },
     {
-      title: 'Недостача',
+      title: t('finance.short'),
       dataIndex: 'shortage',
       render: (text: number) => {
         return (
@@ -414,12 +414,12 @@ const MonthlyExpanse: React.FC = () => {
         record,
         inputType: 'number',
         dataIndex: 'shortage',
-        title: 'Недостача',
+        title: t('finance.short'),
         editing: false,
       }),
     },
     {
-      title: 'Пользователь',
+      title: t('equipment.user'),
       dataIndex: 'userId',
       render: (text: number) => {
         const worker = workers.find(worker => worker.value === text);
@@ -429,7 +429,7 @@ const MonthlyExpanse: React.FC = () => {
         record,
         inputType: 'text',
         dataIndex: 'userId',
-        title: 'Пользователь',
+        title: t('equipment.user'),
         editing: false,
       }),
     },
@@ -437,7 +437,7 @@ const MonthlyExpanse: React.FC = () => {
 
   if (canEdit || canDelete) {
     columnsExpanse.push({
-      title: 'Действия',
+      title: t('marketing.actions'),
       dataIndex: 'actions',
       render: (_: unknown, record: ManagerPeriods) => {
         const editable = isEditing(record);

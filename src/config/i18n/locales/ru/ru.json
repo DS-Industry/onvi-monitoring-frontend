@@ -507,7 +507,9 @@
     "saleQuantity": "Количество на продажу",
     "totalAmount": "Итоговая стоимость",
     "totalSum": "Полная сумма",
-    "date": "Дата продажи"
+    "date": "Дата продажи",
+    "remainder": "Остаток",
+    "qty": "Кол-во"
   },
   "marketing": {
     "noClient": "В данный момент у вас нет клиентов в системе",
@@ -1254,7 +1256,9 @@
     "payoutTimestamp": "Время выплаты",
     "paid": "Выплачено",
     "enterPosition": "Введите позицию",
-    "aboutPosition": "О позиции"
+    "aboutPosition": "О позиции",
+    "prepaymentSum": "Выплачено аванс",
+    "paymentSum": "Основная часть ЗП"
   },
   "notifications": {
     "fav": "Избранное",
@@ -1422,7 +1426,44 @@
       "periodStart": "Период начала",
       "periodEnd": "период конца",
       "updatedBy": "Кем обновлено",
-      "createdBy": "Кем создано"
+      "createdBy": "Кем создано",
+      "banknotes": "Купюры",
+      "coins": "Монеты",
+      "totalSum": "Сумма всего"
+    },
+    "headers": {
+      "name": "ФИО Сотрудника",
+      "roleName": "Роль СRM",
+      "status": "Статус",
+      "createdAt": "Дата регистарции",
+      "created": "Создано",
+      "updated": "Обновлено",
+      "programs": "Кол-во программ",
+      "averageTime": "Среднее время",
+      "latestProgram": "Последняя программа",
+      "beginDate": "Начало программы",
+      "endDate": "Конец программы",
+      "leadTime": "Время выполнения",
+      "car": "Машина",
+      "plan": "План",
+      "factSummary": "Факт (итог)",
+      "planCompleted": "Выполнен план",
+      "planNotCompleted": "Не выполнен план",
+      "monthCalculation": "Месяц расчёта",
+      "cashlessSum": "Безналичная выплата",
+      "toBePaid": "К выплате",
+      "total": "К выплате итог",
+      "deviceType": "Тип устройства",
+      "oldMoneyTime": "Время сбора (старое)",
+      "newMoneyTime": "Время сбора (новое)",
+      "datePrevious": "Дата предыдущей инкасации",
+      "dateCurrent": "Дата текущей инкассации",
+      "inputAmount": "Входная сумма",
+      "outputAmount": "Выходная сумма",
+      "number": "Номер",
+      "numberFalse": "Количество ложных зачислений",
+      "amountBegin": "Сумма на начало периода",
+      "amountEnd": "Сумма на конец периода"
     }
   },
   "deposit": {
@@ -1433,7 +1474,11 @@
       "cashbackCard": "Cashback по картам",
       "discountSum": "Сумма скидки",
       "operationsCount": "Кол-во операций",
-      "yandexSum": "Яндекс Сумма"
+      "yandexSum": "Яндекс Сумма",
+      "sumOper": "Сумма операции",
+      "uploadDate": "Дата загрузки",
+      "localId": "Локальный ID",
+      "currency": "Валюта"
     }
   },
   "general": {

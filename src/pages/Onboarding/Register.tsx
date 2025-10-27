@@ -9,36 +9,7 @@ const OTPForm = React.lazy(() => import('./OTPForm'));
 const PostRegisterForm = React.lazy(() => import('./PostRegisterForm'));
 import OnviBlue from '@/assets/onvi_blue.png';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-
-type User = {
-  id: number;
-  userRoleId: number;
-  name: string;
-  surname: string;
-  middlename?: string;
-  birthday?: Date;
-  phone?: string;
-  email: string;
-  password: string;
-  gender: string;
-  position: string;
-  status: string;
-  avatar?: string;
-  country: string;
-  countryCode: number;
-  timezone: number;
-  refreshTokenId: string;
-  receiveNotifications: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type Token = {
-  accessToken: string;
-  accessTokenExp: Date;
-  refreshToken: string;
-  refreshTokenExp: Date;
-};
+import { User } from '@/config/store/userSlice';
 
 type Permissions = {
   action: string;
@@ -58,7 +29,6 @@ const Register: React.FC = () => {
 
   const [registerObj, setRegisterObj] = useState({ email: '' });
   const [registerUser, setRegisterUser] = useState<User | null>(null);
-  const [registerToken, setRegisterToken] = useState<Token | null>(null);
   const [registerPermissions, setRegisterPermissions] = useState<Permissions[]>(
     []
   );
@@ -99,17 +69,14 @@ const Register: React.FC = () => {
               count={count}
               setCount={setCount}
               setRegisterUser={setRegisterUser}
-              setRegisterToken={setRegisterToken}
               setRegisterPermissions={setRegisterPermissions}
             />
           )}
           {count === 2 &&
             registerUser &&
-            registerToken &&
             registerPermissions && (
               <PostRegisterForm
                 registerUser={registerUser}
-                registerToken={registerToken}
                 registerPermissions={registerPermissions}
               />
             )}

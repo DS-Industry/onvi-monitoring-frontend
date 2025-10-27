@@ -127,13 +127,13 @@ const DepositDevices: React.FC = () => {
 
   const columns: ColumnsType<DepositResponse> = [
     {
-      title: 'ID',
+      title: t('table.columns.id'),
       dataIndex: 'id',
       key: 'id',
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'Наименование',
+      title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
       filters: [],
@@ -153,14 +153,14 @@ const DepositDevices: React.FC = () => {
       },
     },
     {
-      title: 'Город',
+      title: t('pos.city'),
       dataIndex: 'city',
       key: 'city',
       filters: cities,
       onFilter: (value, record) => record.city === value,
     },
     {
-      title: 'Последняя операция',
+      title: t('deposit.columns.lastOperation'),
       dataIndex: 'lastOper',
       key: 'lastOper',
       render: dateRender,
@@ -168,38 +168,38 @@ const DepositDevices: React.FC = () => {
         new Date(a.lastOper).getTime() - new Date(b.lastOper).getTime(),
     },
     {
-      title: 'Наличные',
+      title: t('deposit.columns.cash'),
       dataIndex: 'cashSum',
       key: 'cashSum',
       render: currencyRender,
     },
     {
-      title: 'Безналичные',
+      title: t('deposit.columns.cashless'),
       dataIndex: 'virtualSum',
       key: 'virtualSum',
       render: currencyRender,
     },
     {
-      title: 'Cashback по картам',
+      title: t('deposit.columns.cashbackCard'),
       dataIndex: 'cashbackSumCard',
       key: 'cashbackSumCard',
       render: currencyRender,
     },
     {
-      title: 'Сумма скидки',
+      title: t('deposit.columns.discountSum'),
       dataIndex: 'discountSum',
       key: 'discountSum',
       render: currencyRender,
     },
     {
-      title: 'Кол-во операций',
+      title: t('deposit.columns.operationsCount'),
       dataIndex: 'counter',
       key: 'counter',
       sorter: (a, b) => a.counter - b.counter,
       render: (_value, record) => formatNumber(record.counter),
     },
     {
-      title: 'Яндекс Сумма',
+      title: t('deposit.columns.yandexSum'),
       dataIndex: 'yandexSum',
       key: 'yandexSum',
       render: currencyRender,

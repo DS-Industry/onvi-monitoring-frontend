@@ -165,13 +165,13 @@ const Positions: React.FC = () => {
 
   const columns: ColumnsType<Positions> = [
     {
-      title: t('Должность'),
+      title: t('roles.position'),
       dataIndex: 'name',
       key: 'name',
       width: '35%',
     },
     {
-      title: t('Описание'),
+      title: t('warehouse.desc'),
       dataIndex: 'description',
       key: 'description',
       width: '50%',

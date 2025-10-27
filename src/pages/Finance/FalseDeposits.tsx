@@ -55,7 +55,7 @@ const FalseDeposits: React.FC = () => {
   const columnsFalseDeposit: ColumnsType<FalseDepositResponse> =
     [
       {
-        title: 'Устройство',
+        title: t('equipment.device'),
         dataIndex: 'deviceName',
         key: 'deviceName',
         render: (text, record) => {
@@ -73,12 +73,12 @@ const FalseDeposits: React.FC = () => {
         },
       },
       {
-        title: 'Количество ложных зачислений',
+        title: t('table.headers.numberFalse'),
         dataIndex: 'falseOperCount',
         key: 'falseOperCount',
       },
       {
-        title: 'День',
+        title: t('calendar.DAY'),
         dataIndex: 'operDay',
         key: 'operDay',
         render: (val) => dayjs(val).format('YYYY-MM-DD'),

@@ -114,23 +114,23 @@ const ListOfEmployees: React.FC = () => {
 
   const columnsEmployees: ColumnsType<WorkerResponse> = [
     {
-      title: 'ФИО Сотрудника',
+      title: t('table.headers.name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Роль СRM',
+      title: t('table.headers.roleName'),
       dataIndex: 'roleName',
       key: 'roleName',
     },
     {
-      title: 'Статус',
+      title: t('table.headers.status'),
       dataIndex: 'status',
       key: 'status',
       render: statusRender,
     },
     {
-      title: 'Дата регистарции',
+      title: t('table.headers.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
     },
@@ -138,7 +138,7 @@ const ListOfEmployees: React.FC = () => {
 
   if (allowed) {
     columnsEmployees.push({
-      title: 'Редактировать',
+      title: t('routes.edit'),
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: { id: number }) => (

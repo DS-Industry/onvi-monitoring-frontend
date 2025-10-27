@@ -85,19 +85,19 @@ const CollectionDeviceTable: React.FC<Props> = ({
 
   const columns = [
     {
-      title: t('Имя устройства'),
+      title: t('finance.deviceName'),
       dataIndex: 'deviceName',
       key: 'deviceName',
       width: '10%',
     },
     {
-      title: t('Тип устройства'),
+      title: t('table.headers.deviceType'),
       dataIndex: 'deviceType',
       key: 'deviceType',
       width: '10%',
     },
     {
-      title: t('Время сбора (старое)'),
+      title: t('table.headers.oldMoneyTime'),
       dataIndex: 'oldTookMoneyTime',
       key: 'oldTookMoneyTime',
       width: '15%',
@@ -134,7 +134,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
       },
     },
     {
-      title: t('Время сбора (новое)'),
+      title: t('table.headers.newMoneyTime'),
       dataIndex: 'tookMoneyTime',
       key: 'tookMoneyTime',
       width: '15%',
@@ -171,28 +171,28 @@ const CollectionDeviceTable: React.FC<Props> = ({
       },
     },
     {
-      title: t('Сумма'),
+      title: t('marketing.amount'),
       dataIndex: 'sumDevice',
       key: 'sumDevice',
       width: '10%',
       render: getCurrencyRender(),
     },
     {
-      title: t('Монеты'),
+      title: t('table.columns.coins'),
       dataIndex: 'sumCoinDevice',
       key: 'sumCoinDevice',
       width: '11%',
       render: getCurrencyRender(),
     },
     {
-      title: t('Купюры'),
+      title: t('table.columns.banknotes'),
       dataIndex: 'sumPaperDevice',
       key: 'sumPaperDevice',
       width: '11%',
       render: getCurrencyRender(),
     },
     {
-      title: t('Безналичная сумма'),
+      title: t('table.headers.cashlessSum'),
       dataIndex: 'virtualSumDevice',
       key: 'virtualSumDevice',
       width: '11%',

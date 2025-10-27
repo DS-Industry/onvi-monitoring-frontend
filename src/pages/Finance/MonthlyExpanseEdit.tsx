@@ -213,9 +213,9 @@ const MonthlyExpanseEdit: React.FC = () => {
   ];
 
   const periodColumns = [
-    { title: 'ID', dataIndex: 'id', key: 'id' },
+    { title: t('table.columns.id'), dataIndex: 'id', key: 'id' },
     {
-      title: t('Статус'),
+      title: t('table.columns.status'),
       dataIndex: 'status',
       key: 'status',
       render: (text: string) => {
@@ -226,31 +226,31 @@ const MonthlyExpanseEdit: React.FC = () => {
       },
     },
     {
-      title: t('Начало периода'),
+      title: t('finance.begin'),
       dataIndex: 'startPeriod',
       key: 'startPeriod',
       render: dateRender,
     },
     {
-      title: t('Конец периода'),
+      title: t('finance.end'),
       dataIndex: 'endPeriod',
       key: 'endPeriod',
       render: dateRender,
     },
     {
-      title: t('Сумма на начало периода'),
+      title: t('table.headers.amountBegin'),
       dataIndex: 'sumStartPeriod',
       key: 'sumStartPeriod',
       render: currencyRender,
     },
     {
-      title: t('Сумма на конец периода'),
+      title: t('table.headers.amountEnd'),
       dataIndex: 'sumEndPeriod',
       key: 'sumEndPeriod',
       render: currencyRender,
     },
     {
-      title: t('Недостача'),
+      title: t('finance.short'),
       dataIndex: 'shortage',
       key: 'shortage',
       render: currencyRender,
@@ -259,7 +259,7 @@ const MonthlyExpanseEdit: React.FC = () => {
 
   const expenseColumns: ColumnsType<ExpenseItem> = [
     {
-      title: t('Группа'),
+      title: t('finance.group'),
       dataIndex: 'group',
       key: 'group',
       filters: groups.map(g => ({ text: g.name, value: g.name })),
@@ -267,7 +267,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         record.group === value,
     },
     {
-      title: t('Автомойка/филиал'),
+      title: t('marketing.carWashBranch'),
       dataIndex: 'posName',
       key: 'posName',
       filters: poses.map(p => ({ text: p.name, value: p.name })),
@@ -275,12 +275,12 @@ const MonthlyExpanseEdit: React.FC = () => {
         record.posName === value,
     },
     {
-      title: t('Статья'),
+      title: t('finance.article'),
       dataIndex: 'paperTypeName',
       key: 'paperTypeName',
     },
     {
-      title: t('Тип статьи'),
+      title: t('finance.articleType'),
       dataIndex: 'paperTypeType',
       key: 'paperTypeType',
       render: tagRender,
@@ -292,13 +292,13 @@ const MonthlyExpanseEdit: React.FC = () => {
         record.paperTypeType === value,
     },
     {
-      title: t('Дата'),
+      title: t('finance.dat'),
       dataIndex: 'eventDate',
       key: 'eventDate',
       render: dateRender,
     },
     {
-      title: t('Сумма'),
+      title: t('marketing.amount'),
       dataIndex: 'sum',
       key: 'sum',
       render: (value: string, record: { paperTypeType: string }) => {

@@ -102,40 +102,40 @@ const DepositDevice: React.FC = () => {
   const columnsMonitoringDevice: ColumnsType<DepositDeviceResponse['oper'][0]> =
     [
       {
-        title: 'ID',
+        title: t('table.columns.id'),
         dataIndex: 'id',
         key: 'id',
       },
       {
-        title: 'Сумма операции',
+        title: t('deposit.columns.sumOper'),
         dataIndex: 'sumOper',
         key: 'sumOper',
         render: currencyRender,
       },
       {
-        title: 'Дата операции',
+        title: t('marketing.operationDate'),
         dataIndex: 'dateOper',
         key: 'dateOper',
         render: dateRender,
       },
       {
-        title: 'Дата загрузки',
+        title: t('deposit.columns.uploadDate'),
         dataIndex: 'dateLoad',
         key: 'dateLoad',
         render: dateRender,
       },
       {
-        title: 'Счетчик',
+        title: t('chemical.Counters'),
         dataIndex: 'counter',
         key: 'counter',
       },
       {
-        title: 'Локальный ID',
+        title: t('deposit.columns.localId'),
         dataIndex: 'localId',
         key: 'localId',
       },
       {
-        title: 'Валюта',
+        title: t('deposit.columns.currency'),
         dataIndex: 'currencyType',
         key: 'currencyType',
       },
