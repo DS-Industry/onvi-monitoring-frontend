@@ -4,8 +4,6 @@ export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 15;
 export const ALL_PAGE_SIZES = ['15', '50', '100', '120'];
 export const MAX_LEVELS = 5;
-export const SIDEBAR_WIDTH = 256;
-export const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 export enum ManagerPaperGroup {
   RENT = 'RENT',

@@ -45,7 +45,6 @@ import 'dayjs/locale/ru';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/components/context/useContext';
-import { SIDEBAR_WIDTH } from '@/utils/constants';
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
 import NotificationSidebar from './NotificationsSidebar';
 
@@ -55,6 +54,9 @@ const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
 
 const { Search } = SearchInp;
+
+
+const SIDEBAR_WIDTH = 256;
 
 const Notifications: React.FC = () => {
   const { t } = useTranslation();
