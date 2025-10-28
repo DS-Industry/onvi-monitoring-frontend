@@ -5,13 +5,13 @@ enum NOTIFICATION {
   GET_NOTIFS = 'user/notification',
 }
 
-enum UserNotificationType {
+export enum UserNotificationType {
   DEFAULT = 'DEFAULT',
   FAVORITE = 'FAVORITE',
   DELETED = 'DELETED',
 }
 
-enum ReadStatus {
+export enum ReadStatus {
   READ = 'READ',
   NOT_READ = 'NOT_READ',
 }
@@ -21,7 +21,7 @@ type TagRequest = {
   color: string;
 };
 
-type TagResponse = {
+export type TagResponse = {
   props: {
     id: number;
     name: string;
@@ -36,7 +36,7 @@ type UpdateTagRequest = {
   color?: string;
 };
 
-type GetUserNotifParams = {
+export type GetUserNotifParams = {
   type?: UserNotificationType;
   tagId?: number;
   readStatus?: ReadStatus;
@@ -44,7 +44,7 @@ type GetUserNotifParams = {
   size?: number;
 };
 
-type UserNotificationResponse = {
+export type UserNotificationResponse = {
   id: number;
   notificationId: number;
   heading: string;
@@ -60,7 +60,7 @@ type UserNotificationResponse = {
   }[];
 };
 
-type UpdateNotifRequest = {
+export type UpdateNotifRequest = {
   userNotificationId: number;
   readStatus?: ReadStatus;
   type?: UserNotificationType;
