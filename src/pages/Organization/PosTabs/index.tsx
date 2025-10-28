@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import PosConnection from './PosConnection';
-import RewardProgramsConnection from './RewardProgramsConnection';
 import GenericTabs from '@/components/ui/Tabs/GenericTab';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -23,12 +22,7 @@ const PosTabs: React.FC = () => {
       key: 'pos',
       label: t('constants.pos'),
       content: <PosConnection />,
-    },
-    {
-      key: 'rewardPrograms',
-      label: t('constants.rewardPrograms'),
-      content: <RewardProgramsConnection />,
-    },
+    }
   ];
 
   return (
