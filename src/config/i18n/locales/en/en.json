@@ -1286,7 +1286,8 @@
     "addA": "Add a shortcut",
     "move": "Move to the box",
     "default": "Default",
-    "filterByTag": "Filter By Tag"
+    "filterByTag": "Filter By Tag",
+    "selectColor": "Select Color"
   },
   "subscriptions": {
     "you": "You can switch to one of the new tariffs by selecting the desired configuration.",

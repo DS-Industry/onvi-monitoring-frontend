@@ -6,29 +6,24 @@ import {
   Dropdown,
   ColorPicker,
   MenuProps,
-  Button as AntdButton,
+  Button,
   Modal,
+  Drawer,
 } from 'antd';
 import OnviSmall from '@/assets/onvi_small.png';
 import { Input as SearchInp } from 'antd';
 import {
   ArrowLeftOutlined,
   CheckOutlined,
+  MenuOutlined,
   PlusOutlined,
   StarFilled,
   TagFilled,
 } from '@ant-design/icons';
-import NoToken from '@/assets/NoToken.png';
 import Input from '@/components/ui/Input/Input';
-import { Layout, List, Avatar, Tag, Empty, Card, Typography } from 'antd';
+import { Layout, List, Avatar, Tag, Card, Typography } from 'antd';
 
-import {
-  MailOutlined,
-  StarOutlined,
-  DeleteOutlined,
-  MoreOutlined,
-  DownOutlined,
-} from '@ant-design/icons';
+import { StarOutlined, MoreOutlined, DownOutlined } from '@ant-design/icons';
 import PosEmpty from '@/assets/EmptyPos.png';
 import useSWR, { mutate } from 'swr';
 import {
@@ -36,16 +31,22 @@ import {
   deleteTag,
   getNotifications,
   getTags,
+  GetUserNotifParams,
+  ReadStatus,
   updateNotifications,
+  UpdateNotifRequest,
   updateTag,
+  UserNotificationResponse,
+  UserNotificationType,
 } from '@/services/api/notifications';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import Button from '@/components/ui/Button/Button';
 import { useToast } from '@/components/context/useContext';
+import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
+import NotificationSidebar from './NotificationsSidebar';
 
 dayjs.locale('ru');
 
@@ -54,47 +55,8 @@ const { Text, Title, Paragraph } = Typography;
 
 const { Search } = SearchInp;
 
-enum UserNotificationType {
-  DEFAULT = 'DEFAULT',
-  FAVORITE = 'FAVORITE',
-  DELETED = 'DELETED',
-}
 
-enum ReadStatus {
-  READ = 'READ',
-  NOT_READ = 'NOT_READ',
-}
-
-type UpdateNotifRequest = {
-  userNotificationId: number;
-  readStatus?: ReadStatus;
-  type?: UserNotificationType;
-  tagIds?: number[];
-};
-
-type UserNotificationResponse = {
-  id: number;
-  notificationId: number;
-  heading: string;
-  body: string;
-  authorId?: number;
-  sendAt: Date;
-  openingAt?: Date;
-  type?: UserNotificationType;
-  tags: {
-    id: number;
-    name: string;
-    color: string;
-  }[];
-};
-
-type GetUserNotifParams = {
-  type?: UserNotificationType;
-  tagId?: number;
-  readStatus?: ReadStatus;
-  page?: number;
-  size?: number;
-};
+const SIDEBAR_WIDTH = 256;
 
 const Notifications: React.FC = () => {
   const { t } = useTranslation();
@@ -108,6 +70,9 @@ const Notifications: React.FC = () => {
   const [filterParams, setFilterParams] = useState<GetUserNotifParams>({});
   const [, setSelectedFilter] = useState<string>('all');
   const { showToast } = useToast();
+  const screens = useBreakpoint();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const isMobile = !screens.md;
 
   const { data: notificationsData, isLoading: notificationsLoading } = useSWR(
     [`get-notifications`, filterParams],
@@ -116,7 +81,7 @@ const Notifications: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -127,7 +92,7 @@ const Notifications: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -156,25 +121,6 @@ const Notifications: React.FC = () => {
       initializeSelectedTags();
     }
   }, [selectedNotification]);
-
-  const notifications = [
-    {
-      sender: 'Onvi_бизнес',
-      title: 'Модерация',
-      message: 'Команда Onvi_бизнес приветствует вас!',
-      avatar: OnviSmall,
-      imageCount: 1,
-      date: '10 Апреля, 2024',
-    },
-    {
-      sender: 'Support Team',
-      title: 'Новая политика',
-      message: 'Мы обновили условия использования.',
-      avatar: OnviSmall,
-      imageCount: 5,
-      date: '08 Апреля, 2024',
-    },
-  ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const predefinedColors = [
@@ -515,19 +461,18 @@ const Notifications: React.FC = () => {
 
               <div className="border-t pt-2">
                 <div className="flex space-x-2">
-                  <AntdButton
+                  <Button
                     size="small"
                     type="default"
                     onClick={e => {
                       e.stopPropagation();
-                      // Reset to original tags when canceling
                       initializeSelectedTags();
                       setSelectedNotification(null);
                     }}
                   >
                     {t('organizations.cancel')}
-                  </AntdButton>
-                  <AntdButton
+                  </Button>
+                  <Button
                     size="small"
                     type="primary"
                     onClick={e => {
@@ -537,7 +482,7 @@ const Notifications: React.FC = () => {
                     disabled={selectedTagIds.length === 0}
                   >
                     {t('marketing.apply')}
-                  </AntdButton>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -585,7 +530,7 @@ const Notifications: React.FC = () => {
                   label={t('notifications.new')}
                   classname="w-full"
                   {...register('name', {
-                    required: !isEditMode && 'Name is required',
+                    required: !isEditMode && t('validation.nameRequired'),
                   })}
                   value={formValues.name}
                   changeValue={e => handleInputChange('name', e.target.value)}
@@ -598,7 +543,7 @@ const Notifications: React.FC = () => {
             {/* Ant Design Color Picker */}
             {!isCustomColorMode ? (
               <div className="flex flex-col space-y-5">
-                <span>Цвет ярлыка:</span>
+                <span>{t('notifications.label')}:</span>
                 <div className="flex items-center space-x-2">
                   {predefinedColors.map(color => (
                     <div
@@ -634,7 +579,7 @@ const Notifications: React.FC = () => {
                     className="cursor-pointer"
                     onClick={() => setIsCustomColorMode(false)}
                   />
-                  <span className="text-text01">Выберите цвет</span>
+                  <span className="text-text01">{t('notifications.selectColor')}</span>
                 </div>
                 <div className="flex space-x-2 mb-4">
                   <TagFilled style={{ color: formValues.color }} />
@@ -658,25 +603,28 @@ const Notifications: React.FC = () => {
             <div className="mt-4">
               <div className="flex space-x-2 justify-end mt-10">
                 <Button
-                  type="outline"
-                  handleClick={() => {
+                  onClick={() => {
                     resetForm();
                     setIsModalOpen(false);
                   }}
-                  title={t('organizations.cancel')}
-                />
+                >
+                  {t('organizations.cancel')}
+                </Button>
                 {isEditMode && (
                   <Button
-                    title={t('marketing.delete')}
-                    handleClick={handleDelete}
-                    classname="bg-red-600 hover:bg-red-300"
-                  />
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-300"
+                  >
+                    {t('marketing.delete')}
+                  </Button>
                 )}
                 <Button
-                  form={true}
-                  title="Создать"
-                  isLoading={isEditMode ? updatingTag : isMutating}
-                />
+                  htmlType={'submit'}
+                  loading={isEditMode ? updatingTag : isMutating}
+                  type='primary'
+                >
+                  {t('marketing.create')}
+                </Button>
               </div>
             </div>
           </form>
@@ -684,142 +632,56 @@ const Notifications: React.FC = () => {
         <hr />
         <Layout className="min-h-screen">
           {/* Sidebar */}
-          <Sider
-            width={220}
-            className="border-r border-borderFill bg-white"
-            breakpoint="sm"
-            collapsedWidth="0"
-          >
-            <div className="p-4 border-b border-borderFill">
-              <Text type="secondary">TITLE</Text>
-              <Menu
-                mode="vertical"
-                selectable={false}
-                className="bg-transparent border-none"
-              >
-                <Menu.Item className="!p-0" onClick={() => setFilterParams({})}>
-                  <div className="flex justify-between pr-2">
-                    <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                      <MailOutlined
-                        style={{ fontSize: '24px' }}
-                        className="text-text02 group-hover:text-text01"
-                      />
-                      <span className="font-semibold text-text02 group-hover:text-text01">
-                        {t('analysis.all')}
-                      </span>
-                    </div>
-                    <div className="hover:bg-opacity01 px-2 rounded-lg h-8 flex items-center mt-1">
-                      {notificationsData?.length}
-                    </div>
-                  </div>
-                </Menu.Item>
-                <Menu.Item
-                  className="!p-0"
-                  onClick={() =>
-                    setFilterParams({ type: UserNotificationType.FAVORITE })
-                  }
-                >
-                  <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                    <StarOutlined
-                      style={{ fontSize: '24px' }}
-                      className="text-text02 group-hover:text-text01"
-                    />
-                    <span className="font-semibold text-text02 group-hover:text-text01">
-                      {t('notifications.fav')}
-                    </span>
-                  </div>
-                </Menu.Item>
-                <Menu.Item
-                  className="!p-0"
-                  onClick={() =>
-                    setFilterParams({ type: UserNotificationType.DELETED })
-                  }
-                >
-                  <div className="flex items-center px-2 hover:bg-[#f5f5f5] group">
-                    <DeleteOutlined
-                      style={{ fontSize: '24px' }}
-                      className="text-text02 group-hover:text-text01"
-                    />
-                    <span className="font-semibold text-text02 group-hover:text-text01">
-                      {t('notifications.basket')}
-                    </span>
-                  </div>
-                </Menu.Item>
-              </Menu>
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-center">
-                <Text type="secondary">TITLE</Text>
-                <AntdButton
-                  size="small"
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center space-x-2"
-                >
-                  <PlusOutlined />
-                </AntdButton>
+          {isMobile ? (
+            <>
+              <div className="bg-white">
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setDrawerVisible(true)}
+                  className="cursor-pointer bg-text03 text-white mt-2"
+                />
               </div>
-              <Menu
-                mode="vertical"
-                selectable={false}
-                className="bg-transparent border-none"
+              <Drawer
+                placement="left"
+                closable
+                onClose={() => setDrawerVisible(false)}
+                open={drawerVisible}
+                width={SIDEBAR_WIDTH}
+                styles={{ body: { padding: 0 } }}
               >
-                {loadingTags ? (
-                  <Menu.Item className="!p-0">
-                    <div className="flex items-center px-2">
-                      <span>Загрузка...</span>
-                    </div>
-                  </Menu.Item>
-                ) : (
-                  tags?.map(tag => (
-                    <Menu.Item
-                      key={tag.props.name}
-                      className="!p-0"
-                      onClick={() => setFilterParams({ tagId: tag.props.id })}
-                    >
-                      <div className="flex justify-between">
-                        <div className="flex items-center space-x-2 px-2 hover:bg-[#f5f5f5]">
-                          <div
-                            style={{
-                              color: tag.props.color,
-                              fill: tag.props.color,
-                              marginTop: '5px',
-                            }}
-                          >
-                            <TagFilled style={{ fontSize: '24px' }} />
-                          </div>
-                          <span className="font-semibold text-text02 group-hover:text-text01">
-                            {tag.props.name}
-                          </span>
-                        </div>
-                        <Dropdown
-                          overlay={
-                            <Menu>
-                              <Menu.Item
-                                key={'Edit'}
-                                onClick={() => handleUpdate(tag.props.id)}
-                              >
-                                <div>Edit</div>
-                              </Menu.Item>
-                            </Menu>
-                          }
-                        >
-                          <MoreOutlined
-                            className="cursor-pointer text-text03 hover:text-opacity01"
-                            style={{
-                              fontSize: '24px',
-                            }}
-                          />
-                        </Dropdown>
-                      </div>
-                    </Menu.Item>
-                  ))
-                )}
-              </Menu>
-            </div>
-          </Sider>
-
+                <NotificationSidebar
+                  t={t}
+                  notificationsData={notificationsData}
+                  tags={tags}
+                  loadingTags={loadingTags}
+                  onFilter={setFilterParams}
+                  onModalOpen={setIsModalOpen}
+                  handleUpdate={handleUpdate}
+                  onDrawerVisible={setDrawerVisible}
+                />
+              </Drawer>
+            </>
+          ) : (
+            <Sider
+              className="border-r border-borderFill bg-white"
+              breakpoint="sm"
+              width={SIDEBAR_WIDTH}
+            >
+              <NotificationSidebar
+                t={t}
+                notificationsData={notificationsData}
+                tags={tags}
+                loadingTags={loadingTags}
+                onFilter={setFilterParams}
+                onModalOpen={setIsModalOpen}
+                handleUpdate={handleUpdate}
+                onDrawerVisible={setDrawerVisible} 
+              />
+            </Sider>
+          )}
           <Layout className="bg-white px-4 sm:px-6 py-4">
-            <Content className="w-full max-w-full sm:max-w-[740px]">
+            <Content className="w-full sm:max-w-[740px]">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Checkbox />
@@ -849,14 +711,14 @@ const Notifications: React.FC = () => {
                     styles={{ body: { padding: 24 } }}
                   >
                     <div className="flex justify-between">
-                      <AntdButton
+                      <Button
                         type="link"
                         icon={<ArrowLeftOutlined />}
                         onClick={() => setSelectedNotification(null)}
                         style={{ paddingLeft: 0 }}
                       >
                         {t('login.back')}
-                      </AntdButton>
+                      </Button>
                       <div className="flex space-x-2 text-text01">
                         <StarOutlined
                           className={`text-lg cursor-pointer ${selectedNotification.type === UserNotificationType.FAVORITE ? 'text-yellow-500' : ''}`}
@@ -904,7 +766,7 @@ const Notifications: React.FC = () => {
                 </div>
               ) : notificationsLoading ? (
                 <TableSkeleton columnCount={5} />
-              ) : notifications.length > 0 ? (
+              ) : (
                 <List
                   itemLayout="vertical"
                   dataSource={notificationsData}
@@ -980,20 +842,6 @@ const Notifications: React.FC = () => {
                     </Card>
                   )}
                 />
-              ) : (
-                <div className="flex flex-col justify-center items-center mt-16">
-                  <Empty
-                    description={t('notifications.you')}
-                    image={
-                      <img
-                        src={NoToken}
-                        alt="no-data"
-                        className="mx-auto"
-                        loading="lazy"
-                      />
-                    }
-                  />
-                </div>
               )}
             </Content>
           </Layout>

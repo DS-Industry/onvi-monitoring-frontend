@@ -21,6 +21,7 @@ import NotificationYes from '@icons/Notification_Yes.svg?react';
 import { MenuOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
+
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 const AVATAR_URL = import.meta.env.VITE_S3_CLOUD + '/avatar/user/';
