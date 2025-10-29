@@ -12,7 +12,7 @@ import Articles from '@/pages/Finance/Articles';
 import MonthlyExpanse from '@/pages/Finance/MonthlyExpanse';
 import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
 import DirectoryArticles from '@/pages/Finance/DirectoryArticles';
-import MarketingCompanies from '@/pages/Marketing/MarketingCompanies';
+import MarketingCampaigns from '@/pages/Marketing/MarketingCampaigns';
 const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
@@ -944,8 +944,8 @@ const routes = [
       {
         name: 'marketingCompanies',
         isVisible: true,
-        path: '/marketing/companies',
-        component: MarketingCompanies,
+        path: '/marketing/campaigns',
+        component: MarketingCampaigns,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
@@ -954,7 +954,7 @@ const routes = [
       {
         name: 'newMarketingCampaign',
         isVisible: true,
-        path: '/marketing/companies/new/marketing/campaign',
+        path: '/marketing/campaign/create',
         component: React.lazy(
           () => import('@/pages/Marketing/NewMarketingCampaign')
         ),
