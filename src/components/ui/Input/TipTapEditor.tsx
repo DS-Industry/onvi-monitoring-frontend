@@ -1,162 +1,31 @@
-import { useEffect, useRef } from 'react';
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import React, { useEffect, useState } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
-import TaskList from '@tiptap/extension-task-list';
-import TaskItem from '@tiptap/extension-task-item';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-
-type MenuBarProps = {
-  editor: Editor | null;
-  readonly?: boolean;
-};
-
-const MenuBar = ({ editor, readonly }: MenuBarProps) => {
-  if (!editor) {
-    return null;
-  }
-
-  return (
-    <div className="flex items-center gap-2 p-2">
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleBold().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('bold') ? 'text-primary' : 'text-text01'}`}
-        title="Bold"
-      >
-        <strong>B</strong>
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleItalic().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('italic') ? 'text-primary' : 'text-text01'}`}
-        title="Italic"
-      >
-        <i>I</i>
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleUnderline().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('underline') ? 'text-primary' : 'text-text01'}`}
-        title="Underline"
-      >
-        <u>U</u>
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleStrike().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('strike') ? 'text-primary' : 'text-text01'}`}
-        title="Strikethrough"
-      >
-        <s>S</s>
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleBulletList().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('bulletList') ? 'text-primary' : 'text-text01'}`}
-        title="Bullet List"
-      >
-        •
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleOrderedList().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('orderedList') ? 'text-primary' : 'text-text01'}`}
-        title="Numbered List"
-      >
-        1.
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          readonly ? {} : editor.chain().focus().toggleTaskList().run()
-        }
-        className={`p-2 hover:bg-background06 rounded ${editor.isActive('taskList') ? 'text-primary' : 'text-text01'}`}
-        title="Task List"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="5" width="6" height="6" rx="1" />
-          <path d="M3 17h6" />
-          <path d="M13 5h8" />
-          <path d="M13 9h5" />
-          <path d="M13 17h8" />
-          <path d="M13 21h5" />
-        </svg>
-      </button>
-      <span className="text-text01">...</span>
-      <div className="ml-auto flex gap-2">
-        <button
-          type="button"
-          onClick={() =>
-            readonly ? {} : editor.chain().focus().setContent('').run()
-          }
-          className="p-2 hover:bg-background06 rounded text-text01"
-          title="Clear content"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-            <path d="M9 3v18" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => (readonly ? {} : editor.chain().focus().undo().run())}
-          className="p-2 hover:bg-background06 rounded text-text01"
-          title="Undo"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 7v6h6" />
-            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-};
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Link from '@tiptap/extension-link';
+import { message, Tooltip, Input, Button } from 'antd';
+import {
+  BoldOutlined,
+  ItalicOutlined,
+  UnderlineOutlined,
+  StrikethroughOutlined,
+  OrderedListOutlined,
+  UnorderedListOutlined,
+  UndoOutlined,
+  RedoOutlined,
+  ClearOutlined,
+  CheckSquareOutlined,
+  LinkOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
+import './TipTapEditor.css';
 
 type Props = {
   value?: string;
@@ -165,160 +34,196 @@ type Props = {
   autoResize?: boolean;
 };
 
-const TiptapEditor = ({ value, onChange, readonly = false, autoResize = false }: Props) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<string>(value || '');
-  const isEditingRef = useRef<boolean>(false);
+const ToolbarButton: React.FC<{
+  onClick: () => void;
+  active?: boolean;
+  icon: React.ReactNode;
+  title: string;
+}> = ({ onClick, active, icon, title }) => (
+  <Tooltip title={title}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`p-2 rounded-md text-text02 hover:bg-gray-100 transition ${
+        active ? 'bg-blue-100 text-[#0B68E1]' : ''
+      }`}
+    >
+      {icon}
+    </button>
+  </Tooltip>
+);
 
-  // Add custom CSS to ensure list styles are displayed
-  useEffect(() => {
-    // Add CSS for ordered and unordered lists
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `
-      .ProseMirror ul { list-style-type: disc; margin-left: 1.5em; }
-      .ProseMirror ol { list-style-type: decimal; margin-left: 1.5em; }
-      .ProseMirror ul li, .ProseMirror ol li { margin-bottom: 0.5em; }
-      .ProseMirror ul[data-type="taskList"] { list-style-type: none; margin-left: 0; }
-      .ProseMirror ul[data-type="taskList"] li { display: flex; align-items: flex-start; }
-      .ProseMirror ul[data-type="taskList"] li > label { margin-right: 0.5em; }
-      ${autoResize ? `
-        .tiptap-auto-resize .ProseMirror {
-          min-height: 1.5em;
-          max-height: 200px;
-          overflow-y: auto;
-        }
-        .tiptap-auto-resize .ProseMirror:empty::before {
-          content: attr(data-placeholder);
-          color: #9ca3af;
-          pointer-events: none;
-        }
-      ` : ''}
-    `;
-    document.head.appendChild(styleEl);
-
-    return () => {
-      document.head.removeChild(styleEl);
-    };
-  }, [autoResize]);
+const TiptapEditor: React.FC<Props> = ({
+  value = '',
+  onChange,
+  readonly = false,
+}) => {
+  const [, contextHolder] = message.useMessage();
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkValue, setLinkValue] = useState('');
 
   const editor = useEditor({
     extensions: [
-      // Use only essential parts of StarterKit, manually add what we need
-      Document,
-      Paragraph,
-      Text,
       StarterKit.configure({
-        // Disable all list-related extensions from StarterKit
         bulletList: false,
         orderedList: false,
         listItem: false,
       }),
+      BulletList,
+      OrderedList,
+      ListItem,
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Underline,
-      // Add list extensions with proper configuration
-      ListItem.configure({
+      Link.configure({
+        openOnClick: true,
+        linkOnPaste: true,
         HTMLAttributes: {
-          class: 'list-item',
-        },
-      }),
-      BulletList.configure({
-        HTMLAttributes: {
-          class: 'bullet-list',
-        },
-      }),
-      OrderedList.configure({
-        HTMLAttributes: {
-          class: 'ordered-list',
-        },
-      }),
-      TaskList.configure({
-        HTMLAttributes: {
-          class: 'task-list',
-        },
-      }),
-      TaskItem.configure({
-        nested: true,
-        HTMLAttributes: {
-          class: 'task-item',
+          rel: 'noopener noreferrer',
+          target: '_blank',
+          class: 'text-blue-600 underline hover:text-blue-800',
         },
       }),
     ],
-    content: value || '',
+    content: value,
     editable: !readonly,
     onUpdate: ({ editor }) => {
-      if (readonly) return;
-      isEditingRef.current = true;
       const html = editor.getHTML();
-      contentRef.current = html;
-      if (onChange) onChange(html);
-      setTimeout(() => {
-        isEditingRef.current = false;
-      }, 10);
-    },
-    editorProps: {
-      attributes: {
-        class: `prose prose-sm focus:outline-none max-w-none ${autoResize ? 'tiptap-auto-resize' : ''}`,
-        ...(autoResize && { 'data-placeholder': 'Комментарий по выполнению' }),
-      },
-      handleKeyDown: (_view, event) => {
-        if (event.key === 'Enter') {
-          // Allow default Enter behavior for lists
-          if (
-            editor &&
-            (editor.isActive('bulletList') ||
-              editor.isActive('orderedList') ||
-              editor.isActive('taskList'))
-          ) {
-            return false; // Let Tiptap handle the Enter key for lists
-          }
-          event.stopPropagation();
-          return false;
-        }
-        return false;
-      },
+      onChange?.(html);
     },
   });
 
   useEffect(() => {
-    if (editor && !isEditingRef.current && value !== contentRef.current) {
-      contentRef.current = value || '';
-      editor.commands.setContent(contentRef.current);
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value || '', false);
     }
   }, [value, editor]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      // Don't prevent Enter in lists
-      if (
-        editor &&
-        (editor.isActive('bulletList') ||
-          editor.isActive('orderedList') ||
-          editor.isActive('taskList'))
-      ) {
-        return;
-      }
-      e.stopPropagation();
-    }
+  if (!editor) return null;
+
+  const handleAddOrEditLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    setLinkValue(previousUrl || '');
+    setShowLinkInput(!showLinkInput);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const applyLink = () => {
+    if (linkValue === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: linkValue })
+        .run();
+    }
+    setShowLinkInput(false);
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      className={`w-full border rounded overflow-hidden bg-white ${autoResize ? 'tiptap-auto-resize' : ''}`}
-      onKeyDown={handleKeyDown}
-      onSubmit={handleSubmit}
-    >
-      <MenuBar editor={editor} readonly={readonly} />
-      <div className="border-t p-4">
-        <EditorContent
-          editor={editor}
-          className={`focus:outline-none text-text01 ${autoResize ? '' : 'min-h-64'}`}
-          placeholder={autoResize ? undefined : "Комментарий по выполнению"}
+    <div className="w-full border rounded-lg shadow-sm bg-white">
+      {contextHolder}
+      <div className="flex flex-wrap items-center gap-1 border-b bg-gray-50 p-2 rounded-t-lg">
+        <ToolbarButton
+          title="Bold"
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          active={editor.isActive('bold')}
+          icon={<BoldOutlined />}
         />
+        <ToolbarButton
+          title="Italic"
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          active={editor.isActive('italic')}
+          icon={<ItalicOutlined />}
+        />
+        <ToolbarButton
+          title="Underline"
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          active={editor.isActive('underline')}
+          icon={<UnderlineOutlined />}
+        />
+        <ToolbarButton
+          title="Strikethrough"
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          active={editor.isActive('strike')}
+          icon={<StrikethroughOutlined />}
+        />
+        <ToolbarButton
+          title="Bullet List"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          active={editor.isActive('bulletList')}
+          icon={<UnorderedListOutlined />}
+        />
+        <ToolbarButton
+          title="Ordered List"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          active={editor.isActive('orderedList')}
+          icon={<OrderedListOutlined />}
+        />
+        <ToolbarButton
+          title="Checklist"
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          active={editor.isActive('taskList')}
+          icon={<CheckSquareOutlined />}
+        />
+
+        <ToolbarButton
+          title="Add/Edit Link"
+          onClick={handleAddOrEditLink}
+          active={editor.isActive('link')}
+          icon={<LinkOutlined />}
+        />
+        <ToolbarButton
+          title="Remove Link"
+          onClick={() => editor.chain().focus().unsetLink().run()}
+          icon={<DeleteOutlined />}
+        />
+
+        <div className="ml-auto flex gap-1">
+          <ToolbarButton
+            title="Undo"
+            onClick={() => editor.chain().focus().undo().run()}
+            icon={<UndoOutlined />}
+          />
+          <ToolbarButton
+            title="Redo"
+            onClick={() => editor.chain().focus().redo().run()}
+            icon={<RedoOutlined />}
+          />
+          <ToolbarButton
+            title="Clear"
+            onClick={() => editor.chain().focus().clearContent().run()}
+            icon={<ClearOutlined />}
+          />
+        </div>
+      </div>
+
+      {showLinkInput && (
+        <div className="flex items-center gap-2 p-2 border-b bg-gray-50">
+          <Input
+            placeholder="Enter URL"
+            value={linkValue}
+            onChange={e => setLinkValue(e.target.value)}
+            onPressEnter={applyLink}
+            size="small"
+          />
+          <Button
+            type="primary"
+            size="small"
+            icon={<CheckOutlined />}
+            onClick={applyLink}
+          />
+          <Button
+            size="small"
+            icon={<CloseOutlined />}
+            onClick={() => setShowLinkInput(false)}
+          />
+        </div>
+      )}
+
+      <div className="p-3 min-h-[200px] prose max-w-none focus:outline-none">
+        <EditorContent editor={editor} />
       </div>
     </div>
   );
