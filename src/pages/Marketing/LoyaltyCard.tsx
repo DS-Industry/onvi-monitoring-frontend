@@ -69,8 +69,6 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
   const config = statusConfig[status] ?? statusConfig.DRAFT;
   const { color, iconBg, icon, label } = config;
 
-  console.log('LoyaltyCard status:', status);
-
   return (
     <Card
       hoverable
