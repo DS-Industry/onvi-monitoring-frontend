@@ -1,0 +1,54 @@
+.prose ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+}
+
+.prose ul[data-type='taskList'] {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.prose ul[data-type='taskList'] li {
+  display: flex;
+  align-items: start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.prose ul[data-type='taskList'] input[type='checkbox'] {
+  accent-color: #1677ff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.ProseMirror {
+  outline: none !important;
+  cursor: text;
+  min-height: 200px;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror a {
+  color: #1677ff;
+  text-decoration: underline;
+}
+.ProseMirror a:hover {
+  color: #0958d9;
+}

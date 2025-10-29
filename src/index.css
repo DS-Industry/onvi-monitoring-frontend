@@ -19,16 +19,6 @@ input:-webkit-autofill {
   animation-duration: 1ms;
 }
 
-/* body {
-    background-color: white; 
-    color: black; 
-  } */
-
-/* input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    cursor: pointer;
-} */
-
 .rbc-label {
   padding: 0 !important;
 }
