@@ -954,7 +954,7 @@ const routes = [
       {
         name: 'newMarketingCampaign',
         isVisible: true,
-        path: '/marketing/campaigns/new/marketing/campaign',
+        path: '/marketing/campaign/create',
         component: React.lazy(
           () => import('@/pages/Marketing/NewMarketingCampaign')
         ),

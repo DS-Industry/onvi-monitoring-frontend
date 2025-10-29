@@ -107,7 +107,7 @@ const MarketingCampaigns: React.FC = () => {
         return (
           <Link
             to={{
-              pathname: '/marketing/campaigns/new/marketing/campaign',
+              pathname: '/marketing/campaign/create',
               search: `?marketingCampaignId=${record.id}`,
             }}
             className="text-primary02 hover:text-primary02_Hover font-semibold"
@@ -149,7 +149,7 @@ const MarketingCampaigns: React.FC = () => {
       title: t('marketingLoyalty.numberOfBranches'),
       dataIndex: 'posCount',
       key: 'posCount',
-    }
+    },
   ];
 
   return (
@@ -163,9 +163,7 @@ const MarketingCampaigns: React.FC = () => {
         <Button
           icon={<PlusOutlined />}
           className="btn-primary"
-          onClick={() =>
-            navigate('/marketing/campaigns/new/marketing/campaign')
-          }
+          onClick={() => navigate('/marketing/campaign/create')}
         >
           <div className="hidden sm:flex">{t('routes.newPromotion')}</div>
         </Button>
@@ -237,23 +235,13 @@ const MarketingCampaigns: React.FC = () => {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
             {promotions.map((card, i) => (
-                <CampaignCard
-                  key={i}
-                  title={card.name}
-                  startDate={card.launchDate}
-                  endDate={card.endDate}
-                  description={card.description || ''}
-                  branches={card.posCount}
-                  status={card.status as MarketingCampaignStatus}
-                  type={t(`marketing.${card.type}`)}
-                  loading={isLoading}
-                />
-              ))}
+              <CampaignCard key={i} campaign={card} loading={isLoading} />
+            ))}
           </div>
           <div className="mt-4">
             <Pagination
               current={currentPage}
-              total={0}
+              total={promotionsData?.total || 0}
               pageSize={pageSize}
               pageSizeOptions={ALL_PAGE_SIZES}
               showTotal={(total, range) => `${range[0]}–${range[1]} / ${total}`}

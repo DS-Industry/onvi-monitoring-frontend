@@ -11,30 +11,18 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { MarketingCampaignStatus } from '@/utils/constants';
+import { MarketingCampaignResponse } from '@/services/api/marketing';
 
 const { Text } = Typography;
 
 interface CampaignCardProps {
-  title: string;
-  startDate: string;
-  endDate?: string;
-  description: string;
-  branches: number;
-  type: string;
-  status: MarketingCampaignStatus;
+  campaign: MarketingCampaignResponse;
   onClick?: () => void;
   loading: boolean;
 }
 
 const CampaignCard: React.FC<CampaignCardProps> = ({
-  title,
-  startDate,
-  endDate,
-  description,
-  branches,
-  type,
-  status,
+  campaign,
   onClick,
   loading,
 }) => {
@@ -101,19 +89,19 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         <Tag color={color}>{label}</Tag>
       </div>
 
-      <div className="text-sm font-semibold">{title}</div>
+      <div className="text-sm font-semibold">{campaign.name}</div>
 
-      <Text type="secondary" ellipsis={{ tooltip: description }}>
-        {description}
+      <Text type="secondary" ellipsis={{ tooltip: campaign.description }}>
+        {campaign.description}
       </Text>
 
       <div className="flex space-x-2 text-text02 text-sm">
         <div className="flex items-center">
-          {dayjs(startDate).format('DD.MM.YYYY,hh:mm')}
+          {dayjs(campaign.launchDate).format('DD.MM.YYYY,hh:mm')}
         </div>
         <ArrowRightOutlined style={{ fontSize: 10 }} />
         <div className="flex items-center">
-          {dayjs(endDate).format('DD.MM.YYYY,hh:mm')}
+          {dayjs(campaign.endDate).format('DD.MM.YYYY,hh:mm')}
         </div>
       </div>
 
@@ -122,14 +110,14 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
           <CarOutlined style={{ fontSize: 16 }} />
           <div className="text-xs">
             <div className="text-text01">{t('marketingLoyalty.branches')}</div>
-            <div className="text-base03">{branches}</div>
+            <div className="text-base03">{campaign.posCount}</div>
           </div>
         </div>
         <div className="flex">
           <UserOutlined style={{ fontSize: 16 }} />
           <div className="text-xs">
             <div className="text-text01">{t('constants.status')}</div>
-            <div className="text-base03">{type}</div>
+            <div className="text-base03">{t(`marketing.${campaign.type}`)}</div>
           </div>
         </div>
         <div className="text-primary02 text-sm flex items-center ml-2 cursor-pointer">
