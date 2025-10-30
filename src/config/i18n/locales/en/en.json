@@ -1875,6 +1875,19 @@
     "terms": "Terms and conditions and prizes",
     "promotion": "Promotion content",
     "geography": "Geography of application",
-    "setting": "Setting up the main components of the campaign"
+    "setting": "Setting up the main components of the campaign",
+    "term": "Terms",
+    "settingUp": "Setting up reward conditions",
+    "if": "If",
+    "conditionType": "Condition Type",
+    "day": "Day of the week",
+    "reward": "Reward",
+    "sett": "Setting up a reward for fulfilling conditions",
+    "discount": "Discount percentage:",
+    "give": "Give a discount to the client as a percentage",
+    "increased": "Increased cashback",
+    "increase": "Increase your cashback during the promotion period",
+    "accrual": "Accrual of points",
+    "award": "Award N additional points"
   }
 }
