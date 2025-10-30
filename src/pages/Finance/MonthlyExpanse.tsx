@@ -132,6 +132,7 @@ const MonthlyExpanse: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [modal, contextHolder] = Modal.useModal();
   const dateStartParam = searchParams.get('dateStart')
     ? dayjs(searchParams.get('dateStart')).toDate()
     : dayjs().startOf('month').toDate();
@@ -276,7 +277,7 @@ const MonthlyExpanse: React.FC = () => {
   const navigate = useNavigate();
 
   const handleDelete = (id: string | number) => {
-    Modal.confirm({
+    modal.confirm({
       title: t('common.title'),
       content: t('common.content'),
       okText: t('common.okText'),
@@ -547,6 +548,7 @@ const MonthlyExpanse: React.FC = () => {
 
   return (
     <div>
+      {contextHolder}
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
