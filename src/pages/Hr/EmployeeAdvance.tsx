@@ -120,6 +120,7 @@ const EmployeeAdvance: React.FC = () => {
   const [editingKey, setEditingKey] = useState('');
   const { showToast } = useToast();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [modal, contextHolder] = Modal.useModal();
 
   const screens = Grid.useBreakpoint();
 
@@ -316,7 +317,7 @@ const EmployeeAdvance: React.FC = () => {
   };
 
   const handleDeleteRow = async () => {
-    Modal.confirm({
+    modal.confirm({
       title: t('common.title'),
       content: t('common.content'),
       okText: t('common.okText'),
@@ -507,6 +508,7 @@ const EmployeeAdvance: React.FC = () => {
 
   return (
     <div>
+      {contextHolder}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span

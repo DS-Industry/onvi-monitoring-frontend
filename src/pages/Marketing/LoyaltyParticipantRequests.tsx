@@ -63,10 +63,10 @@ const useLoyaltyParticipantRequests = (
     mutate,
     pagination: data
       ? {
-          total: data.totalCount,
-          currentPage: data.page,
-          pageSize: data.size,
-        }
+        total: data.totalCount,
+        currentPage: data.page,
+        pageSize: data.size,
+      }
       : null,
   };
 };
@@ -75,6 +75,7 @@ const LoyaltyParticipantRequests: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [modal, contextHolder] = Modal.useModal();
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -114,7 +115,7 @@ const LoyaltyParticipantRequests: React.FC = () => {
 
   const handleApproveClick = useCallback(
     (record: LoyaltyParticipantRequest) => {
-      Modal.confirm({
+      modal.confirm({
         title: t('loyaltyParticipantRequests.approveRequest'),
         content: (
           <div className="mt-4">
@@ -152,7 +153,7 @@ const LoyaltyParticipantRequests: React.FC = () => {
 
   const handleRejectClick = useCallback(
     (record: LoyaltyParticipantRequest) => {
-      Modal.confirm({
+      modal.confirm({
         title: t('loyaltyParticipantRequests.rejectRequest'),
         content: (
           <div className="mt-4">
@@ -309,6 +310,7 @@ const LoyaltyParticipantRequests: React.FC = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="mb-6">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
@@ -333,16 +335,16 @@ const LoyaltyParticipantRequests: React.FC = () => {
         pagination={
           pagination
             ? {
-                current: pagination.currentPage,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} / ${total} ${t('constants.requests')}`,
-                onChange: handlePaginationChange,
-                onShowSizeChange: handlePaginationChange,
-              }
+              current: pagination.currentPage,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} / ${total} ${t('constants.requests')}`,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }
             : false
         }
         scroll={{ x: 800 }}

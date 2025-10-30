@@ -1,9 +1,10 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import "./config/i18n/index.ts";
-import './styles/components.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+import './config/i18n/index.ts';
+import './styles/components.css';
+
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 import { datadogLogs } from '@datadog/browser-logs';
@@ -38,13 +39,9 @@ if (ENV === 'staging') {
   });
 }
 
-// main.tsx or App.tsx
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
     .register('/firebase-messaging-sw.js')
-    .then(() => {
-      // console.log("Service Worker registered:", registration);
-    })
     .catch(err => {
       console.error('Service Worker registration failed:', err);
     });
