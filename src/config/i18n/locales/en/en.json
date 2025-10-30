@@ -118,7 +118,8 @@
     "falseDeposits": "False deposits",
     "falseDeposit": "False deposit",
     "createLoyalty": "Creating a loyalty program",
-    "viewLoyalty": "Viewing a loyalty program"
+    "viewLoyalty": "Viewing a loyalty program",
+    "creatingCampaign": "Creating a Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
@@ -1869,5 +1870,10 @@
     "tPowerFact": "T-POWER, Actual",
     "tPowerTime": "T-POWER, Time",
     "tPowerRecalculated": "T-POWER, Recalculated"
+  },
+  "marketingCampaigns": {
+    "terms": "Terms and conditions and prizes",
+    "promotion": "Promotion content",
+    "geography": "Geography of application"
   }
 }

@@ -118,7 +118,8 @@
     "falseDeposits": "Ложные зачисления",
     "falseDeposit": "Ложный кредит",
     "createLoyalty": "Создание программы лояльности",
-    "viewLoyalty": "Просмотр программы лояльности"
+    "viewLoyalty": "Просмотр программы лояльности",
+    "creatingCampaign": "Создание маркетинговой кампании"
   },
   "dashboard": {
     "news": "Новости",
@@ -1868,5 +1869,10 @@
     "tPowerFact": "T-POWER, факт",
     "tPowerTime": "T-POWER, время",
     "tPowerRecalculated": "T-POWER, пересчет"
+  },
+  "marketingCampaigns": {
+    "terms": "Условия и призы",
+    "promotion": "Контент акции",
+    "geography": "География применения"
   }
 }
