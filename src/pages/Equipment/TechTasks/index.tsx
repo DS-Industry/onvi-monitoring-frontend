@@ -69,6 +69,7 @@ const TechTasks: React.FC = () => {
 
   const user = useUser();
   const userPermissions = usePermissions();
+  const [modal, contextHolder] = Modal.useModal();
 
   const debouncedSearch = useCallback(
     debounce((value: string) => {
@@ -132,8 +133,8 @@ const TechTasks: React.FC = () => {
   const handleBulkDelete = () => {
     const selectedTasks = techTasks.filter(task => selectedRowKeys.includes(task.id));
     const taskIds = selectedRowKeys.map(key => Number(key));
-    
-    Modal.confirm({
+
+    modal.confirm({
       title: t('techTasks.confirmDelete'),
       content: t('techTasks.confirmDeleteMessage', { count: selectedTasks.length }),
       okText: t('techTasks.delete'),
@@ -145,13 +146,13 @@ const TechTasks: React.FC = () => {
             showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
             return;
           }
-          
+
           const bulkDeleteBody: BulkDeleteTechTasksBody = {
             ids: taskIds,
             ...(posId && { posId }),
             organizationId: user.organizationId,
           };
-          
+
           await bulkDeleteTechTasks(bulkDeleteBody);
           setSelectedRowKeys([]);
           await mutate();
@@ -290,17 +291,17 @@ const TechTasks: React.FC = () => {
         if (!record.createdBy) {
           return <span className="text-gray-400">-</span>;
         }
-        
+
         const { firstName, lastName, id } = record.createdBy;
         const firstInitial = firstName && firstName.length > 0 ? firstName.charAt(0) : '';
         const lastInitial = lastName && lastName.length > 0 ? lastName.charAt(0) : '';
         const initials = `${firstInitial}${lastInitial}`.toUpperCase();
         const fullName = `${firstName || ''} ${lastName || ''}`.trim();
         const avatarColors = getAvatarColorClasses(id);
-        
+
         return (
           <div className="flex items-center gap-2">
-            <div 
+            <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${avatarColors}`}
               title={fullName}
             >
@@ -323,17 +324,17 @@ const TechTasks: React.FC = () => {
         if (!record.executor) {
           return <span className="text-gray-400">-</span>;
         }
-        
+
         const { firstName, lastName, id } = record.executor;
         const firstInitial = firstName && firstName.length > 0 ? firstName.charAt(0) : '';
         const lastInitial = lastName && lastName.length > 0 ? lastName.charAt(0) : '';
         const initials = `${firstInitial}${lastInitial}`.toUpperCase();
         const fullName = `${firstName || ''} ${lastName || ''}`.trim();
         const avatarColors = getAvatarColorClasses(id);
-        
+
         return (
           <div className="flex items-center gap-2">
-            <div 
+            <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${avatarColors}`}
               title={fullName}
             >
@@ -355,6 +356,7 @@ const TechTasks: React.FC = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="ml-4 sm:ml-8 md:ml-12 lg:ml-0 mb-5">
         <div className="flex items-center space-x-2">
           <span className="ms-10 md:ms-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-text01">
@@ -362,7 +364,7 @@ const TechTasks: React.FC = () => {
           </span>
         </div>
       </div>
-      
+
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4 mb-6 px-4 sm:px-6 md:px-8 lg:px-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
           <Input.Search
@@ -383,7 +385,7 @@ const TechTasks: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <Can
           requiredPermissions={[
             { action: 'manage', subject: 'TechTask' },
@@ -407,7 +409,7 @@ const TechTasks: React.FC = () => {
           }
         </Can>
       </div>
-      
+
       <div className="overflow-x-auto">
         <div className="min-w-full max-w-full">
           <Table<TechTaskReadAllDisplay>

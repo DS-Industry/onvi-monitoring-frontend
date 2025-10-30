@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Form, Spin, Tabs, Input } from 'antd';
 import dayjs from 'dayjs';
-import { 
-  updateTechTask, 
+import {
+  updateTechTask,
   deleteTechTask,
-  getTags, 
-  getTechTaskItem, 
+  getTags,
+  getTechTaskItem,
   getTechTaskShapeItem,
   TypeTechTask,
   PeriodType,
@@ -54,6 +54,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const { showToast } = useToast();
   const userPermissions = usePermissions();
   const [form] = Form.useForm();
+  const [modal, contextHolder] = Modal.useModal();
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateItem[]>([]);
   const [availableTemplates, setAvailableTemplates] = useState<TemplateItem[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -132,7 +133,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setIsEditMode(false);
       setHasFormChanges(false);
       setSelectedTab('progress');
-      
+
       if (techTaskCommentsRef.current) {
         techTaskCommentsRef.current.cleanup();
       }
@@ -148,33 +149,33 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const initForm = () => {
     if (techTaskDetails && open && templates.length > 0) {
       const selectedItemIds = techTaskDetails.items?.map(item => item.id) || [];
-      
+
       const selectedTemplatesList = templates.filter(template => {
         const matchingByTitle = techTaskDetails.items?.find(item => item.title === template.title);
         if (matchingByTitle) return true;
         return selectedItemIds.includes(template.id);
       });
-      
+
       const availableTemplatesList = templates.filter(template => {
         const matchingByTitle = techTaskDetails.items?.find(item => item.title === template.title);
         const matchingById = selectedItemIds.includes(template.id);
         return !matchingByTitle && !matchingById;
       });
-      
+
       setSelectedTemplates(selectedTemplatesList);
       setAvailableTemplates(availableTemplatesList);
 
-        form.setFieldsValue({
-          name: techTaskDetails.name,
-          status: techTaskDetails.status,
-          type: techTaskDetails.type,
-          periodType: techTaskDetails.periodType,
-          customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
-          markdownDescription: techTaskDetails.markdownDescription || '', 
-          endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
-          tags: techTaskDetails.tags?.map(tag => tag.id) || [],
-        });
-      
+      form.setFieldsValue({
+        name: techTaskDetails.name,
+        status: techTaskDetails.status,
+        type: techTaskDetails.type,
+        periodType: techTaskDetails.periodType,
+        customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
+        markdownDescription: techTaskDetails.markdownDescription || '',
+        endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
+        tags: techTaskDetails.tags?.map(tag => tag.id) || [],
+      });
+
       setHasFormChanges(false);
     }
   }
@@ -206,7 +207,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           techTaskId: techTaskDetails.id,
           status: StatusTechTask.FINISHED,
         });
-        
+
         if (result) {
           showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
           onSuccess?.();
@@ -236,7 +237,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         status: StatusTechTask.RETURNED,
         endSpecifiedDate: techTaskDetails.endSpecifiedDate || dayjs().toDate(),
       });
-      
+
       if (result) {
         showToast(t('actions.returnSuccess'), 'success');
         onSuccess?.();
@@ -284,7 +285,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       return;
     }
 
-    Modal.confirm({
+    modal.confirm({
       title: t('techTasks.confirmDelete'),
       content: t('techTasks.confirmDeleteMessage', { count: 1 }),
       okText: t('techTasks.delete'),
@@ -310,13 +311,13 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       showToast(t('errors.permission.insufficient'), 'error');
       return;
     }
-    
+
     if (isEditMode && hasFormChanges) {
       mutateTechTaskDetails().then(() => {
         initForm()
       })
     }
-    
+
     setIsEditMode(!isEditMode);
   };
 
@@ -341,15 +342,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       footer={null}
       width={fullscreen ? '100vw' : 1200}
       style={{
-        height: fullscreen ? '100vh' : 'auto', 
-        maxWidth: fullscreen ? '100vw' : 'auto', 
-        padding: fullscreen ? 0 : "auto", 
+        height: fullscreen ? '100vh' : 'auto',
+        maxWidth: fullscreen ? '100vw' : 'auto',
+        padding: fullscreen ? 0 : "auto",
         top: fullscreen ? 0 : 50,
         margin: fullscreen ? 0 : "auto",
       }}
       zIndex={99999}
       className="update-tech-task-modal"
     >
+      {contextHolder}
       <Spin spinning={isLoading || isValidating} tip={t('common.loading')} className="h-full">
         <Form
           form={form}
@@ -358,7 +360,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
           onValuesChange={() => setHasFormChanges(true)}
           className="h-full flex flex-col"
         >
-        <div className="p-6 max-h-[700px] overflow-y-auto">
+          <div className="p-6 max-h-[700px] overflow-y-auto">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               <div className="flex flex-col flex-1 min-w-0 lg:max-w-[60%]">
                 <Form.Item
@@ -386,7 +388,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                     availableTemplates={availableTemplates}
                     totalTemplates={templates.length}
                     onTemplatesChange={handleTemplatesChange}
-                  />               
+                  />
                   {!isEditMode && (
                     <TechTaskViewMode
                       ref={techTaskViewModeRef}
@@ -415,8 +417,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   executor={techTaskDetails?.executor}
                 />
               </div>
-        </div>
-        </div>
+            </div>
+          </div>
 
           <UpdateTechTaskModalFooter
             hasUpdatePermission={hasUpdatePermission}
