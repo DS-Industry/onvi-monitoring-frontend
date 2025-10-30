@@ -1874,6 +1874,7 @@
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",
     "promotion": "Promotion content",
-    "geography": "Geography of application"
+    "geography": "Geography of application",
+    "setting": "Setting up the main components of the campaign"
   }
 }

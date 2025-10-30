@@ -25,7 +25,7 @@ const MarketingCampaignCreate: React.FC = () => {
 
   const steps = [
     {
-      title: t('marketingLoyalty.basicData'),
+      title: t('warehouse.basic'),
       content: <BasicInformation />,
       icon: <SettingOutlined />,
     },
