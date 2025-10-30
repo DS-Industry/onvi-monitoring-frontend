@@ -68,13 +68,13 @@ const useLoyaltyHubRequests = (
     mutate,
     pagination: data
       ? {
-          total: data.totalCount,
-          currentPage: data.page,
-          pageSize: data.size,
-          totalPages: data.totalPages,
-          hasNext: data.hasNext,
-          hasPrevious: data.hasPrevious,
-        }
+        total: data.totalCount,
+        currentPage: data.page,
+        pageSize: data.size,
+        totalPages: data.totalPages,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious,
+      }
       : null,
   };
 };
@@ -84,6 +84,7 @@ const LoyaltyHubRequests: React.FC = () => {
   const { showToast } = useToast();
   const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [modal, contextHolder] = Modal.useModal();
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -118,8 +119,8 @@ const LoyaltyHubRequests: React.FC = () => {
 
   const handleApproveClick = useCallback((request: LoyaltyRequest) => {
     let comment = '';
-    
-    Modal.confirm({
+
+    modal.confirm({
       title: t('loyaltyHubRequests.approveRequest'),
       content: (
         <div className="space-y-4">
@@ -142,9 +143,9 @@ const LoyaltyHubRequests: React.FC = () => {
       ),
       okText: t('constants.approve'),
       cancelText: t('constants.cancel'),
-      okButtonProps: { 
+      okButtonProps: {
         style: { backgroundColor: '#52c41a', borderColor: '#52c41a' },
-        loading: isApproving 
+        loading: isApproving
       },
       onOk: async () => {
         try {
@@ -160,8 +161,8 @@ const LoyaltyHubRequests: React.FC = () => {
 
   const handleRejectClick = useCallback((request: LoyaltyRequest) => {
     let comment = '';
-    
-    Modal.confirm({
+
+    modal.confirm({
       title: t('loyaltyHubRequests.rejectRequest'),
       content: (
         <div className="space-y-4">
@@ -184,9 +185,9 @@ const LoyaltyHubRequests: React.FC = () => {
       ),
       okText: t('constants.reject'),
       cancelText: t('constants.cancel'),
-      okButtonProps: { 
+      okButtonProps: {
         danger: true,
-        loading: isRejecting 
+        loading: isRejecting
       },
       onOk: async () => {
         try {
@@ -258,14 +259,14 @@ const LoyaltyHubRequests: React.FC = () => {
       ),
     },
     {
-        title: t('constants.comment'),
-        dataIndex: 'requestComment',
-        key: 'requestComment',
-        render: (record: string) => (
-          <span className="font-medium">
-            <span>{record}</span>
-          </span>
-        ),
+      title: t('constants.comment'),
+      dataIndex: 'requestComment',
+      key: 'requestComment',
+      render: (record: string) => (
+        <span className="font-medium">
+          <span>{record}</span>
+        </span>
+      ),
     },
     {
       title: t('general.createdAt'),
@@ -314,8 +315,9 @@ const LoyaltyHubRequests: React.FC = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="mb-6">
-         <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.hubRequests')}
           </span>
@@ -338,16 +340,16 @@ const LoyaltyHubRequests: React.FC = () => {
         pagination={
           pagination
             ? {
-                current: pagination.currentPage,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} / ${total} ${t('constants.requests')}`,
-                onChange: handlePaginationChange,
-                onShowSizeChange: handlePaginationChange,
-              }
+              current: pagination.currentPage,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} / ${total} ${t('constants.requests')}`,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }
             : false
         }
         scroll={{ x: 800 }}

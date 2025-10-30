@@ -28,6 +28,7 @@ const FalseDeposit: React.FC = () => {
   const { t } = useTranslation();
   const formattedDate = dayjs().format('YYYY-MM-DD');
   const [searchParams, setSearchParams] = useSearchParams();
+  const [modal, contextHolder] = Modal.useModal();
 
   const deviceId = Number(searchParams.get('deviceId') || 0);
   const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
@@ -59,7 +60,7 @@ const FalseDeposit: React.FC = () => {
   const dateRender = getDateRender();
 
   const handleDeleteRow = async () => {
-    Modal.confirm({
+    modal.confirm({
       title: t('common.title'),
       content: t('common.content'),
       okText: t('common.okText'),
@@ -152,6 +153,7 @@ const FalseDeposit: React.FC = () => {
 
   return (
     <div>
+      {contextHolder}
       <div
         className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
         onClick={() => {
