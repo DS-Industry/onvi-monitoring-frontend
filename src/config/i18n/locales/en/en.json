@@ -118,7 +118,8 @@
     "falseDeposits": "False deposits",
     "falseDeposit": "False deposit",
     "createLoyalty": "Creating a loyalty program",
-    "viewLoyalty": "Viewing a loyalty program"
+    "viewLoyalty": "Viewing a loyalty program",
+    "creatingCampaign": "Creating a Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
@@ -1869,5 +1870,35 @@
     "tPowerFact": "T-POWER, Actual",
     "tPowerTime": "T-POWER, Time",
     "tPowerRecalculated": "T-POWER, Recalculated"
+  },
+  "marketingCampaigns": {
+    "terms": "Terms and conditions and prizes",
+    "promotion": "Promotion content",
+    "geography": "Geography of application",
+    "setting": "Setting up the main components of the campaign",
+    "term": "Terms",
+    "settingUp": "Setting up reward conditions",
+    "if": "If",
+    "conditionType": "Condition Type",
+    "day": "Day of the week",
+    "reward": "Reward",
+    "sett": "Setting up a reward for fulfilling conditions",
+    "discount": "Discount percentage:",
+    "give": "Give a discount to the client as a percentage",
+    "increased": "Increased cashback",
+    "increase": "Increase your cashback during the promotion period",
+    "accrual": "Accrual of points",
+    "award": "Award N additional points",
+    "settingUpCampaign": "Setting up campaign display in the app",
+    "name": "Name in the application",
+    "enterName": "Enter name",
+    "type": "Type of promotion",
+    "icon": "Icon",
+    "banner": "Banner",
+    "description": "Description in the application",
+    "bannerIcon": "Banner/icon in the application",
+    "optimally": "(optimally: 166 x 166 px - icon, 343 x 180 px - for banner)",
+    "map": "Map",
+    "settingUpAffiliates": "Setting up affiliates participating in the campaign"
   }
 }

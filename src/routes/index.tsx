@@ -17,6 +17,7 @@ const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
 );
+const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
@@ -955,9 +956,7 @@ const routes = [
         name: 'newMarketingCampaign',
         isVisible: true,
         path: '/marketing/campaign/create',
-        component: React.lazy(
-          () => import('@/pages/Marketing/NewMarketingCampaign')
-        ),
+        component: MarketingCampaignCreate,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],

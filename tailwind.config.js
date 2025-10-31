@@ -37,7 +37,8 @@ export default {
         disabledFill: '#F7F9FC',
         borderFill: '#E4E5E7',
         warningFill: '#F58A00',
-        base03: '#ACAEB3'
+        base03: '#ACAEB3',
+        opacity02: '#F5FBFF'
       },
       animation: {
         progressMove: 'progressMove 1.5s linear infinite',
