@@ -1888,6 +1888,17 @@
     "increased": "Increased cashback",
     "increase": "Increase your cashback during the promotion period",
     "accrual": "Accrual of points",
-    "award": "Award N additional points"
+    "award": "Award N additional points",
+    "settingUpCampaign": "Setting up campaign display in the app",
+    "name": "Name in the application",
+    "enterName": "Enter name",
+    "type": "Type of promotion",
+    "icon": "Icon",
+    "banner": "Banner",
+    "description": "Description in the application",
+    "bannerIcon": "Banner/icon in the application",
+    "optimally": "(optimally: 166 x 166 px - icon, 343 x 180 px - for banner)",
+    "map": "Map",
+    "settingUpAffiliates": "Setting up affiliates participating in the campaign"
   }
 }
