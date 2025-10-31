@@ -13,7 +13,6 @@ import Terms from './Terms';
 import Promotion from './Promotion';
 import Geography from './Geography';
 import { Steps } from 'antd';
-import BasicData from './BasicData';
 
 const { Step } = Steps;
 
@@ -43,11 +42,6 @@ const MarketingCampaignCreate: React.FC = () => {
       title: t('marketingCampaigns.geography'),
       content: <Geography />,
       icon: <FireOutlined />,
-    },
-    {
-      title: t('marketingLoyalty.basicData'),
-      content: <BasicData />,
-      icon: <SettingOutlined />,
     },
   ];
 
