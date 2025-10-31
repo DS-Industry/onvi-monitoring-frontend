@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Checkbox, Typography } from 'antd';
 import { EnvironmentFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -16,20 +16,19 @@ const GeographyList: React.FC<GeographyListProps> = ({
   onSelectionChange,
 }) => {
   const { t } = useTranslation();
-  const [selectedIds, setSelectedIds] = useState<number[]>(participants.map(p => p.id));
-
-  // Notify parent when selection changes
-  useEffect(() => {
-    if (onSelectionChange) {
-      const selected = participants.filter(p => selectedIds.includes(p.id));
-      onSelectionChange(selected);
-    }
-  }, [selectedIds]);
+  const [selectedIds, setSelectedIds] = useState<number[]>(
+    participants.map(p => p.id)
+  );
 
   const handleToggle = (id: number, checked: boolean) => {
-    setSelectedIds(prev =>
-      checked ? [...prev, id] : prev.filter(i => i !== id)
-    );
+    setSelectedIds(prev => {
+      const updated = checked ? [...prev, id] : prev.filter(i => i !== id);
+      if (onSelectionChange) {
+        const selected = participants.filter(p => updated.includes(p.id));
+        onSelectionChange(selected);
+      }
+      return updated;
+    });
   };
 
   return (
