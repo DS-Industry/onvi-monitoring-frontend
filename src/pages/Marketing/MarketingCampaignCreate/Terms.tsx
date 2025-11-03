@@ -10,10 +10,10 @@ import {
   RightOutlined,
   RiseOutlined,
 } from '@ant-design/icons';
-import { Modal, Select, Button, Input, TimePicker } from 'antd';
+import { Button, Input } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
-import { Dayjs } from 'dayjs';
+import ConditionModal from './ConditionModal';
 
 const Terms: React.FC = () => {
   const { t } = useTranslation();
@@ -40,184 +40,15 @@ const Terms: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleTimeChange = (field: 'start' | 'end', value: Dayjs | null) => {
-    setCurrentCondition(prev => ({
-      ...prev,
-      value: {
-        ...prev.value,
-        [field]: value ? value.format('HH:mm') : undefined,
-      },
-    }));
-  };
-
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
-      <Modal
+     <ConditionModal
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={[
-          <Button key="cancel" onClick={handleCloseModal}>
-            {t('common.cancel')}
-          </Button>,
-          <Button
-            key="apply"
-            type="primary"
-            onClick={handleApply}
-            disabled={!currentCondition.type}
-          >
-            {t('marketing.apply')}
-          </Button>,
-        ]}
-        centered
-        className="rounded-2xl"
-      >
-        <div className="flex flex-col space-y-6 mb-40">
-          <div>
-            <div className="text-base font-semibold mb-2">
-              {t('marketingCampaigns.conditionType')}
-            </div>
-            <Select
-              className="w-60"
-              placeholder={t('marketingCampaigns.conditionType')}
-              value={currentCondition.type}
-              onChange={type => setCurrentCondition({ type, value: undefined })}
-              options={[
-                {
-                  label: t('marketingCampaigns.timePeriod'),
-                  value: 'timePeriod',
-                },
-                {
-                  label: t('marketingCampaigns.dayOfWeek'),
-                  value: 'dayOfWeek',
-                },
-                {
-                  label: t('marketingCampaigns.purchaseAmount'),
-                  value: 'purchaseAmount',
-                },
-                {
-                  label: t('marketingCampaigns.numberOfVisits'),
-                  value: 'numberOfVisits',
-                },
-                {
-                  label: t('marketingCampaigns.promoCodeEntry'),
-                  value: 'promoCodeEntry',
-                },
-                { label: t('marketingCampaigns.event'), value: 'event' },
-              ]}
-            />
-          </div>
-          <div>
-            {currentCondition.type && (
-              <div className="text-base font-semibold mb-2">
-                {t('marketing.value')}
-              </div>
-            )}
-            {currentCondition.type === 'timePeriod' && (
-              <div className="flex space-x-4">
-                <TimePicker
-                  format="HH:mm"
-                  placeholder={t('filters.dateTime.startTime')}
-                  onChange={v => handleTimeChange('start', v)}
-                  className="w-1/2"
-                />
-                <TimePicker
-                  format="HH:mm"
-                  placeholder={t('filters.dateTime.endTime')}
-                  onChange={v => handleTimeChange('end', v)}
-                  className="w-1/2"
-                />
-              </div>
-            )}
-
-            {/* 📅 Day of Week */}
-            {currentCondition.type === 'dayOfWeek' && (
-              <Select
-                mode="multiple"
-                className="w-60"
-                placeholder={t('marketingCampaigns.day')}
-                value={currentCondition.value}
-                onChange={value =>
-                  setCurrentCondition(prev => ({ ...prev, value }))
-                }
-                options={[
-                  { label: t('marketingCampaigns.monday'), value: 'monday' },
-                  { label: t('marketingCampaigns.tuesday'), value: 'tuesday' },
-                  {
-                    label: t('marketingCampaigns.wednesday'),
-                    value: 'wednesday',
-                  },
-                  {
-                    label: t('marketingCampaigns.thursday'),
-                    value: 'thursday',
-                  },
-                  { label: t('marketingCampaigns.friday'), value: 'friday' },
-                  {
-                    label: t('marketingCampaigns.saturday'),
-                    value: 'saturday',
-                  },
-                  { label: t('marketingCampaigns.sunday'), value: 'sunday' },
-                ]}
-              />
-            )}
-            {currentCondition.type === 'purchaseAmount' && (
-              <Input
-                type="number"
-                className="w-60"
-                placeholder={t('marketing.enter')}
-                value={currentCondition.value}
-                onChange={e =>
-                  setCurrentCondition(prev => ({
-                    ...prev,
-                    value: e.target.value,
-                  }))
-                }
-                suffix={<div>₽</div>}
-              />
-            )}
-            {currentCondition.type === 'numberOfVisits' && (
-              <Input
-                type="number"
-                className="w-60"
-                placeholder={t('techTasks.enterDaysCount')}
-                value={currentCondition.value}
-                onChange={e =>
-                  setCurrentCondition(prev => ({
-                    ...prev,
-                    value: e.target.value,
-                  }))
-                }
-              />
-            )}
-            {currentCondition.type === 'promoCodeEntry' && (
-              <Input
-                className="w-60"
-                placeholder={t('subscriptions.enter')}
-                value={currentCondition.value}
-                onChange={e =>
-                  setCurrentCondition(prev => ({
-                    ...prev,
-                    value: e.target.value,
-                  }))
-                }
-              />
-            )}
-            {currentCondition.type === 'event' && (
-              <Select
-                className="w-60"
-                placeholder={t('marketingCampaigns.selectEvent')}
-                value={currentCondition.value}
-                onChange={value =>
-                  setCurrentCondition(prev => ({ ...prev, value }))
-                }
-                options={[
-                  { label: 'Birthday', value: 'birthday' },
-                  { label: 'Anniversary', value: 'anniversary' },
-                ]}
-              />
-            )}
-          </div>
-        </div>
-      </Modal>
+        onApply={handleApply}
+        currentCondition={currentCondition}
+        setCurrentCondition={setCurrentCondition}
+      />
       <div className="flex items-center justify-center">
         <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex items-center space-x-4">

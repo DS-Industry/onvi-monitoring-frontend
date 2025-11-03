@@ -1138,7 +1138,14 @@
     "complete": "Complete",
     "attachFile": "Attach file",
     "and": "AND",
-    "or": "OR"
+    "or": "OR",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
   },
   "analysis": {
     "search": "Search",
@@ -1909,12 +1916,6 @@
     "numberOfVisits": "Number of visits",
     "promoCodeEntry": "Promo code entry",
     "event": "Event",
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday"
+    "selectEvent": "Enter event"
   }
 }

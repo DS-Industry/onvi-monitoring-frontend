@@ -1138,7 +1138,14 @@
     "complete": "Завершить",
     "attachFile": "Прикрепить файл",
     "and": "И",
-    "or": "ИЛИ"
+    "or": "ИЛИ",
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье"
   },
   "analysis": {
     "search": "Поиск",
@@ -1908,12 +1915,6 @@
     "numberOfVisits": "Количество визитов",
     "promoCodeEntry": "Ввод промокода",
     "event": "Событие",
-    "monday": "Понедельник",
-    "tuesday": "Вторник",
-    "wednesday": "Среда",
-    "thursday": "Четверг",
-    "friday": "Пятница",
-    "saturday": "Суббота",
-    "sunday": "Воскресенье"
+    "selectEvent": "Выберите событие"
   }
 }
