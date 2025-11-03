@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   BoxPlotOutlined,
   CheckOutlined,
+  CloseOutlined,
   GiftOutlined,
   PercentageOutlined,
   PlusOutlined,
@@ -18,23 +19,35 @@ const Terms: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [conditionType, setConditionType] = useState<string | undefined>();
-  const [conditionValue, setConditionValue] = useState<string[] | undefined>();
   const [percentage, setPercentage] = useState<number>(0);
   const [card, setCard] = useState<'percent' | 'graph' | 'diamond'>('percent');
-  const [time, setTime] = useState<Dayjs | null>(null);
-  const [purchaseAmount, setPurchaseAmount] = useState<number | undefined>(
-    undefined
-  );
-  const [visits, setVisits] = useState<number | undefined>(undefined);
-  const [promoCode, setPromoCode] = useState<number | undefined>(undefined);
-  const [event, setEvent] = useState<string | undefined>();
+  const [currentCondition, setCurrentCondition] = useState<{
+    type?: string;
+    value?: any;
+  }>({});
+  const [conditions, setConditions] = useState<
+    { type?: string; value?: any }[]
+  >([]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleApply = () => {
+    if (currentCondition.type && currentCondition.value) {
+      setConditions(prev => [...prev, currentCondition]);
+    }
+    setCurrentCondition({});
     setIsModalOpen(false);
+  };
+
+  const handleTimeChange = (field: 'start' | 'end', value: Dayjs | null) => {
+    setCurrentCondition(prev => ({
+      ...prev,
+      value: {
+        ...prev.value,
+        [field]: value ? value.format('HH:mm') : undefined,
+      },
+    }));
   };
 
   return (
@@ -50,7 +63,7 @@ const Terms: React.FC = () => {
             key="apply"
             type="primary"
             onClick={handleApply}
-            disabled={!conditionType || !conditionValue}
+            disabled={!currentCondition.type}
           >
             {t('marketing.apply')}
           </Button>,
@@ -65,9 +78,9 @@ const Terms: React.FC = () => {
             </div>
             <Select
               className="w-60"
-              placeholder={t('marketingCampaigns.day')}
-              value={conditionType}
-              onChange={setConditionType}
+              placeholder={t('marketingCampaigns.conditionType')}
+              value={currentCondition.type}
+              onChange={type => setCurrentCondition({ type, value: undefined })}
               options={[
                 {
                   label: t('marketingCampaigns.timePeriod'),
@@ -89,44 +102,43 @@ const Terms: React.FC = () => {
                   label: t('marketingCampaigns.promoCodeEntry'),
                   value: 'promoCodeEntry',
                 },
-                {
-                  label: t('marketingCampaigns.event'),
-                  value: 'event',
-                },
+                { label: t('marketingCampaigns.event'), value: 'event' },
               ]}
             />
           </div>
           <div>
-            {conditionType && (
+            {currentCondition.type && (
               <div className="text-base font-semibold mb-2">
                 {t('marketing.value')}
               </div>
             )}
-            {conditionType === 'timePeriod' && (
+            {currentCondition.type === 'timePeriod' && (
               <div className="flex space-x-4">
                 <TimePicker
-                  value={time}
                   format="HH:mm"
-                  onChange={time => setTime(time)}
-                  placeholder={t('finance.selTime')}
-                  className="w-1/2 sm:w-full"
+                  placeholder={t('filters.dateTime.startTime')}
+                  onChange={v => handleTimeChange('start', v)}
+                  className="w-1/2"
                 />
                 <TimePicker
-                  value={time}
                   format="HH:mm"
-                  onChange={time => setTime(time)}
-                  placeholder={t('finance.selTime')}
-                  className="w-1/2 sm:w-full"
+                  placeholder={t('filters.dateTime.endTime')}
+                  onChange={v => handleTimeChange('end', v)}
+                  className="w-1/2"
                 />
               </div>
             )}
-            {conditionType === 'dayOfWeek' && (
+
+            {/* 📅 Day of Week */}
+            {currentCondition.type === 'dayOfWeek' && (
               <Select
+                mode="multiple"
                 className="w-60"
-                mode='multiple'
                 placeholder={t('marketingCampaigns.day')}
-                value={conditionValue}
-                onChange={setConditionValue}
+                value={currentCondition.value}
+                onChange={value =>
+                  setCurrentCondition(prev => ({ ...prev, value }))
+                }
                 options={[
                   { label: t('marketingCampaigns.monday'), value: 'monday' },
                   { label: t('marketingCampaigns.tuesday'), value: 'tuesday' },
@@ -147,41 +159,60 @@ const Terms: React.FC = () => {
                 ]}
               />
             )}
-            {conditionType === 'purchaseAmount' && (
+            {currentCondition.type === 'purchaseAmount' && (
               <Input
                 type="number"
                 className="w-60"
-                placeholder={t('marketingCampaigns.day')}
-                value={purchaseAmount}
-                onChange={e => setPurchaseAmount(Number(e.target.value))}
+                placeholder={t('marketing.enter')}
+                value={currentCondition.value}
+                onChange={e =>
+                  setCurrentCondition(prev => ({
+                    ...prev,
+                    value: e.target.value,
+                  }))
+                }
                 suffix={<div>₽</div>}
               />
             )}
-            {conditionType === 'numberOfVisits' && (
+            {currentCondition.type === 'numberOfVisits' && (
               <Input
                 type="number"
                 className="w-60"
                 placeholder={t('techTasks.enterDaysCount')}
-                value={visits}
-                onChange={e => setVisits(Number(e.target.value))}
+                value={currentCondition.value}
+                onChange={e =>
+                  setCurrentCondition(prev => ({
+                    ...prev,
+                    value: e.target.value,
+                  }))
+                }
               />
             )}
-            {conditionType === 'promoCodeEntry' && (
+            {currentCondition.type === 'promoCodeEntry' && (
               <Input
-                type="number"
                 className="w-60"
                 placeholder={t('subscriptions.enter')}
-                value={promoCode}
-                onChange={e => setPromoCode(Number(e.target.value))}
+                value={currentCondition.value}
+                onChange={e =>
+                  setCurrentCondition(prev => ({
+                    ...prev,
+                    value: e.target.value,
+                  }))
+                }
               />
             )}
-            {conditionType === 'event' && (
+            {currentCondition.type === 'event' && (
               <Select
                 className="w-60"
-                placeholder={t('marketingCampaigns.day')}
-                value={event}
-                onChange={setEvent}
-                options={[]}
+                placeholder={t('marketingCampaigns.selectEvent')}
+                value={currentCondition.value}
+                onChange={value =>
+                  setCurrentCondition(prev => ({ ...prev, value }))
+                }
+                options={[
+                  { label: 'Birthday', value: 'birthday' },
+                  { label: 'Anniversary', value: 'anniversary' },
+                ]}
               />
             )}
           </div>
@@ -205,10 +236,54 @@ const Terms: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <div className="text-lg font-semibold">
-          {t('marketingCampaigns.if')}
-        </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className='text-lg font-semibold'>{t('marketingCampaigns.if')}</div>
+        {conditions.map((cond, index) => {
+          let valueDisplay = '';
+          if (
+            cond.type === 'timePeriod' &&
+            cond.value?.start &&
+            cond.value?.end
+          ) {
+            valueDisplay = `${cond.value.start} - ${cond.value.end}`;
+          } else if (Array.isArray(cond.value)) {
+            valueDisplay = cond.value
+              .map(v => t(`marketingCampaigns.${v}`) || v)
+              .join(', ');
+          } else {
+            valueDisplay = cond.value;
+          }
+
+          return (
+            <React.Fragment key={index}>
+              <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
+                <Button
+                  size="small"
+                  type="text"
+                  icon={<CloseOutlined />}
+                  className="!absolute top-1 right-1 text-text02 hover:text-primary02"
+                  onClick={() =>
+                    setConditions(conditions.filter((_, i) => i !== index))
+                  }
+                />
+
+                <div className="flex flex-col items-center justify-center text-center px-2">
+                  <div className="text-sm font-semibold text-text01">
+                    {t(`marketingCampaigns.${cond.type}`)}
+                  </div>
+                  <div className="text-sm text-text02">{valueDisplay}</div>
+                </div>
+              </div>
+
+              {index < conditions.length - 1 && (
+                <div className="text-primary02 font-semibold border-primary02 border-b-[0.5px]">
+                  {index % 2 === 0 ? t('common.and') : t('common.or')}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+
         <div
           className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
           onClick={handleOpenModal}

@@ -1136,7 +1136,9 @@
     "loading": "Loading...",
     "close": "Close",
     "complete": "Complete",
-    "attachFile": "Attach file"
+    "attachFile": "Attach file",
+    "and": "AND",
+    "or": "OR"
   },
   "analysis": {
     "search": "Search",
