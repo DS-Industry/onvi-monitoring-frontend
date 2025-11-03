@@ -1523,7 +1523,8 @@
     "approve": "Approve",
     "reject": "Reject",
     "cancel": "Cancel",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "end": "End"
   },
   "filters": {
     "reset": "Reset",
@@ -1899,6 +1900,19 @@
     "bannerIcon": "Banner/icon in the application",
     "optimally": "(optimally: 166 x 166 px - icon, 343 x 180 px - for banner)",
     "map": "Map",
-    "settingUpAffiliates": "Setting up affiliates participating in the campaign"
+    "settingUpAffiliates": "Setting up affiliates participating in the campaign",
+    "timePeriod": "Time period",
+    "dayOfWeek": "Day of the week",
+    "purchaseAmount": "Purchase amount",
+    "numberOfVisits": "Number of visits",
+    "promoCodeEntry": "Promo code entry",
+    "event": "Event",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
   }
 }

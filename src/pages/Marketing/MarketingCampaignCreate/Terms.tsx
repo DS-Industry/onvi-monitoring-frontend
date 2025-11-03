@@ -9,24 +9,31 @@ import {
   RightOutlined,
   RiseOutlined,
 } from '@ant-design/icons';
-import { Modal, Select, Button, Input } from 'antd';
+import { Modal, Select, Button, Input, TimePicker } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
+import { Dayjs } from 'dayjs';
 
 const Terms: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [conditionType, setConditionType] = useState<string | undefined>();
-  const [conditionValue, setConditionValue] = useState<string | undefined>();
+  const [conditionValue, setConditionValue] = useState<string[] | undefined>();
   const [percentage, setPercentage] = useState<number>(0);
   const [card, setCard] = useState<'percent' | 'graph' | 'diamond'>('percent');
+  const [time, setTime] = useState<Dayjs | null>(null);
+  const [purchaseAmount, setPurchaseAmount] = useState<number | undefined>(
+    undefined
+  );
+  const [visits, setVisits] = useState<number | undefined>(undefined);
+  const [promoCode, setPromoCode] = useState<number | undefined>(undefined);
+  const [event, setEvent] = useState<string | undefined>();
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleApply = () => {
-    console.log('Applied condition:', { conditionType, conditionValue });
     setIsModalOpen(false);
   };
 
@@ -61,20 +68,122 @@ const Terms: React.FC = () => {
               placeholder={t('marketingCampaigns.day')}
               value={conditionType}
               onChange={setConditionType}
-              options={[]}
+              options={[
+                {
+                  label: t('marketingCampaigns.timePeriod'),
+                  value: 'timePeriod',
+                },
+                {
+                  label: t('marketingCampaigns.dayOfWeek'),
+                  value: 'dayOfWeek',
+                },
+                {
+                  label: t('marketingCampaigns.purchaseAmount'),
+                  value: 'purchaseAmount',
+                },
+                {
+                  label: t('marketingCampaigns.numberOfVisits'),
+                  value: 'numberOfVisits',
+                },
+                {
+                  label: t('marketingCampaigns.promoCodeEntry'),
+                  value: 'promoCodeEntry',
+                },
+                {
+                  label: t('marketingCampaigns.event'),
+                  value: 'event',
+                },
+              ]}
             />
           </div>
           <div>
-            <div className="text-base font-semibold mb-2">
-              {t('marketing.value')}
-            </div>
-            <Select
-              className="w-60"
-              placeholder={t('marketingCampaigns.day')}
-              value={conditionValue}
-              onChange={setConditionValue}
-              options={[]}
-            />
+            {conditionType && (
+              <div className="text-base font-semibold mb-2">
+                {t('marketing.value')}
+              </div>
+            )}
+            {conditionType === 'timePeriod' && (
+              <div className="flex space-x-4">
+                <TimePicker
+                  value={time}
+                  format="HH:mm"
+                  onChange={time => setTime(time)}
+                  placeholder={t('finance.selTime')}
+                  className="w-1/2 sm:w-full"
+                />
+                <TimePicker
+                  value={time}
+                  format="HH:mm"
+                  onChange={time => setTime(time)}
+                  placeholder={t('finance.selTime')}
+                  className="w-1/2 sm:w-full"
+                />
+              </div>
+            )}
+            {conditionType === 'dayOfWeek' && (
+              <Select
+                className="w-60"
+                mode='multiple'
+                placeholder={t('marketingCampaigns.day')}
+                value={conditionValue}
+                onChange={setConditionValue}
+                options={[
+                  { label: t('marketingCampaigns.monday'), value: 'monday' },
+                  { label: t('marketingCampaigns.tuesday'), value: 'tuesday' },
+                  {
+                    label: t('marketingCampaigns.wednesday'),
+                    value: 'wednesday',
+                  },
+                  {
+                    label: t('marketingCampaigns.thursday'),
+                    value: 'thursday',
+                  },
+                  { label: t('marketingCampaigns.friday'), value: 'friday' },
+                  {
+                    label: t('marketingCampaigns.saturday'),
+                    value: 'saturday',
+                  },
+                  { label: t('marketingCampaigns.sunday'), value: 'sunday' },
+                ]}
+              />
+            )}
+            {conditionType === 'purchaseAmount' && (
+              <Input
+                type="number"
+                className="w-60"
+                placeholder={t('marketingCampaigns.day')}
+                value={purchaseAmount}
+                onChange={e => setPurchaseAmount(Number(e.target.value))}
+                suffix={<div>₽</div>}
+              />
+            )}
+            {conditionType === 'numberOfVisits' && (
+              <Input
+                type="number"
+                className="w-60"
+                placeholder={t('techTasks.enterDaysCount')}
+                value={visits}
+                onChange={e => setVisits(Number(e.target.value))}
+              />
+            )}
+            {conditionType === 'promoCodeEntry' && (
+              <Input
+                type="number"
+                className="w-60"
+                placeholder={t('subscriptions.enter')}
+                value={promoCode}
+                onChange={e => setPromoCode(Number(e.target.value))}
+              />
+            )}
+            {conditionType === 'event' && (
+              <Select
+                className="w-60"
+                placeholder={t('marketingCampaigns.day')}
+                value={event}
+                onChange={setEvent}
+                options={[]}
+              />
+            )}
           </div>
         </div>
       </Modal>
