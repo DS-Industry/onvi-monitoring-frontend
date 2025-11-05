@@ -33,6 +33,7 @@
     "axios": "^1.7.5",
     "chart.js": "^4.4.3",
     "dayjs": "^1.11.12",
+    "ejs": "^3.1.10",
     "firebase": "^11.7.3",
     "flowbite": "^2.5.1",
     "i18next": "^23.12.1",
@@ -54,6 +55,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/lodash": "^4.17.7",
     "@types/node": "^22.5.5",
     "@types/react": "19.2.2",
