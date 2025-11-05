@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Row, Col, Card, Typography, Upload, } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { DownloadOutlined, RightOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import { CameraOutlined } from '@ant-design/icons';
+
+import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import type { UploadProps } from 'antd';
+import TipTapEditor from '@/components/ui/Input/TipTapEditor';
+import PhonePreview from '@/components/ui/PhonePreview';
+
+const { Text } = Typography;
 
 interface BasicDataProps {
   isEditable?: boolean;
@@ -16,6 +23,50 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
+
+  const [editorContent, setEditorContent] = useState('<h1>Бесплатный пылесос!</h1><p>В далеком цифровом мире, среди тысяч приложений и программ, жил-был маленький робот по имени Онвик. Он был необычным: его корпус блестел, как только что начищенная машина, а глаза светились яркими голубыми диодами — точь-в-точь как фары суперкара. С самого рождения Онвик обожал автомобили...</p>');
+  const [bannerImage, setBannerImage] = useState<string | null>(null);
+
+
+  const handleImageChange: UploadProps['onChange'] = (info) => {
+    const { file } = info;
+
+    const fileObj = file.originFileObj || file;
+
+    if (fileObj instanceof File) {
+      const imageUrl = URL.createObjectURL(fileObj);
+      setBannerImage(imageUrl);
+    } else if (file.status === 'done' && file.response?.url) {
+      setBannerImage(file.response.url);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    if (bannerImage) {
+      URL.revokeObjectURL(bannerImage);
+      setBannerImage(null);
+    }
+  };
+
+  const uploadProps: UploadProps = {
+    onChange: handleImageChange,
+    showUploadList: false,
+    accept: 'image/*',
+    maxCount: 1,
+    beforeUpload: (file) => {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        console.error('File must be an image');
+        return Upload.LIST_IGNORE;
+      }
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        console.error('Image size must be less than 5MB');
+        return Upload.LIST_IGNORE;
+      }
+      return false;
+    },
+  };
 
   const defaultValues = {
     name: '',
@@ -100,54 +151,96 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   <Button>{t('marketingCampaigns.banner')}</Button>
                 </div>
               </div>
-              <div>
-                <div className="text-text01 text-sm font-semibold">
-                  {t('marketingCampaigns.description')}
-                </div>
-                <Form.Item
-                  help={errors.description?.message}
-                  validateStatus={errors.description ? 'error' : undefined}
-                >
-                  <Input.TextArea
-                    placeholder={t('marketingLoyalty.enterDesc')}
-                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
-                    {...register('description', {
-                      required: t('validation.descriptionRequired'),
-                    })}
-                    value={formData.description}
-                    onChange={e =>
-                      handleInputChange('description', e.target.value)
-                    }
-                    rows={4}
-                    status={errors.description ? 'error' : ''}
-                    disabled={!isEditable}
-                  />
-                </Form.Item>
-              </div>
-              <div>
-                <div className="text-text01 text-sm font-semibold">
-                  {t('marketingCampaigns.bannerIcon')}
-                </div>
-                <div className="text-text02 text-xs">
-                  {t('marketingCampaigns.optimally')}
-                </div>
-                <div className="flex flex-wrap justify-center items-center gap-2 border h-14 w-96 rounded-lg">
-                  <label
-                    htmlFor="file-upload"
-                    className="flex items-center text-primary02 cursor-pointer space-x-2"
+
+
+              <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+                <Col xs={24} lg={12}>
+                  <Card
+                    title="Контент акции"
+                    styles={{
+                      body: {
+                        padding: 24,
+                      },
+                    }}
                   >
-                    <DownloadOutlined />
-                    <div>{t('warehouse.select')}</div>
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept=".xlsx, .xls"
-                    className="hidden"
-                  />
-                  <div className="text-text01">{t('warehouse.or')}</div>
-                </div>
-              </div>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary">Настройка отображения кампании в приложении</Text>
+                    </div>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text strong style={{ display: 'block', marginBottom: 8 }}>
+                        Описание в приложении
+                      </Text>
+                      <TipTapEditor
+                        value={editorContent}
+                        onChange={setEditorContent}
+                      />
+                    </div>
+                    <div>
+                      <Text strong style={{ display: 'block', marginBottom: 8 }}>
+                        Баннер/иконка в приложении
+                      </Text>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: '12px' }}>
+                        (оптимально: 166 x 166 px - иконка, 343 x 180 px - для баннера)
+                      </Text>
+                      {bannerImage ? (
+                        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 8 }}>
+                          <img
+                            src={bannerImage}
+                            alt="Banner preview"
+                            style={{
+                              maxWidth: '100%',
+                              maxHeight: '200px',
+                              borderRadius: '8px',
+                              objectFit: 'contain',
+                            }}
+                          />
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={handleRemoveImage}
+                            style={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              background: 'rgba(255, 255, 255, 0.9)',
+                            }}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      ) : null}
+                      <Upload {...uploadProps}>
+                        <Button icon={<UploadOutlined />}>
+                          {bannerImage ? 'Заменить изображение' : 'Выберите файл или перетащите сюда'}
+                        </Button>
+                      </Upload>
+                    </div>
+                  </Card>
+                </Col>
+
+                <Col xs={24} lg={12}>
+                  <div className="flex gap-4 items-center">
+                    <div>
+                      <PhonePreview
+                        content={editorContent}
+                        bannerImage={bannerImage}
+                        type="news"
+                      />
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="transform scale-[0.9] origin-center">
+                        <PhonePreview
+                          content={editorContent}
+                          bannerImage={bannerImage}
+                          type="main"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
             </div>
           </div>
         </div>
