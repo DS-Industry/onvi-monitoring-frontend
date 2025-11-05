@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CalendarOutlined,
@@ -6,10 +6,20 @@ import {
   LineChartOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { Button, Card } from 'antd';
+import { Button, Card, Select } from 'antd';
+import TransactionAnalyticsChart from '@/components/ui/TransactionAnalyticsChart';
 
 const Stats: React.FC = () => {
   const { t } = useTranslation();
+  const [period, setPeriod] = useState<'lastMonth' | 'lastWeek' | 'lastYear'>(
+    'lastMonth'
+  );
+
+  const periodOptions = [
+    { value: 'lastWeek', label: t('marketingLoyalty.lastWeek') },
+    { value: 'lastMonth', label: t('marketingLoyalty.lastMonth') },
+    { value: 'lastYear', label: t('marketingLoyalty.lastYear') },
+  ];
 
   const statsCards = [
     {
@@ -75,6 +85,29 @@ const Stats: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      <div className="grid grid-cols-1">
+        <Card className="shadow-md">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-text01">
+              {t('marketingCampaigns.uses')}
+            </h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              <Select
+                value={period}
+                onChange={value => {
+                  setPeriod(value);
+                }}
+                options={periodOptions}
+                className="w-full sm:w-[150px]"
+              />
+            </div>
+          </div>
+
+          <TransactionAnalyticsChart data={[]} />
+        </Card>
+      </div>
+
       <div className="flex justify-end gap-2 mt-auto">
         <Button className="w-full sm:w-auto">
           {t('marketingLoyalty.saveAndExit')}

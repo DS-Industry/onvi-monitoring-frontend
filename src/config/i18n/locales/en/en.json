@@ -1918,6 +1918,7 @@
     "event": "Event",
     "selectEvent": "Enter event",
     "displaying": "Displaying marketing campaign usage statistics",
-    "cashback": "Cashback for the promotion period:"
+    "cashback": "Cashback for the promotion period:",
+    "uses": "Number of uses"
   }
 }
