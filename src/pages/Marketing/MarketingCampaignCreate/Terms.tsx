@@ -42,7 +42,7 @@ const Terms: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
-     <ConditionModal
+      <ConditionModal
         open={isModalOpen}
         onCancel={handleCloseModal}
         onApply={handleApply}
@@ -67,59 +67,65 @@ const Terms: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className='text-lg font-semibold'>{t('marketingCampaigns.if')}</div>
-        {conditions.map((cond, index) => {
-          let valueDisplay = '';
-          if (
-            cond.type === 'timePeriod' &&
-            cond.value?.start &&
-            cond.value?.end
-          ) {
-            valueDisplay = `${cond.value.start} - ${cond.value.end}`;
-          } else if (Array.isArray(cond.value)) {
-            valueDisplay = cond.value
-              .map(v => t(`marketingCampaigns.${v}`) || v)
-              .join(', ');
-          } else {
-            valueDisplay = cond.value;
-          }
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3">
+          <div className="flex items-center justify-center h-24 text-lg font-semibold">
+            {t('marketingCampaigns.if')}
+          </div>
 
-          return (
-            <React.Fragment key={index}>
-              <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<CloseOutlined />}
-                  className="!absolute top-1 right-1 text-text02 hover:text-primary02"
-                  onClick={() =>
-                    setConditions(conditions.filter((_, i) => i !== index))
-                  }
-                />
+          <div className="flex flex-wrap gap-3 flex-1">
+            {conditions.map((cond, index) => {
+              let valueDisplay = '';
+              if (
+                cond.type === 'timePeriod' &&
+                cond.value?.start &&
+                cond.value?.end
+              ) {
+                valueDisplay = `${cond.value.start} - ${cond.value.end}`;
+              } else if (Array.isArray(cond.value)) {
+                valueDisplay = cond.value
+                  .map(v => t(`common.${v}`) || v)
+                  .join(', ');
+              } else {
+                valueDisplay = cond.value;
+              }
 
-                <div className="flex flex-col items-center justify-center text-center px-2">
-                  <div className="text-sm font-semibold text-text01">
-                    {t(`marketingCampaigns.${cond.type}`)}
+              return (
+                <React.Fragment key={index}>
+                  <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
+                    <Button
+                      size="small"
+                      type="text"
+                      icon={<CloseOutlined />}
+                      className="!absolute top-1 right-1 text-text02 hover:text-primary02"
+                      onClick={() =>
+                        setConditions(conditions.filter((_, i) => i !== index))
+                      }
+                    />
+                    <div className="flex flex-col items-center justify-center text-center px-2">
+                      <div className="text-sm font-semibold text-text01">
+                        {t(`marketingCampaigns.${cond.type}`)}
+                      </div>
+                      <div className="text-sm text-text02">{valueDisplay}</div>
+                    </div>
                   </div>
-                  <div className="text-sm text-text02">{valueDisplay}</div>
-                </div>
-              </div>
 
-              {index < conditions.length - 1 && (
-                <div className="text-primary02 font-semibold border-primary02 border-b-[0.5px]">
-                  {index % 2 === 0 ? t('common.and') : t('common.or')}
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
+                  {index < conditions.length - 1 && (
+                    <div className="flex items-center justify-center text-primary02 font-semibold">
+                      {t('common.and')}
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
 
-        <div
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
-          onClick={handleOpenModal}
-        >
-          <PlusOutlined style={{ fontSize: 18 }} />
+            <div onClick={handleOpenModal} className='flex items-center justify-center h-24'>
+              <PlusOutlined
+                style={{ fontSize: 18 }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -140,82 +146,127 @@ const Terms: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="text-text01">{t('marketingCampaigns.discount')}</div>
-        <Input
-          type="number"
-          className="w-28"
-          value={percentage}
-          suffix={<div>%</div>}
-          onChange={e => setPercentage(Number(e.target.value))}
-        />
-      </div>
 
-      <div className="flex flex-wrap gap-4 mt-5">
-        <div
-          onClick={() => {
-            setCard('percent');
-          }}
-          className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-            card === 'percent' ? 'bg-white border-primary02' : 'bg-opacity02'
-          } rounded-2xl transition-all duration-200 hover:shadow-md`}
-        >
-          <div
-            className={`flex justify-center text-center items-center ${
-              card === 'percent' ? 'text-primary02' : 'text-text01'
-            }`}
-          >
-            <PercentageOutlined className="font-semibold text-primary02" />
-            <div className="ml-2 font-semibold text-base">
-              {t('marketing.discount')}
-            </div>
+      <div className="flex flex-wrap gap-4 mt-5 items-start">
+        <div className="flex flex-col items-center min-h-[150px]">
+          <div className="h-[48px] flex items-center justify-center">
+            {card === 'percent' && (
+              <div className="flex items-center space-x-3">
+                <div className="text-text01">
+                  {t('marketingCampaigns.discount')}
+                </div>
+                <Input
+                  type="number"
+                  className="w-28"
+                  value={percentage}
+                  suffix={<div>%</div>}
+                  onChange={e => setPercentage(Number(e.target.value))}
+                />
+              </div>
+            )}
           </div>
-          <div className={`px-4 text-sm ${'text-text02'} font-normal`}>
-            {t('marketingCampaigns.give')}
+
+          <div
+            onClick={() => setCard('percent')}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
+              card === 'percent' ? 'bg-white border-primary02' : 'bg-opacity02'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+          >
+            <div
+              className={`flex justify-center items-center ${
+                card === 'percent' ? 'text-primary02' : 'text-text01'
+              }`}
+            >
+              <PercentageOutlined className="font-semibold text-primary02" />
+              <div className="ml-2 font-semibold text-base">
+                {t('marketing.discount')}
+              </div>
+            </div>
+            <div className="px-4 text-sm text-text02 font-normal">
+              {t('marketingCampaigns.give')}
+            </div>
           </div>
         </div>
-        <div
-          onClick={() => {
-            setCard('graph');
-          }}
-          className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-            card === 'graph' ? 'bg-white border-primary02' : 'bg-opacity02'
-          } rounded-2xl transition-all duration-200 hover:shadow-md`}
-        >
-          <div
-            className={`flex justify-center text-center items-center ${
-              card === 'graph' ? 'text-primary02' : 'text-text01'
-            }`}
-          >
-            <RiseOutlined className="font-semibold text-primary02" />
-            <div className="ml-2 font-semibold text-base">
-              {t('marketingCampaigns.increased')}
-            </div>
+
+        <div className="flex flex-col items-center min-h-[150px]">
+          <div className="h-[48px] flex items-center justify-center">
+            {card === 'graph' && (
+              <div className="flex items-center space-x-3">
+                <div className="text-text01">
+                  {t('marketingCampaigns.cashback')}
+                </div>
+                <Input
+                  type="number"
+                  className="w-28"
+                  value={percentage}
+                  suffix={<div>%</div>}
+                  onChange={e => setPercentage(Number(e.target.value))}
+                />
+              </div>
+            )}
           </div>
-          <div className={`px-4 text-sm ${'text-text02'} font-normal`}>
-            {t('marketingCampaigns.increase')}
+
+          <div
+            onClick={() => setCard('graph')}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
+              card === 'graph' ? 'bg-white border-primary02' : 'bg-opacity02'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+          >
+            <div
+              className={`flex justify-center items-center ${
+                card === 'graph' ? 'text-primary02' : 'text-text01'
+              }`}
+            >
+              <RiseOutlined className="font-semibold text-primary02" />
+              <div className="ml-2 font-semibold text-base">
+                {t('marketingCampaigns.increased')}
+              </div>
+            </div>
+            <div className="px-4 text-sm text-text02 font-normal">
+              {t('marketingCampaigns.increase')}
+            </div>
           </div>
         </div>
-        <div
-          onClick={() => {
-            setCard('diamond');
-          }}
-          className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-            card === 'diamond' ? 'bg-white border-primary02' : 'bg-opacity02'
-          } rounded-2xl transition-all duration-200 hover:shadow-md`}
-        >
-          <div
-            className={`flex justify-center text-center items-center ${
-              card === 'diamond' ? 'text-primary02' : 'text-text01'
-            }`}
-          >
-            <BoxPlotOutlined className="font-semibold text-primary02" />
-            <div className="ml-2 font-semibold text-base">
-              {t('marketingCampaigns.accrual')}
-            </div>
+
+        <div className="flex flex-col items-center min-h-[150px]">
+          <div className="h-[48px] flex items-center justify-center">
+            {card === 'diamond' && (
+              <div className="flex items-center space-x-3">
+                <div className="text-text01">{t('marketing.accrue')}</div>
+                <Input
+                  type="number"
+                  className="w-28"
+                  value={percentage}
+                  suffix={
+                    <div className="text-text02">
+                      {t('loyaltyRequests.points')}
+                    </div>
+                  }
+                  onChange={e => setPercentage(Number(e.target.value))}
+                />
+              </div>
+            )}
           </div>
-          <div className={`px-4 text-sm ${'text-text02'} font-normal`}>
-            {t('marketingCampaigns.award')}
+
+          <div
+            onClick={() => setCard('diamond')}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
+              card === 'diamond' ? 'bg-white border-primary02' : 'bg-opacity02'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+          >
+            <div
+              className={`flex justify-center items-center ${
+                card === 'diamond' ? 'text-primary02' : 'text-text01'
+              }`}
+            >
+              <BoxPlotOutlined className="font-semibold text-primary02" />
+              <div className="ml-2 font-semibold text-base">
+                {t('marketingCampaigns.accrual')}
+              </div>
+            </div>
+            <div className="px-4 text-sm text-text02 font-normal">
+              {t('marketingCampaigns.award')}
+            </div>
           </div>
         </div>
       </div>

@@ -1916,6 +1916,8 @@
     "numberOfVisits": "Number of visits",
     "promoCodeEntry": "Promo code entry",
     "event": "Event",
-    "selectEvent": "Enter event"
+    "selectEvent": "Enter event",
+    "displaying": "Displaying marketing campaign usage statistics",
+    "cashback": "Cashback for the promotion period:"
   }
 }

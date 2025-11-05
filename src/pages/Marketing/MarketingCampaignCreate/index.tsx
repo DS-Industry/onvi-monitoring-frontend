@@ -7,12 +7,14 @@ import {
   CreditCardOutlined,
   CarOutlined,
   FireOutlined,
+  LineChartOutlined,
 } from '@ant-design/icons';
 import BasicInformation from './BasicInformation';
 import Terms from './Terms';
 import Promotion from './Promotion';
 import Geography from './Geography';
 import { Steps } from 'antd';
+import Stats from './Stats';
 
 const { Step } = Steps;
 
@@ -42,6 +44,11 @@ const MarketingCampaignCreate: React.FC = () => {
       title: t('marketingCampaigns.geography'),
       content: <Geography />,
       icon: <FireOutlined />,
+    },
+    {
+      title: t('marketingLoyalty.stats'),
+      content: <Stats />,
+      icon: <LineChartOutlined />,
     },
   ];
 
