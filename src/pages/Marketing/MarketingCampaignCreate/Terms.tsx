@@ -3,81 +3,52 @@ import { useTranslation } from 'react-i18next';
 import {
   BoxPlotOutlined,
   CheckOutlined,
+  CloseOutlined,
   GiftOutlined,
   PercentageOutlined,
   PlusOutlined,
   RightOutlined,
   RiseOutlined,
 } from '@ant-design/icons';
-import { Modal, Select, Button, Input } from 'antd';
+import { Button, Input } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
+import ConditionModal from './ConditionModal';
 
 const Terms: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [conditionType, setConditionType] = useState<string | undefined>();
-  const [conditionValue, setConditionValue] = useState<string | undefined>();
   const [percentage, setPercentage] = useState<number>(0);
   const [card, setCard] = useState<'percent' | 'graph' | 'diamond'>('percent');
+  const [currentCondition, setCurrentCondition] = useState<{
+    type?: string;
+    value?: any;
+  }>({});
+  const [conditions, setConditions] = useState<
+    { type?: string; value?: any }[]
+  >([]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleApply = () => {
-    console.log('Applied condition:', { conditionType, conditionValue });
+    if (currentCondition.type && currentCondition.value) {
+      setConditions(prev => [...prev, currentCondition]);
+    }
+    setCurrentCondition({});
     setIsModalOpen(false);
   };
 
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
-      <Modal
+     <ConditionModal
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={[
-          <Button key="cancel" onClick={handleCloseModal}>
-            {t('common.cancel')}
-          </Button>,
-          <Button
-            key="apply"
-            type="primary"
-            onClick={handleApply}
-            disabled={!conditionType || !conditionValue}
-          >
-            {t('marketing.apply')}
-          </Button>,
-        ]}
-        centered
-        className="rounded-2xl"
-      >
-        <div className="flex flex-col space-y-6 mb-40">
-          <div>
-            <div className="text-base font-semibold mb-2">
-              {t('marketingCampaigns.conditionType')}
-            </div>
-            <Select
-              className="w-60"
-              placeholder={t('marketingCampaigns.day')}
-              value={conditionType}
-              onChange={setConditionType}
-              options={[]}
-            />
-          </div>
-          <div>
-            <div className="text-base font-semibold mb-2">
-              {t('marketing.value')}
-            </div>
-            <Select
-              className="w-60"
-              placeholder={t('marketingCampaigns.day')}
-              value={conditionValue}
-              onChange={setConditionValue}
-              options={[]}
-            />
-          </div>
-        </div>
-      </Modal>
+        onApply={handleApply}
+        currentCondition={currentCondition}
+        setCurrentCondition={setCurrentCondition}
+      />
       <div className="flex items-center justify-center">
         <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
           <div className="flex items-center space-x-4">
@@ -96,10 +67,54 @@ const Terms: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <div className="text-lg font-semibold">
-          {t('marketingCampaigns.if')}
-        </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className='text-lg font-semibold'>{t('marketingCampaigns.if')}</div>
+        {conditions.map((cond, index) => {
+          let valueDisplay = '';
+          if (
+            cond.type === 'timePeriod' &&
+            cond.value?.start &&
+            cond.value?.end
+          ) {
+            valueDisplay = `${cond.value.start} - ${cond.value.end}`;
+          } else if (Array.isArray(cond.value)) {
+            valueDisplay = cond.value
+              .map(v => t(`marketingCampaigns.${v}`) || v)
+              .join(', ');
+          } else {
+            valueDisplay = cond.value;
+          }
+
+          return (
+            <React.Fragment key={index}>
+              <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
+                <Button
+                  size="small"
+                  type="text"
+                  icon={<CloseOutlined />}
+                  className="!absolute top-1 right-1 text-text02 hover:text-primary02"
+                  onClick={() =>
+                    setConditions(conditions.filter((_, i) => i !== index))
+                  }
+                />
+
+                <div className="flex flex-col items-center justify-center text-center px-2">
+                  <div className="text-sm font-semibold text-text01">
+                    {t(`marketingCampaigns.${cond.type}`)}
+                  </div>
+                  <div className="text-sm text-text02">{valueDisplay}</div>
+                </div>
+              </div>
+
+              {index < conditions.length - 1 && (
+                <div className="text-primary02 font-semibold border-primary02 border-b-[0.5px]">
+                  {index % 2 === 0 ? t('common.and') : t('common.or')}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+
         <div
           className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
           onClick={handleOpenModal}
