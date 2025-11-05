@@ -15,12 +15,18 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import ConditionModal from './ConditionModal';
 
+enum CardType {
+  percent = 'percent',
+  graph = 'graph',
+  diamond = 'diamond',
+}
+
 const Terms: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [percentage, setPercentage] = useState<number>(0);
-  const [card, setCard] = useState<'percent' | 'graph' | 'diamond'>('percent');
+  const [card, setCard] = useState<CardType>(CardType.percent);
   const [currentCondition, setCurrentCondition] = useState<{
     type?: string;
     value?: any;
@@ -119,7 +125,10 @@ const Terms: React.FC = () => {
               );
             })}
 
-            <div onClick={handleOpenModal} className='flex items-center justify-center h-24'>
+            <div
+              onClick={handleOpenModal}
+              className="flex items-center justify-center h-24"
+            >
               <PlusOutlined
                 style={{ fontSize: 18 }}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
@@ -150,7 +159,7 @@ const Terms: React.FC = () => {
       <div className="flex flex-wrap gap-4 mt-5 items-start">
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
-            {card === 'percent' && (
+            {card === CardType.percent && (
               <div className="flex items-center space-x-3">
                 <div className="text-text01">
                   {t('marketingCampaigns.discount')}
@@ -167,14 +176,14 @@ const Terms: React.FC = () => {
           </div>
 
           <div
-            onClick={() => setCard('percent')}
+            onClick={() => setCard(CardType.percent)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === 'percent' ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.percent ? 'bg-white border-primary02' : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
               className={`flex justify-center items-center ${
-                card === 'percent' ? 'text-primary02' : 'text-text01'
+                card === CardType.percent ? 'text-primary02' : 'text-text01'
               }`}
             >
               <PercentageOutlined className="font-semibold text-primary02" />
@@ -190,7 +199,7 @@ const Terms: React.FC = () => {
 
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
-            {card === 'graph' && (
+            {card === CardType.graph && (
               <div className="flex items-center space-x-3">
                 <div className="text-text01">
                   {t('marketingCampaigns.cashback')}
@@ -207,14 +216,14 @@ const Terms: React.FC = () => {
           </div>
 
           <div
-            onClick={() => setCard('graph')}
+            onClick={() => setCard(CardType.graph)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === 'graph' ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.graph ? 'bg-white border-primary02' : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
               className={`flex justify-center items-center ${
-                card === 'graph' ? 'text-primary02' : 'text-text01'
+                card === CardType.graph ? 'text-primary02' : 'text-text01'
               }`}
             >
               <RiseOutlined className="font-semibold text-primary02" />
@@ -230,7 +239,7 @@ const Terms: React.FC = () => {
 
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
-            {card === 'diamond' && (
+            {card === CardType.diamond && (
               <div className="flex items-center space-x-3">
                 <div className="text-text01">{t('marketing.accrue')}</div>
                 <Input
@@ -249,14 +258,14 @@ const Terms: React.FC = () => {
           </div>
 
           <div
-            onClick={() => setCard('diamond')}
+            onClick={() => setCard(CardType.diamond)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === 'diamond' ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.diamond ? 'bg-white border-primary02' : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
               className={`flex justify-center items-center ${
-                card === 'diamond' ? 'text-primary02' : 'text-text01'
+                card === CardType.diamond ? 'text-primary02' : 'text-text01'
               }`}
             >
               <BoxPlotOutlined className="font-semibold text-primary02" />
