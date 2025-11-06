@@ -12,9 +12,7 @@ import useSWR from 'swr';
 import {
   createNewMarketingCampaign,
   getLoyaltyPrograms,
-  getPublicLoyaltyPrograms,
   LoyaltyProgramsResponse,
-  LoyaltyProgramStatus,
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
@@ -35,20 +33,9 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       ? `${user.name[0].charAt(0)}${user.name[1].charAt(0)}`.toUpperCase()
       : user.name.charAt(0).toUpperCase();
 
-  const { data: programsResponse, isLoading: programsLoading } = useSWR(
-    'public-loyalty-programs',
-    () =>
-      getPublicLoyaltyPrograms({
-        status: LoyaltyProgramStatus.ACTIVE,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 30000,
-    }
-  );
-
-   const { data: loyaltyProgramsData } = useSWR<LoyaltyProgramsResponse[]>(
+  const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR<
+    LoyaltyProgramsResponse[]
+  >(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
     () => getLoyaltyPrograms(user.organizationId),
     {
@@ -58,11 +45,9 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     }
   );
 
-  const publicPrograms = programsResponse?.programs ?? [];
-
-  const programOptions = publicPrograms.map(program => ({
-    label: program.name,
-    value: program.id,
+  const programOptions = loyaltyProgramsData?.map(program => ({
+    label: program.props.name,
+    value: String(program.props.id),
   }));
 
   const defaultValues = {
@@ -86,7 +71,10 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         description: formData.description,
         launchDate: formData.launchDate,
         endDate: formData.endDate,
-        ltyProgramParticipantId: loyaltyProgramsData?.find(item => item.props.id === formData.ltyProgramId)?.props.participantId || 0
+        ltyProgramParticipantId:
+          loyaltyProgramsData?.find(
+            item => item.props.id === Number(formData.ltyProgramId)
+          )?.props.participantId || 0,
       })
   );
 
