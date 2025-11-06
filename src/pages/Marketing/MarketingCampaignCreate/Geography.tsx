@@ -1,19 +1,22 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getMarketingCampaignById, getPosesParticipants, PosResponse } from '@/services/api/marketing';
+import useSWRMutation from 'swr/mutation';
+import { getMarketingCampaignById, getPosesParticipants, PosResponse, updateMarketingCampaign, getLoyaltyPrograms, UpdateMarketingCampaignRequest, MarketingCampaignResponse } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { GlobalOutlined, PlayCircleFilled } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 import GeographyList from './GeographyList';
+import { useUser } from '@/hooks/useUserStore';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const currentStep = Number(searchParams.get('step')) || 1;
+  const user = useUser();
 
   const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign, isValidating } = useSWR(
     marketingCampaignId
@@ -36,6 +39,22 @@ const Geography: React.FC = () => {
     { revalidateOnFocus: false, revalidateOnReconnect: false }
   );
 
+  const { data: loyaltyProgramsData } = useSWR(
+    user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
+    () => getLoyaltyPrograms(user.organizationId),
+    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+
+  const { trigger: triggerUpdate, isMutating: isUpdating } = useSWRMutation<
+    MarketingCampaignResponse,
+    Error,
+    [string, number],
+    UpdateMarketingCampaignRequest
+  >(
+    ['user/loyalty/marketing-campaigns', marketingCampaignId],
+    async ([, id], { arg }) => updateMarketingCampaign(id, arg)
+  );
+
   const [visibleParticipants, setVisibleParticipants] = useState<PosResponse[]>([]);
 
   const [sheetPosition, setSheetPosition] = useState(0);
@@ -48,10 +67,64 @@ const Geography: React.FC = () => {
     setVisibleParticipants(selected);
   }, []);
 
-  const goBack = () => {
-    updateSearchParams(searchParams, setSearchParams, {
-      step: currentStep - 1,
-    });
+  const handleSaveAndExit = async () => {
+    if (!marketingCampaignId || !loyaltyProgramId) {
+      message.error(t('marketing.errorCampaign'));
+      return;
+    }
+
+    const selectedPosIds = visibleParticipants.map(pos => pos.id);
+    const selectedProgram = loyaltyProgramsData?.find(
+      item => item.props.id === loyaltyProgramId
+    );
+
+    if (!selectedProgram) {
+      message.error(t('marketing.errorCampaign'));
+      return;
+    }
+
+    try {
+      const updateRequest: UpdateMarketingCampaignRequest = {
+        posIds: selectedPosIds,
+        ltyProgramParticipantId: selectedProgram.props.participantId,
+      };
+
+      await triggerUpdate(updateRequest);
+      updateSearchParams(searchParams, setSearchParams, {
+        step: currentStep - 1,
+      });
+    } catch (error) {
+      message.error(t('marketing.errorCampaign'));
+    }
+  };
+
+  const handleLaunch = async () => {
+    if (!marketingCampaignId || !loyaltyProgramId) {
+      message.error(t('marketing.errorCampaign'));
+      return;
+    }
+
+    const selectedPosIds = visibleParticipants.map(pos => pos.id);
+    const selectedProgram = loyaltyProgramsData?.find(
+      item => item.props.id === loyaltyProgramId
+    );
+
+    if (!selectedProgram) {
+      message.error(t('marketing.errorCampaign'));
+      return;
+    }
+
+    try {
+      const updateRequest: UpdateMarketingCampaignRequest = {
+        posIds: selectedPosIds,
+        ltyProgramParticipantId: selectedProgram.props.participantId,
+      };
+
+      await triggerUpdate(updateRequest);
+      updateSearchParams(searchParams, setSearchParams, { step: 4 });
+    } catch (error) {
+      message.error(t('marketing.errorCampaign'));
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -173,10 +246,9 @@ const Geography: React.FC = () => {
               participants={participantsData}
               onSelectionChange={handleSelectionChange}
               showButtons={true}
-              onBack={currentStep > 1 ? goBack : undefined}
-              onLaunch={() =>
-                updateSearchParams(searchParams, setSearchParams, { step: 4 })
-              }
+              onBack={currentStep > 1 ? handleSaveAndExit : undefined}
+              onLaunch={handleLaunch}
+              initialSelectedIds={marketCampaignByIdData?.posIds}
             />
           </div>
         </div>
@@ -186,6 +258,7 @@ const Geography: React.FC = () => {
             <GeographyList
               participants={participantsData}
               onSelectionChange={handleSelectionChange}
+              initialSelectedIds={marketCampaignByIdData?.posIds}
             />
           </div>
         </div>
@@ -193,7 +266,7 @@ const Geography: React.FC = () => {
 
       <div className="hidden sm:flex justify-end gap-2 mt-3 px-4 pb-4 flex-shrink-0">
         {currentStep > 1 && (
-          <Button onClick={goBack} className="w-full sm:w-auto">
+          <Button onClick={handleSaveAndExit} loading={isUpdating} className="w-full sm:w-auto">
             {t('marketingLoyalty.saveAndExit')}
           </Button>
         )}
@@ -202,9 +275,8 @@ const Geography: React.FC = () => {
           type="primary"
           icon={<PlayCircleFilled />}
           className="w-full sm:w-auto"
-          onClick={() =>
-            updateSearchParams(searchParams, setSearchParams, { step: 4 })
-          }
+          onClick={handleLaunch}
+          loading={isUpdating}
         >
           {t('marketing.launchNow')}
         </Button>

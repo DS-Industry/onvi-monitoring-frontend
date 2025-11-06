@@ -12,6 +12,7 @@ interface GeographyListProps {
   showButtons?: boolean;
   onBack?: () => void;
   onLaunch?: () => void;
+  initialSelectedIds?: number[];
 }
 
 const GeographyList: React.FC<GeographyListProps> = ({
@@ -20,10 +21,12 @@ const GeographyList: React.FC<GeographyListProps> = ({
   showButtons = false,
   onBack,
   onLaunch,
+  initialSelectedIds,
 }) => {
   const { t } = useTranslation();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const previousParticipantsRef = useRef<string>('');
+  const previousInitialSelectedIdsRef = useRef<string>('');
   const onSelectionChangeRef = useRef(onSelectionChange);
   const initializedRef = useRef(false);
 
@@ -34,33 +37,36 @@ const GeographyList: React.FC<GeographyListProps> = ({
   useEffect(() => {
     const currentIdsString = participants.map(p => p.id).sort().join(',');
     const previousIdsString = previousParticipantsRef.current;
+    const currentInitialIdsString = (initialSelectedIds || []).sort().join(',');
+    const previousInitialIdsString = previousInitialSelectedIdsRef.current;
 
-    if (currentIdsString !== previousIdsString) {
+    const participantsChanged = currentIdsString !== previousIdsString;
+    const initialSelectedIdsChanged = currentInitialIdsString !== previousInitialIdsString;
+
+    if (participantsChanged || (initialSelectedIdsChanged && participants.length > 0)) {
       if (participants.length > 0) {
-        const ids = participants.map(p => p.id);
+        const ids = initialSelectedIds && initialSelectedIds.length > 0
+          ? initialSelectedIds.filter(id => participants.some(p => p.id === id))
+          : participants.map(p => p.id);
         setSelectedIds(ids);
         previousParticipantsRef.current = currentIdsString;
+        previousInitialSelectedIdsRef.current = currentInitialIdsString;
         initializedRef.current = true;
         if (onSelectionChangeRef.current) {
-          onSelectionChangeRef.current(participants);
+          const selected = participants.filter(p => ids.includes(p.id));
+          onSelectionChangeRef.current(selected);
         }
       } else {
         setSelectedIds([]);
         previousParticipantsRef.current = '';
+        previousInitialSelectedIdsRef.current = '';
         initializedRef.current = false;
         if (onSelectionChangeRef.current) {
           onSelectionChangeRef.current([]);
         }
       }
-    } else if (participants.length > 0 && !initializedRef.current) {
-      const ids = participants.map(p => p.id);
-      setSelectedIds(ids);
-      initializedRef.current = true;
-      if (onSelectionChangeRef.current) {
-        onSelectionChangeRef.current(participants);
-      }
     }
-  }, [participants]);
+  }, [participants, initialSelectedIds]);
 
   const handleToggle = (id: number, checked: boolean) => {
     setSelectedIds(prev => {

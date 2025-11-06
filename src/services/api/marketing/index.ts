@@ -979,7 +979,7 @@ export async function updateMarketingCampaign(
   request: UpdateMarketingCampaignRequest
 ): Promise<MarketingCampaignResponse> {
   const response: AxiosResponse<MarketingCampaignResponse> = await api.put(
-    `user/loyalty/marketing-campaigns/${id}`,
+    `user/loyalty/marketing-campaign/edit/${id}`,
     request
   );
   return response.data;
