@@ -15,6 +15,9 @@ import Promotion from './Promotion';
 import Geography from './Geography';
 import { Steps } from 'antd';
 import Stats from './Stats';
+import BasicInformationUpdate from './update/BasicInformationUpdate';
+import { getMarketingCampaignById } from '@/services/api/marketing';
+import useSWR from 'swr';
 
 const { Step } = Steps;
 
@@ -24,10 +27,29 @@ const MarketingCampaignCreate: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
 
+  const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+
+  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+
+  const {
+    data: marketingCampaign,
+    isValidating,
+    isLoading,
+    mutate,
+  } = useSWR(
+    marketingCampaignId
+      ? [`get-marketing-campaign-by-id`, marketingCampaignId]
+      : null,
+    () => getMarketingCampaignById(marketingCampaignId),
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
   const steps = [
     {
       title: t('warehouse.basic'),
-      content: <BasicInformation />,
+      content: isUpdate ? <BasicInformationUpdate campaign={marketingCampaign} isLoading={isLoading || isValidating} mutate={mutate} /> : <BasicInformation />,
       icon: <SettingOutlined />,
     },
     {
@@ -85,11 +107,7 @@ const MarketingCampaignCreate: React.FC = () => {
           onChange={handleStepClick}
         >
           {steps.map((step, index) => (
-            <Step
-              key={index}
-              title={step.title}
-              icon={null}
-            />
+            <Step key={index} title={step.title} icon={null} />
           ))}
         </Steps>
         <div className="mt-5">
