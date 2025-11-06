@@ -11,7 +11,9 @@ import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
 import {
   createNewMarketingCampaign,
+  getLoyaltyPrograms,
   getPublicLoyaltyPrograms,
+  LoyaltyProgramsResponse,
   LoyaltyProgramStatus,
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
@@ -46,6 +48,16 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     }
   );
 
+   const { data: loyaltyProgramsData } = useSWR<LoyaltyProgramsResponse[]>(
+    user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
+    () => getLoyaltyPrograms(user.organizationId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
   const publicPrograms = programsResponse?.programs ?? [];
 
   const programOptions = publicPrograms.map(program => ({
@@ -74,6 +86,7 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         description: formData.description,
         launchDate: formData.launchDate,
         endDate: formData.endDate,
+        ltyProgramParticipantId: loyaltyProgramsData?.find(item => item.props.id === formData.ltyProgramId)?.props.participantId || 0
       })
   );
 

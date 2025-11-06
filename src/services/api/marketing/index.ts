@@ -1423,7 +1423,8 @@ export type MarketingCampaignRequestBody = {
   endDate?: Date;
   description?: string;
   ltyProgramId: number;
-}
+  ltyProgramParticipantId: number;
+};
 
 type MarketingCampaignResponseBody = {
   id: number;
@@ -1452,13 +1453,128 @@ type MarketingCampaignResponseBody = {
     id: number;
     name: string;
   };
-}
+};
 
 export async function createNewMarketingCampaign(
   request: MarketingCampaignRequestBody
 ): Promise<MarketingCampaignResponseBody> {
   const response: AxiosResponse<MarketingCampaignResponseBody> = await api.post(
     'user/loyalty/marketing-campaign/create',
+    request
+  );
+  return response.data;
+}
+
+export enum MarketingCampaignConditionType {
+  TIME_RANGE = 'TIME_RANGE',
+  WEEKDAY = 'WEEKDAY',
+  EVENT = 'EVENT',
+  VISIT_COUNT = 'VISIT_COUNT',
+  PURCHASE_AMOUNT = 'PURCHASE_AMOUNT',
+  PROMOCODE_ENTRY = 'PROMOCODE_ENTRY',
+}
+
+export enum Weekday {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
+  SUNDAY = 'SUNDAY',
+}
+
+type MarketingCampaignConditionResponseDto = {
+  id: number;
+  type: MarketingCampaignConditionType;
+  order: number;
+  startTime?: string;
+  endTime?: string;
+  weekdays?: Weekday[];
+  visitCount?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  promocodeId?: number;
+  promocode?: {
+    id: number;
+    code: string;
+  };
+  benefitId?: number;
+  benefit?: {
+    id: number;
+    name: string;
+  };
+};
+
+type MarketingCampaignConditionsResponseDto = {
+  campaignId: number;
+  conditions: MarketingCampaignConditionResponseDto[];
+};
+
+export async function getMarketingConditionsById(
+  id: number
+): Promise<MarketingCampaignConditionsResponseDto> {
+  const response: AxiosResponse<MarketingCampaignConditionsResponseDto> =
+    await api.get(`user/loyalty/marketing-campaigns/${id}/conditions`);
+  return response.data;
+}
+
+type CreateMarketingCampaignConditionDto = {
+  type: MarketingCampaignConditionType;
+  order?: number;
+  startTime?: Date;
+  endTime?: Date;
+  weekdays?: Weekday[];
+  visitCount?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  promocodeId?: number;
+  benefitId?: number;
+};
+
+export async function createNewMarketingConditions(
+  request: CreateMarketingCampaignConditionDto,
+  id: number
+): Promise<MarketingCampaignConditionsResponseDto> {
+  const response: AxiosResponse<MarketingCampaignConditionsResponseDto> =
+    await api.post(
+      `user/loyalty/marketing-campaigns/${id}/conditions`,
+      request
+    );
+  return response.data;
+}
+
+export async function deleteMarketingCondition(
+  id: number
+): Promise<{ message: string }> {
+  const response: AxiosResponse<{ message: string }> = await api.delete(
+    `marketing-campaigns/conditions/${id}`
+  );
+  return response.data;
+}
+
+type MarketingCampaignUpdateDto = {
+  name?: string;
+  type?: 'PROMOCODE' | 'DISCOUNT';
+  launchDate?: Date;
+  endDate?: Date;
+  description?: string;
+  ltyProgramId?: number;
+  ltyProgramParticipantId?: number;
+  posIds?: number[];
+  discountType?: 'FIXED' | 'PERCENTAGE';
+  discountValue?: number;
+  promocode?: string;
+  maxUsage?: number;
+  status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'CANCELLED';
+};
+
+export async function updateMarketingCampaigns(
+  request: MarketingCampaignUpdateDto,
+  id: number
+): Promise<MarketingCampaignResponseBody> {
+  const response: AxiosResponse<MarketingCampaignResponseBody> = await api.put(
+    `user/loyalty/marketing-campaign/edit/${id}`,
     request
   );
   return response.data;
