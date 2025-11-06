@@ -108,7 +108,7 @@ const MarketingCampaigns: React.FC = () => {
           <Link
             to={{
               pathname: '/marketing/campaign/create',
-              search: `?marketingCampaignId=${record.id}`,
+              search: `?marketingCampaignId=${record.id}&mode=edit`,
             }}
             className="text-primary02 hover:text-primary02_Hover font-semibold"
           >
@@ -235,7 +235,16 @@ const MarketingCampaigns: React.FC = () => {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
             {promotions.map((card, i) => (
-              <CampaignCard key={i} campaign={card} loading={isLoading} />
+              <CampaignCard
+                key={i}
+                campaign={card}
+                loading={isLoading}
+                onClick={() => {
+                  navigate(
+                    `/marketing/campaign/create/${card.id}?marketingCampaignId=${card.id}&step=1&mode=edit`
+                  );
+                }}
+              />
             ))}
           </div>
           <div className="mt-4">
