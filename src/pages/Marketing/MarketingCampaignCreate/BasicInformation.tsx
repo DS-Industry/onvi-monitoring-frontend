@@ -10,11 +10,13 @@ import { RightOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
 import {
-  getPublicLoyaltyPrograms,
-  LoyaltyProgramStatus,
+  createNewMarketingCampaign,
+  getLoyaltyPrograms,
+  LoyaltyProgramsResponse,
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
+import useSWRMutation from 'swr/mutation';
 
 interface BasicDataProps {
   isEditable?: boolean;
@@ -31,37 +33,50 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       ? `${user.name[0].charAt(0)}${user.name[1].charAt(0)}`.toUpperCase()
       : user.name.charAt(0).toUpperCase();
 
-  const { data: programsResponse, isLoading: programsLoading } = useSWR(
-    'public-loyalty-programs',
-    () =>
-      getPublicLoyaltyPrograms({
-        status: LoyaltyProgramStatus.ACTIVE,
-      }),
+  const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR<
+    LoyaltyProgramsResponse[]
+  >(
+    user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
+    () => getLoyaltyPrograms(user.organizationId),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 30000,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
     }
   );
 
-  const publicPrograms = programsResponse?.programs ?? [];
-
-  const programOptions = publicPrograms.map(program => ({
-    label: program.name,
-    value: program.id,
+  const programOptions = loyaltyProgramsData?.map(program => ({
+    label: program.props.name,
+    value: String(program.props.id),
   }));
 
   const defaultValues = {
-    loyaltyProgramId: '',
+    ltyProgramId: null,
     name: '',
-    description: '',
-    dateStart: '',
-    dateEnd: '',
+    description: undefined,
+    launchDate: new Date(),
+    endDate: undefined,
   };
 
   const [formData, setFormData] = useState(defaultValues);
 
   const { register, handleSubmit, setValue, errors } = useFormHook(formData);
+
+  const { trigger: createMarketingCampaign, isMutating } = useSWRMutation(
+    [`create-marketing-campaign`],
+    async () =>
+      createNewMarketingCampaign({
+        name: formData.name,
+        ltyProgramId: Number(formData.ltyProgramId),
+        description: formData.description,
+        launchDate: formData.launchDate,
+        endDate: formData.endDate,
+        ltyProgramParticipantId:
+          loyaltyProgramsData?.find(
+            item => item.props.id === Number(formData.ltyProgramId)
+          )?.props.participantId || 0,
+      })
+  );
 
   const handleInputChange = (
     field: keyof typeof defaultValues,
@@ -73,9 +88,13 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
   const onSubmit = async () => {
     try {
-      updateSearchParams(searchParams, setSearchParams, {
-        step: 2,
-      });
+      const result = await createMarketingCampaign();
+      if (result) {
+        updateSearchParams(searchParams, setSearchParams, {
+          step: 2,
+          marketingCampaignId: result.id,
+        });
+      }
       showToast(t('marketing.loyaltyCreated'), 'success');
     } catch (error) {
       console.error('Error during form submission: ', error);
@@ -109,25 +128,21 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   {t('routes.loyalty')}
                 </div>
                 <Form.Item
-                  help={errors.loyaltyProgramId?.message}
-                  validateStatus={errors.loyaltyProgramId ? 'error' : undefined}
+                  help={errors.ltyProgramId?.message}
+                  validateStatus={errors.ltyProgramId ? 'error' : undefined}
                 >
                   <Select
                     placeholder={t('loyaltyProgramsTable.selectProgram')}
                     className="w-full sm:w-auto sm:max-w-[280px] lg:max-w-[384px]"
                     options={programOptions}
-                    {...register('loyaltyProgramId', {
+                    {...register('ltyProgramId', {
                       required: t('validation.loyaltyProgramRequired'),
                     })}
-                    value={
-                      formData.loyaltyProgramId === ''
-                        ? undefined
-                        : formData.loyaltyProgramId
-                    }
-                    onChange={value =>
-                      handleInputChange('loyaltyProgramId', value)
-                    }
-                    status={errors.loyaltyProgramId ? 'error' : ''}
+                    value={formData.ltyProgramId}
+                    onChange={value => {
+                      handleInputChange('ltyProgramId', String(value));
+                    }}
+                    status={errors.ltyProgramId ? 'error' : ''}
                     disabled={!isEditable}
                     loading={programsLoading}
                   />
@@ -185,20 +200,20 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                 <div className="flex items-start gap-3">
                   <Form.Item
                     className="mb-0 min-h-[72px]"
-                    help={errors.dateStart?.message}
-                    validateStatus={errors.dateStart ? 'error' : undefined}
+                    help={errors.launchDate?.message}
+                    validateStatus={errors.launchDate ? 'error' : undefined}
                   >
                     <DatePicker
                       className="w-40 sm:w-auto sm:min-w-[160px]"
                       value={
-                        formData.dateStart ? dayjs(formData.dateStart) : null
+                        formData.launchDate ? dayjs(formData.launchDate) : null
                       }
-                      {...register('dateStart', {
+                      {...register('launchDate', {
                         required: t('validation.startDateRequired'),
                       })}
                       onChange={date =>
                         handleInputChange(
-                          'dateStart',
+                          'launchDate',
                           date ? date.toISOString() : ''
                         )
                       }
@@ -208,20 +223,14 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   <div className="flex items-center h-6  mt-1 text-text02">
                     {t('analysis.endDate')}
                   </div>
-                  <Form.Item
-                    className="mb-0 min-h-[72px]"
-                    help={errors.dateEnd?.message}
-                    validateStatus={errors.dateEnd ? 'error' : undefined}
-                  >
+                  <Form.Item className="mb-0 min-h-[72px]">
                     <DatePicker
                       className="w-40 sm:w-auto sm:min-w-[160px]"
-                      value={formData.dateEnd ? dayjs(formData.dateEnd) : null}
-                      {...register('dateEnd', {
-                        required: t('validation.finishDateRequired'),
-                      })}
+                      value={formData.endDate ? dayjs(formData.endDate) : null}
+                      {...register('endDate')}
                       onChange={date =>
                         handleInputChange(
-                          'dateEnd',
+                          'endDate',
                           date ? date.toISOString() : ''
                         )
                       }
@@ -241,9 +250,11 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     {initials}
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium text-text02">{user.name} {user.surname} ({t('techTasks.you')})</div>
+                    <div className="font-medium text-text02">
+                      {user.name} {user.surname} ({t('techTasks.you')})
+                    </div>
                   </div>
-                </div> 
+                </div>
               </div>
             </div>
           </div>
@@ -269,6 +280,7 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
+            loading={isMutating}
           >
             {t('common.next')}
           </Button>
