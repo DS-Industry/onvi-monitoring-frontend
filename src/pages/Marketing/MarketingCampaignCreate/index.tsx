@@ -75,6 +75,7 @@ const MarketingCampaignCreate: React.FC = () => {
   ];
 
   const handleStepClick = (stepIndex: number) => {
+    if (!isUpdate) return;
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('step', (stepIndex + 1).toString());
     setSearchParams(newSearchParams);
