@@ -64,7 +64,7 @@ const MarketingCampaignCreate: React.FC = () => {
         <div className="flex items-center space-x-10">
           <div
             className="flex text-primary02 cursor-pointer"
-            onClick={() => navigate('/marketing/loyalty')}
+            onClick={() => navigate('/marketing/campaigns')}
           >
             <ArrowLeftOutlined />
             <p className="ms-2">{t('login.back')}</p>
@@ -78,20 +78,20 @@ const MarketingCampaignCreate: React.FC = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
-          <Steps
-            current={currentStep}
-            size="default"
-            labelPlacement="vertical"
-            onChange={handleStepClick}
-          >
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                title={step.title}
-                icon={null}
-              />
-            ))}
-          </Steps>
+        <Steps
+          current={currentStep}
+          size="default"
+          labelPlacement="vertical"
+          onChange={handleStepClick}
+        >
+          {steps.map((step, index) => (
+            <Step
+              key={index}
+              title={step.title}
+              icon={null}
+            />
+          ))}
+        </Steps>
         <div className="mt-5">
           <div>{steps[currentStep].content}</div>
         </div>
