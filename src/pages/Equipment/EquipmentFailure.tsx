@@ -369,7 +369,7 @@ const EquipmentFailure: React.FC = () => {
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Incident' },
-    { action: 'update', subject: 'Incident' },
+    { action: 'create', subject: 'Incident' },
   ]);
 
   const columnsEquipmentFailure: ColumnsType<Incident> = [
