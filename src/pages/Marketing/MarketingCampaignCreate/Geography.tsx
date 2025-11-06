@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getPosesParticipants, PosResponse } from '@/services/api/marketing';
+import { getMarketingCampaignById, getPosesParticipants, PosResponse } from '@/services/api/marketing';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from 'antd';
 import { GlobalOutlined, PlayCircleFilled } from '@ant-design/icons';
@@ -12,8 +12,23 @@ import GeographyList from './GeographyList';
 const Geography: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
+  const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const currentStep = Number(searchParams.get('step')) || 1;
+
+  const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign, isValidating } = useSWR(
+    marketingCampaignId
+      ? [`get-market-campaign-by-id`, marketingCampaignId]
+      : null,
+    () => getMarketingCampaignById(Number(marketingCampaignId)),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false
+    }
+  );
+
+  const loyaltyProgramId = marketCampaignByIdData?.ltyProgramId || 0;
 
   const { data: participantsData = [], isLoading: participantsLoading } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
@@ -135,7 +150,7 @@ const Geography: React.FC = () => {
           <div className="geography-full-map w-full h-full">
             <ParticipantsMap
               participants={visibleParticipants}
-              loading={participantsLoading}
+              loading={participantsLoading || loadingMarketingCampaign || isValidating}
             />
           </div>
         </div>
