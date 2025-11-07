@@ -112,6 +112,17 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
 
   const onSubmit = async () => {
     try {
+      if (
+        campaign &&
+        formData.name === (campaign.name ?? '') &&
+        formData.description === (campaign.description ?? '')
+      ) {
+        updateSearchParams(searchParams, setSearchParams, {
+          step: 2,
+          marketingCampaignId,
+        });
+        return;
+      }
       const result = await updateCampaign({
         ltyProgramId: Number(formData.ltyProgramId),
         name: formData.name,
