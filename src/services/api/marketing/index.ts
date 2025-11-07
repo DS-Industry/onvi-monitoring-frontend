@@ -1553,7 +1553,7 @@ export async function deleteMarketingCondition(
   return response.data;
 }
 
-type MarketingCampaignUpdateDto = {
+export type MarketingCampaignUpdateDto = {
   name?: string;
   type?: 'PROMOCODE' | 'DISCOUNT';
   launchDate?: Date;

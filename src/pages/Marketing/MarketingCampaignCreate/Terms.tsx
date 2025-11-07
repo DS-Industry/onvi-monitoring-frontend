@@ -19,6 +19,8 @@ import {
   deleteMarketingCondition,
   MarketingCampaignConditionType,
   CreateMarketingCampaignConditionDto,
+  updateMarketingCampaigns,
+  MarketingCampaignUpdateDto,
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { useToast } from '@/components/context/useContext';
@@ -34,12 +36,15 @@ const Terms: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [percentage, setPercentage] = useState<number>(0);
+  const [cashback, setCashback] = useState<number>(0);
+  const [points, setPoints] = useState<number>(0);
   const [card, setCard] = useState<CardType>(CardType.percent);
   const [currentCondition, setCurrentCondition] = useState<{
     type?: MarketingCampaignConditionType;
     value?: any;
   }>({});
   const [loadingCondition, setLoadingCondition] = useState(false);
+  const [updatingData, setUpdatingData] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
   const { showToast } = useToast();
 
@@ -318,9 +323,8 @@ const Terms: React.FC = () => {
                 <Input
                   type="number"
                   className="w-28"
-                  value={percentage}
-                  suffix={<div>%</div>}
-                  onChange={e => setPercentage(Number(e.target.value))}
+                  value={cashback}
+                  onChange={e => setCashback(Number(e.target.value))}
                 />
               </div>
             )}
@@ -359,13 +363,13 @@ const Terms: React.FC = () => {
                 <Input
                   type="number"
                   className="w-28"
-                  value={percentage}
+                  value={points}
                   suffix={
                     <div className="text-text02">
                       {t('loyaltyRequests.points')}
                     </div>
                   }
-                  onChange={e => setPercentage(Number(e.target.value))}
+                  onChange={e => setPoints(Number(e.target.value))}
                 />
               </div>
             )}
@@ -401,8 +405,37 @@ const Terms: React.FC = () => {
           type="primary"
           icon={<RightOutlined />}
           iconPosition="end"
-          onClick={() => {
-            updateSearchParams(searchParams, setSearchParams, { step: 3 });
+          loading={updatingData}
+          onClick={async () => {
+            if (!marketingCampaignId) return;
+
+            try {
+              setUpdatingData(true);
+
+              const payload: MarketingCampaignUpdateDto = {};
+
+              if (card === CardType.percent) {
+                payload.discountType = 'PERCENTAGE';
+                payload.discountValue = percentage;
+              } else if (card === CardType.graph) {
+                payload.discountType = 'FIXED';
+                payload.discountValue = cashback;
+              } else if (card === CardType.diamond) {
+                payload.discountType = 'FIXED';
+                payload.discountValue = points;
+              }
+
+              await updateMarketingCampaigns(payload, marketingCampaignId);
+
+              message.success(t('marketingCampaigns.rewardUpdated'));
+
+              updateSearchParams(searchParams, setSearchParams, { step: 3 });
+            } catch (error) {
+              console.error(error);
+              message.error(t('common.somethingWentWrong'));
+            } finally {
+              setUpdatingData(false);
+            }
           }}
         >
           {t('common.next')}
