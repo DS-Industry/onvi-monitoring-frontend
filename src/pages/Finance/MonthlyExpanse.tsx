@@ -303,11 +303,6 @@ const MonthlyExpanse: React.FC = () => {
     { action: 'create', subject: 'ManagerPaper' },
   ]);
 
-  const canDelete = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'delete', subject: 'ManagerPaper' },
-  ]);
-
   const columnsExpanse: ColumnsType<ManagerPeriods> = [
     {
       title: t('table.columns.id'),
@@ -436,7 +431,7 @@ const MonthlyExpanse: React.FC = () => {
     },
   ];
 
-  if (canEdit || canDelete) {
+  if (canEdit) {
     columnsExpanse.push({
       title: t('marketing.actions'),
       dataIndex: 'actions',
@@ -463,7 +458,7 @@ const MonthlyExpanse: React.FC = () => {
         if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
           menuItems.push({ key: 'edit', label: 'Редактировать' });
         }
-        if (canDelete && record.status !== ManagerReportPeriodStatus.SENT) {
+        if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
           menuItems.push({ key: 'delete', label: 'Удалить', danger: true });
         }
 
@@ -541,11 +536,6 @@ const MonthlyExpanse: React.FC = () => {
     }
   };
 
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'update', subject: 'ManagerPaper' },
-  ]);
-
   return (
     <div>
       {contextHolder}
@@ -555,7 +545,7 @@ const MonthlyExpanse: React.FC = () => {
             {t('routes.reportFor')}
           </span>
         </div>
-        {canUpdate && (
+        {canEdit && (
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"

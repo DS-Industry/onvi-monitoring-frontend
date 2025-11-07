@@ -30,6 +30,8 @@ import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { SaveOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { formatRussianPhone } from '@/utils/tableUnits';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
@@ -50,6 +52,7 @@ const EmployeeProfile: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -112,7 +115,9 @@ const EmployeeProfile: React.FC = () => {
 
   const employee = employeeData?.props;
   const { data: workersData, isLoading: loadingWorkers } = useSWR(
-    user.organizationId ? [`get-workers`, employee?.avatar, user.organizationId] : null,
+    user.organizationId
+      ? [`get-workers`, employee?.avatar, user.organizationId]
+      : null,
     () => getWorkers({ organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
@@ -122,16 +127,19 @@ const EmployeeProfile: React.FC = () => {
     }
   );
 
-  const { data: organizationPoses, isLoading: loadingOrganizationPoses } = useSWR(
-    user.organizationId ? [`get-organization-poses`, user.organizationId] : null,
-    () => getPoses({ organizationId: user.organizationId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
+  const { data: organizationPoses, isLoading: loadingOrganizationPoses } =
+    useSWR(
+      user.organizationId
+        ? [`get-organization-poses`, user.organizationId]
+        : null,
+      () => getPoses({ organizationId: user.organizationId }),
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true,
+        shouldRetryOnError: false,
+      }
+    );
 
   const { data: connectedPosesData, isLoading: loadingConnectedPoses } = useSWR(
     workerId !== 0 ? [`get-worker-connected-poses`, workerId] : null,
@@ -298,14 +306,13 @@ const EmployeeProfile: React.FC = () => {
       )
   );
 
-  const { trigger: updatePosConnections, isMutating: updatingPosConnections } = useSWRMutation(
-    ['update-worker-pos-connections'],
-    async () =>
+  const { trigger: updatePosConnections, isMutating: updatingPosConnections } =
+    useSWRMutation(['update-worker-pos-connections'], async () =>
       updateWorkerPosConnections({
         workerId: workerId,
         posIds: selectedPosIds,
       })
-  );
+    );
 
   type FieldType = keyof typeof defaultValues;
 
@@ -416,6 +423,11 @@ const EmployeeProfile: React.FC = () => {
   const handleNextYear = () => {
     setYear(year + 1);
   };
+
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'update', subject: 'Hr' },
+  ]);
 
   return (
     <div className="mt-2">
@@ -741,7 +753,10 @@ const EmployeeProfile: React.FC = () => {
                         classname="w-64"
                         value={formData.registrationAddress}
                         changeValue={e =>
-                          handleInputChange('registrationAddress', e.target.value)
+                          handleInputChange(
+                            'registrationAddress',
+                            e.target.value
+                          )
                         }
                         {...register('registrationAddress')}
                         inputType="secondary"
@@ -816,47 +831,53 @@ const EmployeeProfile: React.FC = () => {
                               className="w-full max-w-md"
                               value={selectedPosIds}
                               onChange={setSelectedPosIds}
-                              options={organizationPoses?.map(pos => ({
-                                label: `${pos.name} - ${pos.address}`,
-                                value: pos.id,
-                              })) || []}
+                              options={
+                                organizationPoses?.map(pos => ({
+                                  label: `${pos.name} - ${pos.address}`,
+                                  value: pos.id,
+                                })) || []
+                              }
                               loading={loadingOrganizationPoses}
                             />
                           </div>
-                          <div className="mt-4">
-                            <Button
-                              type="primary"
-                              onClick={onUpdatePosConnections}
-                              loading={updatingPosConnections}
-                              className="btn-primary"
-                            >
-                              {t('routes.save')}
-                            </Button>
-                          </div>
-                          {connectedPosesData?.poses && connectedPosesData.poses.length > 0 && (
-                            <div className="mt-6">
-                              <div className="text-sm text-text02 mb-2">
-                                {t('hr.currentlyConnected')}
-                              </div>
-                              <div className="space-y-2">
-                                {connectedPosesData.poses.map(pos => (
-                                  <div
-                                    key={pos.id}
-                                    className="flex items-center justify-between p-3 bg-background05 rounded-lg"
-                                  >
-                                    <div>
-                                      <div className="font-medium text-text01">
-                                        {pos.name}
-                                      </div>
-                                      <div className="text-sm text-text02">
-                                        {pos.address.city}, {pos.address.location}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+                          {allowed && (
+                            <div className="mt-4">
+                              <Button
+                                type="primary"
+                                onClick={onUpdatePosConnections}
+                                loading={updatingPosConnections}
+                                className="btn-primary"
+                              >
+                                {t('routes.save')}
+                              </Button>
                             </div>
                           )}
+                          {connectedPosesData?.poses &&
+                            connectedPosesData.poses.length > 0 && (
+                              <div className="mt-6">
+                                <div className="text-sm text-text02 mb-2">
+                                  {t('hr.currentlyConnected')}
+                                </div>
+                                <div className="space-y-2">
+                                  {connectedPosesData.poses.map(pos => (
+                                    <div
+                                      key={pos.id}
+                                      className="flex items-center justify-between p-3 bg-background05 rounded-lg"
+                                    >
+                                      <div>
+                                        <div className="font-medium text-text01">
+                                          {pos.name}
+                                        </div>
+                                        <div className="text-sm text-text02">
+                                          {pos.address.city},{' '}
+                                          {pos.address.location}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>

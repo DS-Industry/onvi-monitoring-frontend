@@ -17,6 +17,8 @@ import { Drawer, Button, Table } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 type PaperTypeRecord = ManagerPaperTypeResponse['props'] & {
   typeName: string;
@@ -34,11 +36,17 @@ const DirectoryArticles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
   const { showToast } = useToast();
   const getStatusTag = getStatusTagRender(t);
+  const userPermissions = usePermissions();
+
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'update', subject: 'ManagerPaper' },
+  ]);
 
   const paperTypes =
     paperTypeData?.map(type => ({
@@ -65,14 +73,17 @@ const DirectoryArticles: React.FC = () => {
     },
     {
       key: 'actions',
-      render: (_, record) => (
-        <Button
-          type="text"
-          icon={<EditOutlined className="text-blue-500 hover:text-blue-700" />}
-          onClick={() => handleUpdate(record.id)}
-          style={{ height: '24px' }}
-        />
-      ),
+      render: (_, record) =>
+        allowed && (
+          <Button
+            type="text"
+            icon={
+              <EditOutlined className="text-blue-500 hover:text-blue-700" />
+            }
+            onClick={() => handleUpdate(record.id)}
+            style={{ height: '24px' }}
+          />
+        ),
     },
   ];
 
@@ -167,13 +178,15 @@ const DirectoryArticles: React.FC = () => {
             {t('routes.direct')}
           </span>
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => setDrawerOpen(true)}
-        >
-          <span className='hidden sm:flex'>{t('routes.add')}</span>
-        </Button>
+        {allowed && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <span className="hidden sm:flex">{t('routes.add')}</span>
+          </Button>
+        )}
       </div>
 
       <div className="mt-8">
