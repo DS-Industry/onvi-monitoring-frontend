@@ -2,18 +2,24 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BoxPlotOutlined,
-  CheckOutlined,
   CloseOutlined,
-  GiftOutlined,
   PercentageOutlined,
   PlusOutlined,
   RightOutlined,
   RiseOutlined,
 } from '@ant-design/icons';
-import { Button, Input } from 'antd';
+import { Button, Input, message } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import ConditionModal from './ConditionModal';
+import useSWR from 'swr';
+import {
+  getMarketingConditionsById,
+  createNewMarketingConditions,
+  deleteMarketingCondition,
+  MarketingCampaignConditionType,
+  CreateMarketingCampaignConditionDto,
+} from '@/services/api/marketing';
 
 enum CardType {
   percent = 'percent',
@@ -28,22 +34,94 @@ const Terms: React.FC = () => {
   const [percentage, setPercentage] = useState<number>(0);
   const [card, setCard] = useState<CardType>(CardType.percent);
   const [currentCondition, setCurrentCondition] = useState<{
-    type?: string;
+    type?: MarketingCampaignConditionType;
     value?: any;
   }>({});
-  const [conditions, setConditions] = useState<
-    { type?: string; value?: any }[]
-  >([]);
+
+  const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+
+  const {
+    data: marketingConditions,
+    mutate: refreshConditions,
+    isLoading,
+  } = useSWR(
+    marketingCampaignId
+      ? [`get-marketing-conditions-by-id`, marketingCampaignId]
+      : null,
+    () => getMarketingConditionsById(marketingCampaignId),
+    { revalidateOnFocus: false }
+  );
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleApply = () => {
-    if (currentCondition.type && currentCondition.value) {
-      setConditions(prev => [...prev, currentCondition]);
+  // ✅ Create new condition
+  const handleApply = async () => {
+    if (!currentCondition.type) {
+      message.warning(t('validation.conditionTypeRequired'));
+      return;
     }
-    setCurrentCondition({});
-    setIsModalOpen(false);
+
+    const payload: CreateMarketingCampaignConditionDto = {
+      type: currentCondition.type,
+    };
+
+    // Shape data according to the type
+    switch (currentCondition.type) {
+      case MarketingCampaignConditionType.TIME_RANGE:
+        payload.startTime = currentCondition.value?.start;
+        payload.endTime = currentCondition.value?.end;
+        break;
+
+      case MarketingCampaignConditionType.WEEKDAY:
+        payload.weekdays = currentCondition.value; // array of weekdays
+        break;
+
+      case MarketingCampaignConditionType.VISIT_COUNT:
+        payload.visitCount = Number(currentCondition.value);
+        break;
+
+      case MarketingCampaignConditionType.PURCHASE_AMOUNT:
+        // if value has min and max amount, handle accordingly
+        if (typeof currentCondition.value === 'object') {
+          payload.minAmount = currentCondition.value.minAmount;
+          payload.maxAmount = currentCondition.value.maxAmount;
+        } else {
+          payload.minAmount = Number(currentCondition.value);
+        }
+        break;
+
+      case MarketingCampaignConditionType.PROMOCODE_ENTRY:
+        payload.promocodeId = Number(currentCondition.value);
+        break;
+
+      case MarketingCampaignConditionType.EVENT:
+        payload.benefitId = Number(currentCondition.value);
+        break;
+    }
+
+    try {
+      await createNewMarketingConditions(payload, marketingCampaignId);
+      message.success(t('marketingCampaigns.conditionAdded'));
+      setCurrentCondition({});
+      setIsModalOpen(false);
+      refreshConditions();
+    } catch (err) {
+      console.error(err);
+      message.error(t('common.somethingWentWrong'));
+    }
+  };
+
+  // ✅ Delete condition
+  const handleDelete = async (conditionId: number) => {
+    try {
+      await deleteMarketingCondition(conditionId);
+      message.success(t('marketingCampaigns.conditionDeleted'));
+      refreshConditions();
+    } catch (err) {
+      console.error(err);
+      message.error(t('common.somethingWentWrong'));
+    }
   };
 
   return (
@@ -55,24 +133,8 @@ const Terms: React.FC = () => {
         currentCondition={currentCondition}
         setCurrentCondition={setCurrentCondition}
       />
-      <div className="flex items-center justify-center">
-        <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-primary02 flex items-center justify-center rounded-full text-white">
-              <CheckOutlined style={{ fontSize: 24 }} />
-            </div>
-            <div>
-              <div className="font-bold text-text01 text-2xl">
-                {t('marketingCampaigns.term')}
-              </div>
-              <div className="text-base03 text-md">
-                {t('marketingCampaigns.settingUp')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
+      {/* --------- IF Section --------- */}
       <div className="flex flex-col gap-3">
         <div className="flex gap-3">
           <div className="flex items-center justify-center h-24 text-lg font-semibold">
@@ -80,43 +142,52 @@ const Terms: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-3 flex-1">
-            {conditions.map((cond, index) => {
+            {isLoading && (
+              <div className="text-text02 italic">{t('common.loading')}...</div>
+            )}
+
+            {marketingConditions?.conditions?.map((cond, index) => {
               let valueDisplay = '';
-              if (
-                cond.type === 'timePeriod' &&
-                cond.value?.start &&
-                cond.value?.end
-              ) {
-                valueDisplay = `${cond.value.start} - ${cond.value.end}`;
-              } else if (Array.isArray(cond.value)) {
-                valueDisplay = cond.value
-                  .map(v => t(`common.${v}`) || v)
-                  .join(', ');
-              } else {
-                valueDisplay = cond.value;
+              switch (cond.type) {
+                case MarketingCampaignConditionType.TIME_RANGE:
+                  valueDisplay = `${cond.startTime} - ${cond.endTime}`;
+                  break;
+                case MarketingCampaignConditionType.WEEKDAY:
+                  valueDisplay = cond.weekdays?.join(', ') ?? '';
+                  break;
+                case MarketingCampaignConditionType.VISIT_COUNT:
+                  valueDisplay = `${t('marketingCampaigns.visits')}: ${cond.visitCount}`;
+                  break;
+                case MarketingCampaignConditionType.PURCHASE_AMOUNT:
+                  valueDisplay = `${t('marketingCampaigns.amount')}: ${cond.minAmount} - ${cond.maxAmount}`;
+                  break;
+                case MarketingCampaignConditionType.PROMOCODE_ENTRY:
+                  valueDisplay = cond.promocode?.code ?? '';
+                  break;
+                default:
+                  valueDisplay = '';
               }
 
               return (
-                <React.Fragment key={index}>
+                <React.Fragment key={cond.id}>
                   <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
                     <Button
                       size="small"
                       type="text"
                       icon={<CloseOutlined />}
                       className="!absolute top-1 right-1 text-text02 hover:text-primary02"
-                      onClick={() =>
-                        setConditions(conditions.filter((_, i) => i !== index))
-                      }
+                      onClick={() => handleDelete(cond.id)}
                     />
+
                     <div className="flex flex-col items-center justify-center text-center px-2">
                       <div className="text-sm font-semibold text-text01">
-                        {t(`marketingCampaigns.${cond.type}`)}
+                        {t(`marketingCampaigns.${cond.type.toLowerCase()}`)}
                       </div>
                       <div className="text-sm text-text02">{valueDisplay}</div>
                     </div>
                   </div>
 
-                  {index < conditions.length - 1 && (
+                  {index < marketingConditions.conditions.length - 1 && (
                     <div className="flex items-center justify-center text-primary02 font-semibold">
                       {t('common.and')}
                     </div>
@@ -138,25 +209,9 @@ const Terms: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-center">
-        <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-primary02 flex items-center justify-center rounded-full text-white">
-              <GiftOutlined style={{ fontSize: 24 }} />
-            </div>
-            <div>
-              <div className="font-bold text-text01 text-2xl">
-                {t('marketingCampaigns.reward')}
-              </div>
-              <div className="text-base03 text-md">
-                {t('marketingCampaigns.sett')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* --------- Reward Cards Section --------- */}
       <div className="flex flex-wrap gap-4 mt-5 items-start">
+        {/* Discount */}
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
             {card === CardType.percent && (
@@ -178,7 +233,9 @@ const Terms: React.FC = () => {
           <div
             onClick={() => setCard(CardType.percent)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.percent ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.percent
+                ? 'bg-white border-primary02'
+                : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
@@ -197,6 +254,7 @@ const Terms: React.FC = () => {
           </div>
         </div>
 
+        {/* Cashback */}
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
             {card === CardType.graph && (
@@ -218,7 +276,9 @@ const Terms: React.FC = () => {
           <div
             onClick={() => setCard(CardType.graph)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.graph ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.graph
+                ? 'bg-white border-primary02'
+                : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
@@ -237,6 +297,7 @@ const Terms: React.FC = () => {
           </div>
         </div>
 
+        {/* Points */}
         <div className="flex flex-col items-center min-h-[150px]">
           <div className="h-[48px] flex items-center justify-center">
             {card === CardType.diamond && (
@@ -260,7 +321,9 @@ const Terms: React.FC = () => {
           <div
             onClick={() => setCard(CardType.diamond)}
             className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.diamond ? 'bg-white border-primary02' : 'bg-opacity02'
+              card === CardType.diamond
+                ? 'bg-white border-primary02'
+                : 'bg-opacity02'
             } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
@@ -286,9 +349,7 @@ const Terms: React.FC = () => {
           icon={<RightOutlined />}
           iconPosition="end"
           onClick={() => {
-            updateSearchParams(searchParams, setSearchParams, {
-              step: 3,
-            });
+            updateSearchParams(searchParams, setSearchParams, { step: 3 });
           }}
         >
           {t('common.next')}
