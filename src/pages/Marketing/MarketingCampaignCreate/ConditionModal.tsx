@@ -1,10 +1,14 @@
 import React from 'react';
 import { Modal, Select, Input, TimePicker, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import {
+  MarketingCampaignConditionType,
+  Weekday,
+} from '@/services/api/marketing';
 
 interface Condition {
-  type?: string;
+  type?: MarketingCampaignConditionType;
   value?: any;
 }
 
@@ -14,6 +18,7 @@ interface ConditionModalProps {
   onApply: (condition: Condition) => void;
   currentCondition: Condition;
   setCurrentCondition: React.Dispatch<React.SetStateAction<Condition>>;
+  loading?: boolean;
 }
 
 const ConditionModal: React.FC<ConditionModalProps> = ({
@@ -22,6 +27,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
   onApply,
   currentCondition,
   setCurrentCondition,
+  loading,
 }) => {
   const { t } = useTranslation();
 
@@ -30,7 +36,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
       ...prev,
       value: {
         ...prev.value,
-        [field]: value ? value.format('HH:mm') : undefined,
+        [field]: value
+          ? dayjs()
+              .hour(value.hour())
+              .minute(value.minute())
+              .second(0)
+              .millisecond(0)
+              .toISOString()
+          : undefined,
       },
     }));
   };
@@ -48,6 +61,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
           type="primary"
           onClick={() => onApply(currentCondition)}
           disabled={!currentCondition.type}
+          loading={loading}
         >
           {t('marketing.apply')}
         </Button>,
@@ -68,22 +82,28 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             options={[
               {
                 label: t('marketingCampaigns.timePeriod'),
-                value: 'timePeriod',
+                value: MarketingCampaignConditionType.TIME_RANGE,
               },
-              { label: t('marketingCampaigns.dayOfWeek'), value: 'dayOfWeek' },
+              {
+                label: t('marketingCampaigns.dayOfWeek'),
+                value: MarketingCampaignConditionType.WEEKDAY,
+              },
               {
                 label: t('marketingCampaigns.purchaseAmount'),
-                value: 'purchaseAmount',
+                value: MarketingCampaignConditionType.PURCHASE_AMOUNT,
               },
               {
                 label: t('marketingCampaigns.numberOfVisits'),
-                value: 'numberOfVisits',
+                value: MarketingCampaignConditionType.VISIT_COUNT,
               },
               {
                 label: t('marketingCampaigns.promoCodeEntry'),
-                value: 'promoCodeEntry',
+                value: MarketingCampaignConditionType.PROMOCODE_ENTRY,
               },
-              { label: t('marketingCampaigns.event'), value: 'event' },
+              {
+                label: t('marketingCampaigns.event'),
+                value: MarketingCampaignConditionType.EVENT,
+              },
             ]}
           />
         </div>
@@ -95,24 +115,36 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             </div>
           )}
 
-          {currentCondition.type === 'timePeriod' && (
+          {currentCondition.type ===
+            MarketingCampaignConditionType.TIME_RANGE && (
             <div className="flex space-x-4">
               <TimePicker
                 format="HH:mm"
-                placeholder={t('filters.dateTime.startTime')}
+                value={
+                  currentCondition.value?.start
+                    ? dayjs(currentCondition.value.start)
+                    : null
+                }
                 onChange={v => handleTimeChange('start', v)}
+                placeholder={t('filters.dateTime.startTime')}
                 className="w-1/2"
               />
+
               <TimePicker
                 format="HH:mm"
-                placeholder={t('filters.dateTime.endTime')}
+                value={
+                  currentCondition.value?.end
+                    ? dayjs(currentCondition.value.end)
+                    : null
+                }
                 onChange={v => handleTimeChange('end', v)}
+                placeholder={t('filters.dateTime.endTime')}
                 className="w-1/2"
               />
             </div>
           )}
 
-          {currentCondition.type === 'dayOfWeek' && (
+          {currentCondition.type === MarketingCampaignConditionType.WEEKDAY && (
             <Select
               mode="multiple"
               className="w-60"
@@ -122,18 +154,19 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 setCurrentCondition(prev => ({ ...prev, value }))
               }
               options={[
-                { label: t('common.monday'), value: 'monday' },
-                { label: t('common.tuesday'), value: 'tuesday' },
-                { label: t('common.wednesday'), value: 'wednesday' },
-                { label: t('common.thursday'), value: 'thursday' },
-                { label: t('common.friday'), value: 'friday' },
-                { label: t('common.saturday'), value: 'saturday' },
-                { label: t('common.sunday'), value: 'sunday' },
+                { label: t('common.monday'), value: Weekday.MONDAY },
+                { label: t('common.tuesday'), value: Weekday.TUESDAY },
+                { label: t('common.wednesday'), value: Weekday.WEDNESDAY },
+                { label: t('common.thursday'), value: Weekday.THURSDAY },
+                { label: t('common.friday'), value: Weekday.FRIDAY },
+                { label: t('common.saturday'), value: Weekday.SATURDAY },
+                { label: t('common.sunday'), value: Weekday.SUNDAY },
               ]}
             />
           )}
 
-          {currentCondition.type === 'purchaseAmount' && (
+          {currentCondition.type ===
+            MarketingCampaignConditionType.PURCHASE_AMOUNT && (
             <Input
               type="number"
               className="w-60"
@@ -149,7 +182,8 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             />
           )}
 
-          {currentCondition.type === 'numberOfVisits' && (
+          {currentCondition.type ===
+            MarketingCampaignConditionType.VISIT_COUNT && (
             <Input
               type="number"
               className="w-60"
@@ -164,7 +198,8 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             />
           )}
 
-          {currentCondition.type === 'promoCodeEntry' && (
+          {currentCondition.type ===
+            MarketingCampaignConditionType.PROMOCODE_ENTRY && (
             <Input
               className="w-60"
               placeholder={t('subscriptions.enter')}
@@ -178,7 +213,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             />
           )}
 
-          {currentCondition.type === 'event' && (
+          {currentCondition.type === MarketingCampaignConditionType.EVENT && (
             <Select
               className="w-60"
               placeholder={t('marketingCampaigns.selectEvent')}
