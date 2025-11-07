@@ -685,6 +685,7 @@ const EmployeeProfile: React.FC = () => {
                         {...register('passportSeries')}
                       />
                       <Input
+                        type='number'
                         title={t('hr.passportNumber')}
                         classname="w-64"
                         inputType="secondary"
@@ -838,6 +839,13 @@ const EmployeeProfile: React.FC = () => {
                                 })) || []
                               }
                               loading={loadingOrganizationPoses}
+                              showSearch={true}
+                              filterOption={(input, option) =>
+                                (option?.label ?? '')
+                                  .toString()
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
                             />
                           </div>
                           {allowed && (
