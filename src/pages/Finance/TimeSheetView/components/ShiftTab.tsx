@@ -256,6 +256,14 @@ const ShiftTab: React.FC = () => {
     userPermissions
   );
 
+  const hasPermissionToDelete = hasPermission(
+    [
+      { subject: 'ShiftReport', action: 'manage' },
+      { subject: 'ShiftReport', action: 'delete' },
+    ],
+    userPermissions
+  );
+
   return (
     <div className="mt-3">
       {contextHolder}
@@ -410,7 +418,7 @@ const ShiftTab: React.FC = () => {
               <></>
             )}
 
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && (
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToDelete && (
               <Button
                 className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
                 type="primary"
