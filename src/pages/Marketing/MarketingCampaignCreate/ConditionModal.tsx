@@ -1,8 +1,11 @@
 import React from 'react';
 import { Modal, Select, Input, TimePicker, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { Dayjs } from 'dayjs';
-import { MarketingCampaignConditionType } from '@/services/api/marketing';
+import dayjs, { Dayjs } from 'dayjs';
+import {
+  MarketingCampaignConditionType,
+  Weekday,
+} from '@/services/api/marketing';
 
 interface Condition {
   type?: MarketingCampaignConditionType;
@@ -15,6 +18,7 @@ interface ConditionModalProps {
   onApply: (condition: Condition) => void;
   currentCondition: Condition;
   setCurrentCondition: React.Dispatch<React.SetStateAction<Condition>>;
+  loading?: boolean;
 }
 
 const ConditionModal: React.FC<ConditionModalProps> = ({
@@ -23,6 +27,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
   onApply,
   currentCondition,
   setCurrentCondition,
+  loading,
 }) => {
   const { t } = useTranslation();
 
@@ -31,7 +36,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
       ...prev,
       value: {
         ...prev.value,
-        [field]: value ? value.format('HH:mm') : undefined,
+        [field]: value
+          ? dayjs()
+              .hour(value.hour())
+              .minute(value.minute())
+              .second(0)
+              .millisecond(0)
+              .toISOString()
+          : undefined,
       },
     }));
   };
@@ -49,6 +61,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
           type="primary"
           onClick={() => onApply(currentCondition)}
           disabled={!currentCondition.type}
+          loading={loading}
         >
           {t('marketing.apply')}
         </Button>,
@@ -107,14 +120,25 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
             <div className="flex space-x-4">
               <TimePicker
                 format="HH:mm"
-                placeholder={t('filters.dateTime.startTime')}
+                value={
+                  currentCondition.value?.start
+                    ? dayjs(currentCondition.value.start)
+                    : null
+                }
                 onChange={v => handleTimeChange('start', v)}
+                placeholder={t('filters.dateTime.startTime')}
                 className="w-1/2"
               />
+
               <TimePicker
                 format="HH:mm"
-                placeholder={t('filters.dateTime.endTime')}
+                value={
+                  currentCondition.value?.end
+                    ? dayjs(currentCondition.value.end)
+                    : null
+                }
                 onChange={v => handleTimeChange('end', v)}
+                placeholder={t('filters.dateTime.endTime')}
                 className="w-1/2"
               />
             </div>
@@ -130,13 +154,13 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 setCurrentCondition(prev => ({ ...prev, value }))
               }
               options={[
-                { label: t('common.monday'), value: 'monday' },
-                { label: t('common.tuesday'), value: 'tuesday' },
-                { label: t('common.wednesday'), value: 'wednesday' },
-                { label: t('common.thursday'), value: 'thursday' },
-                { label: t('common.friday'), value: 'friday' },
-                { label: t('common.saturday'), value: 'saturday' },
-                { label: t('common.sunday'), value: 'sunday' },
+                { label: t('common.monday'), value: Weekday.MONDAY },
+                { label: t('common.tuesday'), value: Weekday.TUESDAY },
+                { label: t('common.wednesday'), value: Weekday.WEDNESDAY },
+                { label: t('common.thursday'), value: Weekday.THURSDAY },
+                { label: t('common.friday'), value: Weekday.FRIDAY },
+                { label: t('common.saturday'), value: Weekday.SATURDAY },
+                { label: t('common.sunday'), value: Weekday.SUNDAY },
               ]}
             />
           )}
