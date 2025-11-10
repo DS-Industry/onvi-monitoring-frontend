@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Form, Input, Row, Col, Card, Typography, Upload, } from 'antd';
+import { Button, Row, Col, Card, Typography, Upload, } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import { CameraOutlined } from '@ant-design/icons';
+import useSWR from 'swr';
 
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import TipTapEditor from '@/components/ui/Input/TipTapEditor';
 import PhonePreview from '@/components/ui/PhonePreview';
+import {
+  upsertMarketingCampaignMobileDisplay,
+  getMarketingCampaignMobileDisplay,
+  MarketingCampaignMobileDisplayType,
+} from '@/services/api/marketing';
+import { uploadFileWithPresignedUrl } from '@/services/api/s3';
 
 const { Text } = Typography;
 
@@ -23,12 +30,47 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
+  const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
-  const [editorContent, setEditorContent] = useState('<h1>Бесплатный пылесос!</h1><p>В далеком цифровом мире, среди тысяч приложений и программ, жил-был маленький робот по имени Онвик. Он был необычным: его корпус блестел, как только что начищенная машина, а глаза светились яркими голубыми диодами — точь-в-точь как фары суперкара. С самого рождения Онвик обожал автомобили...</p>');
+  const [editorContent, setEditorContent] = useState('');
   const [bannerImage, setBannerImage] = useState<string | null>(null);
+  const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [promotionType, setPromotionType] = useState<'icon' | 'banner'>('icon');
+
+  const { data: mobileDisplayData } = useSWR(
+    marketingCampaignId
+      ? [`get-marketing-campaign-mobile-display`, marketingCampaignId]
+      : null,
+    () => getMarketingCampaignMobileDisplay(marketingCampaignId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  useEffect(() => {
+    if (mobileDisplayData) {
+      if (mobileDisplayData.description) {
+        setEditorContent(mobileDisplayData.description);
+      }
 
 
-  const handleImageChange: UploadProps['onChange'] = (info) => {
+      if (mobileDisplayData.imageLink) {
+        setBannerImage(mobileDisplayData.imageLink);
+        setBannerImageUrl(mobileDisplayData.imageLink);
+      }
+
+      if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.PersonalPromocode) {
+        setPromotionType('icon');
+      } else if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.Promo) {
+        setPromotionType('banner');
+      }
+    }
+  }, [mobileDisplayData]);
+
+
+  const handleImageChange: UploadProps['onChange'] = async (info) => {
     const { file } = info;
 
     const fileObj = file.originFileObj || file;
@@ -36,15 +78,33 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     if (fileObj instanceof File) {
       const imageUrl = URL.createObjectURL(fileObj);
       setBannerImage(imageUrl);
+
+      setUploadingImage(true);
+      try {
+        const timestamp = Date.now();
+        const key = `marketing-campaigns/${marketingCampaignId || 'temp'}/mobile-display/${timestamp}-${fileObj.name}`;
+        const uploadedKey = await uploadFileWithPresignedUrl(fileObj, key);
+        const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
+        setBannerImageUrl(s3Url);
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        showToast(t('errors.other.errorDuringFormSubmission') || 'Failed to upload image', 'error');
+      } finally {
+        setUploadingImage(false);
+      }
     } else if (file.status === 'done' && file.response?.url) {
       setBannerImage(file.response.url);
+      setBannerImageUrl(file.response.url);
     }
   };
 
   const handleRemoveImage = () => {
     if (bannerImage) {
-      URL.revokeObjectURL(bannerImage);
+      if (bannerImage.startsWith('blob:')) {
+        URL.revokeObjectURL(bannerImage);
+      }
       setBannerImage(null);
+      setBannerImageUrl(null);
     }
   };
 
@@ -74,22 +134,49 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     description: '',
   };
 
-  const [formData, setFormData] = useState(defaultValues);
+  const [formData] = useState(defaultValues);
 
-  const { register, handleSubmit, setValue, errors } = useFormHook(formData);
-
-  const handleInputChange = (
-    field: keyof typeof defaultValues,
-    value: string
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setValue(field, value);
-  };
+  const { handleSubmit } = useFormHook(formData);
 
   const onSubmit = async () => {
     try {
+      if (!marketingCampaignId) {
+        showToast(t('errors.other.errorDuringFormSubmission') || 'Campaign ID is required', 'error');
+        return;
+      }
+
+      if (!bannerImageUrl) {
+        showToast(t('errors.other.errorDuringFormSubmission') || 'Image is required', 'error');
+        return;
+      }
+
+      const displayType = promotionType === 'icon'
+        ? MarketingCampaignMobileDisplayType.PersonalPromocode
+        : MarketingCampaignMobileDisplayType.Promo;
+
+      const request: {
+        type: MarketingCampaignMobileDisplayType;
+        imageLink: string;
+        description?: string;
+      } = {
+        type: displayType,
+        imageLink: bannerImageUrl,
+      };
+
+      if (displayType === MarketingCampaignMobileDisplayType.Promo) {
+        if (!editorContent || editorContent.trim() === '') {
+          showToast(t('errors.other.errorDuringFormSubmission') || 'Description is required for Promo type', 'error');
+          return;
+        }
+        request.description = editorContent;
+      } else if (editorContent && editorContent.trim() !== '') {
+        request.description = editorContent;
+      }
+
+      await upsertMarketingCampaignMobileDisplay(marketingCampaignId, request);
+
       updateSearchParams(searchParams, setSearchParams, {
-        step: 3,
+        step: 4,
       });
       showToast(t('marketing.loyaltyCreated'), 'success');
     } catch (error) {
@@ -121,40 +208,31 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
           </div>
           <div className="mt-6 sm:mt-8 lg:mt-10">
             <div className="flex flex-col w-full space-y-6">
-              <div>
-                <div className="text-text01 text-sm font-semibold">
-                  {t('marketingCampaigns.name')}
-                </div>
-                <Form.Item
-                  help={errors.name?.message}
-                  validateStatus={errors.name ? 'error' : undefined}
-                >
-                  <Input
-                    placeholder={t('marketingCampaigns.enterName')}
-                    className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
-                    {...register('name', {
-                      required: t('validation.nameRequired'),
-                    })}
-                    value={formData.name}
-                    onChange={e => handleInputChange('name', e.target.value)}
-                    status={errors.name ? 'error' : ''}
-                    disabled={!isEditable}
-                  />
-                </Form.Item>
+
+              <div className="text-text01 text-sm font-semibold">
+                {t('marketingCampaigns.type')}
               </div>
-              <div>
-                <div className="text-text01 text-sm font-semibold">
-                  {t('marketingCampaigns.type')}
-                </div>
-                <div className="flex space-x-2">
-                  <Button>{t('marketingCampaigns.icon')}</Button>
-                  <Button>{t('marketingCampaigns.banner')}</Button>
-                </div>
+              <div className="flex space-x-2">
+                <Button
+                  type={promotionType === 'icon' ? 'primary' : 'default'}
+                  onClick={() => setPromotionType('icon')}
+                  disabled={!isEditable}
+                >
+                  {t('marketingCampaigns.icon')}
+                </Button>
+                <Button
+                  type={promotionType === 'banner' ? 'primary' : 'default'}
+                  onClick={() => setPromotionType('banner')}
+                  disabled={!isEditable}
+                >
+                  {t('marketingCampaigns.banner')}
+                </Button>
+
               </div>
 
 
               <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col xs={24} lg={12}>
+                <Col xs={24} xl={18}>
                   <Card
                     title="Контент акции"
                     styles={{
@@ -211,7 +289,11 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                         </div>
                       ) : null}
                       <Upload {...uploadProps}>
-                        <Button icon={<UploadOutlined />}>
+                        <Button
+                          icon={<UploadOutlined />}
+                          loading={uploadingImage}
+                          disabled={!isEditable || uploadingImage}
+                        >
                           {bannerImage ? 'Заменить изображение' : 'Выберите файл или перетащите сюда'}
                         </Button>
                       </Upload>
@@ -219,8 +301,8 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   </Card>
                 </Col>
 
-                <Col xs={24} lg={12}>
-                  <div className="flex gap-4 items-center">
+                <Col xs={0} xl={6}>
+                  <div className="flex gap-4 items-center transform scale-[0.8] origin-top">
                     <div>
                       <PhonePreview
                         content={editorContent}
@@ -245,7 +327,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
           </div>
         </div>
 
-        <div className="hidden lg:flex lg:w-8/12 rounded-r-lg lg:ml-20"></div>
+        <div className="hidden lg:flex xl:w-8/12 rounded-r-lg xl:ml-20"></div>
       </div>
       {isEditable && (
         <div className="flex justify-end gap-2 mt-3">

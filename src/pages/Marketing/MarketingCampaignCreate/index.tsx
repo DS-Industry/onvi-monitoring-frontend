@@ -94,7 +94,7 @@ const MarketingCampaignCreate: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {t('routes.creatingCampaign')}
+              {isUpdate ? t('routes.editingCampaign') : t('routes.creatingCampaign')}
             </span>
           </div>
         </div>

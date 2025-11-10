@@ -1579,3 +1579,43 @@ export async function updateMarketingCampaigns(
   );
   return response.data;
 }
+
+export enum MarketingCampaignMobileDisplayType {
+  PersonalPromocode = 'PersonalPromocode',
+  Promo = 'Promo',
+}
+
+export type UpsertMarketingCampaignMobileDisplayDto = {
+  type: MarketingCampaignMobileDisplayType;
+  imageLink: string;
+  description?: string;
+};
+
+export type MarketingCampaignMobileDisplayResponseDto = {
+  id: number;
+  marketingCampaignId: number;
+  imageLink: string;
+  description?: string;
+  type: MarketingCampaignMobileDisplayType;
+  createdAt: string;
+  updatedAt: string;
+} | null;
+
+export async function getMarketingCampaignMobileDisplay(
+  id: number
+): Promise<MarketingCampaignMobileDisplayResponseDto> {
+  const response: AxiosResponse<MarketingCampaignMobileDisplayResponseDto> =
+    await api.get(`user/loyalty/marketing-campaigns/${id}/mobile-display`);
+  return response.data;
+}
+
+export async function upsertMarketingCampaignMobileDisplay(
+  id: number,
+  request: UpsertMarketingCampaignMobileDisplayDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.put(
+    `user/loyalty/marketing-campaigns/${id}/mobile-display`,
+    request
+  );
+  return response.data;
+}

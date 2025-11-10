@@ -119,7 +119,8 @@
     "falseDeposit": "False deposit",
     "createLoyalty": "Creating a loyalty program",
     "viewLoyalty": "Viewing a loyalty program",
-    "creatingCampaign": "Creating a Marketing Campaign"
+    "creatingCampaign": "Creating a Marketing Campaign",
+    "editingCampaign": "Editing a Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
