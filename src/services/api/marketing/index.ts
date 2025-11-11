@@ -1627,3 +1627,18 @@ export async function upsertMarketingCampaignMobileDisplay(
   );
   return response.data;
 }
+
+export type CreateMarketingCampaignActionDto = {
+  campaignId: number;
+  actionType: string;
+};
+
+export async function createMarketingCampaignAction(
+  request: CreateMarketingCampaignActionDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.post(
+    'user/loyalty/marketing-campaign/action/create',
+    request
+  );
+  return response.data;
+}

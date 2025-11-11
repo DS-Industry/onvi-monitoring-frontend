@@ -290,16 +290,14 @@ const Terms: React.FC = () => {
 
           <div
             onClick={() => setCard(CardType.percent)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.percent
-                ? 'bg-white border-primary02'
-                : 'bg-opacity02'
-            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.percent
+              ? 'bg-white border-primary02'
+              : 'bg-opacity02'
+              } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center items-center ${
-                card === CardType.percent ? 'text-primary02' : 'text-text01'
-              }`}
+              className={`flex justify-center items-center ${card === CardType.percent ? 'text-primary02' : 'text-text01'
+                }`}
             >
               <PercentageOutlined className="font-semibold text-primary02" />
               <div className="ml-2 font-semibold text-base">
@@ -318,7 +316,7 @@ const Terms: React.FC = () => {
             {card === CardType.graph && (
               <div className="flex items-center space-x-3">
                 <div className="text-text01">
-                  {t('marketingCampaigns.cashback')}
+                  {t('marketingCampaigns.cashbackForPromotionPeriod')}
                 </div>
                 <Input
                   type="number"
@@ -332,16 +330,14 @@ const Terms: React.FC = () => {
 
           <div
             onClick={() => setCard(CardType.graph)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.graph
-                ? 'bg-white border-primary02'
-                : 'bg-opacity02'
-            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.graph
+              ? 'bg-white border-primary02'
+              : 'bg-opacity02'
+              } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center items-center ${
-                card === CardType.graph ? 'text-primary02' : 'text-text01'
-              }`}
+              className={`flex justify-center items-center ${card === CardType.graph ? 'text-primary02' : 'text-text01'
+                }`}
             >
               <RiseOutlined className="font-semibold text-primary02" />
               <div className="ml-2 font-semibold text-base">
@@ -377,16 +373,14 @@ const Terms: React.FC = () => {
 
           <div
             onClick={() => setCard(CardType.diamond)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${
-              card === CardType.diamond
-                ? 'bg-white border-primary02'
-                : 'bg-opacity02'
-            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.diamond
+              ? 'bg-white border-primary02'
+              : 'bg-opacity02'
+              } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center items-center ${
-                card === CardType.diamond ? 'text-primary02' : 'text-text01'
-              }`}
+              className={`flex justify-center items-center ${card === CardType.diamond ? 'text-primary02' : 'text-text01'
+                }`}
             >
               <BoxPlotOutlined className="font-semibold text-primary02" />
               <div className="ml-2 font-semibold text-base">
